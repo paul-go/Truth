@@ -16,9 +16,9 @@ You can think of Truth as a type system without a language. The idea is to use t
 
 ## Getting Started
 
-- If you're interested in learning Truth, most of everything you'll need to know is covered in the language [walk through](https://www.github.com/paul-go/Truth/wiki/Walk-Through.md). 
-- For a more in-depth analysis of how odd cases are handled, see the [language rules](https://www.github.com/paul-go/Truth/wiki/LanguageRules.md) page.
-- If you're interested in reading about the goals of Truth, read the Truth [manifesto](https://www.github.com/paul-go/Truth/wiki/Manifesto.md).
+- If you're interested in learning Truth, most of everything you'll need to know is covered in the language [walk through](https://www.github.com/paul-go/Truth/wiki/Walk-Through). 
+- For a more in-depth analysis of how odd cases are handled, see the [language rules](https://www.github.com/paul-go/Truth/wiki/LanguageRules) page.
+- If you're interested in reading about the goals of Truth, read the Truth [manifesto](https://www.github.com/paul-go/Truth/wiki/Manifesto).
 
 
 
