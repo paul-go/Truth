@@ -6,9 +6,9 @@
 
 Truth makes no distinction between *data* and *typing*. Everything in Truth is both data and typing *at the same time* (because of this, it could be said that Truth is [homoiconic](https://en.wikipedia.org/wiki/Homoiconicity)). This, in addition to a terse, human-friendly syntax, makes Truth a great replacement for JSON, XML, YAML, TOML, or INI when the lack of a well-typed system (characteristic of these languages) is causing you grief.
 
-You can use Truth for type-safe data storage. You can use it as a baseline for generating language-specific scaffolding, or SQL CREATE TABLE statements. It also functions as a disposable hack pad in the early stages of a project, when trying to wrap your head around what the domain *looks like*, from a data-structural point of view. There are likely many other uses as well.
+You can use Truth for type-safe data storage. You can use it as a baseline for generating language-specific scaffolding, or SQL CREATE TABLE statements. It also functions as a disposable hack pad in the early stages of a project, when trying to wrap your head around what the domain *looks like*, from a data-structural point of view, is difficult. There are likely many other uses as well.
 
-Truth draws on ideas from TypeScript, LISP, Python, CSS, Markdown, various theorem provers, and brings many new ideas of it's own. It is believed to be completely [sound](https://en.wikipedia.org/wiki/Soundness), and this will be formally proven at some point in the future.
+Truth draws on ideas from TypeScript, LISP, Python, CSS, Markdown, various theorem provers, and brings many new ideas of its own. It is believed to be completely [sound](https://en.wikipedia.org/wiki/Soundness), and this will be formally proven at some point in the future.
 
 You can think of Truth as a type system without a language. The idea is to use this type system to quickly construct your own type-safe vocabulary that describes your domain. You then plug in "Agents" (which are blocks of code written in TypeScript) that act upon the terms you've defined in your document, and perform various functions such as generating code, API endpoints, or even complete apps.
 
@@ -24,7 +24,7 @@ You can think of Truth as a type system without a language. The idea is to use t
 
 ## Status
 
-We're currently building the Truth compiler, along with integration with Visual Studio Code to allow the standard IDE services (statement completion, code navigation, refactoring, etc). This will be released on GitHub shortly.
+We're currently building the Truth compiler, as well as an integration with Visual Studio Code to allow the standard IDE services (statement completion, code navigation, refactoring, etc). This will be released on GitHub shortly.
 
 
 
