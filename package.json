@@ -1,0 +1,29 @@
+{
+	"name": "truth-compiler",
+	"version": "0.0.1",
+	"description": "Compiler front-end for the Truth language.",
+	"author": "Paul Go",
+	"license": "MIT",
+	"keywords": [
+		"Truth"
+	],
+	"main": "./Build/Core/X.js",
+	"types": "./Build/truth.d.ts",
+	"typings": "./Build/truth.d.ts",
+	"scripts": {
+		"test": "jest",
+		"all": "npm run compile-types-bundler && npm run compile && npm run bundle-code",
+		"compile": "npm run compile-core && npm run bundle-types && npm run compile-core-agents",
+		"compile-core": "cd Core && tsc",
+		"compile-core-agents": "cd CoreAgents && tsc",
+		"compile-types-bundler": "cd TypesBundler && tsc",
+		"bundle-types": "node ./TypesBundler/types.config.js",
+		"bundle-code": "rollup -c"
+	},
+	"jest": {
+		"globalSetup": "./Build/Core/Tests/TestSetup.js"
+	},
+	"devDependencies": {
+		"memfs": "^2.10.1"
+	}
+}

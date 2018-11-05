@@ -1,3 +1,5 @@
+[![][tci badge]][tci link]
+
 ![Hero](Hero.png)
 
 # Truth: A Domain Representation Language
@@ -16,15 +18,16 @@ You can think of Truth as a type system without a language. The idea is to use t
 
 ## Getting Started
 
-- If you're interested in learning Truth, most of everything you'll need to know is covered in the language [walk through](https://www.github.com/paul-go/Truth/wiki/Walk-Through). 
-- For a more in-depth analysis of how odd cases are handled, see the [language rules](https://www.github.com/paul-go/Truth/wiki/LanguageRules) page.
+- If you're interested in learning Truth, most of everything you'll need to know is covered in the language [walk through](https://www.github.com/paul-go/Truth/wiki/Language-Walk-Through). 
+- For an in-depth look at internals of the language, see the [language rules](https://www.github.com/paul-go/Truth/wiki/LanguageRules) page.
 - If you're interested in reading about the goals of Truth, read the Truth [manifesto](https://www.github.com/paul-go/Truth/wiki/Manifesto).
+
 
 
 
 ## Status
 
-We're currently building the Truth compiler, along with integration with Visual Studio Code to allow the standard IDE services (statement completion, code navigation, refactoring, etc). This will be released on GitHub shortly.
+Pre-alpha, under heavy development. Not yet working, but getting close. The Truth compiler is a lightweight, high-performance incremental compiler with zero dependencies. The same core that powers run-time validations will also power editor services (Visual Studio Code).
 
 
 

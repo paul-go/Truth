@@ -1,0 +1,10 @@
+Type
+Primitive : Type
+String : Primitive
+/".*"/ : String
+Number : Primitive
+/\d/ : Number
+Boolean : Primitive
+true : Boolean
+false : Boolean
+Class : Type

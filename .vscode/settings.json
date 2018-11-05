@@ -1,0 +1,12 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+	"files.exclude": {
+		"/Build/**/*": true
+	},
+	"search.exclude": {
+		"/Build/**/*": true
+	},
+	
+	// Causes annoyances with the X bundle format
+	"typescript.suggest.autoImports": false
+}

@@ -1,0 +1,49 @@
+Api.truth
+
+Drive
+
+Phillips : Drive
+Robertson : Drive
+Torx : Drive
+Slotted : Drive
+Hex : Drive
+
+Screw
+	Size : Number
+	Weight : Number
+	Material : Screw Material
+	Drive
+
+Wood Screw : Screw
+	Application : Wood
+	
+Metal Screw : Screw
+	Heat Tolerance : Temperature
+
+Cap Screw : Screw
+	Cap Size : Number
+	Drive : Hex
+
+Bolt
+	Material : Bolt Material
+
+Carriage Bolt : Bolt
+	Head Diameter : Length
+	
+Eye Bolt : Bolt
+	Eye Size : Length
+	
+Hex Bolt : Bolt
+	Hex Size : Length
+
+Washer Type
+
+Flat : Washer Type
+Spring : Washer Type
+Square : Washer Type
+Clipped : Washer Type
+
+Washer
+	Material : Washer Material
+	Type : Washer Type
+	Size : Length

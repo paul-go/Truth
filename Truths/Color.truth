@@ -1,0 +1,11 @@
+Genesis.truth
+Color.js
+
+Color : Type
+
+RgbColor : Color
+
+HslaColor : Color
+	Red : Number
+	
+HslColor : HslaColor
