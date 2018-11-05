@@ -7,7 +7,7 @@ import * as X from "./X";
 export class TypeChecker
 {
 	/** */
-	constructor(private readonly program: X.Program)
+	constructor(program: X.Program)
 	{
 		program.hooks.Revalidate.capture(hook =>
 		{
