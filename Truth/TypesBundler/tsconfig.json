@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es2017",
+		"lib": [
+			"dom",
+			"es7",
+			"es2017",
+			"es2017.object"
+		],
+		"inlineSourceMap": true,
+		"inlineSources": true,
+		"noImplicitThis": true,
+		"noImplicitAny": false,
+		"suppressImplicitAnyIndexErrors": true,
+		"allowJs": false
+	},
+	"files": [
+		"TypesBundler.ts"
+	]
+}

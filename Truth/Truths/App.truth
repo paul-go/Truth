@@ -1,0 +1,63 @@
+Api.truth
+
+//
+// This is an example file that demonstrates usage of Rest.truth.
+//
+
+Customer : User
+	
+	Email : Email
+		Allowed Domain : "truth.org"
+	
+	Quantity : Number
+		Actions
+			NotifyQuantity
+				Trigger : Viewed
+				
+				Name : String
+				Amount : Number
+				
+				Steps
+					: Fields 
+						: Name
+						: Amount
+					
+					: Copy
+						From : Name
+						To : Name
+				
+	Referrer : Customer
+	Customer
+	
+	
+: Domain
+	Customers : Customer...
+
+//
+//
+//
+
+Customer : Class
+	Quantity : NumberField, Number
+		Max : 100
+
+Account : User
+	Name : String
+		Hints
+			Visible : Starred
+			Searchable
+			Editable
+		
+	Email
+	
+	Starred : Boolean
+	
+	// This doesn't work because we already said you can't have a property
+	// on an array. You wouldn't know what would be an account and not.
+	Friends : Account...
+		Hints
+			Searchable : true
+			// You absolutely need nesting for preview
+			// Unless this is not baked into the core?
+			Preview : Account/Something, Account/Else
+	

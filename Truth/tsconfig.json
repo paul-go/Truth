@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es2017",
+		"lib": [
+			"es7",
+			"es2017",
+			"es2017.object"
+		],
+		"inlineSourceMap": true,
+		"inlineSources": true,
+		"noImplicitThis": true,
+		"strict": true,
+		"rootDir": "./",
+		"baseUrl": "./",
+		"stripInternal": true
+	}
+}
