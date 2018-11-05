@@ -74,7 +74,7 @@ export class Defragmenter
 	
 	/**
 	 * Performs a defragmentation query, starting at the
-	 * specified URI. A defragmentation query 
+	 * specified URI.
 	 * 
 	 * @returns An array of Defragment objects that target all
 	 * fragments of the type implied by specified pointer.
