@@ -1,5 +1,3 @@
-[![][tci badge]][tci link]
-
 ![Hero](Hero.png)
 
 # Truth: A Domain Representation Language
