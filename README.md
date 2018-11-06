@@ -17,7 +17,7 @@ You can think of Truth as a type system without a language. The idea is to use t
 ## Getting Started
 
 - If you're interested in learning Truth, most of everything you'll need to know is covered in the language [walk through](https://www.github.com/paul-go/Truth/wiki/Language-Walk-Through). 
-- For an in-depth look at internals of the language, see the [language rules](https://www.github.com/paul-go/Truth/wiki/LanguageRules) page.
+- For an in-depth look at internals of the language, see the [language rules](https://github.com/paul-go/Truth/wiki/Language-Rules) page.
 - If you're interested in reading about the goals of Truth, read the Truth [manifesto](https://www.github.com/paul-go/Truth/wiki/Manifesto).
 
 
