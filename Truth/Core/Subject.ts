@@ -20,12 +20,11 @@ export class Subject
 		if (text.length > len + 1)
 		{
 			this.pluralized = text.slice(-len) === token;
-			this.singularized = text.slice(0, len) === token;
 			this.name = text.slice(
-				this.singularized ? len : 0,
+				0,
 				this.pluralized ? text.length - len : undefined);
 			
-			if (!this.singularized && !this.pluralized)
+			if (!this.pluralized)
 			{
 				const te = X.Syntax.truthExtension;
 				const ae = X.Syntax.agentExtension;
@@ -40,7 +39,7 @@ export class Subject
 		else
 		{
 			this.name = text;
-			this.pluralized = this.singularized = false;
+			this.pluralized = false;
 		}
 	}
 	
@@ -49,9 +48,6 @@ export class Subject
 	
 	/** */
 	readonly pluralized: boolean;
-	
-	/** */
-	readonly singularized: boolean;
 	
 	/** 
 	 * Stores the text of the URI when in the subject is
@@ -66,8 +62,7 @@ export class Subject
 		if (other instanceof Subject)
 			return (
 				this.name === other.name &&
-				this.pluralized === other.pluralized &&
-				this.singularized === other.singularized
+				this.pluralized === other.pluralized
 			);
 		
 		return false;
@@ -76,10 +71,8 @@ export class Subject
 	/** Converts this Subject to it's string representation. */
 	toString()
 	{
-		if (this.uri)
-			return this.uri.toString();
-		
-		const p = X.Syntax.pluralizer;
-		return (this.singularized ? p : "") + this.name + (this.pluralized ? p : "");
+		return this.uri ?
+			this.uri.toString() :
+			this.name + (this.pluralized ? X.Syntax.pluralizer : "");
 	}
 }
