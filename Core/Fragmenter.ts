@@ -103,7 +103,6 @@ export class Fragmenter
 		if (!containingDoc)
 			return null;
 		
-		const containingDocUri = containingDoc.sourceUri.toString();
 		const rootFragment = this.documents.get(containingDoc);
 		if (!rootFragment)
 			return null;
