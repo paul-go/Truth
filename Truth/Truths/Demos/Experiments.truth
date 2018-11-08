@@ -1,0 +1,533 @@
+//
+// The "unspecified types can't act as bases" rule
+// doesn't apply to expressions:
+//
+Number
+Decimal : Number
+Weight : Number
+
+Animal
+	// The type of "Weight" is inferred as Number
+	Weight : Decimal
+	Unit
+		A
+		B
+	/1kg/ : Unit
+	
+Rabbit : Animal
+	
+	// There's actually an unspecified "Weight"
+	// type here, whose type is "Decimal", which
+	// is acquired from "Animal"
+	
+	Head
+		// This Weight type is inferred as
+		// Number, not Decimal.
+		HeadWeight : Weight
+		HeadWeight : 1kg
+
+
+//
+// This example demonstrates "Supergraph inference"
+// The type of the final "C" is:
+//
+// Number, Quantity, Amount
+// 
+// This would be identified using supergraph inference,
+// where we use the bases of the containing type in
+// order to infer the type of an unannotated declaration.
+//
+
+Number
+
+A
+	B
+		C
+
+BaseX
+	A
+		B 
+			C : Number
+
+BaseY
+	A
+		B 
+			C : Amount
+
+Container
+	Child
+		A
+			B
+				C : Quantity
+
+Box
+	Container
+		Child : BaseX, BaseY
+			A
+				B
+					C
+
+
+//
+// Kitchen Sink Example:
+// (This example tries to demonstrate the entire breadth of
+// cases addressed by the Type Construction algorithm.
+//
+
+Number
+
+A
+	B
+		C
+
+BaseX
+	A
+		B 
+			C : Number
+
+BaseY
+	A
+		B 
+			C : Amount
+
+Container
+	Child
+		A
+			B
+				C : Quantity
+
+Box
+	Container
+		Child : BaseX, BaseY
+			A
+				B
+					C
+
+
+//
+// Polymorphic Type Resolution example
+// The code below resolves as expected
+//
+
+Dog
+Cat
+Husky : Dog
+
+Foo
+	Bar : Dog, Cat
+
+Container
+	Husky : GasStation
+	Tabby : Cat
+	
+	MyFoo : Foo
+		Bar : Husky, Tabby
+
+
+//
+// Multiple files don't cause undesirable merging
+//
+
+// GasStations.truth
+GasStation
+Husky : GasStation
+Shell : GasStation
+Irving : GasStation
+Esso : GasStation
+
+// Dogs.truth
+Dog
+Husky : Dog
+Beagle : Dog
+Boxer : Dog
+
+// Athletes.truth
+Athlete
+Boxer : Athlete
+Runner : Athlete
+Swimmer : Athlete
+Cyclist : Athlete
+
+// Everything.truth
+GasStations.truth
+Dogs.truth
+Athletes.truth
+
+GasStations : GasStation...
+	Husky
+	Shell
+	Esso
+
+Dogs : Dog...
+	Husky
+	Boxer
+
+Athletes : Athlete...
+	Runner
+	Boxer
+	Swimmer
+
+
+//
+// Dependent types case
+//
+
+Equation
+	Type : Number
+	Left : Type
+	Right : Type
+
+NumberEquation : Equation
+	Type : Integer
+	
+
+//
+// I can't explain this idea, but basically, when you've
+// got a dependent type in a locality, and the target
+// gets down-typed in a subtype, the thing that being
+// pointed to follows.
+//
+	
+Person
+	TopFriends : Person...
+		Filter : Forwards
+		
+	BottomFriends : TopFriends
+	BottomFriends...
+		Filter : Backwards
+
+Pirate : Person
+	TopFriends : Pirate...
+		: Pirate
+		: Pirate
+		: Pirate
+
+
+//
+//
+//
+
+Number
+	Min : Number
+	Max : Number
+
+
+//
+// What if types are recursive AND dependent?
+//
+
+A
+	B
+		C
+		D : C
+		E : C, B
+
+
+//
+// What if types are recursive AND dependent?
+//
+
+A
+	B
+	C : B
+
+Y
+
+X : A
+	B : Y
+	// C : Y is inferred
+
+
+
+//
+// If you instantiate something, and then down cast something
+// that is referenced within the instantiated package,
+// the types that reference the thing that was downcasted are
+// also down casted.
+//
+
+Animal
+Rabbit : Animal
+
+Person
+	Pet : Animal
+		PetsFriend : Pet
+
+Bob : Person
+	Pet : Rabbit
+		// (PetsFriend : Rabbit)
+
+Person
+	Friend : Person
+
+Pirate : Person
+	// (Friend : Person)
+	// Not a pirate, because Person wasn't instantiated
+	// By "instantiated", we mean that it came in the box
+	// when the container was created
+
+
+//
+// There exists no changes to the definition
+// for "Number" in the inheriting scope, so
+// Decimal / Min Max stays pointing to the
+// same thing.
+//
+Number
+	Min : Number
+	Max : Number
+
+Decimal : Number
+	Min : Number
+	Max : Number
+
+
+//
+// This will work as expected, and all expressions that match
+// Number will be applicable to Min and Max, due to the
+// "Pattern-Bounded Contravariance" behavior of expressions.
+// This example demonstrates dependent subtyping with
+// bounded contravariance.
+//
+NumberField
+	Value : Number
+	Min : Value
+	Max : Value
+
+DecimalField : NumberField
+	Value : Decimal
+
+Class
+	Amount : DecimalField
+		Min : 0.01
+		Max : 0.99
+
+
+//
+//
+//
+
+Number
+/d/ : Number
+Sortable
+
+Bark
+	Thing : Number
+
+Foo
+	Bar
+		Thing : Sortable
+		Sure : Thing
+		Agile : Bar
+
+Foot : Foo
+	Bar : Bark
+		// Thing : Number, Sortable
+
+
+
+//
+// Dependent + Recursive Types
+//
+Thing
+	Widget
+	
+Container
+	Foo : Thing
+	Bar : Foo, Container
+
+MyContainer : Container
+	Foo
+		Widget : Screw
+	(Bar)
+		(Widget : Screw)
+		(Foo : Thing)
+			(Widget : Screw)
+		(Bar : Foo, Container)
+			(Widget : Screw)
+			(Foo : Thing)
+				(Widget : Screw)
+			(Bar : Foo, Container)
+				...
+
+
+//
+// Unioned recursion
+//
+
+A    
+	B
+		C : A, B
+
+// Creates:
+MyA : A
+	(B)
+		(C : A, B)
+			(B)
+				(C : A, B)
+					(B)
+						(C : A, B)
+							(B)
+								// and so on
+							(C: A, B)
+								// and so on
+					(C : A, B)
+						(B)
+							// and so on
+						(C: A, B)
+							// and so on
+			(C : A, B)
+					(B)
+						(C : A, B)
+							(B)
+								// and so on
+							(C: A, B)
+								// and so on
+					(C : A, B)
+						(B)
+							// and so on
+						(C: A, B)
+							// and so on
+	(C : A, B)
+		(B)
+			(C : A, B)
+				(B)
+					// and so on
+				(C: A, B)
+					// and so on
+		(C : A, B)
+			(B)
+				// and so on
+			(C: A, B)
+				// and so on
+
+
+//
+// Discrepant unions are a bit of a problem, in the
+// case when the union of two types results in an
+// unmatchable expression (there is no expression
+// that can match both Number and Boolean).
+//
+
+Number
+Boolean
+/\d/ : Number
+/(true|false)/ : Boolean
+
+TraitA
+	Value : Number
+
+TraitB
+	Value : Boolean
+
+
+// TraitA, TraitB is a discrepant union because
+// they both have a "Value" subtype that define
+// separate expressions that don't have any
+// possible overlapping values
+Person : TraitA, TraitB
+	// Value : Number, Boolean
+
+
+//
+// Can we make a discrepant union in some deeply
+// recursive structure?
+//
+
+A
+	B
+		C : String
+
+X
+	Y
+		Z : Number
+
+AX : A, X
+
+
+//
+// 
+//
+A
+	B : A
+
+X
+	Y
+		Z : X
+
+AX : A, X
+	(B : A)
+		(B : A)
+			(B : A)
+				(B : A)
+	(X)
+		(Y)
+			(Z : X)
+				(Y)
+					(Z : X)
+						(Y)
+							(Z : X)
+()
+
+
+//
+// Inheriting from a recursive structure:
+//
+A
+	B : A
+
+X
+	Y : A
+		Z : X
+
+AX : A, X
+	// Infers:
+	(B : A)
+		(B : A)
+			(B : A)
+				(B : A)
+	(X)
+		(Y)
+			(B : A)
+				(B : A)
+					(B : A)
+						(B : A)
+			(Z : X)
+				(Y)
+					(B : A)
+						(B : A)
+							(B : A)
+								(B : A)
+					(Z : X)
+						(Y)
+							(B : A)
+								(B : A)
+									(B : A)
+										(B : A)
+							(Z : X)
+
+//
+// Merging two recursive structures, with a misaligned "phase"
+// of recursion (meaning the number of containers between the
+// recursion source and target).
+//
+
+P
+	O
+		T : P
+L
+	O
+		C
+			K : L
+
+PotLock : P, L
+	// Infers:
+	(O)
+		(T : P)
+			(O)
+				(T : P)
+		(C)
+			(K : L)
+				(O)
+					(C)
+						(K : L)

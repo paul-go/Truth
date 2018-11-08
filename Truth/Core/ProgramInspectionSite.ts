@@ -2,43 +2,59 @@ import * as X from "./X";
 
 
 /**
- * 
+ * Defines an area in a particular document where Program
+ * inspection can begin.
  */
 export class ProgramInspectionSite
 {
-	/** @internal */
-	constructor(
-		doc: X.Document,
-		line: number,
-		offset: number,
-		defragmenter: X.Defragmenter)
+	/**
+	 * @internal
+	 */
+	constructor(program: X.Program, doc: X.Document, param: InspectionParam)
 	{
+		this.program = program;
 		this.document = doc;
-		this.line = line;
-		this.offset = offset;
-		this.statement = doc.read(line);
-		this.area = this.statement.getAreaKind(offset);
-		this.defragmenter = defragmenter;
-		this.typeConstructor = new X.TypeConstructor(defragmenter);
+		
+		if (param instanceof X.Statement)
+		{
+			this.statement = param;
+		}
+		else if (param instanceof X.Pointer)
+		{
+			this.statement = param.statement;
+			this.pointer = param;
+		}
+		else
+		{
+			this.line = param.line;
+			this.offset = param.offset;
+			this.statement = doc.read(param.line);
+			this.area = this.statement.getAreaKind(param.offset);
+		}
+		
+		this.typeConstructor = new X.TypeConstructor(program);
 	}
 	
 	/** */
-	readonly document: X.Document;
+	private readonly program: X.Program;
 	
 	/** */
-	readonly line: number;
+	private readonly document: X.Document;
 	
 	/** */
-	readonly offset: number;
+	private readonly line: number = -1;
 	
 	/** */
-	readonly area: X.StatementAreaKind;
+	private readonly offset: number = -1;
 	
 	/** */
-	readonly statement: X.Statement;
+	private readonly area: X.StatementAreaKind = X.StatementAreaKind.void;
 	
 	/** */
-	private readonly defragmenter: X.Defragmenter;
+	private readonly statement: X.Statement;
+	
+	/** */
+	private readonly pointer: X.Pointer | null = null;
 	
 	/** */
 	private readonly typeConstructor: X.TypeConstructor;
@@ -57,6 +73,10 @@ export class ProgramInspectionSite
 	 */
 	get parent(): X.Statement | X.Document | null
 	{
+		// Is this method still required?
+		// It appears the same functionality can be acquired simply
+		// by using the methods available on the Document object.
+		
 		const field = this._parent;
 		
 		return field !== undefined ? field : this._parent = (() =>
@@ -229,3 +249,12 @@ export class AnnotationSite
 	/** */
 	private readonly pointer: X.Pointer;
 }
+
+
+/**
+ * @internal
+ */
+export type InspectionParam =
+	X.Statement |
+	X.Pointer |
+	{ line: number, offset: number };

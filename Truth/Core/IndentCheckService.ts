@@ -2,13 +2,13 @@ import * as X from "./X";
 
 
 /**
+ * @internal
  * A class that checks for strange indentation in
  * statements, and reports warnings.
  */
-export class IndentChecker
+export class IndentCheckService
 {
 	/**
-	 * @internal
 	 * Test-only field used to disable the indent checker.
 	 */
 	static disabled: boolean | null;

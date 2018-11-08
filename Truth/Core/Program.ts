@@ -18,8 +18,13 @@ export class Program
 		this.agents = new X.Agents(this, hookRouter);
 		this.documents = new X.DocumentGraph(this);
 		this.defragmenter = new X.Defragmenter(this);
-		this.indentChecker = new X.IndentChecker(this);
-		this.typeChecker = new X.TypeChecker(this);
+		
+		// These are independent services that only
+		// need to be launched and run in the background.
+		new X.IndentCheckService(this);
+		new X.VerificationService(this);
+		
+		this.types = new X.TypeGraph(this);
 		this.faults = new X.FaultService(this);
 	}
 	
@@ -32,27 +37,42 @@ export class Program
 	/** */
 	readonly documents: X.DocumentGraph;
 	
-	/** */
+	/** @internal */
 	readonly defragmenter: X.Defragmenter;
 	
 	/** */
-	readonly indentChecker: X.IndentChecker;
-	
-	/** */
-	readonly typeChecker: X.TypeChecker;
+	readonly types: X.TypeGraph;
 	
 	/** */
 	readonly faults: X.FaultService;
 	
 	/**
+	 * Begin inspecting the specified document,
+	 * starting with the types defined at it's root.
+	 */
+	inspect(document: X.Document): X.ProgramInspectionSite;
+	/**
+	 *  
+	 */
+	inspect(document: X.Document, line: number, offset: number): X.ProgramInspectionSite;
+	/**
 	 * 
 	 */
-	inspect(document: X.Document, line: number, offset: number)
+	inspect(document: X.Document, statement: X.Statement): X.ProgramInspectionSite;
+	/**
+	 * 
+	 */
+	inspect(document: X.Document, pointer: X.Pointer): X.ProgramInspectionSite;
+	inspect(document: X.Document, lsp?: any, offset?: number)
 	{
-		return new X.ProgramInspectionSite(
-			document,
-			line,
-			offset,
-			this.defragmenter);
+		const param: X.InspectionParam | null = 
+			lsp instanceof X.Statement || lsp instanceof X.Pointer? lsp :
+			typeof offset === "number" && offset === offset ? { line: lsp | 0, offset } :
+			null;
+		
+		if (!param)
+			throw X.ExceptionMessage.invalidArgument();
+		
+		return new X.ProgramInspectionSite(this, document, param);
 	}
 }

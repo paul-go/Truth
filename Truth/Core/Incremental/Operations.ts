@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../X";
 
 
 /**
@@ -11,15 +11,23 @@ export class Operations
 	constructor(private readonly program: X.Program) { }
 	
 	/**
-	 * Collects all bases that have been applied to the
-	 * type referenced by the specified pointer. 
+	 * Collects all annotations that have been applied to the
+	 * type referenced by the specified Pointer.
 	 * 
 	 * @returns An array of types representing the collected
-	 * bases, but with any redundant types pruned.
+	 * annotations, but with any redundant types pruned.
 	 */
-	execBaseCollection(hasaPointer: X.Pointer)
+	execAnnotationCollection(declaration: X.Pointer)
 	{
-		return [new X.Type([])];
+		// 1 - Convert declaration pointer into a type URI
+		// 2 - Pass the type URI to the defragmenter, get back
+		// a series of pointers that match the tip
+		// 3 - Get the statements that contain each pointer
+		// 4 - Get the annotations attached to each statement
+		// 5 - Get the subject for each annotation
+		// 6 - De-dup the subjects, return
+		
+		return [new X.Subject("")];
 	}
 	
 	/**
@@ -40,7 +48,7 @@ export class Operations
 	
 	/**
 	 * Attempts to infer the type associated with the
-	 * specified has-a side Pointer. Performs base
+	 * specified declaration-side Pointer. Performs base
 	 * type inference, falling back to ancestry type
 	 * inference if base type inference fails.
 	 * 
@@ -49,9 +57,9 @@ export class Operations
 	 * specified Pointer, and the associated type is
 	 * therefore explicit rather than inferrable.
 	 */
-	execInference(hasaPointer: X.Pointer)
+	execInference(declaration: X.Pointer)
 	{
-		const collectedTypes = this.execBaseCollection(hasaPointer);
+		const collectedTypes = this.execAnnotationCollection(declaration);
 		if (!collectedTypes)
 			return null;
 		
@@ -91,13 +99,12 @@ export class Operations
 	 * is a matching type.
 	 * 
 	 * Attempts to infer the bases that should be added
-	 * applied to the specified type, by searching for the type's
-	 * equivalents
-	 * named types explicitly specified within the specified
-	 * type's ancestry of scopes.
+	 * applied to the specified type, by searching for the
+	 * type's equivalents named types explicitly specified
+	 * within the specified type's ancestry of scopes.
 	 * 
-	 * @param origin The type on which to perform inference.
-	 * It is expected to be unannotated.
+	 * @param origin The type on which to perform 
+	 * inference. It is expected to be unannotated.
 	 * 
 	 * @returns A type object representing the inferred
 	 */
@@ -112,8 +119,8 @@ export class Operations
 	 * 
 	 * @returns An array of types that found at
 	 * 
-	 * Base resolution occurs when trying to resolve the basings
-	 * of a given type.
+	 * Base resolution occurs when trying to resolve the
+	 * basings of a given type.
 	 * 
 	 * The result of this method is a either the fully computed
 	 * base-tree, or a base-tree that is sufficiently constructed 
@@ -135,20 +142,20 @@ export class Operations
 	 * Computes the set of types imposed by bases of 
 	 * containing types.
 	 * 
-	 * If the parent type is a plural, expectations are not computed
+	 * If the parent type is a plural, the contract is not computed
 	 * in a way that has anything to do with equivalents. The
 	 * algorithm simply looks at the bases defined by the 
-	 * parent type, and uses these types as the expectations.
+	 * parent type, and uses these types as the contract.
 	 * 
 	 * Computes the set of types with which a specified
 	 * type T is expected to comply. The argument is a
 	 * has-a side pointer that references the type T. 
 	 * If type T is being introduced (as opposed to being
 	 * overridden) in the scope where hasaPointer is
-	 * pointing, then T cannot have any expectations,
+	 * pointing, then T has an open contract, and
 	 * null is returned.
 	 */
-	execFindExpectation(hasaPointer: X.Pointer)
+	execFindExpectation(declaration: X.Pointer)
 	{
 		return <X.Type>null!;
 	}
