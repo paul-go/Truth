@@ -17,7 +17,7 @@ export class Program
 		// these services are going to process hooks.
 		this.agents = new X.Agents(this, hookRouter);
 		this.documents = new X.DocumentGraph(this);
-		this.defragmenter = new X.Defragmenter(this);
+		this.fragmenter = new X.Fragmenter(this);
 		
 		// These are independent services that only
 		// need to be launched and run in the background.
@@ -38,7 +38,7 @@ export class Program
 	readonly documents: X.DocumentGraph;
 	
 	/** @internal */
-	readonly defragmenter: X.Defragmenter;
+	readonly fragmenter: X.Fragmenter;
 	
 	/** */
 	readonly types: X.TypeGraph;

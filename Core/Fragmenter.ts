@@ -4,18 +4,18 @@ import * as X from "./X";
 /**
  * 
  */
-export class Defragmenter
+export class Fragmenter
 {
 	/**
 	 * @internal
-	 * Test-only field used to disable the functions of the Defragmenter.
+	 * Test-only field used to disable the functions of the Fragmenter.
 	 */
 	static disabled: boolean | null;
 	
 	/** */
 	constructor(private readonly program: X.Program)
 	{
-		if (Defragmenter.disabled)
+		if (Fragmenter.disabled)
 			return;
 		
 		program.documents.getAll()
@@ -50,7 +50,7 @@ export class Defragmenter
 	}
 	
 	/**
-	 * Updates contents of the Defragmenter to include the 
+	 * Updates contents of the Fragmenter to include the 
 	 * contents of the specified document.
 	 */
 	private handleDocumentAdded(doc: X.Document)
@@ -60,7 +60,7 @@ export class Defragmenter
 	}
 	
 	/**
-	 * Updates contents of the Defragmenter to exclude the
+	 * Updates contents of the Fragmenter to exclude the
 	 * contents of the specified document.
 	 */
 	private handleDocumentRemoved(doc: X.Document)
@@ -345,7 +345,7 @@ export class Defragmenter
 	private readonly documents = new Map<X.Document, Fragment>();
 	
 	/** 
-	 * Converts the contents of the Defragmenter to a string
+	 * Converts the contents of the Fragmenter to a string
 	 * representation, useful for testing purposes.
 	 */
 	toString()
