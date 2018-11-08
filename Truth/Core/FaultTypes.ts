@@ -101,9 +101,16 @@ export class UnresolvedAnnotationFault extends PointerFault
 }
 
 /** */
-export class NonCovariantAnnotationsFault extends StatementFault
+export class CircularTypeDependencyFault extends PointerFault
 {
 	readonly code = 1102;
+	readonly message = "Circular type dependency detected.";
+}
+
+/** */
+export class NonCovariantAnnotationsFault extends StatementFault
+{
+	readonly code = 1103;
 	readonly severity = FaultSeverity.warning;
 	readonly message = "Overridden types must explicitly expand the type as defined in the base.";
 }
