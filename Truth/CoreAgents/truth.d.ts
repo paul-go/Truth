@@ -1450,17 +1450,17 @@ declare namespace Truth {
 	/**
 	 * 
 	 */
-	export class Defragmenter {
+	export class Fragmenter {
 		private readonly program;
 		/** */
 		constructor(program: Program);
 		/**
-		 * Updates contents of the Defragmenter to include the
+		 * Updates contents of the Fragmenter to include the
 		 * contents of the specified document.
 		 */
 		private handleDocumentAdded;
 		/**
-		 * Updates contents of the Defragmenter to exclude the
+		 * Updates contents of the Fragmenter to exclude the
 		 * contents of the specified document.
 		 */
 		private handleDocumentRemoved;
@@ -1519,7 +1519,7 @@ declare namespace Truth {
 		 */
 		private readonly documents;
 		/**
-		 * Converts the contents of the Defragmenter to a string
+		 * Converts the contents of the Fragmenter to a string
 		 * representation, useful for testing purposes.
 		 */
 		toString(): string;
@@ -1678,9 +1678,9 @@ declare namespace Truth {
 	 * BaseInfo objects that represent the Supergraph.
 	 */
 	export class SuperLinkMiner {
-		private readonly defragmenter;
+		private readonly fragmenter;
 		/** */
-		constructor(defragmenter: Defragmenter);
+		constructor(fragmenter: Fragmenter);
 		/** */
 		mine(uri: Uri, hotPath?: Uri): SuperLink[] | null;
 		/** */
@@ -3457,17 +3457,17 @@ declare module "truth-compiler" {
 	/**
 	 * 
 	 */
-	export class Defragmenter {
+	export class Fragmenter {
 		private readonly program;
 		/** */
 		constructor(program: Program);
 		/**
-		 * Updates contents of the Defragmenter to include the
+		 * Updates contents of the Fragmenter to include the
 		 * contents of the specified document.
 		 */
 		private handleDocumentAdded;
 		/**
-		 * Updates contents of the Defragmenter to exclude the
+		 * Updates contents of the Fragmenter to exclude the
 		 * contents of the specified document.
 		 */
 		private handleDocumentRemoved;
@@ -3526,7 +3526,7 @@ declare module "truth-compiler" {
 		 */
 		private readonly documents;
 		/**
-		 * Converts the contents of the Defragmenter to a string
+		 * Converts the contents of the Fragmenter to a string
 		 * representation, useful for testing purposes.
 		 */
 		toString(): string;
@@ -3685,9 +3685,9 @@ declare module "truth-compiler" {
 	 * BaseInfo objects that represent the Supergraph.
 	 */
 	export class SuperLinkMiner {
-		private readonly defragmenter;
+		private readonly fragmenter;
 		/** */
-		constructor(defragmenter: Defragmenter);
+		constructor(fragmenter: Fragmenter);
 		/** */
 		mine(uri: Uri, hotPath?: Uri): SuperLink[] | null;
 		/** */

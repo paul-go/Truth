@@ -20,7 +20,7 @@ export class Operations
 	execAnnotationCollection(declaration: X.Pointer)
 	{
 		// 1 - Convert declaration pointer into a type URI
-		// 2 - Pass the type URI to the defragmenter, get back
+		// 2 - Pass the type URI to the Fragmenter, get back
 		// a series of pointers that match the tip
 		// 3 - Get the statements that contain each pointer
 		// 4 - Get the annotations attached to each statement

@@ -8,7 +8,7 @@ import * as X from "../X";
 export class SuperLinkMiner
 {
 	/** */
-	constructor(private readonly defragmenter: X.Defragmenter)
+	constructor(private readonly fragmenter: X.Fragmenter)
 	{
 		
 	}
@@ -19,7 +19,7 @@ export class SuperLinkMiner
 		if (!uri.typePath)
 			throw X.ExceptionMessage.invalidArgument();
 			
-		const initialLookup = this.defragmenter.lookup(uri, X.TargetedLookup);
+		const initialLookup = this.fragmenter.lookup(uri, X.TargetedLookup);
 		if (!initialLookup)
 			throw X.ExceptionMessage.invalidArgument();
 		
@@ -42,7 +42,7 @@ export class SuperLinkMiner
 		
 		const recurse = (uri: X.Uri) =>
 		{
-			const tgtLookup = this.defragmenter.lookup(uri, X.TargetedLookup)!;
+			const tgtLookup = this.fragmenter.lookup(uri, X.TargetedLookup)!;
 			
 		}
 		

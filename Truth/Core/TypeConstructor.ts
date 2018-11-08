@@ -19,7 +19,7 @@ export class TypeConstructor
 		// the type referenced by the specified pointer, and
 		// produce an array of types representing the collected
 		// annotations, but with any redundant types pruned.
-		const tgtLookup = this.program.defragmenter.lookup(spine, X.TargetedLookup);
+		const tgtLookup = this.program.fragmenter.lookup(spine, X.TargetedLookup);
 		
 		// If there are no annotations, the next step is to attempt
 		// to infer the type, starting by exploring the Supergraph.

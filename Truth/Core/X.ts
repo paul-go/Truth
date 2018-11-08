@@ -22,7 +22,7 @@ export * from "./UriReader";
 export * from "./Syntax";
 export * from "./FaultService";
 export * from "./FaultTypes";
-export * from "./Defragmenter";
+export * from "./Fragmenter";
 export * from "./IndentCheckService";
 export * from "./VerificationService";
 export * from "./Incremental/Operations";

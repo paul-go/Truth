@@ -4,7 +4,7 @@ import "./TestExtensions";
 
 
 //
-describe("Defragmenter Tests", () =>
+describe("Fragmenter Tests", () =>
 {
 	//
 	test("1-Level + No Fragmentation", () =>
@@ -14,9 +14,9 @@ describe("Defragmenter Tests", () =>
 			A, B
 		`);
 		
-		const dfgContent = prog.defragmenter.toString();
+		const fragContent = prog.fragmenter.toString();
 		
-		expect(dfgContent).toBe(U.outdent`
+		expect(fragContent).toBe(U.outdent`
 			${doc.sourceUri.toString()}
 				A (1)
 				B (2)
@@ -35,9 +35,9 @@ describe("Defragmenter Tests", () =>
 				C, D
 		`);
 		
-		const dfgContent = prog.defragmenter.toString();
+		const fragContent = prog.fragmenter.toString();
 		
-		expect(dfgContent).toBe(U.outdent`
+		expect(fragContent).toBe(U.outdent`
 			${doc.sourceUri.toString()}
 				A (1)
 					C (2)
@@ -63,9 +63,9 @@ describe("Defragmenter Tests", () =>
 					E, F
 		`);
 		
-		const dfgContent = prog.defragmenter.toString();
+		const fragContent = prog.fragmenter.toString();
 		
-		expect(dfgContent).toBe(U.outdent`
+		expect(fragContent).toBe(U.outdent`
 			${doc.sourceUri.toString()}
 				A (1)
 					C (2)
@@ -100,9 +100,9 @@ describe("Defragmenter Tests", () =>
 			A, A
 		`);
 		
-		const dfgContent = prog.defragmenter.toString();
+		const fragContent = prog.fragmenter.toString();
 		
-		expect(dfgContent).toBe(U.outdent`
+		expect(fragContent).toBe(U.outdent`
 			${doc.sourceUri.toString()}
 				A (1)
 				A (2)
@@ -127,9 +127,9 @@ describe("Defragmenter Tests", () =>
 				B, C
 		`);
 		
-		const dfgContent = prog.defragmenter.toString();
+		const fragContent = prog.fragmenter.toString();
 		
-		expect(dfgContent).toBe(U.outdent`
+		expect(fragContent).toBe(U.outdent`
 			${doc.sourceUri.toString()}
 				A (1)
 					B (2)
@@ -158,9 +158,9 @@ describe("Defragmenter Tests", () =>
 				C, D
 		`);
 		
-		const dfgContent = prog.defragmenter.toString();
+		const fragContent = prog.fragmenter.toString();
 		
-		expect(dfgContent).toBe(U.outdent`
+		expect(fragContent).toBe(U.outdent`
 			${doc.sourceUri.toString()}
 				A (1)
 					C (2)
@@ -203,9 +203,9 @@ describe("Defragmenter Tests", () =>
 			H
 		`);
 		
-		const dfgContent = prog.defragmenter.toString();
+		const fragContent = prog.fragmenter.toString();
 		
-		expect(dfgContent).toBe(U.outdent`
+		expect(fragContent).toBe(U.outdent`
 			${doc.sourceUri.toString()}
 				A (1)
 					B (2)
@@ -268,9 +268,9 @@ describe("Defragmenter Tests", () =>
 		const b = doc.read(1);
 		const param = new X.InvalidateParam(doc, [b], [1]);
 		prog.hooks.Invalidate.run(param);
-		const dfgContent = prog.defragmenter.toString();
+		const fragContent = prog.fragmenter.toString();
 		
-		expect(dfgContent).toBe(U.outdent`
+		expect(fragContent).toBe(U.outdent`
 			${doc.sourceUri.toString()}
 				A (1)
 			
@@ -292,9 +292,9 @@ describe("Defragmenter Tests", () =>
 		const cd = doc.read(1);
 		const param = new X.InvalidateParam(doc, [cd], [1]);
 		prog.hooks.Invalidate.run(param);
-		const dfgContent = prog.defragmenter.toString();
+		const fragContent = prog.fragmenter.toString();
 		
-		expect(dfgContent).toBe(U.outdent`
+		expect(fragContent).toBe(U.outdent`
 			${doc.sourceUri.toString()}
 				A (1)
 				A (2)
@@ -338,9 +338,9 @@ describe("Defragmenter Tests", () =>
 		const cd = doc.read(3);
 		const param = new X.InvalidateParam(doc, [cd], [3]);
 		prog.hooks.Invalidate.run(param);
-		const dfgContent = prog.defragmenter.toString();
+		const fragContent = prog.fragmenter.toString();
 		
-		expect(dfgContent).toBe(U.outdent`
+		expect(fragContent).toBe(U.outdent`
 			${doc.sourceUri.toString()}
 				A (1)
 					C (2)
@@ -373,7 +373,7 @@ describe("Defragmenter Tests", () =>
 		const mutUri = doc.sourceUri.toMutable();
 		mutUri.typePath = ["A", "B", "C"];
 		
-		const pointers = prog.defragmenter.lookup(mutUri, X.TargetedLookup)!;
+		const pointers = prog.fragmenter.lookup(mutUri, X.TargetedLookup)!;
 		expect(pointers).toBeTruthy();
 		
 		const statements = pointers.map(ptr => ptr.statement);
