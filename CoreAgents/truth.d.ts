@@ -14,34 +14,46 @@ declare namespace Truth {
 		/** */
 		readonly documents: DocumentGraph;
 		/** */
-		readonly defragmenter: Defragmenter;
-		/** */
-		readonly indentChecker: IndentChecker;
-		/** */
-		readonly typeChecker: TypeChecker;
+		readonly types: TypeGraph;
 		/** */
 		readonly faults: FaultService;
+		/**
+		 * Begin inspecting the specified document,
+		 * starting with the types defined at it's root.
+		 */
+		inspect(document: Document): ProgramInspectionSite;
 		/**
 		 * 
 		 */
 		inspect(document: Document, line: number, offset: number): ProgramInspectionSite;
+		/**
+		 * 
+		 */
+		inspect(document: Document, statement: Statement): ProgramInspectionSite;
+		/**
+		 * 
+		 */
+		inspect(document: Document, pointer: Pointer): ProgramInspectionSite;
 	}
 	/**
-	 * 
+	 * Defines an area in a particular document where Program
+	 * inspection can begin.
 	 */
 	export class ProgramInspectionSite {
 		/** */
-		readonly document: Document;
+		private readonly program;
 		/** */
-		readonly line: number;
+		private readonly document;
 		/** */
-		readonly offset: number;
+		private readonly line;
 		/** */
-		readonly area: StatementAreaKind;
+		private readonly offset;
 		/** */
-		readonly statement: Statement;
+		private readonly area;
 		/** */
-		private readonly defragmenter;
+		private readonly statement;
+		/** */
+		private readonly pointer;
 		/** */
 		private readonly typeConstructor;
 		/**
@@ -123,146 +135,6 @@ declare namespace Truth {
 		private _matches;
 		/** */
 		private readonly pointer;
-	}
-	/**
-	 * A class of methods that execute the vertification-supporting
-	 * operations of the system.
-	 */
-	export class Operations {
-		private readonly program;
-		/**
-		 * Collects all bases that have been applied to the
-		 * type referenced by the specified pointer.
-		 * 
-		 * @returns An array of types representing the collected
-		 * bases, but with any redundant types pruned.
-		 */
-		execBaseCollection(hasaPointer: Pointer): Type[];
-		/**
-		 * 
-		 */
-		execFindSupergraphEquivalents(): void;
-		/**
-		 * 
-		 */
-		execFindAncestorEquivalents(): void;
-		/**
-		 * Attempts to infer the type associated with the
-		 * specified has-a side Pointer. Performs base
-		 * type inference, falling back to ancestry type
-		 * inference if base type inference fails.
-		 * 
-		 * @returns Null in the case when there are is-a side
-		 * types defined on the type referenced by the
-		 * specified Pointer, and the associated type is
-		 * therefore explicit rather than inferrable.
-		 */
-		execInference(hasaPointer: Pointer): null | undefined;
-		/**
-		 * Attempts to infer the bases that should be implicitly
-		 * applied to the specified type, by searching for equivalently
-		 * named types contained within the specified type's
-		 * Supergraph.
-		 * 
-		 * @param origin The type on which to perform inference.
-		 * It is expected to be unannotated.
-		 * 
-		 * @returns An array of types representing the inferred
-		 * bases. In the case when the specified type has multiple
-		 * supers, and two or more of these supers have a type
-		 * whose name matches the specified type, but differ
-		 * in their bases, multiple bases may be inferred and
-		 * and included in the returned array. However, this only
-		 * happens in the case when these bases cannot be
-		 * pruned down to a single type.
-		 * 
-		 * If no bases could be inferred, an empty array is
-		 * returned.
-		 */
-		execSupergraphInference(origin: Type): Type[] | null;
-		/**
-		 * A strategy for inference that occurs when the
-		 * type is an unbased introduction. Operates by
-		 * scanning up the ancestry to determine if there
-		 * is a matching type.
-		 * 
-		 * Attempts to infer the bases that should be added
-		 * applied to the specified type, by searching for the type's
-		 * equivalents
-		 * named types explicitly specified within the specified
-		 * type's ancestry of scopes.
-		 * 
-		 * @param origin The type on which to perform inference.
-		 * It is expected to be unannotated.
-		 * 
-		 * @returns A type object representing the inferred
-		 */
-		execAncestorInference(origin: Type): Type | null;
-		/**
-		 * Performs the Polymorphic Base Resolution (PTR)
-		 * algorithm as defined by the specification.
-		 * 
-		 * @returns An array of types that found at
-		 * 
-		 * Base resolution occurs when trying to resolve the basings
-		 * of a given type.
-		 * 
-		 * The result of this method is a either the fully computed
-		 * base-tree, or a base-tree that is sufficiently constructed
-		 * to the point where a guarantee can be made about the
-		 * origins of the type referenced in the specified Pointer.
-		 */
-		execResolution(origin: Pointer): Type[];
-		/**
-		 * 
-		 * Computes the set of types imposed by bases of
-		 * containing types.
-		 * 
-		 * If the parent type is a plural, expectations are not computed
-		 * in a way that has anything to do with equivalents. The
-		 * algorithm simply looks at the bases defined by the
-		 * parent type, and uses these types as the expectations.
-		 * 
-		 * Computes the set of types with which a specified
-		 * type T is expected to comply. The argument is a
-		 * has-a side pointer that references the type T.
-		 * If type T is being introduced (as opposed to being
-		 * overridden) in the scope where hasaPointer is
-		 * pointing, then T cannot have any expectations,
-		 * null is returned.
-		 */
-		execFindExpectation(hasaPointer: Pointer): Type;
-		/**
-		 * The plurality of a type is computed by traversing the
-		 * type's supergraph and determining if all pathways
-		 * leading back to all root bases involve crossing the
-		 * path of a pluralized type. In the case when one or more
-		 * of these pathways cross pluralized types, and one or
-		 * more do not, an error is generated.
-		 */
-		execPluralityCheck(origin: Type): void;
-		/**
-		 * Executes a search for all terms that are visible
-		 * at the specified location.
-		 * 
-		 * The argument
-		 * 
-		 * @returns ?
-		 */
-		execReusablesSearch(statement: Statement): void;
-		/**
-		 * Executes a search for all terms that are dependent
-		 * upon a type T, referenced via the specified has-a
-		 * side Pointer.
-		 * 
-		 * The search occurs across the scope in which the
-		 * specified Pointer exists, and continues deeply into
-		 * any scopes nested inside.
-		 * 
-		 * @returns An array containing Pointer objects that
-		 * reference types which are dependent upon type T.
-		 */
-		execDependentsSearch(hasaPointer: Pointer): Pointer[];
 	}
 	/**
 	 * A cache that stores all agents loaded by the compiler.
@@ -1119,8 +991,6 @@ declare namespace Truth {
 		readonly name: string;
 		/** */
 		readonly pluralized: boolean;
-		/** */
-		readonly singularized: boolean;
 		/**
 		 * Stores the text of the URI when in the subject is
 		 * formatted as such. When the subject does not
@@ -1271,40 +1141,13 @@ declare namespace Truth {
 	 * A class that carries out the type construction process.
 	 */
 	export class TypeConstructor {
-		private readonly defragmenter;
+		private readonly program;
 		/** */
-		constructor(defragmenter: Defragmenter);
+		constructor(program: Program);
 		/** */
 		exec(spine: Spine): Type;
 		/** */
 		private tryInference;
-	}
-	/**
-	 * Mines a Chart for bases. Produces a set of interconnected
-	 * BaseInfo objects that represent the Supergraph.
-	 */
-	export class SuperLinkMiner {
-		private readonly defragmenter;
-		/** */
-		constructor(defragmenter: Defragmenter);
-		/** */
-		mine(uri: Uri, hotPath?: Uri): SuperLink[] | null;
-		/** */
-		private doRecursiveDescendingLookup;
-		/**
-		 * Stores a map of previously mined typed,
-		 * indexed by their associated Type URI.
-		 */
-		private readonly miningResults;
-	}
-	/**
-	 * A class that links a URI to other URIs that store the base.
-	 */
-	export class SuperLink {
-		/** */
-		readonly from: Uri;
-		/** */
-		readonly to: ReadonlySet<Uri>;
 	}
 	/** */
 	export enum UriProtocol {
@@ -1533,8 +1376,13 @@ declare namespace Truth {
 		readonly message = "Unresolved annotation.";
 	}
 	/** */
-	export class NonCovariantAnnotationsFault extends StatementFault {
+	export class CircularTypeDependencyFault extends PointerFault {
 		readonly code = 1102;
+		readonly message = "Circular type dependency detected.";
+	}
+	/** */
+	export class NonCovariantAnnotationsFault extends StatementFault {
+		readonly code = 1103;
 		readonly severity = FaultSeverity.warning;
 		readonly message = "Overridden types must explicitly expand the type as defined in the base.";
 	}
@@ -1618,7 +1466,7 @@ declare namespace Truth {
 		private handleDocumentRemoved;
 		/**
 		 * Performs a defragmentation query, starting at the
-		 * specified URI. A defragmentation query
+		 * specified URI.
 		 * 
 		 * @returns An array of Defragment objects that target all
 		 * fragments of the type implied by specified pointer.
@@ -1677,26 +1525,180 @@ declare namespace Truth {
 		toString(): string;
 	}
 	/**
-	 * A class that checks for strange indentation in
-	 * statements, and reports warnings.
+	 * A class of methods that execute the vertification-supporting
+	 * operations of the system.
 	 */
-	export class IndentChecker {
+	export class Operations {
 		private readonly program;
-		/** */
-		constructor(program: Program);
 		/**
-		 * Performs statement-level indent checking,
-		 * starting at the specified root.
+		 * Collects all annotations that have been applied to the
+		 * type referenced by the specified Pointer.
+		 * 
+		 * @returns An array of types representing the collected
+		 * annotations, but with any redundant types pruned.
 		 */
-		private check;
+		execAnnotationCollection(declaration: Pointer): Subject[];
+		/**
+		 * 
+		 */
+		execFindSupergraphEquivalents(): void;
+		/**
+		 * 
+		 */
+		execFindAncestorEquivalents(): void;
+		/**
+		 * Attempts to infer the type associated with the
+		 * specified declaration-side Pointer. Performs base
+		 * type inference, falling back to ancestry type
+		 * inference if base type inference fails.
+		 * 
+		 * @returns Null in the case when there are is-a side
+		 * types defined on the type referenced by the
+		 * specified Pointer, and the associated type is
+		 * therefore explicit rather than inferrable.
+		 */
+		execInference(declaration: Pointer): null | undefined;
+		/**
+		 * Attempts to infer the bases that should be implicitly
+		 * applied to the specified type, by searching for equivalently
+		 * named types contained within the specified type's
+		 * Supergraph.
+		 * 
+		 * @param origin The type on which to perform inference.
+		 * It is expected to be unannotated.
+		 * 
+		 * @returns An array of types representing the inferred
+		 * bases. In the case when the specified type has multiple
+		 * supers, and two or more of these supers have a type
+		 * whose name matches the specified type, but differ
+		 * in their bases, multiple bases may be inferred and
+		 * and included in the returned array. However, this only
+		 * happens in the case when these bases cannot be
+		 * pruned down to a single type.
+		 * 
+		 * If no bases could be inferred, an empty array is
+		 * returned.
+		 */
+		execSupergraphInference(origin: Type): Type[] | null;
+		/**
+		 * A strategy for inference that occurs when the
+		 * type is an unbased introduction. Operates by
+		 * scanning up the ancestry to determine if there
+		 * is a matching type.
+		 * 
+		 * Attempts to infer the bases that should be added
+		 * applied to the specified type, by searching for the
+		 * type's equivalents named types explicitly specified
+		 * within the specified type's ancestry of scopes.
+		 * 
+		 * @param origin The type on which to perform
+		 * inference. It is expected to be unannotated.
+		 * 
+		 * @returns A type object representing the inferred
+		 */
+		execAncestorInference(origin: Type): Type | null;
+		/**
+		 * Performs the Polymorphic Base Resolution (PTR)
+		 * algorithm as defined by the specification.
+		 * 
+		 * @returns An array of types that found at
+		 * 
+		 * Base resolution occurs when trying to resolve the
+		 * basings of a given type.
+		 * 
+		 * The result of this method is a either the fully computed
+		 * base-tree, or a base-tree that is sufficiently constructed
+		 * to the point where a guarantee can be made about the
+		 * origins of the type referenced in the specified Pointer.
+		 */
+		execResolution(origin: Pointer): Type[];
+		/**
+		 * 
+		 * Computes the set of types imposed by bases of
+		 * containing types.
+		 * 
+		 * If the parent type is a plural, the contract is not computed
+		 * in a way that has anything to do with equivalents. The
+		 * algorithm simply looks at the bases defined by the
+		 * parent type, and uses these types as the contract.
+		 * 
+		 * Computes the set of types with which a specified
+		 * type T is expected to comply. The argument is a
+		 * has-a side pointer that references the type T.
+		 * If type T is being introduced (as opposed to being
+		 * overridden) in the scope where hasaPointer is
+		 * pointing, then T has an open contract, and
+		 * null is returned.
+		 */
+		execFindExpectation(declaration: Pointer): Type;
+		/**
+		 * The plurality of a type is computed by traversing the
+		 * type's supergraph and determining if all pathways
+		 * leading back to all root bases involve crossing the
+		 * path of a pluralized type. In the case when one or more
+		 * of these pathways cross pluralized types, and one or
+		 * more do not, an error is generated.
+		 */
+		execPluralityCheck(origin: Type): void;
+		/**
+		 * Executes a search for all terms that are visible
+		 * at the specified location.
+		 * 
+		 * The argument
+		 * 
+		 * @returns ?
+		 */
+		execReusablesSearch(statement: Statement): void;
+		/**
+		 * Executes a search for all terms that are dependent
+		 * upon a type T, referenced via the specified has-a
+		 * side Pointer.
+		 * 
+		 * The search occurs across the scope in which the
+		 * specified Pointer exists, and continues deeply into
+		 * any scopes nested inside.
+		 * 
+		 * @returns An array containing Pointer objects that
+		 * reference types which are dependent upon type T.
+		 */
+		execDependentsSearch(hasaPointer: Pointer): Pointer[];
 	}
 	/**
-	 * 
+	 * A graph of types, indexed by their URIs.
 	 */
-	export class TypeChecker {
+	export class TypeGraph {
 		private readonly program;
 		/** */
 		constructor(program: Program);
+		/** */
+		private readonly roots;
+	}
+	/**
+	 * Mines a Chart for bases. Produces a set of interconnected
+	 * BaseInfo objects that represent the Supergraph.
+	 */
+	export class SuperLinkMiner {
+		private readonly defragmenter;
+		/** */
+		constructor(defragmenter: Defragmenter);
+		/** */
+		mine(uri: Uri, hotPath?: Uri): SuperLink[] | null;
+		/** */
+		private doRecursiveDescendingLookup;
+		/**
+		 * Stores a map of previously mined typed,
+		 * indexed by their associated Type URI.
+		 */
+		private readonly miningResults;
+	}
+	/**
+	 * A class that links a URI to other URIs that store the base.
+	 */
+	export class SuperLink {
+		/** */
+		readonly from: Uri;
+		/** */
+		readonly to: ReadonlySet<Uri>;
 	}
 	/**
 	 * 
@@ -2019,34 +2021,46 @@ declare module "truth-compiler" {
 		/** */
 		readonly documents: DocumentGraph;
 		/** */
-		readonly defragmenter: Defragmenter;
-		/** */
-		readonly indentChecker: IndentChecker;
-		/** */
-		readonly typeChecker: TypeChecker;
+		readonly types: TypeGraph;
 		/** */
 		readonly faults: FaultService;
+		/**
+		 * Begin inspecting the specified document,
+		 * starting with the types defined at it's root.
+		 */
+		inspect(document: Document): ProgramInspectionSite;
 		/**
 		 * 
 		 */
 		inspect(document: Document, line: number, offset: number): ProgramInspectionSite;
+		/**
+		 * 
+		 */
+		inspect(document: Document, statement: Statement): ProgramInspectionSite;
+		/**
+		 * 
+		 */
+		inspect(document: Document, pointer: Pointer): ProgramInspectionSite;
 	}
 	/**
-	 * 
+	 * Defines an area in a particular document where Program
+	 * inspection can begin.
 	 */
 	export class ProgramInspectionSite {
 		/** */
-		readonly document: Document;
+		private readonly program;
 		/** */
-		readonly line: number;
+		private readonly document;
 		/** */
-		readonly offset: number;
+		private readonly line;
 		/** */
-		readonly area: StatementAreaKind;
+		private readonly offset;
 		/** */
-		readonly statement: Statement;
+		private readonly area;
 		/** */
-		private readonly defragmenter;
+		private readonly statement;
+		/** */
+		private readonly pointer;
 		/** */
 		private readonly typeConstructor;
 		/**
@@ -2128,146 +2142,6 @@ declare module "truth-compiler" {
 		private _matches;
 		/** */
 		private readonly pointer;
-	}
-	/**
-	 * A class of methods that execute the vertification-supporting
-	 * operations of the system.
-	 */
-	export class Operations {
-		private readonly program;
-		/**
-		 * Collects all bases that have been applied to the
-		 * type referenced by the specified pointer.
-		 * 
-		 * @returns An array of types representing the collected
-		 * bases, but with any redundant types pruned.
-		 */
-		execBaseCollection(hasaPointer: Pointer): Type[];
-		/**
-		 * 
-		 */
-		execFindSupergraphEquivalents(): void;
-		/**
-		 * 
-		 */
-		execFindAncestorEquivalents(): void;
-		/**
-		 * Attempts to infer the type associated with the
-		 * specified has-a side Pointer. Performs base
-		 * type inference, falling back to ancestry type
-		 * inference if base type inference fails.
-		 * 
-		 * @returns Null in the case when there are is-a side
-		 * types defined on the type referenced by the
-		 * specified Pointer, and the associated type is
-		 * therefore explicit rather than inferrable.
-		 */
-		execInference(hasaPointer: Pointer): null | undefined;
-		/**
-		 * Attempts to infer the bases that should be implicitly
-		 * applied to the specified type, by searching for equivalently
-		 * named types contained within the specified type's
-		 * Supergraph.
-		 * 
-		 * @param origin The type on which to perform inference.
-		 * It is expected to be unannotated.
-		 * 
-		 * @returns An array of types representing the inferred
-		 * bases. In the case when the specified type has multiple
-		 * supers, and two or more of these supers have a type
-		 * whose name matches the specified type, but differ
-		 * in their bases, multiple bases may be inferred and
-		 * and included in the returned array. However, this only
-		 * happens in the case when these bases cannot be
-		 * pruned down to a single type.
-		 * 
-		 * If no bases could be inferred, an empty array is
-		 * returned.
-		 */
-		execSupergraphInference(origin: Type): Type[] | null;
-		/**
-		 * A strategy for inference that occurs when the
-		 * type is an unbased introduction. Operates by
-		 * scanning up the ancestry to determine if there
-		 * is a matching type.
-		 * 
-		 * Attempts to infer the bases that should be added
-		 * applied to the specified type, by searching for the type's
-		 * equivalents
-		 * named types explicitly specified within the specified
-		 * type's ancestry of scopes.
-		 * 
-		 * @param origin The type on which to perform inference.
-		 * It is expected to be unannotated.
-		 * 
-		 * @returns A type object representing the inferred
-		 */
-		execAncestorInference(origin: Type): Type | null;
-		/**
-		 * Performs the Polymorphic Base Resolution (PTR)
-		 * algorithm as defined by the specification.
-		 * 
-		 * @returns An array of types that found at
-		 * 
-		 * Base resolution occurs when trying to resolve the basings
-		 * of a given type.
-		 * 
-		 * The result of this method is a either the fully computed
-		 * base-tree, or a base-tree that is sufficiently constructed
-		 * to the point where a guarantee can be made about the
-		 * origins of the type referenced in the specified Pointer.
-		 */
-		execResolution(origin: Pointer): Type[];
-		/**
-		 * 
-		 * Computes the set of types imposed by bases of
-		 * containing types.
-		 * 
-		 * If the parent type is a plural, expectations are not computed
-		 * in a way that has anything to do with equivalents. The
-		 * algorithm simply looks at the bases defined by the
-		 * parent type, and uses these types as the expectations.
-		 * 
-		 * Computes the set of types with which a specified
-		 * type T is expected to comply. The argument is a
-		 * has-a side pointer that references the type T.
-		 * If type T is being introduced (as opposed to being
-		 * overridden) in the scope where hasaPointer is
-		 * pointing, then T cannot have any expectations,
-		 * null is returned.
-		 */
-		execFindExpectation(hasaPointer: Pointer): Type;
-		/**
-		 * The plurality of a type is computed by traversing the
-		 * type's supergraph and determining if all pathways
-		 * leading back to all root bases involve crossing the
-		 * path of a pluralized type. In the case when one or more
-		 * of these pathways cross pluralized types, and one or
-		 * more do not, an error is generated.
-		 */
-		execPluralityCheck(origin: Type): void;
-		/**
-		 * Executes a search for all terms that are visible
-		 * at the specified location.
-		 * 
-		 * The argument
-		 * 
-		 * @returns ?
-		 */
-		execReusablesSearch(statement: Statement): void;
-		/**
-		 * Executes a search for all terms that are dependent
-		 * upon a type T, referenced via the specified has-a
-		 * side Pointer.
-		 * 
-		 * The search occurs across the scope in which the
-		 * specified Pointer exists, and continues deeply into
-		 * any scopes nested inside.
-		 * 
-		 * @returns An array containing Pointer objects that
-		 * reference types which are dependent upon type T.
-		 */
-		execDependentsSearch(hasaPointer: Pointer): Pointer[];
 	}
 	/**
 	 * A cache that stores all agents loaded by the compiler.
@@ -3124,8 +2998,6 @@ declare module "truth-compiler" {
 		readonly name: string;
 		/** */
 		readonly pluralized: boolean;
-		/** */
-		readonly singularized: boolean;
 		/**
 		 * Stores the text of the URI when in the subject is
 		 * formatted as such. When the subject does not
@@ -3276,40 +3148,13 @@ declare module "truth-compiler" {
 	 * A class that carries out the type construction process.
 	 */
 	export class TypeConstructor {
-		private readonly defragmenter;
+		private readonly program;
 		/** */
-		constructor(defragmenter: Defragmenter);
+		constructor(program: Program);
 		/** */
 		exec(spine: Spine): Type;
 		/** */
 		private tryInference;
-	}
-	/**
-	 * Mines a Chart for bases. Produces a set of interconnected
-	 * BaseInfo objects that represent the Supergraph.
-	 */
-	export class SuperLinkMiner {
-		private readonly defragmenter;
-		/** */
-		constructor(defragmenter: Defragmenter);
-		/** */
-		mine(uri: Uri, hotPath?: Uri): SuperLink[] | null;
-		/** */
-		private doRecursiveDescendingLookup;
-		/**
-		 * Stores a map of previously mined typed,
-		 * indexed by their associated Type URI.
-		 */
-		private readonly miningResults;
-	}
-	/**
-	 * A class that links a URI to other URIs that store the base.
-	 */
-	export class SuperLink {
-		/** */
-		readonly from: Uri;
-		/** */
-		readonly to: ReadonlySet<Uri>;
 	}
 	/** */
 	export enum UriProtocol {
@@ -3538,8 +3383,13 @@ declare module "truth-compiler" {
 		readonly message = "Unresolved annotation.";
 	}
 	/** */
-	export class NonCovariantAnnotationsFault extends StatementFault {
+	export class CircularTypeDependencyFault extends PointerFault {
 		readonly code = 1102;
+		readonly message = "Circular type dependency detected.";
+	}
+	/** */
+	export class NonCovariantAnnotationsFault extends StatementFault {
+		readonly code = 1103;
 		readonly severity = FaultSeverity.warning;
 		readonly message = "Overridden types must explicitly expand the type as defined in the base.";
 	}
@@ -3623,7 +3473,7 @@ declare module "truth-compiler" {
 		private handleDocumentRemoved;
 		/**
 		 * Performs a defragmentation query, starting at the
-		 * specified URI. A defragmentation query
+		 * specified URI.
 		 * 
 		 * @returns An array of Defragment objects that target all
 		 * fragments of the type implied by specified pointer.
@@ -3682,26 +3532,180 @@ declare module "truth-compiler" {
 		toString(): string;
 	}
 	/**
-	 * A class that checks for strange indentation in
-	 * statements, and reports warnings.
+	 * A class of methods that execute the vertification-supporting
+	 * operations of the system.
 	 */
-	export class IndentChecker {
+	export class Operations {
 		private readonly program;
-		/** */
-		constructor(program: Program);
 		/**
-		 * Performs statement-level indent checking,
-		 * starting at the specified root.
+		 * Collects all annotations that have been applied to the
+		 * type referenced by the specified Pointer.
+		 * 
+		 * @returns An array of types representing the collected
+		 * annotations, but with any redundant types pruned.
 		 */
-		private check;
+		execAnnotationCollection(declaration: Pointer): Subject[];
+		/**
+		 * 
+		 */
+		execFindSupergraphEquivalents(): void;
+		/**
+		 * 
+		 */
+		execFindAncestorEquivalents(): void;
+		/**
+		 * Attempts to infer the type associated with the
+		 * specified declaration-side Pointer. Performs base
+		 * type inference, falling back to ancestry type
+		 * inference if base type inference fails.
+		 * 
+		 * @returns Null in the case when there are is-a side
+		 * types defined on the type referenced by the
+		 * specified Pointer, and the associated type is
+		 * therefore explicit rather than inferrable.
+		 */
+		execInference(declaration: Pointer): null | undefined;
+		/**
+		 * Attempts to infer the bases that should be implicitly
+		 * applied to the specified type, by searching for equivalently
+		 * named types contained within the specified type's
+		 * Supergraph.
+		 * 
+		 * @param origin The type on which to perform inference.
+		 * It is expected to be unannotated.
+		 * 
+		 * @returns An array of types representing the inferred
+		 * bases. In the case when the specified type has multiple
+		 * supers, and two or more of these supers have a type
+		 * whose name matches the specified type, but differ
+		 * in their bases, multiple bases may be inferred and
+		 * and included in the returned array. However, this only
+		 * happens in the case when these bases cannot be
+		 * pruned down to a single type.
+		 * 
+		 * If no bases could be inferred, an empty array is
+		 * returned.
+		 */
+		execSupergraphInference(origin: Type): Type[] | null;
+		/**
+		 * A strategy for inference that occurs when the
+		 * type is an unbased introduction. Operates by
+		 * scanning up the ancestry to determine if there
+		 * is a matching type.
+		 * 
+		 * Attempts to infer the bases that should be added
+		 * applied to the specified type, by searching for the
+		 * type's equivalents named types explicitly specified
+		 * within the specified type's ancestry of scopes.
+		 * 
+		 * @param origin The type on which to perform
+		 * inference. It is expected to be unannotated.
+		 * 
+		 * @returns A type object representing the inferred
+		 */
+		execAncestorInference(origin: Type): Type | null;
+		/**
+		 * Performs the Polymorphic Base Resolution (PTR)
+		 * algorithm as defined by the specification.
+		 * 
+		 * @returns An array of types that found at
+		 * 
+		 * Base resolution occurs when trying to resolve the
+		 * basings of a given type.
+		 * 
+		 * The result of this method is a either the fully computed
+		 * base-tree, or a base-tree that is sufficiently constructed
+		 * to the point where a guarantee can be made about the
+		 * origins of the type referenced in the specified Pointer.
+		 */
+		execResolution(origin: Pointer): Type[];
+		/**
+		 * 
+		 * Computes the set of types imposed by bases of
+		 * containing types.
+		 * 
+		 * If the parent type is a plural, the contract is not computed
+		 * in a way that has anything to do with equivalents. The
+		 * algorithm simply looks at the bases defined by the
+		 * parent type, and uses these types as the contract.
+		 * 
+		 * Computes the set of types with which a specified
+		 * type T is expected to comply. The argument is a
+		 * has-a side pointer that references the type T.
+		 * If type T is being introduced (as opposed to being
+		 * overridden) in the scope where hasaPointer is
+		 * pointing, then T has an open contract, and
+		 * null is returned.
+		 */
+		execFindExpectation(declaration: Pointer): Type;
+		/**
+		 * The plurality of a type is computed by traversing the
+		 * type's supergraph and determining if all pathways
+		 * leading back to all root bases involve crossing the
+		 * path of a pluralized type. In the case when one or more
+		 * of these pathways cross pluralized types, and one or
+		 * more do not, an error is generated.
+		 */
+		execPluralityCheck(origin: Type): void;
+		/**
+		 * Executes a search for all terms that are visible
+		 * at the specified location.
+		 * 
+		 * The argument
+		 * 
+		 * @returns ?
+		 */
+		execReusablesSearch(statement: Statement): void;
+		/**
+		 * Executes a search for all terms that are dependent
+		 * upon a type T, referenced via the specified has-a
+		 * side Pointer.
+		 * 
+		 * The search occurs across the scope in which the
+		 * specified Pointer exists, and continues deeply into
+		 * any scopes nested inside.
+		 * 
+		 * @returns An array containing Pointer objects that
+		 * reference types which are dependent upon type T.
+		 */
+		execDependentsSearch(hasaPointer: Pointer): Pointer[];
 	}
 	/**
-	 * 
+	 * A graph of types, indexed by their URIs.
 	 */
-	export class TypeChecker {
+	export class TypeGraph {
 		private readonly program;
 		/** */
 		constructor(program: Program);
+		/** */
+		private readonly roots;
+	}
+	/**
+	 * Mines a Chart for bases. Produces a set of interconnected
+	 * BaseInfo objects that represent the Supergraph.
+	 */
+	export class SuperLinkMiner {
+		private readonly defragmenter;
+		/** */
+		constructor(defragmenter: Defragmenter);
+		/** */
+		mine(uri: Uri, hotPath?: Uri): SuperLink[] | null;
+		/** */
+		private doRecursiveDescendingLookup;
+		/**
+		 * Stores a map of previously mined typed,
+		 * indexed by their associated Type URI.
+		 */
+		private readonly miningResults;
+	}
+	/**
+	 * A class that links a URI to other URIs that store the base.
+	 */
+	export class SuperLink {
+		/** */
+		readonly from: Uri;
+		/** */
+		readonly to: ReadonlySet<Uri>;
 	}
 	/**
 	 * 
