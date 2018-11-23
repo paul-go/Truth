@@ -1,0 +1,15 @@
+//
+// This example demonstrates type inference 
+// from the hierarchy of containment.
+//
+
+A, B, C
+
+Container1
+	Value : A
+	Container2
+		Value : B
+		Container3
+			Value : C
+			Container4
+				Value ~ C

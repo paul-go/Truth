@@ -1,0 +1,28 @@
+//
+// 
+//
+
+Number
+Animal
+Rabbit : Animal
+
+Container
+	A
+		Src : Number
+			X
+
+MyContainer	: Container
+	A
+		Src : Animal ~ Animal, Number
+			~ X
+		Dst : Src ~ Animal, Number
+			~ X
+		
+	B : A
+		Src : Rabbit ~ Rabbit, Number
+			~ X
+
+	C : B
+		Src : Lop ~ Lop, Number
+			~ X
+		~ Dst : Lop, Number

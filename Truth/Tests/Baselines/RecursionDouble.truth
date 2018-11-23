@@ -1,0 +1,37 @@
+//
+// This example demonstrates inheriting from a recursive structure
+// with two recursive declarations. Although a theoretically infinitely 
+// recursive structure is created, the virtual type checks only go a
+// few levels deep.
+//
+A
+	B : A
+
+X
+	Y : A
+		Z : X
+
+AX : A, X
+	~ B : A
+		~ B : A
+			~ B : A
+				~ B : A
+	~ X
+		~ Y
+			~ B : A
+				~ B : A
+					~ B : A
+						~ B : A
+			~ Z : X
+				~ Y 
+					~ B : A
+						~ B : A
+							~ B : A
+								~ B : A
+					~ Z : X
+						~ Y
+							~ B : A
+								~ B : A
+									~ B : A
+										~ B : A
+							~ Z : X

@@ -1,0 +1,13 @@
+//
+// This example demonstrates fragmented types
+//
+
+A, B, C
+
+Class
+	Property : A
+	Property : B
+	Property : C
+
+SubClass : Class
+	Property ~ A, B, C

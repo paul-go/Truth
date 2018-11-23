@@ -19,5 +19,13 @@ declare namespace jest
 		 * statement.
 		 */
 		toHaveFault(faultType: Function, line: number, offset?: number): R;
+		
+		/**
+		 * Tests that the Program (which must be specified in the expect()
+		 * function call), has the faults and only the faults that exactly match 
+		 * the specified list of rest arguments. To test that the Program has
+		 * no faults, call this method without arguments.
+		 */
+		toHaveFaults(...faults: [Function, { stamp: any }][]): R;
 	}
 }

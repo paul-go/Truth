@@ -1,0 +1,19 @@
+//
+// Inline covariance is *not* a way to merely transfer the
+// patterns from to one type to another, although this 
+// happens as a side effect of the inline covariance feature.
+// This example demonstrates a failure case of incorrect
+// usage of the feature. Note that although it may seem as
+// though this could made to verify, doing so would change
+// the meaning of "inline covariance", resulting in a series
+// of undesirable cascading effects.
+//
+
+Digit
+/\d/ : Digit
+
+Integer
+/\d+/ : Integer
+
+mm : Integer
+/<Digit>mm/ : mm

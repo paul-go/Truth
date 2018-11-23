@@ -1,0 +1,19 @@
+A
+	B : A
+
+X
+	Y
+		Z : X
+
+AX : A, X
+	~ B : A
+		~ B : A
+			~ B : A
+				~ B : A
+	~ X
+		~ Y
+			~ Z : X
+				~ Y
+					~ Z : X
+						~ Y
+							~ Z : X

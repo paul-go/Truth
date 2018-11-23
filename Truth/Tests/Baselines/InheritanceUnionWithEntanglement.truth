@@ -1,0 +1,37 @@
+//
+// This example demonstrates an inheritance union, where the
+// constituent types of the union involve entanglements.
+//
+
+Container
+	T, L, R, B
+	S1, S2
+
+	ClassTop
+		Top : T
+
+	ClassLeft : ClassTop
+		Left : L
+		Side : Left
+		
+	ClassRight : ClassTop
+		Right : R
+		Side : Right
+		
+	ClassBottom : ClassLeft, ClassRight
+		Bottom : B
+
+	ClassChild : ClassBottom
+		~ Top : T
+		~ Left: L
+		~ Right : R
+		~ Bottom : B
+		~ Side : Left, L, Right, R
+
+MyContainer : Container
+	R : Red
+	L : Lavendar
+	
+	// These verifications need to be able to reference unspecified types
+	~ ClassChild : ClassBottom
+		~ Side : Left, L, Lavendar, Right, R, Red

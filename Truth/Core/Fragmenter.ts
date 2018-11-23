@@ -18,7 +18,7 @@ export class Fragmenter
 		if (Fragmenter.disabled)
 			return;
 		
-		program.documents.getAll()
+		program.documents.each()
 			.forEach(this.handleDocumentAdded.bind(this));
 		
 		program.hooks.DocumentCreated.capture(hook =>
@@ -65,7 +65,7 @@ export class Fragmenter
 	 */
 	private handleDocumentRemoved(doc: X.Document)
 	{
-		for (const { level, statement } of doc.visitDescendants())
+		for (const { statement } of doc.eachDescendant())
 			for (const decl of statement.declarations)
 				this.fragmentFinder.delete(decl);
 		
@@ -73,39 +73,43 @@ export class Fragmenter
 	}
 	
 	/**
-	 * Performs a defragmentation query, starting at the
-	 * specified URI.
-	 * 
-	 * @returns An array of Defragment objects that target all
-	 * fragments of the type implied by specified pointer.
-	 * @returns Null in the case when the pointer targets
-	 * an unpopulated location.
+	 * Performs a query on the Fragmenter.
+	 * @returns A Strand, or null in the case
+	 * when the URI specified doesn't map to a populated 
+	 * location in the document.
 	 */
-	lookup(uri: X.Uri, returnType: typeof X.TargetedLookup): X.Pointer[] | null;
-	lookup(spine: X.Spine, returnType: typeof X.TargetedLookup): X.Pointer[] | null;
-	lookup(uri: X.Uri, returnType: typeof X.DescendingLookup): X.DescendingLookup | null;
-	lookup(spine: X.Spine, returnType: typeof X.DescendingLookup): X.DescendingLookup;
-	lookup(uri: X.Uri, returnType: typeof X.SiblingLookup): X.SiblingLookup | null;
-	lookup(spine: X.Spine, returnType: typeof X.SiblingLookup): X.SiblingLookup;
-	lookup(param: X.Uri | X.Spine, returnType: X.LookupResultType): any
+	query(uri: X.Uri): X.Strand | null
 	{
-		const typePathSegments = param instanceof X.Spine ?
-			X.Uri.createFromSpine(param).typePath.slice() :
-			param.typePath.slice();
-		
-		if (typePathSegments.length === 0)
+		return this.queryInner(uri, false);
+	}
+	
+	/** */
+	queryContents(uri: X.Uri): X.Strand[]
+	{
+		return this.queryInner(uri, true);
+	}
+	
+	/** */
+	private queryInner(uri: X.Uri, queryContents: true): X.Strand[];
+	private queryInner(uri: X.Uri, queryContents: false): X.Strand | null;
+	private queryInner(uri: X.Uri, queryContents: boolean): X.Strand[] | X.Strand | null
+	{
+		const typePathNames = uri.typePath.slice();
+		if (typePathNames.length === 0)
 			return null;
 		
-		const containingDoc = param instanceof X.Spine ?
-			param.document :
-			this.program.documents.get(param);
-		
+		const containingDoc = this.program.documents.get(uri);
 		if (!containingDoc)
 			return null;
 		
 		const rootFragment = this.documents.get(containingDoc);
 		if (!rootFragment)
 			return null;
+		
+		// Stores the base sequence of molecules that will be returned
+		// in all Strands, whether a single Strand is being generated,
+		// or multiple Strands (querying contents).
+		const baseMolecules: X.Molecule[] = [];
 		
 		// Stores an array of fragment arrays. Each fragment array
 		// is constructed by taking the tip fragment array, and querying
@@ -114,36 +118,86 @@ export class Fragmenter
 		// are then merged together into a single array, and added to
 		// the stack. The process continues until all segments in the
 		// typePath have been visited.
-		const projections = [[rootFragment]];
+		let currentFragments = [rootFragment];
 		
-		for (const termName of typePathSegments)
+		for (const name of typePathNames)
 		{
-			const prevFragmentArray = projections[projections.length - 1];
-			const nextFragmentArray: Fragment[] = [];
+			const subject = new X.Subject(name);
+			const pointers = new Set<X.Pointer>();
+			const nextFragments: Fragment[] = [];
 			
-			for (const prevFragment of prevFragmentArray)
+			for (const currentFragment of currentFragments)
 			{
 				// If there were no fragments found at the current location
 				// in the type path, the location specified is "unpopulated",
 				// so null is returned.
-				const nextFragments = prevFragment.localDictionary.get(termName);
+				const nextFragments = currentFragment.localDictionary.get(name);
 				if (nextFragments)
-					nextFragmentArray.push(...nextFragments);
+					nextFragments.push(...nextFragments);
 			}
 			
-			if (nextFragmentArray.length === 0)
+			if (nextFragments.length === 0)
 				return null;
 			
-			projections.push(nextFragmentArray);
+			for (const fragment of nextFragments)
+				if (fragment.associatedPointer)
+					pointers.add(fragment.associatedPointer);
+			
+			const atom = new X.Atom(subject, Array.from(pointers));
+			const molecule = this.translateAtomToMolecule(atom);
+			baseMolecules.push(molecule);
+			
+			currentFragments = nextFragments;
 		}
 		
-		if (returnType === X.TargetedLookup)
+		if (queryContents)
 		{
-			const tip = projections[projections.length - 1];
-			const pointers = tip.map(frag => frag.associatedPointer);
-			return pointers;
+			const strands: X.Strand[] = [];
+			
+			for (const fragment of currentFragments)
+			{
+				for (const [name, fragments] of fragment.localDictionary)
+				{
+					const subject = new X.Subject(name);
+					const pointers = <X.Pointer[]>fragments
+						.map(frag => frag.associatedPointer)
+						.filter(ptr => !!ptr);
+					
+					const tipAtom = new X.Atom(subject, pointers);
+					const tipMolecule = this.translateAtomToMolecule(tipAtom);
+					strands.push(new X.Strand(baseMolecules.concat(tipMolecule)));
+				}
+			}
+			
+			return strands;
 		}
-		else throw "Not implemented";
+		
+		return new X.Strand(baseMolecules);
+	}
+	
+	/**
+	 * Translates a declaration-side atom, by collecting it's 
+	 * corresponding annotation-side atoms and packaging
+	 * it into a Molecule object.
+	 */
+	private translateAtomToMolecule(atom: X.Atom)
+	{
+		const annotations = atom.pointers
+			.map(ptr => ptr.statement)
+			.filter((stmt, idx, array) => array.indexOf(stmt) < idx)
+			.map(stmt => stmt.annotations)
+			.reduce((accum, ptr) => accum.concat(ptr));
+		
+		// Organize the annotations by subject
+		const subjectPointerMap = new X.MultiMap<string, X.Pointer>();
+		for (const annotation of annotations)
+			subjectPointerMap.add(annotation.subject.toString(), annotation);
+		
+		const referencedAtoms: X.Atom[] = [];
+		for (const [subjectText, pointers] of subjectPointerMap)
+			referencedAtoms.push(new X.Atom(new X.Subject(subjectText), pointers));
+		
+		return new X.Molecule(atom, referencedAtoms);
 	}
 	
 	/**
@@ -201,7 +255,7 @@ export class Fragmenter
 			fragmentArrayAncestry.push(containingFragments);
 		}
 		
-		for (const { level, statement } of containingDoc.visitDescendants(storeTarget, true))
+		for (const { statement, level } of containingDoc.eachDescendant(storeTarget, true))
 		{
 			// Peel back the fragment stack if we're backtracking.
 			if (fragmentArrayAncestry.length > level + 1)
@@ -289,7 +343,7 @@ export class Fragmenter
 		const doc = unstoreTarget.statement.document;
 		const unstoreStmt = unstoreTarget.statement;
 		
-		for (const { level, statement } of doc.visitDescendants(unstoreStmt))
+		for (const { statement } of doc.eachDescendant(unstoreStmt))
 			for (const declaration of statement.declarations)
 				this.fragmentFinder.delete(declaration);
 		
@@ -357,7 +411,6 @@ export class Fragmenter
 		
 		const recurse = (fragment: Fragment) =>
 		{
-			
 			for (const fragmentArray of fragment.localDictionary.values())
 			{
 				for (const fragment of fragmentArray)
@@ -369,7 +422,6 @@ export class Fragmenter
 					const code = ++nextCode;
 					fragmentCodeMap.set(fragment, code);
 					
-					const statement = ptr.statement;
 					const term = ptr.subject.toString();
 					const indent = "\t".repeat(level);
 					lines.push(indent + term + " (" + code + ")");
@@ -404,7 +456,6 @@ export class Fragmenter
 		return lines.join("\n");
 	}
 }
-
 
 
 /**
@@ -442,10 +493,10 @@ class Fragment
 	/**
 	 * A map of the names of the terms defined in this fragment,
 	 * and a reference to the lower-level fragments that sit beneath
-	 * them. In the overwhelmingly common case, the fragment array
-	 * value will only contain a single entry. Fragment arrays with 
-	 * multiple entries only exist in the case when more than one 
-	 * equivalently named subject exists below a single pointer.
+	 * them. In the common case, the fragment array will only contain
+	 * a single entry. Fragment arrays with multiple entries only exist
+	 * in the case when more than one equivalently named subject
+	 * exists below a single pointer.
 	 */
 	readonly localDictionary = new Map<string, Fragment[]>();
 	
@@ -537,13 +588,5 @@ class Fragment
 			yield currentContainer;
 			currentContainer = currentContainer.container;
 		}
-	}
-	
-	/**
-	 * 
-	 */
-	*eachContainee()
-	{
-		yield null!;
 	}
 }

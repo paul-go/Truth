@@ -1,0 +1,25 @@
+//
+// Patterns can match types defined as list intrinsics.
+//
+
+Integer
+/\d+/ : Integer
+
+Item
+List : Item...
+List...
+	MinSize : Integer
+	MaxSize : Integer
+	
+/List[<MinSize> .. <MaxSize>]/ : List
+
+Class
+	Value : List
+
+SubClass : Class
+	Value : List[1 .. 10]
+		~ MinSize : 1
+		~ MaxSize : 10
+		: Item
+		: Item
+		: Item

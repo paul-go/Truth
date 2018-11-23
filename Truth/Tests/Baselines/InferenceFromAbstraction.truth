@@ -1,0 +1,15 @@
+//
+// This example demonstrates type inference from the hierarchy
+// of abstraction. It also demonstrates how type inference via
+// abstraction takes precedence over containment.
+//
+
+String
+Number
+Property : Number
+
+Class
+	Property : String
+
+SubClass : Class
+	Property ~ String

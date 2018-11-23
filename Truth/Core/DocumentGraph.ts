@@ -56,17 +56,13 @@ export class DocumentGraph
 	 * Reads a Document from the specified URI.
 	 * The document is created and returned, asynchronously.
 	 */
-	async read(uri: X.Uri | string)
+	async read(uri: X.Uri)
 	{
-		const docUri = X.Uri.create(uri);
-		if (!docUri)
-			throw X.ExceptionMessage.invalidUri();
-		
-		const readResult = await X.UriReader.tryRead(docUri);
+		const readResult = await X.UriReader.tryRead(uri);
 		if (readResult instanceof Error)
 			return readResult;
 		
-		return this.create(docUri, readResult);
+		return this.create(uri, readResult);
 	}
 	
 	/**
@@ -92,9 +88,19 @@ export class DocumentGraph
 		const zero = arguments.length === 0;
 		const one = arguments.length === 1;
 		
-		const uri = zero || one ? 
-			X.Uri.createInternal() :
-			X.Uri.create(param1 || "");
+		const uri = (() =>
+		{
+			if (zero || one)
+				return X.Uri.create();
+			
+			if (!param1)
+				return null;
+			
+			if (param1 instanceof X.Uri)
+				return param1;
+			
+			return X.Uri.parse(param1);
+		})();
 		
 		if (!uri)
 			throw X.ExceptionMessage.invalidUri();
@@ -134,38 +140,72 @@ export class DocumentGraph
 	 * @returns The document loaded into this graph
 	 * with the specified URI.
 	 */
-	get(uri: X.Uri | string)
+	get(uri: X.Uri)
 	{
-		const docUri = X.Uri.create(uri);
-		if (!docUri)
-			throw X.ExceptionMessage.invalidUri();
-		
-		const entry = this.documents.get(docUri.toString());
+		const entry = this.documents.get(uri.toString());
 		return entry ? entry.document : null;
 	}
 	
 	/**
-	 * @returns An array containing all documents
-	 * loaded into this graph.
+	 * @returns An array containing all documents loaded into this
+	 * DocumentGraph. The array returned is sorted topologically 
+	 * from left to right, so that forward traversals are guaranteed 
+	 * to not cause dependency conflicts.
 	 */
-	getAll()
+	each()
 	{
-		return Array.from(this.documents.values()).map(entry => entry.document);
+		// The topological sorting mechanism uses a variant of depth-first search.
+		// Algorithm is described here: https://en.wikipedia.org/wiki/Topological_sorting
+		
+		const sortedResult: X.Document[] = [];
+		const docsFinalized = new Set<X.Document>();
+		const docsInStack = new Set<X.Document>();
+		const allDocs = Array.from(this.documents.values())
+			.map(entry => entry.document);
+		
+		const recurse = (currentDoc: X.Document) =>
+		{
+			if (docsFinalized.has(currentDoc))
+				return;
+			
+			// Cycle detected. This condition should never pass because
+			// DocumentGraph is supposed to prevent cycles.
+			if (docsInStack.has(currentDoc))
+				throw X.ExceptionMessage.unknownState();
+			
+			docsInStack.add(currentDoc);
+			
+			const deps = this.dependencies.get(currentDoc);
+			
+			if (deps)
+				for (const dep of deps)
+					recurse(dep.target);
+			
+			docsFinalized.add(currentDoc);
+			sortedResult.unshift(currentDoc);
+		}
+		
+		while (docsFinalized.size < allDocs.length)
+		{
+			const nextUnvisited = allDocs.find(d => !docsFinalized.has(d));
+			if (!nextUnvisited)
+				throw X.ExceptionMessage.unknownState();
+			
+			recurse(nextUnvisited);
+		}
+		
+		return sortedResult;
 	}
 	
 	/**
 	 * Deletes a document that was previously loaded into the compiler.
 	 * Intended to be called by the host environment when a file changes.
 	 */
-	delete(target: X.Document | X.Uri | string)
+	delete(target: X.Document | X.Uri)
 	{
 		const doc = target instanceof X.Document ? target : (() =>
 		{
-			const docUri = X.Uri.create(target);
-			if (!docUri)
-				throw X.ExceptionMessage.invalidUri();
-			
-			const entry = this.documents.get(docUri.toString());
+			const entry = this.documents.get(target.toString());
 			return entry ? entry.document : null;
 		})();
 		
@@ -309,8 +349,7 @@ export class DocumentGraph
 				waitFns.forEach(fn => fn());
 			}
 			
-		})(),
-		0);
+		})(), 0);
 	}
 	
 	/**
@@ -463,7 +502,7 @@ export class DocumentGraph
 		
 		for (const [uriText, entry] of this.documents)
 		{
-			const uri = X.Uri.create(uriText);
+			const uri = X.Uri.parse(uriText);
 			const doc = entry.document;
 			const header = entry.header;
 			

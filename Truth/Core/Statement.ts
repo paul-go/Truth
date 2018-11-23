@@ -1,16 +1,17 @@
 import * as X from "./X";
 
 
-let nextID = 0;
-
-
 /**
  * 
  */
 export class Statement
 {
-	/** @internal */
-	private id = ++nextID;
+	/**
+	 * @internal
+	 * Logical clock value used to make chronological 
+	 * creation-time comparisons between Statements.
+	 */
+	readonly stamp = X.VersionStamp.next();
 	
 	/** */
 	constructor(document: X.Document, text: string)
@@ -24,7 +25,6 @@ export class Statement
 		
 		let cursor = -1;
 		const flg = StatementFlags;
-		const char = () => text[cursor];
 		
 		// Compute the indent, while ignoring any carriage return characters
 		while (++cursor < text.length)
@@ -180,171 +180,36 @@ export class Statement
 	}
 	
 	/**
-	 * Returns contextual statement information relevant at 
-	 * the specified character offset. If a pointer exists at the
-	 * specified, offset, it is included in the returned object.
+	 * @returns The kind of StatementRegion that exists
+	 * at the given character offset within the Statement.
 	 */
-	inspect(offset: number)
-	{
-		let region = StatementRegion.none;
-		let pointer: X.Pointer | null = null;
-		
-		if (!this.isNoop)
-		{
-			if (offset === 0)
-			{
-				region = region | StatementRegion.preStatement;
-				
-				if (this.indent === 0)
-					region = region | StatementRegion.preIndent;
-			}
-			else if (offset < this.indent)
-			{
-				region = region | StatementRegion.midIndent;
-			}
-			else 
-			{
-				if (offset === this.indent)
-					region = region | StatementRegion.postIndent;
-				
-				if (offset === this.textContent.length)
-					region = region | StatementRegion.postStatement;
-				
-				if (offset === this.jointPosition)
-					region = region | StatementRegion.preJoint;
-				
-				const pointers = [
-					...Array.from(this.declarations),
-					null,
-					...Array.from(this.annotations)
-				];
-				
-				let side = this.hasaSubjects;
-				
-				// Handle the case when the statement is anonymous and untyped (":")
-				// If there is only one pointer, it has to be the 
-				if (pointers.length === 1)
-				{
-					if (offset > this.jointPosition)
-						region = region | StatementRegion.postJoint;
-				}
-				else for (let idx = -1; ++idx < pointers.length;)
-				{
-					const prevPointer = pointers.length > 1 ? pointers[idx - 1] : undefined;
-					const thisPointer = pointers[idx];
-					
-					// If we're at the joint
-					if (thisPointer === null)
-					{
-						side = this.isaSubjects;
-					}
-					// If the offset is immediately before, immediately after, or on the subject.
-					else if (offset >= thisPointer.offsetStart && offset <= thisPointer.offsetEnd)
-					{
-						region = side === this.hasaSubjects ? 
-							region | StatementRegion.hasaWord :
-							region | StatementRegion.isaWord;
-						
-						pointer = thisPointer;
-						break;
-					}
-					// If we're just before the joint, but past all the has-a words.
-					else if (thisPointer === null && offset < this.jointPosition)
-					{
-						region = region | StatementRegion.preJoint;
-						break;
-					}
-					// If we're just past the joint, but before the first is-a subject
-					else if (prevPointer === null && offset < thisPointer.offsetStart)
-					{
-						region = region | StatementRegion.postJoint;
-						break;
-					}
-					// If we're between words, on either the has-a or is-a side.
-					else if (
-						prevPointer && 
-						thisPointer && 
-						offset >= prevPointer.offsetEnd &&
-						offset <= thisPointer.offsetStart)
-					{
-						region = side === this.hasaSubjects ?
-							region | StatementRegion.postHasaWord :
-							region | StatementRegion.postIsaWord;
-						
-						break;
-					}
-				}
-			}
-		}
-		
-		return {
-			side: this.jointPosition < 0 || offset < this.jointPosition ? 
-				this.hasaSubjects : 
-				this.isaSubjects,
-			region,
-			pointer
-		};
-	}
-	
-	/**
-	 * Gets the kind of StatementArea that exists at the 
-	 * given character offset within the Statement.
-	 */
-	getAreaKind(offset: number)
+	getRegion(offset: number)
 	{
 		if (this.isComment)
-			return StatementAreaKind.void;
+			return StatementRegion.void;
 		
 		if (this.isWhitespace)
-			return StatementAreaKind.whitespace;
+			return StatementRegion.whitespace;
 		
 		if (offset < this.indent)
-			return StatementAreaKind.void;
+			return StatementRegion.void;
 		
 		if (offset <= this.jointPosition)
 		{
 			for (const pointer of this.declarations)
 				if (offset >= pointer.offsetStart && offset <= pointer.offsetEnd)
-					return StatementAreaKind.declaration;
+					return StatementRegion.declaration;
 			
-			return StatementAreaKind.declarationVoid;
+			return StatementRegion.declarationVoid;
 		}
 		else
 		{
 			for (const pointer of this.annotations)
 				if (offset >= pointer.offsetStart && offset <= pointer.offsetEnd)
-					return StatementAreaKind.annotation;
+					return StatementRegion.annotation;
 			
-			return StatementAreaKind.annotationVoid;
+			return StatementRegion.annotationVoid;
 		}
-		
-		return StatementAreaKind.void;
-	}
-	
-	/**
-	 * @returns A pointer to the has-a subject at the specified offset,
-	 * or null if there is no has-a subject at the specified offset.
-	 */
-	getDeclaration(offset: number)
-	{
-		for (const pointer of this.declarations)
-			if (offset >= pointer.offsetStart && offset <= pointer.offsetEnd)
-				return pointer;
-		
-		return null;
-	}
-	
-	/**
-	 * @returns A pointer to the is-a subject at the specified offset,
-	 * or null if there is no is-a subject at the specified offset.
-	 */
-	getAnnotation(offset: number)
-	{
-		for (const pointer of this.annotations)
-			if (offset >= pointer.offsetStart && offset <= pointer.offsetEnd)
-				return pointer;
-		
-		return null;
 	}
 	
 	/**
@@ -391,6 +256,40 @@ export class Statement
 		return this._annotations = out;
 	}
 	private _annotations: X.Pointer[] | null = null;
+	
+	/**
+	 * 
+	 */
+	getSubject(offset: number)
+	{
+		return this.getDeclaration(offset) || this.getAnnotation(offset);
+	}
+	
+	/**
+	 * @returns A pointer to the declaration subject at the 
+	 * specified offset, or null if there is none was found.
+	 */
+	getDeclaration(offset: number)
+	{
+		for (const pointer of this.declarations)
+			if (offset >= pointer.offsetStart && offset <= pointer.offsetEnd)
+				return pointer;
+		
+		return null;
+	}
+	
+	/**
+	 * @returns A pointer to the annotation subject at the 
+	 * specified offset, or null if there is none was found.
+	 */
+	getAnnotation(offset: number)
+	{
+		for (const pointer of this.annotations)
+			if (offset >= pointer.offsetStart && offset <= pointer.offsetEnd)
+				return pointer;
+		
+		return null;
+	}
 	
 	/**
 	 * @returns A string containing the inner comment text of
@@ -440,12 +339,17 @@ export type SubjectBoundaries = ReadonlyMap<number, X.Subject | null>;
  * Defines the areas of a statement that are significantly
  * different when performing inspection.
  */
-export enum StatementAreaKind
+export enum StatementRegion
 {
-	/** */
+	/**
+	 * Refers to the area within a comment statement,
+	 * or the whitespace preceeding a non-no-op.
+	 */
 	void,
 	
-	/** */
+	/**
+	 * Refers to the area 
+	 */
 	whitespace,
 	
 	/** */
@@ -469,117 +373,4 @@ enum StatementFlags
 	isComment = 1,
 	isWhitespace = 2,
 	isDisposed = 4
-}
-
-
-
-
-
-
-
-
-enum StatementRegion
-{
-	/**
-	 * A region cannot be inferred from the statement, because it is a no-op.
-	 */
-	none = 0,
-	
-	/**
-	 * The cursor is at left-most position on the line.
-	 */
-	preStatement = 1,
-	
-	/**
-	 * The cursor is at the left-most position on the line, 
-	 * and whitespace characters are on the right.
-	 * 
-	 * Example:
-	 * |...
-	 */
-	preIndent = 2,
-	
-	/**
-	 * The cursor has indent-related whitespace characters 
-	 * on both it's left and right.
-	 * 
-	 * Example:
-	 * ..|..subject : subject
-	 */
-	midIndent = 4,
-	
-	/**
-	 * The cursor has zero or more whitespace characters on its left,
-	 * and zero non-whitespace characters on its right.
-	 * 
-	 * Example:
-	 * ...|
-	 */
-	postIndent = 8,
-	
-	/**
-	 * The cursor is positioned direct before, directly after, or between
-	 * the characters of a has-a subject.
-	 * 
-	 * Example:
-	 * ...|subject : subject
-	 */
-	hasaWord = 16,
-	
-	/**
-	 * The cursor has zero or more whitespace characters on it's left,
-	 * preceeded by a comma, preceeded by a has-a subject, and either
-	 * one or more whitespace characters to it's right, or the statement
-	 * separator.
-	 * 
-	 * Example:
-	 * subject| : subject
-	 */
-	postHasaWord = 32,
-	
-	/**
-	 * The cursor has zero or more whitespace characters on it's left,
-	 * which are preceeded by the statement separator.
-	 * 
-	 * Example:
-	 * subject |: subject
-	 */
-	preJoint = 64,
-	
-	/**
-	 * The cursor has zero or more whitespace characters on it's left,
-	 * which are preceeded by the statement separator.
-	 * 
-	 * Example:
-	 * subject :| subject
-	 */
-	postJoint = 128,
-	
-	/**
-	 * The cursor is positioned direct before, directly after, 
-	 * or bettween the characters of an is-a subject.
-	 * 
-	 * Example:
-	 * subject : subject|, subject
-	 */
-	isaWord = 256,
-	
-	/**
-	 * The cursor has zero or more whitespace characters on it's left,
-	 * preceeded by a comma, preceeded by an is-a subject, and either
-	 * one or more whitespace characters to it's right, or the statement
-	 * terminator.
-	 * 
-	 * Example:
-	 * subject : subject,| subject
-	 */
-	postIsaWord = 512,
-	
-	/**
-	 * The cursor is at the very last position of the line.
-	 * 
-	 * Example:
-	 * subject : subject|
-	 */
-	postStatement = 1024
 }

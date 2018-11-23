@@ -14,24 +14,32 @@ export class IndentCheckService
 	static disabled: boolean | null;
 	
 	/** */
-	constructor(private readonly program: X.Program)
+	constructor(program: X.Program, autoVerify: boolean)
 	{
-		program.hooks.Revalidate.capture(hook =>
-		{
-			this.check(hook.parents);
-		});
+		this.program = program;
 		
-		program.hooks.DocumentCreated.capture(hook =>
+		if (autoVerify)
 		{
-			this.check(hook.document);
-		});
+			program.hooks.Revalidate.capture(hook =>
+			{
+				this.invoke(hook.parents);
+			});
+			
+			program.hooks.DocumentCreated.capture(hook =>
+			{
+				this.invoke(hook.document);
+			});
+		}
 	}
+	
+	/** */
+	private readonly program: X.Program;
 	
 	/**
 	 * Performs statement-level indent checking, 
 	 * starting at the specified root.
 	 */
-	private check(root: ReadonlyArray<X.Statement> | X.Document)
+	invoke(root: ReadonlyArray<X.Statement> | X.Document)
 	{
 		const warningStatements: X.Statement[] = [];
 		
@@ -57,12 +65,12 @@ export class IndentCheckService
 		
 		if (root instanceof X.Document)
 		{
-			for (const descendent of root.visitDescendants())
-				iterate(descendent.statement);
+			for (const { statement } of root.eachDescendant())
+				iterate(statement);
 		}
 		else for (const parent of root)
-			for (const descendent of parent.document.visitDescendants(parent, true))
-				iterate(descendent.statement);
+			for (const { statement } of parent.document.eachDescendant(parent, true))
+				iterate(statement);
 		
 		for (const warningStatement of warningStatements)
 		{

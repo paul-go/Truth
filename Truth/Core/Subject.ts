@@ -33,7 +33,7 @@ export class Subject
 				// file extension at the end of the the URI, before we 
 				// actually attempt to parse it.
 				if (text.slice(-te.length - 1) === "." + te || text.slice(-ae.length - 1) === "." + ae)
-					this.uri = X.Uri.create(text);
+					this.uri = X.Uri.parse(text);
 			}
 		}
 		else
@@ -50,11 +50,20 @@ export class Subject
 	readonly pluralized: boolean;
 	
 	/** 
-	 * Stores the text of the URI when in the subject is
-	 * formatted as such. When the subject does not
-	 * form a URI, this field is an empty string.
+	 * Stores a related URI when in the subject is
+	 * formatted as such. In other cases, the field
+	 * is an empty string.
 	 */
 	readonly uri: X.Uri | null;
+	
+	/**
+	 * Stores a regular expression pattern object when
+	 * the subject is formatted as such. In other cases, 
+	 * the field is null.
+	 * 
+	 * (Are Pattern objects referentially significant?)
+	 */
+	readonly pattern: X.Pattern | null = null;
 	
 	/** Calculates whether this Subject is structurally equal to another. */
 	equals(other: Subject | string | null)

@@ -44,13 +44,13 @@ export class Document
 			if (statement.isNoop)
 				continue;
 			
-			// Peel back the ancestry to the last container.
-			while (ancestry.length && statement.indent <= ancestry[ancestry.length - 1].indent)
-				ancestry.pop();
-			
 			const lastAncestor = ancestry.length ?
 				ancestry[ancestry.length - 1] :
 				null;
+			
+			// Peel back the ancestry to the last container.
+			while (lastAncestor && statement.indent <= lastAncestor.indent)
+				ancestry.pop();
 			
 			// Always push the current statement on to the ancestry stack.
 			// If the following statement is a sibling rather than a child, 
@@ -236,7 +236,8 @@ export class Document
 			if (currentStatement.indent < childIndent)
 				childIndent = currentStatement.indent;
 			
-			// If we've reached the end of a locality
+			// If we've reached the end of a series of a
+			// statement locality.
 			if (currentStatement.indent <= breakIndent)
 				break;
 			
@@ -352,18 +353,60 @@ export class Document
 	}
 	
 	/**
-	 * Enumerates through statements in the document, 
-	 * optionally including no-ops.
+	 * Enumerates through each statement that is a descendant of the 
+	 * specified statement. If the parameter is null or omitted, all 
+	 * statements in this Document are visited.
+	 * 
+	 * The method yields an object that contains the visited statement,
+	 * as well as a numeric level value that specifies the difference in 
+	 * the number of nesting levels between the specified initialStatement
+	 * and the visited statement.
+	 * 
+	 * @param initialStatement A reference to the statement object
+	 * from where the enumeration should begin.
+	 * 
+	 * @param includeInitial A boolean value indicating whether or
+	 * not the specified initialStatement should also be returned
+	 * as an element in the enumeration. If true, initialStatement
+	 * must be non-null.
 	 */
-	*eachStatement(includeNoops = false)
+	*eachDescendant(
+		initialStatement: X.Statement | null = null, 
+		includeInitial?: boolean)
 	{
-		for (let position = -1; ++position < this.statements.length;)
+		if (includeInitial)
 		{
-			const statement = this.statements[position];
+			if (!initialStatement)
+				throw X.ExceptionMessage.invalidArgument();
 			
-			if (!statement.isNoop || includeNoops)
-				yield { statement, position };
+			yield { statement: initialStatement, level : 0 };
 		}
+		
+		const initialChildren = this.getChildren(initialStatement);
+		const self = this;
+		
+		// The initial level is 0 if the specified initialStatement is
+		// null, because it indicates that the enumeration starts
+		// at the root of the document.
+		let level = initialStatement ? 1 : 0;
+		
+		function *recurse(statement: X.Statement): IterableIterator<{
+			statement: X.Statement,
+			level: number
+		}>
+		{
+			yield { statement, level };
+			
+			level++;
+			 
+			for (const childStatement of self.getChildren(statement))
+				yield *recurse(childStatement);
+			
+			level--;
+		}
+		
+		for (const statement of initialChildren)
+			yield *recurse(statement);
 	}
 	
 	/**
@@ -397,63 +440,6 @@ export class Document
 		return statementOrIndex instanceof X.Statement ?
 			this.getStatementIndex(statementOrIndex) :
 			applyBounds(statementOrIndex, this.statements.length);
-	}
-	
-	/**
-	 * Visits each statement that is a descendant of the specified
-	 * statement. If the parameter is null or omitted, all statements
-	 * in this Document are visited.
-	 * 
-	 * The method yields an object that contains the visited statement,
-	 * as well as a numeric level value that specifies the difference in 
-	 * the number of nesting levels between the specified initialStatement
-	 * and the visited statement.
-	 * 
-	 * @param initialStatement A reference to the statement object
-	 * from where the enumeration should begin.
-	 * 
-	 * @param includeInitial A boolean value indicating whether or
-	 * not the specified initialStatement should also be returned
-	 * as an element in the enumeration. If true, initialStatement
-	 * must be non-null.
-	 */
-	*visitDescendants(
-		initialStatement: X.Statement | null = null, 
-		includeInitial?: boolean)
-	{
-		if (includeInitial)
-		{
-			if (!initialStatement)
-				throw X.ExceptionMessage.invalidArgument();
-			
-			yield { level : 0, statement: initialStatement };
-		}
-		
-		const initialChildren = this.getChildren(initialStatement);
-		const self = this;
-		
-		// The initial level is 0 if the specified initialStatement is
-		// null, because it indicates that the enumeration starts
-		// at the root of the document.
-		let level = initialStatement ? 1 : 0;
-		
-		function *recurse(statement: X.Statement): IterableIterator<{
-			level: number, 
-			statement: X.Statement
-		}>
-		{
-			yield { level, statement };
-			
-			level++;
-			 
-			for (const childStatement of self.getChildren(statement))
-				yield *recurse(childStatement);
-			
-			level--;
-		}
-		
-		for (const statement of initialChildren)
-			yield *recurse(statement);
 	}
 	
 	/** 
@@ -840,6 +826,7 @@ export class Document
 		// Tell subscribers that the edit transaction completed.
 		hooks.EditComplete.run(new X.DocumentParam(this));
 		
+		this._version = X.VersionStamp.next();
 		this.inEdit = false;
 	}
 	
@@ -890,13 +877,23 @@ export class Document
 	private inEdit = false;
 	
 	/**
+	 * @internal
+	 * A rolling version stamp that increments after each edit cycle.
+	 */
+	get version()
+	{
+		return this._version;
+	}
+	private _version = X.VersionStamp.next();
+	
+	/**
 	 * Returns a formatted version of the Document.
 	 */
 	toString()
 	{
 		const lines: string[] = [];
 		
-		for (const { level, statement } of this.visitDescendants())
+		for (const { statement, level } of this.eachDescendant())
 		{
 			const indent = X.Syntax.tab.repeat(level);
 			lines.push(indent + statement.toString());

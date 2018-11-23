@@ -1,0 +1,18 @@
+//
+// Demonstration of Entanglement
+// Truth's A : B operator doesn't directly translate to "A is a B". More specifically,
+// it means "A is a subtype of how B is typed in this context". Therefore, it is possible
+// to inherit from a type, and apply more specificity to the inherited types, causing
+// potentially many types across entire inherited structure to have more specific
+// typing applied.
+//
+A
+	Property : Animal
+	Field : Property
+	
+B : A
+	Property : Rabbit
+
+C : B
+	Property : Lop
+	~ Field : Lop

@@ -13,6 +13,14 @@ export enum UriProtocol
 	unsupported
 }
 
+/** */
+const UriProtocolPrefix: { [prefix: string]: UriProtocol; } = {
+	"//": UriProtocol.https,
+	"https://": UriProtocol.https,
+	"http://": UriProtocol.http,
+	"file://": UriProtocol.file,
+	"system-internal://": UriProtocol.internal
+};
 
 /** 
  * A class that represents a Truth URI.
@@ -25,63 +33,41 @@ export enum UriProtocol
  */
 export class Uri
 {
-	/** */
-	static create(uri: Uri | string, relativeTo: Uri | X.Document | null = null): Uri | null
+	/**
+	 * 
+	 * @param uriText A string containing the URI to parse
+	 * @param relativeFallback A URI that identifies the origin
+	 * of the URI being parsed, used in the case when the
+	 * uriText parameter is a relative path.
+	 */
+	static parse(uriText: string, relativeFallback?: Uri): Uri | null
 	{
-		if (uri instanceof Uri)
-			return uri;
-		
-		if (/\.[a-z]{1,}$/.test(uri))
-			return new Uri(uri, relativeTo);
-		
-		return null;
-	}
-	
-	/** Creates a type URI from the specified Spine object. */
-	static createFromSpine(spine: X.Spine): Uri
-	{
-		const path = spine.nodes.map(node => node.subject).join("/");
-		return new Uri(path, spine.document);
-	}
-	
-	/** Creates a unique internal URI. */
-	static createInternal()
-	{
-		return new Uri("system-internal://" + Math.random().toString().slice(2));
-	}
-	
-	/** */
-	protected constructor(rawUri: string, relativeTo: Uri | X.Document | null = null)
-	{
-		const detectedType = (() =>
+		let protocol = (() =>
 		{
-			const table = {
-				"//": UriProtocol.https,
-				"https://": UriProtocol.https,
-				"http://": UriProtocol.http,
-				"file://": UriProtocol.file,
-				"system-internal://": UriProtocol.internal
-			}; 
-			
-			for (const [scheme, type] of Object.entries(table))
-				if (rawUri.startsWith(scheme))
+			for (const [scheme, type] of Object.entries(UriProtocolPrefix))
+				if (uriText.startsWith(scheme))
 					return type;
 			
-			if (/^([A-Za-z]+-?)+:/.test(rawUri))
+			if (/^([A-Za-z]+-?)+:/.test(uriText))
 				return UriProtocol.unsupported;
 			
 			return UriProtocol.none;
 		})();
 		
-		if (detectedType === UriProtocol.unsupported)
+		if (protocol === UriProtocol.unsupported)
 			throw X.ExceptionMessage.uriNotSupported();
 		
-		const uriNoProto = rawUri.replace(/^([a-z][a-z0-9-.+]*:)?\/\//, "");
-		const [filePath, typePath] = uriNoProto.split("//", 2);
-		const filePathParts = filePath.split("/");
+		const [filePathFull, typePathFull] = uriText
+			.replace(/^([a-z][a-z0-9-.+]*:)?\/\//, "")
+			.split("//", 2);
 		
-		this.ioPath = filePath;
-		this.typePath = typePath ? typePath.split("/") : [];
+		const filePathParts = filePathFull.split("/");
+		
+		let fileName = "";
+		let fileNameBase = "";
+		let fileExtension = "";
+		let ioPath = filePathParts.slice();
+		let typePath = typePathFull ? typePathFull.split("/") : [];
 		
 		if (filePathParts.length)
 		{
@@ -90,90 +76,143 @@ export class Uri
 			
 			if (dotPos >= 0)
 			{
-				this.fileName = lastFilePathPart;
-				this.fileNameBase = lastFilePathPart.slice(0, dotPos);
-				this.fileExtension = lastFilePathPart.slice(dotPos + 1);
+				fileName = lastFilePathPart;
+				fileNameBase = lastFilePathPart.slice(0, dotPos);
+				fileExtension = lastFilePathPart.slice(dotPos + 1);
 			}
 		}
 		
-		// If there is no detected type, then we need
-		// to look to the relativeTo argument to create
-		// the fully qualified path.
-		if (detectedType === UriProtocol.none)
+		// If there is no protocol, then we need
+		// to look to the relativeFallback argument to
+		// create the fully qualified path.
+		if (protocol === UriProtocol.none)
 		{
-			const relativeUri =
-				relativeTo instanceof Uri ? relativeTo :
-				relativeTo instanceof X.Document ? relativeTo.sourceUri :
-				null;
-			
-			if (relativeUri)
+			if (relativeFallback)
 			{
-				const prot = relativeUri.protocol;
+				const prot = relativeFallback.protocol;
 				
 				if (prot === UriProtocol.file)
-					this.ioPath = Path.resolve(relativeUri.ioPath, rawUri);
+					ioPath = Path.resolve(Path.join(...relativeFallback.ioPath), uriText)
+						.split(Path.sep);
 				
 				else if (prot === UriProtocol.https || prot === UriProtocol.http)
-					this.ioPath = "";
+					ioPath = [];
 				
 				else throw X.ExceptionMessage.notImplemented();
 				
-				this.protocol = prot;
+				protocol = prot;
 			}
 			else
 			{
-				// If there is no detected type, and the relativeUri
+				// If there is no detected type, and the relativeFallback
 				// argument wasn't specified, we assume that the
 				// URI refers to a local file, relative to the current
 				// working directory.
-				this.protocol = UriProtocol.file;
-				this.ioPath = Path.resolve(rawUri);
+				protocol = UriProtocol.file;
+				ioPath = Path.resolve(uriText).split(Path.sep);
 			}
 		}
-		// If we have a detected type (meaning one that isn't "none"), 
-		// then it doesn't matter what the relativeTo argument is,
-		// because we've already got an absolute URI.
-		else
-		{
-			this.protocol = detectedType;
-		}
+		
+		return new Uri(
+			protocol,
+			fileName,
+			fileNameBase,
+			fileExtension,
+			ioPath,
+			typePath);
 	}
 	
 	/**
-	 * Stores a reference to the protocol used by the URI.
+	 * Creates a new Uri from the specified input.
+	 * 
+	 * @param from If the parameter is omited, a unique internal
+	 * URI is generated.
 	 */
-	readonly protocol: UriProtocol;
+	static create(from?: X.Spine | X.Strand | Uri): Uri
+	{
+		if (from === undefined)
+			return this.parse("system-internal://" + Math.random().toString().slice(2))!;
+		
+		if (from instanceof X.Spine)
+		{
+			const srcUri = from.document.sourceUri;
+			const typeSegments = from.nodes.map(n => n.subject.toString());
+			return new Uri(
+				srcUri.protocol,
+				srcUri.fileName,
+				srcUri.fileNameBase,
+				srcUri.fileExtension,
+				srcUri.ioPath,
+				typeSegments);
+		}	
+		
+		if (from instanceof X.Strand)
+		{
+			const mols = from.molecules;
+			if (mols.length === 0)
+				throw X.ExceptionMessage.unknownState();
+			
+			const ptrs = mols[0].localAtom.pointers;
+			if (ptrs.length === 0)
+				throw X.ExceptionMessage.unknownState();
+			
+			const srcUri = ptrs[0].statement.document.sourceUri;
+			const typeSegments = from.molecules
+				.map(m => m.localAtom.subject.toString());
+			
+			return new Uri(
+				srcUri.protocol,
+				srcUri.fileName,
+				srcUri.fileNameBase,
+				srcUri.fileExtension,
+				srcUri.ioPath,
+				typeSegments);
+		}
+		
+		if (from instanceof X.Uri)
+			return from;
+		
+		throw X.ExceptionMessage.unknownState();
+	}
 	
-	/**
-	 * Stores the file name specified in the URI, if one exists.
-	 */
-	readonly fileName: string = "";
-	
-	/**
-	 * Stores the base file name specified in the URI.
-	 * For example, for the URI path/to/dir/file.ext, base would
-	 * be the string "file". If the URI does not contain a file
-	 * name, the field is an empty string.
-	 */
-	readonly fileNameBase: string = "";
-	
-	/**
-	 * Stores the extension of the file specified in the URI,
-	 * without the dot character. If the URI does not contain
-	 * a file name, the field is an empty string.
-	 */
-	readonly fileExtension: string = "";
-	
-	/** 
-	 * Stores the fully qualified path to the file, and the file
-	 * name itself, but without any protocol.
-	 */
-	readonly ioPath: string = "";
-	
-	/**
-	 * Stores the contents of any type path specified in the URI.
-	 */
-	readonly typePath: ReadonlyArray<string> = [];
+	/** */
+	protected constructor(
+		/**
+		 * Stores a reference to the protocol used by the URI.
+		 */
+		readonly protocol: UriProtocol,
+		
+		/**
+		 * Stores the file name specified in the URI, if one exists.
+		 */
+		readonly fileName: string,
+		
+		/**
+		 * Stores the base file name specified in the URI.
+		 * For example, for the URI path/to/dir/file.ext, base would
+		 * be the string "file". If the URI does not contain a file
+		 * name, the field is an empty string.
+		 */
+		readonly fileNameBase: string,
+		
+		/**
+		 * Stores the extension of the file specified in the URI,
+		 * without the dot character. If the URI does not contain
+		 * a file name, the field is an empty string.
+		 */
+		readonly fileExtension: string,
+		
+		/** 
+		 * Stores the fully qualified path to the file, and the file
+		 * name itself, but without any protocol.
+		 */
+		readonly ioPath: ReadonlyArray<string>,
+		
+		/**
+		 * Stores the contents of any type path specified in the URI.
+		 */
+		readonly typePath: ReadonlyArray<string>)
+	{ }
 	
 	/**
 	 * Converts the URI to a fully-qualified path including the file name.
@@ -184,7 +223,7 @@ export class Uri
 			UriProtocol[this.protocol] + "://" :
 			"";
 		
-		const ioPath = Path.join(this.ioPath);
+		const ioPath = Path.join(...this.ioPath);
 		const typePath = includeTypePath ?
 			"//" + this.typePath.map(s => s.replace(/\//g, "\\/")).join("/") : 
 			"";
@@ -201,32 +240,51 @@ export class Uri
 	}
 	
 	/**
-	 * @returns A copy of this Uri, but with mutable properties.
+	 * Creates a new Uri, whose typePath and ioPath
+	 * fields are retracted by the specified levels of
+	 * depth.
+	 * 
+	 * @returns A new Uri that is otherwise a copy of this 
+	 * one, but with it's IO path and type path peeled
+	 * back by the specified numbero of levels.
 	 */
-	toMutable()
+	retract(ioRetraction = 0, typeRetraction = 1)
 	{
-		const rawUri = this.toString();
-		const self = this;
+		if (typeRetraction > this.typePath.length)
+			throw X.ExceptionMessage.invalidUriRetraction();
 		
-		return new class MutableUri extends Uri
-		{
-			/** */
-			constructor()
-			{
-				super(rawUri);
-			}
-			
-			/** */
-			ioPath = self.ioPath;
-			
-			/** */
-			typePath = self.typePath;
-			
-			/** Creates an immutable URI from this MutableUri object. */
-			freeze(): Uri
-			{
-				return Object.freeze(new Uri(this.toString()));
-			}
-		}
+		if (ioRetraction > this.ioPath.length)
+			throw X.ExceptionMessage.invalidUriRetraction();
+		
+		return new Uri(
+			this.protocol,
+			this.fileName,
+			this.fileNameBase,
+			this.fileExtension,
+			this.ioPath.slice(0, ioRetraction ? -ioRetraction : undefined),
+			this.typePath.slice(0, -typeRetraction));
+	}
+	
+	/**
+	 * @returns A new Uri, whose typePath and ioPath
+	 * fields are extended with the specified segments.
+	 */
+	extend(ioSegments: string | string[], typeSegments: string | string[])
+	{
+		const ioSegmentsArray = typeof ioSegments === "string" ?
+			[ioSegments] :
+			ioSegments;
+		
+		const typeSegmentsArray = typeof typeSegments === "string" ?
+			[typeSegments] :
+			typeSegments;
+		
+		return new Uri(
+			this.protocol,
+			this.fileName,
+			this.fileNameBase,
+			this.fileExtension,
+			this.ioPath.concat(...ioSegmentsArray.filter(s => s)),
+			this.typePath.concat(...typeSegmentsArray.filter(s => s)));
 	}
 }

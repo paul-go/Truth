@@ -5,136 +5,81 @@ declare namespace Truth {
 	 * The top-level object that manages Truth documents.
 	 */
 	export class Program {
-		/** */
-		constructor();
+		/**
+		 * Creates a new Program, into which Documents may
+		 * be added, and verified.
+		 * 
+		 * @param autoVerify Indicates whether verification should
+		 * occur after every edit cycle, and reports faults to this
+		 * Program's .faults field.
+		 */
+		constructor(autoVerify?: boolean);
 		/** */
 		readonly hooks: HookTypesInstance;
 		/** */
 		readonly agents: Agents;
 		/** */
 		readonly documents: DocumentGraph;
-		/** */
-		readonly types: TypeGraph;
-		/** */
+		/**  */
 		readonly faults: FaultService;
+		/** */
+		private readonly indentCheckService;
 		/**
-		 * Begin inspecting the specified document,
-		 * starting with the types defined at it's root.
+		 * Stores an object that allows type analysis to be performed on
+		 * this Program. It is reset at the beginning of every edit cycle.
 		 */
-		inspect(document: Document): ProgramInspectionSite;
+		private lastProgramAnalyzer;
 		/**
+		 * Performs a full verification of all documents loaded into the program.
+		 * This Program's .faults field is populated with any faults generated as
+		 * a result of the verification. If no documents loaded into this program
+		 * has been edited since the last verification, verification is not re-attempted.
 		 * 
+		 * @returns An entrypoint into performing analysis of the Types that
+		 * have been defined in this program.
 		 */
-		inspect(document: Document, line: number, offset: number): ProgramInspectionSite;
+		analyze(): ProgramAnalyzer;
 		/**
-		 * 
+		 * Begin inspecting a document loaded
+		 * into this program, a specific location.
 		 */
-		inspect(document: Document, statement: Statement): ProgramInspectionSite;
-		/**
-		 * 
-		 */
-		inspect(document: Document, pointer: Pointer): ProgramInspectionSite;
+		inspect(document: Document, line: number, offset: number): ProgramInspectionResult;
 	}
 	/**
-	 * Defines an area in a particular document where Program
-	 * inspection can begin.
+	 * Stores the details about a precise location in a Document.
 	 */
-	export class ProgramInspectionSite {
-		/** */
-		private readonly program;
-		/** */
-		private readonly document;
-		/** */
-		private readonly line;
-		/** */
-		private readonly offset;
-		/** */
-		private readonly area;
-		/** */
-		private readonly statement;
-		/** */
-		private readonly pointer;
-		/** */
-		private readonly typeConstructor;
+	export class ProgramInspectionResult {
 		/**
-		 * Gets the statement that is the parent of this
-		 * ProgramInspectionPoint's statement object.
-		 * 
-		 * In the case when this statement is top level,
-		 * a reference to the statement's containing
-		 * document is returned.
-		 * 
-		 * In the case when the inspection point has
-		 * no logical parent, such as if the statement
-		 * is a comment, the returned value is null.
+		 * Stores the compilation object that most closely represents
+		 * what was found at the specified location.
 		 */
-		readonly parent: Statement | Document | null;
-		private _parent;
+		readonly result: Document | Type[] | Pattern | Alias | null;
 		/**
-		 * Gets information about any declaration found at
-		 * the document location specified in the constructor
-		 * parameters of this object.
-		 * 
-		 * Gets null in the case when something other than
-		 * a declaration is found at the location.
+		 * Stores the Statement found at the specified location.
 		 */
-		readonly declaration: DeclarationSite | null;
-		private _declaration;
+		readonly statement: Statement;
 		/**
-		 * Get information about any annotation found at
-		 * the document location specified in the constructor
-		 * parameters of this object.
-		 * 
-		 * Gets null in the case when something other than
-		 * an annotation is found at the location.
+		 * Stores the Pointer found at the specified location, or
+		 * null in the case when no Pointer was found, such as if
+		 * the specified location is whitespace or a comment.
 		 */
-		readonly annotation: AnnotationSite | null;
-		private _annotation;
+		readonly pointer: Pointer | null;
 	}
 	/**
-	 * A class that allows access to the underlying
-	 * Types defined at the point of one single
-	 * subject within a document.
+	 * Provides an entry point for enumeration through
+	 * the types defined in a program.
 	 */
-	export class DeclarationSite {
-		constructor(pointer: Pointer, typeConstructor: TypeConstructor);
+	export class ProgramAnalyzer {
+		private program;
+		/**
+		 * Enumerate through all types defined in the Program.
+		 */
+		enumerate(filterDocument?: Document): IterableIterator<IterableIterator<{
+			type: Type;
+			document: Document;
+		}>>;
 		/** */
-		readonly pointer: Pointer;
-		/**
-		 * Stores a reference to the TypeConstructor object
-		 * used across the current frame.
-		 */
-		private readonly typeConstructor;
-		/**
-		 * Gets the array of types referenced at the declaration site.
-		 * Multiple types may be related to a single declaration site
-		 * in the case when it's contained by a statement with multiple
-		 * declarations.
-		 */
-		readonly types: ReadonlyArray<Type>;
-		private _types;
-	}
-	/**
-	 * 
-	 */
-	export class AnnotationSite {
-		constructor(pointer: Pointer);
-		/** */
-		readonly subject: Subject;
-		/**
-		 * Gets an array representing the declaration sites that
-		 * sit to the left of this annotation site in the document.
-		 */
-		readonly adjacentDeclarations: ReadonlyArray<DeclarationSite>;
-		private _adjacentDeclarations;
-		/**
-		 * Gets an array representing the declaration sites that
-		 * sit to the left of this annotation site in the document.
-		 */
-		readonly matches: ReadonlyArray<Match>;
-		private _matches;
-		/** */
-		private readonly pointer;
+		private readonly roots;
 	}
 	/**
 	 * A cache that stores all agents loaded by the compiler.
@@ -416,46 +361,6 @@ declare namespace Truth {
 		constructor(accepted: boolean);
 	}
 	/** */
-	export class DeclareParam {
-		readonly program: Program;
-		readonly spine: Spine;
-		constructor(program: Program, spine: Spine);
-	}
-	/** */
-	export class DeclareResult {
-		/**
-		 * Assignable value to ignore the declaration
-		 * of the term attempting to be declared.
-		 */
-		readonly ignoreTerm: boolean;
-		/**
-		 * Assignable value to ignore the declaration
-		 * of all terms on the has-a side of the statement.
-		 */
-		readonly ignoreHasaTerms: boolean;
-		/**
-		 * Assignable value to ignore the declaration
-		 * of all terms on the is-a side of the statement.
-		 */
-		readonly ignoreIsaTerms: boolean;
-		constructor(
-		/**
-		 * Assignable value to ignore the declaration
-		 * of the term attempting to be declared.
-		 */
-		ignoreTerm: boolean,
-		/**
-		 * Assignable value to ignore the declaration
-		 * of all terms on the has-a side of the statement.
-		 */
-		ignoreHasaTerms: boolean,
-		/**
-		 * Assignable value to ignore the declaration
-		 * of all terms on the is-a side of the statement.
-		 */
-		ignoreIsaTerms: boolean);
-	}
-	/** */
 	export class FaultParam {
 		readonly document: Document;
 		readonly fault: Fault;
@@ -535,12 +440,26 @@ declare namespace Truth {
 		 */
 		getNotes(statement: Statement | number): string[];
 		/**
-		 * Enumerates through statements in the document,
-		 * optionally including no-ops.
+		 * Enumerates through each statement that is a descendant of the
+		 * specified statement. If the parameter is null or omitted, all
+		 * statements in this Document are visited.
+		 * 
+		 * The method yields an object that contains the visited statement,
+		 * as well as a numeric level value that specifies the difference in
+		 * the number of nesting levels between the specified initialStatement
+		 * and the visited statement.
+		 * 
+		 * @param initialStatement A reference to the statement object
+		 * from where the enumeration should begin.
+		 * 
+		 * @param includeInitial A boolean value indicating whether or
+		 * not the specified initialStatement should also be returned
+		 * as an element in the enumeration. If true, initialStatement
+		 * must be non-null.
 		 */
-		eachStatement(includeNoops?: boolean): IterableIterator<{
+		eachDescendant(initialStatement?: Statement | null, includeInitial?: boolean): IterableIterator<{
 			statement: Statement;
-			position: number;
+			level: number;
 		}>;
 		/**
 		 * Reads the Statement at the given position.
@@ -558,28 +477,6 @@ declare namespace Truth {
 		 * index.
 		 */
 		private toIndex;
-		/**
-		 * Visits each statement that is a descendant of the specified
-		 * statement. If the parameter is null or omitted, all statements
-		 * in this Document are visited.
-		 * 
-		 * The method yields an object that contains the visited statement,
-		 * as well as a numeric level value that specifies the difference in
-		 * the number of nesting levels between the specified initialStatement
-		 * and the visited statement.
-		 * 
-		 * @param initialStatement A reference to the statement object
-		 * from where the enumeration should begin.
-		 * 
-		 * @param includeInitial A boolean value indicating whether or
-		 * not the specified initialStatement should also be returned
-		 * as an element in the enumeration. If true, initialStatement
-		 * must be non-null.
-		 */
-		visitDescendants(initialStatement?: Statement | null, includeInitial?: boolean): IterableIterator<{
-			level: number;
-			statement: Statement;
-		}>;
 		/**
 		 * Starts an edit transaction in the specified callback function.
 		 * Edit transactions are used to synchronize changes made in
@@ -620,6 +517,7 @@ declare namespace Truth {
 		 * edit transaction is currently underway.
 		 */
 		private inEdit;
+		private _version;
 		/**
 		 * Returns a formatted version of the Document.
 		 */
@@ -659,7 +557,7 @@ declare namespace Truth {
 		 * Reads a Document from the specified URI.
 		 * The document is created and returned, asynchronously.
 		 */
-		read(uri: Uri | string): Promise<Error | Document>;
+		read(uri: Uri): Promise<Error | Document>;
 		/**
 		 * Creates a temporary document that will exist only in memory.
 		 * The document may not be linked to other documents in the
@@ -686,17 +584,19 @@ declare namespace Truth {
 		 * @returns The document loaded into this graph
 		 * with the specified URI.
 		 */
-		get(uri: Uri | string): Document | null;
+		get(uri: Uri): Document | null;
 		/**
-		 * @returns An array containing all documents
-		 * loaded into this graph.
+		 * @returns An array containing all documents loaded into this
+		 * DocumentGraph. The array returned is sorted topologically
+		 * from left to right, so that forward traversals are guaranteed
+		 * to not cause dependency conflicts.
 		 */
-		getAll(): Document[];
+		each(): Document[];
 		/**
 		 * Deletes a document that was previously loaded into the compiler.
 		 * Intended to be called by the host environment when a file changes.
 		 */
-		delete(target: Document | Uri | string): void;
+		delete(target: Document | Uri): void;
 		/**
 		 * Removes all documents from this graph.
 		 */
@@ -809,30 +709,10 @@ declare namespace Truth {
 		 */
 		readonly textContent: string;
 		/**
-		 * Returns contextual statement information relevant at
-		 * the specified character offset. If a pointer exists at the
-		 * specified, offset, it is included in the returned object.
+		 * @returns The kind of StatementRegion that exists
+		 * at the given character offset within the Statement.
 		 */
-		inspect(offset: number): {
-			side: ReadonlyMap<number, Subject | null>;
-			region: StatementRegion;
-			pointer: Pointer | null;
-		};
-		/**
-		 * Gets the kind of StatementArea that exists at the
-		 * given character offset within the Statement.
-		 */
-		getAreaKind(offset: number): StatementAreaKind;
-		/**
-		 * @returns A pointer to the has-a subject at the specified offset,
-		 * or null if there is no has-a subject at the specified offset.
-		 */
-		getDeclaration(offset: number): Pointer | null;
-		/**
-		 * @returns A pointer to the is-a subject at the specified offset,
-		 * or null if there is no is-a subject at the specified offset.
-		 */
-		getAnnotation(offset: number): Pointer | null;
+		getRegion(offset: number): StatementRegion;
 		/**
 		 * Gets the set of pointers in that represent all declarations
 		 * and annotations in this statement, from left to right.
@@ -850,6 +730,20 @@ declare namespace Truth {
 		 */
 		readonly annotations: Pointer[];
 		private _annotations;
+		/**
+		 * 
+		 */
+		getSubject(offset: number): Pointer | null;
+		/**
+		 * @returns A pointer to the declaration subject at the
+		 * specified offset, or null if there is none was found.
+		 */
+		getDeclaration(offset: number): Pointer | null;
+		/**
+		 * @returns A pointer to the annotation subject at the
+		 * specified offset, or null if there is none was found.
+		 */
+		getAnnotation(offset: number): Pointer | null;
 		/**
 		 * @returns A string containing the inner comment text of
 		 * this statement, excluding the comment syntax token.
@@ -871,10 +765,15 @@ declare namespace Truth {
 	 * Defines the areas of a statement that are significantly
 	 * different when performing inspection.
 	 */
-	export enum StatementAreaKind {
-		/** */
+	export enum StatementRegion {
+		/**
+		 * Refers to the area within a comment statement,
+		 * or the whitespace preceeding a non-no-op.
+		 */
 		void = 0,
-		/** */
+		/**
+		 * Refers to the area
+		 */
 		whitespace = 1,
 		/** */
 		declaration = 2,
@@ -884,99 +783,6 @@ declare namespace Truth {
 		declarationVoid = 4,
 		/** */
 		annotationVoid = 5
-	}
-	enum StatementRegion {
-		/**
-		 * A region cannot be inferred from the statement, because it is a no-op.
-		 */
-		none = 0,
-		/**
-		 * The cursor is at left-most position on the line.
-		 */
-		preStatement = 1,
-		/**
-		 * The cursor is at the left-most position on the line,
-		 * and whitespace characters are on the right.
-		 * 
-		 * Example:
-		 * |...
-		 */
-		preIndent = 2,
-		/**
-		 * The cursor has indent-related whitespace characters
-		 * on both it's left and right.
-		 * 
-		 * Example:
-		 * ..|..subject : subject
-		 */
-		midIndent = 4,
-		/**
-		 * The cursor has zero or more whitespace characters on its left,
-		 * and zero non-whitespace characters on its right.
-		 * 
-		 * Example:
-		 * ...|
-		 */
-		postIndent = 8,
-		/**
-		 * The cursor is positioned direct before, directly after, or between
-		 * the characters of a has-a subject.
-		 * 
-		 * Example:
-		 * ...|subject : subject
-		 */
-		hasaWord = 16,
-		/**
-		 * The cursor has zero or more whitespace characters on it's left,
-		 * preceeded by a comma, preceeded by a has-a subject, and either
-		 * one or more whitespace characters to it's right, or the statement
-		 * separator.
-		 * 
-		 * Example:
-		 * subject| : subject
-		 */
-		postHasaWord = 32,
-		/**
-		 * The cursor has zero or more whitespace characters on it's left,
-		 * which are preceeded by the statement separator.
-		 * 
-		 * Example:
-		 * subject |: subject
-		 */
-		preJoint = 64,
-		/**
-		 * The cursor has zero or more whitespace characters on it's left,
-		 * which are preceeded by the statement separator.
-		 * 
-		 * Example:
-		 * subject :| subject
-		 */
-		postJoint = 128,
-		/**
-		 * The cursor is positioned direct before, directly after,
-		 * or bettween the characters of an is-a subject.
-		 * 
-		 * Example:
-		 * subject : subject|, subject
-		 */
-		isaWord = 256,
-		/**
-		 * The cursor has zero or more whitespace characters on it's left,
-		 * preceeded by a comma, preceeded by an is-a subject, and either
-		 * one or more whitespace characters to it's right, or the statement
-		 * terminator.
-		 * 
-		 * Example:
-		 * subject : subject,| subject
-		 */
-		postIsaWord = 512,
-		/**
-		 * The cursor is at the very last position of the line.
-		 * 
-		 * Example:
-		 * subject : subject|
-		 */
-		postStatement = 1024
 	}
 	/**
 	 * A class that represents a single subject in a Statement.
@@ -992,11 +798,19 @@ declare namespace Truth {
 		/** */
 		readonly pluralized: boolean;
 		/**
-		 * Stores the text of the URI when in the subject is
-		 * formatted as such. When the subject does not
-		 * form a URI, this field is an empty string.
+		 * Stores a related URI when in the subject is
+		 * formatted as such. In other cases, the field
+		 * is an empty string.
 		 */
 		readonly uri: Uri | null;
+		/**
+		 * Stores a regular expression pattern object when
+		 * the subject is formatted as such. In other cases,
+		 * the field is null.
+		 * 
+		 * (Are Pattern objects referentially significant?)
+		 */
+		readonly pattern: Pattern | null;
 		/** Calculates whether this Subject is structurally equal to another. */
 		equals(other: Subject | string | null): boolean;
 		/** Converts this Subject to it's string representation. */
@@ -1071,83 +885,41 @@ declare namespace Truth {
 		readonly nodes: ReadonlyArray<Pointer>;
 	}
 	/**
-	 * A class that defines a type defined within a scope.
-	 * A type may be composed of multiple pointers across
-	 * multiple localities, as represented by the .pointers
-	 * field.
+	 * A class that defines a type located within a
+	 * scope, that has passed all verification tests.
+	 * This class is essentially a lens ontop of
+	 * GraphNode.
 	 */
 	export class Type {
+		private readonly functor;
 		/**
-		 * 
+		 * Creates a new Type from the specified Spine.
+		 * If a Type already exists at the location the corresponds
+		 * to the spine, the existing Type is returned instead.
 		 */
-		constructor(pointers: ReadonlyArray<Pointer>);
+		static get(spine: Spine): Type;
 		/** */
-		readonly name: Subject;
+		private static getFromFunctor;
 		/** */
-		readonly parentType: Type;
-		/** Stores an array of Types that base this one. */
-		readonly bases: ReadonlyArray<Type>;
+		private static readonly cache;
+		/** */
+		private constructor();
 		/**
-		 * Stores an array of annotations which failed to resolve as bases,
-		 * but were successfully resolved by regular expressions. The array is
-		 * sorted in the order in which the annotations appear in the document.
+		 * Stores an array of Faults that where generated as a result of
+		 * analyzing this Type. Note that Faults generated in this way
+		 * can also be found in the FaultService.
 		 */
-		readonly matchables: ReadonlyArray<Match>;
-		/** Stores an array of pointers to has-a side subjects that compose this Type. */
-		readonly fragments: ReadonlyArray<Pointer>;
+		readonly faults: ReadonlyArray<Fault>;
+		private _faults;
 		/** */
-		readonly isSpecified: boolean;
+		readonly uri: Uri;
 		/** */
-		readonly isOverride: boolean;
+		readonly name: string;
 		/** */
-		readonly isIntroduction: boolean;
-		/**
-		 * The set of types that exist in supers that are equivalently
-		 * named as the type that this TypeInfo object represents,
-		 * that contribute to the construction of this type. If this
-		 * Type is an introduction, the array is empty.
-		 */
-		readonly sources: ReadonlyArray<Type>;
-		/** Gets the plurality status of the type. */
-		readonly plurality: Plurality;
-		private _plurality;
-		/**
-		 * Gets an array containing all child Types of this one, whether
-		 * they're specified, unspecified, overriddes, or introductions.
-		 */
-		readonly childTypes: Type[];
-		private _childTypes;
-	}
-	/**
-	 * Stores the plurality status of a Type.
-	 */
-	export enum Plurality {
-		/** Indicates that no plurality information is attached to the type. */
-		none = 0,
-		/** Indicates that the type, or one of it's supers, has been pluralized. */
-		pluralized = 1,
-		/** Indicates that the type has been singularized. */
-		singularized = 2,
-		/** Indicates a conflict in the type's supers about the plurality status. */
-		erroneous = 3
-	}
-	/** */
-	export class Match {
-		readonly text: string;
-		readonly bases: ReadonlyArray<Type>;
-		constructor(text: string, bases: ReadonlyArray<Type>);
-	}
-	/**
-	 * A class that carries out the type construction process.
-	 */
-	export class TypeConstructor {
-		private readonly program;
+		readonly stamp: VersionStamp;
 		/** */
-		constructor(program: Program);
-		/** */
-		exec(spine: Spine): Type;
-		/** */
-		private tryInference;
+		readonly contents: Type[];
+		private _contents;
 	}
 	/** */
 	export enum UriProtocol {
@@ -1168,14 +940,6 @@ declare namespace Truth {
 	 * //domain.com/File.truth//Path/To/Declaration
 	 */
 	export class Uri {
-		/** */
-		static create(uri: Uri | string, relativeTo?: Uri | Document | null): Uri | null;
-		/** Creates a type URI from the specified Spine object. */
-		static createFromSpine(spine: Spine): Uri;
-		/** Creates a unique internal URI. */
-		static createInternal(): Uri;
-		/** */
-		protected constructor(rawUri: string, relativeTo?: Uri | Document | null);
 		/**
 		 * Stores a reference to the protocol used by the URI.
 		 */
@@ -1201,11 +965,58 @@ declare namespace Truth {
 		 * Stores the fully qualified path to the file, and the file
 		 * name itself, but without any protocol.
 		 */
-		readonly ioPath: string;
+		readonly ioPath: ReadonlyArray<string>;
 		/**
 		 * Stores the contents of any type path specified in the URI.
 		 */
 		readonly typePath: ReadonlyArray<string>;
+		/**
+		 * 
+		 * @param uriText A string containing the URI to parse
+		 * @param relativeFallback A URI that identifies the origin
+		 * of the URI being parsed, used in the case when the
+		 * uriText parameter is a relative path.
+		 */
+		static parse(uriText: string, relativeFallback?: Uri): Uri | null;
+		/**
+		 * Creates a new Uri from the specified input.
+		 * 
+		 * @param from If the parameter is omited, a unique internal
+		 * URI is generated.
+		 */
+		static create(from?: Spine | Strand | Uri): Uri;
+		/** */
+		protected constructor(
+		/**
+		 * Stores a reference to the protocol used by the URI.
+		 */
+		protocol: UriProtocol,
+		/**
+		 * Stores the file name specified in the URI, if one exists.
+		 */
+		fileName: string,
+		/**
+		 * Stores the base file name specified in the URI.
+		 * For example, for the URI path/to/dir/file.ext, base would
+		 * be the string "file". If the URI does not contain a file
+		 * name, the field is an empty string.
+		 */
+		fileNameBase: string,
+		/**
+		 * Stores the extension of the file specified in the URI,
+		 * without the dot character. If the URI does not contain
+		 * a file name, the field is an empty string.
+		 */
+		fileExtension: string,
+		/**
+		 * Stores the fully qualified path to the file, and the file
+		 * name itself, but without any protocol.
+		 */
+		ioPath: ReadonlyArray<string>,
+		/**
+		 * Stores the contents of any type path specified in the URI.
+		 */
+		typePath: ReadonlyArray<string>);
 		/**
 		 * Converts the URI to a fully-qualified path including the file name.
 		 */
@@ -1215,46 +1026,20 @@ declare namespace Truth {
 		 */
 		equals(uri: Uri | string): boolean;
 		/**
-		 * @returns A copy of this Uri, but with mutable properties.
+		 * Creates a new Uri, whose typePath and ioPath
+		 * fields are retracted by the specified levels of
+		 * depth.
+		 * 
+		 * @returns A new Uri that is otherwise a copy of this
+		 * one, but with it's IO path and type path peeled
+		 * back by the specified numbero of levels.
 		 */
-		toMutable(): {
-			/** */
-			ioPath: string;
-			/** */
-			typePath: ReadonlyArray<string>;
-			/** Creates an immutable URI from this MutableUri object. */
-			freeze(): Uri;
-			/**
-			 * Stores a reference to the protocol used by the URI.
-			 */
-			readonly protocol: UriProtocol;
-			/**
-			 * Stores the file name specified in the URI, if one exists.
-			 */
-			readonly fileName: string;
-			/**
-			 * Stores the base file name specified in the URI.
-			 * For example, for the URI path/to/dir/file.ext, base would
-			 * be the string "file". If the URI does not contain a file
-			 * name, the field is an empty string.
-			 */
-			readonly fileNameBase: string;
-			/**
-			 * Stores the extension of the file specified in the URI,
-			 * without the dot character. If the URI does not contain
-			 * a file name, the field is an empty string.
-			 */
-			readonly fileExtension: string;
-			/**
-			 * Converts the URI to a fully-qualified path including the file name.
-			 */
-			toString(includeProtocol?: boolean | undefined, includeTypePath?: boolean | undefined): string;
-			/**
-			 * @returns A value indicating whether two URIs point to the same resource.
-			 */
-			equals(uri: string | Uri): boolean;
-			toMutable(): any;
-		};
+		retract(ioRetraction?: number, typeRetraction?: number): Uri;
+		/**
+		 * @returns A new Uri, whose typePath and ioPath
+		 * fields are extended with the specified segments.
+		 */
+		extend(ioSegments: string | string[], typeSegments: string | string[]): Uri;
 	}
 	/** */
 	export class UriReader {
@@ -1307,6 +1092,12 @@ declare namespace Truth {
 		 */
 		has(similarFault: Fault): boolean;
 		/**
+		 * @returns An array of Fault objects that have been reported
+		 * at the specified source. If the source has no faults, an empty
+		 * array is returned.
+		 */
+		check(source: Pointer | Statement): Fault[];
+		/**
 		 * Enumerates through the unrectified faults retained
 		 * by this FaultService.
 		 */
@@ -1357,93 +1148,104 @@ declare namespace Truth {
 	/** */
 	export class UnresolvedResourceFault extends StatementFault {
 		constructor(source: Statement, error?: Error);
-		readonly code = 1000;
+		readonly code = 100;
 		readonly message = "URI points to a resource that could not be resolved.";
 	}
 	/** */
 	export class CircularResourceReferenceFault extends StatementFault {
-		readonly code = 1001;
+		readonly code = 102;
 		readonly message = "URI points to a resource that would cause a circular reference.";
 	}
 	/** */
 	export class InsecureResourceReferenceFault extends StatementFault {
-		readonly code = 1002;
+		readonly code = 104;
 		readonly message: string;
 	}
 	/** */
 	export class UnresolvedAnnotationFault extends PointerFault {
-		readonly code = 1101;
+		readonly code = 201;
 		readonly message = "Unresolved annotation.";
 	}
 	/** */
-	export class CircularTypeDependencyFault extends PointerFault {
-		readonly code = 1102;
-		readonly message = "Circular type dependency detected.";
+	export class CircularTypeReferenceFault extends PointerFault {
+		readonly code = 203;
+		readonly message = "Circular type reference detected.";
 	}
 	/** */
-	export class NonCovariantAnnotationsFault extends StatementFault {
-		readonly code = 1103;
+	export class ContractViolationFault extends StatementFault {
+		readonly code = 204;
 		readonly severity = FaultSeverity.warning;
 		readonly message = "Overridden types must explicitly expand the type as defined in the base.";
 	}
 	/** */
-	export class AnonymousTypeOnPluralFault extends StatementFault {
-		readonly code = 1200;
-		readonly message = "Anonymous types cannot be defined on a plural.";
+	export class AnonymousListIntrinsicTypeFault extends StatementFault {
+		readonly code = 300;
+		readonly message = "List-intrinsic types cannot be anonymous.";
 	}
 	/** */
-	export class DoubleSidedPluralFault extends StatementFault {
-		readonly code = 1201;
-		readonly message = "Pluralization cannot exist on both sides of a statement.";
+	export class ListContractViolationFault extends PointerFault {
+		readonly code = 301;
+		readonly message = "The containing list cannot contain children of this type.";
 	}
 	/** */
-	export class MultiplicatePluralizationFault extends StatementFault {
-		readonly code = 1202;
-		readonly message = "Cannot pluralize an already pluralized type.";
+	export class ListIntrinsicExtendingNonList extends PointerFault {
+		readonly code = 303;
+		readonly message = "List-intrinsics cannot extend from a non-list type.";
 	}
 	/** */
-	export class InvalidPluralChildFault extends StatementFault {
-		readonly code = 1203;
-		readonly message = "The containing plural cannot contain children of this type.";
+	export class PatternInvalidFault extends StatementFault {
+		readonly code = 400;
+		readonly message = "Invalid pattern.";
 	}
 	/** */
-	export class DeclarationSingularizationFault extends StatementFault {
-		readonly code = 1204;
-		readonly message = "Singularization cannot exist on the left side of a statement.";
+	export class PatternWithoutAnnotationFault extends StatementFault {
+		readonly code = 402;
+		readonly message = "Pattern has no annotations.";
+		readonly severity = FaultSeverity.warning;
 	}
 	/** */
-	export class ExpressionInvalidFault extends StatementFault {
-		readonly code = 1300;
-		readonly message = "Invalid Regular Expression.";
+	export class PatternPossiblyMatchesEmptyFault extends StatementFault {
+		readonly code = 404;
+		readonly message = "Pattern could possibly match an empty list of characters.";
 	}
 	/** */
-	export class ExpressionPossiblyMatchesEmptyFault extends StatementFault {
-		readonly code = 1301;
-		readonly message = "Regular expression could possibly match an empty list of characters.";
+	export class PatternNonCovariantFault extends StatementFault {
+		readonly code = 406;
+		readonly message = "Pattern does not match it's base types.";
 	}
 	/** */
-	export class ExpressionDoesNotMatchBasesFault extends StatementFault {
-		readonly code = 1302;
-		readonly message = "Regular Expression does not match it's base types.";
+	export class InlineTypeInRepeatingPatternFault extends StatementFault {
+		readonly code = 408;
+		readonly message = "Inline types cannot exist in a repeating context.";
+	}
+	/**  */
+	export class InlineTypeSelfReferentialFault extends StatementFault {
+		readonly code = 410;
+		readonly message = "Inline types can't be self-referential.";
+	}
+	/**  */
+	export class InlineTypeNonConvariantFault extends StatementFault {
+		readonly code = 412;
+		readonly message = "Inline types can't be self-referential.";
 	}
 	/** */
-	export class ExpressionAliasingPluralFault extends StatementFault {
-		readonly code = 1303;
-		readonly message = "Regular Expressions cannot alias a plural.";
+	export class InlineTypeMustHaveExpressionFault extends StatementFault {
+		readonly code = 414;
+		readonly message = "Inline types must have at least one associated pattern.";
 	}
 	/** */
-	export class NamedEntitiesInRepeatingPatternFault extends StatementFault {
-		readonly code = 1304;
-		readonly message = "Named entities cannot exist in a repeating pattern.";
+	export class InlineTypeRecursiveFault extends StatementFault {
+		readonly code = 416;
+		readonly message = "Recursive types are not allowed as inline types.";
 	}
 	/** */
-	export class ExpressionDescendentsFault extends StatementFault {
-		readonly code = 1305;
-		readonly message = "Regular Expression statements cannot have descendant statements.";
+	export class DiscrepantUnionFault extends StatementFault {
+		readonly code = 450;
+		readonly message: string;
 	}
 	/** */
 	export class TabsAndSpacesFault extends StatementFault {
-		readonly code = 2000;
+		readonly code = 1000;
 		readonly message = "Statement indent contains a mixture of tabs and spaces.";
 		readonly severity = FaultSeverity.warning;
 	}
@@ -1465,20 +1267,22 @@ declare namespace Truth {
 		 */
 		private handleDocumentRemoved;
 		/**
-		 * Performs a defragmentation query, starting at the
-		 * specified URI.
-		 * 
-		 * @returns An array of Defragment objects that target all
-		 * fragments of the type implied by specified pointer.
-		 * @returns Null in the case when the pointer targets
-		 * an unpopulated location.
+		 * Performs a query on the Fragmenter.
+		 * @returns A Strand, or null in the case
+		 * when the URI specified doesn't map to a populated
+		 * location in the document.
 		 */
-		lookup(uri: Uri, returnType: typeof TargetedLookup): Pointer[] | null;
-		lookup(spine: Spine, returnType: typeof TargetedLookup): Pointer[] | null;
-		lookup(uri: Uri, returnType: typeof DescendingLookup): DescendingLookup | null;
-		lookup(spine: Spine, returnType: typeof DescendingLookup): DescendingLookup;
-		lookup(uri: Uri, returnType: typeof SiblingLookup): SiblingLookup | null;
-		lookup(spine: Spine, returnType: typeof SiblingLookup): SiblingLookup;
+		query(uri: Uri): Strand | null;
+		/** */
+		queryContents(uri: Uri): Strand[];
+		/** */
+		private queryInner;
+		/**
+		 * Translates a declaration-side atom, by collecting it's
+		 * corresponding annotation-side atoms and packaging
+		 * it into a Molecule object.
+		 */
+		private translateAtomToMolecule;
 		/**
 		 * Stores the declarations of the specified statement, and
 		 * all of the declarations in it's descendant statements in
@@ -1525,180 +1329,272 @@ declare namespace Truth {
 		toString(): string;
 	}
 	/**
-	 * A class of methods that execute the vertification-supporting
-	 * operations of the system.
+	 * A type that describes a series of Subject objects, that aligns
+	 * with the components of a type URI (the ordering of the
+	 * entry in the map is relevant).
+	 * 
+	 * Each Subject key is related to a set of Pointer objects that
+	 * represent the points of the document that where discovered
+	 * in relation to each component of the type URI.
 	 */
-	export class Operations {
-		private readonly program;
+	export class Strand {
+		readonly molecules: ReadonlyArray<Molecule>;
+		/** */
+		constructor(molecules: ReadonlyArray<Molecule>);
 		/**
-		 * Collects all annotations that have been applied to the
-		 * type referenced by the specified Pointer.
+		 * Creates a string representation of this Strand that
+		 * allows it's contents to be compared with other
+		 * Strand objects with equivalent contents. An example
+		 * of the string format is as follows:
 		 * 
-		 * @returns An array of types representing the collected
-		 * annotations, but with any redundant types pruned.
+		 * 	file://path/to/document.truth
+		 * LocalAtom1
+		 * 	ReferencedAtom1
+		 * 	ReferencedAtom2
+		 * LocalAtom2
+		 * 	ReferencedAtom3
+		 * 	ReferencedAtom4
+		 * 
+		 * Future work may include determining whether returning
+		 * this string as an MD5 hash will result in a reduction of
+		 * memory usage.
 		 */
-		execAnnotationCollection(declaration: Pointer): Subject[];
+		toString(): string;
 		/**
-		 * 
+		 * Clones this Strand into a new object, but with the
+		 * specified number of molecules trimmed from the end.
 		 */
-		execFindSupergraphEquivalents(): void;
-		/**
-		 * 
-		 */
-		execFindAncestorEquivalents(): void;
-		/**
-		 * Attempts to infer the type associated with the
-		 * specified declaration-side Pointer. Performs base
-		 * type inference, falling back to ancestry type
-		 * inference if base type inference fails.
-		 * 
-		 * @returns Null in the case when there are is-a side
-		 * types defined on the type referenced by the
-		 * specified Pointer, and the associated type is
-		 * therefore explicit rather than inferrable.
-		 */
-		execInference(declaration: Pointer): null | undefined;
-		/**
-		 * Attempts to infer the bases that should be implicitly
-		 * applied to the specified type, by searching for equivalently
-		 * named types contained within the specified type's
-		 * Supergraph.
-		 * 
-		 * @param origin The type on which to perform inference.
-		 * It is expected to be unannotated.
-		 * 
-		 * @returns An array of types representing the inferred
-		 * bases. In the case when the specified type has multiple
-		 * supers, and two or more of these supers have a type
-		 * whose name matches the specified type, but differ
-		 * in their bases, multiple bases may be inferred and
-		 * and included in the returned array. However, this only
-		 * happens in the case when these bases cannot be
-		 * pruned down to a single type.
-		 * 
-		 * If no bases could be inferred, an empty array is
-		 * returned.
-		 */
-		execSupergraphInference(origin: Type): Type[] | null;
-		/**
-		 * A strategy for inference that occurs when the
-		 * type is an unbased introduction. Operates by
-		 * scanning up the ancestry to determine if there
-		 * is a matching type.
-		 * 
-		 * Attempts to infer the bases that should be added
-		 * applied to the specified type, by searching for the
-		 * type's equivalents named types explicitly specified
-		 * within the specified type's ancestry of scopes.
-		 * 
-		 * @param origin The type on which to perform
-		 * inference. It is expected to be unannotated.
-		 * 
-		 * @returns A type object representing the inferred
-		 */
-		execAncestorInference(origin: Type): Type | null;
-		/**
-		 * Performs the Polymorphic Base Resolution (PTR)
-		 * algorithm as defined by the specification.
-		 * 
-		 * @returns An array of types that found at
-		 * 
-		 * Base resolution occurs when trying to resolve the
-		 * basings of a given type.
-		 * 
-		 * The result of this method is a either the fully computed
-		 * base-tree, or a base-tree that is sufficiently constructed
-		 * to the point where a guarantee can be made about the
-		 * origins of the type referenced in the specified Pointer.
-		 */
-		execResolution(origin: Pointer): Type[];
-		/**
-		 * 
-		 * Computes the set of types imposed by bases of
-		 * containing types.
-		 * 
-		 * If the parent type is a plural, the contract is not computed
-		 * in a way that has anything to do with equivalents. The
-		 * algorithm simply looks at the bases defined by the
-		 * parent type, and uses these types as the contract.
-		 * 
-		 * Computes the set of types with which a specified
-		 * type T is expected to comply. The argument is a
-		 * has-a side pointer that references the type T.
-		 * If type T is being introduced (as opposed to being
-		 * overridden) in the scope where hasaPointer is
-		 * pointing, then T has an open contract, and
-		 * null is returned.
-		 */
-		execFindExpectation(declaration: Pointer): Type;
-		/**
-		 * The plurality of a type is computed by traversing the
-		 * type's supergraph and determining if all pathways
-		 * leading back to all root bases involve crossing the
-		 * path of a pluralized type. In the case when one or more
-		 * of these pathways cross pluralized types, and one or
-		 * more do not, an error is generated.
-		 */
-		execPluralityCheck(origin: Type): void;
-		/**
-		 * Executes a search for all terms that are visible
-		 * at the specified location.
-		 * 
-		 * The argument
-		 * 
-		 * @returns ?
-		 */
-		execReusablesSearch(statement: Statement): void;
-		/**
-		 * Executes a search for all terms that are dependent
-		 * upon a type T, referenced via the specified has-a
-		 * side Pointer.
-		 * 
-		 * The search occurs across the scope in which the
-		 * specified Pointer exists, and continues deeply into
-		 * any scopes nested inside.
-		 * 
-		 * @returns An array containing Pointer objects that
-		 * reference types which are dependent upon type T.
-		 */
-		execDependentsSearch(hasaPointer: Pointer): Pointer[];
+		retract(depth: number): Strand;
 	}
 	/**
-	 * A graph of types, indexed by their URIs.
+	 * 
 	 */
-	export class TypeGraph {
-		private readonly program;
-		/** */
-		constructor(program: Program);
-		/** */
-		private readonly roots;
+	export class Molecule {
+		readonly localAtom: Atom;
+		readonly referencedAtoms: ReadonlyArray<Atom>;
+		constructor(localAtom: Atom, referencedAtoms: ReadonlyArray<Atom>);
 	}
 	/**
-	 * Mines a Chart for bases. Produces a set of interconnected
-	 * BaseInfo objects that represent the Supergraph.
+	 * 
 	 */
-	export class SuperLinkMiner {
-		private readonly fragmenter;
-		/** */
-		constructor(fragmenter: Fragmenter);
-		/** */
-		mine(uri: Uri, hotPath?: Uri): SuperLink[] | null;
-		/** */
-		private doRecursiveDescendingLookup;
+	export class Atom {
+		readonly subject: Subject;
+		readonly pointers: ReadonlyArray<Pointer>;
+		constructor(subject: Subject, pointers: ReadonlyArray<Pointer>);
+	}
+	/**
+	 * A Functor is a class that acts as a layer ontop
+	 * of a Strand. It provides various methods to
+	 * aid in the construction of Type objects.
+	 */
+	export class Functor {
 		/**
-		 * Stores a map of previously mined typed,
-		 * indexed by their associated Type URI.
+		 * Stores a reference to the Strand from which the values
+		 * of the properties in this Functor are derived.
 		 */
-		private readonly miningResults;
+		private readonly strand;
+		/**
+		 * Stores a reference to the stamp assigned to the
+		 * document at the time this Functor was instantiated.
+		 */
+		readonly stamp: VersionStamp;
+		/**
+		 * Creates a new Functor from the specified Strand.
+		 * If a Functor already exists whose Strand matches
+		 * the one specified, the existing Functor is returned
+		 * instead.
+		 */
+		static get(strand: Strand): Functor;
+		/** */
+		private static readonly cache;
+		/** */
+		private constructor();
+		/**
+		 * Gets the name of this Functor, which will eventually
+		 * become the name of the Type to which this Functor
+		 * will correspond. The name is a stringified representation
+		 * of the related Subject in the document.
+		 */
+		readonly name: string;
+		private _name;
+		/** */
+		readonly atom: Atom;
+		/**
+		 * Gets a Uri object that uniquely identifies this Functor in the
+		 * type tree, which includes the path to the containing document,
+		 * as well as the type path that corresponds to this Functor.
+		 */
+		readonly uri: Uri;
+		private _uri;
+		/**
+		 * Gets a reference to the Functor that directly
+		 * contains this Functor.
+		 */
+		readonly container: Functor | null;
+		private _container;
+		/**
+		 * Gets the array of Functors that contain this one,
+		 * in the order of their containment, starting with the
+		 * directly containing Functor.
+		 */
+		readonly containers: ReadonlyArray<Functor>;
+		private _containers;
+		/**
+		 * Gets an array that contains the Functors that were
+		 * created as a result of declarations being explicitly
+		 * specified.
+		 */
+		readonly contents: Functor[];
+		private _contents;
+		/**
+		 * 
+		 */
+		readonly sources: Functor[];
+		private _sources;
+		/**
+		 * Gets an array of Atoms that could not be resolved to a Functor.
+		 */
+		readonly orphans: Atom[];
+		private _orphans;
+		/**
+		 * Gets an array containing the names of potential
+		 * Functors that this Function references.
+		 */
+		readonly referencedNames: ReadonlyArray<string>;
+		private _referencedNames;
+		/**
+		 * Scans upwards through this Functor's containment
+		 * hierarchy, and produces an array of Functor instances
+		 * whose name matches the one specified.
+		 * 
+		 * For example, given the document below, and beginning
+		 * enumeration from "C" and searching for "T", the yielded
+		 * Functors would be: [T, T, T].
+		 * 
+		 * T
+		 * A
+		 *     T
+		 *     B
+		 *         T
+		 *         C
+		 * 
+		 * This method answers the question: "Which Functors
+		 * does the name "X" refer to in this Functor's containment
+		 * hierarchy?".
+		 */
+		getFunctorsFromContainment(refFunctorName: string): Functor[];
+		/**
+		 * Traverses through this Functor's abstraction DAG,
+		 * and produces an array of Functor instances whose name
+		 * matches the one specified. If the name is omitted, the
+		 * traversal uses this Functor's name as the match
+		 * predicate.
+		 * 
+		 * For example, given the document below, and beginning the
+		 * enumeration from "A/B/C", the returned Functors would
+		 * be: [A/B/C, Y/B/C, X/B/C]
+		 * 
+		 * X
+		 *     B
+		 *         C
+		 * Y
+		 *     B
+		 *         C
+		 * Z
+		 *     B
+		 *         C
+		 * A : X, Y, Z
+		 *     B
+		 *         C
+		 * 
+		 * This method answers the question: "Where are all the
+		 * Functors that may contribute annotations to this Functor?"
+		 */
+		private getFunctorsFromAbstraction;
 	}
 	/**
-	 * A class that links a URI to other URIs that store the base.
+	 * 
 	 */
-	export class SuperLink {
+	export class Base {
+		/**
+		 * 
+		 */
+		readonly route: FunctorResolveRoute;
+		/**
+		 * 
+		 */
+		readonly functor: Functor;
+		/**
+		 * 
+		 */
+		readonly bases: ReadonlyArray<Base>;
+		constructor(
+		/**
+		 * 
+		 */
+		route: FunctorResolveRoute,
+		/**
+		 * 
+		 */
+		functor: Functor,
+		/**
+		 * 
+		 */
+		bases: ReadonlyArray<Base>);
+	}
+	/**
+	 * Defines a series of Stops that describe the route that the
+	 * resolution algorithm took to navigate from one Functor
+	 * to another.
+	 */
+	export class FunctorResolveRoute {
+		readonly stops: Stop[];
 		/** */
-		readonly from: Uri;
+		constructor(stops: Stop[]);
+		/** Gets the Functor where the resolution algorithm began. */
+		readonly origin: Functor;
+	}
+	/**
+	 * 
+	 */
+	export class Stop {
+		readonly relation: StopRelation | null;
+		readonly functor: Functor;
+		constructor(relation: StopRelation | null, functor: Functor);
+	}
+	/**
+	 * 
+	 */
+	export enum StopRelation {
+		container = 0,
+		base = 1
+	}
+	/**
+	 * A class that represents an instance of a
+	 * regular expression declaration.
+	 * 
+	 * (Does this need to be a Pattern AST?)
+	 */
+	export class Pattern {
 		/** */
-		readonly to: ReadonlySet<Uri>;
+		readonly literal = "";
+		/** */
+		readonly container: Type;
+		/** */
+		readonly createsAliasFor: Type[];
+		/** An array containing the Patterns that this one extends. */
+		readonly supers: Pattern[];
+		/** An array containing the Patterns that extend this one. */
+		readonly subs: Pattern[];
+	}
+	/**
+	 * A class that represents a
+	 */
+	export class Alias {
+		/** */
+		readonly pattern: Pattern;
+		/** */
+		readonly content: string;
 	}
 	/**
 	 * 
@@ -1729,6 +1625,20 @@ declare namespace Truth {
 		ancestry: ReadonlyArray<Pointer>,
 		/** */
 		siblings: ReadonlyArray<Pointer>);
+	}
+	/**
+	 * Infinite incremental counter.
+	 */
+	export class VersionStamp {
+		private readonly stamp;
+		/** */
+		static next(): VersionStamp;
+		/** */
+		private static nextStamp;
+		/** */
+		protected constructor(stamp: number | number[]);
+		/** */
+		newerThan(otherStamp: VersionStamp): boolean;
 	}
 	/**
 	 * Contains members that replicate the behavior of
@@ -2012,136 +1922,81 @@ declare module "truth-compiler" {
 	 * The top-level object that manages Truth documents.
 	 */
 	export class Program {
-		/** */
-		constructor();
+		/**
+		 * Creates a new Program, into which Documents may
+		 * be added, and verified.
+		 * 
+		 * @param autoVerify Indicates whether verification should
+		 * occur after every edit cycle, and reports faults to this
+		 * Program's .faults field.
+		 */
+		constructor(autoVerify?: boolean);
 		/** */
 		readonly hooks: HookTypesInstance;
 		/** */
 		readonly agents: Agents;
 		/** */
 		readonly documents: DocumentGraph;
-		/** */
-		readonly types: TypeGraph;
-		/** */
+		/**  */
 		readonly faults: FaultService;
+		/** */
+		private readonly indentCheckService;
 		/**
-		 * Begin inspecting the specified document,
-		 * starting with the types defined at it's root.
+		 * Stores an object that allows type analysis to be performed on
+		 * this Program. It is reset at the beginning of every edit cycle.
 		 */
-		inspect(document: Document): ProgramInspectionSite;
+		private lastProgramAnalyzer;
 		/**
+		 * Performs a full verification of all documents loaded into the program.
+		 * This Program's .faults field is populated with any faults generated as
+		 * a result of the verification. If no documents loaded into this program
+		 * has been edited since the last verification, verification is not re-attempted.
 		 * 
+		 * @returns An entrypoint into performing analysis of the Types that
+		 * have been defined in this program.
 		 */
-		inspect(document: Document, line: number, offset: number): ProgramInspectionSite;
+		analyze(): ProgramAnalyzer;
 		/**
-		 * 
+		 * Begin inspecting a document loaded
+		 * into this program, a specific location.
 		 */
-		inspect(document: Document, statement: Statement): ProgramInspectionSite;
-		/**
-		 * 
-		 */
-		inspect(document: Document, pointer: Pointer): ProgramInspectionSite;
+		inspect(document: Document, line: number, offset: number): ProgramInspectionResult;
 	}
 	/**
-	 * Defines an area in a particular document where Program
-	 * inspection can begin.
+	 * Stores the details about a precise location in a Document.
 	 */
-	export class ProgramInspectionSite {
-		/** */
-		private readonly program;
-		/** */
-		private readonly document;
-		/** */
-		private readonly line;
-		/** */
-		private readonly offset;
-		/** */
-		private readonly area;
-		/** */
-		private readonly statement;
-		/** */
-		private readonly pointer;
-		/** */
-		private readonly typeConstructor;
+	export class ProgramInspectionResult {
 		/**
-		 * Gets the statement that is the parent of this
-		 * ProgramInspectionPoint's statement object.
-		 * 
-		 * In the case when this statement is top level,
-		 * a reference to the statement's containing
-		 * document is returned.
-		 * 
-		 * In the case when the inspection point has
-		 * no logical parent, such as if the statement
-		 * is a comment, the returned value is null.
+		 * Stores the compilation object that most closely represents
+		 * what was found at the specified location.
 		 */
-		readonly parent: Statement | Document | null;
-		private _parent;
+		readonly result: Document | Type[] | Pattern | Alias | null;
 		/**
-		 * Gets information about any declaration found at
-		 * the document location specified in the constructor
-		 * parameters of this object.
-		 * 
-		 * Gets null in the case when something other than
-		 * a declaration is found at the location.
+		 * Stores the Statement found at the specified location.
 		 */
-		readonly declaration: DeclarationSite | null;
-		private _declaration;
+		readonly statement: Statement;
 		/**
-		 * Get information about any annotation found at
-		 * the document location specified in the constructor
-		 * parameters of this object.
-		 * 
-		 * Gets null in the case when something other than
-		 * an annotation is found at the location.
+		 * Stores the Pointer found at the specified location, or
+		 * null in the case when no Pointer was found, such as if
+		 * the specified location is whitespace or a comment.
 		 */
-		readonly annotation: AnnotationSite | null;
-		private _annotation;
+		readonly pointer: Pointer | null;
 	}
 	/**
-	 * A class that allows access to the underlying
-	 * Types defined at the point of one single
-	 * subject within a document.
+	 * Provides an entry point for enumeration through
+	 * the types defined in a program.
 	 */
-	export class DeclarationSite {
-		constructor(pointer: Pointer, typeConstructor: TypeConstructor);
+	export class ProgramAnalyzer {
+		private program;
+		/**
+		 * Enumerate through all types defined in the Program.
+		 */
+		enumerate(filterDocument?: Document): IterableIterator<IterableIterator<{
+			type: Type;
+			document: Document;
+		}>>;
 		/** */
-		readonly pointer: Pointer;
-		/**
-		 * Stores a reference to the TypeConstructor object
-		 * used across the current frame.
-		 */
-		private readonly typeConstructor;
-		/**
-		 * Gets the array of types referenced at the declaration site.
-		 * Multiple types may be related to a single declaration site
-		 * in the case when it's contained by a statement with multiple
-		 * declarations.
-		 */
-		readonly types: ReadonlyArray<Type>;
-		private _types;
-	}
-	/**
-	 * 
-	 */
-	export class AnnotationSite {
-		constructor(pointer: Pointer);
-		/** */
-		readonly subject: Subject;
-		/**
-		 * Gets an array representing the declaration sites that
-		 * sit to the left of this annotation site in the document.
-		 */
-		readonly adjacentDeclarations: ReadonlyArray<DeclarationSite>;
-		private _adjacentDeclarations;
-		/**
-		 * Gets an array representing the declaration sites that
-		 * sit to the left of this annotation site in the document.
-		 */
-		readonly matches: ReadonlyArray<Match>;
-		private _matches;
-		/** */
-		private readonly pointer;
+		private readonly roots;
 	}
 	/**
 	 * A cache that stores all agents loaded by the compiler.
@@ -2423,46 +2278,6 @@ declare module "truth-compiler" {
 		constructor(accepted: boolean);
 	}
 	/** */
-	export class DeclareParam {
-		readonly program: Program;
-		readonly spine: Spine;
-		constructor(program: Program, spine: Spine);
-	}
-	/** */
-	export class DeclareResult {
-		/**
-		 * Assignable value to ignore the declaration
-		 * of the term attempting to be declared.
-		 */
-		readonly ignoreTerm: boolean;
-		/**
-		 * Assignable value to ignore the declaration
-		 * of all terms on the has-a side of the statement.
-		 */
-		readonly ignoreHasaTerms: boolean;
-		/**
-		 * Assignable value to ignore the declaration
-		 * of all terms on the is-a side of the statement.
-		 */
-		readonly ignoreIsaTerms: boolean;
-		constructor(
-		/**
-		 * Assignable value to ignore the declaration
-		 * of the term attempting to be declared.
-		 */
-		ignoreTerm: boolean,
-		/**
-		 * Assignable value to ignore the declaration
-		 * of all terms on the has-a side of the statement.
-		 */
-		ignoreHasaTerms: boolean,
-		/**
-		 * Assignable value to ignore the declaration
-		 * of all terms on the is-a side of the statement.
-		 */
-		ignoreIsaTerms: boolean);
-	}
-	/** */
 	export class FaultParam {
 		readonly document: Document;
 		readonly fault: Fault;
@@ -2542,12 +2357,26 @@ declare module "truth-compiler" {
 		 */
 		getNotes(statement: Statement | number): string[];
 		/**
-		 * Enumerates through statements in the document,
-		 * optionally including no-ops.
+		 * Enumerates through each statement that is a descendant of the
+		 * specified statement. If the parameter is null or omitted, all
+		 * statements in this Document are visited.
+		 * 
+		 * The method yields an object that contains the visited statement,
+		 * as well as a numeric level value that specifies the difference in
+		 * the number of nesting levels between the specified initialStatement
+		 * and the visited statement.
+		 * 
+		 * @param initialStatement A reference to the statement object
+		 * from where the enumeration should begin.
+		 * 
+		 * @param includeInitial A boolean value indicating whether or
+		 * not the specified initialStatement should also be returned
+		 * as an element in the enumeration. If true, initialStatement
+		 * must be non-null.
 		 */
-		eachStatement(includeNoops?: boolean): IterableIterator<{
+		eachDescendant(initialStatement?: Statement | null, includeInitial?: boolean): IterableIterator<{
 			statement: Statement;
-			position: number;
+			level: number;
 		}>;
 		/**
 		 * Reads the Statement at the given position.
@@ -2565,28 +2394,6 @@ declare module "truth-compiler" {
 		 * index.
 		 */
 		private toIndex;
-		/**
-		 * Visits each statement that is a descendant of the specified
-		 * statement. If the parameter is null or omitted, all statements
-		 * in this Document are visited.
-		 * 
-		 * The method yields an object that contains the visited statement,
-		 * as well as a numeric level value that specifies the difference in
-		 * the number of nesting levels between the specified initialStatement
-		 * and the visited statement.
-		 * 
-		 * @param initialStatement A reference to the statement object
-		 * from where the enumeration should begin.
-		 * 
-		 * @param includeInitial A boolean value indicating whether or
-		 * not the specified initialStatement should also be returned
-		 * as an element in the enumeration. If true, initialStatement
-		 * must be non-null.
-		 */
-		visitDescendants(initialStatement?: Statement | null, includeInitial?: boolean): IterableIterator<{
-			level: number;
-			statement: Statement;
-		}>;
 		/**
 		 * Starts an edit transaction in the specified callback function.
 		 * Edit transactions are used to synchronize changes made in
@@ -2627,6 +2434,7 @@ declare module "truth-compiler" {
 		 * edit transaction is currently underway.
 		 */
 		private inEdit;
+		private _version;
 		/**
 		 * Returns a formatted version of the Document.
 		 */
@@ -2666,7 +2474,7 @@ declare module "truth-compiler" {
 		 * Reads a Document from the specified URI.
 		 * The document is created and returned, asynchronously.
 		 */
-		read(uri: Uri | string): Promise<Error | Document>;
+		read(uri: Uri): Promise<Error | Document>;
 		/**
 		 * Creates a temporary document that will exist only in memory.
 		 * The document may not be linked to other documents in the
@@ -2693,17 +2501,19 @@ declare module "truth-compiler" {
 		 * @returns The document loaded into this graph
 		 * with the specified URI.
 		 */
-		get(uri: Uri | string): Document | null;
+		get(uri: Uri): Document | null;
 		/**
-		 * @returns An array containing all documents
-		 * loaded into this graph.
+		 * @returns An array containing all documents loaded into this
+		 * DocumentGraph. The array returned is sorted topologically
+		 * from left to right, so that forward traversals are guaranteed
+		 * to not cause dependency conflicts.
 		 */
-		getAll(): Document[];
+		each(): Document[];
 		/**
 		 * Deletes a document that was previously loaded into the compiler.
 		 * Intended to be called by the host environment when a file changes.
 		 */
-		delete(target: Document | Uri | string): void;
+		delete(target: Document | Uri): void;
 		/**
 		 * Removes all documents from this graph.
 		 */
@@ -2816,30 +2626,10 @@ declare module "truth-compiler" {
 		 */
 		readonly textContent: string;
 		/**
-		 * Returns contextual statement information relevant at
-		 * the specified character offset. If a pointer exists at the
-		 * specified, offset, it is included in the returned object.
+		 * @returns The kind of StatementRegion that exists
+		 * at the given character offset within the Statement.
 		 */
-		inspect(offset: number): {
-			side: ReadonlyMap<number, Subject | null>;
-			region: StatementRegion;
-			pointer: Pointer | null;
-		};
-		/**
-		 * Gets the kind of StatementArea that exists at the
-		 * given character offset within the Statement.
-		 */
-		getAreaKind(offset: number): StatementAreaKind;
-		/**
-		 * @returns A pointer to the has-a subject at the specified offset,
-		 * or null if there is no has-a subject at the specified offset.
-		 */
-		getDeclaration(offset: number): Pointer | null;
-		/**
-		 * @returns A pointer to the is-a subject at the specified offset,
-		 * or null if there is no is-a subject at the specified offset.
-		 */
-		getAnnotation(offset: number): Pointer | null;
+		getRegion(offset: number): StatementRegion;
 		/**
 		 * Gets the set of pointers in that represent all declarations
 		 * and annotations in this statement, from left to right.
@@ -2857,6 +2647,20 @@ declare module "truth-compiler" {
 		 */
 		readonly annotations: Pointer[];
 		private _annotations;
+		/**
+		 * 
+		 */
+		getSubject(offset: number): Pointer | null;
+		/**
+		 * @returns A pointer to the declaration subject at the
+		 * specified offset, or null if there is none was found.
+		 */
+		getDeclaration(offset: number): Pointer | null;
+		/**
+		 * @returns A pointer to the annotation subject at the
+		 * specified offset, or null if there is none was found.
+		 */
+		getAnnotation(offset: number): Pointer | null;
 		/**
 		 * @returns A string containing the inner comment text of
 		 * this statement, excluding the comment syntax token.
@@ -2878,10 +2682,15 @@ declare module "truth-compiler" {
 	 * Defines the areas of a statement that are significantly
 	 * different when performing inspection.
 	 */
-	export enum StatementAreaKind {
-		/** */
+	export enum StatementRegion {
+		/**
+		 * Refers to the area within a comment statement,
+		 * or the whitespace preceeding a non-no-op.
+		 */
 		void = 0,
-		/** */
+		/**
+		 * Refers to the area
+		 */
 		whitespace = 1,
 		/** */
 		declaration = 2,
@@ -2891,99 +2700,6 @@ declare module "truth-compiler" {
 		declarationVoid = 4,
 		/** */
 		annotationVoid = 5
-	}
-	enum StatementRegion {
-		/**
-		 * A region cannot be inferred from the statement, because it is a no-op.
-		 */
-		none = 0,
-		/**
-		 * The cursor is at left-most position on the line.
-		 */
-		preStatement = 1,
-		/**
-		 * The cursor is at the left-most position on the line,
-		 * and whitespace characters are on the right.
-		 * 
-		 * Example:
-		 * |...
-		 */
-		preIndent = 2,
-		/**
-		 * The cursor has indent-related whitespace characters
-		 * on both it's left and right.
-		 * 
-		 * Example:
-		 * ..|..subject : subject
-		 */
-		midIndent = 4,
-		/**
-		 * The cursor has zero or more whitespace characters on its left,
-		 * and zero non-whitespace characters on its right.
-		 * 
-		 * Example:
-		 * ...|
-		 */
-		postIndent = 8,
-		/**
-		 * The cursor is positioned direct before, directly after, or between
-		 * the characters of a has-a subject.
-		 * 
-		 * Example:
-		 * ...|subject : subject
-		 */
-		hasaWord = 16,
-		/**
-		 * The cursor has zero or more whitespace characters on it's left,
-		 * preceeded by a comma, preceeded by a has-a subject, and either
-		 * one or more whitespace characters to it's right, or the statement
-		 * separator.
-		 * 
-		 * Example:
-		 * subject| : subject
-		 */
-		postHasaWord = 32,
-		/**
-		 * The cursor has zero or more whitespace characters on it's left,
-		 * which are preceeded by the statement separator.
-		 * 
-		 * Example:
-		 * subject |: subject
-		 */
-		preJoint = 64,
-		/**
-		 * The cursor has zero or more whitespace characters on it's left,
-		 * which are preceeded by the statement separator.
-		 * 
-		 * Example:
-		 * subject :| subject
-		 */
-		postJoint = 128,
-		/**
-		 * The cursor is positioned direct before, directly after,
-		 * or bettween the characters of an is-a subject.
-		 * 
-		 * Example:
-		 * subject : subject|, subject
-		 */
-		isaWord = 256,
-		/**
-		 * The cursor has zero or more whitespace characters on it's left,
-		 * preceeded by a comma, preceeded by an is-a subject, and either
-		 * one or more whitespace characters to it's right, or the statement
-		 * terminator.
-		 * 
-		 * Example:
-		 * subject : subject,| subject
-		 */
-		postIsaWord = 512,
-		/**
-		 * The cursor is at the very last position of the line.
-		 * 
-		 * Example:
-		 * subject : subject|
-		 */
-		postStatement = 1024
 	}
 	/**
 	 * A class that represents a single subject in a Statement.
@@ -2999,11 +2715,19 @@ declare module "truth-compiler" {
 		/** */
 		readonly pluralized: boolean;
 		/**
-		 * Stores the text of the URI when in the subject is
-		 * formatted as such. When the subject does not
-		 * form a URI, this field is an empty string.
+		 * Stores a related URI when in the subject is
+		 * formatted as such. In other cases, the field
+		 * is an empty string.
 		 */
 		readonly uri: Uri | null;
+		/**
+		 * Stores a regular expression pattern object when
+		 * the subject is formatted as such. In other cases,
+		 * the field is null.
+		 * 
+		 * (Are Pattern objects referentially significant?)
+		 */
+		readonly pattern: Pattern | null;
 		/** Calculates whether this Subject is structurally equal to another. */
 		equals(other: Subject | string | null): boolean;
 		/** Converts this Subject to it's string representation. */
@@ -3078,83 +2802,41 @@ declare module "truth-compiler" {
 		readonly nodes: ReadonlyArray<Pointer>;
 	}
 	/**
-	 * A class that defines a type defined within a scope.
-	 * A type may be composed of multiple pointers across
-	 * multiple localities, as represented by the .pointers
-	 * field.
+	 * A class that defines a type located within a
+	 * scope, that has passed all verification tests.
+	 * This class is essentially a lens ontop of
+	 * GraphNode.
 	 */
 	export class Type {
+		private readonly functor;
 		/**
-		 * 
+		 * Creates a new Type from the specified Spine.
+		 * If a Type already exists at the location the corresponds
+		 * to the spine, the existing Type is returned instead.
 		 */
-		constructor(pointers: ReadonlyArray<Pointer>);
+		static get(spine: Spine): Type;
 		/** */
-		readonly name: Subject;
+		private static getFromFunctor;
 		/** */
-		readonly parentType: Type;
-		/** Stores an array of Types that base this one. */
-		readonly bases: ReadonlyArray<Type>;
+		private static readonly cache;
+		/** */
+		private constructor();
 		/**
-		 * Stores an array of annotations which failed to resolve as bases,
-		 * but were successfully resolved by regular expressions. The array is
-		 * sorted in the order in which the annotations appear in the document.
+		 * Stores an array of Faults that where generated as a result of
+		 * analyzing this Type. Note that Faults generated in this way
+		 * can also be found in the FaultService.
 		 */
-		readonly matchables: ReadonlyArray<Match>;
-		/** Stores an array of pointers to has-a side subjects that compose this Type. */
-		readonly fragments: ReadonlyArray<Pointer>;
+		readonly faults: ReadonlyArray<Fault>;
+		private _faults;
 		/** */
-		readonly isSpecified: boolean;
+		readonly uri: Uri;
 		/** */
-		readonly isOverride: boolean;
+		readonly name: string;
 		/** */
-		readonly isIntroduction: boolean;
-		/**
-		 * The set of types that exist in supers that are equivalently
-		 * named as the type that this TypeInfo object represents,
-		 * that contribute to the construction of this type. If this
-		 * Type is an introduction, the array is empty.
-		 */
-		readonly sources: ReadonlyArray<Type>;
-		/** Gets the plurality status of the type. */
-		readonly plurality: Plurality;
-		private _plurality;
-		/**
-		 * Gets an array containing all child Types of this one, whether
-		 * they're specified, unspecified, overriddes, or introductions.
-		 */
-		readonly childTypes: Type[];
-		private _childTypes;
-	}
-	/**
-	 * Stores the plurality status of a Type.
-	 */
-	export enum Plurality {
-		/** Indicates that no plurality information is attached to the type. */
-		none = 0,
-		/** Indicates that the type, or one of it's supers, has been pluralized. */
-		pluralized = 1,
-		/** Indicates that the type has been singularized. */
-		singularized = 2,
-		/** Indicates a conflict in the type's supers about the plurality status. */
-		erroneous = 3
-	}
-	/** */
-	export class Match {
-		readonly text: string;
-		readonly bases: ReadonlyArray<Type>;
-		constructor(text: string, bases: ReadonlyArray<Type>);
-	}
-	/**
-	 * A class that carries out the type construction process.
-	 */
-	export class TypeConstructor {
-		private readonly program;
+		readonly stamp: VersionStamp;
 		/** */
-		constructor(program: Program);
-		/** */
-		exec(spine: Spine): Type;
-		/** */
-		private tryInference;
+		readonly contents: Type[];
+		private _contents;
 	}
 	/** */
 	export enum UriProtocol {
@@ -3175,14 +2857,6 @@ declare module "truth-compiler" {
 	 * //domain.com/File.truth//Path/To/Declaration
 	 */
 	export class Uri {
-		/** */
-		static create(uri: Uri | string, relativeTo?: Uri | Document | null): Uri | null;
-		/** Creates a type URI from the specified Spine object. */
-		static createFromSpine(spine: Spine): Uri;
-		/** Creates a unique internal URI. */
-		static createInternal(): Uri;
-		/** */
-		protected constructor(rawUri: string, relativeTo?: Uri | Document | null);
 		/**
 		 * Stores a reference to the protocol used by the URI.
 		 */
@@ -3208,11 +2882,58 @@ declare module "truth-compiler" {
 		 * Stores the fully qualified path to the file, and the file
 		 * name itself, but without any protocol.
 		 */
-		readonly ioPath: string;
+		readonly ioPath: ReadonlyArray<string>;
 		/**
 		 * Stores the contents of any type path specified in the URI.
 		 */
 		readonly typePath: ReadonlyArray<string>;
+		/**
+		 * 
+		 * @param uriText A string containing the URI to parse
+		 * @param relativeFallback A URI that identifies the origin
+		 * of the URI being parsed, used in the case when the
+		 * uriText parameter is a relative path.
+		 */
+		static parse(uriText: string, relativeFallback?: Uri): Uri | null;
+		/**
+		 * Creates a new Uri from the specified input.
+		 * 
+		 * @param from If the parameter is omited, a unique internal
+		 * URI is generated.
+		 */
+		static create(from?: Spine | Strand | Uri): Uri;
+		/** */
+		protected constructor(
+		/**
+		 * Stores a reference to the protocol used by the URI.
+		 */
+		protocol: UriProtocol,
+		/**
+		 * Stores the file name specified in the URI, if one exists.
+		 */
+		fileName: string,
+		/**
+		 * Stores the base file name specified in the URI.
+		 * For example, for the URI path/to/dir/file.ext, base would
+		 * be the string "file". If the URI does not contain a file
+		 * name, the field is an empty string.
+		 */
+		fileNameBase: string,
+		/**
+		 * Stores the extension of the file specified in the URI,
+		 * without the dot character. If the URI does not contain
+		 * a file name, the field is an empty string.
+		 */
+		fileExtension: string,
+		/**
+		 * Stores the fully qualified path to the file, and the file
+		 * name itself, but without any protocol.
+		 */
+		ioPath: ReadonlyArray<string>,
+		/**
+		 * Stores the contents of any type path specified in the URI.
+		 */
+		typePath: ReadonlyArray<string>);
 		/**
 		 * Converts the URI to a fully-qualified path including the file name.
 		 */
@@ -3222,46 +2943,20 @@ declare module "truth-compiler" {
 		 */
 		equals(uri: Uri | string): boolean;
 		/**
-		 * @returns A copy of this Uri, but with mutable properties.
+		 * Creates a new Uri, whose typePath and ioPath
+		 * fields are retracted by the specified levels of
+		 * depth.
+		 * 
+		 * @returns A new Uri that is otherwise a copy of this
+		 * one, but with it's IO path and type path peeled
+		 * back by the specified numbero of levels.
 		 */
-		toMutable(): {
-			/** */
-			ioPath: string;
-			/** */
-			typePath: ReadonlyArray<string>;
-			/** Creates an immutable URI from this MutableUri object. */
-			freeze(): Uri;
-			/**
-			 * Stores a reference to the protocol used by the URI.
-			 */
-			readonly protocol: UriProtocol;
-			/**
-			 * Stores the file name specified in the URI, if one exists.
-			 */
-			readonly fileName: string;
-			/**
-			 * Stores the base file name specified in the URI.
-			 * For example, for the URI path/to/dir/file.ext, base would
-			 * be the string "file". If the URI does not contain a file
-			 * name, the field is an empty string.
-			 */
-			readonly fileNameBase: string;
-			/**
-			 * Stores the extension of the file specified in the URI,
-			 * without the dot character. If the URI does not contain
-			 * a file name, the field is an empty string.
-			 */
-			readonly fileExtension: string;
-			/**
-			 * Converts the URI to a fully-qualified path including the file name.
-			 */
-			toString(includeProtocol?: boolean | undefined, includeTypePath?: boolean | undefined): string;
-			/**
-			 * @returns A value indicating whether two URIs point to the same resource.
-			 */
-			equals(uri: string | Uri): boolean;
-			toMutable(): any;
-		};
+		retract(ioRetraction?: number, typeRetraction?: number): Uri;
+		/**
+		 * @returns A new Uri, whose typePath and ioPath
+		 * fields are extended with the specified segments.
+		 */
+		extend(ioSegments: string | string[], typeSegments: string | string[]): Uri;
 	}
 	/** */
 	export class UriReader {
@@ -3314,6 +3009,12 @@ declare module "truth-compiler" {
 		 */
 		has(similarFault: Fault): boolean;
 		/**
+		 * @returns An array of Fault objects that have been reported
+		 * at the specified source. If the source has no faults, an empty
+		 * array is returned.
+		 */
+		check(source: Pointer | Statement): Fault[];
+		/**
 		 * Enumerates through the unrectified faults retained
 		 * by this FaultService.
 		 */
@@ -3364,93 +3065,104 @@ declare module "truth-compiler" {
 	/** */
 	export class UnresolvedResourceFault extends StatementFault {
 		constructor(source: Statement, error?: Error);
-		readonly code = 1000;
+		readonly code = 100;
 		readonly message = "URI points to a resource that could not be resolved.";
 	}
 	/** */
 	export class CircularResourceReferenceFault extends StatementFault {
-		readonly code = 1001;
+		readonly code = 102;
 		readonly message = "URI points to a resource that would cause a circular reference.";
 	}
 	/** */
 	export class InsecureResourceReferenceFault extends StatementFault {
-		readonly code = 1002;
+		readonly code = 104;
 		readonly message: string;
 	}
 	/** */
 	export class UnresolvedAnnotationFault extends PointerFault {
-		readonly code = 1101;
+		readonly code = 201;
 		readonly message = "Unresolved annotation.";
 	}
 	/** */
-	export class CircularTypeDependencyFault extends PointerFault {
-		readonly code = 1102;
-		readonly message = "Circular type dependency detected.";
+	export class CircularTypeReferenceFault extends PointerFault {
+		readonly code = 203;
+		readonly message = "Circular type reference detected.";
 	}
 	/** */
-	export class NonCovariantAnnotationsFault extends StatementFault {
-		readonly code = 1103;
+	export class ContractViolationFault extends StatementFault {
+		readonly code = 204;
 		readonly severity = FaultSeverity.warning;
 		readonly message = "Overridden types must explicitly expand the type as defined in the base.";
 	}
 	/** */
-	export class AnonymousTypeOnPluralFault extends StatementFault {
-		readonly code = 1200;
-		readonly message = "Anonymous types cannot be defined on a plural.";
+	export class AnonymousListIntrinsicTypeFault extends StatementFault {
+		readonly code = 300;
+		readonly message = "List-intrinsic types cannot be anonymous.";
 	}
 	/** */
-	export class DoubleSidedPluralFault extends StatementFault {
-		readonly code = 1201;
-		readonly message = "Pluralization cannot exist on both sides of a statement.";
+	export class ListContractViolationFault extends PointerFault {
+		readonly code = 301;
+		readonly message = "The containing list cannot contain children of this type.";
 	}
 	/** */
-	export class MultiplicatePluralizationFault extends StatementFault {
-		readonly code = 1202;
-		readonly message = "Cannot pluralize an already pluralized type.";
+	export class ListIntrinsicExtendingNonList extends PointerFault {
+		readonly code = 303;
+		readonly message = "List-intrinsics cannot extend from a non-list type.";
 	}
 	/** */
-	export class InvalidPluralChildFault extends StatementFault {
-		readonly code = 1203;
-		readonly message = "The containing plural cannot contain children of this type.";
+	export class PatternInvalidFault extends StatementFault {
+		readonly code = 400;
+		readonly message = "Invalid pattern.";
 	}
 	/** */
-	export class DeclarationSingularizationFault extends StatementFault {
-		readonly code = 1204;
-		readonly message = "Singularization cannot exist on the left side of a statement.";
+	export class PatternWithoutAnnotationFault extends StatementFault {
+		readonly code = 402;
+		readonly message = "Pattern has no annotations.";
+		readonly severity = FaultSeverity.warning;
 	}
 	/** */
-	export class ExpressionInvalidFault extends StatementFault {
-		readonly code = 1300;
-		readonly message = "Invalid Regular Expression.";
+	export class PatternPossiblyMatchesEmptyFault extends StatementFault {
+		readonly code = 404;
+		readonly message = "Pattern could possibly match an empty list of characters.";
 	}
 	/** */
-	export class ExpressionPossiblyMatchesEmptyFault extends StatementFault {
-		readonly code = 1301;
-		readonly message = "Regular expression could possibly match an empty list of characters.";
+	export class PatternNonCovariantFault extends StatementFault {
+		readonly code = 406;
+		readonly message = "Pattern does not match it's base types.";
 	}
 	/** */
-	export class ExpressionDoesNotMatchBasesFault extends StatementFault {
-		readonly code = 1302;
-		readonly message = "Regular Expression does not match it's base types.";
+	export class InlineTypeInRepeatingPatternFault extends StatementFault {
+		readonly code = 408;
+		readonly message = "Inline types cannot exist in a repeating context.";
+	}
+	/**  */
+	export class InlineTypeSelfReferentialFault extends StatementFault {
+		readonly code = 410;
+		readonly message = "Inline types can't be self-referential.";
+	}
+	/**  */
+	export class InlineTypeNonConvariantFault extends StatementFault {
+		readonly code = 412;
+		readonly message = "Inline types can't be self-referential.";
 	}
 	/** */
-	export class ExpressionAliasingPluralFault extends StatementFault {
-		readonly code = 1303;
-		readonly message = "Regular Expressions cannot alias a plural.";
+	export class InlineTypeMustHaveExpressionFault extends StatementFault {
+		readonly code = 414;
+		readonly message = "Inline types must have at least one associated pattern.";
 	}
 	/** */
-	export class NamedEntitiesInRepeatingPatternFault extends StatementFault {
-		readonly code = 1304;
-		readonly message = "Named entities cannot exist in a repeating pattern.";
+	export class InlineTypeRecursiveFault extends StatementFault {
+		readonly code = 416;
+		readonly message = "Recursive types are not allowed as inline types.";
 	}
 	/** */
-	export class ExpressionDescendentsFault extends StatementFault {
-		readonly code = 1305;
-		readonly message = "Regular Expression statements cannot have descendant statements.";
+	export class DiscrepantUnionFault extends StatementFault {
+		readonly code = 450;
+		readonly message: string;
 	}
 	/** */
 	export class TabsAndSpacesFault extends StatementFault {
-		readonly code = 2000;
+		readonly code = 1000;
 		readonly message = "Statement indent contains a mixture of tabs and spaces.";
 		readonly severity = FaultSeverity.warning;
 	}
@@ -3472,20 +3184,22 @@ declare module "truth-compiler" {
 		 */
 		private handleDocumentRemoved;
 		/**
-		 * Performs a defragmentation query, starting at the
-		 * specified URI.
-		 * 
-		 * @returns An array of Defragment objects that target all
-		 * fragments of the type implied by specified pointer.
-		 * @returns Null in the case when the pointer targets
-		 * an unpopulated location.
+		 * Performs a query on the Fragmenter.
+		 * @returns A Strand, or null in the case
+		 * when the URI specified doesn't map to a populated
+		 * location in the document.
 		 */
-		lookup(uri: Uri, returnType: typeof TargetedLookup): Pointer[] | null;
-		lookup(spine: Spine, returnType: typeof TargetedLookup): Pointer[] | null;
-		lookup(uri: Uri, returnType: typeof DescendingLookup): DescendingLookup | null;
-		lookup(spine: Spine, returnType: typeof DescendingLookup): DescendingLookup;
-		lookup(uri: Uri, returnType: typeof SiblingLookup): SiblingLookup | null;
-		lookup(spine: Spine, returnType: typeof SiblingLookup): SiblingLookup;
+		query(uri: Uri): Strand | null;
+		/** */
+		queryContents(uri: Uri): Strand[];
+		/** */
+		private queryInner;
+		/**
+		 * Translates a declaration-side atom, by collecting it's
+		 * corresponding annotation-side atoms and packaging
+		 * it into a Molecule object.
+		 */
+		private translateAtomToMolecule;
 		/**
 		 * Stores the declarations of the specified statement, and
 		 * all of the declarations in it's descendant statements in
@@ -3532,180 +3246,272 @@ declare module "truth-compiler" {
 		toString(): string;
 	}
 	/**
-	 * A class of methods that execute the vertification-supporting
-	 * operations of the system.
+	 * A type that describes a series of Subject objects, that aligns
+	 * with the components of a type URI (the ordering of the
+	 * entry in the map is relevant).
+	 * 
+	 * Each Subject key is related to a set of Pointer objects that
+	 * represent the points of the document that where discovered
+	 * in relation to each component of the type URI.
 	 */
-	export class Operations {
-		private readonly program;
+	export class Strand {
+		readonly molecules: ReadonlyArray<Molecule>;
+		/** */
+		constructor(molecules: ReadonlyArray<Molecule>);
 		/**
-		 * Collects all annotations that have been applied to the
-		 * type referenced by the specified Pointer.
+		 * Creates a string representation of this Strand that
+		 * allows it's contents to be compared with other
+		 * Strand objects with equivalent contents. An example
+		 * of the string format is as follows:
 		 * 
-		 * @returns An array of types representing the collected
-		 * annotations, but with any redundant types pruned.
+		 * 	file://path/to/document.truth
+		 * LocalAtom1
+		 * 	ReferencedAtom1
+		 * 	ReferencedAtom2
+		 * LocalAtom2
+		 * 	ReferencedAtom3
+		 * 	ReferencedAtom4
+		 * 
+		 * Future work may include determining whether returning
+		 * this string as an MD5 hash will result in a reduction of
+		 * memory usage.
 		 */
-		execAnnotationCollection(declaration: Pointer): Subject[];
+		toString(): string;
 		/**
-		 * 
+		 * Clones this Strand into a new object, but with the
+		 * specified number of molecules trimmed from the end.
 		 */
-		execFindSupergraphEquivalents(): void;
-		/**
-		 * 
-		 */
-		execFindAncestorEquivalents(): void;
-		/**
-		 * Attempts to infer the type associated with the
-		 * specified declaration-side Pointer. Performs base
-		 * type inference, falling back to ancestry type
-		 * inference if base type inference fails.
-		 * 
-		 * @returns Null in the case when there are is-a side
-		 * types defined on the type referenced by the
-		 * specified Pointer, and the associated type is
-		 * therefore explicit rather than inferrable.
-		 */
-		execInference(declaration: Pointer): null | undefined;
-		/**
-		 * Attempts to infer the bases that should be implicitly
-		 * applied to the specified type, by searching for equivalently
-		 * named types contained within the specified type's
-		 * Supergraph.
-		 * 
-		 * @param origin The type on which to perform inference.
-		 * It is expected to be unannotated.
-		 * 
-		 * @returns An array of types representing the inferred
-		 * bases. In the case when the specified type has multiple
-		 * supers, and two or more of these supers have a type
-		 * whose name matches the specified type, but differ
-		 * in their bases, multiple bases may be inferred and
-		 * and included in the returned array. However, this only
-		 * happens in the case when these bases cannot be
-		 * pruned down to a single type.
-		 * 
-		 * If no bases could be inferred, an empty array is
-		 * returned.
-		 */
-		execSupergraphInference(origin: Type): Type[] | null;
-		/**
-		 * A strategy for inference that occurs when the
-		 * type is an unbased introduction. Operates by
-		 * scanning up the ancestry to determine if there
-		 * is a matching type.
-		 * 
-		 * Attempts to infer the bases that should be added
-		 * applied to the specified type, by searching for the
-		 * type's equivalents named types explicitly specified
-		 * within the specified type's ancestry of scopes.
-		 * 
-		 * @param origin The type on which to perform
-		 * inference. It is expected to be unannotated.
-		 * 
-		 * @returns A type object representing the inferred
-		 */
-		execAncestorInference(origin: Type): Type | null;
-		/**
-		 * Performs the Polymorphic Base Resolution (PTR)
-		 * algorithm as defined by the specification.
-		 * 
-		 * @returns An array of types that found at
-		 * 
-		 * Base resolution occurs when trying to resolve the
-		 * basings of a given type.
-		 * 
-		 * The result of this method is a either the fully computed
-		 * base-tree, or a base-tree that is sufficiently constructed
-		 * to the point where a guarantee can be made about the
-		 * origins of the type referenced in the specified Pointer.
-		 */
-		execResolution(origin: Pointer): Type[];
-		/**
-		 * 
-		 * Computes the set of types imposed by bases of
-		 * containing types.
-		 * 
-		 * If the parent type is a plural, the contract is not computed
-		 * in a way that has anything to do with equivalents. The
-		 * algorithm simply looks at the bases defined by the
-		 * parent type, and uses these types as the contract.
-		 * 
-		 * Computes the set of types with which a specified
-		 * type T is expected to comply. The argument is a
-		 * has-a side pointer that references the type T.
-		 * If type T is being introduced (as opposed to being
-		 * overridden) in the scope where hasaPointer is
-		 * pointing, then T has an open contract, and
-		 * null is returned.
-		 */
-		execFindExpectation(declaration: Pointer): Type;
-		/**
-		 * The plurality of a type is computed by traversing the
-		 * type's supergraph and determining if all pathways
-		 * leading back to all root bases involve crossing the
-		 * path of a pluralized type. In the case when one or more
-		 * of these pathways cross pluralized types, and one or
-		 * more do not, an error is generated.
-		 */
-		execPluralityCheck(origin: Type): void;
-		/**
-		 * Executes a search for all terms that are visible
-		 * at the specified location.
-		 * 
-		 * The argument
-		 * 
-		 * @returns ?
-		 */
-		execReusablesSearch(statement: Statement): void;
-		/**
-		 * Executes a search for all terms that are dependent
-		 * upon a type T, referenced via the specified has-a
-		 * side Pointer.
-		 * 
-		 * The search occurs across the scope in which the
-		 * specified Pointer exists, and continues deeply into
-		 * any scopes nested inside.
-		 * 
-		 * @returns An array containing Pointer objects that
-		 * reference types which are dependent upon type T.
-		 */
-		execDependentsSearch(hasaPointer: Pointer): Pointer[];
+		retract(depth: number): Strand;
 	}
 	/**
-	 * A graph of types, indexed by their URIs.
+	 * 
 	 */
-	export class TypeGraph {
-		private readonly program;
-		/** */
-		constructor(program: Program);
-		/** */
-		private readonly roots;
+	export class Molecule {
+		readonly localAtom: Atom;
+		readonly referencedAtoms: ReadonlyArray<Atom>;
+		constructor(localAtom: Atom, referencedAtoms: ReadonlyArray<Atom>);
 	}
 	/**
-	 * Mines a Chart for bases. Produces a set of interconnected
-	 * BaseInfo objects that represent the Supergraph.
+	 * 
 	 */
-	export class SuperLinkMiner {
-		private readonly fragmenter;
-		/** */
-		constructor(fragmenter: Fragmenter);
-		/** */
-		mine(uri: Uri, hotPath?: Uri): SuperLink[] | null;
-		/** */
-		private doRecursiveDescendingLookup;
+	export class Atom {
+		readonly subject: Subject;
+		readonly pointers: ReadonlyArray<Pointer>;
+		constructor(subject: Subject, pointers: ReadonlyArray<Pointer>);
+	}
+	/**
+	 * A Functor is a class that acts as a layer ontop
+	 * of a Strand. It provides various methods to
+	 * aid in the construction of Type objects.
+	 */
+	export class Functor {
 		/**
-		 * Stores a map of previously mined typed,
-		 * indexed by their associated Type URI.
+		 * Stores a reference to the Strand from which the values
+		 * of the properties in this Functor are derived.
 		 */
-		private readonly miningResults;
+		private readonly strand;
+		/**
+		 * Stores a reference to the stamp assigned to the
+		 * document at the time this Functor was instantiated.
+		 */
+		readonly stamp: VersionStamp;
+		/**
+		 * Creates a new Functor from the specified Strand.
+		 * If a Functor already exists whose Strand matches
+		 * the one specified, the existing Functor is returned
+		 * instead.
+		 */
+		static get(strand: Strand): Functor;
+		/** */
+		private static readonly cache;
+		/** */
+		private constructor();
+		/**
+		 * Gets the name of this Functor, which will eventually
+		 * become the name of the Type to which this Functor
+		 * will correspond. The name is a stringified representation
+		 * of the related Subject in the document.
+		 */
+		readonly name: string;
+		private _name;
+		/** */
+		readonly atom: Atom;
+		/**
+		 * Gets a Uri object that uniquely identifies this Functor in the
+		 * type tree, which includes the path to the containing document,
+		 * as well as the type path that corresponds to this Functor.
+		 */
+		readonly uri: Uri;
+		private _uri;
+		/**
+		 * Gets a reference to the Functor that directly
+		 * contains this Functor.
+		 */
+		readonly container: Functor | null;
+		private _container;
+		/**
+		 * Gets the array of Functors that contain this one,
+		 * in the order of their containment, starting with the
+		 * directly containing Functor.
+		 */
+		readonly containers: ReadonlyArray<Functor>;
+		private _containers;
+		/**
+		 * Gets an array that contains the Functors that were
+		 * created as a result of declarations being explicitly
+		 * specified.
+		 */
+		readonly contents: Functor[];
+		private _contents;
+		/**
+		 * 
+		 */
+		readonly sources: Functor[];
+		private _sources;
+		/**
+		 * Gets an array of Atoms that could not be resolved to a Functor.
+		 */
+		readonly orphans: Atom[];
+		private _orphans;
+		/**
+		 * Gets an array containing the names of potential
+		 * Functors that this Function references.
+		 */
+		readonly referencedNames: ReadonlyArray<string>;
+		private _referencedNames;
+		/**
+		 * Scans upwards through this Functor's containment
+		 * hierarchy, and produces an array of Functor instances
+		 * whose name matches the one specified.
+		 * 
+		 * For example, given the document below, and beginning
+		 * enumeration from "C" and searching for "T", the yielded
+		 * Functors would be: [T, T, T].
+		 * 
+		 * T
+		 * A
+		 *     T
+		 *     B
+		 *         T
+		 *         C
+		 * 
+		 * This method answers the question: "Which Functors
+		 * does the name "X" refer to in this Functor's containment
+		 * hierarchy?".
+		 */
+		getFunctorsFromContainment(refFunctorName: string): Functor[];
+		/**
+		 * Traverses through this Functor's abstraction DAG,
+		 * and produces an array of Functor instances whose name
+		 * matches the one specified. If the name is omitted, the
+		 * traversal uses this Functor's name as the match
+		 * predicate.
+		 * 
+		 * For example, given the document below, and beginning the
+		 * enumeration from "A/B/C", the returned Functors would
+		 * be: [A/B/C, Y/B/C, X/B/C]
+		 * 
+		 * X
+		 *     B
+		 *         C
+		 * Y
+		 *     B
+		 *         C
+		 * Z
+		 *     B
+		 *         C
+		 * A : X, Y, Z
+		 *     B
+		 *         C
+		 * 
+		 * This method answers the question: "Where are all the
+		 * Functors that may contribute annotations to this Functor?"
+		 */
+		private getFunctorsFromAbstraction;
 	}
 	/**
-	 * A class that links a URI to other URIs that store the base.
+	 * 
 	 */
-	export class SuperLink {
+	export class Base {
+		/**
+		 * 
+		 */
+		readonly route: FunctorResolveRoute;
+		/**
+		 * 
+		 */
+		readonly functor: Functor;
+		/**
+		 * 
+		 */
+		readonly bases: ReadonlyArray<Base>;
+		constructor(
+		/**
+		 * 
+		 */
+		route: FunctorResolveRoute,
+		/**
+		 * 
+		 */
+		functor: Functor,
+		/**
+		 * 
+		 */
+		bases: ReadonlyArray<Base>);
+	}
+	/**
+	 * Defines a series of Stops that describe the route that the
+	 * resolution algorithm took to navigate from one Functor
+	 * to another.
+	 */
+	export class FunctorResolveRoute {
+		readonly stops: Stop[];
 		/** */
-		readonly from: Uri;
+		constructor(stops: Stop[]);
+		/** Gets the Functor where the resolution algorithm began. */
+		readonly origin: Functor;
+	}
+	/**
+	 * 
+	 */
+	export class Stop {
+		readonly relation: StopRelation | null;
+		readonly functor: Functor;
+		constructor(relation: StopRelation | null, functor: Functor);
+	}
+	/**
+	 * 
+	 */
+	export enum StopRelation {
+		container = 0,
+		base = 1
+	}
+	/**
+	 * A class that represents an instance of a
+	 * regular expression declaration.
+	 * 
+	 * (Does this need to be a Pattern AST?)
+	 */
+	export class Pattern {
 		/** */
-		readonly to: ReadonlySet<Uri>;
+		readonly literal = "";
+		/** */
+		readonly container: Type;
+		/** */
+		readonly createsAliasFor: Type[];
+		/** An array containing the Patterns that this one extends. */
+		readonly supers: Pattern[];
+		/** An array containing the Patterns that extend this one. */
+		readonly subs: Pattern[];
+	}
+	/**
+	 * A class that represents a
+	 */
+	export class Alias {
+		/** */
+		readonly pattern: Pattern;
+		/** */
+		readonly content: string;
 	}
 	/**
 	 * 
@@ -3736,6 +3542,20 @@ declare module "truth-compiler" {
 		ancestry: ReadonlyArray<Pointer>,
 		/** */
 		siblings: ReadonlyArray<Pointer>);
+	}
+	/**
+	 * Infinite incremental counter.
+	 */
+	export class VersionStamp {
+		private readonly stamp;
+		/** */
+		static next(): VersionStamp;
+		/** */
+		private static nextStamp;
+		/** */
+		protected constructor(stamp: number | number[]);
+		/** */
+		newerThan(otherStamp: VersionStamp): boolean;
 	}
 	/**
 	 * Contains members that replicate the behavior of

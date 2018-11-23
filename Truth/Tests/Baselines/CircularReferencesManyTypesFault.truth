@@ -1,0 +1,11 @@
+//
+// This example demonstrates circular references 
+// between many types.
+//
+
+A : B #203;
+B : C #203;
+C : D #203;
+D : E #203;
+E : F #203;
+F : A #203;

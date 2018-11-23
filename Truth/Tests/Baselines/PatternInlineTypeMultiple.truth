@@ -1,0 +1,12 @@
+//
+// This example demonstrates the use of two inline types
+// within a single pattern.
+//
+
+Number
+Integer : Numeric
+Decimal : Numeric
+	Left : Integer
+	Right : Integer
+
+/<Left>.<Right>/ : Decimal

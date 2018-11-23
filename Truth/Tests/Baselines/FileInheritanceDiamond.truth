@@ -1,0 +1,39 @@
+//
+// This example demonstrates a diamond inheritance pattern
+// within files.
+//
+
+// (virtual) /Top.truth
+
+String, Number, Boolean
+
+ClassTop
+	Top : String
+
+// (virtual) /Left.truth
+Top.truth
+
+ClassLeft : ClassTop
+	Left : Number
+
+// (virtual) /Right.truth
+Top.truth
+
+ClassRight : ClassTop
+	Right: Number
+
+// (virtual) /Bottom.truth
+Left.truth
+Right.truth
+
+ClassBottom : ClassLeft, ClassRight
+	Bottom : Boolean
+
+// (virtual) /Child.truth
+Bottom.truth
+
+ClassChild : ClassBottom
+	~ Top : String
+	~ Left: Number
+	~ Right : Number
+	~ Bottom : Boolean

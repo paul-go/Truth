@@ -1,0 +1,14 @@
+//
+// This example demonstrates the ability
+// to express recursive list structures.
+//
+
+Item
+	SubList : List
+
+List : Item...
+	: Item
+		SubList
+			: Item
+				SubList
+					: Item

@@ -1,0 +1,6 @@
+//
+// Patterns require at least one annotation to be 
+// specified on the right-side of the expression. 
+//
+
+#400; /\d/

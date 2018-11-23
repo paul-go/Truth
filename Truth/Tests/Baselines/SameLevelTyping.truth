@@ -1,0 +1,18 @@
+// 
+// This test demonstrates annotations that refer to declarations
+// defined on the same level. 
+//
+
+String
+Email : String
+Number
+
+Base
+	A : String
+	B : A
+
+Valid : Base
+	A : String
+
+Invalid : Base
+	B : Number
