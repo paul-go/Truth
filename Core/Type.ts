@@ -17,7 +17,7 @@ on top of what is already provided by the Node class:
  * A class that defines a type located within a
  * scope, that has passed all verification tests.
  * This class is essentially a lens ontop of
- * GraphNode.
+ * Functor.
  */
 export class Type
 {
