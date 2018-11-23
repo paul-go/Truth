@@ -147,6 +147,25 @@ export class DocumentGraph
 	}
 	
 	/**
+	 * @returns A boolean value that indicates whether
+	 * the specified Document has been loaded into
+	 * this DocumentGraph.
+	 */
+	has(param: X.Uri | X.Document)
+	{
+		if (param instanceof X.Document)
+		{
+			for (const entry of this.documents.values())
+				if (entry.document === param)
+					return true;
+			
+			return false;
+		}
+		
+		return !!this.get(param);
+	}
+	
+	/**
 	 * @returns An array containing all documents loaded into this
 	 * DocumentGraph. The array returned is sorted topologically 
 	 * from left to right, so that forward traversals are guaranteed 
