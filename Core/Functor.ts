@@ -202,7 +202,12 @@ export class Functor
 				}
 				else
 				{
-					// Something has to get marked as an error here.
+					const mols = this.strand.molecules;
+					const allAtoms = mols[mols.length - 1].referencedAtoms;
+					const relevantAtoms = allAtoms.filter(atom => 
+						atom.subject.toString() === refName);
+					
+					this._orphans.push(...relevantAtoms);
 				}
 			}
 		}
@@ -216,12 +221,12 @@ export class Functor
 	 */
 	get orphans(): X.Atom[]
 	{
-		if (this._orphans)
-			return this._orphans;
-		
-		return null!;
+		// Trigger the computation of sources, which populates
+		// the orphans array. Design refactoring needed.
+		this.sources;
+		return this._orphans.slice();
 	}
-	private _orphans: X.Atom[] | null = null;
+	private _orphans: X.Atom[] = [];
 	
 	/**
 	 * Gets an array containing the names of potential

@@ -47,8 +47,6 @@ export class ProgramAnalyzer
 		{
 			yield { type, document };
 			
-			
-			
 			for (const containedType of type.contents)
 				recurse(containedType, document);
 		}
