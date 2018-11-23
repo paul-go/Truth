@@ -1,0 +1,28 @@
+//
+// This example demonstrates the union behavior of inheritance,
+// using a diamond-shaped inheritance pattern.
+//
+
+T, L, R, B
+S1, S2
+
+ClassTop
+	Top : T
+
+ClassLeft : ClassTop
+	Left : L
+	Side : S1
+	
+ClassRight : ClassTop
+	Right : R
+	Side : S2
+	
+ClassBottom : ClassLeft, ClassRight
+	Bottom : B
+
+ClassChild : ClassBottom
+	~ Top : T
+	~ Left: L
+	~ Right : R
+	~ Bottom : B
+	~ Side : S1, S2

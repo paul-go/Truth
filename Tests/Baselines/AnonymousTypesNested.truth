@@ -1,0 +1,12 @@
+//
+//
+//
+
+Type1
+Type2
+Type3
+
+Container
+	: Type1 ~ Type1
+	: Type2 ~ Type2
+	: Type3 ~ Type3

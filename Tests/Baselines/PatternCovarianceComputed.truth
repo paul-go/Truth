@@ -1,0 +1,20 @@
+//
+// The covariance of two patterns can be determine through
+// computation ("Computed Covariance"), which tests that the
+// set of all valid inputs to a pattern that matches a type are also 
+// valid inputs to the patterns that match the type's bases.
+//
+// Computed covariance is the "desirable" way of establishing
+// a compatibility relationship between the patterns associated
+// with a type, and it's bases. Computed covariance is used when
+// the set of all valid inputs to a pattern associated with a type
+// is a subset of all valid inputs to all patterns associated with 
+// that type's bases. In the case when this cannot be the case,
+// inline covariance must be used.
+//
+
+String
+Email : String
+
+/".*"/ : String
+/"\w+@\w+\.\w+>"/ : Email

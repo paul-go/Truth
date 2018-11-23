@@ -35,6 +35,10 @@ export class ExceptionMessage
 		{ return `Cannot start a new transaction while another is executing.`; }
 	
 	/** */
+	static invalidUriRetraction()
+		{ return `URI contains too few path segments to perform this retraction.`; }
+	
+	/** */
 	static invalidUri(rawUri?: string)
 		{ return `Invalid URI` + (typeof rawUri === "string" ? ": " + rawUri : ""); }
 	
@@ -60,6 +64,10 @@ export class ExceptionMessage
 	/** */
 	static documentAlreadyLoaded()
 		{ return `A document with this URI has already been created. Use Document.fromUri() instead.`; }
+	
+	/** */
+	static documentNotLoaded()
+		{ return `This document has not been loaded into the current program.`; }
 	
 	/** */
 	static uriNotSupported()

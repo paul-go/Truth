@@ -63,6 +63,22 @@ export class FaultService
 	}
 	
 	/**
+	 * @returns An array of Fault objects that have been reported
+	 * at the specified source. If the source has no faults, an empty
+	 * array is returned.
+	 */
+	check(source: X.Pointer | X.Statement): X.Fault[]
+	{
+		const out: X.Fault[] = [];
+		
+		for (const retainedFault of this.each())
+			if (retainedFault.source === source)
+				out.push(retainedFault);
+		
+		return out;
+	}
+	
+	/**
 	 * Enumerates through the unrectified faults retained
 	 * by this FaultService.
 	 */
@@ -139,9 +155,9 @@ class FaultFrameContext
 		for (const invalidatedParent of this.invalidatedParents)
 		{
 			const containingDoc = invalidatedParent.document;
-			const iter = containingDoc.visitDescendants(invalidatedParent, true);
+			const iter = containingDoc.eachDescendant(invalidatedParent, true);
 			
-			for (const { level, statement } of iter)
+			for (const { statement } of iter)
 			{
 				const faultsForStatement = this.frozenFrame.faults.get(statement);
 				

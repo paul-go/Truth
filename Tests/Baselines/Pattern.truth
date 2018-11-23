@@ -1,0 +1,15 @@
+//
+// This example demonstrates a basic pattern matching a type.
+//
+
+Numeric
+Integer : Numeric
+/\d+/ : Integer
+
+Class
+	A : Integer
+	B : Integer
+
+SubClass : Class
+	A : 111
+	B : 222

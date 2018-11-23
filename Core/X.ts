@@ -1,8 +1,9 @@
 //
 // This file references all files that are internal to the assembly.
 //
+export * from "./MultiMap";
 export * from "./Program";
-export * from "./ProgramInspectionSite";
+export * from "./ProgramAnalyzer";
 export * from "./Agent";
 export * from "./HookType";
 export * from "./HookTypes";
@@ -15,21 +16,20 @@ export * from "./Statement";
 export * from "./Subject";
 export * from "./Pointer";
 export * from "./Spine";
-export * from "./Incremental/Type";
-export * from "./TypeConstructor";
+export * from "./Type";
 export * from "./Uri";
 export * from "./UriReader";
 export * from "./Syntax";
 export * from "./FaultService";
 export * from "./FaultTypes";
 export * from "./Fragmenter";
+export * from "./Intermediate";
+export * from "./Functor";
+export * from "./Pattern";
 export * from "./IndentCheckService";
 export * from "./VerificationService";
-export * from "./Incremental/Operations";
-export * from "./Incremental/TypeGraph";
-export * from "./Incremental/SuperLinkMiner";
-export * from "./Incremental/TypeCheckService";
 export * from "./LookupResult";
+export * from "./VersionStamp";
 export * from "./LanguageServer";
 export * from "./Fs";
 export * from "./Fetch";

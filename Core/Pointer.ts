@@ -6,6 +6,13 @@ import * as X from "./X";
  */
 export class Pointer
 {
+	/**
+	 * @internal
+	 * Logical clock value used to make chronological 
+	 * creation-time comparisons between Pointers.
+	 */
+	readonly stamp = X.VersionStamp.next();
+	
 	/** */
 	constructor(
 		statement: X.Statement,

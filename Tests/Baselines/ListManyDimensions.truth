@@ -1,0 +1,42 @@
+//
+// This demonstration shows a list with many dimensions,
+// as well as a contract violation on the nested items.
+//
+
+Boolean
+true : Boolean
+
+Number
+1 : Number
+
+Item
+	Value : Number
+
+List : Item...
+Lists : List...
+Box : Lists...
+Boxes : Box...
+
+TheBoxes : Boxes
+	: Box
+		: List
+			: Item
+				Value : 1
+			: Item
+				Value : true #301;
+		: List
+			: Item
+				Value : 1
+			: Item
+				Value : true #301;
+	: Box
+		: List
+			: Item
+				Value : 1
+			: Item
+				Value : true #301;
+		: List
+			: Item
+				Value : 1
+			: Item
+				Value : true #301; 

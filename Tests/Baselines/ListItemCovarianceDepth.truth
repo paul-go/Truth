@@ -1,0 +1,14 @@
+//
+//
+//
+
+Animal
+Rabbit : Animal
+Lop : Rabbit
+
+List : Animal...
+
+MyList : List
+	: Animal
+	: Rabbit
+	: Lop

@@ -1,0 +1,11 @@
+//
+// This example demonstrates two incongruent patterns organized
+// into a situation that requires a convariant relationship in order 
+// to pass verification.
+//
+
+String
+Email : String
+
+/".*"/ : String
+#406; /\w+/ : Email

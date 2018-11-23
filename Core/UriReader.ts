@@ -12,10 +12,10 @@ export class UriReader
 	static async tryRead(uri: X.Uri)
 	{
 		if (uri.protocol === X.UriProtocol.file)
-			return await readFile(uri.ioPath);
+			return await readFile(uri.toString(false, false));
 		
 		else if (uri.protocol === X.UriProtocol.https)
-			return await X.Fetch.exec(uri.toString());
+			return await X.Fetch.exec(uri.toString(true, false));
 		
 		throw X.ExceptionMessage.notImplemented();
 	}

@@ -1,0 +1,14 @@
+//
+// This example demonstrates how anonymous types 
+// (and vacuous statements) are prohibited from being
+// added to list-intrinsic types.
+//
+
+Foo
+Item
+List : Item...
+List...
+	: #300;
+	: Item #300;
+	: Foo #300 #301;
+	Foo

@@ -8,8 +8,6 @@ Hooks.Completion.contribute(hook =>
 		hook.line, 
 		hook.offset);
 	
-	const kind = Truth.StatementAreaKind;
-	
 	const items: CompletionItem[] = [];
 	
 	return new Truth.CompletionResult(items);

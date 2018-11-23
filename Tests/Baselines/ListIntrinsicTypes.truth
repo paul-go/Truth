@@ -1,0 +1,28 @@
+//
+// This example demonstrates "List-intrinsic types", or types that
+// are applied directly to lists themselves, rather than acting as
+// nested types. Technically, these are still "has-a" relationships,
+// but the types reside in a separate domain.
+//
+// List-intrinsic types offer a way to loosen a list type contract
+// so that meta data can be applied to the list itself, rather than
+// forcing everything to be contained within the list.
+//
+
+Boolean
+true : Boolean
+false : Boolean
+
+Item
+List : Item...
+	A : Item
+	B : Item
+
+List...
+	Sorted : true
+	
+MyList : List
+	Sorted : true
+	
+	C : Item
+	D : Item

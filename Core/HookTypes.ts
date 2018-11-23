@@ -248,36 +248,6 @@ export class UriReferenceResult
 	constructor(readonly accepted: boolean) { }
 }
 
-/** */
-export class DeclareParam
-{
-	constructor(
-		readonly program: X.Program,
-		readonly spine: X.Spine)
-	{ }
-}
-
-/** */
-export class DeclareResult
-{
-	constructor(
-		/**
-		 * Assignable value to ignore the declaration
-		 * of the term attempting to be declared.
-		 */
-		readonly ignoreTerm: boolean,
-		/**
-		 * Assignable value to ignore the declaration
-		 * of all terms on the has-a side of the statement.
-		 */
-		readonly ignoreHasaTerms: boolean,
-		/**
-		 * Assignable value to ignore the declaration
-		 * of all terms on the is-a side of the statement.
-		 */
-		readonly ignoreIsaTerms: boolean)
-	{ }
-}
 
 /** */
 export class FaultParam

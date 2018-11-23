@@ -1,0 +1,17 @@
+//
+// This example demonstrates the ability to express
+// recursive list structures, but ending with a fault
+// deeply nested within the structure.
+//
+
+Fault
+
+Item
+	SubList : List
+
+List : Item...
+	: Item
+		SubList
+			: Item
+				SubList
+					: Fault #301;

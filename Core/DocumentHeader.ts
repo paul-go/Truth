@@ -26,7 +26,7 @@ export class DocumentHeader
 		const oldUriMap = this.uriMap;
 		const newUriMap = new Map<X.Statement, X.Uri>();
 		
-		for (const { statement, position } of this.document.eachStatement())
+		for (const { statement } of this.document.eachDescendant())
 		{
 			// Currently, any statement with an annotation is
 			// considered to be a non-header statement. This

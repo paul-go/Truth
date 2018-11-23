@@ -1,0 +1,15 @@
+//
+//
+//
+
+Animal
+Rabbit : Animal
+Lop : Rabbit
+Dog : Animal
+
+List : Rabbit...
+
+MyList : List
+	: Animal #301;
+	: Rabbit
+	: Dog #301;

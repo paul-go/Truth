@@ -1,0 +1,36 @@
+//
+// This test demonstrates "Wide Inheritance".
+// Descendant types of types that are being inherited
+// should result in the inheritor's analogous descendant 
+// types to acquire the annotations as defined by the 
+// base's descendants.
+//
+
+Number, Amount, Quantity
+
+A
+	B
+		C
+
+BaseX
+	A
+		B 
+			C : Number
+
+BaseY
+	A
+		B 
+			C : Amount
+
+Container
+	Child
+		A
+			B
+				C : Quantity
+
+Box
+	Container
+		Child : BaseX, BaseY
+			A
+				B
+					C = Number, Amount, Quantity
