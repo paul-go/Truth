@@ -47,12 +47,17 @@ export class ProgramAnalyzer
 		{
 			yield { type, document };
 			
+			
+			
 			for (const containedType of type.contents)
 				recurse(containedType, document);
 		}
 		
 		if (filterDocument)
 		{
+			if (this.program.documents.has(filterDocument))
+				throw X.ExceptionMessage.documentNotLoaded();
+			
 			const map = this.roots.get(filterDocument);
 			if (!map)
 				throw X.ExceptionMessage.documentNotLoaded();
