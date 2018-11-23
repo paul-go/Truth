@@ -33,4 +33,4 @@ Box
 		Child : BaseX, BaseY
 			A
 				B
-					C = Number, Amount, Quantity
+					C ~ Number, Amount, Quantity

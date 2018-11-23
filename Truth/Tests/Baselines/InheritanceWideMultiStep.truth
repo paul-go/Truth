@@ -15,6 +15,6 @@ Layer3
 	D : End
 
 A : Layer1
-	B = Layer2
-		C = Layer3
-			D = End
+	B ~ Layer2
+		C ~ Layer3
+			D ~ End
