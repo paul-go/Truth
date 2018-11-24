@@ -1,0 +1,36 @@
+//
+// This example demonstrates a pattern with inline types,
+// but where there are two visually identical patterns that
+// match different types. Patterns don't have the same
+// fragmentation behavior is declarations, so these two
+// patterns are not merged. 
+//
+// The example demonstrates contracts at work, resulting
+// in the same pattern being resolved to two different 
+// sets of types, due to the difference in contracts being
+// applied.
+//
+
+Number
+/\d+/ : Number
+
+Range
+	High : Number
+	Low : Number
+
+Span
+	High : Number
+	Low : Number
+
+// NOT equivalent to /<High> - <Low>/ : Range, Span
+/<High> - <Low>/ : Range
+/<High> - <Low>/ : Span
+
+Class
+	Tolerance : Range
+
+SubClass : Class
+	Tolerance : 2 - 3 ~ Range
+
+Product
+	Tolerance : 2 - 3 ~ Range, Span

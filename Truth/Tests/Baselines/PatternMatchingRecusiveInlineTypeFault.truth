@@ -12,7 +12,7 @@ Number
 /\d+/ : Number
 
 Range
-	High : Range
 	Low : Range
+	High : Range
 
-#416; /<High> - <Low>/ : Range
+#416; /<Low> - <High>/ : Range

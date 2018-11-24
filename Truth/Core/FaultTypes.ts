@@ -171,6 +171,13 @@ export class PatternPossiblyMatchesEmptyFault extends StatementFault
 }
 
 /** */
+export class PatternPossiblyMatchesWhitespaceOnlyFault extends StatementFault
+{
+	readonly code = 420;
+	readonly message = "Pattern could possibly match nothing other than whitespace characters.";
+}
+
+/** */
 export class PatternNonCovariantFault extends StatementFault
 {
 	readonly code = 406;
@@ -199,6 +206,13 @@ export class InlineTypeNonConvariantFault extends StatementFault
 }
 
 /** */
+export class InlineTypeNotDefinedFault extends StatementFault
+{
+	readonly code = 422;
+	readonly message = "Inline types must be defined on at least one of their matched bases.";
+}
+
+/** */
 export class InlineTypeMustHaveExpressionFault extends StatementFault
 {
 	readonly code = 414;
@@ -210,6 +224,28 @@ export class InlineTypeRecursiveFault extends StatementFault
 {
 	readonly code = 416;
 	readonly message = "Recursive types are not allowed as inline types.";
+}
+
+/** */
+export class InlinePortabilityTypeDuplicatedFault extends StatementFault
+{
+	readonly code = 418;
+	readonly message = "Inline data portability types cannot be specified more than once.";
+}
+
+/** */
+export class InlineTypeContractViolationFault extends StatementFault
+{
+	readonly code = 424;
+	readonly severity = FaultSeverity.warning;
+	readonly message = "Inline type annotations must explicitly expand the type as defined by the base.";
+}
+
+/** */
+export class InlineTypeChainingFault extends StatementFault
+{
+	readonly code = 426;
+	readonly message = "Inline types cannot be chained together.";
 }
 
 /** */

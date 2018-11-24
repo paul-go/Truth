@@ -1,0 +1,11 @@
+//
+// This example demonstrates a fault being generated as a result
+// of an attempt to refer to a pattern defined within an inline type
+// being referenced in another pattern.
+//
+
+Foo
+	Nested
+	/\d+/ : Nested
+
+#422; /<Nested>/ : Foo

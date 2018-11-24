@@ -1,0 +1,11 @@
+//
+// This example demonstrates a fault being generated as
+// a result of attempting to achieve "chaining" within an
+// inline type.
+//
+
+Foo
+	A
+	B
+
+#426; /<A, B>/ : Foo

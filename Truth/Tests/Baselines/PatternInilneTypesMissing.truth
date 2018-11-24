@@ -1,0 +1,27 @@
+//
+// This example demonstrates a pattern with inline types,
+// where those inline types could not be resolved to types
+// directly contained by the specified base.
+//
+
+Number
+/\d+/ : Number
+
+#422; /<High> - <Low>/ : Range
+
+Range
+	Box
+		High : Number
+		Low : Number
+
+
+//
+// This example demonstrates the same error,
+// but in a more obvious form.
+//
+
+Foo
+	A
+	B
+
+#422; /<Unknown>!/ : Foo

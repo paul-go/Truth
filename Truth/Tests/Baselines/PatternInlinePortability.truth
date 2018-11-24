@@ -1,0 +1,35 @@
+//
+// Inline Portability Types are used to mark a region of a
+// pattern, so that conforming data can be recognized by it's
+// base types. This provides a way to guarantee that all types will
+// always be able to draw conforming data from their inheritors.
+//
+// Inline portability types are the less desirable way of establishing
+// a covariant compatibility relationship between the patterns associated
+// with a type, and it's bases. Inline portability pypes are used when
+// each valid input to a pattern associated with a type must
+// *contain* a valid input to it's bases, but is not a valid input
+// itself.
+//
+// This example demonstrates a single inline portability type 
+// being used within a pattern.
+// 
+
+Numeric
+Integer : Numeric
+/\d+/ : Integer
+
+SignedInteger : Integer
+/(+|-)< : Integer>/ : SignedInteger
+
+Class
+	A : Integer
+	B : Integer
+
+SubClass : Class
+	A : SignedInteger
+	B : SignedInteger
+
+SubSubClass : SubClass
+	A : +2
+	B : -10
