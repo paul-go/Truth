@@ -1,0 +1,23 @@
+//
+// This example demonstrates a pattern with inline population types,
+// but where the types are being referenced by nested references.
+//
+
+Number
+/\d+/ : Number
+
+/<High> - <Low>/ : Range
+
+Range
+	High : Number
+	Low : Number
+	Box
+		High
+		Low
+
+TheRange : 9 - 1 ~ Range
+	~ High : 9
+	~ Low : 1
+	~ Box
+		~ High : Number
+		~ Low : Number

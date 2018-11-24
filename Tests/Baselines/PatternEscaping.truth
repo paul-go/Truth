@@ -1,0 +1,9 @@
+//
+// This example demonstrates the various non-traditionally escaped 
+// characters that must be escaped in Truth's regular expression
+// implementation
+//
+
+EscapeZilla
+/\<\/\:\/\>/ : EscapeZilla
+Type : </:/> ~ EscapeZilla

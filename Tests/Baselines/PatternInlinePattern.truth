@@ -1,0 +1,15 @@
+//
+// This example demonstrates importing patterns into another 
+// pattern, via "Inline Pattern Types". Note that this does not 
+// establish data portability between types. It simply just does
+// a copy and paste on the referenced pattern.
+//
+
+Digit
+/\d/ : Digit
+
+Integer
+/\d+/ : Integer
+
+mm : Integer
+/</Digit/>mm/ : mm ~ Integer, !Digit

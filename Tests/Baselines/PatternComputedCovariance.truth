@@ -9,8 +9,8 @@
 // with a type, and it's bases. Computed covariance is used when
 // the set of all valid inputs to a pattern associated with a type
 // is a subset of all valid inputs to all patterns associated with 
-// that type's bases. In the case when this cannot be the case,
-// inline covariance must be used.
+// that type's bases. In the sitations when this cannot be made,
+// to work, inline portability types must be used.
 //
 
 String

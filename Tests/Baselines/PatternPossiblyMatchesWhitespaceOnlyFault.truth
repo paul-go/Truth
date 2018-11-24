@@ -1,0 +1,9 @@
+//
+// This example demonstrates a pattern that is able to match
+// an input consisting of only whitespace characters. These
+// are considered invalid (because it would lead to undefinable
+// behavior).
+//
+
+WhitespaceOnly
+#420; /\s+\w?/ : WhitespaceOnly

@@ -1,0 +1,32 @@
+//
+// This example demonstrates a fault being generated due to an
+// inline type being assigned as one that should match a pattern
+// value (due to the existence of patterns defined in the subtree), 
+// but is instead attempting to match a type name.
+//
+
+Number
+/\d+/ : Number
+
+CurrencyCode
+
+NorthAmericanCurrencyCode : CurrencyCode
+/(CAD|USD)/ : NorthAmericanCurrencyCode
+
+AsianCurrencyCode : CurrencyCode
+/(JPY|CNY)/ : AsianCurrencyCode
+
+Price
+	Value : Number
+	CurrencyCode
+	
+/$<Number> <CurrencyCode>/ : Price
+
+Product
+	Price
+
+Widget1 : Product
+	Price : $13 NorthAmericanCurrencyCode #201;
+
+Widget2 : Product
+	Price : $10 AsianCurrencyCode #201;
