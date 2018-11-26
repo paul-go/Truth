@@ -3,9 +3,8 @@ import * as X from "./X";
 
 //
 // This file contains the classes that form the structure of the 
-// intermediate representation that sits between the Document
-// and Fragmenter side of the compiler, and the Type construction
-// side.
+// intermediate representation that sits between the File Phase
+// and the Analysis Phase of the compiler.
 //
 
 
