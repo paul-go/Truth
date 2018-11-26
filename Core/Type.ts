@@ -1,17 +1,5 @@
 import * as X from "./X";
 
-/*
-
-The Type class deals with the following concerns
-on top of what is already provided by the Node class:
-
-- Polymorphic type resolution
-- Calculating type contracts
-- Fault reporting
-- Resolving aliases
-- Circular inheritance detection
-
-*/
 
 /**
  * A class that defines a type located within a
@@ -48,18 +36,80 @@ export class Type
 		return newType;
 	}
 	
+	/**
+	 * Searches for a Type at the specified URI.
+	 * The URI may refer to a location in an unspecified
+	 * area of the document (such as if the URI refers to
+	 * an inherited type or a descendant of a recursive type).
+	 */
+	static find(uri: X.Uri, owner: X.Document | X.Program)
+	{
+		if (!owner)
+			throw X.ExceptionMessage.invalidArgument();
+		
+		const document = owner instanceof X.Document ?
+			owner :
+			owner.documents.get(uri);
+		
+		if (!document)
+			throw X.ExceptionMessage.documentNotLoaded();
+		
+		const fragmenter = document.program.fragmenter;
+		
+		// The first step is to construct types, that exist within
+		// in "specified" land. following the names defined
+		// in the URI from left to right.
+		
+		const longestSpecifiedStrand = (() =>
+		{
+			let out: X.Strand | null = null;
+			
+			for (let nameIdx = uri.typePath.length; nameIdx-- > 0;)
+			{
+				const retractedUri = uri.retract(0, nameIdx);
+				const strand = fragmenter.query(retractedUri);
+				if (!strand)
+					return out;
+				
+				out = strand;
+			}
+			
+			return out;
+		})();
+		
+		// In the case when not even a single name from
+		// the type URI could be matched to a specified
+		// location in the document, null is returned.
+		if (longestSpecifiedStrand === null)
+			return null;
+		
+		const specifiedLength = longestSpecifiedStrand.molecules.length;
+		
+		// Sanity check
+		if (specifiedLength > uri.typePath.length)
+			return X.ExceptionMessage.unknownState();
+		
+		const initialFunctor = X.Functor.get(longestSpecifiedStrand);
+		const initialType = this.getFromFunctor(initialFunctor);
+		
+		// In the case when the URI refers to a location that is fully
+		// within the specified portion of the document, we can 
+		// simply return a new Type from the Functor that
+		// corresponds to that location.
+		if (specifiedLength === uri.typePath.length)
+			return initialType;
+		
+		const unspecifiedPortion = uri.typePath.slice(specifiedLength);
+		
+		
+		
+	}
+	
 	/** */
 	private static readonly cache = new WeakMap<X.Functor, Type>();
 	
 	/** */
-	private constructor(private readonly functor: X.Functor)
-	{
-		
-		// 
-		// Perform epic type construction algorithm here.
-		//
-		
-	}
+	private constructor(private readonly functor: X.Functor) { }
 	
 	/**
 	 * Stores an array of Faults that where generated as a result of
@@ -82,15 +132,45 @@ export class Type
 	get name() { return this.functor.name; }
 	
 	/** */
+	get subject() { return this.functor.atom.subject; }
+	
+	/**
+	 * Gets an array of the underlying pointers that compose this type.
+	 */
+	get pointers() { return this.functor.atom.pointers; }
+	
+	/**
+	 * Gets an array of the statements that contains
+	 * the pointers that compose this type.
+	 */
+	get statements()
+	{
+		return Array.from(new Set(this.pointers.map(ptr => ptr.statement)));
+	}
+	
+	/** */
 	get stamp() { return this.functor.stamp; }
+	
+	/** */
+	get container()
+	{
+		if (this._container !== undefined)
+			return this._container;
+		
+		const fntrCtr = this.functor.container;
+		
+		return this._container = fntrCtr !== null ?
+			Type.getFromFunctor(fntrCtr) :
+			null;
+	}
+	private _container: Type | null| undefined = undefined;
 	
 	/** */
 	get contents()
 	{
-		if (this._contents)
-			return this._contents;
-		
-		return this._contents = this.functor.contents.map(fntr => Type.getFromFunctor(fntr));
+		return this._contents ?
+			this._contents :
+			(this._contents = this.functor.contents.map(fntr => Type.getFromFunctor(fntr)));
 	}
 	private _contents: Type[] | null = null;
 }
