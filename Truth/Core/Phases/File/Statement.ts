@@ -224,6 +224,10 @@ export class Statement
 		if (offset < this.indent)
 			return StatementRegion.void;
 		
+		const pl = this.patternLiteral;
+		if (pl && offset >= pl.offsetStart && offset <= pl.offsetEnd)
+			return StatementRegion.pattern;
+		
 		if (offset <= this.jointPosition)
 		{
 			for (const span of this.declarations)
@@ -257,6 +261,9 @@ export class Statement
 	 */
 	get declarations()
 	{
+		if (this.patternLiteral)
+			return [];
+		
 		if (this._declarations)
 			return this._declarations;
 		
@@ -378,9 +385,14 @@ export enum StatementRegion
 	void,
 	
 	/**
-	 * Refers to the area 
+	 * Refers to the area in the indentation area.
 	 */
 	whitespace,
+	
+	/**
+	 * Refers to the 
+	 */
+	pattern,
 	
 	/** */
 	declaration,
