@@ -1,6 +1,6 @@
 //
-// This example demonstrates inline population types,
-// but where additional types are specified on the annotation
+// This example demonstrates population infixes, but
+// where additional types are specified on the annotation
 // side, causing a widening of types to be applied when
 // matching occurs.
 //

@@ -1,7 +1,7 @@
 //
 // This example demonstrates a fault being generated as a result
-// of an attempt to refer to a pattern defined within an inline type
-// being referenced in another pattern.
+// of a population infix attempting to refer to a pattern in an
+// invisible location.
 //
 
 Foo

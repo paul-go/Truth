@@ -1,7 +1,8 @@
 //
 // This example demonstrates a faulty attempt to achieve
-// inline population type widening, but the necessary types
-// are not specified, so there is a contract violation.
+// a widening of types within a population infix, but where 
+// the necessary types are not specified, and so there is a 
+// contract violation.
 //
 
 Number

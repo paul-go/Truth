@@ -1,7 +1,7 @@
 //
 // This example demonstrates a fault being generated as
-// a result of attempting to achieve "chaining" within an
-// inline type.
+// a result of attempting to achieve "chaining" within a
+// population infix.
 //
 
 Foo

@@ -1,0 +1,9 @@
+//
+// Some regular expressions are invalid because they don't
+// describe a matchable string. Future investigation needed
+// to see whether the expression below should simply match
+// the plus sign.
+//
+
+A
+#400; /+/ : A

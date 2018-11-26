@@ -1,6 +1,7 @@
 //
-// This example demonstrates a pattern with inline population types,
-// but where the types are being referenced by nested references.
+// This example demonstrates a pattern with 
+// population infixes, but where the types are
+// being referenced by nested references.
 //
 
 Number

@@ -1,0 +1,19 @@
+//
+// This example demonstrates a "Nominal Infix".
+// Nominal infixes are a way of ensuring aliases
+// are not accepted as valid inputs to a pattern. 
+// Instead, the name of a type must be specified.
+//
+
+Type
+Number : Type
+/\d+/ : Number
+Set
+	Key
+	
+/Set of <<Key : Type>>/ : Set
+
+MySet : Set of Number
+	~ Key : Number
+	
+MySet : Set of 2 #201

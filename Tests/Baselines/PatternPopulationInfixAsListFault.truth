@@ -1,7 +1,8 @@
 //
 // This example demonstrates a fault being generated due
-// to an inline type referencing a list. Future investigation is
-// needed to determine if this should simply be a parsing fault.
+// to a population infix attempting to reference a list. Future 
+// investigation is needed to determine if this should simply 
+// be a parsing fault.
 //
 
 Item

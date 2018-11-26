@@ -1,7 +1,7 @@
 // 
-// This example demonstrates a pattern with inline types,
-// where those inline types could not be resolved to types
-// directly contained by the specified base.
+// This example demonstrates a pattern with population 
+// infixes, where those infixes could not be resolved to 
+// types directly contained by the specified base.
 // 
 
 Number
