@@ -111,19 +111,11 @@ export class Type
 	/** */
 	private constructor(private readonly functor: X.Functor) { }
 	
-	/**
-	 * Stores an array of Faults that where generated as a result of
-	 * analyzing this Type. Note that Faults generated in this way
-	 * can also be found in the FaultService.
-	 */
-	get faults()
-	{
-		if (this._faults)
-			return this._faults;
-		
-		return this._faults = [];
-	}
-	private _faults: ReadonlyArray<X.Fault> | null = null;
+	
+	//
+	// Document-related properties
+	//
+	
 	
 	/** */
 	get uri() { return this.functor.uri; }
@@ -139,6 +131,7 @@ export class Type
 	 */
 	get spans() { return this.functor.atom.spans; }
 	
+	
 	/**
 	 * Gets an array of the statements that contains
 	 * the spans that compose this type.
@@ -151,7 +144,7 @@ export class Type
 	/** */
 	get stamp() { return this.functor.stamp; }
 	
-	/** */
+	/** Gets a reference to the Type that is the direct container of this one. */
 	get container()
 	{
 		if (this._container !== undefined)
@@ -163,7 +156,39 @@ export class Type
 			Type.getFromFunctor(fntrCtr) :
 			null;
 	}
-	private _container: Type | null| undefined = undefined;
+	private _container: Type | null | undefined = undefined;
+	
+	/**
+	 * Gets an array of the containers that have been resolved as
+	 * bases of this container, computed as a result of applying
+	 * the contextual type resolution rules.
+	 */
+	get containersResolved()
+	{
+		if (this._containerssResolved !== undefined)
+			return this._containerssResolved;
+		
+		const fntrCtr = this.functor.container;
+		
+		return this._containerssResolved = fntrCtr !== null ?
+			Type.getFromFunctor(fntrCtr) :
+			null;
+	}
+	private _containerssResolved: Type | null | undefined = undefined;
+	
+	/**
+	 * Stores an array of Faults that where generated as a result of
+	 * analyzing this Type. Note that Faults generated in this way
+	 * can also be found in the FaultService.
+	 */
+	get faults()
+	{
+		if (this._faults)
+			return this._faults;
+		
+		return this._faults = [];
+	}
+	private _faults: ReadonlyArray<X.Fault> | null = null;
 	
 	/** */
 	get contents()

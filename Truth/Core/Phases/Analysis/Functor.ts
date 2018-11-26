@@ -385,28 +385,6 @@ function getDocument(input: X.Atom | X.Strand | Functor)
 
 
 /**
- * 
- */
-export class Base
-{
-	constructor(
-		/**
-		 * 
-		 */
-		readonly route: FunctorResolveRoute,
-		/**
-		 * 
-		 */
-		readonly functor: Functor,
-		/**
-		 * 
-		 */
-		readonly bases: ReadonlyArray<Base>)
-	{ }
-}
-
-
-/**
  * Defines a series of Stops that describe the route that the
  * resolution algorithm took to navigate from one Functor
  * to another.
