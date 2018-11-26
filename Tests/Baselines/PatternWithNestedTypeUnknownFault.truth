@@ -1,0 +1,16 @@
+// 
+// This example demonstrates types nested within a
+// pattern that couldn't be resolved to any type defined
+// within the pattern's matchable bases.
+// 
+
+Number
+/\d+/ : Number
+
+Range
+	Low : Number
+	High : Number
+
+/<Low> - <High>/ : Range
+	Hidden #423
+		DoesntExist
