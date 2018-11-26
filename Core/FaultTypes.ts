@@ -249,6 +249,13 @@ export class InlineTypeChainingFault extends StatementFault
 }
 
 /** */
+export class InlineTypeReferencingListFault extends StatementFault
+{
+	readonly code = 428;
+	readonly message = "Inline types cannot reference list types.";
+}
+
+/** */
 export class DiscrepantUnionFault extends StatementFault
 {
 	readonly code = 450;
