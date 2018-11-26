@@ -150,6 +150,9 @@ export class Fragmenter
 			currentFragments = nextFragments;
 		}
 		
+		// If we're querying the contents of the input URI, rather than
+		// the actual type at that location, the returned value is a series
+		// of Strands, not just one.
 		if (queryContents)
 		{
 			const strands: X.Strand[] = [];
