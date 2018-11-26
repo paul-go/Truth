@@ -198,6 +198,17 @@ export class PatternNonCovariantFault extends StatementFault
 }
 
 /** */
+export class PatternUnknownNestedTypesFault extends StatementFault
+{
+	readonly code = 432;
+	readonly severity = FaultSeverity.warning;
+	readonly message = 
+		"This type cannot be refreshed, because one or more base types are " +
+		"imposing a specific type contract on it. Consider omitting the " + 
+		X.Syntax.joint + " operator here.";
+}
+
+/** */
 export class InfixInRepeatingPatternFault extends StatementFault
 {
 	readonly code = 408;
