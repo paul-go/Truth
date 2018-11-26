@@ -10,7 +10,7 @@ export const enum Syntax
 	combinator = ",",
 	joint = ":",
 	pluralizer = "...",
-	regexDelimiter = "/",
+	patternDelimiter = "/",
 	escapeChar = "\\",
 	comment = "// ",
 	truthExtension = "truth",

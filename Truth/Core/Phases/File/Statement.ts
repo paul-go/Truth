@@ -77,7 +77,7 @@ export class Statement
 				const char = text[cursor];
 				const escaped = cursor > 0 && text[cursor - 1] === X.Syntax.escapeChar;
 				const atCombinator = char === X.Syntax.combinator;
-				const atJoint = char === X.Syntax.joint;
+				const atJoint = char === X.Syntax.joint && jointPosition < 0;
 				const atEscape = char === X.Syntax.escapeChar;
 				const atEnd = ++cursor >= text.length;
 				
@@ -108,6 +108,29 @@ export class Statement
 			}
 			
 			return subjects;
+		}
+		
+		// If the following test passes, there's a 99% chance
+		// we're parsing a pattern literal, so pass the input
+		// string off to the pattern literal parser. If we get
+		// back a PatternLiteral, we can skip reading in
+		// hasaSubjects.
+		if (text[cursor] === X.Syntax.patternDelimiter && cursor < text.length)
+		{
+			const parseResult = X.PatternLiteralParser.invoke(text, cursor);
+			if (parseResult.jointPosition > -1)
+			{
+				this.patternLiteral = new X.PatternLiteral(
+					this,
+					parseResult.offsetStart,
+					parseResult.offsetEnd,
+					parseResult.hasCoexistenceFlag,
+					parseResult.value);
+				
+				this.isaSubjects = readSubjects(false);
+				this.jointPosition = parseResult.jointPosition;
+				return;
+			}
 		}
 		
 		this.hasaSubjects = readSubjects(true);
@@ -169,6 +192,13 @@ export class Statement
 	 * as it appears in the document. 
 	 */
 	readonly textContent: string;
+	
+	/**
+	 * Stores a parsed pattern literal, in the case when the 
+	 * statement has one. If the statement is a non-pattern,
+	 * the field is null.
+	 */
+	readonly patternLiteral: X.PatternLiteral | null = null;
 	
 	/**
 	 * @internal

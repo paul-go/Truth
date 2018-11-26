@@ -33,6 +33,8 @@ export * from "./Phases/File/Statement";
 export * from "./Phases/File/Subject";
 export * from "./Phases/File/Span";
 export * from "./Phases/File/Spine";
+export * from "./Phases/File/PatternLiteral";
+export * from "./Phases/File/PatternLiteralParser";
 export * from "./Phases/File/Fragmenter";
 
 // Phases/Analysis
