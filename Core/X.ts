@@ -28,7 +28,6 @@ export * from "./Functor";
 export * from "./Pattern";
 export * from "./IndentCheckService";
 export * from "./VerificationService";
-export * from "./LookupResult";
 export * from "./VersionStamp";
 export * from "./LanguageServer";
 export * from "./Fs";
