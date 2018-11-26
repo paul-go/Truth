@@ -174,7 +174,9 @@ export class PatternCanMatchEmptyFault extends StatementFault
 export class PatternCanMatchWhitespaceOnlyFault extends StatementFault
 {
 	readonly code = 420;
-	readonly message = "Patterns must not be able to match an input containing only whitespace characters.";
+	readonly message = 
+		"Patterns must not be able to match an input " +
+		"containing only whitespace characters.";
 }
 
 /** */
@@ -185,74 +187,86 @@ export class PatternNonCovariantFault extends StatementFault
 }
 
 /** */
-export class InlineTypeInRepeatingPatternFault extends StatementFault
+export class InfixInRepeatingPatternFault extends StatementFault
 {
 	readonly code = 408;
-	readonly message = "Inline types cannot exist in a repeating context.";
+	readonly message = "Infixes cannot exist in a repeating context.";
 }
 
 /**  */
-export class InlineTypeSelfReferentialFault extends StatementFault
+export class InfixSelfReferentialFault extends StatementFault
 {
 	readonly code = 410;
-	readonly message = "Inline types can't be self-referential.";
+	readonly message = "Infixes can't be self-referential.";
 }
 
 /**  */
-export class InlineTypeNonConvariantFault extends StatementFault
+export class InfixNonConvariantFault extends StatementFault
 {
 	readonly code = 412;
-	readonly message = "Inline types can't be self-referential.";
+	readonly message = "Infixes must be compatible with their bases.";
 }
 
 /** */
-export class InlineTypeNotDefinedFault extends StatementFault
+export class InfixNotDefinedFault extends StatementFault
 {
 	readonly code = 422;
-	readonly message = "Inline types must be defined on at least one of their matched bases.";
+	readonly message = 
+		"Infixes must be defined on at least one of their matched bases.";
 }
 
 /** */
-export class InlineTypeMustHaveExpressionFault extends StatementFault
+export class InfixMustHaveExpressionFault extends StatementFault
 {
 	readonly code = 414;
-	readonly message = "Inline types must have at least one associated pattern.";
+	readonly message = "Infixes must have at least one associated pattern.";
 }
 
 /** */
-export class InlineTypeRecursiveFault extends StatementFault
+export class InfixRecursiveFault extends StatementFault
 {
 	readonly code = 416;
-	readonly message = "Recursive types are not allowed as inline types.";
+	readonly message = "Recursive types cannot be referenced within infixes.";
 }
 
 /** */
-export class InlinePortabilityTypeDuplicatedFault extends StatementFault
-{
-	readonly code = 418;
-	readonly message = "Inline data portability types cannot be specified more than once.";
-}
-
-/** */
-export class InlineTypeContractViolationFault extends StatementFault
+export class InfixContractViolationFault extends StatementFault
 {
 	readonly code = 424;
 	readonly severity = FaultSeverity.warning;
-	readonly message = "Inline type annotations must explicitly expand the type as defined by the base.";
+	readonly message = 
+		"Infix type annotations must explicitly expand the type as defined by the base.";
 }
 
 /** */
-export class InlineTypeChainingFault extends StatementFault
+export class InfixChainingFault extends StatementFault
 {
 	readonly code = 426;
-	readonly message = "Inline types cannot be chained together.";
+	readonly message = "Infixes cannot be chained together.";
 }
 
 /** */
-export class InlineTypeReferencingListFault extends StatementFault
+export class InfixReferencingListFault extends StatementFault
 {
 	readonly code = 428;
-	readonly message = "Inline types cannot reference list types.";
+	readonly message = "Infixes cannot reference list types.";
+}
+
+/** */
+export class PortabilityInfixDuplicatedFault extends StatementFault
+{
+	readonly code = 418;
+	readonly message = 
+		"Portability infixes with compatible types cannot be specified more than once.";
+}
+
+/** */
+export class NominalInfixMustSubtypeFault extends StatementFault
+{
+	readonly code = 430;
+	readonly message = 
+		"Patterns with nominal infixes require an input that is " +
+		"a subtype of the type specified, not the type itself.";
 }
 
 /** */
