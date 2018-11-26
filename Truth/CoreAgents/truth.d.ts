@@ -370,6 +370,671 @@ declare namespace Truth {
 	export type HookTypesInstance = {
 		[P in keyof typeof HookTypes]: Readonly<InstanceType<typeof HookTypes[P]>>;
 	};
+	/** */
+	export enum UriProtocol {
+		none = 0,
+		file = 1,
+		https = 2,
+		http = 3,
+		internal = 4,
+		unsupported = 5
+	}
+	/**
+	 * A class that represents a Truth URI.
+	 * A Truth URI can point to a truth file, or an agent through a variety of
+	 * different protocols, just like a normal URI. However, a Truth URI that
+	 * points to a Truth file can also point to declarations within that file
+	 * directly in the URI, using the double slash syntax. For example:
+	 * 
+	 * //domain.com/File.truth//Path/To/Declaration
+	 */
+	export class Uri {
+		/**
+		 * Stores a reference to the protocol used by the URI.
+		 */
+		readonly protocol: UriProtocol;
+		/**
+		 * Stores the file name specified in the URI, if one exists.
+		 */
+		readonly fileName: string;
+		/**
+		 * Stores the base file name specified in the URI.
+		 * For example, for the URI path/to/dir/file.ext, base would
+		 * be the string "file". If the URI does not contain a file
+		 * name, the field is an empty string.
+		 */
+		readonly fileNameBase: string;
+		/**
+		 * Stores the extension of the file specified in the URI,
+		 * without the dot character. If the URI does not contain
+		 * a file name, the field is an empty string.
+		 */
+		readonly fileExtension: string;
+		/**
+		 * Stores the fully qualified path to the file, and the file
+		 * name itself, but without any protocol.
+		 */
+		readonly ioPath: ReadonlyArray<string>;
+		/**
+		 * Stores the contents of any type path specified in the URI.
+		 */
+		readonly typePath: ReadonlyArray<string>;
+		/**
+		 * 
+		 * @param uriText A string containing the URI to parse
+		 * @param relativeFallback A URI that identifies the origin
+		 * of the URI being parsed, used in the case when the
+		 * uriText parameter is a relative path.
+		 */
+		static parse(uriText: string, relativeFallback?: Uri): Uri | null;
+		/**
+		 * Creates a new Uri from the specified input.
+		 * 
+		 * @param from If the parameter is omited, a unique internal
+		 * URI is generated.
+		 */
+		static create(from?: Spine | Strand | Uri): Uri;
+		/** */
+		protected constructor(
+		/**
+		 * Stores a reference to the protocol used by the URI.
+		 */
+		protocol: UriProtocol,
+		/**
+		 * Stores the file name specified in the URI, if one exists.
+		 */
+		fileName: string,
+		/**
+		 * Stores the base file name specified in the URI.
+		 * For example, for the URI path/to/dir/file.ext, base would
+		 * be the string "file". If the URI does not contain a file
+		 * name, the field is an empty string.
+		 */
+		fileNameBase: string,
+		/**
+		 * Stores the extension of the file specified in the URI,
+		 * without the dot character. If the URI does not contain
+		 * a file name, the field is an empty string.
+		 */
+		fileExtension: string,
+		/**
+		 * Stores the fully qualified path to the file, and the file
+		 * name itself, but without any protocol.
+		 */
+		ioPath: ReadonlyArray<string>,
+		/**
+		 * Stores the contents of any type path specified in the URI.
+		 */
+		typePath: ReadonlyArray<string>);
+		/**
+		 * Converts the URI to a fully-qualified path including the file name.
+		 */
+		toString(includeProtocol?: boolean, includeTypePath?: boolean): string;
+		/**
+		 * @returns A value indicating whether two URIs point to the same resource.
+		 */
+		equals(uri: Uri | string): boolean;
+		/**
+		 * Creates a new Uri, whose typePath and ioPath
+		 * fields are retracted by the specified levels of
+		 * depth.
+		 * 
+		 * @returns A new Uri that is otherwise a copy of this
+		 * one, but with it's IO path and type path peeled
+		 * back by the specified numbero of levels.
+		 */
+		retract(ioRetraction?: number, typeRetraction?: number): Uri;
+		/**
+		 * @returns A new Uri, whose typePath and ioPath
+		 * fields are extended with the specified segments.
+		 */
+		extend(ioSegments: string | string[], typeSegments: string | string[]): Uri;
+	}
+	/** */
+	export class UriReader {
+		/**
+		 * Attempts to read the contents of the given URI.
+		 * If an error is generated while trying to read a file
+		 * at the specified location, the errors is returned.
+		 */
+		static tryRead(uri: Uri): Promise<string | Error>;
+	}
+	/**
+	 * An enumeration that stores language syntax tokens.
+	 */
+	export const enum Syntax {
+		tab = "\t",
+		space = " ",
+		terminal = "\n",
+		combinator = ",",
+		joint = ":",
+		pluralizer = "...",
+		regexDelimiter = "/",
+		escapeChar = "\\",
+		comment = "// ",
+		truthExtension = "truth",
+		agentExtension = "js"
+	}
+	/**
+	 * A class that manages the diagnostics that have been
+	 * reported for the current state of the program.
+	 */
+	export class FaultService {
+		private readonly program;
+		/** */
+		constructor(program: Program);
+		/**
+		 * Reports a fault. If a similar Fault on the same area
+		 * of the document hasn't been reported, the method
+		 * runs the FaultReported hook.
+		 */
+		report(fault: Fault): void;
+		/**
+		 * Gets a number representing the number of
+		 * unrectified faults retained by this FaultService.
+		 */
+		readonly count: number;
+		/**
+		 * @returns A boolean value indicating whether this
+		 * FaultService retains a fault that is similar to the specified
+		 * fault (meaning that it has the same code and source).
+		 */
+		has(similarFault: Fault): boolean;
+		/**
+		 * @returns An array of Fault objects that have been reported
+		 * at the specified source. If the source has no faults, an empty
+		 * array is returned.
+		 */
+		check(source: Span | Statement): Fault[];
+		/**
+		 * Enumerates through the unrectified faults retained
+		 * by this FaultService.
+		 */
+		each(): IterableIterator<Fault>;
+		/**
+		 * Broadcasts all reports stored in activeContext,
+		 * and creates a new activeContext.
+		 */
+		private broadcastReports;
+		/** */
+		private inEditTransaction;
+		/**
+		 * A rolling, mutable field that is used as the build target of the
+		 * faults found in the current frame.
+		 */
+		private activeContext;
+	}
+	/** */
+	export type FaultSource = Statement | Span;
+	/** Base class for all faults. */
+	export abstract class Fault {
+		/** */
+		readonly severity: FaultSeverity;
+		/** A human-readable description of the fault. */
+		readonly abstract message: string;
+		/** An error code, useful for reference purposes, or display in a user interface. */
+		readonly abstract code: number;
+		/** The document object that caused the fault to be reported. */
+		readonly abstract source: FaultSource;
+	}
+	/** Base class for faults that relate to a specific statement. */
+	export abstract class StatementFault extends Fault {
+		readonly source: Statement;
+		constructor(source: Statement);
+	}
+	/** Base class for faults that relate to a specific span. */
+	export abstract class SpanFault extends Fault {
+		readonly source: Span;
+		constructor(source: Span);
+	}
+	/** */
+	export enum FaultSeverity {
+		/** Reports an error. */
+		error = 1,
+		/** Reports a warning. */
+		warning = 2
+	}
+	/** */
+	export class UnresolvedResourceFault extends StatementFault {
+		constructor(source: Statement, error?: Error);
+		readonly code = 100;
+		readonly message = "URI points to a resource that could not be resolved.";
+	}
+	/** */
+	export class CircularResourceReferenceFault extends StatementFault {
+		readonly code = 102;
+		readonly message = "URI points to a resource that would cause a circular reference.";
+	}
+	/** */
+	export class InsecureResourceReferenceFault extends StatementFault {
+		readonly code = 104;
+		readonly message: string;
+	}
+	/** */
+	export class UnresolvedAnnotationFault extends SpanFault {
+		readonly code = 201;
+		readonly message = "Unresolved annotation.";
+	}
+	/** */
+	export class CircularTypeReferenceFault extends SpanFault {
+		readonly code = 203;
+		readonly message = "Circular type reference detected.";
+	}
+	/** */
+	export class ContractViolationFault extends StatementFault {
+		readonly code = 204;
+		readonly severity = FaultSeverity.warning;
+		readonly message = "Overridden types must explicitly expand the type as defined in the base.";
+	}
+	/** */
+	export class TypeCannotBeRefreshedFault extends StatementFault {
+		readonly code = 206;
+		readonly severity = FaultSeverity.warning;
+		readonly message: string;
+	}
+	/** */
+	export class AnonymousListIntrinsicTypeFault extends StatementFault {
+		readonly code = 300;
+		readonly message = "List-intrinsic types cannot be anonymous.";
+	}
+	/** */
+	export class ListContractViolationFault extends SpanFault {
+		readonly code = 301;
+		readonly message = "The containing list cannot contain children of this type.";
+	}
+	/** */
+	export class ListIntrinsicExtendingNonList extends SpanFault {
+		readonly code = 303;
+		readonly message = "List-intrinsics cannot extend from a non-list type.";
+	}
+	/** */
+	export class PatternInvalidFault extends StatementFault {
+		readonly code = 400;
+		readonly message = "Invalid pattern.";
+	}
+	/** */
+	export class PatternWithoutAnnotationFault extends StatementFault {
+		readonly code = 402;
+		readonly message = "Pattern has no annotations.";
+		readonly severity = FaultSeverity.warning;
+	}
+	/** */
+	export class PatternCanMatchEmptyFault extends StatementFault {
+		readonly code = 404;
+		readonly message = "Patterns must not be able to match an empty input.";
+	}
+	/** */
+	export class PatternCanMatchWhitespaceOnlyFault extends StatementFault {
+		readonly code = 420;
+		readonly message: string;
+	}
+	/** */
+	export class PatternNonCovariantFault extends StatementFault {
+		readonly code = 406;
+		readonly message = "Pattern does not match it's base types.";
+	}
+	/** */
+	export class PatternUnknownNestedTypesFault extends StatementFault {
+		readonly code = 432;
+		readonly severity = FaultSeverity.warning;
+		readonly message: string;
+	}
+	/** */
+	export class InfixInRepeatingPatternFault extends StatementFault {
+		readonly code = 408;
+		readonly message = "Infixes cannot exist in a repeating context.";
+	}
+	/**  */
+	export class InfixSelfReferentialFault extends StatementFault {
+		readonly code = 410;
+		readonly message = "Infixes can't be self-referential.";
+	}
+	/**  */
+	export class InfixNonConvariantFault extends StatementFault {
+		readonly code = 412;
+		readonly message = "Infixes must be compatible with their bases.";
+	}
+	/** */
+	export class InfixNotDefinedFault extends StatementFault {
+		readonly code = 422;
+		readonly message = "Infixes must be defined on at least one of their matched bases.";
+	}
+	/** */
+	export class InfixMustHaveExpressionFault extends StatementFault {
+		readonly code = 414;
+		readonly message = "Infixes must have at least one associated pattern.";
+	}
+	/** */
+	export class InfixRecursiveFault extends StatementFault {
+		readonly code = 416;
+		readonly message = "Recursive types cannot be referenced within infixes.";
+	}
+	/** */
+	export class InfixContractViolationFault extends StatementFault {
+		readonly code = 424;
+		readonly severity = FaultSeverity.warning;
+		readonly message = "Infix type annotations must explicitly expand the type as defined by the base.";
+	}
+	/** */
+	export class InfixChainingFault extends StatementFault {
+		readonly code = 426;
+		readonly message = "Infixes cannot be chained together.";
+	}
+	/** */
+	export class InfixReferencingListFault extends StatementFault {
+		readonly code = 428;
+		readonly message = "Infixes cannot reference list types.";
+	}
+	/** */
+	export class PortabilityInfixDuplicatedFault extends StatementFault {
+		readonly code = 418;
+		readonly message = "Portability infixes with compatible types cannot be specified more than once.";
+	}
+	/** */
+	export class NominalInfixMustSubtypeFault extends StatementFault {
+		readonly code = 430;
+		readonly message: string;
+	}
+	/** */
+	export class DiscrepantUnionFault extends StatementFault {
+		readonly code = 450;
+		readonly message: string;
+	}
+	/** */
+	export class TabsAndSpacesFault extends StatementFault {
+		readonly code = 1000;
+		readonly message = "Statement indent contains a mixture of tabs and spaces.";
+		readonly severity = FaultSeverity.warning;
+	}
+	/**
+	 * Infinite incremental counter.
+	 */
+	export class VersionStamp {
+		private readonly stamp;
+		/** */
+		static next(): VersionStamp;
+		/** */
+		private static nextStamp;
+		/** */
+		protected constructor(stamp: number | number[]);
+		/** */
+		newerThan(otherStamp: VersionStamp): boolean;
+	}
+	/**
+	 * Contains members that replicate the behavior of
+	 * the language server.
+	 */
+	export namespace LanguageServer {
+		/**
+		 * Position in a text document expressed as zero-based line and character offset.
+		 * The offsets are based on a UTF-16 string representation. So a string of the form
+		 * `a𐐀b` the character offset of the character `a` is 0, the character offset of `𐐀`
+		 * is 1 and the character offset of b is 3 since `𐐀` is represented using two code
+		 * units in UTF-16.
+		 * 
+		 * Positions are line end character agnostic. So you can not specify a position that
+		 * denotes `\r|\n` or `\n|` where `|` represents the character offset.
+		 */
+		interface Position {
+			/**
+			 * Line position in a document (zero-based).
+			 * If a line number is greater than the number of lines in a document, it defaults back to the number of lines in the document.
+			 * If a line number is negative, it defaults to 0.
+			 */
+			line: number;
+			/**
+			 * Character offset on a line in a document (zero-based). Assuming that the line is
+			 * represented as a string, the `character` value represents the gap between the
+			 * `character` and `character + 1`.
+			 * 
+			 * If the character value is greater than the line length it defaults back to the
+			 * line length.
+			 * If a line number is negative, it defaults to 0.
+			 */
+			character: number;
+		}
+		/**
+		 * The Position namespace provides helper functions to work with
+		 * [Position](#Position) literals.
+		 */
+		namespace Position {
+			/**
+			 * Creates a new Position literal from the given line and character.
+			 * @param line The position's line.
+			 * @param character The position's character.
+			 */
+			function create(line: number, character: number): Position;
+			/**
+			 * Checks whether the given liternal conforms to the [Position](#Position) interface.
+			 */
+			function is(value: any): value is Position;
+		}
+		/**
+		 * A range in a text document expressed as (zero-based) start and end positions.
+		 * 
+		 * If you want to specify a range that contains a line including the line ending
+		 * character(s) then use an end position denoting the start of the next line.
+		 * For example:
+		 * ```ts
+		 * {
+		 *     start: { line: 5, character: 23 }
+		 *     end : { line 6, character : 0 }
+		 * }
+		 * ```
+		 */
+		interface Range {
+			/**
+			 * The range's start position
+			 */
+			start: Position;
+			/**
+			 * The range's end position.
+			 */
+			end: Position;
+		}
+		/**
+		 * A text edit applicable to a text document.
+		 */
+		interface TextEdit {
+			/**
+			 * The range of the text document to be manipulated. To insert
+			 * text into a document create a range where start === end.
+			 */
+			range: Range;
+			/**
+			 * The string to be inserted. For delete operations use an
+			 * empty string.
+			 */
+			newText: string;
+		}
+		/**
+		 * The TextEdit namespace provides helper function to create replace,
+		 * insert and delete edits more easily.
+		 */
+		namespace TextEdit {
+		}
+		/**
+		 * Describes the content type that a client supports in various
+		 * result literals like `Hover`, `ParameterInfo` or `CompletionItem`.
+		 * 
+		 * Please note that `MarkupKinds` must not start with a `$`. This kinds
+		 * are reserved for internal usage.
+		 */
+		namespace MarkupKind {
+		}
+		type MarkupKind = 'plaintext' | 'markdown';
+		/**
+		 * A `MarkupContent` literal represents a string value which content is interpreted base on its
+		 * kind flag. Currently the protocol supports `plaintext` and `markdown` as markup kinds.
+		 * 
+		 * If the kind is `markdown` then the value can contain fenced code blocks like in GitHub issues.
+		 * See https://help.github.com/articles/creating-and-highlighting-code-blocks/#syntax-highlighting
+		 * 
+		 * Here is an example how such a string can be constructed using JavaScript / TypeScript:
+		 * ```ts
+		 * let markdown: MarkdownContent = {
+		 *  kind: MarkupKind.Markdown,
+		 *	value: [
+		 *		'# Header',
+		 *		'Some text',
+		 *		'```typescript',
+		 *		'someCode();',
+		 *		'```'
+		 *	].join('\n')
+		 * };
+		 * ```
+		 * 
+		 * *Please Note* that clients might sanitize the return markdown. A client could decide to
+		 * remove HTML from the markdown to avoid script execution.
+		 */
+		interface MarkupContent {
+			/**
+			 * The type of the Markup
+			 */
+			kind: MarkupKind;
+			/**
+			 * The content itself
+			 */
+			value: string;
+		}
+		/**
+		 * The kind of a completion entry.
+		 */
+		namespace CompletionItemKind {
+			const Text = 1;
+			const Method = 2;
+			const Function = 3;
+			const Constructor = 4;
+			const Field = 5;
+			const Variable = 6;
+			const Class = 7;
+			const Interface = 8;
+			const Module = 9;
+			const Property = 10;
+			const Unit = 11;
+			const Value = 12;
+			const Enum = 13;
+			const Keyword = 14;
+			const Snippet = 15;
+			const Color = 16;
+			const File = 17;
+			const Reference = 18;
+			const Folder = 19;
+			const EnumMember = 20;
+			const Constant = 21;
+			const Struct = 22;
+			const Event = 23;
+			const Operator = 24;
+			const TypeParameter = 25;
+		}
+		type CompletionItemKind = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25;
+		/**
+		 * Defines whether the insert text in a completion item should be interpreted as
+		 * plain text or a snippet.
+		 */
+		namespace InsertTextFormat {
+		}
+		type InsertTextFormat = 1 | 2;
+		/**
+		 * A completion item represents a text snippet that is
+		 * proposed to complete text that is being typed.
+		 */
+		interface CompletionItem {
+			/**
+			 * The label of this completion item. By default
+			 * also the text that is inserted when selecting
+			 * this completion.
+			 */
+			label: string;
+			/**
+			 * The kind of this completion item. Based of the kind
+			 * an icon is chosen by the editor.
+			 */
+			kind?: CompletionItemKind;
+			/**
+			 * A human-readable string with additional information
+			 * about this item, like type or symbol information.
+			 */
+			detail?: string;
+			/**
+			 * A human-readable string that represents a doc-comment.
+			 */
+			documentation?: string | MarkupContent;
+			/**
+			 * Indicates if this item is deprecated.
+			 */
+			deprecated?: boolean;
+			/**
+			 * A string that should be used when comparing this item
+			 * with other items. When `falsy` the [label](#CompletionItem.label)
+			 * is used.
+			 */
+			sortText?: string;
+			/**
+			 * A string that should be used when filtering a set of
+			 * completion items. When `falsy` the [label](#CompletionItem.label)
+			 * is used.
+			 */
+			filterText?: string;
+			/**
+			 * A string that should be inserted into a document when selecting
+			 * this completion. When `falsy` the [label](#CompletionItem.label)
+			 * is used.
+			 * 
+			 * The `insertText` is subject to interpretation by the client side.
+			 * Some tools might not take the string literally. For example
+			 * VS Code when code complete is requested in this example `con<cursor position>`
+			 * and a completion item with an `insertText` of `console` is provided it
+			 * will only insert `sole`. Therefore it is recommended to use `textEdit` instead
+			 * since it avoids additional client side interpretation.
+			 * 
+			 * @deprecated Use textEdit instead.
+			 */
+			insertText?: string;
+			/**
+			 * The format of the insert text. The format applies to both the `insertText` property
+			 * and the `newText` property of a provided `textEdit`.
+			 */
+			insertTextFormat?: InsertTextFormat;
+			/**
+			 * An [edit](#TextEdit) which is applied to a document when selecting
+			 * this completion. When an edit is provided the value of
+			 * [insertText](#CompletionItem.insertText) is ignored.
+			 * 
+			 * *Note:* The text edit's range must be a [single line] and it must contain the position
+			 * at which completion has been requested.
+			 */
+			textEdit?: TextEdit;
+			/**
+			 * An optional array of additional [text edits](#TextEdit) that are applied when
+			 * selecting this completion. Edits must not overlap (including the same insert position)
+			 * with the main [edit](#CompletionItem.textEdit) nor with themselves.
+			 * 
+			 * Additional text edits should be used to change text unrelated to the current cursor position
+			 * (for example adding an import statement at the top of the file if the completion item will
+			 * insert an unqualified type).
+			 */
+			additionalTextEdits?: TextEdit[];
+			/**
+			 * An optional set of characters that when pressed while this completion is active will accept it first and
+			 * then type that character. *Note* that all commit characters should have `length=1` and that superfluous
+			 * characters will be ignored.
+			 */
+			commitCharacters?: string[];
+			/**
+			 * An data entry field that is preserved on a completion item between
+			 * a [CompletionRequest](#CompletionRequest) and a [CompletionResolveRequest]
+			 * (#CompletionResolveRequest)
+			 */
+			data?: any;
+		}
+		/**
+		 * The CompletionItem namespace provides functions to deal with
+		 * completion items.
+		 */
+		namespace CompletionItem {
+		}
+	}
 	/**
 	 * 
 	 */
@@ -891,423 +1556,6 @@ declare namespace Truth {
 		readonly nodes: ReadonlyArray<Span>;
 	}
 	/**
-	 * A class that defines a type located within a
-	 * scope, that has passed all verification tests.
-	 * This class is essentially a lens ontop of
-	 * Functor.
-	 */
-	export class Type {
-		private readonly functor;
-		/**
-		 * Creates a new Type from the specified Spine.
-		 * If a Type already exists at the location the corresponds
-		 * to the spine, the existing Type is returned instead.
-		 */
-		static get(spine: Spine): Type;
-		/** */
-		private static getFromFunctor;
-		/**
-		 * Searches for a Type at the specified URI.
-		 * The URI may refer to a location in an unspecified
-		 * area of the document (such as if the URI refers to
-		 * an inherited type or a descendant of a recursive type).
-		 */
-		static find(uri: Uri, owner: Document | Program): string | Type | null | undefined;
-		/** */
-		private static readonly cache;
-		/** */
-		private constructor();
-		/**
-		 * Stores an array of Faults that where generated as a result of
-		 * analyzing this Type. Note that Faults generated in this way
-		 * can also be found in the FaultService.
-		 */
-		readonly faults: ReadonlyArray<Fault>;
-		private _faults;
-		/** */
-		readonly uri: Uri;
-		/** */
-		readonly name: string;
-		/** */
-		readonly subject: Subject;
-		/**
-		 * Gets an array of the underlying spans that compose this type.
-		 */
-		readonly spans: ReadonlyArray<Span>;
-		/**
-		 * Gets an array of the statements that contains
-		 * the spans that compose this type.
-		 */
-		readonly statements: Statement[];
-		/** */
-		readonly stamp: VersionStamp;
-		/** */
-		readonly container: Type | null;
-		private _container;
-		/** */
-		readonly contents: Type[];
-		private _contents;
-	}
-	/** */
-	export enum UriProtocol {
-		none = 0,
-		file = 1,
-		https = 2,
-		http = 3,
-		internal = 4,
-		unsupported = 5
-	}
-	/**
-	 * A class that represents a Truth URI.
-	 * A Truth URI can point to a truth file, or an agent through a variety of
-	 * different protocols, just like a normal URI. However, a Truth URI that
-	 * points to a Truth file can also point to declarations within that file
-	 * directly in the URI, using the double slash syntax. For example:
-	 * 
-	 * //domain.com/File.truth//Path/To/Declaration
-	 */
-	export class Uri {
-		/**
-		 * Stores a reference to the protocol used by the URI.
-		 */
-		readonly protocol: UriProtocol;
-		/**
-		 * Stores the file name specified in the URI, if one exists.
-		 */
-		readonly fileName: string;
-		/**
-		 * Stores the base file name specified in the URI.
-		 * For example, for the URI path/to/dir/file.ext, base would
-		 * be the string "file". If the URI does not contain a file
-		 * name, the field is an empty string.
-		 */
-		readonly fileNameBase: string;
-		/**
-		 * Stores the extension of the file specified in the URI,
-		 * without the dot character. If the URI does not contain
-		 * a file name, the field is an empty string.
-		 */
-		readonly fileExtension: string;
-		/**
-		 * Stores the fully qualified path to the file, and the file
-		 * name itself, but without any protocol.
-		 */
-		readonly ioPath: ReadonlyArray<string>;
-		/**
-		 * Stores the contents of any type path specified in the URI.
-		 */
-		readonly typePath: ReadonlyArray<string>;
-		/**
-		 * 
-		 * @param uriText A string containing the URI to parse
-		 * @param relativeFallback A URI that identifies the origin
-		 * of the URI being parsed, used in the case when the
-		 * uriText parameter is a relative path.
-		 */
-		static parse(uriText: string, relativeFallback?: Uri): Uri | null;
-		/**
-		 * Creates a new Uri from the specified input.
-		 * 
-		 * @param from If the parameter is omited, a unique internal
-		 * URI is generated.
-		 */
-		static create(from?: Spine | Strand | Uri): Uri;
-		/** */
-		protected constructor(
-		/**
-		 * Stores a reference to the protocol used by the URI.
-		 */
-		protocol: UriProtocol,
-		/**
-		 * Stores the file name specified in the URI, if one exists.
-		 */
-		fileName: string,
-		/**
-		 * Stores the base file name specified in the URI.
-		 * For example, for the URI path/to/dir/file.ext, base would
-		 * be the string "file". If the URI does not contain a file
-		 * name, the field is an empty string.
-		 */
-		fileNameBase: string,
-		/**
-		 * Stores the extension of the file specified in the URI,
-		 * without the dot character. If the URI does not contain
-		 * a file name, the field is an empty string.
-		 */
-		fileExtension: string,
-		/**
-		 * Stores the fully qualified path to the file, and the file
-		 * name itself, but without any protocol.
-		 */
-		ioPath: ReadonlyArray<string>,
-		/**
-		 * Stores the contents of any type path specified in the URI.
-		 */
-		typePath: ReadonlyArray<string>);
-		/**
-		 * Converts the URI to a fully-qualified path including the file name.
-		 */
-		toString(includeProtocol?: boolean, includeTypePath?: boolean): string;
-		/**
-		 * @returns A value indicating whether two URIs point to the same resource.
-		 */
-		equals(uri: Uri | string): boolean;
-		/**
-		 * Creates a new Uri, whose typePath and ioPath
-		 * fields are retracted by the specified levels of
-		 * depth.
-		 * 
-		 * @returns A new Uri that is otherwise a copy of this
-		 * one, but with it's IO path and type path peeled
-		 * back by the specified numbero of levels.
-		 */
-		retract(ioRetraction?: number, typeRetraction?: number): Uri;
-		/**
-		 * @returns A new Uri, whose typePath and ioPath
-		 * fields are extended with the specified segments.
-		 */
-		extend(ioSegments: string | string[], typeSegments: string | string[]): Uri;
-	}
-	/** */
-	export class UriReader {
-		/**
-		 * Attempts to read the contents of the given URI.
-		 * If an error is generated while trying to read a file
-		 * at the specified location, the errors is returned.
-		 */
-		static tryRead(uri: Uri): Promise<string | Error>;
-	}
-	/**
-	 * An enumeration that stores language syntax tokens.
-	 */
-	export const enum Syntax {
-		tab = "\t",
-		space = " ",
-		terminal = "\n",
-		combinator = ",",
-		joint = ":",
-		pluralizer = "...",
-		regexDelimiter = "/",
-		escapeChar = "\\",
-		comment = "// ",
-		truthExtension = "truth",
-		agentExtension = "js"
-	}
-	/**
-	 * A class that manages the diagnostics that have been
-	 * reported for the current state of the program.
-	 */
-	export class FaultService {
-		private readonly program;
-		/** */
-		constructor(program: Program);
-		/**
-		 * Reports a fault. If a similar Fault on the same area
-		 * of the document hasn't been reported, the method
-		 * runs the FaultReported hook.
-		 */
-		report(fault: Fault): void;
-		/**
-		 * Gets a number representing the number of
-		 * unrectified faults retained by this FaultService.
-		 */
-		readonly count: number;
-		/**
-		 * @returns A boolean value indicating whether this
-		 * FaultService retains a fault that is similar to the specified
-		 * fault (meaning that it has the same code and source).
-		 */
-		has(similarFault: Fault): boolean;
-		/**
-		 * @returns An array of Fault objects that have been reported
-		 * at the specified source. If the source has no faults, an empty
-		 * array is returned.
-		 */
-		check(source: Span | Statement): Fault[];
-		/**
-		 * Enumerates through the unrectified faults retained
-		 * by this FaultService.
-		 */
-		each(): IterableIterator<Fault>;
-		/**
-		 * Broadcasts all reports stored in activeContext,
-		 * and creates a new activeContext.
-		 */
-		private broadcastReports;
-		/** */
-		private inEditTransaction;
-		/**
-		 * A rolling, mutable field that is used as the build target of the
-		 * faults found in the current frame.
-		 */
-		private activeContext;
-	}
-	/** */
-	export type FaultSource = Statement | Span;
-	/** Base class for all faults. */
-	export abstract class Fault {
-		/** */
-		readonly severity: FaultSeverity;
-		/** A human-readable description of the fault. */
-		readonly abstract message: string;
-		/** An error code, useful for reference purposes, or display in a user interface. */
-		readonly abstract code: number;
-		/** The document object that caused the fault to be reported. */
-		readonly abstract source: FaultSource;
-	}
-	/** Base class for faults that relate to a specific statement. */
-	export abstract class StatementFault extends Fault {
-		readonly source: Statement;
-		constructor(source: Statement);
-	}
-	/** Base class for faults that relate to a specific span. */
-	export abstract class SpanFault extends Fault {
-		readonly source: Span;
-		constructor(source: Span);
-	}
-	/** */
-	export enum FaultSeverity {
-		/** Reports an error. */
-		error = 1,
-		/** Reports a warning. */
-		warning = 2
-	}
-	/** */
-	export class UnresolvedResourceFault extends StatementFault {
-		constructor(source: Statement, error?: Error);
-		readonly code = 100;
-		readonly message = "URI points to a resource that could not be resolved.";
-	}
-	/** */
-	export class CircularResourceReferenceFault extends StatementFault {
-		readonly code = 102;
-		readonly message = "URI points to a resource that would cause a circular reference.";
-	}
-	/** */
-	export class InsecureResourceReferenceFault extends StatementFault {
-		readonly code = 104;
-		readonly message: string;
-	}
-	/** */
-	export class UnresolvedAnnotationFault extends SpanFault {
-		readonly code = 201;
-		readonly message = "Unresolved annotation.";
-	}
-	/** */
-	export class CircularTypeReferenceFault extends SpanFault {
-		readonly code = 203;
-		readonly message = "Circular type reference detected.";
-	}
-	/** */
-	export class ContractViolationFault extends StatementFault {
-		readonly code = 204;
-		readonly severity = FaultSeverity.warning;
-		readonly message = "Overridden types must explicitly expand the type as defined in the base.";
-	}
-	/** */
-	export class AnonymousListIntrinsicTypeFault extends StatementFault {
-		readonly code = 300;
-		readonly message = "List-intrinsic types cannot be anonymous.";
-	}
-	/** */
-	export class ListContractViolationFault extends SpanFault {
-		readonly code = 301;
-		readonly message = "The containing list cannot contain children of this type.";
-	}
-	/** */
-	export class ListIntrinsicExtendingNonList extends SpanFault {
-		readonly code = 303;
-		readonly message = "List-intrinsics cannot extend from a non-list type.";
-	}
-	/** */
-	export class PatternInvalidFault extends StatementFault {
-		readonly code = 400;
-		readonly message = "Invalid pattern.";
-	}
-	/** */
-	export class PatternWithoutAnnotationFault extends StatementFault {
-		readonly code = 402;
-		readonly message = "Pattern has no annotations.";
-		readonly severity = FaultSeverity.warning;
-	}
-	/** */
-	export class PatternPossiblyMatchesEmptyFault extends StatementFault {
-		readonly code = 404;
-		readonly message = "Pattern could possibly match an empty list of characters.";
-	}
-	/** */
-	export class PatternPossiblyMatchesWhitespaceOnlyFault extends StatementFault {
-		readonly code = 420;
-		readonly message = "Pattern could possibly match nothing other than whitespace characters.";
-	}
-	/** */
-	export class PatternNonCovariantFault extends StatementFault {
-		readonly code = 406;
-		readonly message = "Pattern does not match it's base types.";
-	}
-	/** */
-	export class InlineTypeInRepeatingPatternFault extends StatementFault {
-		readonly code = 408;
-		readonly message = "Inline types cannot exist in a repeating context.";
-	}
-	/**  */
-	export class InlineTypeSelfReferentialFault extends StatementFault {
-		readonly code = 410;
-		readonly message = "Inline types can't be self-referential.";
-	}
-	/**  */
-	export class InlineTypeNonConvariantFault extends StatementFault {
-		readonly code = 412;
-		readonly message = "Inline types can't be self-referential.";
-	}
-	/** */
-	export class InlineTypeNotDefinedFault extends StatementFault {
-		readonly code = 422;
-		readonly message = "Inline types must be defined on at least one of their matched bases.";
-	}
-	/** */
-	export class InlineTypeMustHaveExpressionFault extends StatementFault {
-		readonly code = 414;
-		readonly message = "Inline types must have at least one associated pattern.";
-	}
-	/** */
-	export class InlineTypeRecursiveFault extends StatementFault {
-		readonly code = 416;
-		readonly message = "Recursive types are not allowed as inline types.";
-	}
-	/** */
-	export class InlinePortabilityTypeDuplicatedFault extends StatementFault {
-		readonly code = 418;
-		readonly message = "Inline data portability types cannot be specified more than once.";
-	}
-	/** */
-	export class InlineTypeContractViolationFault extends StatementFault {
-		readonly code = 424;
-		readonly severity = FaultSeverity.warning;
-		readonly message = "Inline type annotations must explicitly expand the type as defined by the base.";
-	}
-	/** */
-	export class InlineTypeChainingFault extends StatementFault {
-		readonly code = 426;
-		readonly message = "Inline types cannot be chained together.";
-	}
-	/** */
-	export class InlineTypeReferencingListFault extends StatementFault {
-		readonly code = 428;
-		readonly message = "Inline types cannot reference list types.";
-	}
-	/** */
-	export class DiscrepantUnionFault extends StatementFault {
-		readonly code = 450;
-		readonly message: string;
-	}
-	/** */
-	export class TabsAndSpacesFault extends StatementFault {
-		readonly code = 1000;
-		readonly message = "Statement indent contains a mixture of tabs and spaces.";
-		readonly severity = FaultSeverity.warning;
-	}
-	/**
 	 * 
 	 */
 	export class Fragmenter {
@@ -1385,6 +1633,64 @@ declare namespace Truth {
 		 * representation, useful for testing purposes.
 		 */
 		toString(): string;
+	}
+	/**
+	 * A class that defines a type located within a
+	 * scope, that has passed all verification tests.
+	 * This class is essentially a lens ontop of
+	 * Functor.
+	 */
+	export class Type {
+		private readonly functor;
+		/**
+		 * Creates a new Type from the specified Spine.
+		 * If a Type already exists at the location the corresponds
+		 * to the spine, the existing Type is returned instead.
+		 */
+		static get(spine: Spine): Type;
+		/** */
+		private static getFromFunctor;
+		/**
+		 * Searches for a Type at the specified URI.
+		 * The URI may refer to a location in an unspecified
+		 * area of the document (such as if the URI refers to
+		 * an inherited type or a descendant of a recursive type).
+		 */
+		static find(uri: Uri, owner: Document | Program): string | Type | null | undefined;
+		/** */
+		private static readonly cache;
+		/** */
+		private constructor();
+		/**
+		 * Stores an array of Faults that where generated as a result of
+		 * analyzing this Type. Note that Faults generated in this way
+		 * can also be found in the FaultService.
+		 */
+		readonly faults: ReadonlyArray<Fault>;
+		private _faults;
+		/** */
+		readonly uri: Uri;
+		/** */
+		readonly name: string;
+		/** */
+		readonly subject: Subject;
+		/**
+		 * Gets an array of the underlying spans that compose this type.
+		 */
+		readonly spans: ReadonlyArray<Span>;
+		/**
+		 * Gets an array of the statements that contains
+		 * the spans that compose this type.
+		 */
+		readonly statements: Statement[];
+		/** */
+		readonly stamp: VersionStamp;
+		/** */
+		readonly container: Type | null;
+		private _container;
+		/** */
+		readonly contents: Type[];
+		private _contents;
 	}
 	/**
 	 * A type that describes a series of Subject objects, that aligns
@@ -1657,325 +1963,6 @@ declare namespace Truth {
 		readonly pattern: Pattern;
 		/** */
 		readonly content: string;
-	}
-	/**
-	 * 
-	 */
-	export class TargetedLookup {
-		readonly cluster: Span;
-		/** */
-		constructor(cluster: Span);
-	}
-	/**
-	 * 
-	 */
-	export class DescendingLookup {
-		readonly discoveries: ReadonlyArray<TargetedLookup>;
-		/** */
-		constructor(discoveries: ReadonlyArray<TargetedLookup>);
-	}
-	/**
-	 * 
-	 */
-	export class SiblingLookup {
-		/** */
-		readonly ancestry: ReadonlyArray<Span>;
-		/** */
-		readonly siblings: ReadonlyArray<Span>;
-		constructor(
-		/** */
-		ancestry: ReadonlyArray<Span>,
-		/** */
-		siblings: ReadonlyArray<Span>);
-	}
-	/**
-	 * Infinite incremental counter.
-	 */
-	export class VersionStamp {
-		private readonly stamp;
-		/** */
-		static next(): VersionStamp;
-		/** */
-		private static nextStamp;
-		/** */
-		protected constructor(stamp: number | number[]);
-		/** */
-		newerThan(otherStamp: VersionStamp): boolean;
-	}
-	/**
-	 * Contains members that replicate the behavior of
-	 * the language server.
-	 */
-	export namespace LanguageServer {
-		/**
-		 * Position in a text document expressed as zero-based line and character offset.
-		 * The offsets are based on a UTF-16 string representation. So a string of the form
-		 * `a𐐀b` the character offset of the character `a` is 0, the character offset of `𐐀`
-		 * is 1 and the character offset of b is 3 since `𐐀` is represented using two code
-		 * units in UTF-16.
-		 * 
-		 * Positions are line end character agnostic. So you can not specify a position that
-		 * denotes `\r|\n` or `\n|` where `|` represents the character offset.
-		 */
-		interface Position {
-			/**
-			 * Line position in a document (zero-based).
-			 * If a line number is greater than the number of lines in a document, it defaults back to the number of lines in the document.
-			 * If a line number is negative, it defaults to 0.
-			 */
-			line: number;
-			/**
-			 * Character offset on a line in a document (zero-based). Assuming that the line is
-			 * represented as a string, the `character` value represents the gap between the
-			 * `character` and `character + 1`.
-			 * 
-			 * If the character value is greater than the line length it defaults back to the
-			 * line length.
-			 * If a line number is negative, it defaults to 0.
-			 */
-			character: number;
-		}
-		/**
-		 * The Position namespace provides helper functions to work with
-		 * [Position](#Position) literals.
-		 */
-		namespace Position {
-			/**
-			 * Creates a new Position literal from the given line and character.
-			 * @param line The position's line.
-			 * @param character The position's character.
-			 */
-			function create(line: number, character: number): Position;
-			/**
-			 * Checks whether the given liternal conforms to the [Position](#Position) interface.
-			 */
-			function is(value: any): value is Position;
-		}
-		/**
-		 * A range in a text document expressed as (zero-based) start and end positions.
-		 * 
-		 * If you want to specify a range that contains a line including the line ending
-		 * character(s) then use an end position denoting the start of the next line.
-		 * For example:
-		 * ```ts
-		 * {
-		 *     start: { line: 5, character: 23 }
-		 *     end : { line 6, character : 0 }
-		 * }
-		 * ```
-		 */
-		interface Range {
-			/**
-			 * The range's start position
-			 */
-			start: Position;
-			/**
-			 * The range's end position.
-			 */
-			end: Position;
-		}
-		/**
-		 * A text edit applicable to a text document.
-		 */
-		interface TextEdit {
-			/**
-			 * The range of the text document to be manipulated. To insert
-			 * text into a document create a range where start === end.
-			 */
-			range: Range;
-			/**
-			 * The string to be inserted. For delete operations use an
-			 * empty string.
-			 */
-			newText: string;
-		}
-		/**
-		 * The TextEdit namespace provides helper function to create replace,
-		 * insert and delete edits more easily.
-		 */
-		namespace TextEdit {
-		}
-		/**
-		 * Describes the content type that a client supports in various
-		 * result literals like `Hover`, `ParameterInfo` or `CompletionItem`.
-		 * 
-		 * Please note that `MarkupKinds` must not start with a `$`. This kinds
-		 * are reserved for internal usage.
-		 */
-		namespace MarkupKind {
-		}
-		type MarkupKind = 'plaintext' | 'markdown';
-		/**
-		 * A `MarkupContent` literal represents a string value which content is interpreted base on its
-		 * kind flag. Currently the protocol supports `plaintext` and `markdown` as markup kinds.
-		 * 
-		 * If the kind is `markdown` then the value can contain fenced code blocks like in GitHub issues.
-		 * See https://help.github.com/articles/creating-and-highlighting-code-blocks/#syntax-highlighting
-		 * 
-		 * Here is an example how such a string can be constructed using JavaScript / TypeScript:
-		 * ```ts
-		 * let markdown: MarkdownContent = {
-		 *  kind: MarkupKind.Markdown,
-		 *	value: [
-		 *		'# Header',
-		 *		'Some text',
-		 *		'```typescript',
-		 *		'someCode();',
-		 *		'```'
-		 *	].join('\n')
-		 * };
-		 * ```
-		 * 
-		 * *Please Note* that clients might sanitize the return markdown. A client could decide to
-		 * remove HTML from the markdown to avoid script execution.
-		 */
-		interface MarkupContent {
-			/**
-			 * The type of the Markup
-			 */
-			kind: MarkupKind;
-			/**
-			 * The content itself
-			 */
-			value: string;
-		}
-		/**
-		 * The kind of a completion entry.
-		 */
-		namespace CompletionItemKind {
-			const Text = 1;
-			const Method = 2;
-			const Function = 3;
-			const Constructor = 4;
-			const Field = 5;
-			const Variable = 6;
-			const Class = 7;
-			const Interface = 8;
-			const Module = 9;
-			const Property = 10;
-			const Unit = 11;
-			const Value = 12;
-			const Enum = 13;
-			const Keyword = 14;
-			const Snippet = 15;
-			const Color = 16;
-			const File = 17;
-			const Reference = 18;
-			const Folder = 19;
-			const EnumMember = 20;
-			const Constant = 21;
-			const Struct = 22;
-			const Event = 23;
-			const Operator = 24;
-			const TypeParameter = 25;
-		}
-		type CompletionItemKind = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25;
-		/**
-		 * Defines whether the insert text in a completion item should be interpreted as
-		 * plain text or a snippet.
-		 */
-		namespace InsertTextFormat {
-		}
-		type InsertTextFormat = 1 | 2;
-		/**
-		 * A completion item represents a text snippet that is
-		 * proposed to complete text that is being typed.
-		 */
-		interface CompletionItem {
-			/**
-			 * The label of this completion item. By default
-			 * also the text that is inserted when selecting
-			 * this completion.
-			 */
-			label: string;
-			/**
-			 * The kind of this completion item. Based of the kind
-			 * an icon is chosen by the editor.
-			 */
-			kind?: CompletionItemKind;
-			/**
-			 * A human-readable string with additional information
-			 * about this item, like type or symbol information.
-			 */
-			detail?: string;
-			/**
-			 * A human-readable string that represents a doc-comment.
-			 */
-			documentation?: string | MarkupContent;
-			/**
-			 * Indicates if this item is deprecated.
-			 */
-			deprecated?: boolean;
-			/**
-			 * A string that should be used when comparing this item
-			 * with other items. When `falsy` the [label](#CompletionItem.label)
-			 * is used.
-			 */
-			sortText?: string;
-			/**
-			 * A string that should be used when filtering a set of
-			 * completion items. When `falsy` the [label](#CompletionItem.label)
-			 * is used.
-			 */
-			filterText?: string;
-			/**
-			 * A string that should be inserted into a document when selecting
-			 * this completion. When `falsy` the [label](#CompletionItem.label)
-			 * is used.
-			 * 
-			 * The `insertText` is subject to interpretation by the client side.
-			 * Some tools might not take the string literally. For example
-			 * VS Code when code complete is requested in this example `con<cursor position>`
-			 * and a completion item with an `insertText` of `console` is provided it
-			 * will only insert `sole`. Therefore it is recommended to use `textEdit` instead
-			 * since it avoids additional client side interpretation.
-			 * 
-			 * @deprecated Use textEdit instead.
-			 */
-			insertText?: string;
-			/**
-			 * The format of the insert text. The format applies to both the `insertText` property
-			 * and the `newText` property of a provided `textEdit`.
-			 */
-			insertTextFormat?: InsertTextFormat;
-			/**
-			 * An [edit](#TextEdit) which is applied to a document when selecting
-			 * this completion. When an edit is provided the value of
-			 * [insertText](#CompletionItem.insertText) is ignored.
-			 * 
-			 * *Note:* The text edit's range must be a [single line] and it must contain the position
-			 * at which completion has been requested.
-			 */
-			textEdit?: TextEdit;
-			/**
-			 * An optional array of additional [text edits](#TextEdit) that are applied when
-			 * selecting this completion. Edits must not overlap (including the same insert position)
-			 * with the main [edit](#CompletionItem.textEdit) nor with themselves.
-			 * 
-			 * Additional text edits should be used to change text unrelated to the current cursor position
-			 * (for example adding an import statement at the top of the file if the completion item will
-			 * insert an unqualified type).
-			 */
-			additionalTextEdits?: TextEdit[];
-			/**
-			 * An optional set of characters that when pressed while this completion is active will accept it first and
-			 * then type that character. *Note* that all commit characters should have `length=1` and that superfluous
-			 * characters will be ignored.
-			 */
-			commitCharacters?: string[];
-			/**
-			 * An data entry field that is preserved on a completion item between
-			 * a [CompletionRequest](#CompletionRequest) and a [CompletionResolveRequest]
-			 * (#CompletionResolveRequest)
-			 */
-			data?: any;
-		}
-		/**
-		 * The CompletionItem namespace provides functions to deal with
-		 * completion items.
-		 */
-		namespace CompletionItem {
-		}
 	}
 }
 
@@ -2349,6 +2336,671 @@ declare module "truth-compiler" {
 	export type HookTypesInstance = {
 		[P in keyof typeof HookTypes]: Readonly<InstanceType<typeof HookTypes[P]>>;
 	};
+	/** */
+	export enum UriProtocol {
+		none = 0,
+		file = 1,
+		https = 2,
+		http = 3,
+		internal = 4,
+		unsupported = 5
+	}
+	/**
+	 * A class that represents a Truth URI.
+	 * A Truth URI can point to a truth file, or an agent through a variety of
+	 * different protocols, just like a normal URI. However, a Truth URI that
+	 * points to a Truth file can also point to declarations within that file
+	 * directly in the URI, using the double slash syntax. For example:
+	 * 
+	 * //domain.com/File.truth//Path/To/Declaration
+	 */
+	export class Uri {
+		/**
+		 * Stores a reference to the protocol used by the URI.
+		 */
+		readonly protocol: UriProtocol;
+		/**
+		 * Stores the file name specified in the URI, if one exists.
+		 */
+		readonly fileName: string;
+		/**
+		 * Stores the base file name specified in the URI.
+		 * For example, for the URI path/to/dir/file.ext, base would
+		 * be the string "file". If the URI does not contain a file
+		 * name, the field is an empty string.
+		 */
+		readonly fileNameBase: string;
+		/**
+		 * Stores the extension of the file specified in the URI,
+		 * without the dot character. If the URI does not contain
+		 * a file name, the field is an empty string.
+		 */
+		readonly fileExtension: string;
+		/**
+		 * Stores the fully qualified path to the file, and the file
+		 * name itself, but without any protocol.
+		 */
+		readonly ioPath: ReadonlyArray<string>;
+		/**
+		 * Stores the contents of any type path specified in the URI.
+		 */
+		readonly typePath: ReadonlyArray<string>;
+		/**
+		 * 
+		 * @param uriText A string containing the URI to parse
+		 * @param relativeFallback A URI that identifies the origin
+		 * of the URI being parsed, used in the case when the
+		 * uriText parameter is a relative path.
+		 */
+		static parse(uriText: string, relativeFallback?: Uri): Uri | null;
+		/**
+		 * Creates a new Uri from the specified input.
+		 * 
+		 * @param from If the parameter is omited, a unique internal
+		 * URI is generated.
+		 */
+		static create(from?: Spine | Strand | Uri): Uri;
+		/** */
+		protected constructor(
+		/**
+		 * Stores a reference to the protocol used by the URI.
+		 */
+		protocol: UriProtocol,
+		/**
+		 * Stores the file name specified in the URI, if one exists.
+		 */
+		fileName: string,
+		/**
+		 * Stores the base file name specified in the URI.
+		 * For example, for the URI path/to/dir/file.ext, base would
+		 * be the string "file". If the URI does not contain a file
+		 * name, the field is an empty string.
+		 */
+		fileNameBase: string,
+		/**
+		 * Stores the extension of the file specified in the URI,
+		 * without the dot character. If the URI does not contain
+		 * a file name, the field is an empty string.
+		 */
+		fileExtension: string,
+		/**
+		 * Stores the fully qualified path to the file, and the file
+		 * name itself, but without any protocol.
+		 */
+		ioPath: ReadonlyArray<string>,
+		/**
+		 * Stores the contents of any type path specified in the URI.
+		 */
+		typePath: ReadonlyArray<string>);
+		/**
+		 * Converts the URI to a fully-qualified path including the file name.
+		 */
+		toString(includeProtocol?: boolean, includeTypePath?: boolean): string;
+		/**
+		 * @returns A value indicating whether two URIs point to the same resource.
+		 */
+		equals(uri: Uri | string): boolean;
+		/**
+		 * Creates a new Uri, whose typePath and ioPath
+		 * fields are retracted by the specified levels of
+		 * depth.
+		 * 
+		 * @returns A new Uri that is otherwise a copy of this
+		 * one, but with it's IO path and type path peeled
+		 * back by the specified numbero of levels.
+		 */
+		retract(ioRetraction?: number, typeRetraction?: number): Uri;
+		/**
+		 * @returns A new Uri, whose typePath and ioPath
+		 * fields are extended with the specified segments.
+		 */
+		extend(ioSegments: string | string[], typeSegments: string | string[]): Uri;
+	}
+	/** */
+	export class UriReader {
+		/**
+		 * Attempts to read the contents of the given URI.
+		 * If an error is generated while trying to read a file
+		 * at the specified location, the errors is returned.
+		 */
+		static tryRead(uri: Uri): Promise<string | Error>;
+	}
+	/**
+	 * An enumeration that stores language syntax tokens.
+	 */
+	export const enum Syntax {
+		tab = "\t",
+		space = " ",
+		terminal = "\n",
+		combinator = ",",
+		joint = ":",
+		pluralizer = "...",
+		regexDelimiter = "/",
+		escapeChar = "\\",
+		comment = "// ",
+		truthExtension = "truth",
+		agentExtension = "js"
+	}
+	/**
+	 * A class that manages the diagnostics that have been
+	 * reported for the current state of the program.
+	 */
+	export class FaultService {
+		private readonly program;
+		/** */
+		constructor(program: Program);
+		/**
+		 * Reports a fault. If a similar Fault on the same area
+		 * of the document hasn't been reported, the method
+		 * runs the FaultReported hook.
+		 */
+		report(fault: Fault): void;
+		/**
+		 * Gets a number representing the number of
+		 * unrectified faults retained by this FaultService.
+		 */
+		readonly count: number;
+		/**
+		 * @returns A boolean value indicating whether this
+		 * FaultService retains a fault that is similar to the specified
+		 * fault (meaning that it has the same code and source).
+		 */
+		has(similarFault: Fault): boolean;
+		/**
+		 * @returns An array of Fault objects that have been reported
+		 * at the specified source. If the source has no faults, an empty
+		 * array is returned.
+		 */
+		check(source: Span | Statement): Fault[];
+		/**
+		 * Enumerates through the unrectified faults retained
+		 * by this FaultService.
+		 */
+		each(): IterableIterator<Fault>;
+		/**
+		 * Broadcasts all reports stored in activeContext,
+		 * and creates a new activeContext.
+		 */
+		private broadcastReports;
+		/** */
+		private inEditTransaction;
+		/**
+		 * A rolling, mutable field that is used as the build target of the
+		 * faults found in the current frame.
+		 */
+		private activeContext;
+	}
+	/** */
+	export type FaultSource = Statement | Span;
+	/** Base class for all faults. */
+	export abstract class Fault {
+		/** */
+		readonly severity: FaultSeverity;
+		/** A human-readable description of the fault. */
+		readonly abstract message: string;
+		/** An error code, useful for reference purposes, or display in a user interface. */
+		readonly abstract code: number;
+		/** The document object that caused the fault to be reported. */
+		readonly abstract source: FaultSource;
+	}
+	/** Base class for faults that relate to a specific statement. */
+	export abstract class StatementFault extends Fault {
+		readonly source: Statement;
+		constructor(source: Statement);
+	}
+	/** Base class for faults that relate to a specific span. */
+	export abstract class SpanFault extends Fault {
+		readonly source: Span;
+		constructor(source: Span);
+	}
+	/** */
+	export enum FaultSeverity {
+		/** Reports an error. */
+		error = 1,
+		/** Reports a warning. */
+		warning = 2
+	}
+	/** */
+	export class UnresolvedResourceFault extends StatementFault {
+		constructor(source: Statement, error?: Error);
+		readonly code = 100;
+		readonly message = "URI points to a resource that could not be resolved.";
+	}
+	/** */
+	export class CircularResourceReferenceFault extends StatementFault {
+		readonly code = 102;
+		readonly message = "URI points to a resource that would cause a circular reference.";
+	}
+	/** */
+	export class InsecureResourceReferenceFault extends StatementFault {
+		readonly code = 104;
+		readonly message: string;
+	}
+	/** */
+	export class UnresolvedAnnotationFault extends SpanFault {
+		readonly code = 201;
+		readonly message = "Unresolved annotation.";
+	}
+	/** */
+	export class CircularTypeReferenceFault extends SpanFault {
+		readonly code = 203;
+		readonly message = "Circular type reference detected.";
+	}
+	/** */
+	export class ContractViolationFault extends StatementFault {
+		readonly code = 204;
+		readonly severity = FaultSeverity.warning;
+		readonly message = "Overridden types must explicitly expand the type as defined in the base.";
+	}
+	/** */
+	export class TypeCannotBeRefreshedFault extends StatementFault {
+		readonly code = 206;
+		readonly severity = FaultSeverity.warning;
+		readonly message: string;
+	}
+	/** */
+	export class AnonymousListIntrinsicTypeFault extends StatementFault {
+		readonly code = 300;
+		readonly message = "List-intrinsic types cannot be anonymous.";
+	}
+	/** */
+	export class ListContractViolationFault extends SpanFault {
+		readonly code = 301;
+		readonly message = "The containing list cannot contain children of this type.";
+	}
+	/** */
+	export class ListIntrinsicExtendingNonList extends SpanFault {
+		readonly code = 303;
+		readonly message = "List-intrinsics cannot extend from a non-list type.";
+	}
+	/** */
+	export class PatternInvalidFault extends StatementFault {
+		readonly code = 400;
+		readonly message = "Invalid pattern.";
+	}
+	/** */
+	export class PatternWithoutAnnotationFault extends StatementFault {
+		readonly code = 402;
+		readonly message = "Pattern has no annotations.";
+		readonly severity = FaultSeverity.warning;
+	}
+	/** */
+	export class PatternCanMatchEmptyFault extends StatementFault {
+		readonly code = 404;
+		readonly message = "Patterns must not be able to match an empty input.";
+	}
+	/** */
+	export class PatternCanMatchWhitespaceOnlyFault extends StatementFault {
+		readonly code = 420;
+		readonly message: string;
+	}
+	/** */
+	export class PatternNonCovariantFault extends StatementFault {
+		readonly code = 406;
+		readonly message = "Pattern does not match it's base types.";
+	}
+	/** */
+	export class PatternUnknownNestedTypesFault extends StatementFault {
+		readonly code = 432;
+		readonly severity = FaultSeverity.warning;
+		readonly message: string;
+	}
+	/** */
+	export class InfixInRepeatingPatternFault extends StatementFault {
+		readonly code = 408;
+		readonly message = "Infixes cannot exist in a repeating context.";
+	}
+	/**  */
+	export class InfixSelfReferentialFault extends StatementFault {
+		readonly code = 410;
+		readonly message = "Infixes can't be self-referential.";
+	}
+	/**  */
+	export class InfixNonConvariantFault extends StatementFault {
+		readonly code = 412;
+		readonly message = "Infixes must be compatible with their bases.";
+	}
+	/** */
+	export class InfixNotDefinedFault extends StatementFault {
+		readonly code = 422;
+		readonly message = "Infixes must be defined on at least one of their matched bases.";
+	}
+	/** */
+	export class InfixMustHaveExpressionFault extends StatementFault {
+		readonly code = 414;
+		readonly message = "Infixes must have at least one associated pattern.";
+	}
+	/** */
+	export class InfixRecursiveFault extends StatementFault {
+		readonly code = 416;
+		readonly message = "Recursive types cannot be referenced within infixes.";
+	}
+	/** */
+	export class InfixContractViolationFault extends StatementFault {
+		readonly code = 424;
+		readonly severity = FaultSeverity.warning;
+		readonly message = "Infix type annotations must explicitly expand the type as defined by the base.";
+	}
+	/** */
+	export class InfixChainingFault extends StatementFault {
+		readonly code = 426;
+		readonly message = "Infixes cannot be chained together.";
+	}
+	/** */
+	export class InfixReferencingListFault extends StatementFault {
+		readonly code = 428;
+		readonly message = "Infixes cannot reference list types.";
+	}
+	/** */
+	export class PortabilityInfixDuplicatedFault extends StatementFault {
+		readonly code = 418;
+		readonly message = "Portability infixes with compatible types cannot be specified more than once.";
+	}
+	/** */
+	export class NominalInfixMustSubtypeFault extends StatementFault {
+		readonly code = 430;
+		readonly message: string;
+	}
+	/** */
+	export class DiscrepantUnionFault extends StatementFault {
+		readonly code = 450;
+		readonly message: string;
+	}
+	/** */
+	export class TabsAndSpacesFault extends StatementFault {
+		readonly code = 1000;
+		readonly message = "Statement indent contains a mixture of tabs and spaces.";
+		readonly severity = FaultSeverity.warning;
+	}
+	/**
+	 * Infinite incremental counter.
+	 */
+	export class VersionStamp {
+		private readonly stamp;
+		/** */
+		static next(): VersionStamp;
+		/** */
+		private static nextStamp;
+		/** */
+		protected constructor(stamp: number | number[]);
+		/** */
+		newerThan(otherStamp: VersionStamp): boolean;
+	}
+	/**
+	 * Contains members that replicate the behavior of
+	 * the language server.
+	 */
+	export namespace LanguageServer {
+		/**
+		 * Position in a text document expressed as zero-based line and character offset.
+		 * The offsets are based on a UTF-16 string representation. So a string of the form
+		 * `a𐐀b` the character offset of the character `a` is 0, the character offset of `𐐀`
+		 * is 1 and the character offset of b is 3 since `𐐀` is represented using two code
+		 * units in UTF-16.
+		 * 
+		 * Positions are line end character agnostic. So you can not specify a position that
+		 * denotes `\r|\n` or `\n|` where `|` represents the character offset.
+		 */
+		interface Position {
+			/**
+			 * Line position in a document (zero-based).
+			 * If a line number is greater than the number of lines in a document, it defaults back to the number of lines in the document.
+			 * If a line number is negative, it defaults to 0.
+			 */
+			line: number;
+			/**
+			 * Character offset on a line in a document (zero-based). Assuming that the line is
+			 * represented as a string, the `character` value represents the gap between the
+			 * `character` and `character + 1`.
+			 * 
+			 * If the character value is greater than the line length it defaults back to the
+			 * line length.
+			 * If a line number is negative, it defaults to 0.
+			 */
+			character: number;
+		}
+		/**
+		 * The Position namespace provides helper functions to work with
+		 * [Position](#Position) literals.
+		 */
+		namespace Position {
+			/**
+			 * Creates a new Position literal from the given line and character.
+			 * @param line The position's line.
+			 * @param character The position's character.
+			 */
+			function create(line: number, character: number): Position;
+			/**
+			 * Checks whether the given liternal conforms to the [Position](#Position) interface.
+			 */
+			function is(value: any): value is Position;
+		}
+		/**
+		 * A range in a text document expressed as (zero-based) start and end positions.
+		 * 
+		 * If you want to specify a range that contains a line including the line ending
+		 * character(s) then use an end position denoting the start of the next line.
+		 * For example:
+		 * ```ts
+		 * {
+		 *     start: { line: 5, character: 23 }
+		 *     end : { line 6, character : 0 }
+		 * }
+		 * ```
+		 */
+		interface Range {
+			/**
+			 * The range's start position
+			 */
+			start: Position;
+			/**
+			 * The range's end position.
+			 */
+			end: Position;
+		}
+		/**
+		 * A text edit applicable to a text document.
+		 */
+		interface TextEdit {
+			/**
+			 * The range of the text document to be manipulated. To insert
+			 * text into a document create a range where start === end.
+			 */
+			range: Range;
+			/**
+			 * The string to be inserted. For delete operations use an
+			 * empty string.
+			 */
+			newText: string;
+		}
+		/**
+		 * The TextEdit namespace provides helper function to create replace,
+		 * insert and delete edits more easily.
+		 */
+		namespace TextEdit {
+		}
+		/**
+		 * Describes the content type that a client supports in various
+		 * result literals like `Hover`, `ParameterInfo` or `CompletionItem`.
+		 * 
+		 * Please note that `MarkupKinds` must not start with a `$`. This kinds
+		 * are reserved for internal usage.
+		 */
+		namespace MarkupKind {
+		}
+		type MarkupKind = 'plaintext' | 'markdown';
+		/**
+		 * A `MarkupContent` literal represents a string value which content is interpreted base on its
+		 * kind flag. Currently the protocol supports `plaintext` and `markdown` as markup kinds.
+		 * 
+		 * If the kind is `markdown` then the value can contain fenced code blocks like in GitHub issues.
+		 * See https://help.github.com/articles/creating-and-highlighting-code-blocks/#syntax-highlighting
+		 * 
+		 * Here is an example how such a string can be constructed using JavaScript / TypeScript:
+		 * ```ts
+		 * let markdown: MarkdownContent = {
+		 *  kind: MarkupKind.Markdown,
+		 *	value: [
+		 *		'# Header',
+		 *		'Some text',
+		 *		'```typescript',
+		 *		'someCode();',
+		 *		'```'
+		 *	].join('\n')
+		 * };
+		 * ```
+		 * 
+		 * *Please Note* that clients might sanitize the return markdown. A client could decide to
+		 * remove HTML from the markdown to avoid script execution.
+		 */
+		interface MarkupContent {
+			/**
+			 * The type of the Markup
+			 */
+			kind: MarkupKind;
+			/**
+			 * The content itself
+			 */
+			value: string;
+		}
+		/**
+		 * The kind of a completion entry.
+		 */
+		namespace CompletionItemKind {
+			const Text = 1;
+			const Method = 2;
+			const Function = 3;
+			const Constructor = 4;
+			const Field = 5;
+			const Variable = 6;
+			const Class = 7;
+			const Interface = 8;
+			const Module = 9;
+			const Property = 10;
+			const Unit = 11;
+			const Value = 12;
+			const Enum = 13;
+			const Keyword = 14;
+			const Snippet = 15;
+			const Color = 16;
+			const File = 17;
+			const Reference = 18;
+			const Folder = 19;
+			const EnumMember = 20;
+			const Constant = 21;
+			const Struct = 22;
+			const Event = 23;
+			const Operator = 24;
+			const TypeParameter = 25;
+		}
+		type CompletionItemKind = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25;
+		/**
+		 * Defines whether the insert text in a completion item should be interpreted as
+		 * plain text or a snippet.
+		 */
+		namespace InsertTextFormat {
+		}
+		type InsertTextFormat = 1 | 2;
+		/**
+		 * A completion item represents a text snippet that is
+		 * proposed to complete text that is being typed.
+		 */
+		interface CompletionItem {
+			/**
+			 * The label of this completion item. By default
+			 * also the text that is inserted when selecting
+			 * this completion.
+			 */
+			label: string;
+			/**
+			 * The kind of this completion item. Based of the kind
+			 * an icon is chosen by the editor.
+			 */
+			kind?: CompletionItemKind;
+			/**
+			 * A human-readable string with additional information
+			 * about this item, like type or symbol information.
+			 */
+			detail?: string;
+			/**
+			 * A human-readable string that represents a doc-comment.
+			 */
+			documentation?: string | MarkupContent;
+			/**
+			 * Indicates if this item is deprecated.
+			 */
+			deprecated?: boolean;
+			/**
+			 * A string that should be used when comparing this item
+			 * with other items. When `falsy` the [label](#CompletionItem.label)
+			 * is used.
+			 */
+			sortText?: string;
+			/**
+			 * A string that should be used when filtering a set of
+			 * completion items. When `falsy` the [label](#CompletionItem.label)
+			 * is used.
+			 */
+			filterText?: string;
+			/**
+			 * A string that should be inserted into a document when selecting
+			 * this completion. When `falsy` the [label](#CompletionItem.label)
+			 * is used.
+			 * 
+			 * The `insertText` is subject to interpretation by the client side.
+			 * Some tools might not take the string literally. For example
+			 * VS Code when code complete is requested in this example `con<cursor position>`
+			 * and a completion item with an `insertText` of `console` is provided it
+			 * will only insert `sole`. Therefore it is recommended to use `textEdit` instead
+			 * since it avoids additional client side interpretation.
+			 * 
+			 * @deprecated Use textEdit instead.
+			 */
+			insertText?: string;
+			/**
+			 * The format of the insert text. The format applies to both the `insertText` property
+			 * and the `newText` property of a provided `textEdit`.
+			 */
+			insertTextFormat?: InsertTextFormat;
+			/**
+			 * An [edit](#TextEdit) which is applied to a document when selecting
+			 * this completion. When an edit is provided the value of
+			 * [insertText](#CompletionItem.insertText) is ignored.
+			 * 
+			 * *Note:* The text edit's range must be a [single line] and it must contain the position
+			 * at which completion has been requested.
+			 */
+			textEdit?: TextEdit;
+			/**
+			 * An optional array of additional [text edits](#TextEdit) that are applied when
+			 * selecting this completion. Edits must not overlap (including the same insert position)
+			 * with the main [edit](#CompletionItem.textEdit) nor with themselves.
+			 * 
+			 * Additional text edits should be used to change text unrelated to the current cursor position
+			 * (for example adding an import statement at the top of the file if the completion item will
+			 * insert an unqualified type).
+			 */
+			additionalTextEdits?: TextEdit[];
+			/**
+			 * An optional set of characters that when pressed while this completion is active will accept it first and
+			 * then type that character. *Note* that all commit characters should have `length=1` and that superfluous
+			 * characters will be ignored.
+			 */
+			commitCharacters?: string[];
+			/**
+			 * An data entry field that is preserved on a completion item between
+			 * a [CompletionRequest](#CompletionRequest) and a [CompletionResolveRequest]
+			 * (#CompletionResolveRequest)
+			 */
+			data?: any;
+		}
+		/**
+		 * The CompletionItem namespace provides functions to deal with
+		 * completion items.
+		 */
+		namespace CompletionItem {
+		}
+	}
 	/**
 	 * 
 	 */
@@ -2870,423 +3522,6 @@ declare module "truth-compiler" {
 		readonly nodes: ReadonlyArray<Span>;
 	}
 	/**
-	 * A class that defines a type located within a
-	 * scope, that has passed all verification tests.
-	 * This class is essentially a lens ontop of
-	 * Functor.
-	 */
-	export class Type {
-		private readonly functor;
-		/**
-		 * Creates a new Type from the specified Spine.
-		 * If a Type already exists at the location the corresponds
-		 * to the spine, the existing Type is returned instead.
-		 */
-		static get(spine: Spine): Type;
-		/** */
-		private static getFromFunctor;
-		/**
-		 * Searches for a Type at the specified URI.
-		 * The URI may refer to a location in an unspecified
-		 * area of the document (such as if the URI refers to
-		 * an inherited type or a descendant of a recursive type).
-		 */
-		static find(uri: Uri, owner: Document | Program): string | Type | null | undefined;
-		/** */
-		private static readonly cache;
-		/** */
-		private constructor();
-		/**
-		 * Stores an array of Faults that where generated as a result of
-		 * analyzing this Type. Note that Faults generated in this way
-		 * can also be found in the FaultService.
-		 */
-		readonly faults: ReadonlyArray<Fault>;
-		private _faults;
-		/** */
-		readonly uri: Uri;
-		/** */
-		readonly name: string;
-		/** */
-		readonly subject: Subject;
-		/**
-		 * Gets an array of the underlying spans that compose this type.
-		 */
-		readonly spans: ReadonlyArray<Span>;
-		/**
-		 * Gets an array of the statements that contains
-		 * the spans that compose this type.
-		 */
-		readonly statements: Statement[];
-		/** */
-		readonly stamp: VersionStamp;
-		/** */
-		readonly container: Type | null;
-		private _container;
-		/** */
-		readonly contents: Type[];
-		private _contents;
-	}
-	/** */
-	export enum UriProtocol {
-		none = 0,
-		file = 1,
-		https = 2,
-		http = 3,
-		internal = 4,
-		unsupported = 5
-	}
-	/**
-	 * A class that represents a Truth URI.
-	 * A Truth URI can point to a truth file, or an agent through a variety of
-	 * different protocols, just like a normal URI. However, a Truth URI that
-	 * points to a Truth file can also point to declarations within that file
-	 * directly in the URI, using the double slash syntax. For example:
-	 * 
-	 * //domain.com/File.truth//Path/To/Declaration
-	 */
-	export class Uri {
-		/**
-		 * Stores a reference to the protocol used by the URI.
-		 */
-		readonly protocol: UriProtocol;
-		/**
-		 * Stores the file name specified in the URI, if one exists.
-		 */
-		readonly fileName: string;
-		/**
-		 * Stores the base file name specified in the URI.
-		 * For example, for the URI path/to/dir/file.ext, base would
-		 * be the string "file". If the URI does not contain a file
-		 * name, the field is an empty string.
-		 */
-		readonly fileNameBase: string;
-		/**
-		 * Stores the extension of the file specified in the URI,
-		 * without the dot character. If the URI does not contain
-		 * a file name, the field is an empty string.
-		 */
-		readonly fileExtension: string;
-		/**
-		 * Stores the fully qualified path to the file, and the file
-		 * name itself, but without any protocol.
-		 */
-		readonly ioPath: ReadonlyArray<string>;
-		/**
-		 * Stores the contents of any type path specified in the URI.
-		 */
-		readonly typePath: ReadonlyArray<string>;
-		/**
-		 * 
-		 * @param uriText A string containing the URI to parse
-		 * @param relativeFallback A URI that identifies the origin
-		 * of the URI being parsed, used in the case when the
-		 * uriText parameter is a relative path.
-		 */
-		static parse(uriText: string, relativeFallback?: Uri): Uri | null;
-		/**
-		 * Creates a new Uri from the specified input.
-		 * 
-		 * @param from If the parameter is omited, a unique internal
-		 * URI is generated.
-		 */
-		static create(from?: Spine | Strand | Uri): Uri;
-		/** */
-		protected constructor(
-		/**
-		 * Stores a reference to the protocol used by the URI.
-		 */
-		protocol: UriProtocol,
-		/**
-		 * Stores the file name specified in the URI, if one exists.
-		 */
-		fileName: string,
-		/**
-		 * Stores the base file name specified in the URI.
-		 * For example, for the URI path/to/dir/file.ext, base would
-		 * be the string "file". If the URI does not contain a file
-		 * name, the field is an empty string.
-		 */
-		fileNameBase: string,
-		/**
-		 * Stores the extension of the file specified in the URI,
-		 * without the dot character. If the URI does not contain
-		 * a file name, the field is an empty string.
-		 */
-		fileExtension: string,
-		/**
-		 * Stores the fully qualified path to the file, and the file
-		 * name itself, but without any protocol.
-		 */
-		ioPath: ReadonlyArray<string>,
-		/**
-		 * Stores the contents of any type path specified in the URI.
-		 */
-		typePath: ReadonlyArray<string>);
-		/**
-		 * Converts the URI to a fully-qualified path including the file name.
-		 */
-		toString(includeProtocol?: boolean, includeTypePath?: boolean): string;
-		/**
-		 * @returns A value indicating whether two URIs point to the same resource.
-		 */
-		equals(uri: Uri | string): boolean;
-		/**
-		 * Creates a new Uri, whose typePath and ioPath
-		 * fields are retracted by the specified levels of
-		 * depth.
-		 * 
-		 * @returns A new Uri that is otherwise a copy of this
-		 * one, but with it's IO path and type path peeled
-		 * back by the specified numbero of levels.
-		 */
-		retract(ioRetraction?: number, typeRetraction?: number): Uri;
-		/**
-		 * @returns A new Uri, whose typePath and ioPath
-		 * fields are extended with the specified segments.
-		 */
-		extend(ioSegments: string | string[], typeSegments: string | string[]): Uri;
-	}
-	/** */
-	export class UriReader {
-		/**
-		 * Attempts to read the contents of the given URI.
-		 * If an error is generated while trying to read a file
-		 * at the specified location, the errors is returned.
-		 */
-		static tryRead(uri: Uri): Promise<string | Error>;
-	}
-	/**
-	 * An enumeration that stores language syntax tokens.
-	 */
-	export const enum Syntax {
-		tab = "\t",
-		space = " ",
-		terminal = "\n",
-		combinator = ",",
-		joint = ":",
-		pluralizer = "...",
-		regexDelimiter = "/",
-		escapeChar = "\\",
-		comment = "// ",
-		truthExtension = "truth",
-		agentExtension = "js"
-	}
-	/**
-	 * A class that manages the diagnostics that have been
-	 * reported for the current state of the program.
-	 */
-	export class FaultService {
-		private readonly program;
-		/** */
-		constructor(program: Program);
-		/**
-		 * Reports a fault. If a similar Fault on the same area
-		 * of the document hasn't been reported, the method
-		 * runs the FaultReported hook.
-		 */
-		report(fault: Fault): void;
-		/**
-		 * Gets a number representing the number of
-		 * unrectified faults retained by this FaultService.
-		 */
-		readonly count: number;
-		/**
-		 * @returns A boolean value indicating whether this
-		 * FaultService retains a fault that is similar to the specified
-		 * fault (meaning that it has the same code and source).
-		 */
-		has(similarFault: Fault): boolean;
-		/**
-		 * @returns An array of Fault objects that have been reported
-		 * at the specified source. If the source has no faults, an empty
-		 * array is returned.
-		 */
-		check(source: Span | Statement): Fault[];
-		/**
-		 * Enumerates through the unrectified faults retained
-		 * by this FaultService.
-		 */
-		each(): IterableIterator<Fault>;
-		/**
-		 * Broadcasts all reports stored in activeContext,
-		 * and creates a new activeContext.
-		 */
-		private broadcastReports;
-		/** */
-		private inEditTransaction;
-		/**
-		 * A rolling, mutable field that is used as the build target of the
-		 * faults found in the current frame.
-		 */
-		private activeContext;
-	}
-	/** */
-	export type FaultSource = Statement | Span;
-	/** Base class for all faults. */
-	export abstract class Fault {
-		/** */
-		readonly severity: FaultSeverity;
-		/** A human-readable description of the fault. */
-		readonly abstract message: string;
-		/** An error code, useful for reference purposes, or display in a user interface. */
-		readonly abstract code: number;
-		/** The document object that caused the fault to be reported. */
-		readonly abstract source: FaultSource;
-	}
-	/** Base class for faults that relate to a specific statement. */
-	export abstract class StatementFault extends Fault {
-		readonly source: Statement;
-		constructor(source: Statement);
-	}
-	/** Base class for faults that relate to a specific span. */
-	export abstract class SpanFault extends Fault {
-		readonly source: Span;
-		constructor(source: Span);
-	}
-	/** */
-	export enum FaultSeverity {
-		/** Reports an error. */
-		error = 1,
-		/** Reports a warning. */
-		warning = 2
-	}
-	/** */
-	export class UnresolvedResourceFault extends StatementFault {
-		constructor(source: Statement, error?: Error);
-		readonly code = 100;
-		readonly message = "URI points to a resource that could not be resolved.";
-	}
-	/** */
-	export class CircularResourceReferenceFault extends StatementFault {
-		readonly code = 102;
-		readonly message = "URI points to a resource that would cause a circular reference.";
-	}
-	/** */
-	export class InsecureResourceReferenceFault extends StatementFault {
-		readonly code = 104;
-		readonly message: string;
-	}
-	/** */
-	export class UnresolvedAnnotationFault extends SpanFault {
-		readonly code = 201;
-		readonly message = "Unresolved annotation.";
-	}
-	/** */
-	export class CircularTypeReferenceFault extends SpanFault {
-		readonly code = 203;
-		readonly message = "Circular type reference detected.";
-	}
-	/** */
-	export class ContractViolationFault extends StatementFault {
-		readonly code = 204;
-		readonly severity = FaultSeverity.warning;
-		readonly message = "Overridden types must explicitly expand the type as defined in the base.";
-	}
-	/** */
-	export class AnonymousListIntrinsicTypeFault extends StatementFault {
-		readonly code = 300;
-		readonly message = "List-intrinsic types cannot be anonymous.";
-	}
-	/** */
-	export class ListContractViolationFault extends SpanFault {
-		readonly code = 301;
-		readonly message = "The containing list cannot contain children of this type.";
-	}
-	/** */
-	export class ListIntrinsicExtendingNonList extends SpanFault {
-		readonly code = 303;
-		readonly message = "List-intrinsics cannot extend from a non-list type.";
-	}
-	/** */
-	export class PatternInvalidFault extends StatementFault {
-		readonly code = 400;
-		readonly message = "Invalid pattern.";
-	}
-	/** */
-	export class PatternWithoutAnnotationFault extends StatementFault {
-		readonly code = 402;
-		readonly message = "Pattern has no annotations.";
-		readonly severity = FaultSeverity.warning;
-	}
-	/** */
-	export class PatternPossiblyMatchesEmptyFault extends StatementFault {
-		readonly code = 404;
-		readonly message = "Pattern could possibly match an empty list of characters.";
-	}
-	/** */
-	export class PatternPossiblyMatchesWhitespaceOnlyFault extends StatementFault {
-		readonly code = 420;
-		readonly message = "Pattern could possibly match nothing other than whitespace characters.";
-	}
-	/** */
-	export class PatternNonCovariantFault extends StatementFault {
-		readonly code = 406;
-		readonly message = "Pattern does not match it's base types.";
-	}
-	/** */
-	export class InlineTypeInRepeatingPatternFault extends StatementFault {
-		readonly code = 408;
-		readonly message = "Inline types cannot exist in a repeating context.";
-	}
-	/**  */
-	export class InlineTypeSelfReferentialFault extends StatementFault {
-		readonly code = 410;
-		readonly message = "Inline types can't be self-referential.";
-	}
-	/**  */
-	export class InlineTypeNonConvariantFault extends StatementFault {
-		readonly code = 412;
-		readonly message = "Inline types can't be self-referential.";
-	}
-	/** */
-	export class InlineTypeNotDefinedFault extends StatementFault {
-		readonly code = 422;
-		readonly message = "Inline types must be defined on at least one of their matched bases.";
-	}
-	/** */
-	export class InlineTypeMustHaveExpressionFault extends StatementFault {
-		readonly code = 414;
-		readonly message = "Inline types must have at least one associated pattern.";
-	}
-	/** */
-	export class InlineTypeRecursiveFault extends StatementFault {
-		readonly code = 416;
-		readonly message = "Recursive types are not allowed as inline types.";
-	}
-	/** */
-	export class InlinePortabilityTypeDuplicatedFault extends StatementFault {
-		readonly code = 418;
-		readonly message = "Inline data portability types cannot be specified more than once.";
-	}
-	/** */
-	export class InlineTypeContractViolationFault extends StatementFault {
-		readonly code = 424;
-		readonly severity = FaultSeverity.warning;
-		readonly message = "Inline type annotations must explicitly expand the type as defined by the base.";
-	}
-	/** */
-	export class InlineTypeChainingFault extends StatementFault {
-		readonly code = 426;
-		readonly message = "Inline types cannot be chained together.";
-	}
-	/** */
-	export class InlineTypeReferencingListFault extends StatementFault {
-		readonly code = 428;
-		readonly message = "Inline types cannot reference list types.";
-	}
-	/** */
-	export class DiscrepantUnionFault extends StatementFault {
-		readonly code = 450;
-		readonly message: string;
-	}
-	/** */
-	export class TabsAndSpacesFault extends StatementFault {
-		readonly code = 1000;
-		readonly message = "Statement indent contains a mixture of tabs and spaces.";
-		readonly severity = FaultSeverity.warning;
-	}
-	/**
 	 * 
 	 */
 	export class Fragmenter {
@@ -3364,6 +3599,64 @@ declare module "truth-compiler" {
 		 * representation, useful for testing purposes.
 		 */
 		toString(): string;
+	}
+	/**
+	 * A class that defines a type located within a
+	 * scope, that has passed all verification tests.
+	 * This class is essentially a lens ontop of
+	 * Functor.
+	 */
+	export class Type {
+		private readonly functor;
+		/**
+		 * Creates a new Type from the specified Spine.
+		 * If a Type already exists at the location the corresponds
+		 * to the spine, the existing Type is returned instead.
+		 */
+		static get(spine: Spine): Type;
+		/** */
+		private static getFromFunctor;
+		/**
+		 * Searches for a Type at the specified URI.
+		 * The URI may refer to a location in an unspecified
+		 * area of the document (such as if the URI refers to
+		 * an inherited type or a descendant of a recursive type).
+		 */
+		static find(uri: Uri, owner: Document | Program): string | Type | null | undefined;
+		/** */
+		private static readonly cache;
+		/** */
+		private constructor();
+		/**
+		 * Stores an array of Faults that where generated as a result of
+		 * analyzing this Type. Note that Faults generated in this way
+		 * can also be found in the FaultService.
+		 */
+		readonly faults: ReadonlyArray<Fault>;
+		private _faults;
+		/** */
+		readonly uri: Uri;
+		/** */
+		readonly name: string;
+		/** */
+		readonly subject: Subject;
+		/**
+		 * Gets an array of the underlying spans that compose this type.
+		 */
+		readonly spans: ReadonlyArray<Span>;
+		/**
+		 * Gets an array of the statements that contains
+		 * the spans that compose this type.
+		 */
+		readonly statements: Statement[];
+		/** */
+		readonly stamp: VersionStamp;
+		/** */
+		readonly container: Type | null;
+		private _container;
+		/** */
+		readonly contents: Type[];
+		private _contents;
 	}
 	/**
 	 * A type that describes a series of Subject objects, that aligns
@@ -3636,325 +3929,6 @@ declare module "truth-compiler" {
 		readonly pattern: Pattern;
 		/** */
 		readonly content: string;
-	}
-	/**
-	 * 
-	 */
-	export class TargetedLookup {
-		readonly cluster: Span;
-		/** */
-		constructor(cluster: Span);
-	}
-	/**
-	 * 
-	 */
-	export class DescendingLookup {
-		readonly discoveries: ReadonlyArray<TargetedLookup>;
-		/** */
-		constructor(discoveries: ReadonlyArray<TargetedLookup>);
-	}
-	/**
-	 * 
-	 */
-	export class SiblingLookup {
-		/** */
-		readonly ancestry: ReadonlyArray<Span>;
-		/** */
-		readonly siblings: ReadonlyArray<Span>;
-		constructor(
-		/** */
-		ancestry: ReadonlyArray<Span>,
-		/** */
-		siblings: ReadonlyArray<Span>);
-	}
-	/**
-	 * Infinite incremental counter.
-	 */
-	export class VersionStamp {
-		private readonly stamp;
-		/** */
-		static next(): VersionStamp;
-		/** */
-		private static nextStamp;
-		/** */
-		protected constructor(stamp: number | number[]);
-		/** */
-		newerThan(otherStamp: VersionStamp): boolean;
-	}
-	/**
-	 * Contains members that replicate the behavior of
-	 * the language server.
-	 */
-	export namespace LanguageServer {
-		/**
-		 * Position in a text document expressed as zero-based line and character offset.
-		 * The offsets are based on a UTF-16 string representation. So a string of the form
-		 * `a𐐀b` the character offset of the character `a` is 0, the character offset of `𐐀`
-		 * is 1 and the character offset of b is 3 since `𐐀` is represented using two code
-		 * units in UTF-16.
-		 * 
-		 * Positions are line end character agnostic. So you can not specify a position that
-		 * denotes `\r|\n` or `\n|` where `|` represents the character offset.
-		 */
-		interface Position {
-			/**
-			 * Line position in a document (zero-based).
-			 * If a line number is greater than the number of lines in a document, it defaults back to the number of lines in the document.
-			 * If a line number is negative, it defaults to 0.
-			 */
-			line: number;
-			/**
-			 * Character offset on a line in a document (zero-based). Assuming that the line is
-			 * represented as a string, the `character` value represents the gap between the
-			 * `character` and `character + 1`.
-			 * 
-			 * If the character value is greater than the line length it defaults back to the
-			 * line length.
-			 * If a line number is negative, it defaults to 0.
-			 */
-			character: number;
-		}
-		/**
-		 * The Position namespace provides helper functions to work with
-		 * [Position](#Position) literals.
-		 */
-		namespace Position {
-			/**
-			 * Creates a new Position literal from the given line and character.
-			 * @param line The position's line.
-			 * @param character The position's character.
-			 */
-			function create(line: number, character: number): Position;
-			/**
-			 * Checks whether the given liternal conforms to the [Position](#Position) interface.
-			 */
-			function is(value: any): value is Position;
-		}
-		/**
-		 * A range in a text document expressed as (zero-based) start and end positions.
-		 * 
-		 * If you want to specify a range that contains a line including the line ending
-		 * character(s) then use an end position denoting the start of the next line.
-		 * For example:
-		 * ```ts
-		 * {
-		 *     start: { line: 5, character: 23 }
-		 *     end : { line 6, character : 0 }
-		 * }
-		 * ```
-		 */
-		interface Range {
-			/**
-			 * The range's start position
-			 */
-			start: Position;
-			/**
-			 * The range's end position.
-			 */
-			end: Position;
-		}
-		/**
-		 * A text edit applicable to a text document.
-		 */
-		interface TextEdit {
-			/**
-			 * The range of the text document to be manipulated. To insert
-			 * text into a document create a range where start === end.
-			 */
-			range: Range;
-			/**
-			 * The string to be inserted. For delete operations use an
-			 * empty string.
-			 */
-			newText: string;
-		}
-		/**
-		 * The TextEdit namespace provides helper function to create replace,
-		 * insert and delete edits more easily.
-		 */
-		namespace TextEdit {
-		}
-		/**
-		 * Describes the content type that a client supports in various
-		 * result literals like `Hover`, `ParameterInfo` or `CompletionItem`.
-		 * 
-		 * Please note that `MarkupKinds` must not start with a `$`. This kinds
-		 * are reserved for internal usage.
-		 */
-		namespace MarkupKind {
-		}
-		type MarkupKind = 'plaintext' | 'markdown';
-		/**
-		 * A `MarkupContent` literal represents a string value which content is interpreted base on its
-		 * kind flag. Currently the protocol supports `plaintext` and `markdown` as markup kinds.
-		 * 
-		 * If the kind is `markdown` then the value can contain fenced code blocks like in GitHub issues.
-		 * See https://help.github.com/articles/creating-and-highlighting-code-blocks/#syntax-highlighting
-		 * 
-		 * Here is an example how such a string can be constructed using JavaScript / TypeScript:
-		 * ```ts
-		 * let markdown: MarkdownContent = {
-		 *  kind: MarkupKind.Markdown,
-		 *	value: [
-		 *		'# Header',
-		 *		'Some text',
-		 *		'```typescript',
-		 *		'someCode();',
-		 *		'```'
-		 *	].join('\n')
-		 * };
-		 * ```
-		 * 
-		 * *Please Note* that clients might sanitize the return markdown. A client could decide to
-		 * remove HTML from the markdown to avoid script execution.
-		 */
-		interface MarkupContent {
-			/**
-			 * The type of the Markup
-			 */
-			kind: MarkupKind;
-			/**
-			 * The content itself
-			 */
-			value: string;
-		}
-		/**
-		 * The kind of a completion entry.
-		 */
-		namespace CompletionItemKind {
-			const Text = 1;
-			const Method = 2;
-			const Function = 3;
-			const Constructor = 4;
-			const Field = 5;
-			const Variable = 6;
-			const Class = 7;
-			const Interface = 8;
-			const Module = 9;
-			const Property = 10;
-			const Unit = 11;
-			const Value = 12;
-			const Enum = 13;
-			const Keyword = 14;
-			const Snippet = 15;
-			const Color = 16;
-			const File = 17;
-			const Reference = 18;
-			const Folder = 19;
-			const EnumMember = 20;
-			const Constant = 21;
-			const Struct = 22;
-			const Event = 23;
-			const Operator = 24;
-			const TypeParameter = 25;
-		}
-		type CompletionItemKind = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25;
-		/**
-		 * Defines whether the insert text in a completion item should be interpreted as
-		 * plain text or a snippet.
-		 */
-		namespace InsertTextFormat {
-		}
-		type InsertTextFormat = 1 | 2;
-		/**
-		 * A completion item represents a text snippet that is
-		 * proposed to complete text that is being typed.
-		 */
-		interface CompletionItem {
-			/**
-			 * The label of this completion item. By default
-			 * also the text that is inserted when selecting
-			 * this completion.
-			 */
-			label: string;
-			/**
-			 * The kind of this completion item. Based of the kind
-			 * an icon is chosen by the editor.
-			 */
-			kind?: CompletionItemKind;
-			/**
-			 * A human-readable string with additional information
-			 * about this item, like type or symbol information.
-			 */
-			detail?: string;
-			/**
-			 * A human-readable string that represents a doc-comment.
-			 */
-			documentation?: string | MarkupContent;
-			/**
-			 * Indicates if this item is deprecated.
-			 */
-			deprecated?: boolean;
-			/**
-			 * A string that should be used when comparing this item
-			 * with other items. When `falsy` the [label](#CompletionItem.label)
-			 * is used.
-			 */
-			sortText?: string;
-			/**
-			 * A string that should be used when filtering a set of
-			 * completion items. When `falsy` the [label](#CompletionItem.label)
-			 * is used.
-			 */
-			filterText?: string;
-			/**
-			 * A string that should be inserted into a document when selecting
-			 * this completion. When `falsy` the [label](#CompletionItem.label)
-			 * is used.
-			 * 
-			 * The `insertText` is subject to interpretation by the client side.
-			 * Some tools might not take the string literally. For example
-			 * VS Code when code complete is requested in this example `con<cursor position>`
-			 * and a completion item with an `insertText` of `console` is provided it
-			 * will only insert `sole`. Therefore it is recommended to use `textEdit` instead
-			 * since it avoids additional client side interpretation.
-			 * 
-			 * @deprecated Use textEdit instead.
-			 */
-			insertText?: string;
-			/**
-			 * The format of the insert text. The format applies to both the `insertText` property
-			 * and the `newText` property of a provided `textEdit`.
-			 */
-			insertTextFormat?: InsertTextFormat;
-			/**
-			 * An [edit](#TextEdit) which is applied to a document when selecting
-			 * this completion. When an edit is provided the value of
-			 * [insertText](#CompletionItem.insertText) is ignored.
-			 * 
-			 * *Note:* The text edit's range must be a [single line] and it must contain the position
-			 * at which completion has been requested.
-			 */
-			textEdit?: TextEdit;
-			/**
-			 * An optional array of additional [text edits](#TextEdit) that are applied when
-			 * selecting this completion. Edits must not overlap (including the same insert position)
-			 * with the main [edit](#CompletionItem.textEdit) nor with themselves.
-			 * 
-			 * Additional text edits should be used to change text unrelated to the current cursor position
-			 * (for example adding an import statement at the top of the file if the completion item will
-			 * insert an unqualified type).
-			 */
-			additionalTextEdits?: TextEdit[];
-			/**
-			 * An optional set of characters that when pressed while this completion is active will accept it first and
-			 * then type that character. *Note* that all commit characters should have `length=1` and that superfluous
-			 * characters will be ignored.
-			 */
-			commitCharacters?: string[];
-			/**
-			 * An data entry field that is preserved on a completion item between
-			 * a [CompletionRequest](#CompletionRequest) and a [CompletionResolveRequest]
-			 * (#CompletionResolveRequest)
-			 */
-			data?: any;
-		}
-		/**
-		 * The CompletionItem namespace provides functions to deal with
-		 * completion items.
-		 */
-		namespace CompletionItem {
-		}
 	}
 }
 

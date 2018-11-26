@@ -1,34 +1,42 @@
 //
 // This file references all files that are internal to the assembly.
 //
-export * from "./MultiMap";
-export * from "./Program";
-export * from "./ProgramAnalyzer";
-export * from "./Agent";
-export * from "./HookType";
-export * from "./HookTypes";
-export * from "./HookRouter";
-export * from "./ExceptionMessage";
-export * from "./Document";
-export * from "./DocumentGraph";
-export * from "./DocumentHeader";
-export * from "./Statement";
-export * from "./Subject";
-export * from "./Span";
-export * from "./Spine";
-export * from "./Type";
-export * from "./Uri";
-export * from "./UriReader";
-export * from "./Syntax";
-export * from "./FaultService";
-export * from "./FaultTypes";
-export * from "./Fragmenter";
-export * from "./Intermediate";
-export * from "./Functor";
-export * from "./Pattern";
-export * from "./IndentCheckService";
-export * from "./VerificationService";
-export * from "./VersionStamp";
-export * from "./LanguageServer";
-export * from "./Fs";
-export * from "./Fetch";
+
+// Util
+export * from "./Util/MultiMap";
+export * from "./Util/Fs";
+export * from "./Util/Fetch";
+
+// System
+export * from "./System/Program";
+export * from "./System/ProgramAnalyzer";
+export * from "./System/Agent";
+export * from "./System/HookType";
+export * from "./System/HookTypes";
+export * from "./System/HookRouter";
+export * from "./System/ExceptionMessage";
+export * from "./System/Uri";
+export * from "./System/UriReader";
+export * from "./System/Syntax";
+export * from "./System/FaultService";
+export * from "./System/FaultTypes";
+export * from "./System/IndentCheckService";
+export * from "./System/VerificationService";
+export * from "./System/VersionStamp";
+export * from "./System/LanguageServer";
+
+// Phases/File
+export * from "./Phases/File/Document";
+export * from "./Phases/File/DocumentGraph";
+export * from "./Phases/File/DocumentHeader";
+export * from "./Phases/File/Statement";
+export * from "./Phases/File/Subject";
+export * from "./Phases/File/Span";
+export * from "./Phases/File/Spine";
+export * from "./Phases/File/Fragmenter";
+
+// Phases/Analysis
+export * from "./Phases/Analysis/Type";
+export * from "./Phases/Analysis/Intermediate";
+export * from "./Phases/Analysis/Functor";
+export * from "./Phases/Analysis/Pattern";
