@@ -114,7 +114,7 @@ export interface IPattern extends IAxiom
 	readonly infixes: ReadonlyArray<Infix>;
 	
 	/** */
-	readonly ast: PatternNode;
+	readonly ast: Object;
 }
 
 
