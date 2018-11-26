@@ -405,6 +405,7 @@ export class FunctorResolveRoute
 	}
 }
 
+
 /**
  * 
  */
@@ -415,6 +416,7 @@ export class Stop
 		readonly functor: Functor)
 	{ }
 }
+
 
 /**
  * 

@@ -13,7 +13,7 @@ export class Span
 	 */
 	readonly stamp = X.VersionStamp.next();
 	
-	/** */
+	/** @internal */
 	constructor(
 		statement: X.Statement,
 		subject: X.Subject | null,
