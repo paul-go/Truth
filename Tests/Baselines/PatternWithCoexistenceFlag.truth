@@ -1,0 +1,18 @@
+//
+// This example demonstrates patterns with the
+// "coexistence" flag attached to it.
+//
+
+Fruit
+
+Apple : Fruit
+/0xA/, : Apple
+
+Banana : Fruit
+/0xB/, : Banana
+
+Class
+	TheFruit : Fruit
+
+SubClass : Class
+	TheFruit : 0xA, 0xB ~ Fruit
