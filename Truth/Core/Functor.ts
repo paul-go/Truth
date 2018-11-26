@@ -156,7 +156,11 @@ export class Functor
 	private _contents: Functor[] | null = null;
 	
 	/**
-	 * 
+	 * Gets an array of Functors that are specified as 
+	 * the "sources" of this Functor. More specifically,
+	 * an array of Functors that were successfuly resolved
+	 * from the annotations corresponding to the underlying
+	 * Pointers that formed the basis of this Functor.
 	 */
 	get sources(): Functor[]
 	{
