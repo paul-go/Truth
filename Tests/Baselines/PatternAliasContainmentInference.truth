@@ -1,0 +1,14 @@
+//
+// This example demonstrates the type inference behavior
+// of statements nested within others, when the containing
+// statement has an aliased type. In this case, the type being
+// aliased is inferred by the contained type, not the actual
+// aliased value itself.
+//
+
+Number
+/\d+/ : Number
+
+Value : 2 ~ Number
+	Container
+		Value ~ Number, ~2
