@@ -56,15 +56,6 @@ export class Subject
 	 */
 	readonly uri: X.Uri | null;
 	
-	/**
-	 * Stores a regular expression pattern object when
-	 * the subject is formatted as such. In other cases, 
-	 * the field is null.
-	 * 
-	 * (Are Pattern objects referentially significant?)
-	 */
-	readonly pattern: X.Pattern | null = null;
-	
 	/** Calculates whether this Subject is structurally equal to another. */
 	equals(other: Subject | string | null)
 	{

@@ -110,16 +110,21 @@ export class Program
 				
 				return new ProgramInspectionResult(types, statement, null);
 			}
+			//
+			case X.StatementRegion.pattern:
+			{
+				// TODO: This should not be returning a PatternLiteral,
+				// but rather a fully constructed IPattern object. This
+				// code is only here as a shim.
+				const literal = statement.patternLiteral;
+				return new ProgramInspectionResult(literal, statement);
+			}
 			// Return all the types related to the specified declaration.
 			case X.StatementRegion.declaration:
 			{
 				const declPtr = statement.getDeclaration(offset);
 				if (!declPtr)
 					throw X.ExceptionMessage.unknownState();
-				
-				if (declPtr.subject instanceof X.Subject)
-					if (declPtr.subject.pattern)
-						return new ProgramInspectionResult(declPtr.subject.pattern, statement);
 				
 				const types = declPtr.factor().map(spine => X.Type.get(spine));
 				return new ProgramInspectionResult(types, statement, declPtr);
@@ -152,7 +157,7 @@ export class ProgramInspectionResult
 		 * Stores the compilation object that most closely represents
 		 * what was found at the specified location.
 		 */
-		readonly result: X.Document | X.Type[] | X.Pattern | X.Alias | null,
+		readonly result: X.Document | X.Type[] | X.PatternLiteral | X.Alias | null,
 		
 		/**
 		 * Stores the Statement found at the specified location.

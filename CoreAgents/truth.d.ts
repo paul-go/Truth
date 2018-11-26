@@ -53,7 +53,7 @@ declare namespace Truth {
 		 * Stores the compilation object that most closely represents
 		 * what was found at the specified location.
 		 */
-		readonly result: Document | Type[] | Pattern | Alias | null;
+		readonly result: Document | Type[] | PatternLiteral | Alias | null;
 		/**
 		 * Stores the Statement found at the specified location.
 		 */
@@ -509,7 +509,7 @@ declare namespace Truth {
 		combinator = ",",
 		joint = ":",
 		pluralizer = "...",
-		regexDelimiter = "/",
+		patternDelimiter = "/",
 		escapeChar = "\\",
 		comment = "// ",
 		truthExtension = "truth",
@@ -666,6 +666,26 @@ declare namespace Truth {
 	/** */
 	export class PatternCanMatchWhitespaceOnlyFault extends StatementFault {
 		readonly code = 420;
+		readonly message: string;
+	}
+	/** */
+	export class PatternAcceptsLeadingWhitespaceFault extends StatementFault {
+		readonly code = 434;
+		readonly message: string;
+	}
+	/** */
+	export class PatternRequiresLeadingWhitespaceFault extends StatementFault {
+		readonly code = 436;
+		readonly message: string;
+	}
+	/** */
+	export class PatternAcceptsTrailingWhitespaceFault extends StatementFault {
+		readonly code = 438;
+		readonly message: string;
+	}
+	/** */
+	export class PatternRequiresTrailingWhitespaceFault extends StatementFault {
+		readonly code = 440;
 		readonly message: string;
 	}
 	/** */
@@ -1380,6 +1400,12 @@ declare namespace Truth {
 		 */
 		readonly textContent: string;
 		/**
+		 * Stores a parsed pattern literal, in the case when the
+		 * statement has one. If the statement is a non-pattern,
+		 * the field is null.
+		 */
+		readonly patternLiteral: PatternLiteral | null;
+		/**
 		 * @returns The kind of StatementRegion that exists
 		 * at the given character offset within the Statement.
 		 */
@@ -1443,17 +1469,21 @@ declare namespace Truth {
 		 */
 		void = 0,
 		/**
-		 * Refers to the area
+		 * Refers to the area in the indentation area.
 		 */
 		whitespace = 1,
+		/**
+		 * Refers to the
+		 */
+		pattern = 2,
 		/** */
-		declaration = 2,
+		declaration = 3,
 		/** */
-		annotation = 3,
+		annotation = 4,
 		/** */
-		declarationVoid = 4,
+		declarationVoid = 5,
 		/** */
-		annotationVoid = 5
+		annotationVoid = 6
 	}
 	/**
 	 * A class that represents a single subject in a Statement.
@@ -1474,14 +1504,6 @@ declare namespace Truth {
 		 * is an empty string.
 		 */
 		readonly uri: Uri | null;
-		/**
-		 * Stores a regular expression pattern object when
-		 * the subject is formatted as such. In other cases,
-		 * the field is null.
-		 * 
-		 * (Are Pattern objects referentially significant?)
-		 */
-		readonly pattern: Pattern | null;
 		/** Calculates whether this Subject is structurally equal to another. */
 		equals(other: Subject | string | null): boolean;
 		/** Converts this Subject to it's string representation. */
@@ -1491,8 +1513,6 @@ declare namespace Truth {
 	 * A class that represents a position in a statement.
 	 */
 	export class Span {
-		/** */
-		constructor(statement: Statement, subject: Subject | null, atDeclaration: boolean, atAnnotation: boolean, offsetStart: number);
 		/**
 		 * Gets an array of statements that represent the statement
 		 * containment progression, all the way back to the containing
@@ -1554,6 +1574,69 @@ declare namespace Truth {
 		readonly document: Document;
 		/**  */
 		readonly nodes: ReadonlyArray<Span>;
+	}
+	/**
+	 * A class that stores an unparsed Pattern,
+	 * contained directly by a Statement.
+	 */
+	export class PatternLiteral {
+		/**
+		 * Stores the statement that contains this
+		 * PatternLiteral.
+		 */
+		readonly statement: Statement;
+		/**
+		 * Stores the offset at which the pattern literal
+		 * ends in the containing statement.
+		 */
+		readonly offsetStart: number;
+		/**
+		 * Stores the offset at which the pattern literal
+		 * ends in the containing statement.
+		 */
+		readonly offsetEnd: number;
+		/**
+		 * Gets whether the pattern literal specifies the
+		 * coexistence (trailing comma) flag, which allows
+		 * aliases to exist within the annotation set of
+		 * other non-aliases.
+		 */
+		readonly hasCoexistenceFlag: boolean;
+		/**
+		 * 
+		 */
+		readonly value: string;
+	}
+	/**
+	 * A class that performs basic pattern literal parsing.
+	 * (Full regular expression parsing happens later in the pipeline).
+	 */
+	export class PatternLiteralParser {
+		/**
+		 * Attempts to parse a PatternLiteral from the
+		 * specified text, starting at the specified offset.
+		 */
+		static invoke(text: string, offset: number): PatternLiteralParseResult;
+	}
+	/**
+	 * Stores the values that are returned as a result of parsing
+	 * a pattern literal, whether the parse succeeded or failed.
+	 */
+	export interface PatternLiteralParseResult {
+		/**
+		 * Stores the position of the joint, in the case when the
+		 * pattern was successfully parsed. If the pattern was not
+		 * successfully parsed, this value is -1.
+		 */
+		readonly jointPosition: number;
+		/** */
+		readonly offsetStart: number;
+		/** */
+		readonly offsetEnd: number;
+		/** */
+		readonly hasCoexistenceFlag: boolean;
+		/** */
+		readonly value: string;
 	}
 	/**
 	 * 
@@ -1661,13 +1744,6 @@ declare namespace Truth {
 		private static readonly cache;
 		/** */
 		private constructor();
-		/**
-		 * Stores an array of Faults that where generated as a result of
-		 * analyzing this Type. Note that Faults generated in this way
-		 * can also be found in the FaultService.
-		 */
-		readonly faults: ReadonlyArray<Fault>;
-		private _faults;
 		/** */
 		readonly uri: Uri;
 		/** */
@@ -1685,9 +1761,23 @@ declare namespace Truth {
 		readonly statements: Statement[];
 		/** */
 		readonly stamp: VersionStamp;
-		/** */
+		/** Gets a reference to the Type that is the direct container of this one. */
 		readonly container: Type | null;
 		private _container;
+		/**
+		 * Gets an array of the containers that have been resolved as
+		 * bases of this container, computed as a result of applying
+		 * the contextual type resolution rules.
+		 */
+		readonly containersResolved: Type | null;
+		private _containerssResolved;
+		/**
+		 * Stores an array of Faults that where generated as a result of
+		 * analyzing this Type. Note that Faults generated in this way
+		 * can also be found in the FaultService.
+		 */
+		readonly faults: ReadonlyArray<Fault>;
+		private _faults;
 		/** */
 		readonly contents: Type[];
 		private _contents;
@@ -1879,36 +1969,6 @@ declare namespace Truth {
 		 * Functors that may contribute annotations to this Functor?"
 		 */
 		private getFunctorsFromAbstraction;
-	}
-	/**
-	 * 
-	 */
-	export class Base {
-		/**
-		 * 
-		 */
-		readonly route: FunctorResolveRoute;
-		/**
-		 * 
-		 */
-		readonly functor: Functor;
-		/**
-		 * 
-		 */
-		readonly bases: ReadonlyArray<Base>;
-		constructor(
-		/**
-		 * 
-		 */
-		route: FunctorResolveRoute,
-		/**
-		 * 
-		 */
-		functor: Functor,
-		/**
-		 * 
-		 */
-		bases: ReadonlyArray<Base>);
 	}
 	/**
 	 * Defines a series of Stops that describe the route that the
@@ -2019,7 +2079,7 @@ declare module "truth-compiler" {
 		 * Stores the compilation object that most closely represents
 		 * what was found at the specified location.
 		 */
-		readonly result: Document | Type[] | Pattern | Alias | null;
+		readonly result: Document | Type[] | PatternLiteral | Alias | null;
 		/**
 		 * Stores the Statement found at the specified location.
 		 */
@@ -2475,7 +2535,7 @@ declare module "truth-compiler" {
 		combinator = ",",
 		joint = ":",
 		pluralizer = "...",
-		regexDelimiter = "/",
+		patternDelimiter = "/",
 		escapeChar = "\\",
 		comment = "// ",
 		truthExtension = "truth",
@@ -2632,6 +2692,26 @@ declare module "truth-compiler" {
 	/** */
 	export class PatternCanMatchWhitespaceOnlyFault extends StatementFault {
 		readonly code = 420;
+		readonly message: string;
+	}
+	/** */
+	export class PatternAcceptsLeadingWhitespaceFault extends StatementFault {
+		readonly code = 434;
+		readonly message: string;
+	}
+	/** */
+	export class PatternRequiresLeadingWhitespaceFault extends StatementFault {
+		readonly code = 436;
+		readonly message: string;
+	}
+	/** */
+	export class PatternAcceptsTrailingWhitespaceFault extends StatementFault {
+		readonly code = 438;
+		readonly message: string;
+	}
+	/** */
+	export class PatternRequiresTrailingWhitespaceFault extends StatementFault {
+		readonly code = 440;
 		readonly message: string;
 	}
 	/** */
@@ -3346,6 +3426,12 @@ declare module "truth-compiler" {
 		 */
 		readonly textContent: string;
 		/**
+		 * Stores a parsed pattern literal, in the case when the
+		 * statement has one. If the statement is a non-pattern,
+		 * the field is null.
+		 */
+		readonly patternLiteral: PatternLiteral | null;
+		/**
 		 * @returns The kind of StatementRegion that exists
 		 * at the given character offset within the Statement.
 		 */
@@ -3409,17 +3495,21 @@ declare module "truth-compiler" {
 		 */
 		void = 0,
 		/**
-		 * Refers to the area
+		 * Refers to the area in the indentation area.
 		 */
 		whitespace = 1,
+		/**
+		 * Refers to the
+		 */
+		pattern = 2,
 		/** */
-		declaration = 2,
+		declaration = 3,
 		/** */
-		annotation = 3,
+		annotation = 4,
 		/** */
-		declarationVoid = 4,
+		declarationVoid = 5,
 		/** */
-		annotationVoid = 5
+		annotationVoid = 6
 	}
 	/**
 	 * A class that represents a single subject in a Statement.
@@ -3440,14 +3530,6 @@ declare module "truth-compiler" {
 		 * is an empty string.
 		 */
 		readonly uri: Uri | null;
-		/**
-		 * Stores a regular expression pattern object when
-		 * the subject is formatted as such. In other cases,
-		 * the field is null.
-		 * 
-		 * (Are Pattern objects referentially significant?)
-		 */
-		readonly pattern: Pattern | null;
 		/** Calculates whether this Subject is structurally equal to another. */
 		equals(other: Subject | string | null): boolean;
 		/** Converts this Subject to it's string representation. */
@@ -3457,8 +3539,6 @@ declare module "truth-compiler" {
 	 * A class that represents a position in a statement.
 	 */
 	export class Span {
-		/** */
-		constructor(statement: Statement, subject: Subject | null, atDeclaration: boolean, atAnnotation: boolean, offsetStart: number);
 		/**
 		 * Gets an array of statements that represent the statement
 		 * containment progression, all the way back to the containing
@@ -3520,6 +3600,69 @@ declare module "truth-compiler" {
 		readonly document: Document;
 		/**  */
 		readonly nodes: ReadonlyArray<Span>;
+	}
+	/**
+	 * A class that stores an unparsed Pattern,
+	 * contained directly by a Statement.
+	 */
+	export class PatternLiteral {
+		/**
+		 * Stores the statement that contains this
+		 * PatternLiteral.
+		 */
+		readonly statement: Statement;
+		/**
+		 * Stores the offset at which the pattern literal
+		 * ends in the containing statement.
+		 */
+		readonly offsetStart: number;
+		/**
+		 * Stores the offset at which the pattern literal
+		 * ends in the containing statement.
+		 */
+		readonly offsetEnd: number;
+		/**
+		 * Gets whether the pattern literal specifies the
+		 * coexistence (trailing comma) flag, which allows
+		 * aliases to exist within the annotation set of
+		 * other non-aliases.
+		 */
+		readonly hasCoexistenceFlag: boolean;
+		/**
+		 * 
+		 */
+		readonly value: string;
+	}
+	/**
+	 * A class that performs basic pattern literal parsing.
+	 * (Full regular expression parsing happens later in the pipeline).
+	 */
+	export class PatternLiteralParser {
+		/**
+		 * Attempts to parse a PatternLiteral from the
+		 * specified text, starting at the specified offset.
+		 */
+		static invoke(text: string, offset: number): PatternLiteralParseResult;
+	}
+	/**
+	 * Stores the values that are returned as a result of parsing
+	 * a pattern literal, whether the parse succeeded or failed.
+	 */
+	export interface PatternLiteralParseResult {
+		/**
+		 * Stores the position of the joint, in the case when the
+		 * pattern was successfully parsed. If the pattern was not
+		 * successfully parsed, this value is -1.
+		 */
+		readonly jointPosition: number;
+		/** */
+		readonly offsetStart: number;
+		/** */
+		readonly offsetEnd: number;
+		/** */
+		readonly hasCoexistenceFlag: boolean;
+		/** */
+		readonly value: string;
 	}
 	/**
 	 * 
@@ -3627,13 +3770,6 @@ declare module "truth-compiler" {
 		private static readonly cache;
 		/** */
 		private constructor();
-		/**
-		 * Stores an array of Faults that where generated as a result of
-		 * analyzing this Type. Note that Faults generated in this way
-		 * can also be found in the FaultService.
-		 */
-		readonly faults: ReadonlyArray<Fault>;
-		private _faults;
 		/** */
 		readonly uri: Uri;
 		/** */
@@ -3651,9 +3787,23 @@ declare module "truth-compiler" {
 		readonly statements: Statement[];
 		/** */
 		readonly stamp: VersionStamp;
-		/** */
+		/** Gets a reference to the Type that is the direct container of this one. */
 		readonly container: Type | null;
 		private _container;
+		/**
+		 * Gets an array of the containers that have been resolved as
+		 * bases of this container, computed as a result of applying
+		 * the contextual type resolution rules.
+		 */
+		readonly containersResolved: Type | null;
+		private _containerssResolved;
+		/**
+		 * Stores an array of Faults that where generated as a result of
+		 * analyzing this Type. Note that Faults generated in this way
+		 * can also be found in the FaultService.
+		 */
+		readonly faults: ReadonlyArray<Fault>;
+		private _faults;
 		/** */
 		readonly contents: Type[];
 		private _contents;
@@ -3845,36 +3995,6 @@ declare module "truth-compiler" {
 		 * Functors that may contribute annotations to this Functor?"
 		 */
 		private getFunctorsFromAbstraction;
-	}
-	/**
-	 * 
-	 */
-	export class Base {
-		/**
-		 * 
-		 */
-		readonly route: FunctorResolveRoute;
-		/**
-		 * 
-		 */
-		readonly functor: Functor;
-		/**
-		 * 
-		 */
-		readonly bases: ReadonlyArray<Base>;
-		constructor(
-		/**
-		 * 
-		 */
-		route: FunctorResolveRoute,
-		/**
-		 * 
-		 */
-		functor: Functor,
-		/**
-		 * 
-		 */
-		bases: ReadonlyArray<Base>);
 	}
 	/**
 	 * Defines a series of Stops that describe the route that the
