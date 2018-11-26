@@ -1,7 +1,7 @@
 //
-// This example demonstrates a pattern with inline types,
-// but where there are two visually identical patterns that
-// match different types. Patterns don't have the same
+// This example demonstrates a pattern with population,
+// infixes, but where there are two visually identical patterns 
+// that match different types. Patterns don't have the same
 // fragmentation behavior is declarations, so these two
 // patterns are not merged. 
 //

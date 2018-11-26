@@ -1,8 +1,9 @@
 //
-// This example demonstrates an inline population types
-// using the similar <syntax>, but the first matching a pattern,
-// and the second matching the name of a type, due to no 
-// patterns being defined on it.
+// This example demonstrates a population infixes using
+// the similar angle bracket <syntax>, but the first matching 
+// a pattern, and the second matching the name of a type, 
+// (effectively behaving as a nominal infix) due to no patterns 
+// being defined on it.
 //
 Number
 /\d+/ : Number

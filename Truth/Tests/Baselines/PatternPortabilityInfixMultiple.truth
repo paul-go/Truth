@@ -1,7 +1,7 @@
 //
 // This example demonstrates a similar case as
-// PatternInlinePortability.truth, although with multiple 
-// inline portability types (and therefore, data portability
+// PatternPortabilityInfix.truth, although with multiple 
+// portability infixes (and therefore, data portability
 // across multiple bases).
 // 
 

@@ -1,7 +1,7 @@
 //
-// This example demonstrates inline population types that have
-// an additional annotation that cause subtyping to occur when
-// they're matched.
+// This example demonstrates population infixes that have
+// an additional annotation that causes subtyping to occur 
+// when they're matched.
 //
 
 Type

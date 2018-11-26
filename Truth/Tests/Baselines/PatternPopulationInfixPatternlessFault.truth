@@ -1,9 +1,9 @@
 //
 // This example demonstrates a fault being generated on a pattern 
-// with an inline type, where that inline type has no associated patterns.
-// It does so while demonstrating the 3 possible ways how inline types 
-// can be defined, and the same error should be generated regardless
-// of the inline type syntax used.
+// with a population infix, where that infix has no associated patterns.
+// It does so while demonstrating the 3 possible ways how infixes can 
+// be defined, and the same error should be generated regardless of
+// the infix syntax used.
 //
 
 NoPatterns

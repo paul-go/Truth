@@ -1,0 +1,10 @@
+//
+// This example demonstrates a fault being generated
+// due to more than one equivalent portability infix 
+// being defined within the same pattern.
+//
+
+Number
+/\d+/ : Number
+Decimal : Number
+#418; /< : Number>\.< : Number>/ : Decimal

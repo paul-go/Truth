@@ -1,6 +1,6 @@
 //
 // This example demonstrates importing patterns into another 
-// pattern, via "Inline Pattern Types". Note that this does not 
+// pattern, via "Pattern Infixes". Note that this does not 
 // establish data portability between types. It simply just does
 // a copy and paste on the referenced pattern.
 //

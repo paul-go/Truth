@@ -1,0 +1,16 @@
+//
+// This example demonstrates a fault being generated due
+// to more than one portability infix being defined within 
+// the same pattern, but where those are type compatible,
+// and so there is ambiguity around how conforming data 
+// would actually "port" to it's base.
+//
+
+Numeric
+/\d+/ : Numeric
+
+Number : Numeric
+/\d+/ : Number
+
+Decimal : Number
+#418; /< : Number>\.< : Numeric>/ : Decimal

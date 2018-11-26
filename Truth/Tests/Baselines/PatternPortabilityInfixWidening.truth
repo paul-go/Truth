@@ -1,6 +1,6 @@
 //
-// This example demonstrates inline portability types,
-// but where additional types are specified on the annotation
+// This example demonstrates portability infixes, but 
+// where additional types are specified on the annotation
 // side, causing a widening of types to be applied when
 // matching occurs.
 //
