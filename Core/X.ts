@@ -14,7 +14,7 @@ export * from "./DocumentGraph";
 export * from "./DocumentHeader";
 export * from "./Statement";
 export * from "./Subject";
-export * from "./Pointer";
+export * from "./Span";
 export * from "./Spine";
 export * from "./Type";
 export * from "./Uri";

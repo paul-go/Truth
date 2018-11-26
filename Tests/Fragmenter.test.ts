@@ -378,8 +378,8 @@ describe("Fragmenter Tests", () =>
 		const statements: X.Statement[] = [];
 		
 		for (const molecule of queryResult.molecules)
-			for (const ptr of molecule.localAtom.pointers)
-				statements.push(ptr.statement);
+			for (const span of molecule.localAtom.spans)
+				statements.push(span.statement);
 		
 		expect(statements).toRead(U.outdent`
 			C : 3

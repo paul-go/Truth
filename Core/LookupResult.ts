@@ -15,7 +15,7 @@ export type LookupResultType =
 export class TargetedLookup
 {
 	/** */
-	constructor(readonly cluster: X.Pointer)
+	constructor(readonly cluster: X.Span)
 	{
 	}
 }
@@ -40,9 +40,9 @@ export class SiblingLookup
 {
 	constructor(
 		/** */
-		readonly ancestry: ReadonlyArray<X.Pointer>,
+		readonly ancestry: ReadonlyArray<X.Span>,
 		/** */
-		readonly siblings: ReadonlyArray<X.Pointer>)
+		readonly siblings: ReadonlyArray<X.Span>)
 	{
 	}
 }

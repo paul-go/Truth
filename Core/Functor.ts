@@ -160,7 +160,7 @@ export class Functor
 	 * the "sources" of this Functor. More specifically,
 	 * an array of Functors that were successfuly resolved
 	 * from the annotations corresponding to the underlying
-	 * Pointers that formed the basis of this Functor.
+	 * Spans that formed the basis of this Functor.
 	 */
 	get sources(): Functor[]
 	{
@@ -356,7 +356,7 @@ function getUriFromAtoms(atoms: X.Atom[])
 		throw X.ExceptionMessage.invalidArgument();
 	
 	const doc = getDocument(atoms[0]);
-	const segments = atoms.map(atom => atom.pointers[0].subject.toString());
+	const segments = atoms.map(atom => atom.spans[0].subject.toString());
 	return doc.sourceUri.extend([], segments);
 }
 
@@ -372,13 +372,13 @@ function getProgram(input: X.Atom | X.Strand | Functor)
 function getDocument(input: X.Atom | X.Strand | Functor)
 {
 	if (input instanceof X.Atom)
-		return input.pointers[0].statement.document;
+		return input.spans[0].statement.document;
 	
 	if (input instanceof X.Strand)
-		return input.molecules[0].localAtom.pointers[0].statement.document;
+		return input.molecules[0].localAtom.spans[0].statement.document;
 	
 	if (input instanceof Functor)
-		input.atom.pointers[0].statement.document;
+		input.atom.spans[0].statement.document;
 	
 	throw X.ExceptionMessage.unknownState();
 }

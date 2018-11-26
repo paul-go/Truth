@@ -33,13 +33,13 @@ export class Fragmenter
 		
 		program.hooks.Invalidate.capture(hook =>
 		{
-			const pointers: X.Pointer[] = [];
+			const spans: X.Span[] = [];
 			
 			hook.parents.forEach(statement =>
-				pointers.push(...statement.declarations));
+				spans.push(...statement.declarations));
 			
-			for (const pointer of pointers)
-				this.unstorePointer(pointer);
+			for (const span of spans)
+				this.unstoreSpan(span);
 		});
 		
 		program.hooks.Revalidate.capture(hook =>
@@ -123,7 +123,7 @@ export class Fragmenter
 		for (const name of typePathNames)
 		{
 			const subject = new X.Subject(name);
-			const pointers = new Set<X.Pointer>();
+			const spans = new Set<X.Span>();
 			const nextFragments: Fragment[] = [];
 			
 			for (const currentFragment of currentFragments)
@@ -140,10 +140,10 @@ export class Fragmenter
 				return null;
 			
 			for (const fragment of nextFragments)
-				if (fragment.associatedPointer)
-					pointers.add(fragment.associatedPointer);
+				if (fragment.associatedSpan)
+					spans.add(fragment.associatedSpan);
 			
-			const atom = new X.Atom(subject, Array.from(pointers));
+			const atom = new X.Atom(subject, Array.from(spans));
 			const molecule = this.translateAtomToMolecule(atom);
 			baseMolecules.push(molecule);
 			
@@ -159,11 +159,11 @@ export class Fragmenter
 				for (const [name, fragments] of fragment.localDictionary)
 				{
 					const subject = new X.Subject(name);
-					const pointers = <X.Pointer[]>fragments
-						.map(frag => frag.associatedPointer)
-						.filter(ptr => !!ptr);
+					const spans = <X.Span[]>fragments
+						.map(frag => frag.associatedSpan)
+						.filter(span => !!span);
 					
-					const tipAtom = new X.Atom(subject, pointers);
+					const tipAtom = new X.Atom(subject, spans);
 					const tipMolecule = this.translateAtomToMolecule(tipAtom);
 					strands.push(new X.Strand(baseMolecules.concat(tipMolecule)));
 				}
@@ -182,20 +182,20 @@ export class Fragmenter
 	 */
 	private translateAtomToMolecule(atom: X.Atom)
 	{
-		const annotations = atom.pointers
-			.map(ptr => ptr.statement)
+		const annotations = atom.spans
+			.map(span => span.statement)
 			.filter((stmt, idx, array) => array.indexOf(stmt) < idx)
 			.map(stmt => stmt.annotations)
-			.reduce((accum, ptr) => accum.concat(ptr));
+			.reduce((accum, span) => accum.concat(span));
 		
 		// Organize the annotations by subject
-		const subjectPointerMap = new X.MultiMap<string, X.Pointer>();
+		const subjectSpanMap = new X.MultiMap<string, X.Span>();
 		for (const annotation of annotations)
-			subjectPointerMap.add(annotation.subject.toString(), annotation);
+			subjectSpanMap.add(annotation.subject.toString(), annotation);
 		
 		const referencedAtoms: X.Atom[] = [];
-		for (const [subjectText, pointers] of subjectPointerMap)
-			referencedAtoms.push(new X.Atom(new X.Subject(subjectText), pointers));
+		for (const [subjectText, spans] of subjectSpanMap)
+			referencedAtoms.push(new X.Atom(new X.Subject(subjectText), spans));
 		
 		return new X.Molecule(atom, referencedAtoms);
 	}
@@ -291,10 +291,10 @@ export class Fragmenter
 	}
 	
 	/**
-	 * Removes the fragments associated with the specified pointer
+	 * Removes the fragments associated with the specified span
 	 * from all internal caches.
 	 */
-	private unstorePointer(unstoreTarget: X.Pointer)
+	private unstoreSpan(unstoreTarget: X.Span)
 	{
 		const fragmentsAtTarget = this.fragmentFinder.get(unstoreTarget);
 		if (!fragmentsAtTarget)
@@ -311,7 +311,7 @@ export class Fragmenter
 		// Prune all (now invalid) fragments in the fragment tree.
 		for (const fragAtTarget of fragmentsAtTarget)
 		{
-			// Any fragment that is related to a pointer cannot
+			// Any fragment that is related to a span cannot
 			// have a null container, because fragments with
 			// null containers always relate to documents.
 			if (!fragAtTarget.container)
@@ -351,18 +351,18 @@ export class Fragmenter
 	}
 	
 	/** */
-	private cacheFragment(pointer: X.Pointer, fragment: Fragment)
+	private cacheFragment(span: X.Span, fragment: Fragment)
 	{
-		const array = this.fragmentFinder.get(pointer);
+		const array = this.fragmentFinder.get(span);
 		array ?
 			array.push(fragment) :
-			this.fragmentFinder.set(pointer, [fragment]);
+			this.fragmentFinder.set(span, [fragment]);
 	}
 	
 	/** */
-	private uncacheFragment(pointer: X.Pointer, fragment: Fragment)
+	private uncacheFragment(span: X.Span, fragment: Fragment)
 	{
-		const array = this.fragmentFinder.get(pointer);
+		const array = this.fragmentFinder.get(span);
 		if (array)
 		{
 			const idx = array.indexOf(fragment);
@@ -370,26 +370,26 @@ export class Fragmenter
 				array.splice(idx, 1);
 			
 			if (array.length === 0)
-				this.fragmentFinder.delete(pointer);
+				this.fragmentFinder.delete(span);
 		}
 	}
 	
 	/**
-	 * A map used to quickly find the fragments associated with a pointer.
+	 * A map used to quickly find the fragments associated with a span.
 	 * A separate fragment will exist in the array value for every spine
-	 * ending at the Pointer key. Naturally, Pointers that are directly
+	 * ending at the Span key. Naturally, Spans that are directly
 	 * contained by a Document will only ever have one item in it's
 	 * associated fragment array.
 	 * 
 	 * Note that the fragments in the array value may be parented by
-	 * different apexes (meaning Pointers or Documents).
+	 * different apexes (meaning Spans or Documents).
 	 * 
 	 * Although provisions are taken to ensure entries in this map are
 	 * all explicitly released, a WeakMap is used in this case instead of 
 	 * a traditional Map as a defense measure against unforeseen bugs
 	 * resulting in memory leaks.
 	 */
-	private readonly fragmentFinder = new Map<X.Pointer, Fragment[]>();
+	private readonly fragmentFinder = new Map<X.Span, Fragment[]>();
 	
 	/**
 	 * A map of the Document objects loaded into the system,
@@ -415,14 +415,14 @@ export class Fragmenter
 			{
 				for (const fragment of fragmentArray)
 				{
-					const ptr = fragment.associatedPointer;
-					if (!ptr)
+					const span = fragment.associatedSpan;
+					if (!span)
 						throw X.ExceptionMessage.unknownState();
 					
 					const code = ++nextCode;
 					fragmentCodeMap.set(fragment, code);
 					
-					const term = ptr.subject.toString();
+					const term = span.subject.toString();
 					const indent = "\t".repeat(level);
 					lines.push(indent + term + " (" + code + ")");
 					
@@ -441,9 +441,9 @@ export class Fragmenter
 		
 		lines.push("");
 		
-		for (const [pointer, fragments] of this.fragmentFinder)
+		for (const [span, fragments] of this.fragmentFinder)
 		{
-			const subject = pointer.subject.toString();
+			const subject = span.subject.toString();
 			const codes = fragments.map(f => fragmentCodeMap.get(f)!);
 			
 			if (codes.some(code => !code))
@@ -462,31 +462,31 @@ export class Fragmenter
  * Refers to a series of Fragment definitions that all share a
  * common container within the file. The container is a
  * Document in the case when the fragment is root-level,
- * and a Pointer when the fragment is nested.
+ * and a Span when the fragment is nested.
  */
 class Fragment
 {
 	/** */
 	constructor(
-		associatedPointer: X.Pointer | null = null, 
+		associatedSpan: X.Span | null = null, 
 		container: Fragment | null = null)
 	{
 		this.container = container;
-		this.associatedPointer = associatedPointer;
+		this.associatedSpan = associatedSpan;
 	}
 	
 	/**
-	 * A reference to the Pointer object that represents the
+	 * A reference to the Span object that represents the
 	 * location in the document that relates to this fragment.
 	 * If this fragment is a root fragment, it is associated with
-	 * a document rather than a pointer, and so the field is null.
+	 * a document rather than a span, and so the field is null.
 	 */
-	readonly associatedPointer: X.Pointer | null;
+	readonly associatedSpan: X.Span | null;
 	
 	/**
 	 * Stores a reference to the Fragment that contains this one.
 	 * If this fragment is a root fragment, it is associated with
-	 * a document rather than a pointer, and so the field is null.
+	 * a document rather than a span, and so the field is null.
 	 */
 	readonly container: Fragment | null;
 	
@@ -496,7 +496,7 @@ class Fragment
 	 * them. In the common case, the fragment array will only contain
 	 * a single entry. Fragment arrays with multiple entries only exist
 	 * in the case when more than one equivalently named subject
-	 * exists below a single pointer.
+	 * exists below a single span.
 	 */
 	readonly localDictionary = new Map<string, Fragment[]>();
 	
@@ -512,10 +512,10 @@ class Fragment
 	addFragment(fragment: Fragment)
 	{
 		// Root fragments are never added below others.
-		if (!fragment.associatedPointer)
+		if (!fragment.associatedSpan)
 			throw X.ExceptionMessage.unknownState();
 			
-		const subject = fragment.associatedPointer.subject.toString();
+		const subject = fragment.associatedSpan.subject.toString();
 		const existingFragArray = this.localDictionary.get(subject);
 		
 		if (existingFragArray)
@@ -530,10 +530,10 @@ class Fragment
 	removeFragment(fragment: Fragment)
 	{
 		// Root fragments are never removed from beneath others.
-		if (!fragment.associatedPointer)
+		if (!fragment.associatedSpan)
 			throw X.ExceptionMessage.unknownState();
 		
-		const subject = fragment.associatedPointer.subject.toString();
+		const subject = fragment.associatedSpan.subject.toString();
 		const existingFragArray = this.localDictionary.get(subject);
 		
 		if (!existingFragArray)

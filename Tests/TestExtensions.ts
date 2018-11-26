@@ -69,7 +69,7 @@ expect.extend({
 			container;
 		
 		const isStatementFault = offset === undefined;
-		const pointerPos = offset || 0;
+		const spanPos = offset || 0;
 		
 		for (const fault of program.faults.each())
 		{
@@ -81,10 +81,10 @@ expect.extend({
 					if (fault.source === fault.source.document.read(line))
 						return { message: () => "", pass: true };
 			
-			if (!isStatementFault && fault instanceof X.PointerFault)
+			if (!isStatementFault && fault instanceof X.SpanFault)
 				if (!targetDoc || targetDoc === fault.source.statement.document)
 					if (fault.source.statement === fault.source.statement.document.read(line))
-						if (fault.source.statement.subjects.indexOf(fault.source) === pointerPos)
+						if (fault.source.statement.subjects.indexOf(fault.source) === spanPos)
 							return { message: () => "", pass: true };
 		}
 		
@@ -93,7 +93,7 @@ expect.extend({
 		return {
 			message: isStatementFault ?
 				() => `Statement at line ${line} does not have a ${ctor}.` :
-				() => `Pointer at line ${line}, offset ${offset}) does not have a ${ctor}.`,
+				() => `Span at line ${line}, offset ${offset}) does not have a ${ctor}.`,
 			pass: false
 		};
 	},
@@ -103,7 +103,7 @@ expect.extend({
 	 */
 	toHaveFaults(
 		program: X.Program,
-		...expectations: [Function, X.Statement | X.Pointer][])
+		...expectations: [Function, X.Statement | X.Span][])
 	{
 		if (!(program instanceof X.Program))
 			throw X.ExceptionMessage.invalidArgument();

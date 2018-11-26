@@ -2,15 +2,15 @@ import * as X from "./X";
 
 
 /**
- * A class that manages an array of Pointer objects that
+ * A class that manages an array of Span objects that
  * represent a specific spine of declarations, starting at
- * a document, passing through a series of pointers,
- * and ending at a tip pointer.
+ * a document, passing through a series of spans,
+ * and ending at a tip span.
  */
 export class Spine
 {
 	/** */
-	constructor(nodes: X.Pointer[])
+	constructor(nodes: X.Span[])
 	{
 		if (nodes.length === 0)
 			throw X.ExceptionMessage.unknownState();
@@ -19,8 +19,8 @@ export class Spine
 		this.nodes = nodes;
 	}
 	
-	/** Stores the last pointer in the array of segments. */
-	readonly tip: X.Pointer;
+	/** Stores the last span in the array of segments. */
+	readonly tip: X.Span;
 	
 	/** */
 	get statement() { return this.tip.statement }
@@ -29,5 +29,5 @@ export class Spine
 	get document() { return this.statement.document; }
 	
 	/**  */
-	readonly nodes: ReadonlyArray<X.Pointer> = [];
+	readonly nodes: ReadonlyArray<X.Span> = [];
 }

@@ -4,12 +4,12 @@ import * as X from "./X";
 /**
  * A class that represents a position in a statement.
  */
-export class Pointer
+export class Span
 {
 	/**
 	 * @internal
 	 * Logical clock value used to make chronological 
-	 * creation-time comparisons between Pointers.
+	 * creation-time comparisons between Spans.
 	 */
 	readonly stamp = X.VersionStamp.next();
 	
@@ -50,13 +50,13 @@ export class Pointer
 	}
 	private _ancestry: ReadonlyArray<X.Statement> | null = null;
 	
-	/** Stores a reference to the Statement that contains this Pointer. */
+	/** Stores a reference to the Statement that contains this Span. */
 	readonly statement: X.Statement;
 	
 	/**
 	 * Stores either a reference to the instance of the Subject that this
-	 * Pointer represents, or a unique string in the case when this is
-	 * a "Thin Pointer" that represents an Invisible Subject.
+	 * Span represents, or a unique string in the case when this is
+	 * a "Thin Span" that represents an Invisible Subject.
 	 */
 	readonly subject: X.Subject | string;
 	
@@ -83,10 +83,10 @@ export class Pointer
 	 * statement's ancestry, and generates a series of spines, 
 	 * each indicating a separate pathway of declarations through
 	 * the ancestry that reach the location in the document
-	 * referenced by this global pointer object.
+	 * referenced by this global span object.
 	 * 
 	 * The generated spines are referentially opaque. Running this
-	 * method on the same Pointer object always returns the same
+	 * method on the same Span object always returns the same
 	 * Spine instance.
 	 */
 	factor(): ReadonlyArray<X.Spine>
@@ -97,19 +97,19 @@ export class Pointer
 		// We need to factor the ancestry. This means we're taking the
 		// specified ancestry path, and splitting where any has-a side unions
 		// exist, in effect creating all possible paths to the specified tip.
-		const factoredPointerPaths: X.Pointer[][] = [];
+		const factoredSpanPaths: X.Span[][] = [];
 		
 		// An array of arrays. The first dimension is the hasa terms in a
 		// particular statement. The second dimension is the hasa terms
 		// themselves.
-		const ancestryPointers = this.ancestry.map(stmt => Array.from(stmt.declarations));
+		const ancestrySpans = this.ancestry.map(stmt => Array.from(stmt.declarations));
 		
 		// An array that stores the number of hasa terms in each statement.
-		const ancestryLengths = ancestryPointers.map(ptr => ptr.length);
+		const ancestryLengths = ancestrySpans.map(span => span.length);
 		
 		// Multiplying together the number of terms in each statement will give
 		// us the total number of term paths that we're going to end up with.
-		const numFactoredPointerPaths = ancestryLengths.reduce((a, b) => a * b);
+		const numFactoredSpanPaths = ancestryLengths.reduce((a, b) => a * b);
 		
 		// Start with an array of 0's, whose length matches the number
 		// of statements in the ancestry. Each number in this array will be 
@@ -124,20 +124,20 @@ export class Pointer
 		// the target position is >= the number of terms at that position.
 		let targetIncPos = cherryPickIndexes.length - 1;
 		
-		for (let i = -1; ++i < numFactoredPointerPaths;)
+		for (let i = -1; ++i < numFactoredSpanPaths;)
 		{
 			// Do an insertion at the indexes specified by insertionIndexes
-			const pointerPath: X.Pointer[] = [];
+			const spanPath: X.Span[] = [];
 			
 			// Cherry pick a series of terms from the ancestry terms,
 			// according to the index set we're currently on.
 			cherryPickIndexes.forEach((insertionIndex, pos) =>
-				pointerPath.push(ancestryPointers[pos][insertionIndex]));
+				spanPath.push(ancestrySpans[pos][insertionIndex]));
 			
-			// The tip pointer specified in the method arguments
-			// is added at the end of all generated pointer paths.
-			pointerPath.push(this);
-			factoredPointerPaths.push(pointerPath);
+			// The tip span specified in the method arguments
+			// is added at the end of all generated span paths.
+			spanPath.push(this);
+			factoredSpanPaths.push(spanPath);
 			
 			if (cherryPickIndexes[targetIncPos] >= ancestryLengths[targetIncPos])
 				targetIncPos--;
@@ -146,8 +146,8 @@ export class Pointer
 		}
 		
 		return this.factoredSpines = 
-			Object.freeze(factoredPointerPaths.map(pointerPath => 
-				new X.Spine(pointerPath)));
+			Object.freeze(factoredSpanPaths.map(spanPath => 
+				new X.Spine(spanPath)));
 	}
 	
 	/**  */

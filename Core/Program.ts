@@ -160,10 +160,10 @@ export class ProgramInspectionResult
 		readonly statement: X.Statement,
 		
 		/**
-		 * Stores the Pointer found at the specified location, or
-		 * null in the case when no Pointer was found, such as if
+		 * Stores the Span found at the specified location, or
+		 * null in the case when no Span was found, such as if
 		 * the specified location is whitespace or a comment.
 		 */
-		readonly pointer: X.Pointer | null = null)
+		readonly span: X.Span | null = null)
 	{ }
 }
