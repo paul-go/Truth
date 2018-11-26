@@ -1,0 +1,15 @@
+//
+// This example demonstrates patterns with unescaped
+// slashes inside them. This is considered valid pattern
+// syntax.
+//
+
+
+Value
+/Foo/Bar/ : Value
+
+Class
+	V : Value
+
+SubClass : Class
+	V : Foo/Bar ~ Value
