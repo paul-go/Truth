@@ -115,6 +115,17 @@ export class ContractViolationFault extends StatementFault
 	readonly message = "Overridden types must explicitly expand the type as defined in the base.";
 }
 
+/** */
+export class TypeCannotBeRefreshedFault extends StatementFault
+{
+	readonly code = 206;
+	readonly severity = FaultSeverity.warning;
+	readonly message = 
+		"This type cannot be refreshed, because one or more base types are " +
+		"imposing a specific type contract on it. Consider omitting the " + 
+		X.Syntax.joint + " operator here.";
+}
+
 
 //
 // List-related faults

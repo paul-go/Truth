@@ -9,6 +9,12 @@
 // a refresh type, due to an equivalently-named type
 // using the refresh syntax within the same locality.
 //
+// Use of the refresh syntax generates a fault in the
+// case when a base class imposes a contract on the
+// type that is using the syntax. This is because these
+// types cannot be refreshed, as it would make the
+// type incompatible with it's base.
+//
 
 String
 Foo : String
@@ -16,3 +22,9 @@ Foo : String
 Container
 	Foo : ~
 	Foo ~ 
+
+Class
+	Bar : String
+
+SubClass : Class
+	Bar : #206
