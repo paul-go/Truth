@@ -14,8 +14,8 @@ declare namespace jest
 		/**
 		 * Tests that a fault extending from the specified Fault constructor
 		 * has been reported in the program or document, at the specified
-		 * line. If the Fault constructor relates to a PointerFault, an offset
-		 * must be specified that refers to the position of the pointer in the
+		 * line. If the Fault constructor relates to a SpanFault, an offset
+		 * must be specified that refers to the position of the span in the
 		 * statement.
 		 */
 		toHaveFault(faultType: Function, line: number, offset?: number): R;

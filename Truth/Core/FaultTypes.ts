@@ -7,7 +7,7 @@ import * as X from "./X";
 
 
 /** */
-export type FaultSource = X.Statement | X.Pointer;
+export type FaultSource = X.Statement | X.Span;
 
 
 /** Base class for all faults. */
@@ -34,10 +34,10 @@ export abstract class StatementFault extends Fault
 }
 
 
-/** Base class for faults that relate to a specific pointer. */
-export abstract class PointerFault extends Fault
+/** Base class for faults that relate to a specific span. */
+export abstract class SpanFault extends Fault
 {
-	constructor(readonly source: X.Pointer) { super(); }
+	constructor(readonly source: X.Span) { super(); }
 }
 
 
@@ -94,14 +94,14 @@ export class InsecureResourceReferenceFault extends StatementFault
 
 
 /** */
-export class UnresolvedAnnotationFault extends PointerFault
+export class UnresolvedAnnotationFault extends SpanFault
 {
 	readonly code = 201;
 	readonly message = "Unresolved annotation.";
 }
 
 /** */
-export class CircularTypeReferenceFault extends PointerFault
+export class CircularTypeReferenceFault extends SpanFault
 {
 	readonly code = 203;
 	readonly message = "Circular type reference detected.";
@@ -129,14 +129,14 @@ export class AnonymousListIntrinsicTypeFault extends StatementFault
 }
 
 /** */
-export class ListContractViolationFault extends PointerFault
+export class ListContractViolationFault extends SpanFault
 {
 	readonly code = 301;
 	readonly message = "The containing list cannot contain children of this type.";
 }
 
 /** */
-export class ListIntrinsicExtendingNonList extends PointerFault
+export class ListIntrinsicExtendingNonList extends SpanFault
 {
 	readonly code = 303;
 	readonly message = "List-intrinsics cannot extend from a non-list type.";
@@ -164,17 +164,17 @@ export class PatternWithoutAnnotationFault extends StatementFault
 }
 
 /** */
-export class PatternPossiblyMatchesEmptyFault extends StatementFault
+export class PatternCanMatchEmptyFault extends StatementFault
 {
 	readonly code = 404;
-	readonly message = "Pattern could possibly match an empty list of characters.";
+	readonly message = "Patterns must not be able to match an empty input.";
 }
 
 /** */
-export class PatternPossiblyMatchesWhitespaceOnlyFault extends StatementFault
+export class PatternCanMatchWhitespaceOnlyFault extends StatementFault
 {
 	readonly code = 420;
-	readonly message = "Pattern could possibly match nothing other than whitespace characters.";
+	readonly message = "Patterns must not be able to match an input containing only whitespace characters.";
 }
 
 /** */

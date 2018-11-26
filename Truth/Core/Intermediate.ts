@@ -14,7 +14,7 @@ import * as X from "./X";
  * with the components of a type URI (the ordering of the
  * entry in the map is relevant).
  * 
- * Each Subject key is related to a set of Pointer objects that
+ * Each Subject key is related to a set of Span objects that
  * represent the points of the document that where discovered
  * in relation to each component of the type URI.
  */
@@ -50,7 +50,7 @@ export class Strand
 		const parts: string[] = [];
 		
 		parts.push(X.Syntax.tab + this.molecules[0]
-			.localAtom.pointers[0].statement
+			.localAtom.spans[0].statement
 			.document.sourceUri.toString(true, true));
 		
 		for (const molecule of this.molecules)
@@ -101,9 +101,9 @@ export class Atom
 {
 	constructor(
 		readonly subject: X.Subject,
-		readonly pointers: ReadonlyArray<X.Pointer>)
+		readonly spans: ReadonlyArray<X.Span>)
 	{
-		if (pointers.length === 0)
+		if (spans.length === 0)
 			throw X.ExceptionMessage.invalidArgument();
 	}
 }

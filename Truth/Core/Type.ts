@@ -135,17 +135,17 @@ export class Type
 	get subject() { return this.functor.atom.subject; }
 	
 	/**
-	 * Gets an array of the underlying pointers that compose this type.
+	 * Gets an array of the underlying spans that compose this type.
 	 */
-	get pointers() { return this.functor.atom.pointers; }
+	get spans() { return this.functor.atom.spans; }
 	
 	/**
 	 * Gets an array of the statements that contains
-	 * the pointers that compose this type.
+	 * the spans that compose this type.
 	 */
 	get statements()
 	{
-		return Array.from(new Set(this.pointers.map(ptr => ptr.statement)));
+		return Array.from(new Set(this.spans.map(span => span.statement)));
 	}
 	
 	/** */

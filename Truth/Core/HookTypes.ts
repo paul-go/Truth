@@ -163,7 +163,7 @@ export class CanParam
 {
 	constructor(
 		readonly document: X.Document,
-		readonly pointer: X.Pointer)
+		readonly span: X.Span)
 	{ }
 }
 
@@ -204,7 +204,7 @@ export class DoRenameParam
 {
 	constructor(
 		readonly document: X.Document,
-		readonly pointer: X.Pointer)
+		readonly span: X.Span)
 	{ }
 }
 

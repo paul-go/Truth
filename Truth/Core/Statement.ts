@@ -196,16 +196,16 @@ export class Statement
 		
 		if (offset <= this.jointPosition)
 		{
-			for (const pointer of this.declarations)
-				if (offset >= pointer.offsetStart && offset <= pointer.offsetEnd)
+			for (const span of this.declarations)
+				if (offset >= span.offsetStart && offset <= span.offsetEnd)
 					return StatementRegion.declaration;
 			
 			return StatementRegion.declarationVoid;
 		}
 		else
 		{
-			for (const pointer of this.annotations)
-				if (offset >= pointer.offsetStart && offset <= pointer.offsetEnd)
+			for (const span of this.annotations)
+				if (offset >= span.offsetStart && offset <= span.offsetEnd)
 					return StatementRegion.annotation;
 			
 			return StatementRegion.annotationVoid;
@@ -213,7 +213,7 @@ export class Statement
 	}
 	
 	/**
-	 * Gets the set of pointers in that represent all declarations
+	 * Gets the set of spans in that represent all declarations
 	 * and annotations in this statement, from left to right.
 	 */
 	get subjects()
@@ -222,7 +222,7 @@ export class Statement
 	}
 	
 	/**
-	 * Gets the set of pointers in that represent the
+	 * Gets the set of spans in that represent the
 	 * declarations of this statement, from left to right.
 	 */
 	get declarations()
@@ -230,17 +230,17 @@ export class Statement
 		if (this._declarations)
 			return this._declarations;
 		
-		const out: X.Pointer[] = [];
+		const out: X.Span[] = [];
 		
 		for (const [offset, subject] of this.hasaSubjects)
-			out.push(new X.Pointer(this, subject, true, false, offset));
+			out.push(new X.Span(this, subject, true, false, offset));
 		
 		return this._declarations = out;
 	}
-	private _declarations: X.Pointer[] | null = null;
+	private _declarations: X.Span[] | null = null;
 	
 	/**
-	 * Gets the set of pointers in that represent the
+	 * Gets the set of spans in that represent the
 	 * annotations of this statement, from left to right.
 	 */
 	get annotations()
@@ -248,14 +248,14 @@ export class Statement
 		if (this._annotations)
 			return this._annotations;
 		
-		const out: X.Pointer[] = [];
+		const out: X.Span[] = [];
 		
 		for (const [offset, subject] of this.isaSubjects)
-			out.push(new X.Pointer(this, subject, false, true, offset));
+			out.push(new X.Span(this, subject, false, true, offset));
 		
 		return this._annotations = out;
 	}
-	private _annotations: X.Pointer[] | null = null;
+	private _annotations: X.Span[] | null = null;
 	
 	/**
 	 * 
@@ -266,27 +266,27 @@ export class Statement
 	}
 	
 	/**
-	 * @returns A pointer to the declaration subject at the 
+	 * @returns A span to the declaration subject at the 
 	 * specified offset, or null if there is none was found.
 	 */
 	getDeclaration(offset: number)
 	{
-		for (const pointer of this.declarations)
-			if (offset >= pointer.offsetStart && offset <= pointer.offsetEnd)
-				return pointer;
+		for (const span of this.declarations)
+			if (offset >= span.offsetStart && offset <= span.offsetEnd)
+				return span;
 		
 		return null;
 	}
 	
 	/**
-	 * @returns A pointer to the annotation subject at the 
+	 * @returns A span to the annotation subject at the 
 	 * specified offset, or null if there is none was found.
 	 */
 	getAnnotation(offset: number)
 	{
-		for (const pointer of this.annotations)
-			if (offset >= pointer.offsetStart && offset <= pointer.offsetEnd)
-				return pointer;
+		for (const span of this.annotations)
+			if (offset >= span.offsetStart && offset <= span.offsetEnd)
+				return span;
 		
 		return null;
 	}

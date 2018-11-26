@@ -152,11 +152,11 @@ export class Uri
 			if (mols.length === 0)
 				throw X.ExceptionMessage.unknownState();
 			
-			const ptrs = mols[0].localAtom.pointers;
-			if (ptrs.length === 0)
+			const spans = mols[0].localAtom.spans;
+			if (spans.length === 0)
 				throw X.ExceptionMessage.unknownState();
 			
-			const srcUri = ptrs[0].statement.document.sourceUri;
+			const srcUri = spans[0].statement.document.sourceUri;
 			const typeSegments = from.molecules
 				.map(m => m.localAtom.subject.toString());
 			

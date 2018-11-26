@@ -67,7 +67,7 @@ export class FaultService
 	 * at the specified source. If the source has no faults, an empty
 	 * array is returned.
 	 */
-	check(source: X.Pointer | X.Statement): X.Fault[]
+	check(source: X.Span | X.Statement): X.Fault[]
 	{
 		const out: X.Fault[] = [];
 		
@@ -104,7 +104,7 @@ export class FaultService
 				if (fault.source instanceof X.Statement)
 					return fault.source.document;
 				
-				if (fault.source instanceof X.Pointer)
+				if (fault.source instanceof X.Span)
 					return fault.source.statement.document;
 				
 				throw X.ExceptionMessage.unknownState();

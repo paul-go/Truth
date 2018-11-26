@@ -59,11 +59,11 @@ declare namespace Truth {
 		 */
 		readonly statement: Statement;
 		/**
-		 * Stores the Pointer found at the specified location, or
-		 * null in the case when no Pointer was found, such as if
+		 * Stores the Span found at the specified location, or
+		 * null in the case when no Span was found, such as if
 		 * the specified location is whitespace or a comment.
 		 */
-		readonly pointer: Pointer | null;
+		readonly span: Span | null;
 	}
 	/**
 	 * Provides an entry point for enumeration through
@@ -301,8 +301,8 @@ declare namespace Truth {
 	 */
 	export class CanParam {
 		readonly document: Document;
-		readonly pointer: Pointer;
-		constructor(document: Document, pointer: Pointer);
+		readonly span: Span;
+		constructor(document: Document, span: Span);
 	}
 	/** Generic class that stores the output of a "Can" hook. */
 	export class CanResult {
@@ -328,8 +328,8 @@ declare namespace Truth {
 	/** */
 	export class DoRenameParam {
 		readonly document: Document;
-		readonly pointer: Pointer;
-		constructor(document: Document, pointer: Pointer);
+		readonly span: Span;
+		constructor(document: Document, span: Span);
 	}
 	/** Input parameters for completion hooks. */
 	export class CompletionParam {
@@ -586,6 +586,12 @@ declare namespace Truth {
 		 */
 		get(uri: Uri): Document | null;
 		/**
+		 * @returns A boolean value that indicates whether
+		 * the specified Document has been loaded into
+		 * this DocumentGraph.
+		 */
+		has(param: Uri | Document): boolean;
+		/**
 		 * @returns An array containing all documents loaded into this
 		 * DocumentGraph. The array returned is sorted topologically
 		 * from left to right, so that forward traversals are guaranteed
@@ -714,36 +720,36 @@ declare namespace Truth {
 		 */
 		getRegion(offset: number): StatementRegion;
 		/**
-		 * Gets the set of pointers in that represent all declarations
+		 * Gets the set of spans in that represent all declarations
 		 * and annotations in this statement, from left to right.
 		 */
-		readonly subjects: Pointer[];
+		readonly subjects: Span[];
 		/**
-		 * Gets the set of pointers in that represent the
+		 * Gets the set of spans in that represent the
 		 * declarations of this statement, from left to right.
 		 */
-		readonly declarations: Pointer[];
+		readonly declarations: Span[];
 		private _declarations;
 		/**
-		 * Gets the set of pointers in that represent the
+		 * Gets the set of spans in that represent the
 		 * annotations of this statement, from left to right.
 		 */
-		readonly annotations: Pointer[];
+		readonly annotations: Span[];
 		private _annotations;
 		/**
 		 * 
 		 */
-		getSubject(offset: number): Pointer | null;
+		getSubject(offset: number): Span | null;
 		/**
-		 * @returns A pointer to the declaration subject at the
+		 * @returns A span to the declaration subject at the
 		 * specified offset, or null if there is none was found.
 		 */
-		getDeclaration(offset: number): Pointer | null;
+		getDeclaration(offset: number): Span | null;
 		/**
-		 * @returns A pointer to the annotation subject at the
+		 * @returns A span to the annotation subject at the
 		 * specified offset, or null if there is none was found.
 		 */
-		getAnnotation(offset: number): Pointer | null;
+		getAnnotation(offset: number): Span | null;
 		/**
 		 * @returns A string containing the inner comment text of
 		 * this statement, excluding the comment syntax token.
@@ -819,7 +825,7 @@ declare namespace Truth {
 	/**
 	 * A class that represents a position in a statement.
 	 */
-	export class Pointer {
+	export class Span {
 		/** */
 		constructor(statement: Statement, subject: Subject | null, atDeclaration: boolean, atAnnotation: boolean, offsetStart: number);
 		/**
@@ -829,12 +835,12 @@ declare namespace Truth {
 		 */
 		readonly ancestry: ReadonlyArray<Statement>;
 		private _ancestry;
-		/** Stores a reference to the Statement that contains this Pointer. */
+		/** Stores a reference to the Statement that contains this Span. */
 		readonly statement: Statement;
 		/**
 		 * Stores either a reference to the instance of the Subject that this
-		 * Pointer represents, or a unique string in the case when this is
-		 * a "Thin Pointer" that represents an Invisible Subject.
+		 * Span represents, or a unique string in the case when this is
+		 * a "Thin Span" that represents an Invisible Subject.
 		 */
 		readonly subject: Subject | string;
 		/** */
@@ -856,10 +862,10 @@ declare namespace Truth {
 		 * statement's ancestry, and generates a series of spines,
 		 * each indicating a separate pathway of declarations through
 		 * the ancestry that reach the location in the document
-		 * referenced by this global pointer object.
+		 * referenced by this global span object.
 		 * 
 		 * The generated spines are referentially opaque. Running this
-		 * method on the same Pointer object always returns the same
+		 * method on the same Span object always returns the same
 		 * Spine instance.
 		 */
 		factor(): ReadonlyArray<Spine>;
@@ -867,28 +873,28 @@ declare namespace Truth {
 		private factoredSpines;
 	}
 	/**
-	 * A class that manages an array of Pointer objects that
+	 * A class that manages an array of Span objects that
 	 * represent a specific spine of declarations, starting at
-	 * a document, passing through a series of pointers,
-	 * and ending at a tip pointer.
+	 * a document, passing through a series of spans,
+	 * and ending at a tip span.
 	 */
 	export class Spine {
 		/** */
-		constructor(nodes: Pointer[]);
-		/** Stores the last pointer in the array of segments. */
-		readonly tip: Pointer;
+		constructor(nodes: Span[]);
+		/** Stores the last span in the array of segments. */
+		readonly tip: Span;
 		/** */
 		readonly statement: Statement;
 		/** Gets a reference to the document that sits at the top of the spine. */
 		readonly document: Document;
 		/**  */
-		readonly nodes: ReadonlyArray<Pointer>;
+		readonly nodes: ReadonlyArray<Span>;
 	}
 	/**
 	 * A class that defines a type located within a
 	 * scope, that has passed all verification tests.
 	 * This class is essentially a lens ontop of
-	 * GraphNode.
+	 * Functor.
 	 */
 	export class Type {
 		private readonly functor;
@@ -900,6 +906,13 @@ declare namespace Truth {
 		static get(spine: Spine): Type;
 		/** */
 		private static getFromFunctor;
+		/**
+		 * Searches for a Type at the specified URI.
+		 * The URI may refer to a location in an unspecified
+		 * area of the document (such as if the URI refers to
+		 * an inherited type or a descendant of a recursive type).
+		 */
+		static find(uri: Uri, owner: Document | Program): string | Type | null | undefined;
 		/** */
 		private static readonly cache;
 		/** */
@@ -916,7 +929,21 @@ declare namespace Truth {
 		/** */
 		readonly name: string;
 		/** */
+		readonly subject: Subject;
+		/**
+		 * Gets an array of the underlying spans that compose this type.
+		 */
+		readonly spans: ReadonlyArray<Span>;
+		/**
+		 * Gets an array of the statements that contains
+		 * the spans that compose this type.
+		 */
+		readonly statements: Statement[];
+		/** */
 		readonly stamp: VersionStamp;
+		/** */
+		readonly container: Type | null;
+		private _container;
 		/** */
 		readonly contents: Type[];
 		private _contents;
@@ -1096,7 +1123,7 @@ declare namespace Truth {
 		 * at the specified source. If the source has no faults, an empty
 		 * array is returned.
 		 */
-		check(source: Pointer | Statement): Fault[];
+		check(source: Span | Statement): Fault[];
 		/**
 		 * Enumerates through the unrectified faults retained
 		 * by this FaultService.
@@ -1116,7 +1143,7 @@ declare namespace Truth {
 		private activeContext;
 	}
 	/** */
-	export type FaultSource = Statement | Pointer;
+	export type FaultSource = Statement | Span;
 	/** Base class for all faults. */
 	export abstract class Fault {
 		/** */
@@ -1133,10 +1160,10 @@ declare namespace Truth {
 		readonly source: Statement;
 		constructor(source: Statement);
 	}
-	/** Base class for faults that relate to a specific pointer. */
-	export abstract class PointerFault extends Fault {
-		readonly source: Pointer;
-		constructor(source: Pointer);
+	/** Base class for faults that relate to a specific span. */
+	export abstract class SpanFault extends Fault {
+		readonly source: Span;
+		constructor(source: Span);
 	}
 	/** */
 	export enum FaultSeverity {
@@ -1162,12 +1189,12 @@ declare namespace Truth {
 		readonly message: string;
 	}
 	/** */
-	export class UnresolvedAnnotationFault extends PointerFault {
+	export class UnresolvedAnnotationFault extends SpanFault {
 		readonly code = 201;
 		readonly message = "Unresolved annotation.";
 	}
 	/** */
-	export class CircularTypeReferenceFault extends PointerFault {
+	export class CircularTypeReferenceFault extends SpanFault {
 		readonly code = 203;
 		readonly message = "Circular type reference detected.";
 	}
@@ -1183,12 +1210,12 @@ declare namespace Truth {
 		readonly message = "List-intrinsic types cannot be anonymous.";
 	}
 	/** */
-	export class ListContractViolationFault extends PointerFault {
+	export class ListContractViolationFault extends SpanFault {
 		readonly code = 301;
 		readonly message = "The containing list cannot contain children of this type.";
 	}
 	/** */
-	export class ListIntrinsicExtendingNonList extends PointerFault {
+	export class ListIntrinsicExtendingNonList extends SpanFault {
 		readonly code = 303;
 		readonly message = "List-intrinsics cannot extend from a non-list type.";
 	}
@@ -1207,6 +1234,11 @@ declare namespace Truth {
 	export class PatternPossiblyMatchesEmptyFault extends StatementFault {
 		readonly code = 404;
 		readonly message = "Pattern could possibly match an empty list of characters.";
+	}
+	/** */
+	export class PatternPossiblyMatchesWhitespaceOnlyFault extends StatementFault {
+		readonly code = 420;
+		readonly message = "Pattern could possibly match nothing other than whitespace characters.";
 	}
 	/** */
 	export class PatternNonCovariantFault extends StatementFault {
@@ -1229,6 +1261,11 @@ declare namespace Truth {
 		readonly message = "Inline types can't be self-referential.";
 	}
 	/** */
+	export class InlineTypeNotDefinedFault extends StatementFault {
+		readonly code = 422;
+		readonly message = "Inline types must be defined on at least one of their matched bases.";
+	}
+	/** */
 	export class InlineTypeMustHaveExpressionFault extends StatementFault {
 		readonly code = 414;
 		readonly message = "Inline types must have at least one associated pattern.";
@@ -1237,6 +1274,27 @@ declare namespace Truth {
 	export class InlineTypeRecursiveFault extends StatementFault {
 		readonly code = 416;
 		readonly message = "Recursive types are not allowed as inline types.";
+	}
+	/** */
+	export class InlinePortabilityTypeDuplicatedFault extends StatementFault {
+		readonly code = 418;
+		readonly message = "Inline data portability types cannot be specified more than once.";
+	}
+	/** */
+	export class InlineTypeContractViolationFault extends StatementFault {
+		readonly code = 424;
+		readonly severity = FaultSeverity.warning;
+		readonly message = "Inline type annotations must explicitly expand the type as defined by the base.";
+	}
+	/** */
+	export class InlineTypeChainingFault extends StatementFault {
+		readonly code = 426;
+		readonly message = "Inline types cannot be chained together.";
+	}
+	/** */
+	export class InlineTypeReferencingListFault extends StatementFault {
+		readonly code = 428;
+		readonly message = "Inline types cannot reference list types.";
 	}
 	/** */
 	export class DiscrepantUnionFault extends StatementFault {
@@ -1293,23 +1351,23 @@ declare namespace Truth {
 		 */
 		private storeStatement;
 		/**
-		 * Removes the fragments associated with the specified pointer
+		 * Removes the fragments associated with the specified span
 		 * from all internal caches.
 		 */
-		private unstorePointer;
+		private unstoreSpan;
 		/** */
 		private cacheFragment;
 		/** */
 		private uncacheFragment;
 		/**
-		 * A map used to quickly find the fragments associated with a pointer.
+		 * A map used to quickly find the fragments associated with a span.
 		 * A separate fragment will exist in the array value for every spine
-		 * ending at the Pointer key. Naturally, Pointers that are directly
+		 * ending at the Span key. Naturally, Spans that are directly
 		 * contained by a Document will only ever have one item in it's
 		 * associated fragment array.
 		 * 
 		 * Note that the fragments in the array value may be parented by
-		 * different apexes (meaning Pointers or Documents).
+		 * different apexes (meaning Spans or Documents).
 		 * 
 		 * Although provisions are taken to ensure entries in this map are
 		 * all explicitly released, a WeakMap is used in this case instead of
@@ -1333,7 +1391,7 @@ declare namespace Truth {
 	 * with the components of a type URI (the ordering of the
 	 * entry in the map is relevant).
 	 * 
-	 * Each Subject key is related to a set of Pointer objects that
+	 * Each Subject key is related to a set of Span objects that
 	 * represent the points of the document that where discovered
 	 * in relation to each component of the type URI.
 	 */
@@ -1379,8 +1437,8 @@ declare namespace Truth {
 	 */
 	export class Atom {
 		readonly subject: Subject;
-		readonly pointers: ReadonlyArray<Pointer>;
-		constructor(subject: Subject, pointers: ReadonlyArray<Pointer>);
+		readonly spans: ReadonlyArray<Span>;
+		constructor(subject: Subject, spans: ReadonlyArray<Span>);
 	}
 	/**
 	 * A Functor is a class that acts as a layer ontop
@@ -1447,7 +1505,11 @@ declare namespace Truth {
 		readonly contents: Functor[];
 		private _contents;
 		/**
-		 * 
+		 * Gets an array of Functors that are specified as
+		 * the "sources" of this Functor. More specifically,
+		 * an array of Functors that were successfuly resolved
+		 * from the annotations corresponding to the underlying
+		 * Spans that formed the basis of this Functor.
 		 */
 		readonly sources: Functor[];
 		private _sources;
@@ -1600,9 +1662,9 @@ declare namespace Truth {
 	 * 
 	 */
 	export class TargetedLookup {
-		readonly cluster: Pointer;
+		readonly cluster: Span;
 		/** */
-		constructor(cluster: Pointer);
+		constructor(cluster: Span);
 	}
 	/**
 	 * 
@@ -1617,14 +1679,14 @@ declare namespace Truth {
 	 */
 	export class SiblingLookup {
 		/** */
-		readonly ancestry: ReadonlyArray<Pointer>;
+		readonly ancestry: ReadonlyArray<Span>;
 		/** */
-		readonly siblings: ReadonlyArray<Pointer>;
+		readonly siblings: ReadonlyArray<Span>;
 		constructor(
 		/** */
-		ancestry: ReadonlyArray<Pointer>,
+		ancestry: ReadonlyArray<Span>,
 		/** */
-		siblings: ReadonlyArray<Pointer>);
+		siblings: ReadonlyArray<Span>);
 	}
 	/**
 	 * Infinite incremental counter.
@@ -1976,11 +2038,11 @@ declare module "truth-compiler" {
 		 */
 		readonly statement: Statement;
 		/**
-		 * Stores the Pointer found at the specified location, or
-		 * null in the case when no Pointer was found, such as if
+		 * Stores the Span found at the specified location, or
+		 * null in the case when no Span was found, such as if
 		 * the specified location is whitespace or a comment.
 		 */
-		readonly pointer: Pointer | null;
+		readonly span: Span | null;
 	}
 	/**
 	 * Provides an entry point for enumeration through
@@ -2218,8 +2280,8 @@ declare module "truth-compiler" {
 	 */
 	export class CanParam {
 		readonly document: Document;
-		readonly pointer: Pointer;
-		constructor(document: Document, pointer: Pointer);
+		readonly span: Span;
+		constructor(document: Document, span: Span);
 	}
 	/** Generic class that stores the output of a "Can" hook. */
 	export class CanResult {
@@ -2245,8 +2307,8 @@ declare module "truth-compiler" {
 	/** */
 	export class DoRenameParam {
 		readonly document: Document;
-		readonly pointer: Pointer;
-		constructor(document: Document, pointer: Pointer);
+		readonly span: Span;
+		constructor(document: Document, span: Span);
 	}
 	/** Input parameters for completion hooks. */
 	export class CompletionParam {
@@ -2503,6 +2565,12 @@ declare module "truth-compiler" {
 		 */
 		get(uri: Uri): Document | null;
 		/**
+		 * @returns A boolean value that indicates whether
+		 * the specified Document has been loaded into
+		 * this DocumentGraph.
+		 */
+		has(param: Uri | Document): boolean;
+		/**
 		 * @returns An array containing all documents loaded into this
 		 * DocumentGraph. The array returned is sorted topologically
 		 * from left to right, so that forward traversals are guaranteed
@@ -2631,36 +2699,36 @@ declare module "truth-compiler" {
 		 */
 		getRegion(offset: number): StatementRegion;
 		/**
-		 * Gets the set of pointers in that represent all declarations
+		 * Gets the set of spans in that represent all declarations
 		 * and annotations in this statement, from left to right.
 		 */
-		readonly subjects: Pointer[];
+		readonly subjects: Span[];
 		/**
-		 * Gets the set of pointers in that represent the
+		 * Gets the set of spans in that represent the
 		 * declarations of this statement, from left to right.
 		 */
-		readonly declarations: Pointer[];
+		readonly declarations: Span[];
 		private _declarations;
 		/**
-		 * Gets the set of pointers in that represent the
+		 * Gets the set of spans in that represent the
 		 * annotations of this statement, from left to right.
 		 */
-		readonly annotations: Pointer[];
+		readonly annotations: Span[];
 		private _annotations;
 		/**
 		 * 
 		 */
-		getSubject(offset: number): Pointer | null;
+		getSubject(offset: number): Span | null;
 		/**
-		 * @returns A pointer to the declaration subject at the
+		 * @returns A span to the declaration subject at the
 		 * specified offset, or null if there is none was found.
 		 */
-		getDeclaration(offset: number): Pointer | null;
+		getDeclaration(offset: number): Span | null;
 		/**
-		 * @returns A pointer to the annotation subject at the
+		 * @returns A span to the annotation subject at the
 		 * specified offset, or null if there is none was found.
 		 */
-		getAnnotation(offset: number): Pointer | null;
+		getAnnotation(offset: number): Span | null;
 		/**
 		 * @returns A string containing the inner comment text of
 		 * this statement, excluding the comment syntax token.
@@ -2736,7 +2804,7 @@ declare module "truth-compiler" {
 	/**
 	 * A class that represents a position in a statement.
 	 */
-	export class Pointer {
+	export class Span {
 		/** */
 		constructor(statement: Statement, subject: Subject | null, atDeclaration: boolean, atAnnotation: boolean, offsetStart: number);
 		/**
@@ -2746,12 +2814,12 @@ declare module "truth-compiler" {
 		 */
 		readonly ancestry: ReadonlyArray<Statement>;
 		private _ancestry;
-		/** Stores a reference to the Statement that contains this Pointer. */
+		/** Stores a reference to the Statement that contains this Span. */
 		readonly statement: Statement;
 		/**
 		 * Stores either a reference to the instance of the Subject that this
-		 * Pointer represents, or a unique string in the case when this is
-		 * a "Thin Pointer" that represents an Invisible Subject.
+		 * Span represents, or a unique string in the case when this is
+		 * a "Thin Span" that represents an Invisible Subject.
 		 */
 		readonly subject: Subject | string;
 		/** */
@@ -2773,10 +2841,10 @@ declare module "truth-compiler" {
 		 * statement's ancestry, and generates a series of spines,
 		 * each indicating a separate pathway of declarations through
 		 * the ancestry that reach the location in the document
-		 * referenced by this global pointer object.
+		 * referenced by this global span object.
 		 * 
 		 * The generated spines are referentially opaque. Running this
-		 * method on the same Pointer object always returns the same
+		 * method on the same Span object always returns the same
 		 * Spine instance.
 		 */
 		factor(): ReadonlyArray<Spine>;
@@ -2784,28 +2852,28 @@ declare module "truth-compiler" {
 		private factoredSpines;
 	}
 	/**
-	 * A class that manages an array of Pointer objects that
+	 * A class that manages an array of Span objects that
 	 * represent a specific spine of declarations, starting at
-	 * a document, passing through a series of pointers,
-	 * and ending at a tip pointer.
+	 * a document, passing through a series of spans,
+	 * and ending at a tip span.
 	 */
 	export class Spine {
 		/** */
-		constructor(nodes: Pointer[]);
-		/** Stores the last pointer in the array of segments. */
-		readonly tip: Pointer;
+		constructor(nodes: Span[]);
+		/** Stores the last span in the array of segments. */
+		readonly tip: Span;
 		/** */
 		readonly statement: Statement;
 		/** Gets a reference to the document that sits at the top of the spine. */
 		readonly document: Document;
 		/**  */
-		readonly nodes: ReadonlyArray<Pointer>;
+		readonly nodes: ReadonlyArray<Span>;
 	}
 	/**
 	 * A class that defines a type located within a
 	 * scope, that has passed all verification tests.
 	 * This class is essentially a lens ontop of
-	 * GraphNode.
+	 * Functor.
 	 */
 	export class Type {
 		private readonly functor;
@@ -2817,6 +2885,13 @@ declare module "truth-compiler" {
 		static get(spine: Spine): Type;
 		/** */
 		private static getFromFunctor;
+		/**
+		 * Searches for a Type at the specified URI.
+		 * The URI may refer to a location in an unspecified
+		 * area of the document (such as if the URI refers to
+		 * an inherited type or a descendant of a recursive type).
+		 */
+		static find(uri: Uri, owner: Document | Program): string | Type | null | undefined;
 		/** */
 		private static readonly cache;
 		/** */
@@ -2833,7 +2908,21 @@ declare module "truth-compiler" {
 		/** */
 		readonly name: string;
 		/** */
+		readonly subject: Subject;
+		/**
+		 * Gets an array of the underlying spans that compose this type.
+		 */
+		readonly spans: ReadonlyArray<Span>;
+		/**
+		 * Gets an array of the statements that contains
+		 * the spans that compose this type.
+		 */
+		readonly statements: Statement[];
+		/** */
 		readonly stamp: VersionStamp;
+		/** */
+		readonly container: Type | null;
+		private _container;
 		/** */
 		readonly contents: Type[];
 		private _contents;
@@ -3013,7 +3102,7 @@ declare module "truth-compiler" {
 		 * at the specified source. If the source has no faults, an empty
 		 * array is returned.
 		 */
-		check(source: Pointer | Statement): Fault[];
+		check(source: Span | Statement): Fault[];
 		/**
 		 * Enumerates through the unrectified faults retained
 		 * by this FaultService.
@@ -3033,7 +3122,7 @@ declare module "truth-compiler" {
 		private activeContext;
 	}
 	/** */
-	export type FaultSource = Statement | Pointer;
+	export type FaultSource = Statement | Span;
 	/** Base class for all faults. */
 	export abstract class Fault {
 		/** */
@@ -3050,10 +3139,10 @@ declare module "truth-compiler" {
 		readonly source: Statement;
 		constructor(source: Statement);
 	}
-	/** Base class for faults that relate to a specific pointer. */
-	export abstract class PointerFault extends Fault {
-		readonly source: Pointer;
-		constructor(source: Pointer);
+	/** Base class for faults that relate to a specific span. */
+	export abstract class SpanFault extends Fault {
+		readonly source: Span;
+		constructor(source: Span);
 	}
 	/** */
 	export enum FaultSeverity {
@@ -3079,12 +3168,12 @@ declare module "truth-compiler" {
 		readonly message: string;
 	}
 	/** */
-	export class UnresolvedAnnotationFault extends PointerFault {
+	export class UnresolvedAnnotationFault extends SpanFault {
 		readonly code = 201;
 		readonly message = "Unresolved annotation.";
 	}
 	/** */
-	export class CircularTypeReferenceFault extends PointerFault {
+	export class CircularTypeReferenceFault extends SpanFault {
 		readonly code = 203;
 		readonly message = "Circular type reference detected.";
 	}
@@ -3100,12 +3189,12 @@ declare module "truth-compiler" {
 		readonly message = "List-intrinsic types cannot be anonymous.";
 	}
 	/** */
-	export class ListContractViolationFault extends PointerFault {
+	export class ListContractViolationFault extends SpanFault {
 		readonly code = 301;
 		readonly message = "The containing list cannot contain children of this type.";
 	}
 	/** */
-	export class ListIntrinsicExtendingNonList extends PointerFault {
+	export class ListIntrinsicExtendingNonList extends SpanFault {
 		readonly code = 303;
 		readonly message = "List-intrinsics cannot extend from a non-list type.";
 	}
@@ -3124,6 +3213,11 @@ declare module "truth-compiler" {
 	export class PatternPossiblyMatchesEmptyFault extends StatementFault {
 		readonly code = 404;
 		readonly message = "Pattern could possibly match an empty list of characters.";
+	}
+	/** */
+	export class PatternPossiblyMatchesWhitespaceOnlyFault extends StatementFault {
+		readonly code = 420;
+		readonly message = "Pattern could possibly match nothing other than whitespace characters.";
 	}
 	/** */
 	export class PatternNonCovariantFault extends StatementFault {
@@ -3146,6 +3240,11 @@ declare module "truth-compiler" {
 		readonly message = "Inline types can't be self-referential.";
 	}
 	/** */
+	export class InlineTypeNotDefinedFault extends StatementFault {
+		readonly code = 422;
+		readonly message = "Inline types must be defined on at least one of their matched bases.";
+	}
+	/** */
 	export class InlineTypeMustHaveExpressionFault extends StatementFault {
 		readonly code = 414;
 		readonly message = "Inline types must have at least one associated pattern.";
@@ -3154,6 +3253,27 @@ declare module "truth-compiler" {
 	export class InlineTypeRecursiveFault extends StatementFault {
 		readonly code = 416;
 		readonly message = "Recursive types are not allowed as inline types.";
+	}
+	/** */
+	export class InlinePortabilityTypeDuplicatedFault extends StatementFault {
+		readonly code = 418;
+		readonly message = "Inline data portability types cannot be specified more than once.";
+	}
+	/** */
+	export class InlineTypeContractViolationFault extends StatementFault {
+		readonly code = 424;
+		readonly severity = FaultSeverity.warning;
+		readonly message = "Inline type annotations must explicitly expand the type as defined by the base.";
+	}
+	/** */
+	export class InlineTypeChainingFault extends StatementFault {
+		readonly code = 426;
+		readonly message = "Inline types cannot be chained together.";
+	}
+	/** */
+	export class InlineTypeReferencingListFault extends StatementFault {
+		readonly code = 428;
+		readonly message = "Inline types cannot reference list types.";
 	}
 	/** */
 	export class DiscrepantUnionFault extends StatementFault {
@@ -3210,23 +3330,23 @@ declare module "truth-compiler" {
 		 */
 		private storeStatement;
 		/**
-		 * Removes the fragments associated with the specified pointer
+		 * Removes the fragments associated with the specified span
 		 * from all internal caches.
 		 */
-		private unstorePointer;
+		private unstoreSpan;
 		/** */
 		private cacheFragment;
 		/** */
 		private uncacheFragment;
 		/**
-		 * A map used to quickly find the fragments associated with a pointer.
+		 * A map used to quickly find the fragments associated with a span.
 		 * A separate fragment will exist in the array value for every spine
-		 * ending at the Pointer key. Naturally, Pointers that are directly
+		 * ending at the Span key. Naturally, Spans that are directly
 		 * contained by a Document will only ever have one item in it's
 		 * associated fragment array.
 		 * 
 		 * Note that the fragments in the array value may be parented by
-		 * different apexes (meaning Pointers or Documents).
+		 * different apexes (meaning Spans or Documents).
 		 * 
 		 * Although provisions are taken to ensure entries in this map are
 		 * all explicitly released, a WeakMap is used in this case instead of
@@ -3250,7 +3370,7 @@ declare module "truth-compiler" {
 	 * with the components of a type URI (the ordering of the
 	 * entry in the map is relevant).
 	 * 
-	 * Each Subject key is related to a set of Pointer objects that
+	 * Each Subject key is related to a set of Span objects that
 	 * represent the points of the document that where discovered
 	 * in relation to each component of the type URI.
 	 */
@@ -3296,8 +3416,8 @@ declare module "truth-compiler" {
 	 */
 	export class Atom {
 		readonly subject: Subject;
-		readonly pointers: ReadonlyArray<Pointer>;
-		constructor(subject: Subject, pointers: ReadonlyArray<Pointer>);
+		readonly spans: ReadonlyArray<Span>;
+		constructor(subject: Subject, spans: ReadonlyArray<Span>);
 	}
 	/**
 	 * A Functor is a class that acts as a layer ontop
@@ -3364,7 +3484,11 @@ declare module "truth-compiler" {
 		readonly contents: Functor[];
 		private _contents;
 		/**
-		 * 
+		 * Gets an array of Functors that are specified as
+		 * the "sources" of this Functor. More specifically,
+		 * an array of Functors that were successfuly resolved
+		 * from the annotations corresponding to the underlying
+		 * Spans that formed the basis of this Functor.
 		 */
 		readonly sources: Functor[];
 		private _sources;
@@ -3517,9 +3641,9 @@ declare module "truth-compiler" {
 	 * 
 	 */
 	export class TargetedLookup {
-		readonly cluster: Pointer;
+		readonly cluster: Span;
 		/** */
-		constructor(cluster: Pointer);
+		constructor(cluster: Span);
 	}
 	/**
 	 * 
@@ -3534,14 +3658,14 @@ declare module "truth-compiler" {
 	 */
 	export class SiblingLookup {
 		/** */
-		readonly ancestry: ReadonlyArray<Pointer>;
+		readonly ancestry: ReadonlyArray<Span>;
 		/** */
-		readonly siblings: ReadonlyArray<Pointer>;
+		readonly siblings: ReadonlyArray<Span>;
 		constructor(
 		/** */
-		ancestry: ReadonlyArray<Pointer>,
+		ancestry: ReadonlyArray<Span>,
 		/** */
-		siblings: ReadonlyArray<Pointer>);
+		siblings: ReadonlyArray<Span>);
 	}
 	/**
 	 * Infinite incremental counter.

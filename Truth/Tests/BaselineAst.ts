@@ -49,10 +49,10 @@ export class BaselineActualStatement
 	constructor(
 		readonly level: number,
 		readonly container: BaselineActualStatement | null,
-		readonly declarations: BaselinePointer[],
-		readonly annotationsActual: BaselinePointer[],
+		readonly declarations: BaselineSpan[],
+		readonly annotationsActual: BaselineSpan[],
 		/** Null indicates a type that must be fresh. */
-		readonly annotationsVirtual: BaselineVirtualPointer[] | null)
+		readonly annotationsVirtual: BaselineVirtualSpan[] | null)
 	{ }
 	
 	readonly statementsActual: BaselineActualStatement[] = [];
@@ -69,7 +69,7 @@ export class BaselineVirtualStatement
 		readonly level: number,
 		readonly container: BaselineStatement,
 		readonly declarations: X.Subject[],
-		readonly annotations: BaselineVirtualPointer[])
+		readonly annotations: BaselineVirtualSpan[])
 	{ }
 	
 	readonly statements: BaselineVirtualStatement[] = [];
@@ -87,7 +87,7 @@ export type BaselineStatement =
 /**
  * 
  */
-export class BaselinePointer
+export class BaselineSpan
 {
 	constructor(
 		readonly subject: X.Subject,
@@ -99,7 +99,7 @@ export class BaselinePointer
 /**
  * 
  */
-export class BaselineVirtualPointer
+export class BaselineVirtualSpan
 {
 	constructor(
 		readonly subject: X.Subject, 
@@ -221,7 +221,7 @@ export class BaselineParser
 			const statementParsed = this.parseStatement(statementText);
 			
 			const annotations = statementParsed.annotations
-				.map(a => a instanceof BaselineVirtualPointer ? a : <never>null);
+				.map(a => a instanceof BaselineVirtualSpan ? a : <never>null);
 			
 			if (annotations.some(a => !a))
 				throw X.ExceptionMessage.unknownState();
@@ -241,7 +241,7 @@ export class BaselineParser
 			
 			const side = this.parseSide(lineText.replace(/~\s*/, ""));
 			const subjects = this.getSubjectsFromSide(side);
-			const baselinePtrs = subjects.map(sub => new BaselinePointer(sub, []));
+			const baselinePtrs = subjects.map(sub => new BaselineSpan(sub, []));
 			
 			return new BaselineActualStatement(
 				level,
@@ -258,19 +258,19 @@ export class BaselineParser
 			const parsedStatement = this.parseStatement(lineText);
 			const declarations = parsedStatement.declarations.map(value =>
 			{
-				if (value instanceof BaselinePointer)
+				if (value instanceof BaselineSpan)
 					return value;
 				
 				throw X.ExceptionMessage.unknownState();
 			});
 			
 			const annotationsActual = 
-				<BaselinePointer[]>parsedStatement.annotations
-					.filter(value => value instanceof BaselinePointer);
+				<BaselineSpan[]>parsedStatement.annotations
+					.filter(value => value instanceof BaselineSpan);
 			
 			const annotationsVirtual =
-				<BaselineVirtualPointer[]>parsedStatement.annotations
-					.filter(value => value instanceof BaselineVirtualPointer);
+				<BaselineVirtualSpan[]>parsedStatement.annotations
+					.filter(value => value instanceof BaselineVirtualSpan);
 			
 			return new BaselineActualStatement(
 				level,
@@ -297,40 +297,40 @@ export class BaselineParser
 	/** */
 	private static parseSide(sideText: string)
 	{
-		return sideText.split(X.Syntax.combinator).map(s => this.parsePointer(s));
+		return sideText.split(X.Syntax.combinator).map(s => this.parseSpan(s));
 	}
 	
 	/** */
-	private static parsePointer(pointerText: string)
+	private static parseSpan(spanText: string)
 	{
 		const negationExp = /![\w\d]+/;
 		
-		if (negationExp.test(pointerText))
+		if (negationExp.test(spanText))
 		{
-			return new BaselineVirtualPointer(
-				new X.Subject(pointerText.slice(1)),
+			return new BaselineVirtualSpan(
+				new X.Subject(spanText.slice(1)),
 				true);
 		}
 		
 		const faultExp = /#[\d]+;$/;
 		
-		if (faultExp.test(pointerText))
+		if (faultExp.test(spanText))
 		{
-			const parts = pointerText.split("#").map(s => s.trim());
+			const parts = spanText.split("#").map(s => s.trim());
 			const subject = new X.Subject(parts[0]);
 			const codes = parts.map(s => parseInt(s));
 			
 			if (codes.some(s => !s))
 				throw X.ExceptionMessage.unknownState();
 			
-			return new BaselinePointer(subject, codes);
+			return new BaselineSpan(subject, codes);
 		}
 		
-		return new X.Subject(pointerText.trim());
+		return new X.Subject(spanText.trim());
 	}
 	
 	/** */
-	private static getSubjectsFromSide(side: (BaselinePointer | X.Subject | BaselineVirtualPointer)[])
+	private static getSubjectsFromSide(side: (BaselineSpan | X.Subject | BaselineVirtualSpan)[])
 	{
 		return side.map(value => value instanceof X.Subject ? value : value.subject);
 	}
