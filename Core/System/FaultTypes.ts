@@ -191,6 +191,42 @@ export class PatternCanMatchWhitespaceOnlyFault extends StatementFault
 }
 
 /** */
+export class PatternAcceptsLeadingWhitespaceFault extends StatementFault
+{
+	readonly code = 434;
+	readonly message = 
+		"Patterns must not be able to match an input " +
+		"containing only whitespace characters.";
+}
+
+/** */
+export class PatternRequiresLeadingWhitespaceFault extends StatementFault
+{
+	readonly code = 436;
+	readonly message = 
+		"Patterns must not be able to match an input " +
+		"containing only whitespace characters.";
+}
+
+/** */
+export class PatternAcceptsTrailingWhitespaceFault extends StatementFault
+{
+	readonly code = 438;
+	readonly message = 
+		"Patterns must not be able to match an input " +
+		"containing only whitespace characters.";
+}
+
+/** */
+export class PatternRequiresTrailingWhitespaceFault extends StatementFault
+{
+	readonly code = 440;
+	readonly message = 
+		"Patterns must not be able to match an input " +
+		"containing only whitespace characters.";
+}
+
+/** */
 export class PatternNonCovariantFault extends StatementFault
 {
 	readonly code = 406;
