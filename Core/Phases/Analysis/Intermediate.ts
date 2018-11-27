@@ -9,9 +9,10 @@ import * as X from "./X";
 
 
 /**
- * A type that describes a series of Subject objects, that aligns
- * with the components of a type URI (the ordering of the
- * entry in the map is relevant).
+ * A Strand is essentially an inspectable version of a URI's type
+ * path. More specifically, it is a type that describes a series of 
+ * Subject objects, that aligns with the components of a type 
+ * URI (the ordering of the entry in the map is relevant).
  * 
  * Each Subject key is related to a set of Span objects that
  * represent the points of the document that where discovered
@@ -52,10 +53,11 @@ export class Strand
 			.localAtom.spans[0].statement
 			.document.sourceUri.toString(true, true));
 		
-		for (const molecule of this.molecules)
+		for (const mol of this.molecules)
 		{
-			parts.push(molecule.localAtom.subject.toString());
-			parts.push(...molecule.referencedAtoms.map(at => X.Syntax.tab + at.subject.toString()));
+			parts.push(mol.localAtom.subject.toString());
+			parts.push(...mol.referencedAtoms.map(at =>
+				X.Syntax.tab + at.subject.toString()));
 		}
 		
 		return parts.join(X.Syntax.terminal);

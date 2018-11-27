@@ -241,12 +241,12 @@ export class BaselineParser
 			
 			const side = this.parseSide(lineText.replace(/~\s*/, ""));
 			const subjects = this.getSubjectsFromSide(side);
-			const baselinePtrs = subjects.map(sub => new BaselineSpan(sub, []));
+			const baselineSpans = subjects.map(sub => new BaselineSpan(sub, []));
 			
 			return new BaselineActualStatement(
 				level,
 				container,
-				baselinePtrs,
+				baselineSpans,
 				[],
 				null);
 		}

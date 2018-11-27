@@ -116,8 +116,10 @@ export class Fragmenter
 		// it's localDictionary for fragments whose subject matches 
 		// the following segment in typePathSegments. These fragments
 		// are then merged together into a single array, and added to
-		// the stack. The process continues until all segments in the
-		// typePath have been visited.
+		// the stack. Then it moves to the next item in the type path, 
+		// this time using the newly added item onto the stack. 
+		// The process continues until all segments in the typePath 
+		// have been visited.
 		let currentFragments = [rootFragment];
 		
 		for (const name of typePathNames)
@@ -248,9 +250,9 @@ export class Fragmenter
 			// containing statement.
 			const containingFragments: Fragment[] = [];
 			
-			for (const declPtr of storeTargetParent.declarations)
+			for (const declSpan of storeTargetParent.declarations)
 			{
-				const fragmentsForDecl = this.fragmentFinder.get(declPtr);
+				const fragmentsForDecl = this.fragmentFinder.get(declSpan);
 				if (fragmentsForDecl)
 					containingFragments.push(...fragmentsForDecl);
 			}
@@ -272,18 +274,18 @@ export class Fragmenter
 			// loop, and pushed onto the containingFragment array.
 			const fragmentArrayAncestryItem: Fragment[] = [];
 			
-			for (const declPtr of statement.declarations)
+			for (const declSpan of statement.declarations)
 			{
-				const declTerm = declPtr.subject.toString();
+				const declString = declSpan.subject.toString();
 				
 				// Add a new fragment to every containing fragment
 				for (const appendTargetFrag of fragmentAppendTargets)
 				{
-					const newFrag = new Fragment(declPtr, appendTargetFrag);
+					const newFrag = new Fragment(declSpan, appendTargetFrag);
 					appendTargetFrag.addFragment(newFrag);
-					appendTargetFrag.incrementLowerDictionary(declTerm);
+					appendTargetFrag.incrementLowerDictionary(declString);
 					fragmentArrayAncestryItem.push(newFrag);
-					this.cacheFragment(declPtr, newFrag);
+					this.cacheFragment(declSpan, newFrag);
 				}
 			}
 			
