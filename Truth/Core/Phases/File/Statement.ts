@@ -18,8 +18,8 @@ export class Statement
 	{
 		this.document = document;
 		this.indent = 0;
-		this.hasaSubjects = new Map();
-		this.isaSubjects = new Map();
+		this.declarationBounds = new Map();
+		this.annotationBounds = new Map();
 		this.textContent = text;
 		this.jointPosition = -1;
 		
@@ -67,6 +67,7 @@ export class Statement
 		let subjectMarker = cursor;
 		let jointPosition = -1;
 		
+		//
 		const readSubjects = (includeAnonymous: boolean) =>
 		{
 			const subjects = new Map<number, X.Subject | null>();
@@ -117,24 +118,38 @@ export class Statement
 		// hasaSubjects.
 		if (text[cursor] === X.Syntax.patternDelimiter && cursor < text.length)
 		{
-			const parseResult = X.PatternLiteralParser.invoke(text, cursor);
-			if (parseResult.jointPosition > -1)
+			const readResult = X.PatternTextTools.read(text, cursor);
+			if (readResult)
 			{
-				this.patternLiteral = new X.PatternLiteral(
-					this,
-					parseResult.offsetStart,
-					parseResult.offsetEnd,
-					parseResult.hasCoexistenceFlag,
-					parseResult.value);
+				cursor = readResult.patternEnd;
+				this.annotationBounds = readSubjects(false);
 				
-				this.isaSubjects = readSubjects(false);
-				this.jointPosition = parseResult.jointPosition;
+				const annotationSubjects = 
+					<X.Subject[]>Array.from(this.annotationBounds.values())
+						.filter(subject => subject);
+				
+				const serialized = X.PatternTextTools.serialize(
+					readResult.content,
+					readResult.flags,
+					annotationSubjects);
+				
+				// In the case when the statement contains a pattern,
+				// the declarations contains a single subject, whose
+				// content is an internal representation of the pattern
+				// content (at the time of this writing, it has an CRC
+				// at the end, that is generated from the annotations).
+				const mapOneSubject = new Map<number, X.Subject>();
+				mapOneSubject.set(
+					readResult.patternStart, 
+					new X.Subject(serialized));
+				
+				this.declarationBounds = mapOneSubject;
 				return;
 			}
 		}
 		
-		this.hasaSubjects = readSubjects(true);
-		this.isaSubjects = readSubjects(false);
+		this.declarationBounds = readSubjects(true);
+		this.annotationBounds = readSubjects(false);
 		this.jointPosition = jointPosition;
 	}
 	
@@ -175,10 +190,10 @@ export class Statement
 	readonly indent: number;
 	
 	/** */
-	readonly hasaSubjects: SubjectBoundaries;
+	private readonly declarationBounds: SubjectBounds;
 	
 	/** */
-	readonly isaSubjects: SubjectBoundaries;
+	private readonly annotationBounds: SubjectBounds;
 	
 	/**
 	 * Stores the position at which the joint operator exists
@@ -194,11 +209,17 @@ export class Statement
 	readonly textContent: string;
 	
 	/**
-	 * Stores a parsed pattern literal, in the case when the 
-	 * statement has one. If the statement is a non-pattern,
-	 * the field is null.
+	 * Gets a boolean value indicating whether or not the
+	 * statement contains a declaration of a pattern.
 	 */
-	readonly patternLiteral: X.PatternLiteral | null = null;
+	get isPattern()
+	{
+		const d = this.declarations;
+		return (
+			d.length === 1 && 
+			d[0].subject instanceof X.Subject &&
+			d[0].subject.pattern !== null);
+	}
 	
 	/**
 	 * @internal
@@ -224,9 +245,12 @@ export class Statement
 		if (offset < this.indent)
 			return StatementRegion.void;
 		
-		const pl = this.patternLiteral;
-		if (pl && offset >= pl.offsetStart && offset <= pl.offsetEnd)
-			return StatementRegion.pattern;
+		if (this.isPattern)
+		{
+			const decl = this.declarations[0];
+			if (offset >= decl.offsetStart && offset <= decl.offsetEnd)
+				return StatementRegion.pattern;
+		}
 		
 		if (offset <= this.jointPosition)
 		{
@@ -261,16 +285,13 @@ export class Statement
 	 */
 	get declarations()
 	{
-		if (this.patternLiteral)
-			return [];
-		
 		if (this._declarations)
 			return this._declarations;
 		
 		const out: X.Span[] = [];
 		
-		for (const [offset, subject] of this.hasaSubjects)
-			out.push(new X.Span(this, subject, true, false, offset));
+		for (const [offset, subject] of this.declarationBounds)
+			out.push(new X.Span(this, subject, offset));
 		
 		return this._declarations = out;
 	}
@@ -287,8 +308,8 @@ export class Statement
 		
 		const out: X.Span[] = [];
 		
-		for (const [offset, subject] of this.isaSubjects)
-			out.push(new X.Span(this, subject, false, true, offset));
+		for (const [offset, subject] of this.annotationBounds)
+			out.push(new X.Span(this, subject, offset));
 		
 		return this._annotations = out;
 	}
@@ -369,7 +390,7 @@ export class Statement
  * that represent the starting positions of the statement's
  * Subjects.
  */
-export type SubjectBoundaries = ReadonlyMap<number, X.Subject | null>;
+export type SubjectBounds = ReadonlyMap<number, X.Subject | null>;
 
 
 /**

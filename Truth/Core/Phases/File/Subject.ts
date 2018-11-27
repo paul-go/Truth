@@ -12,67 +12,89 @@ export class Subject
 	/** */
 	constructor(text: string)
 	{
-		this.uri = null;
-		
-		const token = X.Syntax.pluralizer;
-		const len = token.length;
-		
-		if (text.length > len + 1)
+		if (X.PatternTextTools.isSerializedPattern(text))
 		{
-			this.pluralized = text.slice(-len) === token;
-			this.name = text.slice(
-				0,
-				this.pluralized ? text.length - len : undefined);
+			const patternInfo = X.PatternTextTools.parse(text);
+			if (!patternInfo)
+				throw X.ExceptionMessage.unknownState();
 			
-			if (!this.pluralized)
-			{
-				const te = X.Syntax.truthExtension;
-				const ae = X.Syntax.agentExtension;
-				
-				// Perform a simple check to see if there is a known 
-				// file extension at the end of the the URI, before we 
-				// actually attempt to parse it.
-				if (text.slice(-te.length - 1) === "." + te || text.slice(-ae.length - 1) === "." + ae)
-					this.uri = X.Uri.parse(text);
-			}
+			this.pattern = patternInfo;
+			this.value = X.PatternTextTools.serializePatternInfo(patternInfo);
 		}
 		else
 		{
-			this.name = text;
-			this.pluralized = false;
+			const listTok = X.Syntax.list;
+			const len = listTok.length;
+			
+			if (text.length > len + 1)
+			{
+				this.isList = text.slice(-len) === listTok;
+				this.value = text.slice(
+					0,
+					this.isList ? text.length - len : undefined);
+				
+				if (!this.isList)
+				{
+					const te = X.Syntax.truthExtension;
+					const ae = X.Syntax.agentExtension;
+					
+					// Perform a simple check to see if there is a known 
+					// file extension at the end of the the URI, before we 
+					// actually attempt to parse it.
+					if (text.slice(-te.length - 1) === "." + te || text.slice(-ae.length - 1) === "." + ae)
+						this.uri = X.Uri.parse(text);
+				}
+			}
+			else
+			{
+				this.value = text;
+			}
 		}
 	}
 	
-	/** */
-	readonly name: string;
+	/**
+	 * Stores a full string representation of the subject, 
+	 * as it appears in the document. 
+	 */
+	readonly value: string;
 	
 	/** */
-	readonly pluralized: boolean;
+	readonly isList: boolean = false;
 	
 	/** 
-	 * Stores a related URI when in the subject is
-	 * formatted as such. In other cases, the field
-	 * is an empty string.
+	 * Stores a parsed URI object, in the case the subject is
+	 * formatted as a URI. In other cases, the field is null.
 	 */
-	readonly uri: X.Uri | null;
+	readonly uri: X.Uri | null = null;
+	
+	/**
+	 * Stores information about a pattern, in the case when
+	 * the subject is formatted as pattern. In other cases,
+	 * the field is null.
+	 */
+	readonly pattern: X.IPatternInfo | null = null;
 	
 	/** Calculates whether this Subject is structurally equal to another. */
 	equals(other: Subject | string | null)
 	{
 		if (other instanceof Subject)
 			return (
-				this.name === other.name &&
-				this.pluralized === other.pluralized
+				this.value === other.value &&
+				this.isList === other.isList
 			);
 		
 		return false;
 	}
 	
 	/** Converts this Subject to it's string representation. */
-	toString()
+	toString(patternFormat?: X.PatternSerializationFormat)
 	{
-		return this.uri ?
-			this.uri.toString() :
-			this.name + (this.pluralized ? X.Syntax.pluralizer : "");
+		if (this.uri)
+			return this.uri.toString();
+		
+		if (this.pattern)
+			return X.PatternTextTools.serializePatternInfo(this.pattern, patternFormat);
+		
+		return this.value + (this.isList ? X.Syntax.list : "");
 	}
 }
