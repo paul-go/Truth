@@ -9,12 +9,12 @@ export class Crc
 	private constructor() { }
 	
 	/**
-	 * Calculates a numeric CRC from the specified string.
+	 * Calculates a numeric CRC from the specified string, and returns the
+	 * code as a 4-character ASCII byte string.
 	 * @param seed A starting seed value, used in the case of a rolling CRC.
 	 */
 	static calculate(text: string, seed = 0)
 	{
-		const table = this.table;
 		let len = text.length;
 		let i = 0;
 		let c = seed ^ -1;
@@ -36,7 +36,7 @@ export class Crc
 			}
 			else if (d >= 0xD800 && d < 0xE000)
 			{
-				d = (d & 1023) + 64; 
+				d = (d & 1023) + 64;
 				e = text.charCodeAt(i++) & 1023;
 				
 				c = (c >>> 8) ^ table[(c ^ (240 | ((d >> 8) & 7))) & 0xFF];
@@ -52,28 +52,36 @@ export class Crc
 			}
 		}
 		
-		return c ^ -1;
+		const bytes = [
+			(255 << 4) & c,
+			(255 << 3) & c,
+			(255 << 2) & c,
+			(255 << 1) & c
+		];
+		
+		return String.fromCharCode(...bytes);
+	}
+}
+
+
+/**
+ * Stores a pre-computed signed CRC table.
+ */
+const table = (() =>
+{
+	const out = new Array(256);
+	let c = 0;
+	let n = -1;
+	
+	while (++n < 256)
+	{
+		c = n;
+		
+		for (let i = -1; ++i < 8;)
+			c = ((c & 1) ? (-306674912 ^ (c >>> 1)) : (c >>> 1));
+		
+		out[n] = c;
 	}
 	
-	/**
-	 * Pre-computes a signed CRC table.
-	 */
-	private static readonly table = (() =>
-	{
-		const table = new Array(256);
-		let c = 0;
-		let n = -1;
-		
-		while (++n < 256)
-		{
-			c = n;
-			
-			for (let i = -1; ++i < 8;)
-				c = ((c & 1) ? (-306674912 ^ (c >>> 1)) : (c >>> 1));
-			
-			table[n] = c;
-		}
-		
-		return new Int32Array(table);
-	})();
-}
+	return new Int32Array(out);
+})();

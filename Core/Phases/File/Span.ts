@@ -17,14 +17,10 @@ export class Span
 	constructor(
 		statement: X.Statement,
 		subject: X.Subject | null,
-		atDeclaration: boolean,
-		atAnnotation: boolean,
 		offsetStart: number)
 	{
 		this.statement = statement;
 		this.subject = subject || generateInvisibleSubject();
-		this.atDeclaration = atDeclaration;
-		this.atAnnotation = atAnnotation;
 		this.offsetStart = offsetStart;
 		this.offsetEnd = offsetStart + (subject ? subject.toString().length : 0);
 	}
@@ -59,12 +55,6 @@ export class Span
 	 * a "Thin Span" that represents an Invisible Subject.
 	 */
 	readonly subject: X.Subject | string;
-	
-	/** */
-	readonly atDeclaration: boolean;
-	
-	/** */
-	readonly atAnnotation: boolean;
 	
 	/**
 	 * The offset in the statement that marks the start of the

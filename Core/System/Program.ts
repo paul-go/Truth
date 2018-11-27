@@ -116,24 +116,24 @@ export class Program
 				// TODO: This should not be returning a PatternLiteral,
 				// but rather a fully constructed IPattern object. This
 				// code is only here as a shim.
-				const literal = statement.patternLiteral;
-				return new ProgramInspectionResult(literal, statement);
+				const pattern = <X.IPatternInfo>{};
+				return new ProgramInspectionResult(pattern, statement);
 			}
 			// Return all the types related to the specified declaration.
 			case X.StatementRegion.declaration:
 			{
-				const declPtr = statement.getDeclaration(offset);
-				if (!declPtr)
+				const declSpan = statement.getDeclaration(offset);
+				if (!declSpan)
 					throw X.ExceptionMessage.unknownState();
 				
-				const types = declPtr.factor().map(spine => X.Type.get(spine));
-				return new ProgramInspectionResult(types, statement, declPtr);
+				const types = declSpan.factor().map(spine => X.Type.get(spine));
+				return new ProgramInspectionResult(types, statement, declSpan);
 			}
 			// 
 			case X.StatementRegion.annotation:
 			{
-				const annoPtr = statement.getAnnotation(offset);
-				if (!annoPtr)
+				const annoSpan = statement.getAnnotation(offset);
+				if (!annoSpan)
 					throw X.ExceptionMessage.unknownState();
 				
 				// This will be implemented after type construction.
@@ -157,7 +157,7 @@ export class ProgramInspectionResult
 		 * Stores the compilation object that most closely represents
 		 * what was found at the specified location.
 		 */
-		readonly result: X.Document | X.Type[] | X.PatternLiteral | X.Alias | null,
+		readonly result: X.Document | X.Type[] | X.IPatternInfo | X.Alias | null,
 		
 		/**
 		 * Stores the Statement found at the specified location.

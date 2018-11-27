@@ -9,7 +9,7 @@ export const enum Syntax
 	terminal = "\n",
 	combinator = ",",
 	joint = ":",
-	pluralizer = "...",
+	list = "...",
 	patternDelimiter = "/",
 	escapeChar = "\\",
 	comment = "// ",
