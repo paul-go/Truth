@@ -6,6 +6,7 @@
 export * from "./Util/MultiMap";
 export * from "./Util/Fs";
 export * from "./Util/Fetch";
+export * from "./Util/Crc"
 
 // System
 export * from "./System/Program";
