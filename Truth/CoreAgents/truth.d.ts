@@ -1497,7 +1497,7 @@ declare namespace Truth {
 		/** */
 		readonly name: string;
 		/** */
-		readonly pluralized: boolean;
+		readonly isList: boolean;
 		/**
 		 * Stores a related URI when in the subject is
 		 * formatted as such. In other cases, the field
@@ -1528,10 +1528,6 @@ declare namespace Truth {
 		 * a "Thin Span" that represents an Invisible Subject.
 		 */
 		readonly subject: Subject | string;
-		/** */
-		readonly atDeclaration: boolean;
-		/** */
-		readonly atAnnotation: boolean;
 		/**
 		 * The offset in the statement that marks the start of the
 		 * region being pointed to.
@@ -1783,9 +1779,10 @@ declare namespace Truth {
 		private _contents;
 	}
 	/**
-	 * A type that describes a series of Subject objects, that aligns
-	 * with the components of a type URI (the ordering of the
-	 * entry in the map is relevant).
+	 * A Strand is essentially an inspectable version of a URI's type
+	 * path. More specifically, it is a type that describes a series of
+	 * Subject objects, that aligns with the components of a type
+	 * URI (the ordering of the entry in the map is relevant).
 	 * 
 	 * Each Subject key is related to a set of Span objects that
 	 * represent the points of the document that where discovered
@@ -3523,7 +3520,7 @@ declare module "truth-compiler" {
 		/** */
 		readonly name: string;
 		/** */
-		readonly pluralized: boolean;
+		readonly isList: boolean;
 		/**
 		 * Stores a related URI when in the subject is
 		 * formatted as such. In other cases, the field
@@ -3554,10 +3551,6 @@ declare module "truth-compiler" {
 		 * a "Thin Span" that represents an Invisible Subject.
 		 */
 		readonly subject: Subject | string;
-		/** */
-		readonly atDeclaration: boolean;
-		/** */
-		readonly atAnnotation: boolean;
 		/**
 		 * The offset in the statement that marks the start of the
 		 * region being pointed to.
@@ -3809,9 +3802,10 @@ declare module "truth-compiler" {
 		private _contents;
 	}
 	/**
-	 * A type that describes a series of Subject objects, that aligns
-	 * with the components of a type URI (the ordering of the
-	 * entry in the map is relevant).
+	 * A Strand is essentially an inspectable version of a URI's type
+	 * path. More specifically, it is a type that describes a series of
+	 * Subject objects, that aligns with the components of a type
+	 * URI (the ordering of the entry in the map is relevant).
 	 * 
 	 * Each Subject key is related to a set of Span objects that
 	 * represent the points of the document that where discovered
