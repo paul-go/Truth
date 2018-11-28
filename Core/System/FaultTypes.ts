@@ -234,14 +234,11 @@ export class PatternNonCovariantFault extends StatementFault
 }
 
 /** */
-export class PatternUnknownNestedTypesFault extends StatementFault
+export class PatternUnknownNestedTypesFault extends SpanFault
 {
 	readonly code = 432;
-	readonly severity = FaultSeverity.warning;
 	readonly message = 
-		"This type cannot be refreshed, because one or more base types are " +
-		"imposing a specific type contract on it. Consider omitting the " + 
-		X.Syntax.joint + " operator here.";
+		"The base specified on the containing pattern has no type with this name.";
 }
 
 /** */
@@ -291,7 +288,6 @@ export class InfixRecursiveFault extends StatementFault
 export class InfixContractViolationFault extends StatementFault
 {
 	readonly code = 424;
-	readonly severity = FaultSeverity.warning;
 	readonly message = 
 		"Infix type annotations must explicitly expand the type as defined by the base.";
 }
@@ -338,7 +334,7 @@ export class DiscrepantUnionFault extends StatementFault
 
 
 //
-// Formatting-related warning faults
+// Warnings
 //
 
 
@@ -347,5 +343,26 @@ export class TabsAndSpacesFault extends StatementFault
 {
 	readonly code = 1000;
 	readonly message = "Statement indent contains a mixture of tabs and spaces.";
+	readonly severity = FaultSeverity.warning;
+}
+
+/** */
+export class IgnoredAnnotationFault extends SpanFault
+{
+	readonly code = 1001;
+	readonly message = 
+		"This annotation is ignored because another annotation " +
+		"in this statement resolves to the same type.";
+	readonly severity = FaultSeverity.warning;
+}
+
+/** */
+export class IgnoredAliasFault extends SpanFault
+{
+	readonly code = 1003;
+	readonly message = 
+		"Aliases (meaning annotations that are matched by patterns) " +
+		"can't be added onto types that have a contract put in place " +
+		"by a base type.";
 	readonly severity = FaultSeverity.warning;
 }

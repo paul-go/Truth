@@ -14,4 +14,4 @@ Range
 	SomeNum : Number
 
 /<Low> - <High>/ : Range
-	#204; SomeNum : Text
+	SomeNum #432; : Text

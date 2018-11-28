@@ -1,0 +1,15 @@
+//
+// This example demonstrates a fault being generated
+// as a result of forking, where the two types in the
+// fork derive from the same common base.
+//
+
+Animal
+Raccoon : Animal
+Rabbit : Animal
+
+Class
+	MyAnimal : Animal
+
+SubClass : Class
+	MyAnimal : Rabbit #1001;, Raccoon

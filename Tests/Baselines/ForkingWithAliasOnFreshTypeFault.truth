@@ -1,0 +1,16 @@
+//
+// This example demonstrates the behavior that forking
+// through multiple aliases generates faults even in the 
+// case when the overridden type is a fresh type. This is
+// because after the aliases are resolved to types, the
+// compiler would be left with multiple redundant types.
+//
+
+Number
+/\d+/, : Number
+
+Class
+	Value
+
+SubClass : Class
+	Value : 2 #1001;, 3 #1001;, 4
