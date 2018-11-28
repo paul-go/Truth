@@ -1,8 +1,14 @@
 //
 // This example demonstrates a fault being generated
 // as a result of forking, where the two types in the
-// fork derive from the same common base.
+// fork derive from the same common base. 
 //
+// It should be noted that the specific semantics of a 
+// type contract imposed on inheriting children would
+// be read as: 
+// 
+//          "One and only one T, or an alias of T".
+// 
 
 Animal
 Raccoon : Animal
