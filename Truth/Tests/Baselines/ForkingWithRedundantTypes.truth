@@ -1,0 +1,16 @@
+//
+// This example demonstrates a warning fault being
+// generated due to pointless type annotations. The
+// rule is that only the most derived type is allowed
+//
+
+Animal
+Raccoon : Animal
+Rabbit : Animal
+Lionhead : Rabbit
+
+Class
+	MyAnimal : Animal
+
+SubClass : Class
+	MyAnimal : Animal #1001;, Raccoon, Rabbit #1001;, Lionhead #1001;

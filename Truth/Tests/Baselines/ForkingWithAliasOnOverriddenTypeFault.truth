@@ -1,0 +1,22 @@
+//
+// This example demonstrates faults being generated as
+// as a result of an attempt to fork on an overridden type
+// using multiple aliases of the same type.
+//
+
+Number
+/\d+/, : Number
+
+SignedNumber : Number
+/(\+|-)< : Number>+/, : SignedNumber
+
+Decimal : Number
+/< : Number>\.d+/, : Decimal
+
+Class
+	Num1 : Number
+	Num2 : Number
+
+SubClass : Class
+	Num1 : +2 #1001;, -3 #1001;, +4
+	Num2 : 1.0, 2.3, #1001

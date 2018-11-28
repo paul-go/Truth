@@ -1,0 +1,14 @@
+//
+// This example demonstrates a warning fault being
+// generated due to a series of aliases that all resolve
+// to the same type.
+//
+
+Number
+/\d+/, : Number
+
+Class
+	MyNumber : Number
+
+SubClass : Class
+	MyNumber : Number #1001;, 1 #1001;, 2 #1001;, 3 #1001;, 4
