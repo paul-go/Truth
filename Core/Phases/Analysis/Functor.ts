@@ -292,60 +292,6 @@ export class Functor
 		
 		return out;
 	}
-	
-	/**
-	 * Traverses through this Functor's abstraction DAG,
-	 * and produces an array of Functor instances whose name
-	 * matches the one specified. If the name is omitted, the
-	 * traversal uses this Functor's name as the match
-	 * predicate.
-	 * 
-	 * For example, given the document below, and beginning the
-	 * enumeration from "A/B/C", the returned Functors would
-	 * be: [A/B/C, Y/B/C, X/B/C]
-	 * 
-	 * X
-	 *     B
-	 *         C
-	 * Y
-	 *     B
-	 *         C
-	 * Z
-	 *     B
-	 *         C
-	 * A : X, Y, Z
-	 *     B
-	 *         C
-	 * 
-	 * This method answers the question: "Where are all the
-	 * Functors that may contribute annotations to this Functor?"
-	 */
-	private getFunctorsFromAbstraction(refFunctorName?: string): Functor[]
-	{
-		// DEAD Method
-		
-		if (refFunctorName)
-			if (!this.referencedNames.includes(refFunctorName))
-				throw X.ExceptionMessage.invalidArgument();
-		
-		const out: Functor[] = [];
-		const directive = this.uri
-			.retract(0, 1)
-			.extend([], refFunctorName || "")
-			.typePath;
-		
-		const stack: string[] = [];
-		const containers = this.containers.slice().reverse();
-		
-		// You need to do the one-level peek maneuver here.
-		
-		const recurse = () =>
-		{
-			
-		}
-		
-		return out;
-	}
 }
 
 
@@ -381,48 +327,4 @@ function getDocument(input: X.Atom | X.Strand | Functor)
 		input.atom.spans[0].statement.document;
 	
 	throw X.ExceptionMessage.unknownState();
-}
-
-
-/**
- * Defines a series of Stops that describe the route that the
- * resolution algorithm took to navigate from one Functor
- * to another.
- */
-export class FunctorResolveRoute
-{
-	/** */
-	constructor(readonly stops: Stop[])
-	{
-		if (stops.length === 0)
-			throw X.ExceptionMessage.invalidArgument();
-	}
-	
-	/** Gets the Functor where the resolution algorithm began. */
-	get origin()
-	{
-		return this.stops[0].functor;
-	}
-}
-
-
-/**
- * 
- */
-export class Stop
-{
-	constructor(
-		readonly relation: StopRelation | null,
-		readonly functor: Functor)
-	{ }
-}
-
-
-/**
- * 
- */
-export enum StopRelation
-{
-	container,
-	base
 }
