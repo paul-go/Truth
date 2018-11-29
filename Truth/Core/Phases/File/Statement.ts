@@ -151,6 +151,18 @@ export class Statement
 		this.declarationBounds = readSubjects(true);
 		this.annotationBounds = readSubjects(false);
 		this.jointPosition = jointPosition;
+		
+		if (this.annotationBounds.size === 0)
+			if (this.declarationBounds.size > 0)
+				if (!this.isPattern)
+					this.flags = this.flags | StatementFlags.isRefresh;
+	}
+	
+	/** */
+	get isRefresh()
+	{
+		const f = StatementFlags.isRefresh;
+		return (this.flags & f) === f;
 	}
 	
 	/** Gets whether the statement is a comment. */
@@ -433,7 +445,8 @@ export enum StatementRegion
 enum StatementFlags
 {
 	none = 0,
-	isComment = 1,
-	isWhitespace = 2,
-	isDisposed = 4
+	isRefresh = 1,
+	isComment = 2,
+	isWhitespace = 4,
+	isDisposed = 8,
 }
