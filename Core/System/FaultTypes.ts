@@ -242,6 +242,14 @@ export class PatternUnknownNestedTypesFault extends SpanFault
 }
 
 /** */
+export class PatternIncompatibleFault extends StatementFault
+{
+	readonly code = 442;
+	readonly message = 
+		"This pattern is incompatible with other patterns that match the specified types.";
+}
+
+/** */
 export class InfixInRepeatingPatternFault extends StatementFault
 {
 	readonly code = 408;
