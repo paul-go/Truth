@@ -1,3 +1,7 @@
+//
+// This example demonstrates a recursive type
+//
+
 A
 	B : A
 

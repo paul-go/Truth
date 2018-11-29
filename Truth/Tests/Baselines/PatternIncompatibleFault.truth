@@ -1,0 +1,22 @@
+//
+// This example demonstrates a fault being generated 
+// due to the definition of two conflicting patterns that
+// match the same base. It also demonstrates how the
+// effect is the same regardless of whether the two
+// disagreeing patterns are on the same or different
+// levels of containment, and that patterns defined 
+// at the higher level of containment takes precedence.
+//
+
+SameLevel
+	Type
+	/\d+/ : Type
+	#442; /\w+/ : Type
+
+DifferentLevel
+	Type
+	
+	Container
+		#442; /\w+/ : Type
+
+	/\d+/ : Type
