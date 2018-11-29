@@ -6,6 +6,11 @@
 // potentially many types across entire inherited structure to have more specific
 // typing applied.
 //
+
+Animal
+Rabbit : Animal
+Lop : Rabbit
+
 A
 	Property : Animal
 	Field : Property
