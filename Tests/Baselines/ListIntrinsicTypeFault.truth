@@ -1,7 +1,7 @@
 //
-// This example demonstrates an attempt to refer to something that
-// might be a list-intrinsic type, but no such type has been declared
-// on the intrinsic side, and so an fault is reported.
+// This example demonstrates an attempt to refer to something
+// that might be a list-intrinsic type, but no such contained type
+// exists on the intrinsic side, and so a fault is reported.
 //
 
 Boolean
