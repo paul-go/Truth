@@ -1,7 +1,0 @@
-//
-// This example demonstrates an attempt by a list-intrinsic
-// statement to extend from a non-list.
-//
-
-NonList
-List... : NonList #303;
