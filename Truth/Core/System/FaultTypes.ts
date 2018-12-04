@@ -112,7 +112,8 @@ export class ContractViolationFault extends StatementFault
 {
 	readonly code = 204;
 	readonly severity = FaultSeverity.warning;
-	readonly message = "Overridden types must explicitly expand the type as defined in the base.";
+	readonly message = 
+		"Overridden types must explicitly expand the type as defined in the base.";
 }
 
 /** */
@@ -136,7 +137,8 @@ export class TypeCannotBeRefreshedFault extends StatementFault
 export class AnonymousListIntrinsicTypeFault extends StatementFault
 {
 	readonly code = 300;
-	readonly message = "List-intrinsic types cannot be anonymous.";
+	readonly message = 
+		"Types contained directly by List-intrinsic types cannot be anonymous.";
 }
 
 /** */
@@ -147,10 +149,17 @@ export class ListContractViolationFault extends SpanFault
 }
 
 /** */
-export class ListIntrinsicExtendingNonList extends SpanFault
+export class ListIntrinsicExtendingListFault extends SpanFault
 {
 	readonly code = 303;
-	readonly message = "List-intrinsics cannot extend from a non-list type.";
+	readonly message = "List intrinsic types cannot extend from other lists.";
+}
+
+/** */
+export class ListExtrinsicExtendingNonListFault extends SpanFault
+{
+	readonly code = 305;
+	readonly message = "Lists cannot extend from non-lists.";
 }
 
 
