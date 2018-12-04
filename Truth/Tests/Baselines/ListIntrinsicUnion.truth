@@ -1,0 +1,17 @@
+//
+// This example demonstrates a list intrinsic type being
+// merged with an extrinsic via a deep union.
+//
+
+Foo
+
+ContainerA
+	List...
+		Field : Foo
+		
+ContainerB
+	List : Item...
+		
+Object : ContainerA, ContainerB
+	List
+		Field ~ !Foo

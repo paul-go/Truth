@@ -1,0 +1,8 @@
+//
+// List intrinsics can extend from non-lists, and
+// list extrinsics can extend from lists, but the
+// two shall never cross.
+//
+
+NonList
+List... : NonList
