@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../X";
 
 
 /**
@@ -21,7 +21,7 @@ export class Program
 		
 		this.hooks.Invalidate.capture(() =>
 		{
-			this.lastProgramAnalyzer = null;
+			this.lastProgramScanner = null;
 		});
 		
 		// The ordering of these instantations is relevant,
@@ -31,6 +31,7 @@ export class Program
 		this.documents = new X.DocumentGraph(this);
 		this.fragmenter = new X.Fragmenter(this);
 		this.indentCheckService = new X.IndentCheckService(this, autoVerify);
+		this.graph = new X.Graph(this);
 		
 		if (autoVerify)
 			new X.VerificationService(this);
@@ -50,6 +51,9 @@ export class Program
 	/** @internal */
 	readonly fragmenter: X.Fragmenter;
 	
+	/** @internal */
+	readonly graph: X.Graph;
+	
 	/**  */
 	readonly faults: X.FaultService;
 	
@@ -60,7 +64,7 @@ export class Program
 	 * Stores an object that allows type analysis to be performed on
 	 * this Program. It is reset at the beginning of every edit cycle.
 	 */
-	private lastProgramAnalyzer: X.ProgramAnalyzer | null = null;
+	private lastProgramScanner: X.ProgramScanner | null = null;
 	
 	/**
 	 * Performs a full verification of all documents loaded into the program.
@@ -71,15 +75,15 @@ export class Program
 	 * @returns An entrypoint into performing analysis of the Types that
 	 * have been defined in this program.
 	 */
-	analyze()
+	scan()
 	{
-		if (this.lastProgramAnalyzer)
-			return this.lastProgramAnalyzer;
+		if (this.lastProgramScanner)
+			return this.lastProgramScanner;
 		
 		for (const doc of this.documents.each())
 			this.indentCheckService.invoke(doc);
 		
-		return new X.ProgramAnalyzer(this);
+		return new X.ProgramScanner(this);
 	}
 	
 	/**
@@ -106,7 +110,7 @@ export class Program
 				const types = parent.declarations
 					.map(decl => decl.factor())
 					.reduce((spines, s) => spines.concat(s))
-					.map(spine => X.Type.get(spine));
+					.map(spine => X.Type.construct(spine, this));
 				
 				return new ProgramInspectionResult(types, statement, null);
 			}
@@ -116,8 +120,8 @@ export class Program
 				// TODO: This should not be returning a PatternLiteral,
 				// but rather a fully constructed IPattern object. This
 				// code is only here as a shim.
-				const pattern = <X.IPatternInfo>{};
-				return new ProgramInspectionResult(pattern, statement);
+				const patternTypes: X.Type[] = [];
+				return new ProgramInspectionResult(patternTypes, statement);
 			}
 			// Return all the types related to the specified declaration.
 			case X.StatementRegion.declaration:
@@ -126,7 +130,10 @@ export class Program
 				if (!declSpan)
 					throw X.ExceptionMessage.unknownState();
 				
-				const types = declSpan.factor().map(spine => X.Type.get(spine));
+				const types = declSpan
+					.factor()
+					.map(spine => X.Type.construct(spine, this));
+				
 				return new ProgramInspectionResult(types, statement, declSpan);
 			}
 			// 
@@ -157,7 +164,7 @@ export class ProgramInspectionResult
 		 * Stores the compilation object that most closely represents
 		 * what was found at the specified location.
 		 */
-		readonly result: X.Document | X.Type[] | X.IPatternInfo | X.Alias | null,
+		readonly result: X.Document | X.Type[] | X.Alias | null,
 		
 		/**
 		 * Stores the Statement found at the specified location.

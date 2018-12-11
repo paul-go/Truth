@@ -10,6 +10,15 @@ declare global
 	/** Subtract the members of the second type from the first. */
 	type Subtract<T, TSubtract> = Pick<T, Exclude<keyof T, keyof TSubtract>>;
 	
+	/** Create a fully locked version of the type. */
+	type Freeze<T> = {
+		readonly [P in keyof T]: 
+			T[P] extends Array<infer V> ? ReadonlyArray<V> :
+			T[P] extends Map<infer K, infer V> ? ReadonlyMap<K, V> :
+			T[P] extends Set<infer V> ? ReadonlySet<V> :
+			T[P];
+	};
+	
 	/** */
 	interface ObjectConstructor
 	{

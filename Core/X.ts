@@ -6,11 +6,12 @@
 export * from "./Util/MultiMap";
 export * from "./Util/Fs";
 export * from "./Util/Fetch";
-export * from "./Util/Crc"
+export * from "./Util/Crc";
+export * from "./Util/HigherOrder";
 
 // System
 export * from "./System/Program";
-export * from "./System/ProgramAnalyzer";
+export * from "./System/ProgramScanner";
 export * from "./System/Agent";
 export * from "./System/HookType";
 export * from "./System/HookTypes";
@@ -31,15 +32,23 @@ export * from "./Phases/File/Document";
 export * from "./Phases/File/DocumentGraph";
 export * from "./Phases/File/DocumentHeader";
 export * from "./Phases/File/Statement";
-export * from "./Phases/File/Subject";
+export * from "./Phases/File/Identifier";
 export * from "./Phases/File/Span";
 export * from "./Phases/File/Spine";
-export * from "./Phases/File/PatternLiteral";
-export * from "./Phases/File/PatternTextTools";
+export * from "./Phases/File/Subject";
+export * from "./Phases/File/ForePattern";
+export * from "./Phases/File/ForePatternParser";
 export * from "./Phases/File/Fragmenter";
+export * from "./Phases/File/Intermediate";
 
-// Phases/Analysis
-export * from "./Phases/Analysis/Type";
-export * from "./Phases/Analysis/Intermediate";
-export * from "./Phases/Analysis/Functor";
-export * from "./Phases/Analysis/Pattern";
+// Phases/Graph
+export * from "./Phases/Graph/Graph";
+export * from "./Phases/Graph/Node";
+export * from "./Phases/Graph/Fan";
+export * from "./Phases/Graph/FinalPattern";
+
+// Phases/Spatial
+export * from "./Phases/Spatial/Waterfall";
+
+// Phases/Type
+export * from "./Phases/Type/Type";

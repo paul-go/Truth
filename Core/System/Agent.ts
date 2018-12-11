@@ -1,5 +1,4 @@
-import * as X from "./X";
-import * as Path from "path";
+import * as X from "../X";
 import * as Vm from "vm";
 
 

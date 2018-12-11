@@ -11,6 +11,8 @@ export const enum Syntax
 	joint = ":",
 	list = "...",
 	patternDelimiter = "/",
+	infixStart = "<",
+	infixEnd = ">",
 	escapeChar = "\\",
 	comment = "// ",
 	truthExtension = "truth",

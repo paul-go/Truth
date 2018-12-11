@@ -6,13 +6,7 @@
 		"name": "Debug Project",
 		"program": "${workspaceFolder}/Build/Core/Startup.js",
 		"internalConsoleOptions": "openOnSessionStart",
-		"sourceMaps": true,
-		"args": [
-			
-		],
-		"runtimeArgs": [
-			
-		]
+		"sourceMaps": true
 	},
 	{
 		"type": "node",

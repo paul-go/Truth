@@ -13,17 +13,23 @@
 	"scripts": {
 		"test": "jest",
 		"all": "npm run compile-types-bundler && npm run compile && npm run bundle-code",
-		"compile": "npm run compile-core && npm run bundle-types && npm run compile-core-agents",
+		"compile": "npm run compile-core && npm run bundle-types && npm run compile-core-agents && npm run compile-tests",
 		"compile-core": "cd Core && tsc",
 		"compile-core-agents": "cd CoreAgents && tsc",
 		"compile-types-bundler": "cd TypesBundler && tsc",
+		"compile-tests": "cd CoreTests && tsc",
 		"bundle-types": "node ./TypesBundler/types.config.js",
 		"bundle-code": "rollup -c"
 	},
 	"jest": {
-		"globalSetup": "./Build/Core/Tests/TestSetup.js"
+		"testMatch": [
+			"**/?(*.)+(test).js?(x)"
+		],
+		"verbose": true,
+		"testURL": "http://localhost/"
 	},
 	"devDependencies": {
-		"memfs": "^2.10.1"
+		"memfs": "^2.10.1",
+		"jest": "23.6.0"
 	}
 }

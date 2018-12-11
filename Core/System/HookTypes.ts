@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../X";
 
 
 /**
@@ -195,7 +195,7 @@ export class NavigationParam
 {
 	constructor(
 		readonly document: X.Document,
-		readonly initiatingTerm: X.Subject)
+		readonly initiatingSubject: X.Subject)
 	{ }
 }
 

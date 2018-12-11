@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../../X";
 
 
 /**
@@ -124,20 +124,20 @@ export class Fragmenter
 		
 		for (const name of typePathNames)
 		{
-			const subject = new X.Subject(name);
+			const subject = X.SubjectParser.invoke(name);
 			const spans = new Set<X.Span>();
 			const nextFragments: Fragment[] = [];
 			
 			for (const currentFragment of currentFragments)
 			{
-				// If there were no fragments found at the current location
-				// in the type path, the location specified is "unpopulated",
-				// so null is returned.
-				const nextFragments = currentFragment.localDictionary.get(name);
-				if (nextFragments)
-					nextFragments.push(...nextFragments);
+				const found = currentFragment.localDictionary.get(name);
+				if (found)
+					nextFragments.push(...found);
 			}
 			
+			// If there were no fragments found at the current location
+			// in the type path, the location specified is "unpopulated",
+			// so null is returned.
 			if (nextFragments.length === 0)
 				return null;
 			
@@ -163,7 +163,7 @@ export class Fragmenter
 			{
 				for (const [name, fragments] of fragment.localDictionary)
 				{
-					const subject = new X.Subject(name);
+					const subject = X.SubjectParser.invoke(name);
 					const spans = <X.Span[]>fragments
 						.map(frag => frag.associatedSpan)
 						.filter(span => !!span);
@@ -187,10 +187,15 @@ export class Fragmenter
 	 */
 	private translateAtomToMolecule(atom: X.Atom)
 	{
-		const annotations = atom.spans
+		const annotationsUnflattened = atom.spans
 			.map(span => span.statement)
 			.filter((stmt, idx, array) => array.indexOf(stmt) < idx)
-			.map(stmt => stmt.annotations)
+			.map(stmt => stmt.annotations);
+		
+		if (annotationsUnflattened.length === 0)
+			return new X.Molecule(atom, []);
+		
+		const annotations = annotationsUnflattened
 			.reduce((accum, span) => accum.concat(span));
 		
 		// Organize the annotations by subject
@@ -200,7 +205,10 @@ export class Fragmenter
 		
 		const referencedAtoms: X.Atom[] = [];
 		for (const [subjectText, spans] of subjectSpanMap)
-			referencedAtoms.push(new X.Atom(new X.Subject(subjectText), spans));
+		{
+			const subject = X.SubjectParser.invoke(subjectText);
+			referencedAtoms.push(new X.Atom(subject, spans));
+		}
 		
 		return new X.Molecule(atom, referencedAtoms);
 	}
@@ -226,7 +234,7 @@ export class Fragmenter
 		// looping pattern builds up and down. Each fragment array
 		// represents the fragments that are related to a statement
 		// in the ancestry.
-		const fragmentArrayAncestry: Fragment[][] = [];
+		const fragArrayAncestry: Fragment[][] = [];
 		
 		// If the storeTarget is top level, the behavior of the storing
 		// algorithm differs slightly from the behavior when dealing 
@@ -241,7 +249,7 @@ export class Fragmenter
 				return newFrag;
 			})();
 			
-			fragmentArrayAncestry.push([rootFragment]);
+			fragArrayAncestry.push([rootFragment]);
 		}
 		else
 		{
@@ -252,46 +260,46 @@ export class Fragmenter
 			
 			for (const declSpan of storeTargetParent.declarations)
 			{
-				const fragmentsForDecl = this.fragmentFinder.get(declSpan);
-				if (fragmentsForDecl)
-					containingFragments.push(...fragmentsForDecl);
+				const fragsForDecl = this.fragmentFinder.get(declSpan);
+				if (fragsForDecl)
+					containingFragments.push(...fragsForDecl);
 			}
 			
-			fragmentArrayAncestry.push(containingFragments);
+			fragArrayAncestry.push(containingFragments);
 		}
 		
 		for (const { statement, level } of containingDoc.eachDescendant(storeTarget, true))
 		{
 			// Peel back the fragment stack if we're backtracking.
-			if (fragmentArrayAncestry.length > level + 1)
-				fragmentArrayAncestry.length = level + 1;
+			if (fragArrayAncestry.length > level + 1)
+				fragArrayAncestry.length = level + 1;
 			
 			// The array of fragments that are used as containers
 			// of the new fragments about to be created.
-			const fragmentAppendTargets = fragmentArrayAncestry[fragmentArrayAncestry.length - 1];
+			const fragAppendTargets = fragArrayAncestry[fragArrayAncestry.length - 1];
 			
 			// An array of fragments that will be built in the upcoming
 			// loop, and pushed onto the containingFragment array.
-			const fragmentArrayAncestryItem: Fragment[] = [];
+			const fragArrayAncestryItem: Fragment[] = [];
 			
 			for (const declSpan of statement.declarations)
 			{
 				const declString = declSpan.subject.toString();
 				
 				// Add a new fragment to every containing fragment
-				for (const appendTargetFrag of fragmentAppendTargets)
+				for (const appendTargetFrag of fragAppendTargets)
 				{
 					const newFrag = new Fragment(declSpan, appendTargetFrag);
 					appendTargetFrag.addFragment(newFrag);
 					appendTargetFrag.incrementLowerDictionary(declString);
-					fragmentArrayAncestryItem.push(newFrag);
+					fragArrayAncestryItem.push(newFrag);
 					this.cacheFragment(declSpan, newFrag);
 				}
 			}
 			
 			// Push the array of fragments onto the containingFragments
 			// stack, so that it is available in the next iteration.
-			fragmentArrayAncestry.push(fragmentArrayAncestryItem);
+			fragArrayAncestry.push(fragArrayAncestryItem);
 		}
 	}
 	
@@ -301,20 +309,20 @@ export class Fragmenter
 	 */
 	private unstoreSpan(unstoreTarget: X.Span)
 	{
-		const fragmentsAtTarget = this.fragmentFinder.get(unstoreTarget);
-		if (!fragmentsAtTarget)
+		const fragsAtTarget = this.fragmentFinder.get(unstoreTarget);
+		if (!fragsAtTarget)
 			return;
 		
 		// Zero-length fragment arrays should never be in the fragmentFinder.
 		// These should be deleted from the map when the last item is spliced
 		// out of the array.
-		if (fragmentsAtTarget.length === 0)
+		if (fragsAtTarget.length === 0)
 			throw X.ExceptionMessage.unknownState();
 		
 		const term = unstoreTarget.subject.toString();
 		
 		// Prune all (now invalid) fragments in the fragment tree.
-		for (const fragAtTarget of fragmentsAtTarget)
+		for (const fragAtTarget of fragsAtTarget)
 		{
 			// Any fragment that is related to a span cannot
 			// have a null container, because fragments with
@@ -340,7 +348,7 @@ export class Fragmenter
 		
 		// Decrement all the containing dictionaries of
 		// all fragments found at the unstoreTarget.
-		for (const fragAtTarget of fragmentsAtTarget)
+		for (const fragAtTarget of fragsAtTarget)
 			for (const containingFrag of fragAtTarget.eachContainer())
 				containingFrag.decrementLowerDictionary(term);
 		
