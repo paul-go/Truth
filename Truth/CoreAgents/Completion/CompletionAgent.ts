@@ -1,5 +1,6 @@
-type CompletionItem = Truth.LanguageServer.CompletionItem;
 
+/*
+type CompletionItem = Truth.LanguageServer.CompletionItem;
 
 Hooks.Completion.contribute(hook =>
 {
@@ -12,3 +13,4 @@ Hooks.Completion.contribute(hook =>
 	
 	return new Truth.CompletionResult(items);
 });
+*/

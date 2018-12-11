@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../../X";
 
 
 /**
@@ -34,7 +34,6 @@ export class Document
 			throw X.ExceptionMessage.doubleTransaction();
 		
 		this.statements.length = 0;
-		const ancestry: X.Statement[] = [];
 		
 		for (const statementText of readStatements(sourceText))
 		{
@@ -43,19 +42,6 @@ export class Document
 			
 			if (statement.isNoop)
 				continue;
-			
-			const lastAncestor = ancestry.length ?
-				ancestry[ancestry.length - 1] :
-				null;
-			
-			// Peel back the ancestry to the last container.
-			while (lastAncestor && statement.indent <= lastAncestor.indent)
-				ancestry.pop();
-			
-			// Always push the current statement on to the ancestry stack.
-			// If the following statement is a sibling rather than a child, 
-			// this statement will be peeled back.
-			ancestry.push(statement);
 		}
 	}
 	
@@ -82,7 +68,7 @@ export class Document
 			return [];
 		
 		const ancestry = [stmt];
-		let indentOfParent = stmt.indent;
+		let indentToBeat = stmt.indent;
 		
 		for (let idx = startingIndex; --idx > -1;)
 		{
@@ -90,8 +76,11 @@ export class Document
 			if (currentStatement.isNoop)
 				continue;
 			
-			if (currentStatement.indent < indentOfParent)
+			if (currentStatement.indent < indentToBeat)
+			{
 				ancestry.unshift(currentStatement);
+				indentToBeat = currentStatement.indent;
+			}
 			
 			if (currentStatement.indent === 0)
 				break;
@@ -354,13 +343,13 @@ export class Document
 	
 	/**
 	 * Enumerates through each statement that is a descendant of the 
-	 * specified statement. If the parameter is null or omitted, all 
-	 * statements in this Document are visited.
+	 * specified statement. If the parameters are null or omitted, all 
+	 * statements in this Document are yielded.
 	 * 
-	 * The method yields an object that contains the visited statement,
+	 * The method yields an object that contains the yielded statement,
 	 * as well as a numeric level value that specifies the difference in 
 	 * the number of nesting levels between the specified initialStatement
-	 * and the visited statement.
+	 * and the yielded statement.
 	 * 
 	 * @param initialStatement A reference to the statement object
 	 * from where the enumeration should begin.
@@ -407,6 +396,74 @@ export class Document
 		
 		for (const statement of initialChildren)
 			yield *recurse(statement);
+	}
+	
+	/**
+	 * Enumerates through each unique URI defined in this document,
+	 * that are referenced within the descendants of the specified
+	 * statement. If the parameters are null or omitted, all unique
+	 * URIs referenced in this document are yielded.
+	 * 
+	 * @param initialStatement A reference to the statement object
+	 * from where the enumeration should begin.
+	 * 
+	 * @param includeInitial A boolean value indicating whether or
+	 * not the specified initialStatement should also be returned
+	 * as an element in the enumeration. If true, initialStatement
+	 * must be non-null.
+	 */
+	*eachUri(
+		initialStatement: X.Statement | null = null,
+		includeInitial?: boolean)
+	{
+		const yieldedUris = new Set<string>();
+		const iter = this.eachDescendant(initialStatement, includeInitial);
+		
+		for (const descendant of iter)
+		{
+			for (const span of descendant.statement.declarations)
+			{
+				for (const spine of span.factor())
+				{
+					const uri = X.Uri.create(spine);
+					const uriText = uri.toString();
+					
+					if (!yieldedUris.has(uriText))
+					{
+						yieldedUris.add(uriText);
+						yield { uri, uriText };
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Enumerates through each statement in the document,
+	 * starting at the specified statement, or numeric position.
+	 * 
+	 * @yields The statements in the order that they appear
+	 * in the document, excluding whitespace-only statements.
+	 */
+	*eachStatement(statement?: X.Statement | number)
+	{
+		const startIdx = (() =>
+		{
+			if (!statement)
+				return 0;
+			
+			if (statement instanceof X.Statement)
+				return this.getStatementIndex(statement);
+			
+			return statement;
+		})();
+		
+		for (let i = startIdx - 1; ++i < this.statements.length;)
+		{
+			const stmt = this.statements[i];
+			if (!stmt.isWhitespace)
+				yield stmt;
+		}
 	}
 	
 	/**
@@ -975,61 +1032,4 @@ function applyBounds(index: number, length: number)
 		return Math.max(length + index, 0);
 	
 	throw X.ExceptionMessage.unknownState();
-}
-
-
-/**
- * A class that wraps a Set object containing URIs, 
- * and provides reference counting functionality.
- */
-class CountedUriSet
-{
-	/** */
-	add(uri: X.Uri)
-	{
-		const rawUri = uri.toString();
-		const count = this.innerMap.get(rawUri) || 0;
-		this.innerMap.set(rawUri, count + 1);
-		
-		if (count === 0)
-			this.innerSet.add(uri);
-	}
-	
-	/** */
-	subtract(uri: X.Uri)
-	{
-		const rawUri = uri.toString();
-		const count = this.innerMap.get(rawUri) || 0;
-		if (count > 0)
-		{
-			this.innerMap.set(rawUri, count - 1);
-		}
-		else
-		{
-			this.innerMap.delete(rawUri);
-			
-			for (const storedUri of this.innerSet)
-				if (storedUri.equals(uri))
-					this.innerSet.delete(storedUri);
-		}
-	}
-	
-	/** */
-	clear()
-	{
-		this.innerSet.clear();
-		this.innerMap.clear();
-	}
-	
-	/** */
-	get(): ReadonlySet<X.Uri>
-	{
-		return this.innerSet;
-	}
-	
-	/** */
-	private innerSet = new Set<X.Uri>();
-	
-	/** */
-	private innerMap = new Map<string, number>();
 }

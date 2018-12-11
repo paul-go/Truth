@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../../X";
 
 
 /**
@@ -64,51 +64,54 @@ export class Statement
 			return;
 		}
 		
-		let subjectMarker = cursor;
+		let identifierMarker = cursor;
 		let jointPosition = -1;
 		
 		//
-		const readSubjects = (includeAnonymous: boolean) =>
+		const readIdentifiers = (includeAnonymous: boolean) =>
 		{
-			const subjects = new Map<number, X.Subject | null>();
-			const subjectChars: string[] = [];
+			const identifiers = new Map<number, X.Identifier | null>();
+			const identifierChars: string[] = [];
 			
 			while (cursor < text.length)
 			{
 				const char = text[cursor];
+				const next = text.slice(cursor + 1, cursor + 2);
 				const escaped = cursor > 0 && text[cursor - 1] === X.Syntax.escapeChar;
 				const atCombinator = char === X.Syntax.combinator;
-				const atJoint = char === X.Syntax.joint && jointPosition < 0;
 				const atEscape = char === X.Syntax.escapeChar;
 				const atEnd = ++cursor >= text.length;
+				const atJoint = (char === X.Syntax.joint)
+					&& (jointPosition < 0)
+					&& (next === X.Syntax.tab || next === X.Syntax.space || next === "");
 				
 				if (!atCombinator || escaped)
 					if (!atJoint || escaped)
 						if (!atEscape)
-							subjectChars.push(char);
+							identifierChars.push(char);
 				
 				if (atEnd || ((atCombinator || atJoint) && !escaped))
 				{
-					const subjectContent = subjectChars.join("").trim();
-					const subject = subjectContent ?
-						new X.Subject(subjectContent) :
+					const identifierText = identifierChars.join("").trim();
+					const identifier = identifierText ?
+						new X.Identifier(identifierText) :
 						null;
 					
-					if (subject !== null || includeAnonymous)
-						subjects.set(subjectMarker, subject);
+					if (identifier !== null || includeAnonymous)
+						identifiers.set(identifierMarker, identifier);
 					
-					subjectChars.length = 0;
-					subjectMarker = cursor;
+					identifierChars.length = 0;
+					identifierMarker = cursor;
 				}
 				
 				if (atJoint)
 				{
 					jointPosition = cursor;
-					return subjects;
+					return identifiers;
 				}
 			}
 			
-			return subjects;
+			return identifiers;
 		}
 		
 		// If the following test passes, there's a 99% chance
@@ -118,43 +121,39 @@ export class Statement
 		// hasaSubjects.
 		if (text[cursor] === X.Syntax.patternDelimiter && cursor < text.length)
 		{
-			const readResult = X.PatternTextTools.read(text, cursor);
+			const readResult = tryReadPattern(text, cursor);
 			if (readResult)
 			{
 				cursor = readResult.patternEnd;
-				this.annotationBounds = readSubjects(false);
 				
-				const annotationSubjects = 
-					<X.Subject[]>Array.from(this.annotationBounds.values())
-						.filter(subject => subject);
-				
-				const serialized = X.PatternTextTools.serialize(
+				// Somewhat awkward, but we're depending on
+				// the "".annotations" property to be accessible
+				// after the annotationBound have been set.
+				this.annotationBounds = readIdentifiers(false);
+				const forePattern = new X.ForePattern(
 					readResult.content,
 					readResult.flags,
-					annotationSubjects);
+					this.annotations);
 				
 				// In the case when the statement contains a pattern,
 				// the declarations contains a single subject, whose
 				// content is an internal representation of the pattern
 				// content (at the time of this writing, it has an CRC
 				// at the end, that is generated from the annotations).
-				const mapOneSubject = new Map<number, X.Subject>();
-				mapOneSubject.set(
-					readResult.patternStart, 
-					new X.Subject(serialized));
-				
+				const mapOneSubject = new Map<number, X.ForePattern>();
+				mapOneSubject.set(readResult.patternStart, forePattern);
 				this.declarationBounds = mapOneSubject;
 				return;
 			}
 		}
 		
-		this.declarationBounds = readSubjects(true);
-		this.annotationBounds = readSubjects(false);
+		this.declarationBounds = readIdentifiers(true);
+		this.annotationBounds = readIdentifiers(false);
 		this.jointPosition = jointPosition;
 		
 		if (this.annotationBounds.size === 0)
 			if (this.declarationBounds.size > 0)
-				if (!this.isPattern)
+				if (jointPosition > -1)
 					this.flags = this.flags | StatementFlags.isRefresh;
 	}
 	
@@ -224,13 +223,10 @@ export class Statement
 	 * Gets a boolean value indicating whether or not the
 	 * statement contains a declaration of a pattern.
 	 */
-	get isPattern()
+	get hasPattern()
 	{
 		const d = this.declarations;
-		return (
-			d.length === 1 && 
-			d[0].subject instanceof X.Subject &&
-			d[0].subject.pattern !== null);
+		return d.length === 1 && d[0].subject instanceof X.ForePattern;
 	}
 	
 	/**
@@ -257,7 +253,7 @@ export class Statement
 		if (offset < this.indent)
 			return StatementRegion.void;
 		
-		if (this.isPattern)
+		if (this.hasPattern)
 		{
 			const decl = this.declarations[0];
 			if (offset >= decl.offsetStart && offset <= decl.offsetEnd)
@@ -362,6 +358,16 @@ export class Statement
 	}
 	
 	/**
+	 * @returns The raw trimmed text of the complete
+	 * annotation side of this statement.
+	 */
+	getAnnotationContent()
+	{
+		const jntLen = X.Syntax.joint.length;
+		return this.textContent.slice(this.jointPosition + jntLen).trim();
+	}
+	
+	/**
 	 * @returns A string containing the inner comment text of
 	 * this statement, excluding the comment syntax token.
 	 * If the statement isn't a comment, null is returned.
@@ -383,16 +389,16 @@ export class Statement
 		// Contains the list of declarations in the statement, excluding
 		// any declaration placeholders used to support anonymous
 		// types.
-		const decls = <X.Subject[]>this.declarations
+		const decls = <X.Identifier[]>this.declarations
 			.map(decl => decl.subject)
-			.filter(subject => subject instanceof X.Subject);
+			.filter(subject => typeof subject !== "string");
 		
 		const annos = this.annotations.map(anno => anno.subject);
-		const joint =
-			(decls.length && annos.length ? " " : "") +
-			(annos.length ? X.Syntax.joint + " " : "");
+		const spaceL = ((decls.length && annos.length) || this.isRefresh) ? " " : "";
+		const joint = (annos.length || this.isRefresh) ? X.Syntax.joint : "";
+		const spaceR = joint !== "" && annos.length > 0 && !this.isRefresh ? " " : "";
 		
-		return indent + decls.join(", ") + joint + annos.join(", ");
+		return indent + decls.join(", ") + spaceL + joint + spaceR + annos.join(", ");
 	}
 }
 
@@ -402,7 +408,7 @@ export class Statement
  * that represent the starting positions of the statement's
  * Subjects.
  */
-export type SubjectBounds = ReadonlyMap<number, X.Subject | null>;
+export type SubjectBounds = ReadonlyMap<number, X.Identifier | X.ForePattern | null>;
 
 
 /**
@@ -449,4 +455,88 @@ enum StatementFlags
 	isComment = 2,
 	isWhitespace = 4,
 	isDisposed = 8,
+}
+
+
+/**
+ * Attempts to read a pattern from the specified start position
+ * in a text representation of a statement. If no pattern could
+ * be found, null is returned.
+ */
+function tryReadPattern(statementText: string, startAt: number)
+{
+	const tokDtr = X.Syntax.patternDelimiter;
+	if (statementText.substr(startAt, tokDtr.length) !== tokDtr)
+		return null;
+	
+	let patternStart = startAt;
+	let contentStart = startAt + tokDtr.length;
+	let contentEnd = -1;
+	let flags = X.PatternFlags.none;
+	let cursor = startAt - 1;
+	
+	while (++cursor < statementText.length)
+	{
+		// Skip past escape sequences
+		if (cursor > 0 && statementText[cursor- 1] === X.Syntax.escapeChar)
+			continue;
+		
+		const char = statementText[cursor];
+		
+		// Quit if we find a joint while not in finalization
+		if (char === X.Syntax.joint)
+			break;
+		
+		// Enter into "possible finalization" mode
+		// when a pattern delimiter is reached.
+		if (char === X.Syntax.patternDelimiter)
+		{
+			const maybeContentEnd = cursor;
+			
+			if (cursor + 1 >= statementText.length || tryFinalize())
+			{
+				contentEnd = maybeContentEnd;
+				break;
+			}
+			
+			// False alarm. Rewind any pattern flags discovered.
+			flags = X.PatternFlags.none;
+		}
+	}
+	
+	function tryFinalize()
+	{
+		while (++cursor < statementText.length)
+		{
+			const char = statementText[cursor];
+			
+			if (char === X.Syntax.space || char === X.Syntax.tab)
+				continue;
+			
+			else if (char === X.Syntax.combinator)
+				flags |= X.PatternFlags.coexistence;
+			
+			else if (char === X.Syntax.joint)
+			{
+				// Back up the cursor one space, 
+				// so that pattern end calculations work.
+				cursor--;
+				return true;
+			}
+			
+			return false;
+		}
+		
+		return true;
+	}
+	
+	if (contentEnd < 0)
+		return null;
+	
+	return {
+		patternStart,
+		patternEnd: statementText.length - statementText.trimRight().length,
+		content: statementText.slice(contentStart, contentEnd),
+		flags
+	}
 }

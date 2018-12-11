@@ -2,6 +2,59 @@
 declare namespace Truth {
 
 	/**
+	 * A class that encapsulates CRC functionality.
+	 */
+	export class Crc {
+		private constructor();
+		/**
+		 * Calculates a numeric CRC from the specified string, and returns the
+		 * code as a 4-character ASCII byte string.
+		 * @param seed A starting seed value, used in the case of a rolling CRC.
+		 */
+		static calculate(text: string, seed?: number): string;
+	}
+	/**
+	 * A class that provides various higher-order functions
+	 * across data structures.
+	 */
+	export abstract class HigherOrder {
+		/**
+		 * @returns The specified array.
+		 * @throws An exception in the case when the array contains
+		 * null or undefined items.
+		 */
+		static throwOnNullable<T>(array: Array<T>): Array<NonNullable<T>>;
+		/**
+		 * @returns The specified array, but with null and undefined
+		 * items removed.
+		 */
+		static filterNullable<T>(array: Array<T>): Array<NonNullable<T>>;
+		/**
+		 * 
+		 */
+		static subtractMap<K, V>(positive: Map<K, V>, negative: Map<K, V>): void;
+		/**
+		 * 
+		 */
+		static applySymmetricDifference<K, V>(left: Map<K, V>, right: Map<K, V>): void;
+		/**
+		 * Prunes elements from the specified array
+		 * that match the specified predicate.
+		 */
+		static prune<T>(array: Array<T>, predicate: (item: T, index: number) => boolean): T[];
+		/**
+		 * @returns A readonly copy of the specified array, set, or list.
+		 */
+		static copy<T>(array: ReadonlyArray<T>): ReadonlyArray<T>;
+		static copy<T>(set: ReadonlySet<T>): ReadonlySet<T>;
+		static copy<K, V>(map: ReadonlyMap<K, V>): ReadonlyMap<K, V>;
+		/** */
+		static map<T, R>(set: ReadonlySet<T>, fn: (item: T) => R): Set<R>;
+		/** */
+		static distinct<T>(array: Array<T>): ReadonlyArray<T>;
+		private constructor();
+	}
+	/**
 	 * The top-level object that manages Truth documents.
 	 */
 	export class Program {
@@ -28,7 +81,7 @@ declare namespace Truth {
 		 * Stores an object that allows type analysis to be performed on
 		 * this Program. It is reset at the beginning of every edit cycle.
 		 */
-		private lastProgramAnalyzer;
+		private lastProgramScanner;
 		/**
 		 * Performs a full verification of all documents loaded into the program.
 		 * This Program's .faults field is populated with any faults generated as
@@ -38,7 +91,7 @@ declare namespace Truth {
 		 * @returns An entrypoint into performing analysis of the Types that
 		 * have been defined in this program.
 		 */
-		analyze(): ProgramAnalyzer;
+		scan(): ProgramScanner;
 		/**
 		 * Begin inspecting a document loaded
 		 * into this program, a specific location.
@@ -53,7 +106,7 @@ declare namespace Truth {
 		 * Stores the compilation object that most closely represents
 		 * what was found at the specified location.
 		 */
-		readonly result: Document | Type[] | PatternLiteral | Alias | null;
+		readonly result: Document | Type[] | Alias | null;
 		/**
 		 * Stores the Statement found at the specified location.
 		 */
@@ -69,15 +122,15 @@ declare namespace Truth {
 	 * Provides an entry point for enumeration through
 	 * the types defined in a program.
 	 */
-	export class ProgramAnalyzer {
+	export class ProgramScanner {
 		private program;
 		/**
-		 * Enumerate through all types defined in the Program.
+		 * Enumerate through all visible types defined in the Program.
 		 */
-		enumerate(filterDocument?: Document): IterableIterator<IterableIterator<{
+		enumerate(filterDocument?: Document): IterableIterator<{
 			type: Type;
 			document: Document;
-		}>>;
+		}>;
 		/** */
 		private readonly roots;
 	}
@@ -322,8 +375,8 @@ declare namespace Truth {
 	/** Input parameters for navigation hooks. */
 	export class NavigationParam {
 		readonly document: Document;
-		readonly initiatingTerm: Subject;
-		constructor(document: Document, initiatingTerm: Subject);
+		readonly initiatingSubject: Subject;
+		constructor(document: Document, initiatingSubject: Subject);
 	}
 	/** */
 	export class DoRenameParam {
@@ -468,6 +521,12 @@ declare namespace Truth {
 		typePath: ReadonlyArray<string>);
 		/**
 		 * Converts the URI to a fully-qualified path including the file name.
+		 * 
+		 * @param includeProtocol Whether the protocol portion of the URI
+		 * should be included in the final string. Defaults to true.
+		 * 
+		 * @param includeTypePath Whether the typePath portion of the URI
+		 * should be included in the final string. Defaults to false.
 		 */
 		toString(includeProtocol?: boolean, includeTypePath?: boolean): string;
 		/**
@@ -481,9 +540,14 @@ declare namespace Truth {
 		 * 
 		 * @returns A new Uri that is otherwise a copy of this
 		 * one, but with it's IO path and type path peeled
-		 * back by the specified numbero of levels.
+		 * back by the specified number of levels.
 		 */
 		retract(ioRetraction?: number, typeRetraction?: number): Uri;
+		/**
+		 * Creates a new Uri, whose typePath field is
+		 * retracted to the specified level of depth.
+		 */
+		retractTo(typePathLength: number): Uri;
 		/**
 		 * @returns A new Uri, whose typePath and ioPath
 		 * fields are extended with the specified segments.
@@ -508,8 +572,10 @@ declare namespace Truth {
 		terminal = "\n",
 		combinator = ",",
 		joint = ":",
-		pluralizer = "...",
+		list = "...",
 		patternDelimiter = "/",
+		infixStart = "<",
+		infixEnd = ">",
 		escapeChar = "\\",
 		comment = "// ",
 		truthExtension = "truth",
@@ -633,9 +699,9 @@ declare namespace Truth {
 		readonly message: string;
 	}
 	/** */
-	export class AnonymousListIntrinsicTypeFault extends StatementFault {
+	export class AnonymousInListIntrinsicTypeFault extends StatementFault {
 		readonly code = 300;
-		readonly message = "List-intrinsic types cannot be anonymous.";
+		readonly message = "Types contained directly by List-intrinsic types cannot be anonymous.";
 	}
 	/** */
 	export class ListContractViolationFault extends SpanFault {
@@ -643,9 +709,14 @@ declare namespace Truth {
 		readonly message = "The containing list cannot contain children of this type.";
 	}
 	/** */
-	export class ListIntrinsicExtendingNonList extends SpanFault {
+	export class ListIntrinsicExtendingListFault extends SpanFault {
 		readonly code = 303;
-		readonly message = "List-intrinsics cannot extend from a non-list type.";
+		readonly message = "List intrinsic types cannot extend from other lists.";
+	}
+	/** */
+	export class ListExtrinsicExtendingNonListFault extends SpanFault {
+		readonly code = 305;
+		readonly message = "Lists cannot extend from non-lists.";
 	}
 	/** */
 	export class PatternInvalidFault extends StatementFault {
@@ -694,10 +765,14 @@ declare namespace Truth {
 		readonly message = "Pattern does not match it's base types.";
 	}
 	/** */
-	export class PatternUnknownNestedTypesFault extends StatementFault {
+	export class PatternUnknownNestedTypesFault extends SpanFault {
 		readonly code = 432;
-		readonly severity = FaultSeverity.warning;
-		readonly message: string;
+		readonly message = "The base specified on the containing pattern has no type with this name.";
+	}
+	/** */
+	export class PatternIncompatibleFault extends StatementFault {
+		readonly code = 442;
+		readonly message = "This pattern is incompatible with other patterns that match the specified types.";
 	}
 	/** */
 	export class InfixInRepeatingPatternFault extends StatementFault {
@@ -732,7 +807,6 @@ declare namespace Truth {
 	/** */
 	export class InfixContractViolationFault extends StatementFault {
 		readonly code = 424;
-		readonly severity = FaultSeverity.warning;
 		readonly message = "Infix type annotations must explicitly expand the type as defined by the base.";
 	}
 	/** */
@@ -764,6 +838,18 @@ declare namespace Truth {
 	export class TabsAndSpacesFault extends StatementFault {
 		readonly code = 1000;
 		readonly message = "Statement indent contains a mixture of tabs and spaces.";
+		readonly severity = FaultSeverity.warning;
+	}
+	/** */
+	export class IgnoredAnnotationFault extends SpanFault {
+		readonly code = 1001;
+		readonly message: string;
+		readonly severity = FaultSeverity.warning;
+	}
+	/** */
+	export class IgnoredAliasFault extends SpanFault {
+		readonly code = 1003;
+		readonly message: string;
 		readonly severity = FaultSeverity.warning;
 	}
 	/**
@@ -1126,13 +1212,13 @@ declare namespace Truth {
 		getNotes(statement: Statement | number): string[];
 		/**
 		 * Enumerates through each statement that is a descendant of the
-		 * specified statement. If the parameter is null or omitted, all
-		 * statements in this Document are visited.
+		 * specified statement. If the parameters are null or omitted, all
+		 * statements in this Document are yielded.
 		 * 
-		 * The method yields an object that contains the visited statement,
+		 * The method yields an object that contains the yielded statement,
 		 * as well as a numeric level value that specifies the difference in
 		 * the number of nesting levels between the specified initialStatement
-		 * and the visited statement.
+		 * and the yielded statement.
 		 * 
 		 * @param initialStatement A reference to the statement object
 		 * from where the enumeration should begin.
@@ -1146,6 +1232,32 @@ declare namespace Truth {
 			statement: Statement;
 			level: number;
 		}>;
+		/**
+		 * Enumerates through each unique URI defined in this document,
+		 * that are referenced within the descendants of the specified
+		 * statement. If the parameters are null or omitted, all unique
+		 * URIs referenced in this document are yielded.
+		 * 
+		 * @param initialStatement A reference to the statement object
+		 * from where the enumeration should begin.
+		 * 
+		 * @param includeInitial A boolean value indicating whether or
+		 * not the specified initialStatement should also be returned
+		 * as an element in the enumeration. If true, initialStatement
+		 * must be non-null.
+		 */
+		eachUri(initialStatement?: Statement | null, includeInitial?: boolean): IterableIterator<{
+			uri: Uri;
+			uriText: string;
+		}>;
+		/**
+		 * Enumerates through each statement in the document,
+		 * starting at the specified statement, or numeric position.
+		 * 
+		 * @yields The statements in the order that they appear
+		 * in the document, excluding whitespace-only statements.
+		 */
+		eachStatement(statement?: Statement | number): IterableIterator<Statement>;
 		/**
 		 * Reads the Statement at the given position.
 		 * Negative numbers read Statement starting from the end of the document.
@@ -1294,7 +1406,9 @@ declare namespace Truth {
 		clear(): void;
 		/**
 		 * @returns An array containing the dependencies
-		 * associated with the specified document.
+		 * associated with the specified document. The returned
+		 * array is sorted in the order in which the dependencies
+		 * are defined in the document.
 		 */
 		getDependencies(doc: Document): Document[];
 		/**
@@ -1372,6 +1486,8 @@ declare namespace Truth {
 	export class Statement {
 		/** */
 		constructor(document: Document, text: string);
+		/** */
+		readonly isRefresh: boolean;
 		/** Gets whether the statement is a comment. */
 		readonly isComment: boolean;
 		/** Gets whether the statement contains no non-whitespace characters. */
@@ -1385,9 +1501,9 @@ declare namespace Truth {
 		/** Stores the indent level of the statement. */
 		readonly indent: number;
 		/** */
-		readonly hasaSubjects: SubjectBoundaries;
+		private readonly declarationBounds;
 		/** */
-		readonly isaSubjects: SubjectBoundaries;
+		private readonly annotationBounds;
 		/**
 		 * Stores the position at which the joint operator exists
 		 * in the statement. A negative number indicates that
@@ -1400,11 +1516,10 @@ declare namespace Truth {
 		 */
 		readonly textContent: string;
 		/**
-		 * Stores a parsed pattern literal, in the case when the
-		 * statement has one. If the statement is a non-pattern,
-		 * the field is null.
+		 * Gets a boolean value indicating whether or not the
+		 * statement contains a declaration of a pattern.
 		 */
-		readonly patternLiteral: PatternLiteral | null;
+		readonly hasPattern: boolean;
 		/**
 		 * @returns The kind of StatementRegion that exists
 		 * at the given character offset within the Statement.
@@ -1442,6 +1557,11 @@ declare namespace Truth {
 		 */
 		getAnnotation(offset: number): Span | null;
 		/**
+		 * @returns The raw trimmed text of the complete
+		 * annotation side of this statement.
+		 */
+		getAnnotationContent(): string;
+		/**
 		 * @returns A string containing the inner comment text of
 		 * this statement, excluding the comment syntax token.
 		 * If the statement isn't a comment, null is returned.
@@ -1457,7 +1577,7 @@ declare namespace Truth {
 	 * that represent the starting positions of the statement's
 	 * Subjects.
 	 */
-	export type SubjectBoundaries = ReadonlyMap<number, Subject | null>;
+	export type SubjectBounds = ReadonlyMap<number, Identifier | ForePattern | null>;
 	/**
 	 * Defines the areas of a statement that are significantly
 	 * different when performing inspection.
@@ -1491,21 +1611,23 @@ declare namespace Truth {
 	 * to be long-lived, as they are discarded regularly after edit
 	 * transactions complete.
 	 */
-	export class Subject {
+	export class Identifier {
 		/** */
 		constructor(text: string);
-		/** */
-		readonly name: string;
+		/**
+		 * Stores a full string representation of the subject,
+		 * as it appears in the document.
+		 */
+		readonly value: string;
 		/** */
 		readonly isList: boolean;
 		/**
-		 * Stores a related URI when in the subject is
-		 * formatted as such. In other cases, the field
-		 * is an empty string.
+		 * Stores a parsed URI object, in the case the subject is
+		 * formatted as a URI. In other cases, the field is null.
 		 */
 		readonly uri: Uri | null;
 		/** Calculates whether this Subject is structurally equal to another. */
-		equals(other: Subject | string | null): boolean;
+		equals(other: Identifier | string | null): boolean;
 		/** Converts this Subject to it's string representation. */
 		toString(): string;
 	}
@@ -1527,7 +1649,7 @@ declare namespace Truth {
 		 * Span represents, or a unique string in the case when this is
 		 * a "Thin Span" that represents an Invisible Subject.
 		 */
-		readonly subject: Subject | string;
+		readonly subject: Subject;
 		/**
 		 * The offset in the statement that marks the start of the
 		 * region being pointed to.
@@ -1571,69 +1693,158 @@ declare namespace Truth {
 		/**  */
 		readonly nodes: ReadonlyArray<Span>;
 	}
+	/** */
+	export type Subject = Identifier | ForePattern | string;
+	/** */
+	export class SubjectParser {
+		/** */
+		static invoke(text: string): Subject;
+		private constructor();
+	}
 	/**
 	 * A class that stores an unparsed Pattern,
 	 * contained directly by a Statement.
 	 */
-	export class PatternLiteral {
+	export class ForePattern {
 		/**
-		 * Stores the statement that contains this
-		 * PatternLiteral.
+		 * Parses a pattern from an internally serialized
+		 * representation of it.
 		 */
-		readonly statement: Statement;
+		static parse(serialized: string): ForePattern | null;
 		/**
-		 * Stores the offset at which the pattern literal
-		 * ends in the containing statement.
+		 * Gets whether the specified internall serialized
+		 * regular expression can be parsed through the
+		 * static .parse() method on this class.
 		 */
-		readonly offsetStart: number;
+		static canParse(serialized: string): boolean;
+		/** */
+		readonly content: string;
+		/** */
+		readonly chunks: ForePatternChunks;
+		/** */
+		readonly crc: string;
 		/**
-		 * Stores the offset at which the pattern literal
-		 * ends in the containing statement.
-		 */
-		readonly offsetEnd: number;
-		/**
-		 * Gets whether the pattern literal specifies the
+		 * Stores whether the pattern literal specifies the
 		 * coexistence (trailing comma) flag, which allows
 		 * aliases to exist within the annotation set of
 		 * other non-aliases.
 		 */
 		readonly hasCoexistenceFlag: boolean;
 		/**
+		 * Stores the inner regular expression of this pattern,
+		 * in the case when a valid RegExp object could be
+		 * created from the input passed to the constructor
+		 * of this object. In the case when the input could not
+		 * be converted into a usable RegExp object, the field
+		 * stores null.
+		 */
+		private readonly innerRegExp;
+		/**
+		 * @returns A boolean value that indicates whether
+		 * the specified input string matches the regular expression
+		 * stored inside this pattern.
+		 */
+		test(input: string): boolean;
+		/** */
+		toString(format?: PatternSerializationFormat): string;
+	}
+	/**
+	 * Identifies the various textual representations of a pattern.
+	 */
+	export const enum PatternSerializationFormat {
+		/** Refers to the inner content of the pattern. */
+		content = 1,
+		/** Refers to the pattern literal as it appears in the document. */
+		literal = 2,
+		/**
+		 * Refers to the pattern literal's system serialization format.
+		 * The internal serialization format is as follows:
 		 * 
+		 * 1 byte for the bell (for easy identification)
+		 * 1 or more bytes for the regular expression content
+		 * 1 byte for the flags
+		 * (crcLength) bytes for the computed CRC of the associated annotations.
 		 */
-		readonly value: string;
+		system = 4
 	}
 	/**
-	 * A class that performs basic pattern literal parsing.
-	 * (Full regular expression parsing happens later in the pipeline).
+	 * 
 	 */
-	export class PatternLiteralParser {
+	export enum PatternFlags {
+		/** Indicates that no flags have been declared on the pattern. */
+		none = 0,
+		/** Indicates that the coexistence flag has been declared on the pattern. */
+		coexistence = 1
+	}
+	/**  */
+	export class ForePatternParser {
 		/**
-		 * Attempts to parse a PatternLiteral from the
-		 * specified text, starting at the specified offset.
+		 * Parses the specified pattern string (without delimiters
+		 * or flags), into an array of strings and infixes.
 		 */
-		static invoke(text: string, offset: number): PatternLiteralParseResult;
+		static parse(content: string): ForePatternChunks;
+		/** */
+		private constructor();
 	}
 	/**
-	 * Stores the values that are returned as a result of parsing
-	 * a pattern literal, whether the parse succeeded or failed.
+	 * 
 	 */
-	export interface PatternLiteralParseResult {
+	export class Infix {
 		/**
-		 * Stores the position of the joint, in the case when the
-		 * pattern was successfully parsed. If the pattern was not
-		 * successfully parsed, this value is -1.
+		 * Stores an array of strings that represent the
+		 * terms located before the Joint operator.
 		 */
-		readonly jointPosition: number;
+		readonly lhsTerms: ReadonlyArray<string>;
+		/**
+		 * Stores an array of strings that represent the
+		 * terms located after the Joint operator.
+		 */
+		readonly rhsTerms: ReadonlyArray<string>;
+		/**
+		 * Stores whether the <<Double>> angle bracket
+		 * syntax was used to only match named types,
+		 * rather than aliases.
+		 */
+		readonly forcesNominal: boolean;
+		/**
+		 * Stores whether the </Pattern/> syntax was
+		 * used to embed an external pattern.
+		 */
+		readonly requestsPattern: boolean;
+		constructor(
+		/**
+		 * Stores an array of strings that represent the
+		 * terms located before the Joint operator.
+		 */
+		lhsTerms?: ReadonlyArray<string>,
+		/**
+		 * Stores an array of strings that represent the
+		 * terms located after the Joint operator.
+		 */
+		rhsTerms?: ReadonlyArray<string>,
+		/**
+		 * Stores whether the <<Double>> angle bracket
+		 * syntax was used to only match named types,
+		 * rather than aliases.
+		 */
+		forcesNominal?: boolean,
+		/**
+		 * Stores whether the </Pattern/> syntax was
+		 * used to embed an external pattern.
+		 */
+		requestsPattern?: boolean);
 		/** */
-		readonly offsetStart: number;
-		/** */
-		readonly offsetEnd: number;
-		/** */
-		readonly hasCoexistenceFlag: boolean;
-		/** */
-		readonly value: string;
+		readonly kind: InfixKind;
 	}
+	/** */
+	export enum InfixKind {
+		faulty = 0,
+		pattern = 1,
+		portability = 2,
+		population = 3
+	}
+	/** */
+	export type ForePatternChunks = (Infix | string)[];
 	/**
 	 * 
 	 */
@@ -1714,75 +1925,11 @@ declare namespace Truth {
 		toString(): string;
 	}
 	/**
-	 * A class that defines a type located within a
-	 * scope, that has passed all verification tests.
-	 * This class is essentially a lens ontop of
-	 * Functor.
-	 */
-	export class Type {
-		private readonly functor;
-		/**
-		 * Creates a new Type from the specified Spine.
-		 * If a Type already exists at the location the corresponds
-		 * to the spine, the existing Type is returned instead.
-		 */
-		static get(spine: Spine): Type;
-		/** */
-		private static getFromFunctor;
-		/**
-		 * Searches for a Type at the specified URI.
-		 * The URI may refer to a location in an unspecified
-		 * area of the document (such as if the URI refers to
-		 * an inherited type or a descendant of a recursive type).
-		 */
-		static find(uri: Uri, owner: Document | Program): string | Type | null | undefined;
-		/** */
-		private static readonly cache;
-		/** */
-		private constructor();
-		/** */
-		readonly uri: Uri;
-		/** */
-		readonly name: string;
-		/** */
-		readonly subject: Subject;
-		/**
-		 * Gets an array of the underlying spans that compose this type.
-		 */
-		readonly spans: ReadonlyArray<Span>;
-		/**
-		 * Gets an array of the statements that contains
-		 * the spans that compose this type.
-		 */
-		readonly statements: Statement[];
-		/** */
-		readonly stamp: VersionStamp;
-		/** Gets a reference to the Type that is the direct container of this one. */
-		readonly container: Type | null;
-		private _container;
-		/**
-		 * Gets an array of the containers that have been resolved as
-		 * bases of this container, computed as a result of applying
-		 * the contextual type resolution rules.
-		 */
-		readonly containersResolved: Type | null;
-		private _containerssResolved;
-		/**
-		 * Stores an array of Faults that where generated as a result of
-		 * analyzing this Type. Note that Faults generated in this way
-		 * can also be found in the FaultService.
-		 */
-		readonly faults: ReadonlyArray<Fault>;
-		private _faults;
-		/** */
-		readonly contents: Type[];
-		private _contents;
-	}
-	/**
 	 * A Strand is essentially an inspectable version of a URI's type
 	 * path. More specifically, it is a type that describes a series of
-	 * Subject objects, that aligns with the components of a type
-	 * URI (the ordering of the entry in the map is relevant).
+	 * objects of the abstract Subject type, that aligns with the
+	 * components of a type URI (the ordering of the entry in the
+	 * map is relevant).
 	 * 
 	 * Each Subject key is related to a set of Span objects that
 	 * represent the points of the document that where discovered
@@ -1834,197 +1981,470 @@ declare namespace Truth {
 		constructor(subject: Subject, spans: ReadonlyArray<Span>);
 	}
 	/**
-	 * A Functor is a class that acts as a layer ontop
-	 * of a Strand. It provides various methods to
-	 * aid in the construction of Type objects.
+	 * 
 	 */
-	export class Functor {
+	export class Graph {
+		private readonly program;
 		/**
-		 * Stores a reference to the Strand from which the values
-		 * of the properties in this Functor are derived.
+		 * Reads a root Node with the specified
+		 * name out of the specified document.
 		 */
-		private readonly strand;
+		read(doc: Document, name: string): Node | null;
 		/**
-		 * Stores a reference to the stamp assigned to the
-		 * document at the time this Functor was instantiated.
+		 * Handles a document-level exclusion, which is the removal
+		 * of a section of Spans within a document, or possibly the
+		 * entire document itself.
 		 */
+		private exclude;
+		/**
+		 * Performs a revalidation of the Nodes that correspond to the
+		 * input argument.
+		 * 
+		 * @param root The root object under which which revalidation
+		 * should occur. In the case when a Document instance is passed,
+		 * all Nodes present within the document are revalidated. In the
+		 * case when a Statement instance is passed, the Nodes that
+		 * correspond to the Statement, and all of it's contents are
+		 * revalidated.
+		 */
+		private include;
+		/**
+		 * Performs setup for the invalidate and revalidate methods.
+		 */
+		private methodSetup;
+		/**
+		 * Stores a 2-dimensional map of all nodes that
+		 * have been loaded into the program, indexed
+		 * by a string representation of it's URI.
+		 */
+		private readonly nodes;
+		/**
+		 * Stores a GraphTransaction instance in the case when
+		 * the program is under
+		 */
+		private activeTransactions;
+	}
+	/**
+	 * A class that represents a single Node contained within
+	 * the Program's Graph. Nodes are long-lived objects that
+	 * persist between edit frames, and maintain referential
+	 * integrity.
+	 * 
+	 * Nodes are connected in a graph not by edges, but by
+	 * "Fans". A Fan is similar to a directed edge in that it has
+	 * a single origin, but differs in that it has multiple destinations.
+	 * It is necessary for Nodes to be connected to each other
+	 * in this way, in order for further phases in the pipeline
+	 * to perform type resolution.
+	 */
+	export class Node {
+		/** */
+		private static rootNodes;
+		/** */
+		private addRootNode;
+		/** */
+		private removeRootNode;
+		/** */
+		private getRootNodes;
+		/** */
+		private deleteRootNode;
+		/**
+		 * Removes this Node, and all its contents from the graph.
+		 */
+		dispose(): void;
+		/**
+		 * Removes the specified Fan from this Node's
+		 * set of outbounds.
+		 * 
+		 * @throws In the case when the specified Fan is
+		 * not owned by this Node.
+		 */
+		disposeFan(fan: Fan): void;
+		/** */
+		readonly container: Node | null;
+		/** */
+		readonly name: string;
+		/** */
+		readonly subject: Subject;
+		/** */
+		readonly uri: Uri;
+		/** Stores the document that contains this Node. */
+		readonly document: Document;
+		/** */
 		readonly stamp: VersionStamp;
 		/**
-		 * Creates a new Functor from the specified Strand.
-		 * If a Functor already exists whose Strand matches
-		 * the one specified, the existing Functor is returned
-		 * instead.
+		 * Stores the set of declaration-side Span
+		 * objects that compose this Node.
 		 */
-		static get(strand: Strand): Functor;
+		readonly spans: Set<Span>;
 		/** */
-		private static readonly cache;
-		/** */
-		private constructor();
+		readonly statements: Set<Statement>;
 		/**
-		 * Gets the name of this Functor, which will eventually
-		 * become the name of the Type to which this Functor
-		 * will correspond. The name is a stringified representation
-		 * of the related Subject in the document.
+		 * Gets a readonly map of Nodes that are contained
+		 * by this node in the containment hierarchy.
+		 */
+		readonly contents: NodeMap;
+		private readonly _contents;
+		/**
+		 * Gets a readonly name of Nodes that are adjacent
+		 * to this Node in the containment hierarchy.
+		 */
+		readonly adjacents: NodeMap;
+		/**
+		 * Gets an immutable set of Fans from adjacent or
+		 * contained Nodes that reference this Node.
+		 * 
+		 * (The ordering of outbounds isn't important, as
+		 * they have no physical representation in the
+		 * document, which is why they're stored in a Set
+		 * rather than an array.)
+		 */
+		readonly inbounds: ReadonlySet<Fan>;
+		private readonly _inbounds;
+		/**
+		 * Gets an array of Fans that connect this Node to
+		 * others, being either adjacents, or Nodes that
+		 * exists somewhere in the containment hierarchy.
+		 */
+		readonly outbounds: ReadonlyArray<Fan>;
+		private readonly _outbounds;
+		/**
+		 * Enumerates upwards through the containment
+		 * hierarchy of the Nodes present in this Node's
+		 * containing document, yielding the adjacents at
+		 * every level, and then continues through to the
+		 * root level adjacents of each of the document's
+		 * dependencies.
+		 */
+		private enumerateContainment;
+		/** */
+		removeFanSpan(span: Span): void;
+	}
+	type NodeMap = ReadonlyMap<string, Node>;
+	/**
+	 * A Fan connects origin Nodes to target Nodes, for a
+	 * specific reason, identified by the "rationale" field.
+	 * 
+	 * Each Fan object is always "owned" by one single Node
+	 * object, however, Nodes have a reference to the Fans
+	 * that are targeting them through their Node.inbounds
+	 * field.
+	 */
+	export class Fan {
+		/**
+		 * Stores a string representation of the subjects
+		 * contained by the spans that this Fan represents.
+		 * In the case when the FanRationale is a sum, the
+		 * field instead stores the raw annotation-side
+		 * content as it appears in the document.
 		 */
 		readonly name: string;
-		private _name;
 		/** */
-		readonly atom: Atom;
+		readonly origin: Node;
 		/**
-		 * Gets a Uri object that uniquely identifies this Functor in the
-		 * type tree, which includes the path to the containing document,
-		 * as well as the type path that corresponds to this Functor.
+		 * Gets an array containing the Nodes to which the origin is
+		 * connected. If the array is empty, the Fan is technically
 		 */
-		readonly uri: Uri;
-		private _uri;
-		/**
-		 * Gets a reference to the Functor that directly
-		 * contains this Functor.
-		 */
-		readonly container: Functor | null;
-		private _container;
-		/**
-		 * Gets the array of Functors that contain this one,
-		 * in the order of their containment, starting with the
-		 * directly containing Functor.
-		 */
-		readonly containers: ReadonlyArray<Functor>;
-		private _containers;
-		/**
-		 * Gets an array that contains the Functors that were
-		 * created as a result of declarations being explicitly
-		 * specified.
-		 */
-		readonly contents: Functor[];
-		private _contents;
-		/**
-		 * Gets an array of Functors that are specified as
-		 * the "sources" of this Functor. More specifically,
-		 * an array of Functors that were successfuly resolved
-		 * from the annotations corresponding to the underlying
-		 * Spans that formed the basis of this Functor.
-		 */
-		readonly sources: Functor[];
-		private _sources;
-		/**
-		 * Gets an array of Atoms that could not be resolved to a Functor.
-		 */
-		readonly orphans: Atom[];
-		private _orphans;
-		/**
-		 * Gets an array containing the names of potential
-		 * Functors that this Function references.
-		 */
-		readonly referencedNames: ReadonlyArray<string>;
-		private _referencedNames;
-		/**
-		 * Scans upwards through this Functor's containment
-		 * hierarchy, and produces an array of Functor instances
-		 * whose name matches the one specified.
-		 * 
-		 * For example, given the document below, and beginning
-		 * enumeration from "C" and searching for "T", the yielded
-		 * Functors would be: [T, T, T].
-		 * 
-		 * T
-		 * A
-		 *     T
-		 *     B
-		 *         T
-		 *         C
-		 * 
-		 * This method answers the question: "Which Functors
-		 * does the name "X" refer to in this Functor's containment
-		 * hierarchy?".
-		 */
-		getFunctorsFromContainment(refFunctorName: string): Functor[];
-		/**
-		 * Traverses through this Functor's abstraction DAG,
-		 * and produces an array of Functor instances whose name
-		 * matches the one specified. If the name is omitted, the
-		 * traversal uses this Functor's name as the match
-		 * predicate.
-		 * 
-		 * For example, given the document below, and beginning the
-		 * enumeration from "A/B/C", the returned Functors would
-		 * be: [A/B/C, Y/B/C, X/B/C]
-		 * 
-		 * X
-		 *     B
-		 *         C
-		 * Y
-		 *     B
-		 *         C
-		 * Z
-		 *     B
-		 *         C
-		 * A : X, Y, Z
-		 *     B
-		 *         C
-		 * 
-		 * This method answers the question: "Where are all the
-		 * Functors that may contribute annotations to this Functor?"
-		 */
-		private getFunctorsFromAbstraction;
-	}
-	/**
-	 * Defines a series of Stops that describe the route that the
-	 * resolution algorithm took to navigate from one Functor
-	 * to another.
-	 */
-	export class FunctorResolveRoute {
-		readonly stops: Stop[];
+		readonly targets: ReadonlyArray<Node>;
+		private readonly _targets;
 		/** */
-		constructor(stops: Stop[]);
-		/** Gets the Functor where the resolution algorithm began. */
-		readonly origin: Functor;
+		readonly rationale: FanRationale;
+		private _rationale;
+		/**
+		 * Gets an array of annotation-side Span objects that compose
+		 * the Fan. In the case when the "rationale" of this Fan is "patternSum",
+		 * this array is composed of a complete set of spans on the annotation
+		 * side of a single statement. In other cases, the array is composed of
+		 * Spans potentially scattered throughout the document across many
+		 * statements.
+		 */
+		readonly spans: Set<Span>;
 	}
 	/**
-	 * 
+	 * An enumeration that describes why a Fan was
+	 * created to connect a Node to a series of others.
 	 */
-	export class Stop {
-		readonly relation: StopRelation | null;
-		readonly functor: Functor;
-		constructor(relation: StopRelation | null, functor: Functor);
+	export enum FanRationale {
+		/**
+		 * Indicates that the Fan was created, but doesn't
+		 * actually connect anything, due to an inability
+		 * to resolve an annotation to a meaningful place
+		 * in the document.
+		 */
+		orphan = 0,
+		/**
+		 * Indicates that the Fan was created to connect
+		 * an origin Node to other Nodes through a type
+		 * relationship (meaning an exact name match).
+		 */
+		type = 1,
+		/**
+		 * Indicates that the Fan was created to connect
+		 * an origin Node to other Nodes through a pattern
+		 * with the coexistence flag set.
+		 */
+		pattern = 2,
+		/**
+		 * Indicates that the Fan was created to connect
+		 * and origin Node to other Nodes through a "sum"
+		 * pattern (a pattern without the coexistence flag set).
+		 * 
+		 * A Sum is a serialized representation of a series of annotations
+		 * that are all present within a single statement. It is used to handle
+		 * the case that given a statement in the form "A : B, C, D", the
+		 * annotation "B, C, D" may actually be matchable by a pattern
+		 * without a coexistence flag. Sums allow these potential matches
+		 * to be processed more easily.
+		 */
+		sum = 3
 	}
 	/**
 	 * 
-	 */
-	export enum StopRelation {
-		container = 0,
-		base = 1
-	}
-	/**
-	 * A class that represents an instance of a
-	 * regular expression declaration.
-	 * 
-	 * (Does this need to be a Pattern AST?)
 	 */
 	export class Pattern {
 		/** */
-		readonly literal = "";
+		constructor();
 		/** */
-		readonly container: Type;
+		readonly compiledExpression: RegExp;
 		/** */
-		readonly createsAliasFor: Type[];
-		/** An array containing the Patterns that this one extends. */
-		readonly supers: Pattern[];
-		/** An array containing the Patterns that extend this one. */
-		readonly subs: Pattern[];
+		readonly ast: Object;
+		/**
+		 * Stores a boolean value indicating whether the pattern
+		 * can match individual blocks of content on the annotation
+		 * side of a statement (separated by commas), or whether
+		 * the pattern must match all annotation-side content in a
+		 * statement.
+		 */
+		readonly canCoexist = false;
+		/** Necessary? */
+		readonly canMatchEmpty = false;
+		/** Necessary? */
+		readonly canMatchWhitespace = false;
 	}
 	/**
-	 * A class that represents a
+	 * 
 	 */
-	export class Alias {
+	export enum PatternComparisonResult {
 		/** */
-		readonly pattern: Pattern;
+		subset = 0,
 		/** */
-		readonly content: string;
+		superset = 1,
+		/** */
+		equal = 2,
+		/** */
+		unequal = 3
+	}
+	/**
+	 * 
+	 */
+	export abstract class Alias {
+		/** */
+		abstract readonly span: Span;
+		/**
+		 * Stores an array of Patterns that match this alias.
+		 */
+		abstract readonly recognizers: ReadonlyArray<Pattern>;
+	}
+	/**
+	 * 
+	 */
+	export class Waterfall {
+		/** */
+		static create(directiveUri: Uri, program: Program): Waterfall | null;
+		/** */
+		readonly origin: Turn;
+		/** */
+		readonly directive: ReadonlyArray<Turn>;
+		/**
+		 * @returns The number of terraces in the underlying
+		 * waterfall. Used to quickly determine if a URI was directed
+		 * at an unpopulated location in a document.
+		 */
+		readonly totalHeight: number;
+		/**
+		 * Stores an array of faults that were generated before the
+		 * Waterfall was constructed.
+		 */
+		readonly constructionFaults: ReadonlyArray<Fault>;
+		/**
+		 * Reads a full terrace from the waterfall, from the specified
+		 * URI.
+		 * 
+		 * @throws If the URI has typePath that is not a strict subset
+		 * of this Waterfall's directive.
+		 */
+		readTerrace(uri: Uri): ReadonlyArray<Turn | undefined>;
+		/** */
+		readFloorTerrace(): never[];
+		/** */
+		walk(): WaterfallWalker;
+	}
+	/**
+	 * A class that acts as a cursor for walking around a Waterfall
+	 * instance. Note that the WaterfallWalker does, indeed, walk
+	 * on water.
+	 */
+	export class WaterfallWalker {
+		private readonly waterfall;
+		constructor(waterfall: Waterfall);
+		/** */
+		plunge(): Turn | null;
+		/** */
+		canPlunge(): boolean;
+		/** */
+		flow(): Turn | null;
+		/** */
+		canFlow(): boolean;
+	}
+	/**
+	 * 
+	 */
+	interface IMutableTurn {
+		/**
+		 * Indicates whether this Turn terminates the flow of it's ledge.
+		 */
+		terminal: boolean;
+		/**
+		 * Stores the array of Node objects that correspond to this turn.
+		 */
+		nodes: Node[];
+	}
+	export type Turn = Freeze<IMutableTurn>;
+	/**
+	 * A class that represents a fully constructed type within the program.
+	 */
+	export class Type {
+		static construct(spine: Spine, program: Program): Type;
+		/** */
+		constructor();
+		/**
+		 * 
+		 */
+		constructAdjacents(): never[];
+		/**
+		 * 
+		 */
+		constructContents(): Type[];
+		/**
+		 * Attempts to match the specified string against the
+		 * Patterns that resolve to this type. If this type is a pattern,
+		 * the input is tested against the inner regular expression.
+		 */
+		tryMatch(input: string): boolean;
+		/**
+		 * Stores the Waterfall diagram used to construct this type.
+		 */
+		private readonly waterfall;
+		/**
+		 * Stores a text representation of the name of the type,
+		 * or a serialized version of the pattern content in the
+		 * case when the type is actually a pattern.
+		 */
+		readonly name: string;
+		/** */
+		readonly container: Type;
+		/**
+		 * Stores the array of types from which this type extends.
+		 * If this Type extends from a pattern, it is included in this
+		 * array.
+		 */
+		readonly bases: ReadonlyArray<Type>;
+		/**
+		 * Stores the array of annotations attached to this Type
+		 * that were resolved as type aliases through a Pattern.
+		 */
+		readonly aliases: ReadonlyArray<Alias>;
+		/**
+		 * Stores a reference to the intrinsic side of the list when
+		 * this type represents the extrinsic side of a list, or vice
+		 * versa.
+		 * Stores null in the case when the type is not a list.
+		 */
+		readonly listPortal: Type | null;
+		/**
+		 * Stores whether this type represents the intrinsic
+		 * side of a list.
+		 */
+		readonly isListIntrinsic: boolean;
+		/**
+		 * Stores whether this type represents the extrinsic
+		 * side of a list.
+		 */
+		readonly isListExtrinsic: boolean;
+		/**
+		 * Stores whether the bases explicitly assigned to
+		 * this type are compliant with the requirements
+		 * imposed on this type from it's inheritance source.
+		 */
+		readonly isContractuallyCompliant: boolean;
+		/** */
+		readonly isFresh: boolean;
+		/** */
+		readonly isOverride: boolean;
+		/** */
+		readonly isAnonymous: boolean;
+		/** */
+		readonly inCircularGroup: boolean;
+		/** */
+		readonly isPattern: boolean;
 	}
 }
 
 declare module "truth-compiler" {
 	/**
+	 * A class that encapsulates CRC functionality.
+	 */
+	export class Crc {
+		private constructor();
+		/**
+		 * Calculates a numeric CRC from the specified string, and returns the
+		 * code as a 4-character ASCII byte string.
+		 * @param seed A starting seed value, used in the case of a rolling CRC.
+		 */
+		static calculate(text: string, seed?: number): string;
+	}
+	/**
+	 * A class that provides various higher-order functions
+	 * across data structures.
+	 */
+	export abstract class HigherOrder {
+		/**
+		 * @returns The specified array.
+		 * @throws An exception in the case when the array contains
+		 * null or undefined items.
+		 */
+		static throwOnNullable<T>(array: Array<T>): Array<NonNullable<T>>;
+		/**
+		 * @returns The specified array, but with null and undefined
+		 * items removed.
+		 */
+		static filterNullable<T>(array: Array<T>): Array<NonNullable<T>>;
+		/**
+		 * 
+		 */
+		static subtractMap<K, V>(positive: Map<K, V>, negative: Map<K, V>): void;
+		/**
+		 * 
+		 */
+		static applySymmetricDifference<K, V>(left: Map<K, V>, right: Map<K, V>): void;
+		/**
+		 * Prunes elements from the specified array
+		 * that match the specified predicate.
+		 */
+		static prune<T>(array: Array<T>, predicate: (item: T, index: number) => boolean): T[];
+		/**
+		 * @returns A readonly copy of the specified array, set, or list.
+		 */
+		static copy<T>(array: ReadonlyArray<T>): ReadonlyArray<T>;
+		static copy<T>(set: ReadonlySet<T>): ReadonlySet<T>;
+		static copy<K, V>(map: ReadonlyMap<K, V>): ReadonlyMap<K, V>;
+		/** */
+		static map<T, R>(set: ReadonlySet<T>, fn: (item: T) => R): Set<R>;
+		/** */
+		static distinct<T>(array: Array<T>): ReadonlyArray<T>;
+		private constructor();
+	}
+	/**
 	 * The top-level object that manages Truth documents.
 	 */
 	export class Program {
@@ -2051,7 +2471,7 @@ declare module "truth-compiler" {
 		 * Stores an object that allows type analysis to be performed on
 		 * this Program. It is reset at the beginning of every edit cycle.
 		 */
-		private lastProgramAnalyzer;
+		private lastProgramScanner;
 		/**
 		 * Performs a full verification of all documents loaded into the program.
 		 * This Program's .faults field is populated with any faults generated as
@@ -2061,7 +2481,7 @@ declare module "truth-compiler" {
 		 * @returns An entrypoint into performing analysis of the Types that
 		 * have been defined in this program.
 		 */
-		analyze(): ProgramAnalyzer;
+		scan(): ProgramScanner;
 		/**
 		 * Begin inspecting a document loaded
 		 * into this program, a specific location.
@@ -2076,7 +2496,7 @@ declare module "truth-compiler" {
 		 * Stores the compilation object that most closely represents
 		 * what was found at the specified location.
 		 */
-		readonly result: Document | Type[] | PatternLiteral | Alias | null;
+		readonly result: Document | Type[] | Alias | null;
 		/**
 		 * Stores the Statement found at the specified location.
 		 */
@@ -2092,15 +2512,15 @@ declare module "truth-compiler" {
 	 * Provides an entry point for enumeration through
 	 * the types defined in a program.
 	 */
-	export class ProgramAnalyzer {
+	export class ProgramScanner {
 		private program;
 		/**
-		 * Enumerate through all types defined in the Program.
+		 * Enumerate through all visible types defined in the Program.
 		 */
-		enumerate(filterDocument?: Document): IterableIterator<IterableIterator<{
+		enumerate(filterDocument?: Document): IterableIterator<{
 			type: Type;
 			document: Document;
-		}>>;
+		}>;
 		/** */
 		private readonly roots;
 	}
@@ -2345,8 +2765,8 @@ declare module "truth-compiler" {
 	/** Input parameters for navigation hooks. */
 	export class NavigationParam {
 		readonly document: Document;
-		readonly initiatingTerm: Subject;
-		constructor(document: Document, initiatingTerm: Subject);
+		readonly initiatingSubject: Subject;
+		constructor(document: Document, initiatingSubject: Subject);
 	}
 	/** */
 	export class DoRenameParam {
@@ -2491,6 +2911,12 @@ declare module "truth-compiler" {
 		typePath: ReadonlyArray<string>);
 		/**
 		 * Converts the URI to a fully-qualified path including the file name.
+		 * 
+		 * @param includeProtocol Whether the protocol portion of the URI
+		 * should be included in the final string. Defaults to true.
+		 * 
+		 * @param includeTypePath Whether the typePath portion of the URI
+		 * should be included in the final string. Defaults to false.
 		 */
 		toString(includeProtocol?: boolean, includeTypePath?: boolean): string;
 		/**
@@ -2504,9 +2930,14 @@ declare module "truth-compiler" {
 		 * 
 		 * @returns A new Uri that is otherwise a copy of this
 		 * one, but with it's IO path and type path peeled
-		 * back by the specified numbero of levels.
+		 * back by the specified number of levels.
 		 */
 		retract(ioRetraction?: number, typeRetraction?: number): Uri;
+		/**
+		 * Creates a new Uri, whose typePath field is
+		 * retracted to the specified level of depth.
+		 */
+		retractTo(typePathLength: number): Uri;
 		/**
 		 * @returns A new Uri, whose typePath and ioPath
 		 * fields are extended with the specified segments.
@@ -2531,8 +2962,10 @@ declare module "truth-compiler" {
 		terminal = "\n",
 		combinator = ",",
 		joint = ":",
-		pluralizer = "...",
+		list = "...",
 		patternDelimiter = "/",
+		infixStart = "<",
+		infixEnd = ">",
 		escapeChar = "\\",
 		comment = "// ",
 		truthExtension = "truth",
@@ -2656,9 +3089,9 @@ declare module "truth-compiler" {
 		readonly message: string;
 	}
 	/** */
-	export class AnonymousListIntrinsicTypeFault extends StatementFault {
+	export class AnonymousInListIntrinsicTypeFault extends StatementFault {
 		readonly code = 300;
-		readonly message = "List-intrinsic types cannot be anonymous.";
+		readonly message = "Types contained directly by List-intrinsic types cannot be anonymous.";
 	}
 	/** */
 	export class ListContractViolationFault extends SpanFault {
@@ -2666,9 +3099,14 @@ declare module "truth-compiler" {
 		readonly message = "The containing list cannot contain children of this type.";
 	}
 	/** */
-	export class ListIntrinsicExtendingNonList extends SpanFault {
+	export class ListIntrinsicExtendingListFault extends SpanFault {
 		readonly code = 303;
-		readonly message = "List-intrinsics cannot extend from a non-list type.";
+		readonly message = "List intrinsic types cannot extend from other lists.";
+	}
+	/** */
+	export class ListExtrinsicExtendingNonListFault extends SpanFault {
+		readonly code = 305;
+		readonly message = "Lists cannot extend from non-lists.";
 	}
 	/** */
 	export class PatternInvalidFault extends StatementFault {
@@ -2717,10 +3155,14 @@ declare module "truth-compiler" {
 		readonly message = "Pattern does not match it's base types.";
 	}
 	/** */
-	export class PatternUnknownNestedTypesFault extends StatementFault {
+	export class PatternUnknownNestedTypesFault extends SpanFault {
 		readonly code = 432;
-		readonly severity = FaultSeverity.warning;
-		readonly message: string;
+		readonly message = "The base specified on the containing pattern has no type with this name.";
+	}
+	/** */
+	export class PatternIncompatibleFault extends StatementFault {
+		readonly code = 442;
+		readonly message = "This pattern is incompatible with other patterns that match the specified types.";
 	}
 	/** */
 	export class InfixInRepeatingPatternFault extends StatementFault {
@@ -2755,7 +3197,6 @@ declare module "truth-compiler" {
 	/** */
 	export class InfixContractViolationFault extends StatementFault {
 		readonly code = 424;
-		readonly severity = FaultSeverity.warning;
 		readonly message = "Infix type annotations must explicitly expand the type as defined by the base.";
 	}
 	/** */
@@ -2787,6 +3228,18 @@ declare module "truth-compiler" {
 	export class TabsAndSpacesFault extends StatementFault {
 		readonly code = 1000;
 		readonly message = "Statement indent contains a mixture of tabs and spaces.";
+		readonly severity = FaultSeverity.warning;
+	}
+	/** */
+	export class IgnoredAnnotationFault extends SpanFault {
+		readonly code = 1001;
+		readonly message: string;
+		readonly severity = FaultSeverity.warning;
+	}
+	/** */
+	export class IgnoredAliasFault extends SpanFault {
+		readonly code = 1003;
+		readonly message: string;
 		readonly severity = FaultSeverity.warning;
 	}
 	/**
@@ -3149,13 +3602,13 @@ declare module "truth-compiler" {
 		getNotes(statement: Statement | number): string[];
 		/**
 		 * Enumerates through each statement that is a descendant of the
-		 * specified statement. If the parameter is null or omitted, all
-		 * statements in this Document are visited.
+		 * specified statement. If the parameters are null or omitted, all
+		 * statements in this Document are yielded.
 		 * 
-		 * The method yields an object that contains the visited statement,
+		 * The method yields an object that contains the yielded statement,
 		 * as well as a numeric level value that specifies the difference in
 		 * the number of nesting levels between the specified initialStatement
-		 * and the visited statement.
+		 * and the yielded statement.
 		 * 
 		 * @param initialStatement A reference to the statement object
 		 * from where the enumeration should begin.
@@ -3169,6 +3622,32 @@ declare module "truth-compiler" {
 			statement: Statement;
 			level: number;
 		}>;
+		/**
+		 * Enumerates through each unique URI defined in this document,
+		 * that are referenced within the descendants of the specified
+		 * statement. If the parameters are null or omitted, all unique
+		 * URIs referenced in this document are yielded.
+		 * 
+		 * @param initialStatement A reference to the statement object
+		 * from where the enumeration should begin.
+		 * 
+		 * @param includeInitial A boolean value indicating whether or
+		 * not the specified initialStatement should also be returned
+		 * as an element in the enumeration. If true, initialStatement
+		 * must be non-null.
+		 */
+		eachUri(initialStatement?: Statement | null, includeInitial?: boolean): IterableIterator<{
+			uri: Uri;
+			uriText: string;
+		}>;
+		/**
+		 * Enumerates through each statement in the document,
+		 * starting at the specified statement, or numeric position.
+		 * 
+		 * @yields The statements in the order that they appear
+		 * in the document, excluding whitespace-only statements.
+		 */
+		eachStatement(statement?: Statement | number): IterableIterator<Statement>;
 		/**
 		 * Reads the Statement at the given position.
 		 * Negative numbers read Statement starting from the end of the document.
@@ -3317,7 +3796,9 @@ declare module "truth-compiler" {
 		clear(): void;
 		/**
 		 * @returns An array containing the dependencies
-		 * associated with the specified document.
+		 * associated with the specified document. The returned
+		 * array is sorted in the order in which the dependencies
+		 * are defined in the document.
 		 */
 		getDependencies(doc: Document): Document[];
 		/**
@@ -3395,6 +3876,8 @@ declare module "truth-compiler" {
 	export class Statement {
 		/** */
 		constructor(document: Document, text: string);
+		/** */
+		readonly isRefresh: boolean;
 		/** Gets whether the statement is a comment. */
 		readonly isComment: boolean;
 		/** Gets whether the statement contains no non-whitespace characters. */
@@ -3408,9 +3891,9 @@ declare module "truth-compiler" {
 		/** Stores the indent level of the statement. */
 		readonly indent: number;
 		/** */
-		readonly hasaSubjects: SubjectBoundaries;
+		private readonly declarationBounds;
 		/** */
-		readonly isaSubjects: SubjectBoundaries;
+		private readonly annotationBounds;
 		/**
 		 * Stores the position at which the joint operator exists
 		 * in the statement. A negative number indicates that
@@ -3423,11 +3906,10 @@ declare module "truth-compiler" {
 		 */
 		readonly textContent: string;
 		/**
-		 * Stores a parsed pattern literal, in the case when the
-		 * statement has one. If the statement is a non-pattern,
-		 * the field is null.
+		 * Gets a boolean value indicating whether or not the
+		 * statement contains a declaration of a pattern.
 		 */
-		readonly patternLiteral: PatternLiteral | null;
+		readonly hasPattern: boolean;
 		/**
 		 * @returns The kind of StatementRegion that exists
 		 * at the given character offset within the Statement.
@@ -3465,6 +3947,11 @@ declare module "truth-compiler" {
 		 */
 		getAnnotation(offset: number): Span | null;
 		/**
+		 * @returns The raw trimmed text of the complete
+		 * annotation side of this statement.
+		 */
+		getAnnotationContent(): string;
+		/**
 		 * @returns A string containing the inner comment text of
 		 * this statement, excluding the comment syntax token.
 		 * If the statement isn't a comment, null is returned.
@@ -3480,7 +3967,7 @@ declare module "truth-compiler" {
 	 * that represent the starting positions of the statement's
 	 * Subjects.
 	 */
-	export type SubjectBoundaries = ReadonlyMap<number, Subject | null>;
+	export type SubjectBounds = ReadonlyMap<number, Identifier | ForePattern | null>;
 	/**
 	 * Defines the areas of a statement that are significantly
 	 * different when performing inspection.
@@ -3514,21 +4001,23 @@ declare module "truth-compiler" {
 	 * to be long-lived, as they are discarded regularly after edit
 	 * transactions complete.
 	 */
-	export class Subject {
+	export class Identifier {
 		/** */
 		constructor(text: string);
-		/** */
-		readonly name: string;
+		/**
+		 * Stores a full string representation of the subject,
+		 * as it appears in the document.
+		 */
+		readonly value: string;
 		/** */
 		readonly isList: boolean;
 		/**
-		 * Stores a related URI when in the subject is
-		 * formatted as such. In other cases, the field
-		 * is an empty string.
+		 * Stores a parsed URI object, in the case the subject is
+		 * formatted as a URI. In other cases, the field is null.
 		 */
 		readonly uri: Uri | null;
 		/** Calculates whether this Subject is structurally equal to another. */
-		equals(other: Subject | string | null): boolean;
+		equals(other: Identifier | string | null): boolean;
 		/** Converts this Subject to it's string representation. */
 		toString(): string;
 	}
@@ -3550,7 +4039,7 @@ declare module "truth-compiler" {
 		 * Span represents, or a unique string in the case when this is
 		 * a "Thin Span" that represents an Invisible Subject.
 		 */
-		readonly subject: Subject | string;
+		readonly subject: Subject;
 		/**
 		 * The offset in the statement that marks the start of the
 		 * region being pointed to.
@@ -3594,69 +4083,158 @@ declare module "truth-compiler" {
 		/**  */
 		readonly nodes: ReadonlyArray<Span>;
 	}
+	/** */
+	export type Subject = Identifier | ForePattern | string;
+	/** */
+	export class SubjectParser {
+		/** */
+		static invoke(text: string): Subject;
+		private constructor();
+	}
 	/**
 	 * A class that stores an unparsed Pattern,
 	 * contained directly by a Statement.
 	 */
-	export class PatternLiteral {
+	export class ForePattern {
 		/**
-		 * Stores the statement that contains this
-		 * PatternLiteral.
+		 * Parses a pattern from an internally serialized
+		 * representation of it.
 		 */
-		readonly statement: Statement;
+		static parse(serialized: string): ForePattern | null;
 		/**
-		 * Stores the offset at which the pattern literal
-		 * ends in the containing statement.
+		 * Gets whether the specified internall serialized
+		 * regular expression can be parsed through the
+		 * static .parse() method on this class.
 		 */
-		readonly offsetStart: number;
+		static canParse(serialized: string): boolean;
+		/** */
+		readonly content: string;
+		/** */
+		readonly chunks: ForePatternChunks;
+		/** */
+		readonly crc: string;
 		/**
-		 * Stores the offset at which the pattern literal
-		 * ends in the containing statement.
-		 */
-		readonly offsetEnd: number;
-		/**
-		 * Gets whether the pattern literal specifies the
+		 * Stores whether the pattern literal specifies the
 		 * coexistence (trailing comma) flag, which allows
 		 * aliases to exist within the annotation set of
 		 * other non-aliases.
 		 */
 		readonly hasCoexistenceFlag: boolean;
 		/**
+		 * Stores the inner regular expression of this pattern,
+		 * in the case when a valid RegExp object could be
+		 * created from the input passed to the constructor
+		 * of this object. In the case when the input could not
+		 * be converted into a usable RegExp object, the field
+		 * stores null.
+		 */
+		private readonly innerRegExp;
+		/**
+		 * @returns A boolean value that indicates whether
+		 * the specified input string matches the regular expression
+		 * stored inside this pattern.
+		 */
+		test(input: string): boolean;
+		/** */
+		toString(format?: PatternSerializationFormat): string;
+	}
+	/**
+	 * Identifies the various textual representations of a pattern.
+	 */
+	export const enum PatternSerializationFormat {
+		/** Refers to the inner content of the pattern. */
+		content = 1,
+		/** Refers to the pattern literal as it appears in the document. */
+		literal = 2,
+		/**
+		 * Refers to the pattern literal's system serialization format.
+		 * The internal serialization format is as follows:
 		 * 
+		 * 1 byte for the bell (for easy identification)
+		 * 1 or more bytes for the regular expression content
+		 * 1 byte for the flags
+		 * (crcLength) bytes for the computed CRC of the associated annotations.
 		 */
-		readonly value: string;
+		system = 4
 	}
 	/**
-	 * A class that performs basic pattern literal parsing.
-	 * (Full regular expression parsing happens later in the pipeline).
+	 * 
 	 */
-	export class PatternLiteralParser {
+	export enum PatternFlags {
+		/** Indicates that no flags have been declared on the pattern. */
+		none = 0,
+		/** Indicates that the coexistence flag has been declared on the pattern. */
+		coexistence = 1
+	}
+	/**  */
+	export class ForePatternParser {
 		/**
-		 * Attempts to parse a PatternLiteral from the
-		 * specified text, starting at the specified offset.
+		 * Parses the specified pattern string (without delimiters
+		 * or flags), into an array of strings and infixes.
 		 */
-		static invoke(text: string, offset: number): PatternLiteralParseResult;
+		static parse(content: string): ForePatternChunks;
+		/** */
+		private constructor();
 	}
 	/**
-	 * Stores the values that are returned as a result of parsing
-	 * a pattern literal, whether the parse succeeded or failed.
+	 * 
 	 */
-	export interface PatternLiteralParseResult {
+	export class Infix {
 		/**
-		 * Stores the position of the joint, in the case when the
-		 * pattern was successfully parsed. If the pattern was not
-		 * successfully parsed, this value is -1.
+		 * Stores an array of strings that represent the
+		 * terms located before the Joint operator.
 		 */
-		readonly jointPosition: number;
+		readonly lhsTerms: ReadonlyArray<string>;
+		/**
+		 * Stores an array of strings that represent the
+		 * terms located after the Joint operator.
+		 */
+		readonly rhsTerms: ReadonlyArray<string>;
+		/**
+		 * Stores whether the <<Double>> angle bracket
+		 * syntax was used to only match named types,
+		 * rather than aliases.
+		 */
+		readonly forcesNominal: boolean;
+		/**
+		 * Stores whether the </Pattern/> syntax was
+		 * used to embed an external pattern.
+		 */
+		readonly requestsPattern: boolean;
+		constructor(
+		/**
+		 * Stores an array of strings that represent the
+		 * terms located before the Joint operator.
+		 */
+		lhsTerms?: ReadonlyArray<string>,
+		/**
+		 * Stores an array of strings that represent the
+		 * terms located after the Joint operator.
+		 */
+		rhsTerms?: ReadonlyArray<string>,
+		/**
+		 * Stores whether the <<Double>> angle bracket
+		 * syntax was used to only match named types,
+		 * rather than aliases.
+		 */
+		forcesNominal?: boolean,
+		/**
+		 * Stores whether the </Pattern/> syntax was
+		 * used to embed an external pattern.
+		 */
+		requestsPattern?: boolean);
 		/** */
-		readonly offsetStart: number;
-		/** */
-		readonly offsetEnd: number;
-		/** */
-		readonly hasCoexistenceFlag: boolean;
-		/** */
-		readonly value: string;
+		readonly kind: InfixKind;
 	}
+	/** */
+	export enum InfixKind {
+		faulty = 0,
+		pattern = 1,
+		portability = 2,
+		population = 3
+	}
+	/** */
+	export type ForePatternChunks = (Infix | string)[];
 	/**
 	 * 
 	 */
@@ -3737,75 +4315,11 @@ declare module "truth-compiler" {
 		toString(): string;
 	}
 	/**
-	 * A class that defines a type located within a
-	 * scope, that has passed all verification tests.
-	 * This class is essentially a lens ontop of
-	 * Functor.
-	 */
-	export class Type {
-		private readonly functor;
-		/**
-		 * Creates a new Type from the specified Spine.
-		 * If a Type already exists at the location the corresponds
-		 * to the spine, the existing Type is returned instead.
-		 */
-		static get(spine: Spine): Type;
-		/** */
-		private static getFromFunctor;
-		/**
-		 * Searches for a Type at the specified URI.
-		 * The URI may refer to a location in an unspecified
-		 * area of the document (such as if the URI refers to
-		 * an inherited type or a descendant of a recursive type).
-		 */
-		static find(uri: Uri, owner: Document | Program): string | Type | null | undefined;
-		/** */
-		private static readonly cache;
-		/** */
-		private constructor();
-		/** */
-		readonly uri: Uri;
-		/** */
-		readonly name: string;
-		/** */
-		readonly subject: Subject;
-		/**
-		 * Gets an array of the underlying spans that compose this type.
-		 */
-		readonly spans: ReadonlyArray<Span>;
-		/**
-		 * Gets an array of the statements that contains
-		 * the spans that compose this type.
-		 */
-		readonly statements: Statement[];
-		/** */
-		readonly stamp: VersionStamp;
-		/** Gets a reference to the Type that is the direct container of this one. */
-		readonly container: Type | null;
-		private _container;
-		/**
-		 * Gets an array of the containers that have been resolved as
-		 * bases of this container, computed as a result of applying
-		 * the contextual type resolution rules.
-		 */
-		readonly containersResolved: Type | null;
-		private _containerssResolved;
-		/**
-		 * Stores an array of Faults that where generated as a result of
-		 * analyzing this Type. Note that Faults generated in this way
-		 * can also be found in the FaultService.
-		 */
-		readonly faults: ReadonlyArray<Fault>;
-		private _faults;
-		/** */
-		readonly contents: Type[];
-		private _contents;
-	}
-	/**
 	 * A Strand is essentially an inspectable version of a URI's type
 	 * path. More specifically, it is a type that describes a series of
-	 * Subject objects, that aligns with the components of a type
-	 * URI (the ordering of the entry in the map is relevant).
+	 * objects of the abstract Subject type, that aligns with the
+	 * components of a type URI (the ordering of the entry in the
+	 * map is relevant).
 	 * 
 	 * Each Subject key is related to a set of Span objects that
 	 * represent the points of the document that where discovered
@@ -3857,192 +4371,412 @@ declare module "truth-compiler" {
 		constructor(subject: Subject, spans: ReadonlyArray<Span>);
 	}
 	/**
-	 * A Functor is a class that acts as a layer ontop
-	 * of a Strand. It provides various methods to
-	 * aid in the construction of Type objects.
+	 * 
 	 */
-	export class Functor {
+	export class Graph {
+		private readonly program;
 		/**
-		 * Stores a reference to the Strand from which the values
-		 * of the properties in this Functor are derived.
+		 * Reads a root Node with the specified
+		 * name out of the specified document.
 		 */
-		private readonly strand;
+		read(doc: Document, name: string): Node | null;
 		/**
-		 * Stores a reference to the stamp assigned to the
-		 * document at the time this Functor was instantiated.
+		 * Handles a document-level exclusion, which is the removal
+		 * of a section of Spans within a document, or possibly the
+		 * entire document itself.
 		 */
+		private exclude;
+		/**
+		 * Performs a revalidation of the Nodes that correspond to the
+		 * input argument.
+		 * 
+		 * @param root The root object under which which revalidation
+		 * should occur. In the case when a Document instance is passed,
+		 * all Nodes present within the document are revalidated. In the
+		 * case when a Statement instance is passed, the Nodes that
+		 * correspond to the Statement, and all of it's contents are
+		 * revalidated.
+		 */
+		private include;
+		/**
+		 * Performs setup for the invalidate and revalidate methods.
+		 */
+		private methodSetup;
+		/**
+		 * Stores a 2-dimensional map of all nodes that
+		 * have been loaded into the program, indexed
+		 * by a string representation of it's URI.
+		 */
+		private readonly nodes;
+		/**
+		 * Stores a GraphTransaction instance in the case when
+		 * the program is under
+		 */
+		private activeTransactions;
+	}
+	/**
+	 * A class that represents a single Node contained within
+	 * the Program's Graph. Nodes are long-lived objects that
+	 * persist between edit frames, and maintain referential
+	 * integrity.
+	 * 
+	 * Nodes are connected in a graph not by edges, but by
+	 * "Fans". A Fan is similar to a directed edge in that it has
+	 * a single origin, but differs in that it has multiple destinations.
+	 * It is necessary for Nodes to be connected to each other
+	 * in this way, in order for further phases in the pipeline
+	 * to perform type resolution.
+	 */
+	export class Node {
+		/** */
+		private static rootNodes;
+		/** */
+		private addRootNode;
+		/** */
+		private removeRootNode;
+		/** */
+		private getRootNodes;
+		/** */
+		private deleteRootNode;
+		/**
+		 * Removes this Node, and all its contents from the graph.
+		 */
+		dispose(): void;
+		/**
+		 * Removes the specified Fan from this Node's
+		 * set of outbounds.
+		 * 
+		 * @throws In the case when the specified Fan is
+		 * not owned by this Node.
+		 */
+		disposeFan(fan: Fan): void;
+		/** */
+		readonly container: Node | null;
+		/** */
+		readonly name: string;
+		/** */
+		readonly subject: Subject;
+		/** */
+		readonly uri: Uri;
+		/** Stores the document that contains this Node. */
+		readonly document: Document;
+		/** */
 		readonly stamp: VersionStamp;
 		/**
-		 * Creates a new Functor from the specified Strand.
-		 * If a Functor already exists whose Strand matches
-		 * the one specified, the existing Functor is returned
-		 * instead.
+		 * Stores the set of declaration-side Span
+		 * objects that compose this Node.
 		 */
-		static get(strand: Strand): Functor;
+		readonly spans: Set<Span>;
 		/** */
-		private static readonly cache;
-		/** */
-		private constructor();
+		readonly statements: Set<Statement>;
 		/**
-		 * Gets the name of this Functor, which will eventually
-		 * become the name of the Type to which this Functor
-		 * will correspond. The name is a stringified representation
-		 * of the related Subject in the document.
+		 * Gets a readonly map of Nodes that are contained
+		 * by this node in the containment hierarchy.
+		 */
+		readonly contents: NodeMap;
+		private readonly _contents;
+		/**
+		 * Gets a readonly name of Nodes that are adjacent
+		 * to this Node in the containment hierarchy.
+		 */
+		readonly adjacents: NodeMap;
+		/**
+		 * Gets an immutable set of Fans from adjacent or
+		 * contained Nodes that reference this Node.
+		 * 
+		 * (The ordering of outbounds isn't important, as
+		 * they have no physical representation in the
+		 * document, which is why they're stored in a Set
+		 * rather than an array.)
+		 */
+		readonly inbounds: ReadonlySet<Fan>;
+		private readonly _inbounds;
+		/**
+		 * Gets an array of Fans that connect this Node to
+		 * others, being either adjacents, or Nodes that
+		 * exists somewhere in the containment hierarchy.
+		 */
+		readonly outbounds: ReadonlyArray<Fan>;
+		private readonly _outbounds;
+		/**
+		 * Enumerates upwards through the containment
+		 * hierarchy of the Nodes present in this Node's
+		 * containing document, yielding the adjacents at
+		 * every level, and then continues through to the
+		 * root level adjacents of each of the document's
+		 * dependencies.
+		 */
+		private enumerateContainment;
+		/** */
+		removeFanSpan(span: Span): void;
+	}
+	type NodeMap = ReadonlyMap<string, Node>;
+	/**
+	 * A Fan connects origin Nodes to target Nodes, for a
+	 * specific reason, identified by the "rationale" field.
+	 * 
+	 * Each Fan object is always "owned" by one single Node
+	 * object, however, Nodes have a reference to the Fans
+	 * that are targeting them through their Node.inbounds
+	 * field.
+	 */
+	export class Fan {
+		/**
+		 * Stores a string representation of the subjects
+		 * contained by the spans that this Fan represents.
+		 * In the case when the FanRationale is a sum, the
+		 * field instead stores the raw annotation-side
+		 * content as it appears in the document.
 		 */
 		readonly name: string;
-		private _name;
 		/** */
-		readonly atom: Atom;
+		readonly origin: Node;
 		/**
-		 * Gets a Uri object that uniquely identifies this Functor in the
-		 * type tree, which includes the path to the containing document,
-		 * as well as the type path that corresponds to this Functor.
+		 * Gets an array containing the Nodes to which the origin is
+		 * connected. If the array is empty, the Fan is technically
 		 */
-		readonly uri: Uri;
-		private _uri;
-		/**
-		 * Gets a reference to the Functor that directly
-		 * contains this Functor.
-		 */
-		readonly container: Functor | null;
-		private _container;
-		/**
-		 * Gets the array of Functors that contain this one,
-		 * in the order of their containment, starting with the
-		 * directly containing Functor.
-		 */
-		readonly containers: ReadonlyArray<Functor>;
-		private _containers;
-		/**
-		 * Gets an array that contains the Functors that were
-		 * created as a result of declarations being explicitly
-		 * specified.
-		 */
-		readonly contents: Functor[];
-		private _contents;
-		/**
-		 * Gets an array of Functors that are specified as
-		 * the "sources" of this Functor. More specifically,
-		 * an array of Functors that were successfuly resolved
-		 * from the annotations corresponding to the underlying
-		 * Spans that formed the basis of this Functor.
-		 */
-		readonly sources: Functor[];
-		private _sources;
-		/**
-		 * Gets an array of Atoms that could not be resolved to a Functor.
-		 */
-		readonly orphans: Atom[];
-		private _orphans;
-		/**
-		 * Gets an array containing the names of potential
-		 * Functors that this Function references.
-		 */
-		readonly referencedNames: ReadonlyArray<string>;
-		private _referencedNames;
-		/**
-		 * Scans upwards through this Functor's containment
-		 * hierarchy, and produces an array of Functor instances
-		 * whose name matches the one specified.
-		 * 
-		 * For example, given the document below, and beginning
-		 * enumeration from "C" and searching for "T", the yielded
-		 * Functors would be: [T, T, T].
-		 * 
-		 * T
-		 * A
-		 *     T
-		 *     B
-		 *         T
-		 *         C
-		 * 
-		 * This method answers the question: "Which Functors
-		 * does the name "X" refer to in this Functor's containment
-		 * hierarchy?".
-		 */
-		getFunctorsFromContainment(refFunctorName: string): Functor[];
-		/**
-		 * Traverses through this Functor's abstraction DAG,
-		 * and produces an array of Functor instances whose name
-		 * matches the one specified. If the name is omitted, the
-		 * traversal uses this Functor's name as the match
-		 * predicate.
-		 * 
-		 * For example, given the document below, and beginning the
-		 * enumeration from "A/B/C", the returned Functors would
-		 * be: [A/B/C, Y/B/C, X/B/C]
-		 * 
-		 * X
-		 *     B
-		 *         C
-		 * Y
-		 *     B
-		 *         C
-		 * Z
-		 *     B
-		 *         C
-		 * A : X, Y, Z
-		 *     B
-		 *         C
-		 * 
-		 * This method answers the question: "Where are all the
-		 * Functors that may contribute annotations to this Functor?"
-		 */
-		private getFunctorsFromAbstraction;
-	}
-	/**
-	 * Defines a series of Stops that describe the route that the
-	 * resolution algorithm took to navigate from one Functor
-	 * to another.
-	 */
-	export class FunctorResolveRoute {
-		readonly stops: Stop[];
+		readonly targets: ReadonlyArray<Node>;
+		private readonly _targets;
 		/** */
-		constructor(stops: Stop[]);
-		/** Gets the Functor where the resolution algorithm began. */
-		readonly origin: Functor;
+		readonly rationale: FanRationale;
+		private _rationale;
+		/**
+		 * Gets an array of annotation-side Span objects that compose
+		 * the Fan. In the case when the "rationale" of this Fan is "patternSum",
+		 * this array is composed of a complete set of spans on the annotation
+		 * side of a single statement. In other cases, the array is composed of
+		 * Spans potentially scattered throughout the document across many
+		 * statements.
+		 */
+		readonly spans: Set<Span>;
 	}
 	/**
-	 * 
+	 * An enumeration that describes why a Fan was
+	 * created to connect a Node to a series of others.
 	 */
-	export class Stop {
-		readonly relation: StopRelation | null;
-		readonly functor: Functor;
-		constructor(relation: StopRelation | null, functor: Functor);
+	export enum FanRationale {
+		/**
+		 * Indicates that the Fan was created, but doesn't
+		 * actually connect anything, due to an inability
+		 * to resolve an annotation to a meaningful place
+		 * in the document.
+		 */
+		orphan = 0,
+		/**
+		 * Indicates that the Fan was created to connect
+		 * an origin Node to other Nodes through a type
+		 * relationship (meaning an exact name match).
+		 */
+		type = 1,
+		/**
+		 * Indicates that the Fan was created to connect
+		 * an origin Node to other Nodes through a pattern
+		 * with the coexistence flag set.
+		 */
+		pattern = 2,
+		/**
+		 * Indicates that the Fan was created to connect
+		 * and origin Node to other Nodes through a "sum"
+		 * pattern (a pattern without the coexistence flag set).
+		 * 
+		 * A Sum is a serialized representation of a series of annotations
+		 * that are all present within a single statement. It is used to handle
+		 * the case that given a statement in the form "A : B, C, D", the
+		 * annotation "B, C, D" may actually be matchable by a pattern
+		 * without a coexistence flag. Sums allow these potential matches
+		 * to be processed more easily.
+		 */
+		sum = 3
 	}
 	/**
 	 * 
-	 */
-	export enum StopRelation {
-		container = 0,
-		base = 1
-	}
-	/**
-	 * A class that represents an instance of a
-	 * regular expression declaration.
-	 * 
-	 * (Does this need to be a Pattern AST?)
 	 */
 	export class Pattern {
 		/** */
-		readonly literal = "";
+		constructor();
 		/** */
-		readonly container: Type;
+		readonly compiledExpression: RegExp;
 		/** */
-		readonly createsAliasFor: Type[];
-		/** An array containing the Patterns that this one extends. */
-		readonly supers: Pattern[];
-		/** An array containing the Patterns that extend this one. */
-		readonly subs: Pattern[];
+		readonly ast: Object;
+		/**
+		 * Stores a boolean value indicating whether the pattern
+		 * can match individual blocks of content on the annotation
+		 * side of a statement (separated by commas), or whether
+		 * the pattern must match all annotation-side content in a
+		 * statement.
+		 */
+		readonly canCoexist = false;
+		/** Necessary? */
+		readonly canMatchEmpty = false;
+		/** Necessary? */
+		readonly canMatchWhitespace = false;
 	}
 	/**
-	 * A class that represents a
+	 * 
 	 */
-	export class Alias {
+	export enum PatternComparisonResult {
 		/** */
-		readonly pattern: Pattern;
+		subset = 0,
 		/** */
-		readonly content: string;
+		superset = 1,
+		/** */
+		equal = 2,
+		/** */
+		unequal = 3
+	}
+	/**
+	 * 
+	 */
+	export abstract class Alias {
+		/** */
+		abstract readonly span: Span;
+		/**
+		 * Stores an array of Patterns that match this alias.
+		 */
+		abstract readonly recognizers: ReadonlyArray<Pattern>;
+	}
+	/**
+	 * 
+	 */
+	export class Waterfall {
+		/** */
+		static create(directiveUri: Uri, program: Program): Waterfall | null;
+		/** */
+		readonly origin: Turn;
+		/** */
+		readonly directive: ReadonlyArray<Turn>;
+		/**
+		 * @returns The number of terraces in the underlying
+		 * waterfall. Used to quickly determine if a URI was directed
+		 * at an unpopulated location in a document.
+		 */
+		readonly totalHeight: number;
+		/**
+		 * Stores an array of faults that were generated before the
+		 * Waterfall was constructed.
+		 */
+		readonly constructionFaults: ReadonlyArray<Fault>;
+		/**
+		 * Reads a full terrace from the waterfall, from the specified
+		 * URI.
+		 * 
+		 * @throws If the URI has typePath that is not a strict subset
+		 * of this Waterfall's directive.
+		 */
+		readTerrace(uri: Uri): ReadonlyArray<Turn | undefined>;
+		/** */
+		readFloorTerrace(): never[];
+		/** */
+		walk(): WaterfallWalker;
+	}
+	/**
+	 * A class that acts as a cursor for walking around a Waterfall
+	 * instance. Note that the WaterfallWalker does, indeed, walk
+	 * on water.
+	 */
+	export class WaterfallWalker {
+		private readonly waterfall;
+		constructor(waterfall: Waterfall);
+		/** */
+		plunge(): Turn | null;
+		/** */
+		canPlunge(): boolean;
+		/** */
+		flow(): Turn | null;
+		/** */
+		canFlow(): boolean;
+	}
+	/**
+	 * 
+	 */
+	interface IMutableTurn {
+		/**
+		 * Indicates whether this Turn terminates the flow of it's ledge.
+		 */
+		terminal: boolean;
+		/**
+		 * Stores the array of Node objects that correspond to this turn.
+		 */
+		nodes: Node[];
+	}
+	export type Turn = Freeze<IMutableTurn>;
+	/**
+	 * A class that represents a fully constructed type within the program.
+	 */
+	export class Type {
+		static construct(spine: Spine, program: Program): Type;
+		/** */
+		constructor();
+		/**
+		 * 
+		 */
+		constructAdjacents(): never[];
+		/**
+		 * 
+		 */
+		constructContents(): Type[];
+		/**
+		 * Attempts to match the specified string against the
+		 * Patterns that resolve to this type. If this type is a pattern,
+		 * the input is tested against the inner regular expression.
+		 */
+		tryMatch(input: string): boolean;
+		/**
+		 * Stores the Waterfall diagram used to construct this type.
+		 */
+		private readonly waterfall;
+		/**
+		 * Stores a text representation of the name of the type,
+		 * or a serialized version of the pattern content in the
+		 * case when the type is actually a pattern.
+		 */
+		readonly name: string;
+		/** */
+		readonly container: Type;
+		/**
+		 * Stores the array of types from which this type extends.
+		 * If this Type extends from a pattern, it is included in this
+		 * array.
+		 */
+		readonly bases: ReadonlyArray<Type>;
+		/**
+		 * Stores the array of annotations attached to this Type
+		 * that were resolved as type aliases through a Pattern.
+		 */
+		readonly aliases: ReadonlyArray<Alias>;
+		/**
+		 * Stores a reference to the intrinsic side of the list when
+		 * this type represents the extrinsic side of a list, or vice
+		 * versa.
+		 * Stores null in the case when the type is not a list.
+		 */
+		readonly listPortal: Type | null;
+		/**
+		 * Stores whether this type represents the intrinsic
+		 * side of a list.
+		 */
+		readonly isListIntrinsic: boolean;
+		/**
+		 * Stores whether this type represents the extrinsic
+		 * side of a list.
+		 */
+		readonly isListExtrinsic: boolean;
+		/**
+		 * Stores whether the bases explicitly assigned to
+		 * this type are compliant with the requirements
+		 * imposed on this type from it's inheritance source.
+		 */
+		readonly isContractuallyCompliant: boolean;
+		/** */
+		readonly isFresh: boolean;
+		/** */
+		readonly isOverride: boolean;
+		/** */
+		readonly isAnonymous: boolean;
+		/** */
+		readonly inCircularGroup: boolean;
+		/** */
+		readonly isPattern: boolean;
 	}
 }
 

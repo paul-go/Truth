@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../../X";
 
 
 /**
@@ -41,7 +41,7 @@ export class DocumentHeader
 			if (typeof decl.subject === "string")
 				throw X.ExceptionMessage.unknownState();
 			
-			if (decl.subject.uri === null)
+			if (!(decl.subject instanceof X.Identifier) || decl.subject.uri === null)
 				break;
 			
 			newUriMap.set(statement, decl.subject.uri);
@@ -75,13 +75,13 @@ export class DocumentHeader
 	}
 	
 	/**
-	 * @returns A boolean value that indicates whether this
-	 * DocumentHeader has the specified statement as one
-	 * of it's constituents.
+	 * @returns The document reference URI that corresponds 
+	 * to the specified statement. Returns null in the case when
+	 * the specified statement is not a part of the header.
 	 */
-	isHeaderStatement(statement: X.Statement)
+	getHeaderUri(statement: X.Statement)
 	{
-		return this.uriMap.has(statement);
+		return this.uriMap.get(statement) || null;
 	}
 	
 	/**

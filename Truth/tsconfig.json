@@ -2,17 +2,24 @@
 	"compilerOptions": {
 		"module": "commonjs",
 		"target": "es2017",
+		"inlineSourceMap": true,
+		"inlineSources": true,
+		"stripInternal": true,
+		"strict": true,
+		"rootDir": "./",
+		"baseUrl": "./",
+		"outDir": "./Build",
 		"lib": [
 			"es7",
 			"es2017",
 			"es2017.object"
-		],
-		"inlineSourceMap": true,
-		"inlineSources": true,
-		"noImplicitThis": true,
-		"strict": true,
-		"rootDir": "./",
-		"baseUrl": "./",
-		"stripInternal": true
-	}
+		]
+	},
+	"include": [
+		"**/*.ts"
+	],
+	"exclude": [
+		"./CoreAgents/*.ts",
+		"./TypesBundler/*.ts"
+	]
 }

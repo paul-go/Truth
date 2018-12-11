@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../../X";
 
 
 /**
@@ -16,7 +16,7 @@ export class Span
 	/** @internal */
 	constructor(
 		statement: X.Statement,
-		subject: X.Subject | null,
+		subject: X.Identifier | X.ForePattern | null,
 		offsetStart: number)
 	{
 		this.statement = statement;
@@ -54,7 +54,7 @@ export class Span
 	 * Span represents, or a unique string in the case when this is
 	 * a "Thin Span" that represents an Invisible Subject.
 	 */
-	readonly subject: X.Subject | string;
+	readonly subject: X.Subject;
 	
 	/**
 	 * The offset in the statement that marks the start of the
@@ -84,55 +84,72 @@ export class Span
 		if (this.factoredSpines)
 			return this.factoredSpines;
 		
+		if (this.ancestry.length === 0)
+			return this.factoredSpines = Object.freeze([new X.Spine([this])]);
+		
 		// We need to factor the ancestry. This means we're taking the
 		// specified ancestry path, and splitting where any has-a side unions
 		// exist, in effect creating all possible paths to the specified tip.
 		const factoredSpanPaths: X.Span[][] = [];
 		
-		// An array of arrays. The first dimension is the hasa terms in a
-		// particular statement. The second dimension is the hasa terms
-		// themselves.
-		const ancestrySpans = this.ancestry.map(stmt => Array.from(stmt.declarations));
+		// An array of arrays. The first dimension corresponds to a statement. 
+		// The second dimension stores the declaration spans themselves.
+		const ancestryMatrix = this.ancestry.map(stmt => Array.from(stmt.declarations));
 		
-		// An array that stores the number of hasa terms in each statement.
-		const ancestryLengths = ancestrySpans.map(span => span.length);
+		// An array that stores the number of declaration spans in each statement.
+		const ancestryLengths = ancestryMatrix.map(span => span.length);
 		
-		// Multiplying together the number of terms in each statement will give
-		// us the total number of term paths that we're going to end up with.
-		const numFactoredSpanPaths = ancestryLengths.reduce((a, b) => a * b);
+		// Multiplying together the number of spans in each statement will
+		// give the total number of unique spines that will be produced.
+		const numSpines = ancestryLengths.reduce((a, b) => a * b);
 		
 		// Start with an array of 0's, whose length matches the number
 		// of statements in the ancestry. Each number in this array will be 
 		// incremented by 1, from right to left, each number maxing out at
-		// the number of has-a terms in the ancestor. After each incrementation,
+		// the number of declarations in the ancestor. After each incrementation,
 		// the progression of numbers will run through all indexes required to
-		// perform a full factorization of the terms in the ancestry.
+		// perform a full factorization of the terms in the ancestry. This array
+		// tells the algorithm which indexes in ancestryMatrix to pull when
+		// constructing a spine.
 		const cherryPickIndexes = ancestryLengths.map(() => 0);
 		
-		// Stores the position in insertionIndexes that we're currently
-		// incrementing by 1. Moves backward when the number at 
+		// Stores the position in cherryPickIndexes that we're currently
+		// incrementing. Moves backward when the number at 
 		// the target position is >= the number of terms at that position.
-		let targetIncPos = cherryPickIndexes.length - 1;
+		let targetIncLevel = 0;
 		
-		for (let i = -1; ++i < numFactoredSpanPaths;)
+		for (let i = -1; ++i < numSpines;)
 		{
 			// Do an insertion at the indexes specified by insertionIndexes
 			const spanPath: X.Span[] = [];
 			
 			// Cherry pick a series of terms from the ancestry terms,
 			// according to the index set we're currently on.
-			cherryPickIndexes.forEach((insertionIndex, pos) =>
-				spanPath.push(ancestrySpans[pos][insertionIndex]));
+			for (let level = -1; ++level < this.ancestry.length;)
+			{
+				const spansForStatement = ancestryMatrix[level];
+				const spanIndex = cherryPickIndexes[level];
+				const span = spansForStatement[spanIndex];
+				
+				if (!span)
+					throw X.ExceptionMessage.unknownState();
+				
+				spanPath.push(span);
+			}
 			
 			// The tip span specified in the method arguments
 			// is added at the end of all generated span paths.
 			spanPath.push(this);
 			factoredSpanPaths.push(spanPath);
 			
-			if (cherryPickIndexes[targetIncPos] >= ancestryLengths[targetIncPos])
-				targetIncPos--;
+			// Bump up the current cherry pick index, 
+			// or if we hit the roof, move to the next level,
+			// and keep doing this unti we find a number
+			// to increment.
+			while (cherryPickIndexes[targetIncLevel] >= ancestryLengths[targetIncLevel] - 1)
+				targetIncLevel++;
 			
-			cherryPickIndexes[targetIncPos]++;
+			cherryPickIndexes[targetIncLevel]++;
 		}
 		
 		return this.factoredSpines = 

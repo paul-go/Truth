@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../X";
 
 
 /** */

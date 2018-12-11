@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../../X";
 
 
 /**
@@ -85,12 +85,12 @@ export class DocumentGraph
 	create(uri: X.Uri | string, sourceText: string): X.Document;
 	create(param1?: X.Uri | string, param2?: string)
 	{
-		const zero = arguments.length === 0;
-		const one = arguments.length === 1;
+		const zeroArgs = arguments.length === 0;
+		const oneArg = arguments.length === 1;
 		
 		const uri = (() =>
 		{
-			if (zero || one)
+			if (zeroArgs || oneArg)
 				return X.Uri.create();
 			
 			if (!param1)
@@ -106,8 +106,8 @@ export class DocumentGraph
 			throw X.ExceptionMessage.invalidUri();
 		
 		const sourceText = 
-			zero ? "" :
-			one ? (param1 || "").toString() :
+			zeroArgs ? "" :
+			oneArg ? (param1 || "").toString() :
 			param2 || "";
 		
 		const document = new X.Document(this.program, uri, sourceText);
@@ -127,7 +127,7 @@ export class DocumentGraph
 	 */
 	async await()
 	{
-		return new Promise<void>((resolve, reject) =>
+		return new Promise<void>(resolve =>
 		{
 			if (this.asyncCount === 0)
 				resolve();
@@ -268,14 +268,45 @@ export class DocumentGraph
 	
 	/**
 	 * @returns An array containing the dependencies
-	 * associated with the specified document.
+	 * associated with the specified document. The returned
+	 * array is sorted in the order in which the dependencies
+	 * are defined in the document.
 	 */
 	getDependencies(doc: X.Document)
 	{
 		const dependencies = this.dependencies.get(doc);
-		return dependencies ?
-			dependencies.map(dep => dep.target) :
-			[];
+		if (!dependencies)
+			return [];
+		
+		const urisSorted: string[] = [];
+		const docDependencies = dependencies.map(d => d.target);
+		const entry = this.documents.get(doc.sourceUri.toString());
+		
+		if (entry === undefined)
+			throw X.ExceptionMessage.unknownState();
+		
+		for (const statement of doc.eachStatement())
+		{
+			if (statement.isNoop)
+				continue;
+			
+			// If a non-noop statement is reached that isn't a part
+			// of the header, the end of the header has been reached.
+			const refUri = entry.header.getHeaderUri(statement);
+			if (!refUri)
+				break;
+			
+			urisSorted.push(refUri.toString());
+		}
+		
+		const depsSorted = urisSorted.map(uriText => 
+			docDependencies.find(docDep => 
+				docDep.sourceUri.toString() === uriText)!);
+		
+		if (depsSorted.some(d => d === undefined))
+			throw X.ExceptionMessage.unknownState();
+		
+		return depsSorted;
 	}
 	
 	/**
@@ -523,7 +554,6 @@ export class DocumentGraph
 		{
 			const uri = X.Uri.parse(uriText);
 			const doc = entry.document;
-			const header = entry.header;
 			
 			if (!uri)
 				throw X.ExceptionMessage.unknownState();

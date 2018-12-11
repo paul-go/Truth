@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../../X";
 
 
 /**
@@ -10,13 +10,13 @@ import * as X from "./X";
 export class Spine
 {
 	/** */
-	constructor(nodes: X.Span[])
+	constructor(vertebrae: X.Span[])
 	{
-		if (nodes.length === 0)
+		if (vertebrae.length === 0)
 			throw X.ExceptionMessage.unknownState();
 		
-		this.tip = nodes[nodes.length - 1];
-		this.nodes = nodes;
+		this.tip = vertebrae[vertebrae.length - 1];
+		this.vertebrae = vertebrae;
 	}
 	
 	/** Stores the last span in the array of segments. */
@@ -28,6 +28,6 @@ export class Spine
 	/** Gets a reference to the document that sits at the top of the spine. */
 	get document() { return this.statement.document; }
 	
-	/**  */
-	readonly nodes: ReadonlyArray<X.Span> = [];
+	/** Stores an array of the Spans that compose the Spine. */
+	readonly vertebrae: ReadonlyArray<X.Span> = [];
 }

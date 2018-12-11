@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../X";
 import * as Path from "path";
 
 
@@ -136,7 +136,8 @@ export class Uri
 		if (from instanceof X.Spine)
 		{
 			const srcUri = from.document.sourceUri;
-			const typeSegments = from.nodes.map(n => n.subject.toString());
+			const typeSegments = from.vertebrae.map(span => span.subject.toString());
+			
 			return new Uri(
 				srcUri.protocol,
 				srcUri.fileName,
@@ -216,8 +217,14 @@ export class Uri
 	
 	/**
 	 * Converts the URI to a fully-qualified path including the file name.
+	 * 
+	 * @param includeProtocol Whether the protocol portion of the URI
+	 * should be included in the final string. Defaults to true.
+	 * 
+	 * @param includeTypePath Whether the typePath portion of the URI
+	 * should be included in the final string. Defaults to false.
 	 */
-	toString(includeProtocol?: boolean, includeTypePath?: boolean)
+	toString(includeProtocol = true, includeTypePath = false)
 	{
 		const proto = includeProtocol ?
 			UriProtocol[this.protocol] + "://" :
@@ -234,9 +241,17 @@ export class Uri
 	/** 
 	 * @returns A value indicating whether two URIs point to the same resource.
 	 */
-	equals(uri: Uri | string)
+	equals(uri: Uri | string, compareTypePaths = false)
 	{
-		return this === uri || this.toString() === uri.toString();
+		if (this === uri)
+			return true;
+		
+		const thisText = this.toString(true, compareTypePaths);
+		
+		if (uri instanceof X.Uri)
+			return thisText === uri.toString(true, compareTypePaths);
+		
+		return thisText === uri;
 	}
 	
 	/**
@@ -246,7 +261,7 @@ export class Uri
 	 * 
 	 * @returns A new Uri that is otherwise a copy of this 
 	 * one, but with it's IO path and type path peeled
-	 * back by the specified numbero of levels.
+	 * back by the specified number of levels.
 	 */
 	retract(ioRetraction = 0, typeRetraction = 1)
 	{
@@ -263,6 +278,17 @@ export class Uri
 			this.fileExtension,
 			this.ioPath.slice(0, ioRetraction ? -ioRetraction : undefined),
 			this.typePath.slice(0, -typeRetraction));
+	}
+	
+	/**
+	 * Creates a new Uri, whose typePath field is
+	 * retracted to the specified level of depth.
+	 */
+	retractTo(typePathLength: number)
+	{
+		return typePathLength < this.typePath.length ?
+			this.retract(0, this.typePath.length - typePathLength) :
+			this;
 	}
 	
 	/**

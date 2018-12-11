@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../X";
 
 
 //
@@ -134,7 +134,7 @@ export class TypeCannotBeRefreshedFault extends StatementFault
 
 
 /** */
-export class AnonymousListIntrinsicTypeFault extends StatementFault
+export class AnonymousInListIntrinsicTypeFault extends StatementFault
 {
 	readonly code = 300;
 	readonly message = 

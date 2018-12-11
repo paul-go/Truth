@@ -1,4 +1,4 @@
-import * as X from "./X";
+import * as X from "../X";
 
 
 /**
@@ -17,7 +17,8 @@ export class VerificationService
 		{
 			for (const statement of hook.parents)
 				for (const declaration of statement.declarations)
-					declaration.factor().map(spine => X.Type.get(spine));
+					declaration.factor().map(spine => 
+						X.Type.construct(spine, program));
 		});
 	}
 }
