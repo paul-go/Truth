@@ -207,7 +207,6 @@ export class Waterfall
 		this.directive = directive;
 		this.origin = null!;
 		this.terraces = terraces;
-		this.program = program;
 	}
 	
 	/** */
@@ -228,9 +227,6 @@ export class Waterfall
 	 * the Waterfall was constructed.
 	 */
 	readonly constructionFaults: ReadonlyArray<X.Fault> = [];
-	
-	/** */
-	private readonly program: X.Program;
 	
 	/**
 	 * Reads a full terrace from the waterfall, from the specified
