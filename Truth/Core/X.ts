@@ -8,6 +8,7 @@ export * from "./Util/Fs";
 export * from "./Util/Fetch";
 export * from "./Util/Crc";
 export * from "./Util/HigherOrder";
+export * from "./Util/Guard";
 
 // System
 export * from "./System/Program";
