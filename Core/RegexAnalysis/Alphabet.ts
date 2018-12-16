@@ -9,31 +9,34 @@ export class Alphabet
 	/** */
 	constructor(...others: Alphabet[] | string[])
 	{
+		let hasWild = false;
 		const allSymbols: string[] = [];
+		
+		const add = (symbol: string) =>
+		{
+			if (symbol === Alphabet.wildcard)
+				hasWild = true;
+			else
+				allSymbols.push(symbol);
+		}
 		
 		for (const other of others)
 		{
 			if (other instanceof Alphabet)
 			{
 				for (const otherSymbol of other.symbols)
-					allSymbols.push(otherSymbol);
+					add(otherSymbol);
 			}
-			else
-			{
-				allSymbols.push(other);
-			}
+			else add(other);
 		}
 		
-		allSymbols.sort((a, b) =>
-		{
-			if (b === Alphabet.wild)
-				return 1;
-			
-			if (a === Alphabet.wild)
-				return -1;
-			
-			return a > b ? -1 : 1;
-		});
+		if (allSymbols.length === 0)
+			throw X.ExceptionMessage.unknownState();
+		
+		allSymbols.sort();
+		
+		if (hasWild)
+			allSymbols.push(Alphabet.wildcard);
 		
 		this.symbols = new Set(allSymbols);
 	}
@@ -58,14 +61,29 @@ export class Alphabet
 	}
 	
 	/** */
-	hasWild()
+	hasWildcard()
 	{
-		return this.symbols.has(Alphabet.wild);
+		return this.symbols.has(Alphabet.wildcard);
+	}
+	
+	/**
+	 * @returns A string representation of this object, 
+	 * for testing and debugging purposes.
+	 */
+	toString()
+	{
+		const wild = Alphabet.wildcard;
+		const symbols = Array.from(this.symbols).filter(s => s !== wild);
+		
+		if (this.hasWildcard())
+			symbols.push("(wild)");
+		
+		return "[" + symbols.join(", ") + "]";
 	}
 	
 	/** */
 	private readonly symbols: ReadonlySet<string>;
 	
 	/** Stores the wildcard character. */
-	static readonly wild = String.fromCharCode(0);
+	static readonly wildcard = String.fromCharCode(0);
 }
