@@ -1,5 +1,3 @@
-import * as X from "../X";
-
 
 /**
  * @internal
@@ -50,6 +48,20 @@ export class TransitionState
 	{
 		for (const symbol of this.stateMap.keys())
 			yield symbol;
+	}
+	
+	/**
+	 * @returns A string representation of this object, 
+	 * for testing and debugging purposes.
+	 */
+	toString()
+	{
+		const out: string[] = [];
+		
+		for (const [symbol, stateId] of this.stateMap)
+			out.push("{ " + symbol + ": " + stateId + " }");
+		
+		return out.length ? out.join(", ") : "{}";
 	}
 	
 	/** */

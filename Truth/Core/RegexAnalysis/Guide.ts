@@ -56,17 +56,22 @@ export class Guide
 			throw new TypeError();
 		
 		if (this.hasDst === null)
-			return this.arrows.set(stateIdSrc, stateIdDst);
+		{
+			this.arrows.set(stateIdSrc, stateIdDst);
+		}
+		else
+		{
+			if (stateIdDst !== stateIdDst)
+				throw new TypeError();
+			
+			if ((this.hasDst === true && typeof stateIdDst !== "number") ||
+				(this.hasDst === false && typeof stateIdDst === "number"))
+				throw new Error("Parameters need to be kept consistent across the instance.");
+			
+			this.arrows.set(stateIdSrc, stateIdDst);
+		}
 		
-		if (stateIdDst !== stateIdDst)
-			throw new TypeError();
-		
-		if ((this.hasDst === true && typeof stateIdDst !== "number") ||
-			(this.hasDst === false && typeof stateIdDst === "number"))
-			throw new Error("Parameters need to be kept consistent across the instance.");
-		
-		this.hasDst = stateIdDst === null;
-		this.arrows.set(stateIdSrc, stateIdDst);
+		this.hasDst = stateIdDst !== null;
 	}
 	
 	/** */
@@ -75,11 +80,27 @@ export class Guide
 		if (this.isFrozen)
 			throw new TypeError();
 		
-		if (other.hasDst !== this.hasDst)
-			throw new Error("The structure of the guides must match.");
-		
-		for (const [src, dst] of other.arrows)
-			this.arrows.set(src, dst);
+		if (this.hasDst === null)
+		{
+			for (const [src, dst] of other.arrows)
+			{
+				this.hasDst = typeof dst === "number";
+				this.arrows.set(src, dst);
+			}
+		}
+		else
+		{
+			if (other.hasDst === null)
+			{
+				if (other.size !== 0)
+					throw X.ExceptionMessage.unknownState();
+			}
+			else
+			{
+				for (const [src, dst] of other.arrows)
+					this.arrows.set(src, dst);
+			}
+		}
 	}
 	
 	/** */
@@ -120,11 +141,47 @@ export class Guide
 	/** */
 	get size() { return this.arrows.size; }
 	
+	/**
+	 * @returns A boolean value that indicates whether the contents
+	 * of this guide match the contents of the guide specified in the
+	 * parameter.
+	 */
+	equals(other: Guide)
+	{
+		if (this.size !== other.size)
+			return false;
+		
+		for (const [src, dst] of this.arrows)
+			if (other.arrows.get(src) !== dst)
+				return false;
+		
+		return true;
+	}
+	
 	/** */
 	freeze()
 	{
 		this.isFrozen = true;
 		return this;
+	}
+	
+	/**
+	 * @returns A string representation of this object, 
+	 * for testing and debugging purposes.
+	 */
+	toString()
+	{
+		if (this.hasDst)
+		{
+			const literal: string[] = [];
+			
+			for (const [stateIdSrc, stateIdDst] of this.arrows)
+				literal.push(stateIdSrc + ": " + stateIdDst);
+			
+			return "{ " + literal.join(", ") + " }";
+		}
+		
+		return "[" + Array.from(this.arrows.keys()).join(", ") + "]";
 	}
 	
 	/** */

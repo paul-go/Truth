@@ -106,6 +106,21 @@ export class TransitionMap
 			yield stateId;
 	}
 	
+	/**
+	 * @returns A string representation of this object, 
+	 * for testing and debugging purposes.
+	 */
+	toString()
+	{
+		const out = ["{"];
+		
+		for (const [stateId, tState] of this.transitions)
+			out.push("\t" + stateId + ": " + tState.toString());
+		
+		out.push("}");
+		return out.join("\n");
+	}
+	
 	/** */
 	protected readonly transitions: Map<number, X.TransitionState>;
 }
@@ -117,6 +132,12 @@ export class TransitionMap
 export class MutableTransitionMap extends TransitionMap
 {
 	/** */
+	initialize(srcStateId: number)
+	{
+		this.transitions.set(srcStateId, new X.TransitionState());
+	}
+	
+	/** */
 	set(srcStateId: number, symbol: string, dstStateId: number)
 	{
 		const tState = this.transitions.get(srcStateId);
@@ -124,7 +145,7 @@ export class MutableTransitionMap extends TransitionMap
 		if (!tState)
 		{
 			const tState = new X.TransitionState();
-			tState.set(symbol, srcStateId);
+			tState.set(symbol, dstStateId);
 			this.transitions.set(srcStateId, tState);
 		}
 		else

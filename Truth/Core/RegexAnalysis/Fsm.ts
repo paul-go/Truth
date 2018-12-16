@@ -2,22 +2,61 @@ import * as X from "../X";
 
 
 /**
- * Oblivion is returns while `crawl()`ing an FSM if we transition to the
- * oblivion state. For example while crawling two FSMs in parallel we may
- * transition to the oblivion state of both FSMs at once. This warrants an
- * out-of-bound signal which will reduce the complexity of the new FSM's map.
+ * This code is a TypeScript conversion of a portion of the the Python
+ * project "greenery", from GitHub user "qntm". 
+ * 
+ * The greenery project can be found here:
+ * https://github.com/qntm/greenery
+ * 
+ * Specifically, the code from where this code drew inspiration is:
+ * https://github.com/qntm/greenery/blob/master/greenery/fsm.py
+ * 
+ * Possibly relevant blog post:
+ * https://qntm.org/algo
+ * 
+ * The original MIT license from greenery is as follows:
+ * 
+ * Copyright (C) 2012 to 2017 by qntm
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+ * OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+
+/**
+ * Oblivion is a Symbol object that is returned while calling crawl() if the Fsm
+ * is transitioned to the oblivion state. For example while crawling two Fsms
+ * in parallel we may transition to the oblivion state of both Fsms at once.
+ * This warrants an out-of-bound signal which will reduce the complexity of
+ * the new Fsm's map.
  */
 const Oblivion = Symbol();
 
 
 /**
  * @internal
- * A Finite State Machine or FSM has an alphabet and a set of states. At any
- * given moment, the FSM is in one state. When passed a symbol from the
- * alphabet, the FSM jumps to another state (or possibly the same state).
+ * A Finite State Machine or Fsm has an alphabet and a set of states. At any
+ * given moment, the Fsm is in one state. When passed a symbol from the
+ * alphabet, the Fsm jumps to another state (or possibly the same state).
  * A TransitionMap indicates where to jump. One state is nominated as the
  * initial state. Zero or more states are nominated as final states. If, after
- * consuming a string of symbols, the FSM is in a final state, then it is said
+ * consuming a string of symbols, the Fsm is in a final state, then it is said
  * to "accept" the string.
  */
 export class Fsm
@@ -25,22 +64,22 @@ export class Fsm
 	/** */
 	constructor(
 		/**
-		 * An iterable of symbols the FSM can be fed.
+		 * An iterable of symbols the Fsm can be fed.
 		 */
 		readonly alphabet: X.Alphabet,
 		
 		/**
-		 * The set of possible states for the FSM.
+		 * The set of possible states for the Fsm.
 		 */
 		readonly states: ReadonlySet<number>,
 		
 		/**
-		 * The initial state of the FSM.
+		 * The initial state of the Fsm.
 		 */
 		readonly initial: number,
 		
 		/**
-		 * The set of states that the FSM accepts.
+		 * The set of states that the Fsm accepts.
 		 */
 		readonly finals: ReadonlySet<number>,
 		
@@ -53,23 +92,24 @@ export class Fsm
 	{ }
 	
 	/**
-	 * @returns A boolean value that indicates whether the present FSM
+	 * @returns A boolean value that indicates whether the present Fsm
 	 * accepts the supplied array of symbols. Equivalently, consider this
-	 * FSM instance as a possibly-infinite set of strings and test whether
+	 * Fsm instance as a possibly-infinite set of strings and test whether
 	 * the input is a member of it.
 	 * 
-	 * If the Wildcard is present in the specified alphabet, then any symbol
-	 * not in the specified alphabet will be converted to a Wildcard.
+	 * If the wildcard character is present in the specified alphabet, then
+	 * any symbol not in the specified alphabet will be assumed to be 
+	 * wildcard.
 	 */
 	accepts(input: string)
 	{
-		const thisHasWild = this.alphabet.hasWild();
+		const thisHasWild = this.alphabet.hasWildcard();
 		let stateId = this.initial;
 		
 		for (const char of input)
 		{
 			const symbol = thisHasWild && !this.alphabet.has(char) ?
-				X.Alphabet.wild :
+				X.Alphabet.wildcard :
 				char;
 			
 			// Missing transition = transition to dead state
@@ -87,7 +127,8 @@ export class Fsm
 	}
 	
 	/**
-	 * Reduces the FSM to a minimal finite state machine equivalent.
+	 * @returns A reduced version of the Fsm, down to a minimal finite
+	 * state machine equivalent.
 	 * 
 	 * (A result by Brzozowski (1963) shows that a minimal finite state
 	 * machine equivalent to the original can be obtained by reversing
@@ -99,12 +140,13 @@ export class Fsm
 	}
 	
 	/**
-	 * Concatenate a series of finite state machines together.
+	 * @returns A new Fsm instance that represents the concatenation
+	 * of the specified series of finite state machines.
 	 */
 	concatenate(...fsms: Fsm[])
 	{
 		if (fsms.length === 0)
-			quit(new RangeError());
+			throw new RangeError();
 		
 		if (fsms.length === 1)
 			return fsms[0];
@@ -112,9 +154,10 @@ export class Fsm
 		const alphabet = new X.Alphabet(...fsms.map(fsm => fsm.alphabet))
 		
 		/**
-		 * Take a state in the numbered FSM and return a set containing it, plus
-		 * (if it's final) the first state from the next FSM, plus (if that's
-		 * final) the first state from the next but one FSM, plus...
+		 * Take a state in the numbered Fsm and return a set containing it,
+		 * plus (if it's final) the first state from the next Fsm, 
+		 * plus (if that's final) the first state from the next but one Fsm, 
+		 * plus...
 		 */
 		const connectAll = (idx: number, substateId: number) =>
 		{
@@ -132,9 +175,9 @@ export class Fsm
 		}
 		
 		/**
-		 * Use a superset containing states from all FSMs at once.
-		 * We start at the start of the first FSM. If this state is final in the
-		 * first FSM, then we are also at the start of the second FSM. And so on.
+		 * Use a superset containing states from all Fsms at once.
+		 * We start at the start of the first Fsm. If this state is final in the
+		 * first Fsm, then we are also at the start of the second Fsm. And so on.
 		 */
 		const initial = new X.Guide();
 		
@@ -142,40 +185,39 @@ export class Fsm
 			initial.append(connectAll(0, fsms[0].initial));
 		
 		/**
-		 * If you're in a final state of the final FSM, it's final.
+		 * If you're in a final state of the final Fsm, it's final.
 		 */
-		const final = (guide: X.Guide) =>
+		const finalFn = (guide: X.Guide) =>
 		{
-			for (const [i, substate] of guide.entries())
-				if (i === fsms.length - 1 && fsms[i].finals.has(substate))
+			for (const [i, substateId] of guide.entries())
+				if (i === fsms.length - 1 && fsms[i].finals.has(substateId))
 					return true;
 			
 			return false;
 		}
 		
 		/** */
-		const follow: TFollowFn = (guide: X.Guide, symbol: string) =>
+		const followFn = (guide: X.Guide, symbol: string) =>
 		{
 			const next = new X.Guide();
 			
-			for (const [i, substate] of guide.entries())
+			for (const [i, substateId] of guide.entries())
 			{
 				const fsm = fsms[i];
 				
-				if (fsm.transitions.has(substate, symbol))
+				if (fsm.transitions.has(substateId, symbol))
 				{
-					const storedValue = fsm.transitions.acquire(substate, symbol);
+					const storedValue = fsm.transitions.acquire(substateId, symbol);
 					next.append(connectAll(i, storedValue));
 				}
 			}
 			
-			if (next.size === 0)
-				return Oblivion;
-			
-			return next;
+			return next.size === 0 ?
+				Oblivion :
+				next;
 		}
 		
-		return crawl(alphabet, initial, final, follow);
+		return crawl(alphabet, initial, finalFn, followFn);
 	}
 	
 	
@@ -191,7 +233,7 @@ export class Fsm
 	}
 	
 	/**
-	 * If the present FSM accepts X, returns an FSM accepting X*
+	 * If the present Fsm accepts X, returns an Fsm accepting X*
 	 * (i.e. 0 or more instances of X). Note that this is not as simple
 	 * as naively connecting the final states back to the initial state: 
 	 * see (b*ab)* for example.
@@ -201,69 +243,72 @@ export class Fsm
 		const alphabet = this.alphabet;
 		const initial = new X.Guide(this.initial);
 		
-		const follow: TFollowFn = (guide: X.Guide, symbol: string) =>
+		/** */
+		const followFn = (guide: X.Guide, symbol: string) =>
 		{
 			const next = new X.Guide();
 			
-			for (const substate of guide.keys())
+			for (const substateId of guide.keys())
 			{
-				if (this.transitions.has(substate, symbol))
-					next.add(this.transitions.acquire(substate, symbol));
+				if (this.transitions.has(substateId, symbol))
+					next.add(this.transitions.acquire(substateId, symbol));
 				
 				// If one of our substates is final, then we can also consider
-				// transitions from the initial state of the original FSM.
-				if (this.finals.has(substate) && this.transitions.has(this.initial, symbol))
+				// transitions from the initial state of the original Fsm.
+				if (this.finals.has(substateId) && this.transitions.has(this.initial, symbol))
 					next.add(this.transitions.acquire(this.initial, symbol));
 			}
 			
-			if (next.size === 0)
-				return Oblivion;
-			
-			return next;
+			return next.size === 0 ?
+				Oblivion :
+				next;
 		}
 		
-		const final: TFinalFn = (guide: X.Guide) =>
+		/** */
+		const finalFn = (guide: X.Guide) =>
 		{
-			for (const substate of guide.keys())
-				if (this.finals.has(substate))
+			for (const substateId of guide.keys())
+				if (this.finals.has(substateId))
 					return true;
 			
 			return false;
 		}
 		
-		return crawl(alphabet, initial, final, follow).or(epsilon(alphabet));
+		return crawl(alphabet, initial, finalFn, followFn).or(epsilon(alphabet));
 	}
 	
 	/**
-	 * Given an FSM and a multiplication factor, return the multiplied FSM.
+	 * Given an Fsm and a multiplication factor, return the multiplied Fsm.
 	 */
 	multiply(factor: number)
 	{
 		if (factor < 0)
-			return quit(new RangeError());
+			throw new RangeError();
 		
 		const alphabet = this.alphabet;
 		const initial = new X.Guide([[this.initial, 0]]);
 		
-		const final: TFinalFn = guide =>
+		/** */
+		const finalFn = (guide: X.Guide) =>
 		{
-			for (const [substate, iteration] of guide.entries())
-				if (this.initial === substate)
+			for (const [substateId, iteration] of guide.entries())
+				if (this.initial === substateId)
 					if (this.finals.has(this.initial) || iteration === factor)
 						return true;
 			
 			return false;
 		}
 		
-		const follow: TFollowFn = (guide: X.Guide, symbol: string) =>
+		/** */
+		const followFn = (guide: X.Guide, symbol: string) =>
 		{
 			const next = new X.Guide();
 			
-			for (const [substate, iteration] of guide.entries())
+			for (const [substateId, iteration] of guide.entries())
 			{
-				if (iteration < factor && this.transitions.has(substate, symbol))
+				if (iteration < factor && this.transitions.has(substateId, symbol))
 				{
-					const num = this.transitions.acquire(substate, symbol);
+					const num = this.transitions.acquire(substateId, symbol);
 					next.add(num, iteration);
 					
 					if (this.finals.has(num))
@@ -277,7 +322,7 @@ export class Fsm
 			return next;
 		}
 		
-		return crawl(alphabet, initial, final, follow).reduce();
+		return crawl(alphabet, initial, finalFn, followFn).reduce();
 	}
 	
 	/**
@@ -286,7 +331,9 @@ export class Fsm
 	 */
 	union(...fsms: Fsm[])
 	{
-		return parallelCrawl(fsms, accepts => accepts.some(val => val));
+		return crawlParallel(
+			prependFsm(this, fsms), 
+			accepts => accepts.some(val => val));
 	}
 	
 	/**
@@ -295,7 +342,7 @@ export class Fsm
 	 * 
 	 * @returns A finite state machine which accepts any sequence of
 	 * symbols that is accepted by either self or other. Note that the set
-	 * of strings recognised by the two FSMs undergoes a set union.
+	 * of strings recognised by the two Fsms undergoes a set union.
 	 */
 	or(other: Fsm)
 	{
@@ -308,12 +355,14 @@ export class Fsm
 	 */
 	intersection(...fsms: Fsm[])
 	{
-		return parallelCrawl(fsms, accepts => accepts.every(val => val));
+		return crawlParallel(
+			prependFsm(this, fsms), 
+			accepts => accepts.every(val => val));
 	}
 	
 	/**
-	 * Treat the FSMs as sets of strings and return the
-	 * intersection of those sets in the form of a new FSM.
+	 * Treat the Fsms as sets of strings and return the
+	 * intersection of those sets in the form of a new Fsm.
 	 */
 	and(other: Fsm)
 	{
@@ -326,7 +375,9 @@ export class Fsm
 	 */
 	symmetricDifference(...fsms: Fsm[])
 	{
-		return parallelCrawl(fsms, accepts => (accepts.filter(val => val).length % 2) === 1);
+		return crawlParallel(
+			prependFsm(this, fsms), 
+			accepts => (accepts.filter(val => val).length % 2) === 1);
 	}
 	
 	/**
@@ -348,7 +399,8 @@ export class Fsm
 		const alphabet = this.alphabet;
 		const initial = new X.Guide([[0, this.initial]]);
 		
-		const follow: TFollowFn = (guide: X.Guide, symbol: string) =>
+		/** */
+		const followFn = (guide: X.Guide, symbol: string) =>
 		{
 			const next = new X.Guide();
 			const first = guide.first();
@@ -360,13 +412,14 @@ export class Fsm
 			return next;
 		}
 		
-		const final: TFinalFn = guide =>
+		/** */
+		const finalFn = (guide: X.Guide) =>
 		{
 			const first = guide.first();
 			return !(first !== undefined && this.finals.has(first));
 		}
 		
-		return crawl(alphabet, initial, final, follow);
+		return crawl(alphabet, initial, finalFn, followFn);
 	}
 	
 	/**
@@ -387,7 +440,7 @@ export class Fsm
 		
 		// Find every possible way to reach the current state-set
 		// using this symbol.
-		const follow: TFollowFn = (guide: X.Guide, symbol: string) =>
+		const followFn = (guide: X.Guide, symbol: string) =>
 		{
 			const next = new X.Guide();
 			
@@ -399,15 +452,13 @@ export class Fsm
 			
 			return next.size === 0 ?
 				Oblivion :
-				guide;
+				next;
 		}
 		
-		const final: TFinalFn = state =>
-		{
-			return state.has(this.initial);
-		}
+		/** */
+		const finalFn = (guide: X.Guide) => guide.has(this.initial);
 		
-		return crawl(alphabet, initial, final, follow);
+		return crawl(alphabet, initial, finalFn, followFn);
 	}
 	
 	/**
@@ -437,8 +488,8 @@ export class Fsm
 	 */
 	difference(...fsms: Fsm[])
 	{
-		return parallelCrawl(
-			fsms,
+		return crawlParallel(
+			prependFsm(this, fsms), 
 			accepts => accepts[0] && accepts.slice(1).every(accepts => !accepts));
 	}
 	
@@ -473,10 +524,10 @@ export class Fsm
 	}
 	
 	/**
-	 * An FSM is empty if it recognises no strings. An FSM may be arbitrarily
+	 * An Fsm is empty if it recognises no strings. An Fsm may be arbitrarily
 	 * complicated and have arbitrarily many final states while still recognising
 	 * no strings because those final states may all be inaccessible from the
-	 * initial state. Equally, an FSM may be non-empty despite having an empty
+	 * initial state. Equally, an Fsm may be non-empty despite having an empty
 	 * alphabet if the initial state is final.
 	 */
 	isEmpty()
@@ -485,7 +536,7 @@ export class Fsm
 	}
 	
 	/**
-	 * Generate strings (lists of symbols) that this FSM accepts. Since there may
+	 * Generate strings (lists of symbols) that this Fsm accepts. Since there may
 	 * be infinitely many of these we use a generator instead of constructing a
 	 * static list. Strings will be sorted in order of length and then lexically.
 	 * This procedure uses arbitrary amounts of memory but is very fast. There
@@ -550,10 +601,10 @@ export class Fsm
 	}
 	
 	/**
-	 * Compute the Brzozowski derivative of this FSM with respect to the input
+	 * Compute the Brzozowski derivative of this Fsm with respect to the input
 	 * string of symbols. <https://en.wikipedia.org/wiki/Brzozowski_derivative>
 	 * If any of the symbols are not members of the alphabet, that's a KeyError.
-	 * If you fall into oblivion, then the derivative is an FSM accepting no
+	 * If you fall into oblivion, then the derivative is an Fsm accepting no
 	 * strings.
 	 * 
 	 * @returns A new Fsm instance with the computed characteristics.
@@ -568,10 +619,10 @@ export class Fsm
 			{
 				if (this.alphabet.has(char))
 				{
-					if (!(this.alphabet.hasWild))
-						return quit(new Error(char));
+					if (!(this.alphabet.hasWildcard))
+						throw new Error(char);
 					
-					return X.Alphabet.wild;
+					return X.Alphabet.wildcard;
 				}
 				
 				return char;
@@ -590,6 +641,30 @@ export class Fsm
 			this.finals,
 			this.transitions.clone());
 	}
+	
+	/**
+	 * @returns A string representation of this object, 
+	 * for testing and debugging purposes.
+	 */
+	toString()
+	{
+		return ([
+			"alphabet = " + this.alphabet.toString(),
+			"states = " + Array.from(this.states).join(),
+			"inital = " + this.initial,
+			"finals = " + Array.from(this.finals).join(),
+			"transitions = " + this.transitions.toString()
+		]).join("\n");
+	}
+}
+
+
+/**
+ * Utility function to prepend an Fsm instance to an Fsm array.
+ */
+function prependFsm(fsm: Fsm, fsms: Fsm[])
+{
+	return [fsm].concat(...fsms);
 }
 
 
@@ -628,11 +703,11 @@ function epsilon(alphabet: X.Alphabet)
 
 
 /**
- * Crawl several FSMs in parallel, mapping the states of a larger meta-FSM.
- * To determine whether a state in the larger FSM is final, pass all of the
+ * Crawl several Fsms in parallel, mapping the states of a larger meta-Fsm.
+ * To determine whether a state in the larger Fsm is final, pass all of the
  * finality statuses (e.g. [true, false, false] to testFn.
  */
-function parallelCrawl(fsms: Fsm[], testFn: (accepts: boolean[]) => boolean)
+function crawlParallel(fsms: Fsm[], testFn: (accepts: boolean[]) => boolean)
 {
 	const alphabet = new X.Alphabet(...fsms.map(fsm => fsm.alphabet));
 	
@@ -643,9 +718,9 @@ function parallelCrawl(fsms: Fsm[], testFn: (accepts: boolean[]) => boolean)
 	
 	/**
 	 * Dedicated function accepts a "superset" and returns the next "superset"
-	 * obtained by following this transition in the new FSM.
+	 * obtained by following this transition in the new Fsm.
 	 */
-	const follow: TFollowFn = (guide: X.Guide, symbol: string) =>
+	const followFn = (guide: X.Guide, symbol: string) =>
 	{
 		const next = new X.Guide();
 		
@@ -660,8 +735,8 @@ function parallelCrawl(fsms: Fsm[], testFn: (accepts: boolean[]) => boolean)
 				continue;
 			
 			const alpha = fsm.alphabet;
-			const actualSymbol = alpha.has(symbol) && alpha.hasWild() ?
-				X.Alphabet.wild :
+			const actualSymbol = alpha.has(symbol) && alpha.hasWildcard() ?
+				X.Alphabet.wildcard :
 				symbol;
 			
 			if (substateId.has(actualSymbol))
@@ -675,10 +750,10 @@ function parallelCrawl(fsms: Fsm[], testFn: (accepts: boolean[]) => boolean)
 	}
 	
 	/**
-	 * Determine the "is final?" condition of each substate, then pass it to the
-	 * test to determine finality of the overall FSM.
+	 * Determine the "is final?" condition of each substateId, then pass it to the
+	 * test to determine finality of the overall Fsm.
 	 */
-	const final: TFinalFn = guide =>
+	const finalFn = (guide: X.Guide) =>
 	{
 		const accepts: boolean[] = [];
 		
@@ -692,69 +767,57 @@ function parallelCrawl(fsms: Fsm[], testFn: (accepts: boolean[]) => boolean)
 		return testFn(accepts);
 	}
 	
-	return crawl(alphabet, initial, final, follow);
+	return crawl(alphabet, initial, finalFn, followFn).reduce();
 }
 
 
 /**
- * Given the above conditions and instructions, crawl a new unknown FSM,
- * mapping its states, final states and transitions. Return the new FSM.
+ * Given the above conditions and instructions, crawl a new unknown Fsm,
+ * mapping its states, final states and transitions. Return the new Fsm.
  */
 function crawl(
 	alphabet: X.Alphabet,
 	initial: X.Guide,
-	finalFn: TFinalFn,
-	followFn: TFollowFn)
+	finalFn: (guide: X.Guide) => boolean,
+	followFn: (guide: X.Guide, symbol: string) => X.Guide | typeof Oblivion)
 {
-	const states = [initial];
+	const debugLines: string[] = [];
+	const guides = [initial];
 	const finals = new Set<number>();
 	const transitions = new X.MutableTransitionMap();
 	
 	// Iterate over a growing list
-	for (let i = 0; i < states.length; i++)
+	for (const [i, guide] of guides.entries())
 	{
-		const state = states[i];
-		
 		// Add to finals
-		if (finalFn(state))
+		if (finalFn(guide))
 			finals.add(i);
 		
 		// Compute transitions for this state
+		transitions.initialize(i);
+		
 		for (const symbol of alphabet)
 		{
-			const next = followFn(state, symbol);
-			if (next === Oblivion)
-				continue;
-			
-			const nextIdx = states.indexOf(next);
-			
-			const n = nextIdx < 0 ?
-				states.length :
-				nextIdx;
-			
-			transitions.set(i, symbol, n);
+			const next = followFn(guide, symbol);
+			if (next !== Oblivion)
+			{
+				let nextIdx = guides.findIndex(guide => guide.equals(next));
+				if (nextIdx < 0)
+				{
+					nextIdx = guides.length;
+					guides.push(next);
+				}
+				
+				transitions.set(i, symbol, nextIdx);
+				debugLines.push(next.toString());
+			}
 		}
 	}
 	
 	return new Fsm(
 		alphabet,
-		new Set(Array(states.length).keys()),
+		new Set(Array(guides.length).keys()),
 		0,
 		finals,
 		transitions);
 }
-
-
-/** */
-function quit(error?: Error | string): never
-{
-	debugger;
-	throw error;
-}
-
-
-/** */
-type TFollowFn = (guide: X.Guide, symbol: string) => X.Guide | typeof Oblivion;
-
-/** */
-type TFinalFn = (guide: X.Guide) => boolean;
