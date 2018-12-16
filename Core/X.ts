@@ -9,6 +9,14 @@ export * from "./Util/Fetch";
 export * from "./Util/Crc";
 export * from "./Util/HigherOrder";
 export * from "./Util/Guard";
+export * from "./Util/Parser";
+
+// Regex Analysis
+export * from "./RegexAnalysis/Alphabet";
+export * from "./RegexAnalysis/TransitionMap";
+export * from "./RegexAnalysis/TransitionState";
+export * from "./RegexAnalysis/Guide";
+export * from "./RegexAnalysis/Fsm";
 
 // System
 export * from "./System/Program";
