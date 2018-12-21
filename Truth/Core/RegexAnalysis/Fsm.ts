@@ -151,8 +151,6 @@ export class Fsm
 		if (fsms.length === 1)
 			return fsms[0];
 		
-		const alphabet = new X.Alphabet(...fsms.map(fsm => fsm.alphabet))
-		
 		/**
 		 * Take a state in the numbered Fsm and return a set containing it,
 		 * plus (if it's final) the first state from the next Fsm, 
@@ -217,6 +215,9 @@ export class Fsm
 				next;
 		}
 		
+		const alphabets = fsms.map(fsm => fsm.alphabet);
+		const alphabet = new X.AlphabetBuilder(...alphabets).toAlphabet();
+		
 		return crawl(alphabet, initial, finalFn, followFn);
 	}
 	
@@ -240,7 +241,6 @@ export class Fsm
 	 */
 	star()
 	{
-		const alphabet = this.alphabet;
 		const initial = new X.Guide(this.initial);
 		
 		/** */
@@ -274,7 +274,7 @@ export class Fsm
 			return false;
 		}
 		
-		return crawl(alphabet, initial, finalFn, followFn).or(epsilon(alphabet));
+		return crawl(this.alphabet, initial, finalFn, followFn).or(epsilon(this.alphabet));
 	}
 	
 	/**
@@ -285,7 +285,6 @@ export class Fsm
 		if (factor < 0)
 			throw new RangeError();
 		
-		const alphabet = this.alphabet;
 		const initial = new X.Guide([[this.initial, 0]]);
 		
 		/** */
@@ -322,7 +321,7 @@ export class Fsm
 			return next;
 		}
 		
-		return crawl(alphabet, initial, finalFn, followFn).reduce();
+		return crawl(this.alphabet, initial, finalFn, followFn).reduce();
 	}
 	
 	/**
@@ -396,7 +395,6 @@ export class Fsm
 	 */
 	not()
 	{
-		const alphabet = this.alphabet;
 		const initial = new X.Guide([[0, this.initial]]);
 		
 		/** */
@@ -419,7 +417,7 @@ export class Fsm
 			return !(first !== undefined && this.finals.has(first));
 		}
 		
-		return crawl(alphabet, initial, finalFn, followFn);
+		return crawl(this.alphabet, initial, finalFn, followFn);
 	}
 	
 	/**
@@ -428,8 +426,6 @@ export class Fsm
 	 */
 	reverse()
 	{
-		const alphabet = this.alphabet;
-		
 		// Start from a composite "state-set" consisting of all final states.
 		// If there are no final states, this set is empty and we'll find that
 		// no other states get generated.
@@ -458,7 +454,7 @@ export class Fsm
 		/** */
 		const finalFn = (guide: X.Guide) => guide.has(this.initial);
 		
-		return crawl(alphabet, initial, finalFn, followFn);
+		return crawl(this.alphabet, initial, finalFn, followFn);
 	}
 	
 	/**
@@ -635,7 +631,7 @@ export class Fsm
 		}
 		
 		return new Fsm(
-			this.alphabet.clone(),
+			this.alphabet,
 			this.states,
 			stateId,
 			this.finals,
@@ -709,8 +705,6 @@ function epsilon(alphabet: X.Alphabet)
  */
 function crawlParallel(fsms: Fsm[], testFn: (accepts: boolean[]) => boolean)
 {
-	const alphabet = new X.Alphabet(...fsms.map(fsm => fsm.alphabet));
-	
 	const initial = new X.Guide();
 	
 	for (const [index, fsm]  of fsms.entries())
@@ -767,6 +761,8 @@ function crawlParallel(fsms: Fsm[], testFn: (accepts: boolean[]) => boolean)
 		return testFn(accepts);
 	}
 	
+	const alphabets = fsms.map(fsm => fsm.alphabet);
+	const alphabet = new X.AlphabetBuilder(...alphabets).toAlphabet();
 	return crawl(alphabet, initial, finalFn, followFn).reduce();
 }
 
