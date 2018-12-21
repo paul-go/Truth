@@ -259,6 +259,14 @@ export class PatternIncompatibleFault extends StatementFault
 }
 
 /** */
+export class PatternWithCoexistenceAndCommaFault extends StatementFault
+{
+	readonly code = 444;
+	readonly message = 
+		"Patterns with the coexistence flag cannot match a comma.";
+}
+
+/** */
 export class InfixInRepeatingPatternFault extends StatementFault
 {
 	readonly code = 408;
@@ -347,6 +355,36 @@ export class DiscrepantUnionFault extends StatementFault
 	readonly message = 
 		"A union cannot be created between these types because their " + 
 		"associated patterns conflict with each other.";
+}
+
+
+//
+// Parse errors
+//
+
+
+/** */
+export class StatementBeginsWithCommaFault extends StatementFault
+{
+	readonly code = 500;
+	readonly message = "Statements cannot begin with a comma.";
+}
+
+/** */
+export class StatementBeginsWithEllipsisFault extends StatementFault
+{
+	readonly code = 502;
+	readonly message = "Statements cannot begin with an ellipsis (...).";
+}
+
+
+/** */
+export class StatementBeginsWithEscapedSpaceFault extends StatementFault
+{
+	readonly code = 504;
+	readonly message =
+		"Statements cannot begin with an escape character (\\) " + 
+		"that is followed by a tab or space.";
 }
 
 
