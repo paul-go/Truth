@@ -1,0 +1,16 @@
+//
+// This example demonstrates a fault being generated as a result
+// of a line starting with comma. We've decided that these should
+// be faults, not necessarily because they're conceptually invalid, 
+// but because doing so will help to expand the scarce opportunities
+// this language has for future expansion.
+//
+
+StatementBeginsWithComma
+#500; , : StatementBeginsWithComma
+
+StatementBeginsWithEllipsis
+#502; ... : StatementBeginsWithEllipsis
+
+StatementBeginsWithEscapedSpace
+#504; \ : StatementBeginsWithEscapedSpace
