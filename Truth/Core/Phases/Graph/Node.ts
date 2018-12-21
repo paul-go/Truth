@@ -55,7 +55,7 @@ export class Node
 	private getRootNodes(fromDocument?: X.Document)
 	{
 		const fromDoc = fromDocument || this.document;
-		const out = Node.rootNodes.get(fromDoc) || new Map();
+		const out = Node.rootNodes.get(fromDoc) || new Map<string, Node>();
 		return X.HigherOrder.copy(out);
 	}
 	
