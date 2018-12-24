@@ -10,18 +10,27 @@ import * as Path from "path";
 export class BaselineTestGenerator
 {
 	/**
-	 * Generates test functions for all baselines in the specified
-	 * directory. If the argument is omitted, the baselines located
-	 * in the default baseline directory will be used for test
-	 * generation.
+	 * Generates test functions for baselines.
+	 * 
+	 * @param targetPath Specifies the path to where the 
+	 * baseline files are located. If the path specified refers
+	 * to a file, only a single test function is generated. If the
+	 * argument is omitted, the default baseline directory is
+	 * used.
+	 * 
+	 * @returns A Map object whose keys are test title strings,
+	 * and whose values are asynchronous test functions.
 	 */
-	static generate(baselineDirectory = "")
+	static generate(targetPath = "")
 	{
-		if (baselineDirectory === "")
-			baselineDirectory = Path.join(process.cwd(), "CoreTests/Baselines");
+		const fullPath = Path.join(process.cwd(), targetPath !== "" ?
+			targetPath :
+			"CoreTests/Baselines");
 		
 		const testMap = new Map<string, () => Promise<string>>();
-		const filePaths = Fs.readdirSync(baselineDirectory, "utf8");
+		const filePaths = fullPath.endsWith(".truth") ?
+			[fullPath] :
+			Fs.readdirSync(targetPath, "utf8");
 		
 		filePaths.forEach(filePath =>
 		{
