@@ -64,9 +64,9 @@ export const enum FaultSeverity
 function createFault<T>(
 	code: number,
 	message: string,
-	severity = X.FaultSeverity.error)
+	severity = FaultSeverity.error)
 {
-	return Object.freeze(new X.FaultType<T>(code, message, severity));
+	return Object.freeze(new FaultType<T>(code, message, severity));
 }
 
 /**
@@ -80,7 +80,7 @@ export const Faults = Object.freeze({
 		const values = <FaultType<object>[]>Object.values(Faults);
 		
 		for (const faultType of values)
-			if (faultType instanceof X.FaultType)
+			if (faultType instanceof FaultType)
 				yield faultType;
 	},
 	
@@ -95,7 +95,7 @@ export const Faults = Object.freeze({
 		const entries = <[string, FaultType<object>][]>Object.entries(Faults);
 		
 		for (const [name, type] of entries)
-			if (type instanceof X.FaultType)
+			if (type instanceof FaultType)
 				if (type.code === faultCode)
 					return name;
 		
