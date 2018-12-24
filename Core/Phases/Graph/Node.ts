@@ -367,7 +367,7 @@ export class Node
 			{
 				for (const { adjacents } of this.enumerateContainment())
 					for (const adjacentNode of adjacents.values())
-						if (adjacentNode.subject instanceof X.ForePattern)
+						if (adjacentNode.subject instanceof X.Pattern)
 							if (adjacentNode.subject.test(name))
 								targets.push(adjacentNode);
 				
@@ -398,7 +398,7 @@ export class Node
 		
 		for (const { adjacents } of this.enumerateContainment())
 			for (const adjacentNode of adjacents.values())
-				if (adjacentNode.subject instanceof X.ForePattern)
+				if (adjacentNode.subject instanceof X.Pattern)
 					if (adjacentNode.subject.test(sumText))
 						sumTargets.push(adjacentNode);
 		

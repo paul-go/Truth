@@ -35,7 +35,7 @@ export class Document
 		
 		this.statements.length = 0;
 		
-		for (const statementText of readStatements(sourceText))
+		for (const statementText of readLines(sourceText))
 		{
 			const statement = new X.Statement(this, statementText);
 			this.statements.push(statement);
@@ -990,10 +990,10 @@ interface IDocumentMutator
 
 
 /**
- * Generator function that yields all statements (unparsed Facts)
+ * Generator function that yields all statements (unparsed lines)
  * of the given source text. 
  */
-function* readStatements(source: string)
+function* readLines(source: string)
 {
 	let cursor = -1;
 	let statementStart = 0;

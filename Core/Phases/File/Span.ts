@@ -16,9 +16,15 @@ export class Span
 	/** @internal */
 	constructor(
 		statement: X.Statement,
-		subject: X.Identifier | X.ForePattern | null,
+		subject: X.Subject | null,
 		offsetStart: number)
 	{
+		// The below check should never happen, and likely
+		// wouldn't cause any errors, but it's unplanned so
+		// we're checking for it here.
+		if (typeof subject === "string")
+			throw X.ExceptionMessage.unknownState();
+		
 		this.statement = statement;
 		this.subject = subject || generateInvisibleSubject();
 		this.offsetStart = offsetStart;

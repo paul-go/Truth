@@ -55,7 +55,7 @@ export class FaultService
 	has(similarFault: X.Fault)
 	{
 		for (const retainedFault of this.each())
-			if (retainedFault.code === similarFault.code)
+			if (retainedFault.type.code === similarFault.type.code)
 				if (retainedFault.source === similarFault.source)
 					return true;
 		
@@ -67,13 +67,13 @@ export class FaultService
 	 * at the specified source. If the source has no faults, an empty
 	 * array is returned.
 	 */
-	check(source: X.Span | X.Statement): X.Fault[]
+	check<TSource extends object>(source:TSource): X.Fault<TSource>[]
 	{
-		const out: X.Fault[] = [];
+		const out: X.Fault<TSource>[] = [];
 		
 		for (const retainedFault of this.each())
 			if (retainedFault.source === source)
-				out.push(retainedFault);
+				out.push(<X.Fault<TSource>>retainedFault);
 		
 		return out;
 	}
@@ -240,12 +240,12 @@ class FaultFrame
 		const faultsForSource = this.faults.get(fault.source);
 		if (faultsForSource)
 		{
-			faultsForSource.set(fault.code, fault);
+			faultsForSource.set(fault.type.code, fault);
 		}
 		else
 		{
 			const map = new Map<number, X.Fault>();
-			map.set(fault.code, fault);
+			map.set(fault.type.code, fault);
 			this.faults.set(fault.source, map);
 		}
 	}
@@ -255,7 +255,7 @@ class FaultFrame
 	{
 		const faultsForSource = this.faults.get(fault.source);
 		if (faultsForSource)
-			faultsForSource.delete(fault.code);
+			faultsForSource.delete(fault.type.code);
 	}
 	
 	/** */
@@ -263,10 +263,10 @@ class FaultFrame
 	{
 		const faultsForSource = this.faults.get(fault.source);
 		return faultsForSource ?
-			faultsForSource.has(fault.code) :
+			faultsForSource.has(fault.type.code) :
 			false;
 	}
 	
 	/** */
-	readonly faults = new Map<X.FaultSource, Map<number, X.Fault>>();
+	readonly faults = new Map<object, Map<number, X.Fault>>();
 }

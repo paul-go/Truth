@@ -2,7 +2,7 @@ import * as X from "../../X";
 
 
 /** */
-export type Subject = X.Identifier | X.ForePattern | string;
+export type Subject = X.Identifier | X.Pattern | X.Uri | string;
 
 
 /** */
@@ -14,8 +14,8 @@ export class SubjectParser
 		if (text.trim().length === 0)
 			throw X.ExceptionMessage.invalidArgument();
 		
-		if (X.ForePattern.canParse(text))
-			return X.ForePattern.parse(text)!;
+		//if (X.ForePattern.canParse(text))
+		//	return X.ForePattern.parse(text)!;
 		
 		return new X.Identifier(text);
 	}

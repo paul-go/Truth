@@ -94,12 +94,6 @@ export class Type
 	readonly bases: ReadonlyArray<Type> = [];
 	
 	/**
-	 * Stores the array of annotations attached to this Type
-	 * that were resolved as type aliases through a Pattern.
-	 */
-	readonly aliases: ReadonlyArray<X.Alias> = [];
-	
-	/**
 	 * Stores a reference to the intrinsic side of the list when
 	 * this type represents the extrinsic side of a list, or vice
 	 * versa. 

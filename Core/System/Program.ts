@@ -164,7 +164,7 @@ export class ProgramInspectionResult
 		 * Stores the compilation object that most closely represents
 		 * what was found at the specified location.
 		 */
-		readonly result: X.Document | X.Type[] | X.Alias | null,
+		readonly result: X.Document | X.Type[] | null,
 		
 		/**
 		 * Stores the Statement found at the specified location.
