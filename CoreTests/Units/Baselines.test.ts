@@ -1,6 +1,6 @@
 import * as T from "../T";
 
-describe.only("Execute Baselines", () =>
+describe.skip("Execute Baselines", () =>
 {
 	/**
 	 * NOTE TO TESTERS:
@@ -20,13 +20,17 @@ describe.only("Execute Baselines", () =>
 	{
 		tests;
 		const title = value[0];
-		const testFn = value[1];
+		const baselineTest = value[1];
 		
 		test(title, async () =>
 		{
 			tests;
 			title;
-			const reports = await testFn();
+			
+			const fileContent = await baselineTest.loadFn();
+			const baselineProgram = baselineTest.parseFn(fileContent);
+			const reports = baselineTest.execFn(baselineProgram);
+			
 			expect(reports).toBe("");
 		});
 	});
