@@ -1,8 +1,20 @@
 import * as T from "../T";
 
-describe("Execute Baselines", () =>
+describe.only("Execute Baselines", () =>
 {
-	const tests = Array.from(T.BaselineTestGenerator.generate().entries());
+	/**
+	 * NOTE TO TESTERS:
+	 * 
+	 * This is the path of the baseline file that will be loaded and
+	 * tested. A directory can be specified here, in which case,
+	 * all files ending in the ".truth" extension will be loaded and
+	 * tested in the specified directory. Or, a single file can be
+	 * referenced to run an isolated test.
+	 */
+	const targetPath = "CoreTests/Baselines/Fragmentation.truth";
+	
+	const testMap = T.BaselineTestGenerator.generate(targetPath);
+	const tests = Array.from(testMap.entries());
 	
 	tests.forEach(value =>
 	{
