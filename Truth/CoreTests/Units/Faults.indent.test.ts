@@ -5,7 +5,7 @@ import "../Framework/TestExtensions";
 describe("Indentation Fault Tests", () =>
 {
 	//
-	test.only("Single indentation fault", () =>
+	test("Single indentation fault", () =>
 	{
 		const prog = new X.Program();
 		const t = X.Syntax.tab;
