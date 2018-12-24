@@ -85,7 +85,7 @@ export class Alphabet
 				String.fromCharCode(range.from) + " - " + String.fromCharCode(range.to));
 		
 		if (this.hasWildcard())
-			symbols.push("(wild)");
+			symbols.push(Alphabet.wildcard);
 		
 		return "[" + symbols.join(", ") + "]";
 	}
@@ -94,16 +94,18 @@ export class Alphabet
 	private readonly ranges: ReadonlyArray<AlphabetRange> = [];
 	
 	/**
-	 * 
+	 * Stores a special token that the system understands to be the
+	 * wildcard character. The length of the token is longer than any
+	 * other token that could otherwise be found in the alphabet.
 	 */
-	static readonly wildcard = String.fromCharCode(0);
+	static readonly wildcard = "((wild))";
 	
 	/**
 	 * Stores a range that represents the wildcard character.
 	 * The range of the wildcard is positive infinity in both directions,
 	 * to ensure that it's always sorted last in the ranges array.
 	 */
-	static readonly wildcardRange = new AlphabetRange(Infinity, Infinity);
+	static readonly wildcardRange = Object.freeze(new AlphabetRange(Infinity, Infinity));
 }
 
 
@@ -151,34 +153,101 @@ export class AlphabetBuilder
 		return this;
 	}
 	
+	/** */
+	addWild()
+	{
+		this.ranges.push(Alphabet.wildcardRange);
+	}
+	
 	/**
 	 * @returns An optimized Alphabet instances composed 
 	 * from the characters and ranges applied to this AlphabetBuilder.
+	 * 
+	 * @param invert In true, causes the entries in the generated
+	 * Alphabet to be reversed, such that every character marked
+	 * as included is excluded, and vice versa.
 	 */
-	toAlphabet()
+	toAlphabet(invert?: boolean)
 	{
-		this.ranges.sort((a, b) => a.from - b.from);
+		if (this.ranges.length === 0)
+			return new Alphabet();
+		
+		const ranges = this.ranges
+			.slice()
+			.sort((a, b) => a.from - b.from);
 		
 		// Quick optimization of ranges
-		for (let i = 0; i < this.ranges.length - 1;)
+		for (let i = 0; i < ranges.length - 1;)
 		{
-			const range = this.ranges[i];
-			const nextRange = this.ranges[i + 1];
+			const range = ranges[i];
+			const nextRange = ranges[i + 1];
 			
 			// Omit
 			if (range.to > nextRange.to)
 			{
-				this.ranges.splice(i + 1, 1);
+				ranges.splice(i + 1, 1);
 			}
 			// Concat
 			else if (range.to >= nextRange.from)
 			{
-				this.ranges[i] = new X.AlphabetRange(range.from, nextRange.to);
-				this.ranges.splice(i + 1, 1);
+				ranges[i] = new X.AlphabetRange(range.from, nextRange.to);
+				ranges.splice(i + 1, 1);
 			}
 		}
 		
-		return new X.Alphabet(...this.ranges);
+		if (invert)
+		{
+			//
+			// This alphabet inversion algorithm has to deal with 4 cases,
+			// depending on the pattern of the ranges and the spaces.
+			// After the ranges are sorted and optimized, the ranges
+			// array represents a layout that alternates between ranges
+			// and spaces. There are 4 basic layouts (R = Range, S = Space):
+			//
+			// RSRS - Starts with a range, ends with a space
+			// SRSR - Starts with a space, ends with a range
+			// RSRSR - Starts with a range, ends with a range
+			// SRSRS - Starts with a space, ends with a space
+			// 
+			// The algorithm deal with any leading or trailing space
+			// separately, to make the looping less complicated. 
+			// 
+			
+			const rangesInv: X.AlphabetRange[] = [];
+			const lastRange = ranges[ranges.length - 1];
+			const matchesZero = ranges[0].from === 0;
+			const matchesMax = lastRange.to === X.UnicodeMax;
+			
+			if (matchesZero && matchesMax && ranges.length === 1)
+				return new Alphabet();
+			
+			if (!matchesZero)
+				rangesInv.push(new X.AlphabetRange(0, ranges[0].from));
+			
+			const endAt = matchesMax ?
+				lastRange.from :
+				X.UnicodeMax;
+			
+			for (let i = 0; i < ranges.length; i++)
+			{
+				const prevRangeEnd = ranges[i].to;
+				const nextRangeStart = i < ranges.length - 1 ? 
+					ranges[i + 1].from :
+					X.UnicodeMax + 1;
+				
+				rangesInv.push(new AlphabetRange(
+					prevRangeEnd + 1,
+					nextRangeStart - 1));
+				
+				if (nextRangeStart >= endAt)
+					break;
+			}
+			
+			if (!matchesMax)
+				rangesInv.push(new X.AlphabetRange(lastRange.from, X.UnicodeMax));
+		}
+		
+		return new X.Alphabet(...ranges);
 	}
 	
 	/** */

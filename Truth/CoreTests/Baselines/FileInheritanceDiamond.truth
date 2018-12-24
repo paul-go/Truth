@@ -3,33 +3,33 @@
 // within files.
 //
 
-// (virtual) /Top.truth
+// (fake) /Top.truth
 
 String, Number, Boolean
 
 ClassTop
 	Top : String
 
-// (virtual) /Left.truth
+// (fake) /Left.truth
 Top.truth
 
 ClassLeft : ClassTop
 	Left : Number
 
-// (virtual) /Right.truth
+// (fake) /Right.truth
 Top.truth
 
 ClassRight : ClassTop
 	Right: Number
 
-// (virtual) /Bottom.truth
+// (fake) /Bottom.truth
 Left.truth
 Right.truth
 
 ClassBottom : ClassLeft, ClassRight
 	Bottom : Boolean
 
-// (virtual) /Child.truth
+// (fake) /Child.truth
 Bottom.truth
 
 ClassChild : ClassBottom

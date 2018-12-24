@@ -15,7 +15,7 @@ describe("Fsm Tests", () =>
 		});
 		
 		const abc = new X.Fsm(
-			new X.Alphabet("a", "b", "c"),
+			new X.AlphabetBuilder("a", "b", "c").toAlphabet(),
 			new Set([0, 1, 2, 3]),
 			0,
 			new Set([3]),

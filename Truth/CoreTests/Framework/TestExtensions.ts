@@ -56,7 +56,7 @@ expect.extend({
 	 */
 	toHaveFault(
 		container: X.Program | X.Document,
-		faultType: Function,
+		faultCode: number,
 		line: number,
 		offset?: number)
 	{
@@ -73,27 +73,27 @@ expect.extend({
 		
 		for (const fault of program.faults.each())
 		{
-			if (!(fault instanceof faultType))
+			if (fault.type.code !== faultCode)
 				continue;
 			
-			if (isStatementFault && fault instanceof X.StatementFault)
+			if (isStatementFault && fault.source instanceof X.Statement)
 				if (!targetDoc || targetDoc === fault.source.document)
 					if (fault.source === fault.source.document.read(line))
 						return { message: () => "", pass: true };
 			
-			if (!isStatementFault && fault instanceof X.SpanFault)
+			if (!isStatementFault && fault.source instanceof X.Span)
 				if (!targetDoc || targetDoc === fault.source.statement.document)
 					if (fault.source.statement === fault.source.statement.document.read(line))
-						if (fault.source.statement.subjects.indexOf(fault.source) === spanPos)
+						if (fault.source.statement.spans.indexOf(fault.source) === spanPos)
 							return { message: () => "", pass: true };
 		}
 		
-		const ctor = faultType.name;
+		const name = X.Faults.nameOf(faultCode);
 		
 		return {
 			message: isStatementFault ?
-				() => `Statement at line ${line} does not have a ${ctor}.` :
-				() => `Span at line ${line}, offset ${offset}) does not have a ${ctor}.`,
+				() => `Statement at line ${line} does not have a ${name}.` :
+				() => `Span at line ${line}, offset ${offset}) does not have a ${name}.`,
 			pass: false
 		};
 	},
@@ -103,7 +103,7 @@ expect.extend({
 	 */
 	toHaveFaults(
 		program: X.Program,
-		...expectations: [Function, X.Statement | X.Span][])
+		...expectations: [number, X.Statement | X.Span][])
 	{
 		if (!(program instanceof X.Program))
 			throw X.ExceptionMessage.invalidArgument();
@@ -127,15 +127,18 @@ expect.extend({
 			if (src1.stamp.newerThan(src2.stamp))
 				return 1;
 			
-			const faultType1 = a[0];
-			const faultType2 = b[0];
+			const faultName1 = X.Faults.nameOf(a[0]);
+			const faultName2 = X.Faults.nameOf(b[0]);
+			
+			const faultCode1 = a[0];
+			const faultCode2 = b[0];
 			
 			if (src1 === src2)
 			{
-				if (faultType1.name > faultType2.name)
+				if (faultCode1 > faultCode2)
 					return 1;
 				
-				if (faultType1.name === faultType2.name)
+				if (faultCode1 === faultCode2)
 					return 0;
 			}
 				
@@ -144,8 +147,10 @@ expect.extend({
 		
 		const sortedActuals = Array.from(program.faults.each()).sort((a, b) =>
 		{
-			if (a.source.stamp.newerThan(b.source.stamp))
-				return 1;
+			if (a.source instanceof X.Statement || a.source instanceof X.Span)
+				if (b.source instanceof X.Statement || b.source instanceof X.Span)
+					if (a.source.stamp.newerThan(b.source.stamp))
+						return 1;
 			
 			if (a.source === b.source)
 			{
@@ -159,6 +164,7 @@ expect.extend({
 			return -1;
 		});
 		
+		/*
 		for (let i = -1; ++i < sortedActuals.length;)
 		{
 			const expType = <typeof X.Fault>sortedExpectations[i][0];
@@ -174,6 +180,7 @@ expect.extend({
 				}
 			}
 		}
+		.*/
 		
 		return {
 			message: () => ``,

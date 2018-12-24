@@ -10,13 +10,7 @@ export * from "./Util/Crc";
 export * from "./Util/HigherOrder";
 export * from "./Util/Guard";
 export * from "./Util/Parser";
-
-// Regex Analysis
-export * from "./RegexAnalysis/Alphabet";
-export * from "./RegexAnalysis/TransitionMap";
-export * from "./RegexAnalysis/TransitionState";
-export * from "./RegexAnalysis/Guide";
-export * from "./RegexAnalysis/Fsm";
+export * from "./Util/UnicodeBlocks";
 
 // System
 export * from "./System/Program";
@@ -30,23 +24,32 @@ export * from "./System/Uri";
 export * from "./System/UriReader";
 export * from "./System/Syntax";
 export * from "./System/FaultService";
-export * from "./System/FaultTypes";
+export * from "./System/Faults";
 export * from "./System/IndentCheckService";
 export * from "./System/VerificationService";
 export * from "./System/VersionStamp";
 export * from "./System/LanguageServer";
 
+// Finite State Machine
+export * from "./Fsm/Alphabet";
+export * from "./Fsm/TransitionMap";
+export * from "./Fsm/TransitionState";
+export * from "./Fsm/Guide";
+export * from "./Fsm/Fsm";
+
 // Phases/File
 export * from "./Phases/File/Document";
 export * from "./Phases/File/DocumentGraph";
 export * from "./Phases/File/DocumentHeader";
+export * from "./Phases/File/LineParser";
+export * from "./Phases/File/Line";
 export * from "./Phases/File/Statement";
+export * from "./Phases/File/Pattern";
+export * from "./Phases/File/Infix";
 export * from "./Phases/File/Identifier";
 export * from "./Phases/File/Span";
 export * from "./Phases/File/Spine";
 export * from "./Phases/File/Subject";
-export * from "./Phases/File/ForePattern";
-export * from "./Phases/File/ForePatternParser";
 export * from "./Phases/File/Fragmenter";
 export * from "./Phases/File/Intermediate";
 
@@ -54,7 +57,6 @@ export * from "./Phases/File/Intermediate";
 export * from "./Phases/Graph/Graph";
 export * from "./Phases/Graph/Node";
 export * from "./Phases/Graph/Fan";
-export * from "./Phases/Graph/FinalPattern";
 
 // Phases/Spatial
 export * from "./Phases/Spatial/Waterfall";

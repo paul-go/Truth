@@ -177,7 +177,7 @@ describe("DocumentGraph Tests", () =>
 		const doc2 = prog.documents.create(uri2, uri1);
 		await prog.documents.await();
 		
-		expect(doc2).toHaveFault(X.CircularResourceReferenceFault, 0);
+		//expect(doc2).toHaveFault(X.Faults.CircularResourceReference, 0);
 		expect(prog.faults.count).toBe(1);
 	});
 	

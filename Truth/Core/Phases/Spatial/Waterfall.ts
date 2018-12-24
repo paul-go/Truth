@@ -173,7 +173,7 @@ export class Waterfall
 					if (rightNodes.has(preExistingNode))
 					{
 						for (const span of preExistingNode.spans)
-							program.faults.report(new X.CircularTypeReferenceFault(span));
+							program.faults.report(X.Faults.CircularTypeReference.create(span));
 						
 						rightNodes.delete(preExistingNode);
 					}
@@ -354,12 +354,6 @@ class PathCursor
 	/** */
 	private cursor = 0;
 }
-
-class PathCursor2 extends PathCursor
-{
-	val = 3;
-}
-
 
 
 /**

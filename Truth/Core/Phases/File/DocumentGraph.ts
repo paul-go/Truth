@@ -348,7 +348,7 @@ export class DocumentGraph
 				const result = await this.read(uri);
 				if (result instanceof Error)
 				{
-					const fault = new X.UnresolvedResourceFault(containingStatement, result);
+					const fault = X.Faults.UnresolvedResource.create(containingStatement);
 					this.program.faults.report(fault);
 					return null;
 				}
@@ -372,14 +372,14 @@ export class DocumentGraph
 			if ((srcProto === X.UriProtocol.http || srcProto === X.UriProtocol.https) && 
 				dstProto === X.UriProtocol.file)
 			{
-				const param = new X.InsecureResourceReferenceFault(containingStatement);
+				const param = X.Faults.InsecureResourceReference.create(containingStatement);
 				this.program.faults.report(param);
 			}
 			
 			// Bail if the addition of the reference is going to result in a circular reference.
 			if (this.wouldCreateCycles(containingDocument, refDocument))
 			{
-				const param = new X.CircularResourceReferenceFault(containingStatement);
+				const param = X.Faults.CircularResourceReference.create(containingStatement);
 				this.program.faults.report(param);
 			}
 			else

@@ -52,7 +52,10 @@ export class Identifier
 	 */
 	readonly uri: X.Uri | null = null;
 	
-	/** Calculates whether this Subject is structurally equal to another. */
+	/**
+	 * @deprecated
+	 * Calculates whether this Subject is structurally equal to another.
+	 */
 	equals(other: Identifier | string | null)
 	{
 		if (other instanceof Identifier)

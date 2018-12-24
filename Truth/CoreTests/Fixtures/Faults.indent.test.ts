@@ -19,7 +19,7 @@ describe("Indentation Fault Tests", () =>
 		];
 		
 		prog.documents.create(lines.join("\n"));
-		expect(prog).toHaveFault(X.TabsAndSpacesFault, 3);
+		expect(prog).toHaveFault(X.Faults.TabsAndSpaces.code, 3);
 		expect(prog.faults.count).toBe(1);
 	});
 	
@@ -39,8 +39,8 @@ describe("Indentation Fault Tests", () =>
 		];
 		
 		prog.documents.create(lines.join("\n"));
-		expect(prog).toHaveFault(X.TabsAndSpacesFault, 2);
-		expect(prog).toHaveFault(X.TabsAndSpacesFault, 4);
+		expect(prog).toHaveFault(X.Faults.TabsAndSpaces.code, 2);
+		expect(prog).toHaveFault(X.Faults.TabsAndSpaces.code, 4);
 		expect(prog.faults.count).toBe(2);
 	});
 	
@@ -56,7 +56,7 @@ describe("Indentation Fault Tests", () =>
 		];
 		
 		const doc = prog.documents.create(lines.join("\n"));
-		expect(prog).toHaveFault(X.TabsAndSpacesFault, 0);
+		expect(prog).toHaveFault(X.Faults.TabsAndSpaces.code, 0);
 		expect(prog.faults.count).toBe(1);
 		
 		doc.edit(facts =>

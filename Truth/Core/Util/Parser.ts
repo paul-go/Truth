@@ -12,125 +12,43 @@ export class Parser
 	 * the specified input string, optionally starting at the
 	 * specified position.
 	 */
-	constructor(input: string, startingPosition = 0)
+	constructor(input: string)
 	{
-		this.input = input;
-		this._position = startingPosition;
+		this.input = input.normalize();
+		this._position = 0;
 	}
 	
 	/**
-	 * Attempts to consume the specified token immediately 
-	 * following the cursor, and returns a boolean indicating
-	 * whether the consumption was successful.
+	 * Attempts to read the specified token immediately 
+	 * following the cursor.
 	 * 
-	 * Reads from the parse stream, starting at the cursor,
-	 * and ending at a position specified by the token parameter.
-	 * 
-	 * @param token If a string is specified, the method attempts
-	 * to read this string from the point of the cursor. If a RegExp
-	 * is specified, the method attempts to read a single character
-	 * that matches the regular expression. If a number is specified,
-	 * the method attempts to read this number of characters.
-	 * 
-	 * @returns The content read. In the case when a string or
-	 * regular expression parameter was specified, but no match
-	 * could be found, an empty string is returned.
+	 * @returns The content read. In the case when no
+	 * match could be found, an empty string is returned.
 	 */
-	read(token: string | RegExp | number)
+	read(token?: string)
 	{
 		if (!token)
 			throw new TypeError();
 		
 		const pos = this._position;
 		
-		if (typeof token === "string")
+		if (this.input.substr(pos, token.length) === token)
 		{
-			if (this.input.slice(pos, pos + token.length) === token)
-			{
-				this._position += token.length;
-				return token;
-			}
-		}
-		else if (typeof token === "number")
-		{
-			return this.input.slice(pos, pos + token);
-		}
-		else
-		{
-			const char = this.input.slice(pos, pos + 1);
-			
-			if (token.test(char))
-			{
-				this._position++;
-				return char;
-			}
+			this._position += token.length;
+			return token;
 		}
 		
 		return "";
 	}
 	
 	/**
-	 * Similar to the .read() method, but returns a boolean
-	 * instead of the token specified.
-	 */
-	at(token: string | RegExp)
-	{
-		return !!this.read(token);
-	}
-	
-	/**
-	 * @returns A boolean value that indicates whether the
-	 * specified string exists immediately at the position of
-	 * the cursor.
-	 */
-	peek(token: string)
-	{
-		return this.input.substr(this._position, token.length) === token;
-	}
-	
-	/**
-	 * 
-	 */
-	atRealBackslash()
-	{
-		const esc = X.Syntax.escapeChar;
-		return this.input.substr(this._position, 2) === esc + esc;
-	}
-	
-	/**
-	 * @returns A boolean value that indicates whether an
-	 * escape character exists behind the current character.
-	 * The algorithm used is respective of sequences of
-	 * multiple escape characters.
-	 */
-	escaped()
-	{
-		let escaped = false;
-		let backtrackPos = this._position;
-		
-		while (--backtrackPos >= 0)
-			if (this.input[backtrackPos] === X.Syntax.escapeChar)
-				escaped = !escaped;
-		
-		return escaped;
-	}
-	
-	/**
-	 * @returns A boolean value that indicates whether
-	 * there are more characters to consume in the input.
-	 */
-	more()
-	{
-		return this._position < this.input.length;
-	}
-	
-	/**
-	 * Consumes any whitespace characters and floating
+	 * Reads any whitespace characters and floating
 	 * escape characters.
 	 * 
-	 * @returns The number of characters consumes.
+	 * @returns The number of whitespace characters
+	 * read.
 	 */
-	whitespace()
+	readWhitespace()
 	{
 		const start = this._position;
 		let pos = start;
@@ -152,26 +70,128 @@ export class Parser
 	}
 	
 	/**
-	 * Moves the parser back to the specified position.
+	 * Attempts to read a single stream-level grapheme from the
+	 * parse stream, using unicode-aware extraction method.
+	 * If the parse stream specifies a unicode escape sequence,
+	 * such as \uFFFF, these are seen as 6 individual graphemes.
+	 * 
+	 * @returns The read grapheme, or an empty string in the case
+	 * when there is no more content in the parse stream.
 	 */
-	backtrack(position: number)
+	readGrapheme()
 	{
-		if (position < 0 || position > this._position)
-			throw new RangeError();
+		if (this._position >= this.input.length)
+			return "";
 		
-		this._position = position;
+		const codeAtCursor = this.input.codePointAt(this._position) || -1;
+		this._position += codeAtCursor > 0xFFFF ? 2 : 1;
+		return String.fromCodePoint(codeAtCursor);
 	}
 	
 	/**
-	 * Gets the position of the cursor from where
+	 * Reads graphemes from the parse stream, until either
+	 * the cursor reaches one of the specified quit tokens,
+	 * or the parse stream terminates.
+	 */
+	readUntil(...quitTokens: string[])
+	{
+		let stream = "";
+		
+		while (this.more())
+		{
+			if (quitTokens.some(t => this.peek(t)))
+				break;
+			
+			stream += this.readGrapheme();
+		}
+		
+		return stream;
+	}
+	
+	/**
+	 * Attempts to read the specified token from the parse stream,
+	 * if and only if it's at the end of the parse stream.
+	 */
+	readThenTerminal(token: string)
+	{
+		if (this.peek(token) && this._position === this.input.length - token.length)
+		{
+			this._position += token.length;
+			return token;
+		}
+		
+		return "";
+	}
+	
+	/**
+	 * @returns A boolean value that indicates whether the
+	 * specified string exists immediately at the position of
+	 * the cursor.
+	 */
+	peek(token: string)
+	{
+		return this.input.substr(this._position, token.length) === token;
+	}
+	
+	/**
+	 * @returns A boolean value that indicates whether
+	 * there are more characters to read in the input.
+	 */
+	more()
+	{
+		return this._position < this.input.length;
+	}
+	
+	/**
+	 * Gets or sets the position of the cursor from where
 	 * reading takes place in the cursor.
 	 */
 	get position()
 	{
 		return this._position;
 	}
+	set position(value: number)
+	{
+		if (value < 0)
+			throw new RangeError();
+		
+		this._position = value;
+	}
 	private _position = 0;
 	
 	/** */
 	private readonly input: string;
+	
+	
+	//
+	// DEAD
+	//
+	
+	/**
+	 * 
+	 */
+	private atRealBackslash()
+	{
+		const esc = X.Syntax.escapeChar;
+		return this.input.substr(this._position, 2) === esc + esc;
+	}
+	
+	/**
+	 * @deprecated
+	 * @returns A boolean value that indicates whether an
+	 * escape character exists behind the current character.
+	 * The algorithm used is respective of sequences of
+	 * multiple escape characters.
+	 */
+	private escaped()
+	{
+		let escaped = false;
+		let backtrackPos = this._position;
+		
+		while (--backtrackPos >= 0)
+			if (this.input[backtrackPos] === X.Syntax.escapeChar)
+				escaped = !escaped;
+		
+		return escaped;
+	}
 }

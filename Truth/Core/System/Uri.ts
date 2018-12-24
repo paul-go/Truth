@@ -2,25 +2,20 @@ import * as X from "../X";
 import * as Path from "path";
 
 
-/** */
+/**
+ * An enumeration that lists all availble protocols
+ * supported by the system. The list can be enumerated
+ * via Uri.eachProtocol()
+ */
 export enum UriProtocol
 {
-	none,
-	file,
-	https,
-	http,
-	internal,
-	unsupported
+	none = "",
+	file = "file:",
+	https = "https:",
+	http = "http:",
+	unsupported = "unsupported:"
 }
 
-/** */
-const UriProtocolPrefix: { [prefix: string]: UriProtocol; } = {
-	"//": UriProtocol.https,
-	"https://": UriProtocol.https,
-	"http://": UriProtocol.http,
-	"file://": UriProtocol.file,
-	"system-internal://": UriProtocol.internal
-};
 
 /** 
  * A class that represents a Truth URI.
@@ -34,6 +29,16 @@ const UriProtocolPrefix: { [prefix: string]: UriProtocol; } = {
 export class Uri
 {
 	/**
+	 * Enumerates through the list of available
+	 * protocols supported by the system.
+	 */
+	static *eachProtocol(): IterableIterator<UriProtocol>
+	{
+		for (const protocol of Object.values(UriProtocol))
+			yield protocol;
+	}
+	
+	/**
 	 * 
 	 * @param uriText A string containing the URI to parse
 	 * @param relativeFallback A URI that identifies the origin
@@ -44,9 +49,9 @@ export class Uri
 	{
 		let protocol = (() =>
 		{
-			for (const [scheme, type] of Object.entries(UriProtocolPrefix))
+			for (const [scheme, type] of this.eachProtocol())
 				if (uriText.startsWith(scheme))
-					return type;
+					return <UriProtocol>type;
 			
 			if (/^([A-Za-z]+-?)+:/.test(uriText))
 				return UriProtocol.unsupported;
@@ -227,7 +232,7 @@ export class Uri
 	toString(includeProtocol = true, includeTypePath = false)
 	{
 		const proto = includeProtocol ?
-			UriProtocol[this.protocol] + "://" :
+			this.protocol + "://" :
 			"";
 		
 		const ioPath = Path.join(...this.ioPath);

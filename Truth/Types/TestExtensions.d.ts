@@ -18,7 +18,7 @@ declare namespace jest
 		 * must be specified that refers to the position of the span in the
 		 * statement.
 		 */
-		toHaveFault(faultType: Function, line: number, offset?: number): R;
+		toHaveFault(faultCode: number, line: number, offset?: number): R;
 		
 		/**
 		 * Tests that the Program (which must be specified in the expect()
@@ -26,6 +26,6 @@ declare namespace jest
 		 * the specified list of rest arguments. To test that the Program has
 		 * no faults, call this method without arguments.
 		 */
-		toHaveFaults(...faults: [Function, { stamp: any }][]): R;
+		toHaveFaults(...faults: [number, { stamp: any }][]): R;
 	}
 }

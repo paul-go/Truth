@@ -50,7 +50,7 @@ export class IndentCheckService
 			
 			for (let i = -1; ++i < statement.indent;)
 			{
-				const char = statement.textContent[i];
+				const char = statement.sourceText[i];
 				
 				if (char === X.Syntax.tab)
 					hasTabs = true;
@@ -74,7 +74,7 @@ export class IndentCheckService
 		
 		for (const warningStatement of warningStatements)
 		{
-			const fault = new X.TabsAndSpacesFault(warningStatement);
+			const fault = X.Faults.TabsAndSpaces.create(warningStatement);
 			this.program.faults.report(fault);
 		}
 	}
