@@ -30,13 +30,27 @@ export class Pattern
 	/** */
 	test(input: string)
 	{
-		return !!input;
+		if (this.compiledRegExp === null)
+			this.compiledRegExp = X.PatternPrecompiler.exec(this);
+		
+		return this.compiledRegExp.test(input);
 	}
 	
-	/** */
+	private compiledRegExp: RegExp | null = null;
+	
+	/**
+	 * Converts this Pattern to a string representation.
+	 * Note that this pattern isn'
+	 */
 	toString()
 	{
-		return this.units.map(u => u.toString()).join("");
+		const delim = X.RegexSyntaxDelimiter.main;
+		
+		return (
+			delim + 
+			this.units.map(u => u.toString()).join("") + 
+			this.isTotal ? delim : ""
+		);
 	}
 }
 
@@ -309,11 +323,12 @@ export class RegexQuantifier
 		if (lo === 1 && up === Infinity)
 			return X.RegexSyntaxMisc.plus + rst;
 		
-		return (
-			X.RegexSyntaxDelimiter.quantifierStart +
-			lo +
-			X.RegexSyntaxDelimiter.quantifierSeparator +
-			(up === Infinity ? "" : up.toString())
-		);
+		const qs = X.RegexSyntaxDelimiter.quantifierStart;
+		const qp = X.RegexSyntaxDelimiter.quantifierSeparator;
+		const qe = X.RegexSyntaxDelimiter.quantifierEnd;
+		
+		return lo === up ?
+			qs + lo + qe :
+			qs + lo + qp + (up === Infinity ? "" : up.toString()) + qe;
 	}
 }
