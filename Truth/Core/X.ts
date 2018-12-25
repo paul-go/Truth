@@ -45,6 +45,7 @@ export * from "./Phases/File/LineParser";
 export * from "./Phases/File/Line";
 export * from "./Phases/File/Statement";
 export * from "./Phases/File/Pattern";
+export * from "./Phases/File/PatternPrecompiler";
 export * from "./Phases/File/Infix";
 export * from "./Phases/File/Identifier";
 export * from "./Phases/File/Span";
