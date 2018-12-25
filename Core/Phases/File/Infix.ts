@@ -22,6 +22,42 @@ export class Infix
 		/** */
 		readonly flags: InfixFlags)
 	{ }
+	
+	/** */
+	toString()
+	{
+		const isPattern = (this.flags & InfixFlags.pattern) === InfixFlags.pattern;
+		const isPortability = (this.flags & InfixFlags.portability) === InfixFlags.portability;
+		const isNominal = (this.flags & InfixFlags.nominal) === InfixFlags.nominal;
+		
+		const delimL =
+			isPattern ? X.InfixSyntax.patternStart :
+			isNominal ? X.InfixSyntax.nominalStart :
+			isPortability ? X.InfixSyntax.start + X.Syntax.space + X.Syntax.joint + X.Syntax.space :
+			X.InfixSyntax.start;
+		
+		const delimR = 
+			isPattern ? X.InfixSyntax.patternEnd :
+			isNominal ? X.InfixSyntax.nominalEnd :
+			X.InfixSyntax.end;
+		
+		const join = (spans: InfixBounds) =>
+			Array.from(spans.values())
+				.map(s => s.toString())
+				.join(X.Syntax.combinator + X.Syntax.space);
+		
+		if (isPortability)
+			return join(this.rhsInfixSpans);
+		
+		if (isPattern)
+			return join(this.lhsInfixSpans);
+		
+		const joint = this.rhsInfixSpans.size > 0 ?
+			X.Syntax.space + X.Syntax.joint + X.Syntax.space :
+			"";
+		
+		return delimL + join(this.lhsInfixSpans) + joint + join(this.rhsInfixSpans) + delimR;
+	}
 }
 
 
