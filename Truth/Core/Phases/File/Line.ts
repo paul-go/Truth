@@ -27,7 +27,11 @@ export enum LineFlags
 	isComment = 2,
 	isWhitespace = 4,
 	isDisposed = 8,
-	isUnparsable = 16
+	isUnparsable = 16,
+	hasUri = 32,
+	hasTotalPattern = 64,
+	hasPartialPattern = 128,
+	hasPattern = 256
 }
 
 
