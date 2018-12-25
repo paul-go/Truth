@@ -786,7 +786,10 @@ export class LineParser
 		// this condition will pass, bypassing the entire parsing process
 		// and returning an (basically) fresh RawStatement object.
 		if (!parser.more())
+		{
+			flags |= X.LineFlags.isWhitespace;
 			return ret();
+		}
 		
 		if (parser.read(X.Syntax.comment))
 		{
@@ -803,6 +806,7 @@ export class LineParser
 			const uri = maybeReadUri();
 			if (uri)
 			{
+				flags |= X.LineFlags.hasUri;
 				declarations.set(markBeforeUri, uri);
 				return goto();
 			}
@@ -818,6 +822,11 @@ export class LineParser
 			
 			if (pattern)
 			{
+				flags |= X.LineFlags.hasPattern;
+				flags |= pattern.isTotal ?
+					X.LineFlags.hasTotalPattern :
+					X.LineFlags.hasPartialPattern;
+				
 				declarations.set(markBeforePattern, pattern);
 				return goto();
 			}
