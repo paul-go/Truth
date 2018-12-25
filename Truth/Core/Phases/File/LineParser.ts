@@ -598,7 +598,7 @@ export class LineParser
 						return false;
 					
 					if (parser.read(X.RegexSyntaxDelimiter.quantifierEnd))
-						return true;
+						return false;
 					
 					if (!parser.read(sep))
 						return false;
