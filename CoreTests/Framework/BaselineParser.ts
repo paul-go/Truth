@@ -337,7 +337,7 @@ export class BaselineParser
 /**
  * 
  */
-class BaselineProgram
+export class BaselineProgram
 {
 	constructor(
 		readonly documents: ReadonlyMap<string, BaselineDocument>)
@@ -348,7 +348,7 @@ class BaselineProgram
 /**
  * 
  */
-class BaselineDocument
+export class BaselineDocument
 {
 	constructor(
 		readonly fakeUri: string,
