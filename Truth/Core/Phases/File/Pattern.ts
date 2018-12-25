@@ -36,7 +36,7 @@ export class Pattern
 	/** */
 	toString()
 	{
-		return "";
+		return this.units.map(u => u.toString()).join("");
 	}
 }
 
@@ -47,6 +47,9 @@ export class Pattern
 export abstract class RegexUnit
 {
 	constructor(readonly quantifier: RegexQuantifier | null) { }
+	
+	/** */
+	abstract toString(): string;
 }
 
 
@@ -55,88 +58,126 @@ export abstract class RegexUnit
  */
 export class RegexSet extends RegexUnit
 {
-	/**
-	 * Creates a RegexSet instance from the specified
-	 * pre-defined regular expression character set.
-	 */
-	static fromKnown(
-		knownSet: X.RegexSyntaxKnownSet,
-		quantifier: RegexQuantifier | null = null)
-	{
-		const alphabetBuilder = new X.AlphabetBuilder();
-		const set = X.RegexSyntaxKnownSet;
-		const gt = (char: string) => char.charCodeAt(0) + 1;
-		const lt = (char: string) => char.charCodeAt(0) - 1;
-		
-		switch (knownSet)
-		{
-			case set.digit:
-				alphabetBuilder.add("0", "9");
-				break;
-			
-			case set.digitNon:
-				alphabetBuilder.add(0, lt("0"));
-				alphabetBuilder.add(gt("9"), X.UnicodeMax);
-				break;
-			
-			case set.alphanumeric:
-				alphabetBuilder.add("0", "9");
-				alphabetBuilder.add("A", "Z");
-				alphabetBuilder.add("a", "z");
-				break;
-			
-			case set.alphanumericNon:
-				alphabetBuilder.add(0, lt("0"));
-				alphabetBuilder.add(gt("9"), lt("A"));
-				alphabetBuilder.add(gt("Z"), lt("a"));
-				alphabetBuilder.add(gt("z"), X.UnicodeMax);
-				break;
-			
-			case set.whitespace:
-				alphabetBuilder.add(9, 13);
-				alphabetBuilder.add(160);
-				alphabetBuilder.add(5760);
-				alphabetBuilder.add(8192, 8202);
-				alphabetBuilder.add(8232);
-				alphabetBuilder.add(8233);
-				alphabetBuilder.add(8239);
-				alphabetBuilder.add(8287);
-				alphabetBuilder.add(12288);
-				alphabetBuilder.add(65279);
-				break;
-			
-			case set.whitespaceNon:
-				alphabetBuilder.add(0, 8);
-				alphabetBuilder.add(14, 159);
-				alphabetBuilder.add(161, 5759);
-				alphabetBuilder.add(5761, 8191);
-				alphabetBuilder.add(8203, 8231);
-				alphabetBuilder.add(8232);
-				alphabetBuilder.add(8233);
-				alphabetBuilder.add(8234, 8238);
-				alphabetBuilder.add(8240, 8286);
-				alphabetBuilder.add(8288, 12287);
-				alphabetBuilder.add(12289, 65278);
-				alphabetBuilder.add(65280, X.UnicodeMax);
-				break;
-			
-			case set.wild:
-				alphabetBuilder.addWild();
-				break;
-		}
-		
-		return new RegexSet(
-			alphabetBuilder.toAlphabet(), 
-			quantifier);
-	}
-	
 	/** */
 	constructor(
-		readonly alphabet: X.Alphabet,
+		readonly knowns: ReadonlyArray<X.RegexSyntaxKnownSet>,
+		readonly ranges: ReadonlyArray<RegexCharRange>,
+		readonly singles: ReadonlyArray<string>,
+		readonly isNegated: boolean,
 		readonly quantifier: RegexQuantifier | null)
 	{
 		super(quantifier);
 	}
+	
+	/** */
+	toString()
+	{
+		const kLen = this.knowns.length;
+		const rLen = this.ranges.length;
+		const cLen = this.singles.length;
+		
+		if (kLen === 1 && rLen + cLen === 0)
+			return this.knowns[0].toString();
+		
+		if (cLen === 1 && kLen + cLen === 0)
+			return this.singles[0];
+		
+		return [
+			X.RegexSyntaxDelimiter.setStart,
+			...this.knowns,
+			...this.ranges.map(r => String.fromCodePoint(r.from) + "-" + String.fromCodePoint(r.to)),
+			...this.singles,
+			X.RegexSyntaxDelimiter.setEnd
+		].join("");
+	}
+	
+	/** */
+	toAlphabet()
+	{
+		const alphabetBuilder = new X.AlphabetBuilder();
+		const gt = (char: string) => char.charCodeAt(0) + 1;
+		const lt = (char: string) => char.charCodeAt(0) - 1;
+		
+		for (const known of this.knowns)
+		{
+			switch (known)
+			{
+				case X.RegexSyntaxKnownSet.digit:
+					alphabetBuilder.add("0", "9");
+					break;
+				
+				case X.RegexSyntaxKnownSet.digitNon:
+					alphabetBuilder.add(0, lt("0"));
+					alphabetBuilder.add(gt("9"), X.UnicodeMax);
+					break;
+				
+				case X.RegexSyntaxKnownSet.alphanumeric:
+					alphabetBuilder.add("0", "9");
+					alphabetBuilder.add("A", "Z");
+					alphabetBuilder.add("a", "z");
+					break;
+				
+				case X.RegexSyntaxKnownSet.alphanumericNon:
+					alphabetBuilder.add(0, lt("0"));
+					alphabetBuilder.add(gt("9"), lt("A"));
+					alphabetBuilder.add(gt("Z"), lt("a"));
+					alphabetBuilder.add(gt("z"), X.UnicodeMax);
+					break;
+				
+				case X.RegexSyntaxKnownSet.whitespace:
+					alphabetBuilder.add(9, 13);
+					alphabetBuilder.add(160);
+					alphabetBuilder.add(5760);
+					alphabetBuilder.add(8192, 8202);
+					alphabetBuilder.add(8232);
+					alphabetBuilder.add(8233);
+					alphabetBuilder.add(8239);
+					alphabetBuilder.add(8287);
+					alphabetBuilder.add(12288);
+					alphabetBuilder.add(65279);
+					break;
+				
+				case X.RegexSyntaxKnownSet.whitespaceNon:
+					alphabetBuilder.add(0, 8);
+					alphabetBuilder.add(14, 159);
+					alphabetBuilder.add(161, 5759);
+					alphabetBuilder.add(5761, 8191);
+					alphabetBuilder.add(8203, 8231);
+					alphabetBuilder.add(8232);
+					alphabetBuilder.add(8233);
+					alphabetBuilder.add(8234, 8238);
+					alphabetBuilder.add(8240, 8286);
+					alphabetBuilder.add(8288, 12287);
+					alphabetBuilder.add(12289, 65278);
+					alphabetBuilder.add(65280, X.UnicodeMax);
+					break;
+				
+				case X.RegexSyntaxKnownSet.wild:
+					alphabetBuilder.addWild();
+					break;
+			}
+		}
+		
+		for (const range of this.ranges)
+			alphabetBuilder.add(range.from, range.to);
+		
+		for (const single of this.singles)
+			alphabetBuilder.add(single);
+		
+		return alphabetBuilder.toAlphabet(this.isNegated);
+	}
+}
+
+
+/**
+ * 
+ */
+export class RegexCharRange
+{
+	constructor(
+		readonly from: number,
+		readonly to: number)
+	{ }
 }
 
 
@@ -153,6 +194,20 @@ export class RegexGroup extends RegexUnit
 		readonly quantifier: RegexQuantifier | null)
 	{
 		super(quantifier);
+	}
+	
+	/** */
+	toString()
+	{
+		if (this.cases.length === 0)
+			return "";
+		
+		const cases = this.cases.map(ca => ca.map(unit => unit.toString()));
+		
+		return (
+			X.RegexSyntaxDelimiter.groupStart +
+			cases.join(X.RegexSyntaxDelimiter.alternator) +
+			X.RegexSyntaxDelimiter.groupEnd);
 	}
 }
 
@@ -178,6 +233,13 @@ export class RegexGrapheme extends RegexUnit
 	{
 		super(quantifier);
 	}
+	
+	/** */
+	toString()
+	{
+		const q = this.quantifier;
+		return this.grapheme.toString() + (q === null ? "" : q.toString());
+	}
 }
 
 
@@ -193,6 +255,13 @@ export class RegexSign extends RegexUnit
 		readonly quantifier: RegexQuantifier | null)
 	{
 		super(quantifier);
+	}
+	
+	/** */
+	toString()
+	{
+		const q = this.quantifier;
+		return this.sign.toString() + (q === null ? "" : q.toString());
 	}
 }
 
@@ -224,4 +293,27 @@ export class RegexQuantifier
 		 */
 		readonly restrained: boolean)
 	{ }
+	
+	/**
+	 * Converts the regex quantifier to an optimized string.
+	 */
+	toString()
+	{
+		const rst = this.restrained ? X.RegexSyntaxMisc.restrained : "";
+		const lo = this.lower;
+		const up = this.upper;
+		
+		if (lo === 0 && up === Infinity)
+			return X.RegexSyntaxMisc.star + rst;
+		
+		if (lo === 1 && up === Infinity)
+			return X.RegexSyntaxMisc.plus + rst;
+		
+		return (
+			X.RegexSyntaxDelimiter.quantifierStart +
+			lo +
+			X.RegexSyntaxDelimiter.quantifierSeparator +
+			(up === Infinity ? "" : up.toString())
+		);
+	}
 }

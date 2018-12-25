@@ -371,7 +371,13 @@ export class LineParser
 				
 				if (regexKnownSet !== null)
 				{
-					units.push(X.RegexSet.fromKnown(regexKnownSet, quantifier));
+					units.push(new X.RegexSet(
+						[regexKnownSet], 
+						[],
+						[],
+						false,
+						quantifier));
+					
 					continue;
 				}
 				
@@ -403,8 +409,11 @@ export class LineParser
 				return null;
 			
 			const rng = X.RegexSyntaxDelimiter.range;
+			const knowns: X.RegexSyntaxKnownSet[] = [];
+			const ranges: X.RegexCharRange[] = [];
+			const singles: string[] = [];
 			const isNegated = !!parser.read(X.RegexSyntaxMisc.negate);
-			const alphabetBuilder = new X.AlphabetBuilder();
+			
 			let closed = false;
 			
 			/** Stores all Graphemes read. */
@@ -431,9 +440,25 @@ export class LineParser
 				}
 				
 				queue.push(g);
+				const known = X.RegexSyntaxKnownSet.resolve(g.character);
+				
+				if (known !== null)
+				{
+					knowns.push(known);
+					rangableQueue.push(false);
+					continue;
+				}
+				
+				const regexSign = X.RegexSyntaxSign.resolve(g.character);
+				if (regexSign !== null)
+				{
+					
+				}
+				
 				rangableQueue.push(
 					g.character.length > 0 &&
-					!nonRangables.includes(g.character));
+					g.character !== X.RegexSyntaxMisc.boundary &&
+					g.character !== X.RegexSyntaxMisc.boundaryNon);
 				
 				if (g.unicodeBlockName)
 					continue;
@@ -449,14 +474,15 @@ export class LineParser
 				if (!rangableQueue[len - 3])
 					continue;
 				
+				
 				// Peel back symbol queue, and add a range
 				// to the alphabet builder if the queue gets into
 				// a state where it's ending with something
 				// looking like: ?-?
 				
-				const from = queue[len - 2].character;
-				const to = g.character;
-				alphabetBuilder.add(from, to);
+				const from = queue[len - 2].character.codePointAt(0) || 0;
+				const to = g.character.codePointAt(0) || 0;
+				ranges.push(new X.RegexCharRange(from, to));
 				queue.length -= 3;
 				continue;
 			}
@@ -469,11 +495,11 @@ export class LineParser
 				if (g.unicodeBlockName)
 				{
 					const [from, to] = X.UnicodeBlocks[g.unicodeBlockName];
-					alphabetBuilder.add(from, to);
+					ranges.push(new X.RegexCharRange(from, to));
 				}
 				else
 				{
-					alphabetBuilder.add(g.character);
+					singles.push(g.character);
 				}
 			}
 			
@@ -482,7 +508,10 @@ export class LineParser
 				return ParseError;
 			
 			return new X.RegexSet(
-				alphabetBuilder.toAlphabet(isNegated),
+				knowns,
+				ranges,
+				singles,
+				isNegated,
 				quantifier);
 		}
 		
@@ -725,12 +754,21 @@ export class LineParser
 		 */
 		function maybeReadFullGrapheme(): Grapheme | null
 		{
-			const mark = parser.position;
+			if (!parser.more())
+				return null;
 			
-			if (parser.peek(X.Syntax.escapeChar))
+			if (parser.read(esc))
 			{
+				// If the parse stream ends with a backslash, we just
+				// return the actual backslash character as a character.
+				// This covers ridiculous but possible cases where a
+				// an unannotated type is named something like "Thing\".
+				if (!parser.more())
+					return new Grapheme(esc, "", false);
+				
 				if (parser.read(X.RegexSyntaxDelimiter.utf16Prefix))
 				{
+					const mark = parser.position;
 					const g3 = parser.readGrapheme();
 					
 					if (g3 === X.RegexSyntaxDelimiter.utf16GroupStart)
@@ -753,10 +791,19 @@ export class LineParser
 							}
 						}
 					}
+					
+					parser.position = mark;
 				}
 				
-				parser.position = mark;
-				return new Grapheme(parser.readGrapheme(), "", true);
+				const g = parser.readGrapheme();
+				const char = esc + g;
+				const sign = X.RegexSyntaxSign.resolve(char);
+				
+				const decodedChar = sign === null ?
+					char :
+					decodeURIComponent(char);
+				
+				return new Grapheme(decodedChar, "", true);
 			}
 			
 			return new Grapheme(parser.readGrapheme(), "", false)
@@ -771,9 +818,9 @@ export class LineParser
 		{
 			if (parser.read(X.Syntax.combinator) ||
 				parser.read(X.Syntax.list) ||
-				parser.read(X.Syntax.escapeChar + X.Syntax.space) ||
-				parser.read(X.Syntax.escapeChar + X.Syntax.tab) ||
-				parser.readThenTerminal(X.Syntax.escapeChar))
+				parser.read(esc + X.Syntax.space) ||
+				parser.read(esc + X.Syntax.tab) ||
+				parser.readThenTerminal(esc))
 			{
 				flags |= X.LineFlags.isUnparsable;
 				return true;
@@ -859,11 +906,10 @@ class Grapheme
 {
 	constructor(
 		/**
-		 * Stores the character found in the parse stream,
-		 * without any escape character. In the case when
-		 * a unicode character was specified in it's escaped
-		 * form (i.e. \uFFFF), the field stores the encoded
-		 * character (meaning 🐇 ... not \u1F407).
+		 * Stores the character found in the parse stream in
+		 * their unescaped format. For example, in the case
+		 * when the field is referring to a unicode character,
+		 * the field would store "🐇" ... not "\u1F407".
 		 */
 		readonly character: string,
 		/**
@@ -880,16 +926,10 @@ class Grapheme
 		 */
 		readonly escaped: boolean)
 	{ }
+	
+	/** */
+	get code() { return this.character.codePointAt(0); }
 }
-
-
-/**
- * Stores the list of characters that can't participate in
- * a range, without any escape prefix.
- */
-const nonRangables = Object.freeze(Object.values(X.RegexSyntaxKnownSet)
-	.map(s => (<string>s || "").toString())
-	.map(s => s[0] === X.Syntax.escapeChar ? s.slice(1) : s));
 
 
 /**
@@ -903,7 +943,7 @@ function appendQuantifier(unit: X.RegexUnit, quantifier: X.RegexQuantifier | nul
 		return unit;
 	
 	if (unit instanceof X.RegexSet)
-		return new X.RegexSet(unit.alphabet, quantifier);
+		return new X.RegexSet(unit.knowns, unit.ranges, unit.singles, unit.isNegated, quantifier);
 	
 	if (unit instanceof X.RegexGroup)
 		return new X.RegexGroup(unit.cases, quantifier);

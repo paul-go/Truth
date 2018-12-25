@@ -30,16 +30,25 @@ export enum RegexSyntaxSign
 	carriageReturn = "\\r",
 	verticalTab = "\\v",
 	formFeed = "\\f",
-	escapedFinalizer = "\\/"
+	escapedFinalizer = "\\/",
+	backslash = "\\\\"
 }
 
 export namespace RegexSyntaxSign
 {
-	export function resolve(value: string): RegexSyntaxSign | null
+	export function resolve(value: string | number): RegexSyntaxSign | null
 	{
 		const vals: string[] = Object.values(RegexSyntaxSign);
-		const idx = vals.indexOf(value);
-		return idx < 0 ? null : <RegexSyntaxSign>vals[idx];
+		
+		if (typeof value === "string")
+		{
+			const idx = vals.indexOf(value);
+			return idx < 0 ? null : <RegexSyntaxSign>vals[idx];
+		}
+		else
+		{
+			return RegexSyntaxSign.formFeed;
+		}
 	}
 }
 
@@ -61,9 +70,10 @@ export enum RegexSyntaxKnownSet
 
 export namespace RegexSyntaxKnownSet
 {
+	const vals: string[] = Object.values(RegexSyntaxKnownSet);
+	
 	export function resolve(value: string): RegexSyntaxKnownSet | null
 	{
-		const vals: string[] = Object.values(RegexSyntaxKnownSet);
 		const idx = vals.indexOf(value);
 		return idx < 0 ? null : <RegexSyntaxKnownSet>vals[idx];
 	}

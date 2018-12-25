@@ -11,6 +11,13 @@ describe("Parser Tests", () =>
 		runParseTest("/[A-Z0-9/ : X", {
 			flags: X.LineFlags.hasPattern
 		});
+		
+		runParseTest("Backslash\\", {
+		});
+		
+		runParseTest("A : B\\", {
+			
+		});
 	});
 	
 	/** */
