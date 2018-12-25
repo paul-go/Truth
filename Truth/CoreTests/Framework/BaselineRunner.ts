@@ -7,6 +7,22 @@ import * as Path from "path";
 /**
  * 
  */
+export interface IBaselineTest
+{
+	/** */
+	readonly loadFn: () => Promise<string>;
+	
+	/** */
+	readonly parseFn: (sourceFile: string) => T.BaselineProgram;
+	
+	/** */
+	readonly execFn: (prog: T.BaselineProgram) => string;
+}
+
+
+/**
+ * 
+ */
 export class BaselineTestGenerator
 {
 	/**
@@ -27,18 +43,17 @@ export class BaselineTestGenerator
 			targetPath :
 			"CoreTests/Baselines");
 		
-		const testMap = new Map<string, () => Promise<string>>();
+		const testMap = new Map<string, IBaselineTest>();
 		const filePaths = fullPath.endsWith(".truth") ?
 			[fullPath] :
 			Fs.readdirSync(targetPath, "utf8");
 		
 		filePaths.forEach(filePath =>
 		{
-			testMap.set("Executing: " + filePath, async () =>
-			{
-				return this.runSingleBaseline(
-					filePath,
-					await Fs.promises.readFile(filePath, "utf8"));
+			testMap.set("Executing: " + filePath, <IBaselineTest>{
+				loadFn: async () => await Fs.promises.readFile(filePath, "utf8"),
+				parseFn: (sourceFile: string) => T.BaselineParser.parse(sourceFile),
+				execFn: (prog: T.BaselineProgram) => this.execTest(prog, filePath)
 			});
 		});
 		
@@ -48,9 +63,8 @@ export class BaselineTestGenerator
 	/**
 	 * 
 	 */
-	private static runSingleBaseline(baselineFilePath: string, baselineFileContent: string)
+	private static execTest(baselineProgram: T.BaselineProgram, baselineFilePath: string)
 	{
-		const baselineProgram = T.BaselineParser.parse(baselineFileContent);
 		const realProgram = new X.Program(false);
 		const reports: Report[] = [];
 		
