@@ -38,7 +38,7 @@ describe("Parser Tests", () =>
 			return out;
 		})()!;
 		
-		const flagMissing = (flag: X.LineFlags) => (parsedLine.flags & flag) === flag;
+		const flagMissing = (flag: X.LineFlags) => (parsedLine.flags & flag) !== flag;
 		
 		if (expected.refresh && flagMissing(X.LineFlags.isRefresh))
 		{
