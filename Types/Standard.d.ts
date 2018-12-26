@@ -5,10 +5,7 @@ declare global
 	type Constructor<T> = { new(...args: any[]): T };
 	
 	/** Omit the members named in the second type from the first. */
-	type Omit<T, TNames> = Pick<T, Exclude<keyof T, TNames>>;
-	
-	/** Subtract the members of the second type from the first. */
-	type Subtract<T, TSubtract> = Pick<T, Exclude<keyof T, keyof TSubtract>>;
+	type Omit<T, TOmit> = T extends TOmit ? never : T;
 	
 	/** Create a fully locked version of the type. */
 	type Freeze<T> = {
