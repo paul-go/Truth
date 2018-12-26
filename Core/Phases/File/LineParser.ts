@@ -87,8 +87,14 @@ export class LineParser
 				if (readResult !== null)
 					declarations.set(readResult.at, readResult.identifier);
 				
-				// If the next token is not a combinator, the either
-				// the parse stream has ended, or is at the joint.
+				// If the joint position was set, we're finished reading
+				// declarations, so breaking is necessary.
+				if (jointPosition > -1)
+					break;
+				
+				// The following combinator must be eaten before
+				// moving on to another declaration. If this fails,
+				// it's because the parse stream has ended.
 				if (!parser.read(X.Syntax.combinator))
 					break;
 			}
@@ -104,16 +110,17 @@ export class LineParser
 		 */
 		function maybeReadJoint()
 		{
-			parser.readWhitespace();
 			const mark = parser.position;
 			
 			if (parser.read(X.Syntax.joint + X.Syntax.space) ||
 				parser.read(X.Syntax.joint + X.Syntax.tab) ||
 				parser.readThenTerminal(X.Syntax.joint))
+			{
 				jointPosition = mark;
+				return true;
+			}
 			
-			parser.readWhitespace();
-			return jointPosition > -1;
+			return false;
 		}
 		
 		/**
@@ -152,13 +159,20 @@ export class LineParser
 		 */
 		function maybeReadIdentifier(quitTokens: string[])
 		{
-			const until = quitTokens.concat(X.Syntax.combinator);
+			const until = quitTokens
+				.concat(X.Syntax.combinator)
+				.filter(tok => tok !== X.Syntax.joint);
+			
+			const shouldQuitOnJoint = quitTokens.includes(X.Syntax.joint);
 			const at = parser.position;
 			let token = "";
 			
 			while (parser.more())
 			{
 				if (until.some(tok => parser.peek(tok)))
+					break;
+				
+				if (shouldQuitOnJoint && maybeReadJoint())
 					break;
 				
 				const g = maybeReadFullGrapheme();
