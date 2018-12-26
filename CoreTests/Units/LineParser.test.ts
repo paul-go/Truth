@@ -4,109 +4,172 @@ import "../Framework/TestExtensions";
 
 
 //
-describe.only("Parser Tests", () =>
+describe("Parser Tests", () =>
 {
-	//
-	test.only("Basic", () =>
+	const cases = Object.entries(T.Acceptance);
+	
+	test.each(cases)(`Parse "%s"`, (source: string, expected: T.IExpectation) =>
 	{
-		T.ParseTest.exec("", {
-			flags: X.LineFlags.isWhitespace,
-			emit: ""
-		});
+		const parsedLine: X.Line = (() =>
+		{
+			let out: X.Line | null = null;
+			
+			try
+			{
+				out = X.LineParser.parse(source);
+			}
+			catch (e)
+			{
+				debugger;
+				fail(e);
+				return;
+			}
+			
+			if (out === null)
+			{
+				if (expected.unparsable)
+					return;
+				
+				debugger;
+				fail("Line should not be parsable: " + source);
+				return;
+			}
+			
+			return out;
+		})()!;
 		
-		T.ParseTest.exec("/", {
-			flags: X.LineFlags.none
-		});
+		const flagMissing = (flag: X.LineFlags) => (parsedLine.flags & flag) === flag;
 		
-		T.ParseTest.exec("Backslash\\", {
-			emit: "Backslash\\",
-			annotations: [],
-		});
+		if (expected.refresh && flagMissing(X.LineFlags.isRefresh))
+		{
+			debugger;
+			fail("Line should have the refresh flag: " + source);
+		}
 		
-		T.ParseTest.exec("A, B : C, D", {
-			emit: "A, B : C, D",
-			annotations: ["C", "D"]
-		});
+		if (expected.refresh && flagMissing(X.LineFlags.isRefresh))
+		{
+			debugger;
+			fail("Line should have the refresh flag: " + source);
+		}
 		
-		// Escaping
+		if (expected.comment && flagMissing(X.LineFlags.isComment))
+		{
+			debugger;
+			fail("Line should have the comment flag: " + source);
+		}
 		
-		T.ParseTest.exec("\A", {
-			emit: "A",
-			annotations: ""
-		});
+		if (expected.whitespace && flagMissing(X.LineFlags.isWhitespace))
+		{
+			debugger;
+			fail("Line should have the whitespace flag: " + source);
+		}
 		
-		T.ParseTest.exec("A:B: C", {
-			emit: "A:B : C",
-			annotations: "C"
-		});
+		if (expected.uri && flagMissing(X.LineFlags.hasUri))
+		{
+			debugger;
+			fail("Line should have the hasUri flag: " + source);
+		}
 		
-		T.ParseTest.exec("A\: B: C", {
-			emit: "A\: B : C",
-			annotations: "C"
-		});
+		if (expected.total && flagMissing(X.LineFlags.hasTotalPattern))
+		{
+			debugger;
+			fail("Line should have the total pattern flag: " + source);
+		}
 		
-		T.ParseTest.exec("\ A", {
-			emit: "A",
-			annotations: ""
-		});
+		if (expected.partial && flagMissing(X.LineFlags.hasPartialPattern))
+		{
+			debugger;
+			fail("Line should have the partial pattern flag: " + source);
+		}
 		
-		T.ParseTest.exec("A : B\\", {
-			emit: "A : B\\",
-			annotations: "B\\"
-		});
+		if (expected.joint !== undefined)
+		{
+			if (parsedLine.jointPosition !== expected.joint)
+			{
+				debugger;
+				fail("Joint expected at position: " + expected.joint);
+			}
+		}
 		
-		// Pattern Parsing
-		T.ParseTest.exec("/[A-Z]/ : X", {
-			flags: X.LineFlags.hasPattern,
-			match: "B"
-		});
+		if (expected.emit !== undefined)
+		{
+			const fakeDocument = <X.Document>{};
+			let statement: X.Statement | null = null;
+			
+			try
+			{
+				statement = new X.Statement(fakeDocument, parsedLine.sourceText);
+			}
+			catch (e)
+			{
+				debugger;
+			}
+			finally
+			{
+				const statementStr = statement === null ? null : statement.toString();
+				if (expected.emit !== statementStr)
+				{
+					debugger;
+					fail("Statement did not parse or emit correctly: " + expected.emit);
+				}
+			}
+		}
 		
-		T.ParseTest.exec("/[A-Z\d]/ : X", {
-			flags: X.LineFlags.hasPattern,
-			match: "5"
-		});
+		if (expected.match !== undefined || expected.noMatch !== undefined)
+		{
+			const matches = typeof expected.match === "string" ?
+				[expected.match] :
+				expected.match;
+			
+			const noMatches = typeof expected.noMatch === "string" ?
+				[expected.noMatch] :
+				expected.noMatch;
+			
+			let firstDecl: X.Identifier | X.Pattern | X.Uri | null = null;
+			
+			try
+			{
+				firstDecl = parsedLine.declarations.values().next().value;
+				
+				if (firstDecl instanceof X.Pattern)
+				{
+					if (matches)
+						for (const match of matches)
+							if (!firstDecl.test(match))
+								throw "Pattern does not match: " + match;
+					
+					if (noMatches)
+						for (const noMatch of noMatches)
+							if (firstDecl.test(noMatch))
+								throw "Pattern matches: " + noMatch;
+				}
+			}
+			catch (e)
+			{
+				debugger;
+				fail("Pattern does not match input: " + expected.match);
+			}
+		}
 		
-		// Pattern Quantifiers
-		T.ParseTest.exec("/\d+ : X", {
-			flags: [X.LineFlags.hasPattern, X.LineFlags.hasPartialPattern],
-			match: "1234"
-		});
-		
-		T.ParseTest.exec("/x\d* : X", {
-			flags: [X.LineFlags.hasPattern, X.LineFlags.hasPartialPattern],
-			match: ["x", "x1", "x2"]
-		});
-		
-		T.ParseTest.exec("/x\d{0} : X", {
-			flags: [X.LineFlags.hasPattern, X.LineFlags.hasPartialPattern],
-			match: "x",
-			noMatch: "x4"
-		});
-		
-		T.ParseTest.exec("/\d{2,} : X", {
-			flags: [X.LineFlags.hasPattern, X.LineFlags.hasPartialPattern],
-			match: "123",
-			noMatch: "12"
-		});
-		
-		T.ParseTest.exec("/\d{3,6} : X", {
-			flags: [X.LineFlags.hasPattern, X.LineFlags.hasPartialPattern],
-			match: "12345"
-		});
-		
-		// Non Pattern Quantifiers
-		T.ParseTest.exec("/\d{,3} : X", {
-			flags: [X.LineFlags.hasPattern, X.LineFlags.hasPartialPattern],
-			match: "2{,3}",
-			noMatch: "123"
-		});
-		
-		T.ParseTest.exec("/\d{x,} : X", {
-			flags: [X.LineFlags.hasPattern, X.LineFlags.hasPartialPattern],
-			match: "2{x,}"
-		});
-		
-		
-		
+		if (expected.annotations !== undefined)
+		{
+			const actualAnnos = Array.from(parsedLine.annotations.values())
+				.filter((anno): anno is X.Identifier => !!anno)
+				.map(anno => anno.toString());
+			
+			if (actualAnnos.length !== expected.annotations.length)
+			{
+				debugger;
+				fail("Statement does not have the expected set of annotations.");
+			}
+			else for (const expectedAnno of expected.annotations)
+			{
+				if (!actualAnnos.includes(expectedAnno))
+				{
+					debugger;
+					fail("Statement does not have the annotation: " + expectedAnno);
+				}
+			}
+		}
 	});
 });
