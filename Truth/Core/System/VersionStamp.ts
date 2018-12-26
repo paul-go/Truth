@@ -12,13 +12,12 @@ export class VersionStamp
 		const createStamp = (stamp: number | number[]) =>
 			new VersionStamp(Object.freeze(stamp));
 		
-		if (hasBigInt)
+		if (typeof BigInt !== "undefined")
 		{
 			if (this.nextStamp === undefined)
-				return createStamp(this.nextStamp = 1);
+				return createStamp(this.nextStamp = BigInt(1));
 			
-			// Change this to typeof x === "bigint"
-			if (typeof this.nextStamp === "number")
+			if (typeof this.nextStamp === "bigint")
 				return createStamp(++this.nextStamp);
 		}
 		else
@@ -71,5 +70,4 @@ export class VersionStamp
 	}
 }
 
-declare const BigInt: any;
-const hasBigInt = typeof BigInt !== "undefined";
+declare const BigInt: Function;
