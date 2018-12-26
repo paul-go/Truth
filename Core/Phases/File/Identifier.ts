@@ -22,18 +22,6 @@ export class Identifier
 			this.value = text.slice(
 				0,
 				this.isList ? text.length - len : undefined);
-			
-			if (!this.isList)
-			{
-				const te = X.Syntax.truthExtension;
-				const ae = X.Syntax.agentExtension;
-				
-				// Perform a simple check to see if there is a known 
-				// file extension at the end of the the URI, before we 
-				// actually attempt to parse it.
-				if (text.slice(-te.length - 1) === "." + te || text.slice(-ae.length - 1) === "." + ae)
-					this.uri = X.Uri.parse(text);
-			}
 		}
 	}
 	
@@ -45,12 +33,6 @@ export class Identifier
 	
 	/** */
 	readonly isList: boolean = false;
-	
-	/** 
-	 * Stores a parsed URI object, in the case the subject is
-	 * formatted as a URI. In other cases, the field is null.
-	 */
-	readonly uri: X.Uri | null = null;
 	
 	/**
 	 * @deprecated
@@ -70,8 +52,6 @@ export class Identifier
 	/** Converts this Subject to it's string representation. */
 	toString()
 	{
-		return this.uri ?
-			this.uri.toString() :
-			this.value + (this.isList ? X.Syntax.list : "");
+		return this.value + (this.isList ? X.Syntax.list : "");
 	}
 }
