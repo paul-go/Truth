@@ -77,57 +77,23 @@ export class LineParser
 		 */
 		function readDeclarations(quitTokens: string[])
 		{
+			const until = quitTokens.concat(X.Syntax.joint);
 			const declarations = new Map<number, X.Identifier>();
 			
 			while (parser.more())
 			{
-				const mark = parser.position;
-				const rawDeclaration = maybeReadDeclaration(quitTokens);
-				const trimmed = rawDeclaration.trim();
+				const readResult = maybeReadIdentifier(until);
 				
-				if (trimmed.length > 0)
-					declarations.set(mark, new X.Identifier(rawDeclaration));
+				if (readResult !== null)
+					declarations.set(readResult.at, readResult.identifier);
 				
 				// If the next token is not a combinator, the either
 				// the parse stream has ended, or is at the joint.
-				if (!parser.peek(X.Syntax.combinator))
+				if (!parser.read(X.Syntax.combinator))
 					break;
 			}
 			
 			return declarations;
-		}
-		
-		/**
-		 * Reads a declaration from the parse stream, which may
-		 * be contained directly by the statement, or by an infix.
-		 */
-		function maybeReadDeclaration(quitTokens: string[])
-		{
-			let token = "";
-			
-			while (parser.more())
-			{
-				if (quitTokens.some(token => parser.peek(token)))
-					break;
-				
-				const g = maybeReadFullGrapheme();
-				
-				if (g === null)
-					break;
-				
-				if (!g.escaped)
-				{
-					if (g.character === X.Syntax.combinator)
-						break;
-					
-					if (g.character === X.Syntax.joint)
-						break;
-				}
-				
-				token += g.character;
-			}
-			
-			return token;
 		}
 		
 		/**
@@ -160,18 +126,17 @@ export class LineParser
 			
 			while (parser.more())
 			{
-				const mark = parser.position;
-				const rawAnnotation = maybeReadAnnotation(quitTokens);
-				const trimmed = rawAnnotation.trim();
+				const readResult = maybeReadIdentifier(quitTokens);
 				
-				if (trimmed.length > 0)
-					annotations.set(mark, new X.Identifier(rawAnnotation));
-				
-				rawAnnotationsText += rawAnnotation;
+				if (readResult !== null)
+				{
+					annotations.set(readResult.at, readResult.identifier);
+					rawAnnotationsText += readResult.raw;
+				}
 				
 				// If the next token is not a combinator, 
 				// the parse stream has ended.
-				if (!parser.peek(X.Syntax.combinator))
+				if (!parser.read(X.Syntax.combinator))
 					break;
 			}
 			
@@ -185,28 +150,32 @@ export class LineParser
 		 * Attempts to read a raw annotation from the parse stream.
 		 * If found, the raw string found is returned.
 		 */
-		function maybeReadAnnotation(quitTokens: string[])
+		function maybeReadIdentifier(quitTokens: string[])
 		{
+			const until = quitTokens.concat(X.Syntax.combinator);
+			const at = parser.position;
 			let token = "";
 			
-			do
+			while (parser.more())
 			{
-				if (quitTokens.some(token => parser.peek(token)))
-					break;
-				
-				if (parser.peek(X.Syntax.combinator))
+				if (until.some(tok => parser.peek(tok)))
 					break;
 				
 				const g = maybeReadFullGrapheme();
-				
-				if (g === null)
-					break;
-				
-				token += g.character;
+				if (g !== null)
+					token += g.character;
 			}
-			while (parser.more() && !parser.peek(X.Syntax.combinator));
 			
-			return token;
+			const tokenTrim = token.trim();
+			
+			if (tokenTrim === "")
+				return null;
+			
+			return {
+				at,
+				identifier: new X.Identifier(tokenTrim),
+				raw: token
+			};
 		}
 		
 		/**
@@ -847,7 +816,6 @@ export class LineParser
 		if (maybeReadUnparsable())
 			return ret();
 		
-		// Edsger Dijkstra considered harmful:
 		{
 			const markBeforeUri = parser.position;
 			const uri = maybeReadUri();
@@ -855,7 +823,7 @@ export class LineParser
 			{
 				flags |= X.LineFlags.hasUri;
 				declarations.set(markBeforeUri, uri);
-				return goto();
+				return then();
 			}
 			
 			const markBeforePattern = parser.position;
@@ -875,15 +843,15 @@ export class LineParser
 					X.LineFlags.hasPartialPattern;
 				
 				declarations.set(markBeforePattern, pattern);
-				return goto();
+				return then();
 			}
 			
 			for (const [mark, declaration] of readDeclarations([]))
 				declarations.set(mark, declaration);
 			
-			return goto();
+			return then();
 			
-			function goto()
+			function then()
 			{
 				maybeReadJoint();
 				
