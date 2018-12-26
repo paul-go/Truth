@@ -41,10 +41,10 @@ export class DocumentHeader
 			if (typeof decl.subject === "string")
 				throw X.ExceptionMessage.unknownState();
 			
-			if (!(decl.subject instanceof X.Identifier) || decl.subject.uri === null)
+			if (!(decl.subject instanceof X.Uri))
 				break;
 			
-			newUriMap.set(statement, decl.subject.uri);
+			newUriMap.set(statement, decl.subject);
 		}
 		
 		if (oldUriMap.size + newUriMap.size === 0)
