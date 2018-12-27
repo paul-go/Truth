@@ -398,7 +398,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	},
 	"/<Pop1, Pop2> : X": {
 		partial: true,
-		infixes: [{ kind: "Population", lhs: "Pop1", rhs: "Pop2" }]
+		infixes: [{ kind: "Population", lhs: ["Pop1", "Pop2"] }]
 	},
 	"/<<Nom>> : X": {
 		partial: true,

@@ -777,6 +777,7 @@ export class LineParser
 			}
 			else if (parser.read(X.InfixSyntax.start))
 			{
+				infixFlags |= X.InfixFlags.population;
 				quitToken = X.InfixSyntax.end;
 			}
 			else return null;
