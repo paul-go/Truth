@@ -81,7 +81,7 @@ export class RegexSet extends RegexUnit
 	constructor(
 		readonly knowns: ReadonlyArray<X.RegexSyntaxKnownSet>,
 		readonly ranges: ReadonlyArray<RegexCharRange>,
-		readonly singles: ReadonlyArray<string | X.RegexSyntaxSign>,
+		readonly singles: ReadonlyArray<string>,
 		readonly isNegated: boolean,
 		readonly quantifier: RegexQuantifier | null)
 	{
@@ -106,8 +106,8 @@ export class RegexSet extends RegexUnit
 			return [
 				X.RegexSyntaxDelimiter.setStart,
 				...this.knowns,
-				...this.ranges.map(r => String.fromCodePoint(r.from) + "-" + String.fromCodePoint(r.to)),
-				...this.singles,
+				...this.ranges.map(r => esc(r.from) + "-" + esc(r.to)),
+				...escMany(this.singles),
 				X.RegexSyntaxDelimiter.setEnd
 			].join("");
 		})();
@@ -226,7 +226,7 @@ export class RegexGroup extends RegexUnit
 		if (this.cases.length === 0)
 			return "";
 		
-		const cases = this.cases.map(ca => ca.map(unit => unit.toString()));
+		const cases = this.cases.map(ca => ca.map(unit => esc(unit.toString())));
 		const group = 
 			X.RegexSyntaxDelimiter.groupStart +
 			cases.join(X.RegexSyntaxDelimiter.alternator) +
@@ -263,7 +263,7 @@ export class RegexGrapheme extends RegexUnit
 	toString()
 	{
 		const q = this.quantifier;
-		return this.grapheme.toString() + (q === null ? "" : q.toString());
+		return this.grapheme.toString() + (q === null ? "" : esc(q.toString()));
 	}
 }
 
@@ -286,7 +286,7 @@ export class RegexSign extends RegexUnit
 	toString()
 	{
 		const q = this.quantifier;
-		return this.sign.toString() + (q === null ? "" : q.toString());
+		return this.sign.toString() + (q === null ? "" : esc(q.toString()));
 	}
 }
 
@@ -302,12 +302,12 @@ export class RegexQuantifier
 		 * Stores the lower bound of the quantifier, 
 		 * or the fewest number of graphemes to be matched.
 		 */
-		readonly lower: number = 0,
+		readonly min: number = 0,
 		/**
 		 * Stores the upper bound of the quantifier, 
 		 * or the most number of graphemes to be matched.
 		 */
-		readonly upper: number = Infinity,
+		readonly max: number = Infinity,
 		/**
 		 * Stores whether the the quantifier is restrained,
 		 * in that it matches the fewest possible number
@@ -325,21 +325,43 @@ export class RegexQuantifier
 	toString()
 	{
 		const rst = this.restrained ? X.RegexSyntaxMisc.restrained : "";
-		const lo = this.lower;
-		const up = this.upper;
 		
-		if (lo === 0 && up === Infinity)
+		if (this.min === 0 && this.max === Infinity)
 			return X.RegexSyntaxMisc.star + rst;
 		
-		if (lo === 1 && up === Infinity)
+		if (this.min === 1 && this.max === Infinity)
 			return X.RegexSyntaxMisc.plus + rst;
 		
 		const qs = X.RegexSyntaxDelimiter.quantifierStart;
 		const qp = X.RegexSyntaxDelimiter.quantifierSeparator;
 		const qe = X.RegexSyntaxDelimiter.quantifierEnd;
 		
-		return lo === up ?
-			qs + lo + qe :
-			qs + lo + qp + (up === Infinity ? "" : up.toString()) + qe;
+		return this.min === this.max ?
+			qs + this.min + qe :
+			qs + this.min + qp + (this.max === Infinity ? "" : this.max.toString()) + qe;
 	}
+}
+
+
+/**
+ * Utility function that returns a double escape
+ * if the passed value is a backslash.
+ */
+function esc(maybeBackslash: string | number)
+{
+	if (maybeBackslash === 92 || maybeBackslash === "\\")
+		return "\\\\";
+	
+	if (typeof maybeBackslash === "number")
+		return String.fromCodePoint(maybeBackslash);
+	
+	return maybeBackslash;
+}
+
+/**
+ * 
+ */
+function escMany(array: ReadonlyArray<string | number>)
+{
+	return array.map(esc).join("");
 }
