@@ -93,24 +93,28 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		whitespace: true,
 		emit: ""
 	},
-	"/": {
-		
-	},
 	"Backslash\\": {
-		emit: "Backslash\\",
-		annotations: [],
+		emit: "Backslash\\"
 	},
 	"A, B : C, D": {
 		emit: "A, B : C, D",
 		annotations: ["C", "D"]
 	},
 	"\A": {
-		emit: "A",
-		annotations: ""
+		emit: "A"
 	},
 	"A:B: C": {
 		emit: "A:B : C",
 		annotations: "C"
+	},
+	"Refresh:": {
+		refresh: true
+	},
+	"Refresh : ": {
+		refresh: true
+	},
+	"R, E, F, R, E, S, H :": {
+		refresh: true
 	},
 	
 	// Escaping
@@ -120,47 +124,81 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		annotations: "C"
 	},
 	"\ A": {
-		emit: "A",
-		annotations: ""
+		emit: "A"
 	},
 	
-	// Strange
+	// Strange slash usage
+	
+	"/": {
+		unparsable: true
+	},
+	"/ :": {
+		unparsable: true
+	},
+	"//": {
+		comment: true
+	},
+	"// ": {
+		comment: true
+	},
+	"// :": {
+		comment: true
+	},
+	"\\/" : {
+		emit: "\\/"
+	},
+	"A, /, B : C, /, D": {
+		emit: "A, /, B : C, /, D",
+		annotations: ["C", "/", "D"],
+		joint: 8
+	},
+	"/, A, B": {
+		unparsable: true
+	},
+	
+	// Strange colon usage
 	
 	"A : B\\": {
 		emit: "A : B\\",
 		annotations: "B\\"
 	},
 	":::": {
-		emit: "::",
+		emit: ":: :",
 		joint: 2,
-		refresh: true,
-		annotations: []
+		refresh: true
 	},
 	"::\\: :": {
 		emit: "::: :",
 		joint: 5,
-		refresh: true,
-		annotations: []
+		refresh: true
 	},
 	":: :\\:": {
-		emit: ":: ::",
-		joint: -1,
-		refresh: true,
-		annotations: []
+		emit: ": : ::",
+		joint: 1
 	},
+	
+	// Strange comma usage
+	
 	"X,,,": {
 		emit: "X",
-		joint: -1,
-		annotations: []
+		joint: -1
+	},
+	",": {
+		unparsable: true
+	},
+	", A, B : C, D": {
+		unparsable: true
 	},
 	
 	// Pattern Parsing
 	
 	"/[A-Z]/ : X": {
+		annotations: "X",
 		total: true,
 		match: "B"
 	},
 	"/[A-Z\d]/ : X": {
+		annotations: "X",
 		total: true,
 		match: "5"
 	},
@@ -168,24 +206,29 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	// Pattern Quantifiers
 	
 	"/\d+ : X": {
+		annotations: "X",
 		partial: true,
 		match: "1234"
 	},
 	"/x\d* : X": {
+		annotations: "X",
 		partial: true,
 		match: ["x", "x1", "x2"]
 	},
 	"/x\d{0} : X": {
+		annotations: "X",
 		partial: true,
 		match: "x",
 		noMatch: "x4"
 	},
 	"/\d{2,} : X": {
+		annotations: "X",
 		partial: true,
 		match: "123",
 		noMatch: "12"
 	},
 	"/\d{3,6} : X": {
+		annotations: "X",
 		partial: true,
 		match: "12345"
 	},
@@ -193,11 +236,13 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	// Non Pattern Quantifiers
 	
 	"/\d{,3} : X": {
+		annotations: "X",
 		partial: true,
 		match: "2{,3}",
 		noMatch: "123"
 	},
 	"/\d{x,} : X": {
+		annotations: "X",
 		partial: true,
 		match: "2{x,}"
 	}
