@@ -11,7 +11,7 @@ export const enum Syntax
 	joint = ":",
 	list = "...",
 	escapeChar = "\\",
-	comment = "// ",
+	comment = "//",
 	truthExtension = "truth",
 	agentExtension = "js",
 }

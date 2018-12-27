@@ -60,12 +60,6 @@ export class LineParser
 		let flags = X.LineFlags.none;
 		let jointPosition = -1;
 		
-		const addDeclaration = (start: number, end: number, subject: X.DeclarationSubject) =>
-			declarationEntries.push(new X.BoundsEntry(start, end, subject));
-		
-		const addAnnotation = (start: number, end: number, subject: X.AnnotationSubject) =>
-			declarationEntries.push(new X.BoundsEntry(start, end, subject));
-		
 		/**
 		 * Universal function for quickly producing a RawStatement
 		 * instance using the values of the constructed local variables.
@@ -87,10 +81,19 @@ export class LineParser
 			return ret();
 		}
 		
-		if (parser.read(X.Syntax.comment))
 		{
-			flags |= X.LineFlags.isComment;
-			return ret();
+			const mark = parser.position;
+			
+			if (parser.read(X.Syntax.comment))
+			{
+				if (!parser.more() || parser.read(X.Syntax.space) || parser.read(X.Syntax.tab))
+				{
+					flags |= X.LineFlags.isComment;
+					return ret();
+				}
+				
+				parser.position = mark;
+			}
 		}
 		
 		if (maybeReadUnparsable())
@@ -102,7 +105,11 @@ export class LineParser
 			if (uri)
 			{
 				flags |= X.LineFlags.hasUri;
-				addDeclaration(markBeforeUri, parser.position, uri);
+				declarationEntries.push(new X.BoundsEntry(
+					markBeforeUri,
+					parser.position,
+					uri));
+				
 				return then();
 			}
 			
@@ -122,7 +129,11 @@ export class LineParser
 					X.LineFlags.hasTotalPattern :
 					X.LineFlags.hasPartialPattern;
 				
-				addDeclaration(markBeforePattern, parser.position, pattern);
+				declarationEntries.push(new X.BoundsEntry(
+					markBeforePattern,
+					parser.position,
+					pattern));
+				
 				return then();
 			}
 			
@@ -138,6 +149,9 @@ export class LineParser
 				const readResult = readAnnotations([]);
 				for (const boundsEntry of readResult.annotations)
 					annotationEntries.push(boundsEntry);
+				
+				if (jointPosition > -1 && readResult.annotations.length === 0)
+					flags |= X.LineFlags.isRefresh;
 				
 				return ret();
 			}
@@ -867,14 +881,11 @@ export class LineParser
 				}
 				
 				const g = parser.readGrapheme();
-				const char = esc + g;
-				const sign = X.RegexSyntaxSign.resolve(char);
+				const decoded = X.RegexSyntaxSign.resolve(esc + g) !== null ?
+					decodeURIComponent(esc + g) :
+					g;
 				
-				const decodedChar = sign === null ?
-					char :
-					decodeURIComponent(char);
-				
-				return new Grapheme(decodedChar, "", true);
+				return new Grapheme(decoded, "", true);
 			}
 			
 			return new Grapheme(parser.readGrapheme(), "", false)
