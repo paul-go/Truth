@@ -22,10 +22,9 @@ You can think of Truth as a type system without a language. The idea is to use t
 
 
 
-
 ## Status
 
-Pre-alpha, under heavy development. Not yet working, but getting close. The Truth compiler is a lightweight, high-performance incremental compiler with zero dependencies. The same core that powers run-time validations will also power editor services (Visual Studio Code).
+**Pre-alpha. Not yet working.** The Truth compiler is being built as a lightweight, high-performance incremental analyzer with zero dependencies. The same core that powers run-time validations will also power editor services (Visual Studio Code).
 
 
 
