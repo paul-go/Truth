@@ -261,7 +261,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		annotations: "X",
 		total: true,
 		match: ["\t", " ", "$", "0", "9", ":", "=", "<", ">", "A", "Z", "[", "\\"],
-		noMatch: [String.fromCharCode(0), "]", "a"]
+		noMatch: [String.fromCodePoint(0), "]", "a"]
 	},
 	
 	// Patterns with unicode

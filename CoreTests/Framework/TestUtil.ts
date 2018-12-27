@@ -69,7 +69,6 @@ export abstract class FakeUri
 	/** Generates a random file name. */
 	private static createRandomName()
 	{
-		const length = 8;
 		const chars: string[] = [];
 		
 		for (let i = -1; ++i < 8;)

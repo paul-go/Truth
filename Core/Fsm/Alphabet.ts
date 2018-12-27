@@ -81,8 +81,8 @@ export class Alphabet
 		
 		for (const range of this.ranges)
 			symbols.push(range.from === range.to ?
-				String.fromCharCode(range.from) :
-				String.fromCharCode(range.from) + " - " + String.fromCharCode(range.to));
+				String.fromCodePoint(range.from) :
+				String.fromCodePoint(range.from) + " - " + String.fromCodePoint(range.to));
 		
 		if (this.hasWildcard())
 			symbols.push(Alphabet.wildcard);
