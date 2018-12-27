@@ -31,7 +31,7 @@ export class Alphabet
 	{
 		for (const range of this.ranges)
 			for (let i = range.from; i < range.to; i++)
-				yield String.fromCharCode(i);
+				yield String.fromCodePoint(i);
 	}
 	
 	/**
