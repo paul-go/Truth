@@ -84,7 +84,16 @@ export interface IExpectation
 	 * Similar to match, but reversed in that the string or strings should
 	 * NOT be matchable by the pattern.
 	 */
-	noMatch?: string | string[]
+	noMatch?: string | string[],
+	
+	/**
+	 * 
+	 */
+	infixes?: {
+		kind: "Pattern" | "Portability" | "Population" | "Nominal";
+		lhs?: string | string[];
+		rhs?: string | string[];
+	}[];
 }
 
 
@@ -375,13 +384,24 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	
 	// Pattern Infixes
 	
-	"/< : Portability> : X": {
-		
+	"/</Pat/> : X": {
+		partial: true,
+		infixes: [{ kind: "Pattern", lhs: "Pat" }]
 	},
-	"/<Population> : X": {
-		
+	"/< : Port> : X": {
+		partial: true,
+		infixes: [{ kind: "Portability", rhs: "Port" }]
 	},
-	"/<Population1, Population2> : X": {
-		
+	"/<Pop> : X": {
+		partial: true,
+		infixes: [{ kind: "Population", lhs: "Pop" }]
+	},
+	"/<Pop1, Pop2> : X": {
+		partial: true,
+		infixes: [{ kind: "Population", lhs: "Pop1", rhs: "Pop2" }]
+	},
+	"/<<Nom>> : X": {
+		partial: true,
+		infixes: [{ kind: "Nominal", lhs: "Nom" }]
 	}
 };
