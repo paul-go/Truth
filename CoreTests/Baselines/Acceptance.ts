@@ -271,6 +271,16 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		match: "🐇",
 		noMatch: "\\u{1F407}"
 	},
+	"/\\uFFFF🐇 : X": {
+		partial: true,
+		match: "uFFFF🐇",
+		noMatch: "\uFFFF🐇"
+	},
+	"/\\u{FFFF🐇 : X": {
+		partial: true,
+		match: "uFFFF🐇",
+		noMatch: "\\uFFFF🐇"
+	},
 	
 	// Pattern Quantifiers
 	
@@ -290,16 +300,17 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		match: "x",
 		noMatch: "x4"
 	},
-	"/\\d{2,} : X": {
+	"/\\d{3,} : X": {
 		annotations: "X",
 		partial: true,
-		match: "123",
+		match: ["123", "1234"],
 		noMatch: "12"
 	},
 	"/\\d{3,6} : X": {
 		annotations: "X",
 		partial: true,
-		match: "12345"
+		match: "12345",
+		noMatch: ["12", "1234567"]
 	},
 	
 	// Non Pattern Quantifiers
