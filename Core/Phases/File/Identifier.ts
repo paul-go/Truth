@@ -49,9 +49,58 @@ export class Identifier
 		return false;
 	}
 	
-	/** Converts this Subject to it's string representation. */
-	toString()
+	/**
+	 * Converts this Subject to it's string representation. 
+	 * @param escape If true, preserves any necessary
+	 * escaping required to ensure the identifier string
+	 * is in a parsable format.
+	 */
+	toString(escape = IdentifierEscapeKind.none)
 	{
-		return this.value + (this.isList ? X.Syntax.list : "");
+		const val = (() =>
+		{
+			switch (escape)
+			{
+				case IdentifierEscapeKind.none:
+					return this.value;
+				
+				case IdentifierEscapeKind.declaration:
+				{
+					const jntRegS = new RegExp(X.Syntax.joint + X.Syntax.space);
+					const jntRegT = new RegExp(X.Syntax.joint + X.Syntax.tab);
+					const cmbReg = new RegExp(X.Syntax.combinator);
+					
+					return this.value
+						.replace(jntRegS, X.Syntax.escapeChar + X.Syntax.joint + X.Syntax.space)
+						.replace(jntRegT, X.Syntax.escapeChar + X.Syntax.joint + X.Syntax.tab)
+						.replace(cmbReg, X.Syntax.escapeChar + X.Syntax.combinator);
+				}
+				
+				case IdentifierEscapeKind.annotation:
+				{
+					const reg = new RegExp(X.Syntax.combinator);
+					const rep = X.Syntax.escapeChar + X.Syntax.combinator;
+					return this.value.replace(reg, rep);
+				}
+			}
+		})()
+		
+		return val + (this.isList ? X.Syntax.list : "");
 	}
+}
+
+
+/**
+ * An enumeration that describes the various ways
+ * to handle escaping when serializing an identifier.
+ * This enumeration is used to address the differences
+ * in the way identifiers can be serialized, which can 
+ * depend on whether the identifier is a declaration or
+ * an annotation.
+ */
+export const enum IdentifierEscapeKind
+{
+	none = 0,
+	declaration = 1,
+	annotation = 2
 }
