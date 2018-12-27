@@ -161,6 +161,112 @@ describe("Parser Tests", () =>
 			}
 		}
 		
+		if (expected.infixes !== undefined)
+		{
+			const firstDecl = (() =>
+			{
+				const first = parsedLine.declarations.first();
+				return first ? first.subject : null;
+			})();
+			
+			if (firstDecl instanceof X.Pattern)
+			{
+				const infixes = firstDecl.units.filter((u): u is X.Infix => u instanceof X.Infix);
+				
+				if (expected.infixes.length !== infixes.length)
+				{
+					debugger;
+					fail(`Expected ${expected.infixes.length} infixes, but found ${infixes.length}`);
+				}
+				
+				for (let nfxIdx = -1; ++nfxIdx < infixes.length;)
+				{
+					const act = infixes[nfxIdx];
+					const actLhs = Array.from(act.lhs.eachSubject()).map(id => id.toString());
+					const actRhs = Array.from(act.rhs.eachSubject()).map(id => id.toString());
+					const hasFlag = (flag: X.InfixFlags) => (act.flags & flag) === flag;
+					const exp = expected.infixes[nfxIdx];
+					const expLhs = typeof exp.lhs === "string" ? [exp.lhs] : (exp.lhs || []);
+					const expRhs = typeof exp.rhs === "string" ? [exp.rhs] : (exp.rhs || []);
+					
+					if (exp.kind === "Pattern" && !hasFlag(X.InfixFlags.pattern))
+					{
+						debugger;
+						fail(`Infix ${nfxIdx} expected to be of the 'Pattern' variety.`);
+						continue;
+					}
+					
+					if (exp.kind === "Portability" && !hasFlag(X.InfixFlags.portability))
+					{
+						debugger;
+						fail(`Infix ${nfxIdx} expected to be of the 'Portability' variety.`);
+						continue;
+					}
+					
+					if (exp.kind === "Population" && !hasFlag(X.InfixFlags.population))
+					{
+						debugger;
+						fail(`Infix ${nfxIdx} expected to be of the 'Population' variety.`);
+						continue;
+					}
+					
+					if (exp.kind === "Nominal" && !hasFlag(X.InfixFlags.nominal))
+					{
+						debugger;
+						fail(`Infix ${nfxIdx} expected to be of the 'Nominal' variety.`);
+						continue;
+					}
+					
+					if (act.lhs.length !== expLhs.length)
+					{
+						debugger;
+						fail(`Identifier count of left side of infix ${nfxIdx} expected ` +
+							`to be ${expLhs.length}. Found ${act.lhs.length}.`);
+						continue;
+					}
+					
+					if (act.rhs.length !== expRhs.length)
+					{
+						debugger;
+						fail(`Identifier count of right side of infix ${nfxIdx} expected ` +
+							`to be ${expRhs.length}. Found ${act.rhs.length}.`);
+						continue;
+					}
+					
+					for (let idIdx = -1; ++idIdx < expLhs.length;)
+					{
+						const expIdent = expLhs[idIdx];
+						const actIdent = actLhs[idIdx];
+						
+						if (expIdent !== actIdent)
+						{
+							debugger;
+							fail(`Left side identifier ${idIdx} of infix ${nfxIdx} does not match the expectation.`);
+							continue;
+						}
+					}
+					
+					for (let idIdx = -1; ++idIdx < expRhs.length;)
+					{
+						const expIdent = expRhs[idIdx];
+						const actIdent = actRhs[idIdx];
+						
+						if (expIdent !== actIdent)
+						{
+							debugger;
+							fail(`Right side identifier ${idIdx} of infix ${nfxIdx} does not match the expectation.`);
+							continue;
+						}
+					}
+				}
+			}
+			else	
+			{
+				debugger;
+				fail("Use of the 'infixes' check requires a Pattern.");
+			}
+		}
+		
 		if (expected.annotations !== undefined)
 		{
 			const actualAnnos = Array.from(parsedLine.annotations.eachSubject())
