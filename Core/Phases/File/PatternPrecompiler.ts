@@ -18,8 +18,9 @@ export class PatternPrecompiler
 		{
 			if (unit instanceof X.RegexGrapheme)
 			{
-				unit.grapheme === "$" || unit.grapheme === "^" ?
-					result.push(X.Syntax.escapeChar + unit.grapheme) :
+				if (MustEscapeChars.includes(unit.grapheme))
+					result.push(X.Syntax.escapeChar + unit.grapheme);
+				else
 					result.push(unit.grapheme);
 				
 				if (unit.quantifier)
@@ -38,10 +39,18 @@ export class PatternPrecompiler
 		result.unshift("^");
 		result.push("$");
 		
-		return new RegExp(result.join(""), "u");
+		const reg = result.join("");
+		return new RegExp(reg, "u");
 	}
 }
 
+
+/**
+ * Stores the list of characters that must be escaped
+ * in order for the Truth regular expression flavor to
+ * be compatible with the engine build into JavaScript.
+ */
+const MustEscapeChars = ["$", "^", "{", "}"];
 
 /**
  * Stores the pattern that is fed into a pattern in

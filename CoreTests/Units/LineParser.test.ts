@@ -140,6 +140,7 @@ describe("Parser Tests", () =>
 							if (!firstDecl.test(match))
 							{
 								debugger;
+								firstDecl.test(match);
 								throw "Pattern does not match: " + match;
 							}
 					
@@ -148,13 +149,15 @@ describe("Parser Tests", () =>
 							if (firstDecl.test(noMatch))
 							{
 								debugger;
+								firstDecl.test(noMatch);
 								throw "Pattern matches: " + noMatch;
 							}
 				}
 			}
 			catch (e)
 			{
-				fail("Pattern does not match input: " + expected.match);
+				debugger;
+				fail("Error generated when trying to test: " + expected.match);
 			}
 		}
 		

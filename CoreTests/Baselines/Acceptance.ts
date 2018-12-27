@@ -254,14 +254,19 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	"/[A\\tB] : X": {
 		annotations: "X",
 		total: false,
-		match: ["A", "	", "\t", "B"],
-		noMatch: ["AtB", "A\\tB", "A	B"]
+		match: ["A", "B"],
+		noMatch: ["AtB", "A\\tB", "A	B", "\t"]
 	},
 	"/[\\t-\\\\]/ : X": {
 		annotations: "X",
 		total: true,
-		match: ["\t", " ", "$", "0", "9", ":", "=", "<", ">", "A", "Z", "[", "\\"],
-		noMatch: [String.fromCodePoint(0), "]", "a"]
+		match: ["$", "0", "9", ":", "=", "<", ">", "A", "Z", "[", "\\"],
+		noMatch: ["\t", String.fromCodePoint(0), "]", "a"]
+	},
+	"/-[\\t-\\\\]-/ : X": {
+		annotations: "X",
+		total: true,
+		match: ["-\t-", "-$-"]
 	},
 	
 	// Patterns with unicode
@@ -278,7 +283,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	},
 	"/\\u{FFFF🐇 : X": {
 		partial: true,
-		match: "uFFFF🐇",
+		match: "u{FFFF🐇",
 		noMatch: "\\uFFFF🐇"
 	},
 	
@@ -325,5 +330,58 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		annotations: "X",
 		partial: true,
 		match: "2{x,}"
+	},
+	"/\\d{} : X": {
+		annotations: "X",
+		partial: true,
+		match: "2{}",
+	},
+	"/\\d{ } : X": {
+		annotations: "X",
+		partial: true,
+		match: "2{ }",
+	},
+	
+	// Pattern Groups
+	
+	"/(A|B) : X": {
+		annotations: "X",
+		partial: true,
+		match: "A",
+		noMatch: "|"
+	},
+	"/(A||B) : X": {
+		annotations: "X",
+		partial: true,
+		match: "A",
+		noMatch: ""
+	},
+	"/(A|B|C|D) : X": {
+		annotations: "X",
+		partial: true,
+		match: ["A", "B", "C", "D"],
+	},
+	"/([0-5]|[a-c]|[e-f]) : X": {
+		annotations: "X",
+		partial: true,
+		match: ["0", "a", "e"]
+	},
+	"/([0-5]*|[a-c]+|[e-f]{2}) : X": {
+		annotations: "X",
+		partial: true,
+		match: ["000", "aaa", "ee"],
+		noMatch: ["6", "eee"]
+	},
+	
+	// Pattern Infixes
+	
+	"/< : Portability> : X": {
+		
+	},
+	"/<Population> : X": {
+		
+	},
+	"/<Population1, Population2> : X": {
+		
 	}
 };

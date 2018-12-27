@@ -673,6 +673,8 @@ export class LineParser
 			/** */
 			function maybeReadQuantifier()
 			{
+				const mark = parser.position;
+				
 				if (parser.read(X.RegexSyntaxMisc.star))
 					return new X.RegexQuantifier(0, Infinity, isRestrained());
 				
@@ -682,46 +684,29 @@ export class LineParser
 				if (!parser.read(X.RegexSyntaxDelimiter.quantifierStart))
 					return null;
 				
-				const mark = parser.position;
-				const sep = X.RegexSyntaxDelimiter.quantifierSeparator;
-				const lowerBound = maybeReadInteger();
-				let upperBound = lowerBound;
-				
-				const shouldRewind = (() =>
+				const min = maybeReadInteger();
+				if (min !== null)
 				{
-					if (lowerBound === null)
-						return false;
+					const quantEnd = X.RegexSyntaxDelimiter.quantifierEnd;
 					
-					if (parser.read(X.RegexSyntaxDelimiter.quantifierEnd))
-						return false;
+					// {2}
+					if (parser.read(quantEnd))
+						return new X.RegexQuantifier(min, min, isRestrained())
 					
-					if (!parser.read(sep))
-						return false;
-					
-					if (parser.read(X.RegexSyntaxDelimiter.quantifierEnd))
+					// {2,} or {2,3} or {2,???
+					if (parser.read(X.RegexSyntaxDelimiter.quantifierSeparator))
 					{
-						upperBound = Infinity;
-						return false;
+						if (parser.read(quantEnd))
+							return new X.RegexQuantifier(min, Infinity, isRestrained());
+						
+						const max = maybeReadInteger();
+						if (max !== null && parser.read(quantEnd))
+							return new X.RegexQuantifier(min, max, isRestrained());
 					}
-					
-					upperBound = maybeReadInteger();
-					
-					if (upperBound === null)
-						return true;
-					
-					return false;
-				})();
-				
-				if (shouldRewind || lowerBound === null || upperBound === null)
-				{
-					parser.position = mark;
-					return null;
 				}
 				
-				return new X.RegexQuantifier(
-					lowerBound,
-					upperBound,
-					isRestrained());
+				parser.position = mark;
+				return null;
 			}
 			
 			/** */
@@ -732,11 +717,8 @@ export class LineParser
 			
 			const quantifier = maybeReadQuantifier();
 			if (quantifier)
-			{
-				const subsequentQuantifier = maybeReadQuantifier();
-				if (subsequentQuantifier)
+				if (maybeReadQuantifier())
 					return ParseError;
-			}
 			
 			return quantifier;
 		}
@@ -816,7 +798,6 @@ export class LineParser
 			{
 				for (const boundsEntry of readDeclarations([quitToken]))
 					lhsEntries.push(boundsEntry);
-				
 				
 				parser.readWhitespace();
 				hasJoint = !!parser.read(X.Syntax.joint);
