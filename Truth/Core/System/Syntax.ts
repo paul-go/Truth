@@ -54,11 +54,11 @@ export namespace RegexSyntaxSign
 	{
 		switch (value)
 		{
-			case RegexSyntaxSign.tab: return String.fromCharCode(9);
-			case RegexSyntaxSign.lineFeed: return String.fromCharCode(10);
-			case RegexSyntaxSign.carriageReturn: return String.fromCharCode(13);
-			case RegexSyntaxSign.escapedFinalizer: return String.fromCharCode(47);
-			case RegexSyntaxSign.backslash: return String.fromCharCode(92);
+			case RegexSyntaxSign.tab: return String.fromCodePoint(9);
+			case RegexSyntaxSign.lineFeed: return String.fromCodePoint(10);
+			case RegexSyntaxSign.carriageReturn: return String.fromCodePoint(13);
+			case RegexSyntaxSign.escapedFinalizer: return String.fromCodePoint(47);
+			case RegexSyntaxSign.backslash: return String.fromCodePoint(92);
 		}
 		
 		return "";

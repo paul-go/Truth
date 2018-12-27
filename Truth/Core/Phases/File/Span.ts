@@ -185,7 +185,7 @@ function generateInvisibleSubject()
 		if (code < 90)
 			code += 6;
 		
-		result.push(String.fromCharCode(code));
+		result.push(String.fromCodePoint(code));
 	}
 	
 	return result.join("");
