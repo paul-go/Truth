@@ -159,12 +159,18 @@ describe("Parser Tests", () =>
 				.filter((anno): anno is X.Identifier => !!anno)
 				.map(anno => anno.toString());
 			
-			if (actualAnnos.length !== expected.annotations.length)
+			const ea = expected.annotations;
+			const expectedAnnos =
+				typeof ea === "string" ? [ea] :
+				Array.isArray(ea) ? ea :
+				[];
+			
+			if (actualAnnos.length !== expectedAnnos.length)
 			{
 				debugger;
 				fail("Statement does not have the expected set of annotations.");
 			}
-			else for (const expectedAnno of expected.annotations)
+			else for (const expectedAnno of expectedAnnos)
 			{
 				if (!actualAnnos.includes(expectedAnno))
 				{
