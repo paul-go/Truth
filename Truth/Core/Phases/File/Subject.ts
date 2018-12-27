@@ -34,7 +34,7 @@ export class SubjectSerializer
 			return subject.toString(escapeStyle);
 		
 		else if (subject instanceof X.Pattern)
-			return subject.toString(true);
+			return subject.toString();
 		
 		else if (subject instanceof X.Uri)
 			return subject.toString(true, true);
