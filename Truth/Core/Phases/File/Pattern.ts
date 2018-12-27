@@ -90,19 +90,24 @@ export class RegexSet extends RegexUnit
 		const rLen = this.ranges.length;
 		const cLen = this.singles.length;
 		
-		if (kLen === 1 && rLen + cLen === 0)
-			return this.knowns[0].toString();
+		const setText = (() =>
+		{
+			if (kLen === 1 && rLen + cLen === 0)
+				return this.knowns[0].toString();
+			
+			if (cLen === 1 && kLen + cLen === 0)
+				return this.singles[0];
+			
+			return [
+				X.RegexSyntaxDelimiter.setStart,
+				...this.knowns,
+				...this.ranges.map(r => String.fromCodePoint(r.from) + "-" + String.fromCodePoint(r.to)),
+				...this.singles,
+				X.RegexSyntaxDelimiter.setEnd
+			].join("");
+		})();
 		
-		if (cLen === 1 && kLen + cLen === 0)
-			return this.singles[0];
-		
-		return [
-			X.RegexSyntaxDelimiter.setStart,
-			...this.knowns,
-			...this.ranges.map(r => String.fromCodePoint(r.from) + "-" + String.fromCodePoint(r.to)),
-			...this.singles,
-			X.RegexSyntaxDelimiter.setEnd
-		].join("");
+		return setText + (this.quantifier ? this.quantifier.toString() : "");
 	}
 	
 	/** */
@@ -217,11 +222,12 @@ export class RegexGroup extends RegexUnit
 			return "";
 		
 		const cases = this.cases.map(ca => ca.map(unit => unit.toString()));
-		
-		return (
+		const group = 
 			X.RegexSyntaxDelimiter.groupStart +
 			cases.join(X.RegexSyntaxDelimiter.alternator) +
-			X.RegexSyntaxDelimiter.groupEnd);
+			X.RegexSyntaxDelimiter.groupEnd;
+		
+		return group + (this.quantifier ? this.quantifier.toString() : "");
 	}
 }
 
