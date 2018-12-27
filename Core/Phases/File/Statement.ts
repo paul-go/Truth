@@ -70,10 +70,10 @@ export class Statement
 	readonly indent: number;
 	
 	/** */
-	private readonly declarationBounds: X.DeclarationBounds;
+	private readonly declarationBounds: X.Bounds<X.DeclarationSubject>;
 	
 	/** */
-	private readonly annotationBounds: X.AnnotationBounds;
+	private readonly annotationBounds: X.Bounds<X.AnnotationSubject>;
 	
 	/**
 	 * Stores the position at which the joint operator exists
@@ -167,8 +167,8 @@ export class Statement
 		
 		const out: X.Span[] = [];
 		
-		for (const [offset, subject] of this.declarationBounds)
-			out.push(new X.Span(this, subject, offset));
+		for (const { offsetStart, offsetEnd, subject } of this.declarationBounds)
+			out.push(new X.Span(this, offsetStart, offsetEnd, subject));
 		
 		return this._declarations = out;
 	}
@@ -185,8 +185,8 @@ export class Statement
 		
 		const out: X.Span[] = [];
 		
-		for (const [offset, subject] of this.annotationBounds)
-			out.push(new X.Span(this, subject, offset));
+		for (const { offsetStart, offsetEnd, subject } of this.annotationBounds)
+			out.push(new X.Span(this, offsetStart, offsetEnd, subject));
 		
 		return this._annotations = out;
 	}
@@ -253,21 +253,22 @@ export class Statement
 	 */
 	toString(includeIndent = false)
 	{
+		const serializeSpans = (spans: X.Span[], escStyle: X.IdentifierEscapeKind) =>
+		{
+			return spans
+				.filter(sp => typeof sp.subject !== "string")
+				.map(sp => X.SubjectSerializer.invoke(sp.subject, escStyle))
+				.join(X.Syntax.combinator + X.Syntax.space);
+		}
+		
 		const indent = includeIndent ? X.Syntax.tab.repeat(this.indent) : "";
-		
-		// Contains the list of declarations in the statement, excluding
-		// any declaration placeholders used to support anonymous
-		// types.
-		const decls = <X.Identifier[]>this.declarations
-			.map(decl => decl.subject)
-			.filter(subject => typeof subject !== "string");
-		
-		const annos = this.annotations.map(anno => anno.subject);
+		const decls = serializeSpans(this.declarations, X.IdentifierEscapeKind.declaration);
+		const annos = serializeSpans(this.annotations, X.IdentifierEscapeKind.annotation);
 		const spaceL = ((decls.length && annos.length) || this.isRefresh) ? " " : "";
 		const joint = (annos.length || this.isRefresh) ? X.Syntax.joint : "";
 		const spaceR = joint !== "" && annos.length > 0 && !this.isRefresh ? " " : "";
 		
-		return indent + decls.join(", ") + spaceL + joint + spaceR + annos.join(", ");
+		return indent + decls + spaceL + joint + spaceR + annos;
 	}
 }
 

@@ -42,9 +42,9 @@ export class Pattern
 	 * Converts this Pattern to a string representation.
 	 * Note that this pattern isn'
 	 */
-	toString()
+	toString(escape = false)
 	{
-		const delim = X.RegexSyntaxDelimiter.main;
+		const delim = X.RegexSyntaxDelimiter.main.toString();
 		
 		return (
 			delim + 

@@ -125,12 +125,14 @@ describe("Parser Tests", () =>
 				[expected.noMatch] :
 				expected.noMatch;
 			
-			let firstDecl: X.Identifier | X.Pattern | X.Uri | null = null;
+			const firstDecl = (() =>
+			{
+				const first = parsedLine.declarations.first();
+				return first ? first.subject : null;
+			})();
 			
 			try
 			{
-				firstDecl = parsedLine.declarations.values().next().value;
-				
 				if (firstDecl instanceof X.Pattern)
 				{
 					if (matches)
@@ -153,7 +155,7 @@ describe("Parser Tests", () =>
 		
 		if (expected.annotations !== undefined)
 		{
-			const actualAnnos = Array.from(parsedLine.annotations.values())
+			const actualAnnos = Array.from(parsedLine.annotations.eachSubject())
 				.filter((anno): anno is X.Identifier => !!anno)
 				.map(anno => anno.toString());
 			

@@ -22,3 +22,26 @@ export class SubjectParser
 	
 	private constructor() { }
 }
+
+
+/** */
+export class SubjectSerializer
+{
+	/** */
+	static invoke(subject: Subject, escapeStyle: X.IdentifierEscapeKind)
+	{
+		if (subject instanceof X.Identifier)
+			return subject.toString(escapeStyle);
+		
+		else if (subject instanceof X.Pattern)
+			return subject.toString(true);
+		
+		else if (subject instanceof X.Uri)
+			return subject.toString(true, true);
+		
+		else if (typeof subject === "string")
+			return subject;
+		
+		throw X.ExceptionMessage.unknownState();
+	}
+}

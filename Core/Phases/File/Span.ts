@@ -16,8 +16,9 @@ export class Span
 	/** @internal */
 	constructor(
 		statement: X.Statement,
-		subject: X.Subject | null,
-		offsetStart: number)
+		offsetStart: number,
+		offsetEnd: number,
+		subject: X.Subject | null)
 	{
 		// The below check should never happen, and likely
 		// wouldn't cause any errors, but it's unplanned so
@@ -28,7 +29,7 @@ export class Span
 		this.statement = statement;
 		this.subject = subject || generateInvisibleSubject();
 		this.offsetStart = offsetStart;
-		this.offsetEnd = offsetStart + (subject ? subject.toString().length : 0);
+		this.offsetEnd = offsetEnd;
 	}
 	
 	/**
