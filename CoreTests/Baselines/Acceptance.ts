@@ -115,8 +115,8 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	
 	// Escaping
 	
-	"A\: B: C": {
-		emit: "A\: B : C",
+	"A\\: B: C": {
+		emit: "A\\: B : C",
 		annotations: "C"
 	},
 	"\ A": {
@@ -136,13 +136,13 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		refresh: true,
 		annotations: []
 	},
-	"::\: :": {
+	"::\\: :": {
 		emit: "::: :",
 		joint: 5,
 		refresh: true,
 		annotations: []
 	},
-	":: :\:": {
+	":: :\\:": {
 		emit: ":: ::",
 		joint: -1,
 		refresh: true,
