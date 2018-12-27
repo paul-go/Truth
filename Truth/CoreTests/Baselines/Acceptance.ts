@@ -145,15 +145,33 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		comment: true
 	},
 	"\\/" : {
-		emit: "\\/"
+		emit: "\\/",
+		partial: false,
+		total: false
 	},
 	"A, /, B : C, /, D": {
-		emit: "A, /, B : C, /, D",
+		emit: "A, \\/, B : C, /, D",
 		annotations: ["C", "/", "D"],
 		joint: 8
 	},
 	"/, A, B": {
+		// Why is this unparsable?
 		unparsable: true
+	},
+	
+	// Unicode
+	
+	"🐇 : Bunny": {
+		emit: "🐇 : Bunny"
+	},
+	"🐇, 🐇 : 🐇, 🐇": {
+		emit: "🐇, 🐇 : 🐇, 🐇"
+	},
+	"Σ, 🐇, ★ : Sigma, Bunny, Star": {
+		emit: "Σ, 🐇, ★ : Sigma, Bunny, Star"
+	},
+	"\u{1F407} : NotBunny": {
+		emit: "\u{1F407} : NotBunny"
 	},
 	
 	// Strange colon usage
@@ -190,44 +208,95 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		unparsable: true
 	},
 	
-	// Pattern Parsing
+	// Pattern Partiality & Totality flags
+	
+	"/total/ : X": {
+		annotations: "X",
+		total: true,
+		match: "total"
+	},
+	"/partial : X": {
+		annotations: "X",
+		partial: true,
+		match: "partial"
+	},
+	"/partial-with-escaped-delimiter\\/ : X": {
+		annotations: "X",
+		partial: true,
+		match: "partial-with-escaped-delimiter/"
+	},
+	"/partial/with/slashes : X": {
+		annotations: "X",
+		partial: true,
+		match: "partial/with/slashes"
+	},
+	"\\/non-pattern/ : X": {
+		annotations: "X",
+		partial: false,
+		total: false,
+		emit: "\\/non-pattern/ : X"
+	},
+	
+	// Pattern Sets
 	
 	"/[A-Z]/ : X": {
 		annotations: "X",
 		total: true,
-		match: "B"
+		match: "B",
+		noMatch: ["-", "AA"]
 	},
-	"/[A-Z\d]/ : X": {
+	"/[A-Z\\d]/ : X": {
 		annotations: "X",
 		total: true,
-		match: "5"
+		match: ["A", "Z", "5"],
+		noMatch: ["-", "d"]
+	},
+	"/[A\\tB] : X": {
+		annotations: "X",
+		total: false,
+		match: ["A", "	", "\t", "B"],
+		noMatch: ["AtB", "A\\tB", "A	B"]
+	},
+	"/[\\t-\\\\]/ : X": {
+		annotations: "X",
+		total: true,
+		match: ["\t", " ", "$", "0", "9", ":", "=", "<", ">", "A", "Z", "[", "\\"],
+		noMatch: [String.fromCharCode(0), "]", "a"]
+	},
+	
+	// Patterns with unicode
+	
+	"/\\u{1F407}/": {
+		total: true,
+		match: "🐇",
+		noMatch: "\\u{1F407}"
 	},
 	
 	// Pattern Quantifiers
 	
-	"/\d+ : X": {
+	"/\\d+ : X": {
 		annotations: "X",
 		partial: true,
 		match: "1234"
 	},
-	"/x\d* : X": {
+	"/x\\d* : X": {
 		annotations: "X",
 		partial: true,
 		match: ["x", "x1", "x2"]
 	},
-	"/x\d{0} : X": {
+	"/x\\d{0} : X": {
 		annotations: "X",
 		partial: true,
 		match: "x",
 		noMatch: "x4"
 	},
-	"/\d{2,} : X": {
+	"/\\d{2,} : X": {
 		annotations: "X",
 		partial: true,
 		match: "123",
 		noMatch: "12"
 	},
-	"/\d{3,6} : X": {
+	"/\\d{3,6} : X": {
 		annotations: "X",
 		partial: true,
 		match: "12345"
@@ -235,13 +304,13 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	
 	// Non Pattern Quantifiers
 	
-	"/\d{,3} : X": {
+	"/\\d{,3} : X": {
 		annotations: "X",
 		partial: true,
 		match: "2{,3}",
 		noMatch: "123"
 	},
-	"/\d{x,} : X": {
+	"/\\d{x,} : X": {
 		annotations: "X",
 		partial: true,
 		match: "2{x,}"

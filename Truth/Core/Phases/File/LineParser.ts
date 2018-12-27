@@ -268,9 +268,25 @@ export class LineParser
 				if (shouldQuitOnJoint && maybeReadJoint())
 					break;
 				
-				const g = maybeReadFullGrapheme();
-				if (g !== null)
-					token += g.character;
+				
+				const g1 = parser.readGrapheme();
+				
+				if (parser.more())
+				{
+					// The only operators that can be meaningfully escaped at
+					// the identifier level are the joint, the combinator, and the
+					// pattern delimiter. Other occurences of the escape character
+					// append this character to the identifier.
+					
+					if (g1 === esc)
+					{
+						const g2 = parser.readGrapheme();
+						token += g2;
+						continue;
+					}
+				}
+				
+				token += g1;
 			}
 			
 			const tokenTrim = token.trim();
@@ -350,6 +366,10 @@ export class LineParser
 				last.quantifier === null &&
 				last.grapheme === X.RegexSyntaxDelimiter.main;
 			
+			// Need to pop off the 
+			if (isTotal)
+				units.pop();
+			
 			// Now read the annotations, in order to compute the Pattern's CRC
 			const mark = parser.position;
 			maybeReadJoint();
@@ -414,7 +434,7 @@ export class LineParser
 						break;
 				}
 				
-				const grapheme = maybeReadFullGrapheme();
+				const grapheme = maybeReadRegexGrapheme();
 				if (!grapheme)
 					break;
 				
@@ -465,6 +485,10 @@ export class LineParser
 						units.push(new X.RegexSign(sign, quantifier));
 						continue;
 					}
+					
+					// If this point is reached, it's because there was a unneccesarily
+					// escaped character found in the parse stream, such as "\a". In
+					// this case, the raw character can just be added as a regex unit.
 				}
 				
 				units.push(new X.RegexGrapheme(
@@ -487,7 +511,7 @@ export class LineParser
 			const rng = X.RegexSyntaxDelimiter.range;
 			const knowns: X.RegexSyntaxKnownSet[] = [];
 			const ranges: X.RegexCharRange[] = [];
-			const singles: string[] = [];
+			const singles: (string | X.RegexSyntaxSign)[] = [];
 			const isNegated = !!parser.read(X.RegexSyntaxMisc.negate);
 			
 			let closed = false;
@@ -504,7 +528,7 @@ export class LineParser
 			
 			for (;;)
 			{
-				const g = maybeReadFullGrapheme();
+				const g = maybeReadRegexGrapheme();
 				
 				if (g === null)
 					break;
@@ -515,8 +539,8 @@ export class LineParser
 					break;
 				}
 				
-				queue.push(g);
-				const known = X.RegexSyntaxKnownSet.resolve(g.character);
+				const gFull = g.escaped ? esc + g.character : g.character;
+				const known = X.RegexSyntaxKnownSet.resolve(gFull);
 				
 				if (known !== null)
 				{
@@ -525,11 +549,7 @@ export class LineParser
 					continue;
 				}
 				
-				const regexSign = X.RegexSyntaxSign.resolve(g.character);
-				if (regexSign !== null)
-				{
-					
-				}
+				queue.push(g);
 				
 				rangableQueue.push(
 					g.character.length > 0 &&
@@ -541,7 +561,7 @@ export class LineParser
 				
 				const len = queue.length;
 				
-				if (len > 2)
+				if (len < 3)
 					continue;
 				
 				if (queue[len - 2].character !== rng)
@@ -550,13 +570,12 @@ export class LineParser
 				if (!rangableQueue[len - 3])
 					continue;
 				
-				
 				// Peel back symbol queue, and add a range
 				// to the alphabet builder if the queue gets into
 				// a state where it's ending with something
 				// looking like: ?-?
 				
-				const from = queue[len - 2].character.codePointAt(0) || 0;
+				const from = queue[len - 3].character.codePointAt(0) || 0;
 				const to = g.character.codePointAt(0) || 0;
 				ranges.push(new X.RegexCharRange(from, to));
 				queue.length -= 3;
@@ -764,7 +783,7 @@ export class LineParser
 			let quitToken = X.InfixSyntax.end;
 			let hasJoint = false;
 			
-			if (!parser.read(X.InfixSyntax.nominalStart))
+			if (parser.read(X.InfixSyntax.nominalStart))
 			{
 				infixFlags |= X.InfixFlags.nominal;
 				quitToken = X.InfixSyntax.nominalEnd;
@@ -837,10 +856,41 @@ export class LineParser
 		 * @returns The read string, or an empty string in the case when
 		 * there are no more characters in the parse stream.
 		 */
-		function maybeReadFullGrapheme(): Grapheme | null
+		function maybeReadRegexGrapheme(): Grapheme | null
 		{
 			if (!parser.more())
 				return null;
+			
+			const mark = parser.position;
+			
+			if (parser.read(X.RegexSyntaxDelimiter.utf16GroupStart))
+			{
+				const delim = X.RegexSyntaxDelimiter.utf16GroupEnd;
+				const unicodeLabel = parser.readUntil(delim);
+				
+				// Make sure the readUntil method stopped because it
+				// actually hit the delimiter, and not because it ran out
+				// of characters.
+				if (parser.more())
+				{
+					parser.read(delim);
+					
+					if (/[a-f0-9]{1,5}/.test(unicodeLabel))
+					{
+						const num = parseInt(unicodeLabel, 16);
+						const char = String.fromCodePoint(num);
+						return new Grapheme(char, "", true);
+					}
+					else if (unicodeLabel in X.UnicodeBlocks)
+					{
+						return new Grapheme("", unicodeLabel, true);
+					}
+				}
+				
+				// Something came in that looked like a unicode escape
+				// sequence, but turned out not to be, like: \u
+				parser.position = mark;
+			}
 			
 			if (parser.read(esc))
 			{
@@ -851,40 +901,8 @@ export class LineParser
 				if (!parser.more())
 					return new Grapheme(esc, "", false);
 				
-				if (parser.read(X.RegexSyntaxDelimiter.utf16Prefix))
-				{
-					const mark = parser.position;
-					const g3 = parser.readGrapheme();
-					
-					if (g3 === X.RegexSyntaxDelimiter.utf16GroupStart)
-					{
-						const delim = X.RegexSyntaxDelimiter.utf16GroupEnd;
-						const unicodeLabel = parser.readUntil(delim);
-						const cleanEnd = !!parser.read(delim);
-						
-						if (cleanEnd)
-						{
-							if (/[a-f0-9]{1,5}/.test(unicodeLabel))
-							{
-								const num = parseInt(unicodeLabel, 16);
-								const char = String.fromCharCode(num);
-								return new Grapheme(char, "", true);
-							}
-							else if (unicodeLabel in X.UnicodeBlocks)
-							{
-								return new Grapheme("", unicodeLabel, true);
-							}
-						}
-					}
-					
-					parser.position = mark;
-				}
-				
 				const g = parser.readGrapheme();
-				const decoded = X.RegexSyntaxSign.resolve(esc + g) !== null ?
-					decodeURIComponent(esc + g) :
-					g;
-				
+				const decoded = X.RegexSyntaxSign.unescape(esc + g) || g;
 				return new Grapheme(decoded, "", true);
 			}
 			
@@ -942,9 +960,6 @@ class Grapheme
 		 */
 		readonly escaped: boolean)
 	{ }
-	
-	/** */
-	get code() { return this.character.codePointAt(0); }
 }
 
 

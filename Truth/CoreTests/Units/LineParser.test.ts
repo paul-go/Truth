@@ -138,17 +138,22 @@ describe("Parser Tests", () =>
 					if (matches)
 						for (const match of matches)
 							if (!firstDecl.test(match))
+							{
+								debugger;
 								throw "Pattern does not match: " + match;
+							}
 					
 					if (noMatches)
 						for (const noMatch of noMatches)
 							if (firstDecl.test(noMatch))
+							{
+								debugger;
 								throw "Pattern matches: " + noMatch;
+							}
 				}
 			}
 			catch (e)
 			{
-				debugger;
 				fail("Pattern does not match input: " + expected.match);
 			}
 		}
