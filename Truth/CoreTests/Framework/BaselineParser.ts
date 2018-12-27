@@ -164,26 +164,26 @@ export class BaselineParser
 			const baselineLine = baselineLines[lineIdx];
 			const innerLine = baselineLine.line;
 			const sourceTextExtractionRanges: [number, number][] = [];
-			let annotationIdx = innerLine.declarations.size - 1;
+			let annotationIdx = innerLine.declarations.length - 1;
 			
-			for (const [position, identifier] of innerLine.annotations)
+			for (const { offsetStart, subject } of innerLine.annotations)
 			{
 				annotationIdx++;
 				
-				if (identifier === null)
+				if (subject === null)
 					continue;
 				
-				if (!identifier.value.endsWith(BaselineSyntax.faultEnd))
+				if (!subject.value.endsWith(BaselineSyntax.faultEnd))
 					continue;
 				
-				const val = identifier.value;
+				const val = subject.value;
 				const hashIdx = val.lastIndexOf(BaselineSyntax.faultBegin);
 				
 				if (hashIdx < 0)
 					continue;
 				
 				const faultCode = parseInt(val.slice(hashIdx + 1, -1), 10);
-				sourceTextExtractionRanges.push([position + hashIdx, val.length - hashIdx]);
+				sourceTextExtractionRanges.push([offsetStart + hashIdx, val.length - hashIdx]);
 				
 				baselineLine.checks.push(new FaultCheck(
 					annotationIdx,
@@ -247,7 +247,7 @@ export class BaselineParser
 					if (ancestor.indent >= ancestry[0].indent)
 						continue;
 					
-					if (ancestor.declarations.size !== 1)
+					if (ancestor.declarations.length !== 1)
 						throw new Error("Descendant check has fragmented ancestry.");
 							
 					ancestry.unshift(ancestor);
@@ -258,7 +258,7 @@ export class BaselineParser
 				
 				const path = ancestry.map(line =>
 				{
-					const value = line.declarations.values().next().value;
+					const value = line.declarations.first();
 					if (value === null)
 						throw X.ExceptionMessage.unknownState();
 					
@@ -268,7 +268,8 @@ export class BaselineParser
 				});
 				
 				const annotations = Array
-					.from(descendantLine.annotations.values())
+					.from(descendantLine.annotations)
+					.map(boundsEntry => boundsEntry.subject)
 					.filter((a): a is X.Identifier => a !== null)
 					.map(ident => ident.toString());
 				

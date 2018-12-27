@@ -7,17 +7,31 @@ import * as X from "../../X";
 export class Infix
 {
 	constructor(
-		/** 
-		 * Stores an array of strings that represent the
-		 * terms located before the Joint operator.
+		/**
+		 * Stores the left-most character position of the Infix
+		 * (before the delimiter), relative to the containing statement.
 		 */
-		readonly lhsInfixSpans: InfixBounds,
+		readonly offsetStart: number,
 		
 		/**
-		 * Stores an array of strings that represent the
-		 * terms located after the Joint operator.
+		 * Stores the left-most character position of the Infix
+		 * (after the delimiter), relative to the containing statement.
 		 */
-		readonly rhsInfixSpans: InfixBounds,
+		readonly offsetEnd: number,
+		
+		/** 
+		 * Stores the Bounds object that marks out the positions
+		 * of the identifiers in the Infix that are located before
+		 * any Joint operator.
+		 */
+		readonly lhs: X.Bounds<X.Identifier>,
+		
+		/**
+		 * Stores the Bounds object that marks out the positions
+		 * of the identifiers in the Infix that are located after
+		 * any Joint operator.
+		 */
+		readonly rhs: X.Bounds<X.Identifier>,
 		
 		/** */
 		readonly flags: InfixFlags)
@@ -41,22 +55,22 @@ export class Infix
 			isNominal ? X.InfixSyntax.nominalEnd :
 			X.InfixSyntax.end;
 		
-		const join = (spans: InfixBounds) =>
-			Array.from(spans.values())
-				.map(s => s.toString())
+		const join = (spans: X.Bounds<X.Identifier>) =>
+			Array.from(spans)
+				.map(entry => entry.subject)
 				.join(X.Syntax.combinator + X.Syntax.space);
 		
 		if (isPortability)
-			return join(this.rhsInfixSpans);
+			return join(this.rhs);
 		
 		if (isPattern)
-			return join(this.lhsInfixSpans);
+			return join(this.lhs);
 		
-		const joint = this.rhsInfixSpans.size > 0 ?
+		const joint = this.rhs.length > 0 ?
 			X.Syntax.space + X.Syntax.joint + X.Syntax.space :
 			"";
 		
-		return delimL + join(this.lhsInfixSpans) + joint + join(this.rhsInfixSpans) + delimR;
+		return delimL + join(this.lhs) + joint + join(this.rhs) + delimR;
 	}
 }
 
@@ -98,11 +112,3 @@ export enum InfixFlags
 	 */
 	nominal = 16
 }
-
-
-/**
- * Stores the locations of the subjects in an Infix, 
- * using coordinates relative to the containing
- * statement.
- */
-export type InfixBounds = ReadonlyMap<number, X.Identifier>;

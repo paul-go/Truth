@@ -54,11 +54,17 @@ export class LineParser
 		const parser = new X.Parser(lineText);
 		const sourceText = lineText;
 		const indent = parser.readWhitespace();
-		const declarations = new Map<number, X.Identifier | X.Uri | X.Pattern | null>();
-		const annotations = new Map<number, X.Identifier | null>();
+		const declarationEntries: X.BoundsEntry<X.DeclarationSubject>[] = [];
+		const annotationEntries: X.BoundsEntry<X.AnnotationSubject>[] = [];
 		const esc = X.Syntax.escapeChar;
 		let flags = X.LineFlags.none;
 		let jointPosition = -1;
+		
+		const addDeclaration = (start: number, end: number, subject: X.DeclarationSubject) =>
+			declarationEntries.push(new X.BoundsEntry(start, end, subject));
+		
+		const addAnnotation = (start: number, end: number, subject: X.AnnotationSubject) =>
+			declarationEntries.push(new X.BoundsEntry(start, end, subject));
 		
 		/**
 		 * Universal function for quickly producing a RawStatement
@@ -67,25 +73,94 @@ export class LineParser
 		const ret = () => new X.Line(
 			sourceText,
 			indent,
-			declarations,
-			annotations,
+			new X.Bounds(declarationEntries),
+			new X.Bounds(annotationEntries),
 			flags,
 			jointPosition);
 		
+		// In the case when the line contains only whitespace characters,
+		// this condition will pass, bypassing the entire parsing process
+		// and returning an (basically) fresh RawStatement object.
+		if (!parser.more())
+		{
+			flags |= X.LineFlags.isWhitespace;
+			return ret();
+		}
+		
+		if (parser.read(X.Syntax.comment))
+		{
+			flags |= X.LineFlags.isComment;
+			return ret();
+		}
+		
+		if (maybeReadUnparsable())
+			return ret();
+		
+		{
+			const markBeforeUri = parser.position;
+			const uri = maybeReadUri();
+			if (uri)
+			{
+				flags |= X.LineFlags.hasUri;
+				addDeclaration(markBeforeUri, parser.position, uri);
+				return then();
+			}
+			
+			const markBeforePattern = parser.position;
+			const pattern = maybeReadPattern();
+			
+			if (pattern === ParseError)
+			{
+				flags |= X.LineFlags.isUnparsable;
+				return ret();
+			}
+			
+			if (pattern)
+			{
+				flags |= X.LineFlags.hasPattern;
+				flags |= pattern.isTotal ?
+					X.LineFlags.hasTotalPattern :
+					X.LineFlags.hasPartialPattern;
+				
+				addDeclaration(markBeforePattern, parser.position, pattern);
+				return then();
+			}
+			
+			for (const boundsEntry of readDeclarations([]))
+				declarationEntries.push(boundsEntry);
+			
+			return then();
+			
+			function then()
+			{
+				maybeReadJoint();
+				
+				const readResult = readAnnotations([]);
+				for (const boundsEntry of readResult.annotations)
+					annotationEntries.push(boundsEntry);
+				
+				return ret();
+			}
+		}
+		
 		/**
-		 * Can this be called from the context of an Infix?
+		 * Reads the following series of declarations, which may be
+		 * either directly contained by a statement, or inside an infix.
 		 */
 		function readDeclarations(quitTokens: string[])
 		{
+			const entries: X.BoundsEntry<X.Identifier>[] = [];
 			const until = quitTokens.concat(X.Syntax.joint);
-			const declarations = new Map<number, X.Identifier>();
 			
 			while (parser.more())
 			{
 				const readResult = maybeReadIdentifier(until);
 				
 				if (readResult !== null)
-					declarations.set(readResult.at, readResult.identifier);
+					entries.push(new X.BoundsEntry<X.Identifier>(
+						readResult.at, 
+						parser.position,
+						readResult.identifier));
 				
 				// If the joint position was set, we're finished reading
 				// declarations, so breaking is necessary.
@@ -99,7 +174,7 @@ export class LineParser
 					break;
 			}
 			
-			return declarations;
+			return entries;
 		}
 		
 		/**
@@ -128,8 +203,8 @@ export class LineParser
 		 */
 		function readAnnotations(quitTokens: string[])
 		{
-			const annotations = new Map<number, X.Identifier>();
-			let rawAnnotationsText = "";
+			const annotations: X.BoundsEntry<X.AnnotationSubject>[] = [];
+			let raw = "";
 			
 			while (parser.more())
 			{
@@ -137,8 +212,12 @@ export class LineParser
 				
 				if (readResult !== null)
 				{
-					annotations.set(readResult.at, readResult.identifier);
-					rawAnnotationsText += readResult.raw;
+					annotations.push(new X.BoundsEntry(
+						readResult.at, 
+						parser.position,
+						readResult.identifier));
+					
+					raw += readResult.raw;
 				}
 				
 				// If the next token is not a combinator, 
@@ -149,7 +228,7 @@ export class LineParser
 			
 			return {
 				annotations,
-				rawAnnotationsText
+				raw
 			}
 		}
 		
@@ -664,9 +743,9 @@ export class LineParser
 		function maybeReadInfix(): X.Infix | TParseError | null
 		{
 			const mark = parser.position;
-			const lhsSubjects = new Map<number, X.Identifier>();
-			const rhsSubjects = new Map<number, X.Identifier>();
-			
+			const lhsEntries: X.BoundsEntry<X.Identifier>[] = [];
+			const rhsEntries: X.BoundsEntry<X.Identifier>[] = [];
+			let infixStart = parser.position;
 			let infixFlags: X.InfixFlags = X.InfixFlags.none;
 			let quitToken = X.InfixSyntax.end;
 			let hasJoint = false;
@@ -694,25 +773,32 @@ export class LineParser
 				infixFlags |= X.InfixFlags.portability;
 				parser.readWhitespace();
 				
-				for (const [pos, ident] of readAnnotations([quitToken]).annotations)
-					rhsSubjects.set(pos, ident);
+				for (const boundsEntry of readAnnotations([quitToken]).annotations)
+					rhsEntries.push(new X.BoundsEntry(
+						boundsEntry.offsetStart,
+						parser.position,
+						boundsEntry.subject));
 			}
 			else
 			{
-				for (const [pos, ident] of readDeclarations([quitToken]))
-					lhsSubjects.set(pos, ident);
+				for (const boundsEntry of readDeclarations([quitToken]))
+					lhsEntries.push(boundsEntry);
+				
 				
 				parser.readWhitespace();
 				hasJoint = !!parser.read(X.Syntax.joint);
 				
 				if (hasJoint)
-					for (const [pos, ident] of readAnnotations([quitToken]).annotations)
-						rhsSubjects.set(pos, ident);
+					for (const boundsEntry of readAnnotations([quitToken]).annotations)
+						rhsEntries.push(new X.BoundsEntry(
+							boundsEntry.offsetStart,
+							parser.position,
+							boundsEntry.subject));
 			}
 			
 			// Avoid producing an infix in weird cases such as:
 			// < : >  </  />  <<:>>
-			if (lhsSubjects.size + rhsSubjects.size === 0)
+			if (lhsEntries.length + rhsEntries.length === 0)
 			{
 				parser.position = mark;
 				return null;
@@ -722,8 +808,10 @@ export class LineParser
 				infixFlags |= X.InfixFlags.hasJoint;
 			
 			return new X.Infix(
-				lhsSubjects,
-				rhsSubjects,
+				infixStart,
+				parser.position,
+				new X.Bounds(lhsEntries),
+				new X.Bounds(rhsEntries),
 				infixFlags);
 		}
 		
@@ -810,71 +898,6 @@ export class LineParser
 			}
 			
 			return false;
-		}
-		
-		// In the case when the line contains only whitespace characters,
-		// this condition will pass, bypassing the entire parsing process
-		// and returning an (basically) fresh RawStatement object.
-		if (!parser.more())
-		{
-			flags |= X.LineFlags.isWhitespace;
-			return ret();
-		}
-		
-		if (parser.read(X.Syntax.comment))
-		{
-			flags |= X.LineFlags.isComment;
-			return ret();
-		}
-		
-		if (maybeReadUnparsable())
-			return ret();
-		
-		{
-			const markBeforeUri = parser.position;
-			const uri = maybeReadUri();
-			if (uri)
-			{
-				flags |= X.LineFlags.hasUri;
-				declarations.set(markBeforeUri, uri);
-				return then();
-			}
-			
-			const markBeforePattern = parser.position;
-			const pattern = maybeReadPattern();
-			
-			if (pattern === ParseError)
-			{
-				flags |= X.LineFlags.isUnparsable;
-				return ret();
-			}
-			
-			if (pattern)
-			{
-				flags |= X.LineFlags.hasPattern;
-				flags |= pattern.isTotal ?
-					X.LineFlags.hasTotalPattern :
-					X.LineFlags.hasPartialPattern;
-				
-				declarations.set(markBeforePattern, pattern);
-				return then();
-			}
-			
-			for (const [mark, declaration] of readDeclarations([]))
-				declarations.set(mark, declaration);
-			
-			return then();
-			
-			function then()
-			{
-				maybeReadJoint();
-				
-				const readAnnotationsResult = readAnnotations([]);
-				for (const [offset, annotation] of readAnnotationsResult.annotations)
-					annotations.set(offset, annotation);
-				
-				return ret();
-			}
 		}
 	}
 	

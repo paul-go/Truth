@@ -43,6 +43,7 @@ export * from "./Phases/File/DocumentGraph";
 export * from "./Phases/File/DocumentHeader";
 export * from "./Phases/File/LineParser";
 export * from "./Phases/File/Line";
+export * from "./Phases/File/Bounds";
 export * from "./Phases/File/Statement";
 export * from "./Phases/File/Pattern";
 export * from "./Phases/File/PatternPrecompiler";
