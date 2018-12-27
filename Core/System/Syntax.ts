@@ -28,27 +28,40 @@ export enum RegexSyntaxSign
 	tab = "\\t",
 	lineFeed = "\\n",
 	carriageReturn = "\\r",
-	verticalTab = "\\v",
-	formFeed = "\\f",
 	escapedFinalizer = "\\/",
 	backslash = "\\\\"
 }
 
 export namespace RegexSyntaxSign
 {
-	export function resolve(value: string | number): RegexSyntaxSign | null
+	/**
+	 * @returns A RegexSyntaxSign member from the
+	 * specified sign literal (ex: "\t") or raw signable
+	 * character (ex: "	").
+	 */
+	export function resolve(value: string): RegexSyntaxSign | null
 	{
-		const vals: string[] = Object.values(RegexSyntaxSign);
+		if (value.length < 1 || value.length > 2)
+			return null;
 		
-		if (typeof value === "string")
+		const vals: string[] = Object.values(RegexSyntaxSign);
+		const idx = vals.indexOf(value);
+		return idx < 0 ? null : <RegexSyntaxSign>vals[idx];
+	}
+	
+	/** */
+	export function unescape(value: string)
+	{
+		switch (value)
 		{
-			const idx = vals.indexOf(value);
-			return idx < 0 ? null : <RegexSyntaxSign>vals[idx];
+			case RegexSyntaxSign.tab: return String.fromCharCode(9);
+			case RegexSyntaxSign.lineFeed: return String.fromCharCode(10);
+			case RegexSyntaxSign.carriageReturn: return String.fromCharCode(13);
+			case RegexSyntaxSign.escapedFinalizer: return String.fromCharCode(47);
+			case RegexSyntaxSign.backslash: return String.fromCharCode(92);
 		}
-		else
-		{
-			return RegexSyntaxSign.formFeed;
-		}
+		
+		return "";
 	}
 }
 
@@ -87,8 +100,7 @@ export namespace RegexSyntaxKnownSet
 export const enum RegexSyntaxDelimiter
 {
 	main = "/",
-	utf16Prefix = "\\u",
-	utf16GroupStart = "{",
+	utf16GroupStart = "\\u{",
 	utf16GroupEnd = "}",
 	groupStart = "(",
 	groupEnd = ")",

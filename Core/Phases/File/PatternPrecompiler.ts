@@ -21,6 +21,9 @@ export class PatternPrecompiler
 				unit.grapheme === "$" || unit.grapheme === "^" ?
 					result.push(X.Syntax.escapeChar + unit.grapheme) :
 					result.push(unit.grapheme);
+				
+				if (unit.quantifier)
+					result.push(unit.quantifier.toString());
 			}
 			else if (unit instanceof X.Infix)
 			{
@@ -32,7 +35,10 @@ export class PatternPrecompiler
 			}
 		}
 		
-		return new RegExp("");
+		result.unshift("^");
+		result.push("$");
+		
+		return new RegExp(result.join(""), "u");
 	}
 }
 

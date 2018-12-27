@@ -66,11 +66,15 @@ export class Identifier
 				
 				case IdentifierEscapeKind.declaration:
 				{
+					// Regex delimiters are escaped if and only if 
+					// they're the first character in an Identifier.
+					const dlmReg = new RegExp("^" + X.RegexSyntaxDelimiter.main);
 					const jntRegS = new RegExp(X.Syntax.joint + X.Syntax.space);
 					const jntRegT = new RegExp(X.Syntax.joint + X.Syntax.tab);
 					const cmbReg = new RegExp(X.Syntax.combinator);
 					
 					return this.value
+						.replace(dlmReg, X.Syntax.escapeChar + X.RegexSyntaxDelimiter.main)
 						.replace(jntRegS, X.Syntax.escapeChar + X.Syntax.joint + X.Syntax.space)
 						.replace(jntRegT, X.Syntax.escapeChar + X.Syntax.joint + X.Syntax.tab)
 						.replace(cmbReg, X.Syntax.escapeChar + X.Syntax.combinator);

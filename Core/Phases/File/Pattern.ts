@@ -76,7 +76,7 @@ export class RegexSet extends RegexUnit
 	constructor(
 		readonly knowns: ReadonlyArray<X.RegexSyntaxKnownSet>,
 		readonly ranges: ReadonlyArray<RegexCharRange>,
-		readonly singles: ReadonlyArray<string>,
+		readonly singles: ReadonlyArray<string | X.RegexSyntaxSign>,
 		readonly isNegated: boolean,
 		readonly quantifier: RegexQuantifier | null)
 	{
