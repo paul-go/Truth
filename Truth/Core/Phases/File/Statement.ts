@@ -244,7 +244,7 @@ export class Statement
 	getCommentText()
 	{
 		return this.isComment ?
-			this.sourceText.slice(this.indent + X.Syntax.comment.length) :
+			this.sourceText.slice(this.indent + X.Syntax.comment.length).trim() :
 			null;
 	}
 	
@@ -264,11 +264,10 @@ export class Statement
 		const indent = includeIndent ? X.Syntax.tab.repeat(this.indent) : "";
 		const decls = serializeSpans(this.declarations, X.IdentifierEscapeKind.declaration);
 		const annos = serializeSpans(this.annotations, X.IdentifierEscapeKind.annotation);
-		const spaceL = ((decls.length && annos.length) || this.isRefresh) ? " " : "";
-		const joint = (annos.length || this.isRefresh) ? X.Syntax.joint : "";
-		const spaceR = joint !== "" && annos.length > 0 && !this.isRefresh ? " " : "";
+		const joint = annos.length === 0 && !this.isRefresh ? "" : X.Syntax.space + X.Syntax.joint;
+		const jointSpace = annos.length === 0 ? "" : X.Syntax.space;
 		
-		return indent + decls + spaceL + joint + spaceR + annos;
+		return indent + decls + joint + jointSpace + annos;
 	}
 }
 
