@@ -33,6 +33,10 @@ export class Pattern
 		if (this.compiledRegExp === null)
 			this.compiledRegExp = X.PatternPrecompiler.exec(this);
 		
+		const inputTrimmed = input.trim();
+		if (inputTrimmed === "")
+			return false;
+		
 		return this.compiledRegExp.test(input);
 	}
 	
@@ -40,9 +44,10 @@ export class Pattern
 	
 	/**
 	 * Converts this Pattern to a string representation.
-	 * Note that this pattern isn'
+	 * (Note that the serialized pattern cannot be used
+	 * as a parameter to a JavaScript RegExp object.)
 	 */
-	toString(escape = false)
+	toString()
 	{
 		const delim = X.RegexSyntaxDelimiter.main.toString();
 		
