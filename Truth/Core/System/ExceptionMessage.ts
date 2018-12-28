@@ -5,37 +5,37 @@ export class Exception
 	/** */
 	static invalidArgument()
 	{
-		return error(`Invalid argument.`);
+		debugger; return error(`Invalid argument.`);
 	}
 	
 	/** */
 	static unknownState()
 	{
-		return error(`An unknown state has been reached in the program.`);
+		debugger; return error(`An unknown state has been reached in the program.`);
 	}
 	
 	/** */
 	static invalidCall()
 	{
-		return error(`Cannot call this method given the current state of the program.`);
+		debugger; return error(`Cannot call this method given the current state of the program.`);
 	}
 	
 	/** */
 	static notImplemented()
 	{
-		return error(`Not implemented.`);
+		debugger; return error(`Not implemented.`);
 	}
 	
 	/** */
 	static agentInvalid(rawUri: string)
 	{
-		return error(`File at URI ${rawUri} is not an agent.`);
+		debugger; return error(`File at URI ${rawUri} is not an agent.`);
 	}
 	
 	/** */
 	static agentNotRead()
 	{
-		return error(`
+		debugger; return error(`
 			Cannot instantiate an agent of this type,
 			added. See agents.add.`);
 	}
@@ -43,31 +43,31 @@ export class Exception
 	/** */
 	static agentMissing(rawUri: string)
 	{
-		return error(`Could not load an agent from the URI ${rawUri}`);
+		debugger; return error(`Could not load an agent from the URI ${rawUri}`);
 	}
 	
 	/** */
 	static doubleTransaction()
 	{
-		return error(`Cannot start a new transaction while another is executing.`);
+		debugger; return error(`Cannot start a new transaction while another is executing.`);
 	}
 	
 	/** */
 	static invalidUriRetraction()
 	{
-		return error(`URI contains too few path segments to perform this retraction.`);
+		debugger; return error(`URI contains too few path segments to perform this retraction.`);
 	}
 	
 	/** */
 	static invalidUri(rawUri?: string)
 	{
-		return error(`Invalid URI` + (typeof rawUri === "string" ? ": " + rawUri : ""));
+		debugger; return error(`Invalid URI` + (typeof rawUri === "string" ? ": " + rawUri : ""));
 	}
 	
 	/** */
 	static invalidExtension(requiredExtension: string)
 	{
-		return error(`
+		debugger; return error(`
 			This method requires URIs that have the 
 			".${requiredExtension}" extension.`);
 	}
@@ -75,7 +75,7 @@ export class Exception
 	/** */
 	static invalidDocumentReference()
 	{
-		return error(`
+		debugger; return error(`
 			This document cannot be added as a dependency
 			of the target document because it's storage location
 			(memory or disk) differs from the that of the target.`);
@@ -84,20 +84,20 @@ export class Exception
 	/** */
 	static nonEmptyDocument()
 	{
-		return error(`Cannot call this method on a non-empty document.`);
+		debugger; return error(`Cannot call this method on a non-empty document.`);
 	}
 	
 	/** */
 	static uncachableDocument()
 	{
-		return error(`
+		debugger; return error(`
 			Cannot cache this document because it was not loaded from a file.`);
 	}
 	
 	/** */
 	static documentAlreadyLoaded()
 	{
-		return error(`
+		debugger; return error(`
 			A document with this URI has already been created.
 			Use Document.fromUri() instead.`);
 	}
@@ -105,26 +105,26 @@ export class Exception
 	/** */
 	static documentNotLoaded()
 	{
-		return error(`This document has not been loaded into the current program.`);
+		debugger; return error(`This document has not been loaded into the current program.`);
 	}
 	
 	/** */
 	static uriNotSupported()
 	{
-		return error(`URIs of this type are not supported.`);
+		debugger; return error(`URIs of this type are not supported.`);
 	}
 	
 	/** */
 	static cannotRefresh()
 	{
-		return error(`
+		debugger; return error(`
 			This resource cannot be reloaded because it only exists in memory.`);
 	}
 	
 	/** */
 	static offsetRequired()
 	{
-		return error(`
+		debugger; return error(`
 			Offset argument is required because the a whitespace-only
 			statement was passed.`);
 	}
