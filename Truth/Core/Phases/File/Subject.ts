@@ -12,7 +12,7 @@ export class SubjectParser
 	static invoke(text: string): Subject
 	{
 		if (text.trim().length === 0)
-			throw X.ExceptionMessage.invalidArgument();
+			throw X.Exception.invalidArgument();
 		
 		//if (X.ForePattern.canParse(text))
 		//	return X.ForePattern.parse(text)!;
@@ -42,6 +42,6 @@ export class SubjectSerializer
 		else if (typeof subject === "string")
 			return subject;
 		
-		throw X.ExceptionMessage.unknownState();
+		throw X.Exception.unknownState();
 	}
 }

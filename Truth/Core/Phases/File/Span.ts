@@ -24,7 +24,7 @@ export class Span
 		// wouldn't cause any errors, but it's unplanned so
 		// we're checking for it here.
 		if (typeof subject === "string")
-			throw X.ExceptionMessage.unknownState();
+			throw X.Exception.unknownState();
 		
 		this.statement = statement;
 		this.subject = subject || generateInvisibleSubject();
@@ -47,7 +47,7 @@ export class Span
 		// it's statements have been disposed, then it must be recomputed.
 		this._ancestry = this.statement.document.getAncestry(this.statement);
 		if (!this._ancestry)
-			throw X.ExceptionMessage.unknownState();
+			throw X.Exception.unknownState();
 		
 		return this._ancestry;
 	}
@@ -139,7 +139,7 @@ export class Span
 				const span = spansForStatement[spanIndex];
 				
 				if (!span)
-					throw X.ExceptionMessage.unknownState();
+					throw X.Exception.unknownState();
 				
 				spanPath.push(span);
 			}

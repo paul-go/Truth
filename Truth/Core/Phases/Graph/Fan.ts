@@ -20,14 +20,14 @@ export class Fan
 		rationale: FanRationale)
 	{
 		if (spans.length === 0)
-			throw X.ExceptionMessage.invalidArgument();
+			throw X.Exception.invalidArgument();
 		
 		if (rationale === X.FanRationale.sum)
 		{
 			// All spans sent in are expected to be
 			// contained by the same statement.
 			if (new Set(spans.map(span => span.statement)).size !== 1)
-				throw X.ExceptionMessage.invalidArgument();
+				throw X.Exception.invalidArgument();
 			
 			this.name = spans[0].statement.getAnnotationContent();
 		}

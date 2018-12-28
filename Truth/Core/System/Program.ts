@@ -128,7 +128,7 @@ export class Program
 			{
 				const declSpan = statement.getDeclaration(offset);
 				if (!declSpan)
-					throw X.ExceptionMessage.unknownState();
+					throw X.Exception.unknownState();
 				
 				const types = declSpan
 					.factor()
@@ -141,10 +141,10 @@ export class Program
 			{
 				const annoSpan = statement.getAnnotation(offset);
 				if (!annoSpan)
-					throw X.ExceptionMessage.unknownState();
+					throw X.Exception.unknownState();
 				
 				// This will be implemented after type construction.
-				throw X.ExceptionMessage.notImplemented();
+				throw X.Exception.notImplemented();
 			}
 		}
 		

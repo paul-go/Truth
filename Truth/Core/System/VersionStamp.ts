@@ -54,7 +54,7 @@ export class VersionStamp
 			}
 		}
 		
-		throw X.ExceptionMessage.unknownState();
+		throw X.Exception.unknownState();
 	}
 	
 	/** */

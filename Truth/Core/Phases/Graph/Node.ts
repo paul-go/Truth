@@ -85,7 +85,7 @@ export class Node
 		this.spans = new Set(atom.spans);
 		
 		if (this.spans.size === 0)
-			throw X.ExceptionMessage.unknownState();
+			throw X.Exception.unknownState();
 		
 		if (this.container)
 			this.container._contents.set(this.name, this);
@@ -133,7 +133,7 @@ export class Node
 	disposeFan(fan: X.Fan)
 	{
 		if (fan.origin !== this)
-			throw X.ExceptionMessage.invalidArgument();
+			throw X.Exception.invalidArgument();
 		
 		for (const target of fan.targets)
 			target._inbounds.delete(fan);
@@ -279,7 +279,7 @@ export class Node
 			const tupleB = fanLookup.get(fanB);
 			
 			if (tupleA === undefined || tupleB === undefined)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			const [stmtA, stmtIdxA] = tupleA;
 			const [stmtB, stmtIdxB] = tupleB;
@@ -297,7 +297,7 @@ export class Node
 			// At this point, statement A and statement B 
 			// are actually equal.
 			if (stmtA !== stmtB)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			const annos = stmtA.annotations;
 			const findMinIndex = (fan: X.Fan) =>
@@ -318,7 +318,7 @@ export class Node
 			const fanBIdx = findMinIndex(fanB);
 			
 			if (fanAIdx < 0 || fanBIdx < 0)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			return fanAIdx - fanBIdx;
 		});

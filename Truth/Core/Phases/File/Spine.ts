@@ -13,7 +13,7 @@ export class Spine
 	constructor(vertebrae: X.Span[])
 	{
 		if (vertebrae.length === 0)
-			throw X.ExceptionMessage.unknownState();
+			throw X.Exception.unknownState();
 		
 		this.tip = vertebrae[vertebrae.length - 1];
 		this.vertebrae = vertebrae;

@@ -620,7 +620,7 @@ export class LineParser
 				
 				const maybeFrom = graphemes[len - 3];
 				if (maybeFrom === null)
-					throw X.ExceptionMessage.unknownState();
+					throw X.Exception.unknownState();
 					
 				// Peel back symbol queue, and add a range
 				// to the alphabet builder if the queue gets into
@@ -1026,5 +1026,5 @@ function appendQuantifier(unit: X.RegexUnit, quantifier: X.RegexQuantifier | nul
 	if (unit instanceof X.RegexGrapheme)
 		return new X.RegexGrapheme(unit.grapheme, quantifier);
 	
-	throw X.ExceptionMessage.notImplemented();
+	throw X.Exception.notImplemented();
 }

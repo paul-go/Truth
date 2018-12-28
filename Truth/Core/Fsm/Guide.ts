@@ -93,7 +93,7 @@ export class Guide
 			if (other.hasDst === null)
 			{
 				if (other.size !== 0)
-					throw X.ExceptionMessage.unknownState();
+					throw X.Exception.unknownState();
 			}
 			else
 			{

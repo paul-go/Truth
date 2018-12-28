@@ -25,7 +25,7 @@ export class Strand
 	constructor(readonly molecules: ReadonlyArray<Molecule>)
 	{
 		if (molecules.length === 0)
-			throw X.ExceptionMessage.invalidArgument();
+			throw X.Exception.invalidArgument();
 	}
 	
 	/**
@@ -71,10 +71,10 @@ export class Strand
 	retract(depth: number)
 	{
 		if (depth < 1)
-			throw X.ExceptionMessage.invalidArgument();
+			throw X.Exception.invalidArgument();
 		
 		if (depth >= this.molecules.length)
-			throw X.ExceptionMessage.invalidArgument();
+			throw X.Exception.invalidArgument();
 		
 		return new Strand(this.molecules.slice(0, -depth));
 	}
@@ -114,6 +114,6 @@ export class Atom
 		readonly spans: ReadonlyArray<X.Span>)
 	{
 		if (spans.length === 0)
-			throw X.ExceptionMessage.invalidArgument();
+			throw X.Exception.invalidArgument();
 	}
 }

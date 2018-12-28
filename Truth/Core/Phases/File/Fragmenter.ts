@@ -227,7 +227,7 @@ export class Fragmenter
 		const storeTargetParent = containingDoc.getParent(storeTarget);
 		
 		if (!storeTargetParent)
-			throw X.ExceptionMessage.unknownState();
+			throw X.Exception.unknownState();
 		
 		// Stores an array of fragment arrays. The array is a projection
 		// of the visited statement ancestry stack that the following
@@ -317,7 +317,7 @@ export class Fragmenter
 		// These should be deleted from the map when the last item is spliced
 		// out of the array.
 		if (fragsAtTarget.length === 0)
-			throw X.ExceptionMessage.unknownState();
+			throw X.Exception.unknownState();
 		
 		const term = unstoreTarget.subject.toString();
 		
@@ -328,17 +328,17 @@ export class Fragmenter
 			// have a null container, because fragments with
 			// null containers always relate to documents.
 			if (!fragAtTarget.container)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			const dict = fragAtTarget.container.localDictionary;
 			
 			const topLevelFragArray = dict.get(term);
 			if (!topLevelFragArray)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			const fragIdx = topLevelFragArray.indexOf(fragAtTarget);
 			if (fragIdx < 0)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			topLevelFragArray.splice(fragIdx, 1);
 			
@@ -430,7 +430,7 @@ export class Fragmenter
 				{
 					const span = fragment.associatedSpan;
 					if (!span)
-						throw X.ExceptionMessage.unknownState();
+						throw X.Exception.unknownState();
 					
 					const code = ++nextCode;
 					fragmentCodeMap.set(fragment, code);
@@ -460,7 +460,7 @@ export class Fragmenter
 			const codes = fragments.map(f => fragmentCodeMap.get(f)!);
 			
 			if (codes.some(code => !code))
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			codes.sort((a, b) => a - b);
 			lines.push(subject + ` => (${codes.join(", ")})`);
@@ -526,7 +526,7 @@ class Fragment
 	{
 		// Root fragments are never added below others.
 		if (!fragment.associatedSpan)
-			throw X.ExceptionMessage.unknownState();
+			throw X.Exception.unknownState();
 			
 		const subject = fragment.associatedSpan.subject.toString();
 		const existingFragArray = this.localDictionary.get(subject);
@@ -544,17 +544,17 @@ class Fragment
 	{
 		// Root fragments are never removed from beneath others.
 		if (!fragment.associatedSpan)
-			throw X.ExceptionMessage.unknownState();
+			throw X.Exception.unknownState();
 		
 		const subject = fragment.associatedSpan.subject.toString();
 		const existingFragArray = this.localDictionary.get(subject);
 		
 		if (!existingFragArray)
-			throw X.ExceptionMessage.unknownState();
+			throw X.Exception.unknownState();
 		
 		const idx = existingFragArray.indexOf(fragment);
 		if (idx < 0)
-			throw X.ExceptionMessage.unknownState();
+			throw X.Exception.unknownState();
 		
 		existingFragArray.splice(idx, 1);
 		

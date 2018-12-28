@@ -39,7 +39,7 @@ export class DocumentHeader
 			const decl = statement.declarations[0];
 			
 			if (typeof decl.subject === "string")
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			if (!(decl.subject instanceof X.Uri))
 				break;

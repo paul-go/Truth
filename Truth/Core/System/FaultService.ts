@@ -107,7 +107,7 @@ export class FaultService
 				if (fault.source instanceof X.Span)
 					return fault.source.statement.document;
 				
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			})();
 			
 			return new X.FaultParam(doc, fault);

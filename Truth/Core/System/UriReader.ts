@@ -17,7 +17,7 @@ export class UriReader
 		else if (uri.protocol === X.UriProtocol.https)
 			return await X.Fetch.exec(uri.toString(true, false));
 		
-		throw X.ExceptionMessage.notImplemented();
+		throw X.Exception.notImplemented();
 	}
 }
 
