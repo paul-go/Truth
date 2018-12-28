@@ -26,34 +26,59 @@ export class Statement
 		this.jointPosition = line.jointPosition;
 	}
 	
-	/** */
+	/**
+	 * Gets whether the joint operator exists at the
+	 * end of the statement, forcing the statement's
+	 * declarations to be "refresh types".
+	 */
 	get isRefresh()
 	{
 		const f = X.LineFlags.isRefresh;
 		return (this.flags & f) === f;
 	}
 	
-	/** Gets whether the statement is a comment. */
+	/**
+	 * Gets whether the statement contains nothing
+	 * other than a single joint operator.
+	 */
+	get isVacuous()
+	{
+		return (this.isRefresh && 
+			this.declarationBounds.length === 0 &&
+			this.annotationBounds.length === 0);
+	}
+	
+	/**
+	 * Gets whether the statement is a comment.
+	 */
 	get isComment()
 	{
 		const f = X.LineFlags.isComment;
 		return (this.flags & f) === f;
 	}
 	
-	/** Gets whether the statement contains no non-whitespace characters. */
+	/**
+	 * Gets whether the statement contains
+	 * no non-whitespace characters.
+	 */
 	get isWhitespace()
 	{
 		const f = X.LineFlags.isWhitespace;
 		return (this.flags & f) === f;
 	}
 	
-	/** Gets whether the statement is a comment or whitespace. */
+	/**
+	 * Gets whether the statement is a comment or whitespace.
+	 */
 	get isNoop()
 	{
 		return this.isComment || this.isWhitespace;
 	}
 	
-	/** Gets whether the statement has been removed from it's containing document. */
+	/**
+	 * Gets whether the statement has been
+	 * removed from it's containing document.
+	 */
 	get isDisposed()
 	{
 		const f = X.LineFlags.isDisposed;
@@ -262,12 +287,21 @@ export class Statement
 		}
 		
 		const indent = includeIndent ? X.Syntax.tab.repeat(this.indent) : "";
+		
+		if (this.isWhitespace)
+			return indent;
+		
+		if (this.isVacuous)
+			return indent + X.Syntax.joint;
+		
 		const decls = serializeSpans(this.declarations, X.IdentifierEscapeKind.declaration);
 		const annos = serializeSpans(this.annotations, X.IdentifierEscapeKind.annotation);
-		const joint = annos.length === 0 && !this.isRefresh ? "" : X.Syntax.space + X.Syntax.joint;
-		const jointSpace = annos.length === 0 ? "" : X.Syntax.space;
 		
-		return indent + decls + joint + jointSpace + annos;
+		const joint = annos.length > 0 || this.isRefresh ? X.Syntax.joint : "";
+		const jointL = decls.length > 0 && joint !== "" ? X.Syntax.space : "";
+		const jointR = annos.length > 0 ? X.Syntax.space : "";
+		
+		return indent + decls + jointL + joint + jointR + annos;
 	}
 }
 

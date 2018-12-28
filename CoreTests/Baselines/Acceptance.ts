@@ -110,11 +110,11 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	"Backslash\\": {
 		emit: "Backslash\\"
 	},
-	"A, B : C, D": {
+	"A,B: C,D": {
 		emit: "A, B : C, D",
 		annotations: ["C", "D"]
 	},
-	"\A": {
+	"\\A": {
 		emit: "A"
 	},
 	"A:B: C": {
@@ -122,13 +122,33 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		annotations: "C"
 	},
 	"Refresh:": {
-		refresh: true
+		refresh: true,
+		emit: "Refresh :"
 	},
 	"Refresh : ": {
-		refresh: true
+		refresh: true,
+		emit: "Refresh :"
 	},
 	"R, E, F, R, E, S, H :": {
 		refresh: true
+	},
+	"TabSpcTabSpc\t \t : \t TabSpc": {
+		annotations: "TabSpc",
+		emit: "TabSpcTabSpc : TabSpc"
+	},
+	": Anon1, Anon2": {
+		annotations: ["Anon1", "Anon2"],
+		emit: ": Anon1, Anon2"
+	},
+	"\t:\tAnon": {
+		annotations: ["Anon"],
+		emit: "\t: Anon"
+	},
+	"\t\t": {
+		emit: "\t\t"
+	},
+	" \t ": {
+		emit: "\t\t\t"
 	},
 	
 	// URIs
@@ -174,12 +194,19 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	
 	// Escaping
 	
-	"A\\: B: C": {
-		emit: "A\\: B : C",
-		annotations: "C"
+	"D\\: E: F": {
+		emit: "D\\: E : F",
+		annotations: "F"
 	},
-	"\ A": {
-		emit: "A"
+	"\\ SpaceThenEscape": {
+		emit: "\tSpaceThenEscape"
+	},
+	"\\ \\ I'm : Drunk": {
+		emit: "\t\tI'm : Drunk",
+		annotations: "Drunk"
+	},
+	"\\\t \\ \\\tEsc-Tab-Spc-Esc-Spc-Esc-Tab": {
+		emit: "\t\t\t\tEsc-Tab-Spc-Esc-Spc-Esc-Tab"
 	},
 	
 	// Strange slash usage
