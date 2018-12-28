@@ -24,12 +24,11 @@ export class LineParser
 		let statementStart = 0;
 		const char = () => fullSource[cursor];
 		
-		for (;;)
+		while (++cursor < fullSource.length)
 		{
 			if (cursor >= fullSource.length - 1)
 				yield fullSource.slice(statementStart);
 			
-			cursor++;
 			
 			if (char() === X.Syntax.terminal)
 			{
