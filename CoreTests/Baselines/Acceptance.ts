@@ -386,22 +386,42 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	
 	"/</Pat/> : X": {
 		partial: true,
-		infixes: [{ kind: "Pattern", lhs: "Pat" }]
+		infixes: [{ kind: "Pattern", lhs: "Pat" }],
+		annotations: "X"
 	},
 	"/< : Port> : X": {
 		partial: true,
-		infixes: [{ kind: "Portability", rhs: "Port" }]
+		infixes: [{ kind: "Portability", rhs: "Port" }],
+		annotations: "X"
 	},
 	"/<Pop> : X": {
 		partial: true,
-		infixes: [{ kind: "Population", lhs: "Pop" }]
+		infixes: [{ kind: "Population", lhs: "Pop" }],
+		annotations: "X"
 	},
 	"/<Pop1, Pop2> : X": {
 		partial: true,
-		infixes: [{ kind: "Population", lhs: ["Pop1", "Pop2"] }]
+		infixes: [{ kind: "Population", lhs: ["Pop1", "Pop2"] }],
+		annotations: "X"
+	},
+	"/==<A, B : C, D>==<E, F : G, H>==/ : X, Y, Z": {
+		total: true,
+		infixes: [
+			{ kind: "Population", lhs: ["A", "B"], rhs: ["C", "D"] },
+			{ kind: "Population", lhs: ["E", "F"], rhs: ["G", "H"] }
+		],
+		match: "==??==??==",
+		noMatch: "==??=??==",
+		annotations: ["X", "Y", "Z"]
+	},
+	"/<Pop1, Pop2 : A, B> : X": {
+		partial: true,
+		infixes: [{ kind: "Population", lhs: ["Pop1", "Pop2"], rhs: ["A", "B"] }],
+		annotations: "X"
 	},
 	"/<<Nom>> : X": {
 		partial: true,
-		infixes: [{ kind: "Nominal", lhs: "Nom" }]
+		infixes: [{ kind: "Nominal", lhs: "Nom" }],
+		annotations: "X"
 	}
 };

@@ -144,7 +144,7 @@ export class LineParser
 			
 			function then()
 			{
-				maybeReadJoint();
+				jointPosition = maybeReadJoint();
 				
 				const readResult = readAnnotations([]);
 				for (const boundsEntry of readResult.annotations)
@@ -176,15 +176,13 @@ export class LineParser
 						parser.position,
 						readResult.identifier));
 				
-				// If the joint position was set, we're finished reading
-				// declarations, so breaking is necessary.
-				if (jointPosition > -1)
-					break;
-				
 				// The following combinator must be eaten before
 				// moving on to another declaration. If this fails,
 				// it's because the parse stream has ended.
 				if (!parser.read(X.Syntax.combinator))
+					break;
+				
+				if (peekJoint())
 					break;
 			}
 			
@@ -199,17 +197,53 @@ export class LineParser
 		 */
 		function maybeReadJoint()
 		{
-			const mark = parser.position;
+			const markBeforeWs = parser.position;
+			parser.readWhitespace();
+			const markAfterWs = parser.position;
+			let foundJointPosition = -1;
 			
 			if (parser.read(X.Syntax.joint + X.Syntax.space) ||
 				parser.read(X.Syntax.joint + X.Syntax.tab) ||
 				parser.readThenTerminal(X.Syntax.joint))
 			{
-				jointPosition = mark;
-				return true;
+				foundJointPosition = markAfterWs;
+				parser.readWhitespace();
+			}
+			else
+			{
+				parser.position = markBeforeWs;
 			}
 			
-			return false;
+			return foundJointPosition;
+		}
+		
+		/**
+		 * @returns A boolean value that indicates whether the joint
+		 * is the next logical token to be consumed. True is returned
+		 * in the case when whitespace characters sit between the
+		 * cursor and the joint operator.
+		 */
+		function peekJoint()
+		{
+			const innerPeekJoint = () =>
+			{
+				return (parser.peek(X.Syntax.joint + X.Syntax.space) ||
+					parser.peek(X.Syntax.joint + X.Syntax.tab) ||
+					parser.peekThenTerminal(X.Syntax.joint));
+			}
+			
+			if (innerPeekJoint())
+				return true;
+			
+			if (!parser.peek(X.Syntax.space) && !parser.peek(X.Syntax.tab))
+				return false;
+			
+			const mark = parser.position;
+			parser.readWhitespace();
+			const atJoint = innerPeekJoint();
+			parser.position = mark;
+			
+			return atJoint;
 		}
 		
 		/**
@@ -265,9 +299,8 @@ export class LineParser
 				if (until.some(tok => parser.peek(tok)))
 					break;
 				
-				if (shouldQuitOnJoint && maybeReadJoint())
+				if (shouldQuitOnJoint && peekJoint())
 					break;
-				
 				
 				const g1 = parser.readGrapheme();
 				
@@ -372,7 +405,9 @@ export class LineParser
 			
 			// Now read the annotations, in order to compute the Pattern's CRC
 			const mark = parser.position;
-			maybeReadJoint();
+			const foundJointPosition = maybeReadJoint();
+			if (foundJointPosition < 0)
+				return new X.Pattern(Object.freeze(units), isTotal, "");
 			
 			const annos = readAnnotations([]).annotations;
 			const annosArray = Array.from(annos.values()).sort();
@@ -430,7 +465,7 @@ export class LineParser
 						continue;
 					}
 					
-					if (maybeReadJoint())
+					if (peekJoint())
 						break;
 				}
 				
@@ -801,14 +836,18 @@ export class LineParser
 					lhsEntries.push(boundsEntry);
 				
 				parser.readWhitespace();
-				hasJoint = !!parser.read(X.Syntax.joint);
 				
-				if (hasJoint)
+				if (maybeReadJoint() > -1)
+				{
+					hasJoint = true;
+					parser.readWhitespace();
+					
 					for (const boundsEntry of readAnnotations([quitToken]).annotations)
 						rhsEntries.push(new X.BoundsEntry(
 							boundsEntry.offsetStart,
 							parser.position,
 							boundsEntry.subject));
+				}
 			}
 			
 			// Avoid producing an infix in weird cases such as:
@@ -821,6 +860,11 @@ export class LineParser
 			
 			if (hasJoint)
 				infixFlags |= X.InfixFlags.hasJoint;
+			
+			parser.readWhitespace();
+			
+			if (!parser.read(quitToken))
+				return ParseError;
 			
 			return new X.Infix(
 				infixStart,

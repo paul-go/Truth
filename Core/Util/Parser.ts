@@ -134,6 +134,19 @@ export class Parser
 	}
 	
 	/**
+	 * @returns A boolean value that indicates whether the
+	 * specified string exists immediately at the position of
+	 * the cursor, and following this token is the end of the
+	 * parse stream.
+	 */
+	peekThenTerminal(token: string)
+	{
+		return (
+			this._position === this.input.length - token.length &&
+			this.input.substr(this._position, token.length) === token);
+	}
+	
+	/**
 	 * @returns A boolean value that indicates whether
 	 * there are more characters to read in the input.
 	 */
