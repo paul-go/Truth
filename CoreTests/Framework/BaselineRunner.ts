@@ -16,7 +16,7 @@ export interface IBaselineTest
 	readonly parseFn: (sourceFile: string) => T.BaselineProgram;
 	
 	/** */
-	readonly execFn: (prog: T.BaselineProgram) => string;
+	readonly execFn: (prog: T.BaselineProgram) => string[];
 }
 
 
@@ -123,15 +123,16 @@ export class BaselineTestGenerator
 						received.push(serializeSpan(span, recCodes, recNames));
 					}
 					
-					const splitter = " -- ";
+					const splitter = "   ";
 					const expectedSerialized = expected.join(splitter);
-					const receivedSerialized = expected.join(splitter);
+					const receivedSerialized = received.join(splitter);
 					
 					if (expectedSerialized !== receivedSerialized)
 					{
 						reports.push(new Report(
 							baselineFilePath,
-							docLineIdx,
+							docLineIdx + 1,
+							baselineLine.line.sourceText,
 							[
 								"Expected faults: " + expectedSerialized,
 								"Received faults: " + receivedSerialized
@@ -169,14 +170,16 @@ export class BaselineTestGenerator
 			// RecursionDouble.truth:3
 			//	Missing or improperly typed descendent: A/B/C : D
 			
-			reportStrings.push([
-				report.fileName + ":" + report.documentLineNumber,
-				...report.messageLines.map(s => "\t" + s),
-				"\n"
-			].join(""));
+			const reportLines = [
+				"Line: " + report.documentLineNumber,
+				"Source: " + report.lineSource,
+				...report.messages
+			];
+			
+			reportStrings.push(reportLines.join("\n"));
 		}
 		
-		return reportStrings.join("");
+		return reportStrings;
 	}
 }
 
@@ -189,10 +192,17 @@ function serializeSpan(span: X.Span, codes: number[], names: string[])
 	if (codes.length !== names.length)
 		throw X.ExceptionMessage.unknownState();
 	
-	for (const [i, code] of codes.entries())
+	if (codes.length > 0)
 	{
-		parts.push(T.BaselineSyntax.faultBegin + code + T.BaselineSyntax.faultEnd);
-		parts.push("(" + names[i] + ")");
+		for (const [i, code] of codes.entries())
+		{
+			parts.push(T.BaselineSyntax.faultBegin + code + T.BaselineSyntax.faultEnd);
+			parts.push("(" + names[i] + ")");
+		}
+	}
+	else
+	{
+		parts.push("(none)");
 	}
 	
 	return parts.join(" ");
@@ -217,6 +227,7 @@ class Report
 	constructor(
 		readonly fileName: string,
 		readonly documentLineNumber: number,
-		readonly messageLines: string[])
+		readonly lineSource: string,
+		readonly messages: string[])
 	{ }
 }

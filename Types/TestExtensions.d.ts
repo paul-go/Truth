@@ -27,5 +27,11 @@ declare namespace jest
 		 * no faults, call this method without arguments.
 		 */
 		toHaveFaults(...faults: [number, { stamp: any }][]): R;
+		
+		/**
+		 * Emits the value passed to the expect() function as a formatted
+		 * error message.
+		 */
+		emit(): R;
 	}
 }
