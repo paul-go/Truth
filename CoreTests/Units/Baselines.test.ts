@@ -12,7 +12,7 @@ describe("Execute Baselines", () =>
 	 * tested in the specified directory. Or, a single file can be
 	 * referenced to run an isolated test.
 	 */
-	const targetPath = "CoreTests/Baselines/CircularReferencesManyTypesFault.truth";
+	const targetPath = "CoreTests/Baselines/InheritanceUnions.truth";
 	const testMap = T.BaselineTestGenerator.generate(targetPath);
 	const tests = Array.from(testMap.entries());
 	
@@ -34,9 +34,44 @@ describe("Execute Baselines", () =>
 			tests;
 			title;
 			
-			const fileContent = await baselineTest.loadFn();
-			const baselineProgram = baselineTest.parseFn(fileContent);
-			const reports = baselineTest.execFn(baselineProgram);
+			let fileContent: string = "";
+			
+			try
+			{
+				fileContent = await baselineTest.loadFn();
+			}
+			catch (e)
+			{
+				debugger;
+				fail(`Baseline file did not load.`);
+				return;
+			}
+			
+			let baselineProgram: T.BaselineProgram | null = null;
+			
+			try
+			{
+				baselineProgram = baselineTest.parseFn(fileContent);
+			}
+			catch (e)
+			{
+				debugger;
+				fail("Error occured while trying to parse the program");
+				return;
+			}
+			
+			let reports: string[] = [];
+			
+			try
+			{
+				reports = baselineTest.execFn(baselineProgram);
+			}
+			catch (e)
+			{
+				debugger;
+				fail("Error occured while executing the program.");
+				return;
+			}
 			
 			for (const report of reports)
 				expect(report).emit();
