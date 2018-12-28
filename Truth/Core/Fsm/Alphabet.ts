@@ -177,7 +177,7 @@ export class AlphabetBuilder
 			.sort((a, b) => a.from - b.from);
 		
 		// Quick optimization of ranges
-		for (let i = 0; i < ranges.length - 1;)
+		for (let i = 0; i < ranges.length - 1; i++)
 		{
 			const range = ranges[i];
 			const nextRange = ranges[i + 1];
@@ -190,8 +190,8 @@ export class AlphabetBuilder
 			// Concat
 			else if (range.to >= nextRange.from)
 			{
-				ranges[i] = new X.AlphabetRange(range.from, nextRange.to);
 				ranges.splice(i + 1, 1);
+				ranges[i] = new X.AlphabetRange(range.from, nextRange.to);
 			}
 		}
 		
