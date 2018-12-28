@@ -43,7 +43,7 @@ export class BaselineParser
 			}
 			
 			const lineTextExtracted = maybeExtractDescendantCheck(lineText);
-			if (lineTextExtracted)
+			if (lineTextExtracted !== "")
 			{
 				lineText = lineTextExtracted;
 				descendentCheckLines.add(fileLineIdx);
@@ -190,6 +190,9 @@ export class BaselineParser
 					faultCode));
 			}
 			
+			if (sourceTextExtractionRanges.length === 0)
+				continue;
+			
 			let newSourceText = innerLine.sourceText;
 			
 			for (let rangeIdx = sourceTextExtractionRanges.length; rangeIdx-- > 0;)
@@ -216,11 +219,10 @@ export class BaselineParser
 		
 		for (let lineIdx = -1; ++lineIdx < baselineLines.length;)
 		{
-			const baselineLine = baselineLines[lineIdx];
-			const hasDescendentCheck = descendentCheckLines.has(lineIdx + 1);
-			if (hasDescendentCheck)
+			if (!descendentCheckLines.has(lineIdx + 1))
 				continue;
 			
+			const baselineLine = baselineLines[lineIdx];
 			const checks: DescendantCheck[] = [];
 			
 			while (++lineIdx < baselineLines.length)
@@ -300,29 +302,35 @@ export class BaselineParser
 		// that are generated can be easily lined up.
 		//
 		
-		
+		//
 		// Note that if there are multiple files ("fake files") specified
 		// in a baseline, the lines before the first fake file definition
 		// are ignored.
+		//
 		
 		const baselineDocuments = new Map<string, BaselineDocument>();
 		const documentLines: BaselineLine[] = [];
+		
+		const storeBaselineDocument = (path: string) =>
+		{
+			const rawDocumentText = documentLines
+				.map(baselineLine => baselineLine.line.sourceText)
+				.join(X.Syntax.terminal);
+			
+			const baselineDocument = new BaselineDocument(
+				path,
+				rawDocumentText,
+				Object.freeze(documentLines.slice()));
+			
+			baselineDocuments.set(path, baselineDocument);
+		}
 		
 		for (const [baselineLineIdx, baselineLine] of baselineLines.entries())
 		{
 			const fakeFilePath = fakeFilePaths.get(baselineLineIdx);
 			if (fakeFilePath)
 			{
-				const rawDocumentText = documentLines
-					.map(baselineLine => baselineLine.line.sourceText)
-					.join(X.Syntax.terminal);
-				
-				const baselineDocument = new BaselineDocument(
-					fakeFilePath,
-					rawDocumentText,
-					Object.freeze(documentLines.slice()));
-				
-				baselineDocuments.set(fakeFilePath, baselineDocument);
+				storeBaselineDocument(fakeFilePath);
 				documentLines.length = 0;
 			}
 			else
@@ -331,6 +339,7 @@ export class BaselineParser
 			}
 		}
 		
+		storeBaselineDocument("");
 		return new BaselineProgram(baselineDocuments);
 	}
 }

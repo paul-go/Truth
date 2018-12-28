@@ -1,6 +1,6 @@
 import * as T from "../T";
 
-describe.skip("Execute Baselines", () =>
+describe("Execute Baselines", () =>
 {
 	/**
 	 * NOTE TO TESTERS:
