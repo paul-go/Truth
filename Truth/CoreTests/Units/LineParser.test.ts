@@ -64,10 +64,57 @@ describe("Parser Tests", () =>
 			fail("Line should have the whitespace flag: " + source);
 		}
 		
-		if (expected.uri && flagMissing(X.LineFlags.hasUri))
+		if (expected.uri !== undefined)
 		{
-			debugger;
-			fail("Line should have the hasUri flag: " + source);
+			if (flagMissing(X.LineFlags.hasUri))
+			{
+				debugger;
+				fail("Line should have the hasUri flag: " + source);
+			}
+			else
+			{
+				const first = parsedLine.declarations.first();
+				
+				if (first !== null && first.subject instanceof X.Uri)
+				{
+					const uri = first.subject;
+					
+					if (expected.uri.protocol !== uri.protocol.toString())
+					{
+						debugger;
+						expect(expected.uri.protocol).toBe(uri.protocol);
+					}
+					
+					if (expected.uri.ioPath.join() !== uri.ioPath.join())
+					{
+						debugger;
+						expect(expected.uri.ioPath).toEqual(uri.ioPath);
+					}
+					
+					if (expected.uri.typePath)
+					{
+						if (expected.uri.typePath.join() !== uri.typePath.join())
+						{
+							debugger;
+							expect(expected.uri.ioPath).toEqual(uri.ioPath);
+						}
+					}
+					
+					if (expected.uri.fileName !== undefined)
+					{
+						if (expected.uri.fileName !== uri.fileName)
+						{
+							debugger;
+							expect(expected.uri.fileName).toBe(uri.fileName);
+						}
+					}
+				}
+				else
+				{
+					debugger;
+					fail("No URI found at line: " + source);
+				}
+			}
 		}
 		
 		if (expected.total && flagMissing(X.LineFlags.hasTotalPattern))

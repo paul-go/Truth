@@ -383,7 +383,7 @@ function escMany(array: ReadonlyArray<string | number>)
  */
 function serializeUnicodeBlock(blockName: string)
 {
-	const block = X.UnicodeBlocks.get(blockName.toLowerCase());
+	const block = X.UnicodeBlocks.get(blockName.toLowerCase()); 
 	if (block === undefined)
 		throw X.ExceptionMessage.unknownState();
 	
