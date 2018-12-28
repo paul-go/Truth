@@ -1,5 +1,6 @@
 import * as T from "../T";
 
+
 describe("Execute Baselines", () =>
 {
 	/**
@@ -11,10 +12,16 @@ describe("Execute Baselines", () =>
 	 * tested in the specified directory. Or, a single file can be
 	 * referenced to run an isolated test.
 	 */
-	const targetPath = "CoreTests/Baselines/Fragmentation.truth";
-	
+	const targetPath = "CoreTests/Baselines/CircularReferencesManyTypesFault.truth";
 	const testMap = T.BaselineTestGenerator.generate(targetPath);
 	const tests = Array.from(testMap.entries());
+	
+	expect.extend({
+		emit: (report: string) => ({
+			message: () => report,
+			pass: false
+		})
+	});
 	
 	tests.forEach(value =>
 	{
@@ -31,7 +38,8 @@ describe("Execute Baselines", () =>
 			const baselineProgram = baselineTest.parseFn(fileContent);
 			const reports = baselineTest.execFn(baselineProgram);
 			
-			expect(reports).toBe("");
+			for (const report of reports)
+				expect(report).emit();
 		});
 	});
 });

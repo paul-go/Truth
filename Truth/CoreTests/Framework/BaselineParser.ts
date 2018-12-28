@@ -197,10 +197,10 @@ export class BaselineParser
 			
 			for (let rangeIdx = sourceTextExtractionRanges.length; rangeIdx-- > 0;)
 			{
-				const [from, to] = sourceTextExtractionRanges[rangeIdx];
+				const [from, len] = sourceTextExtractionRanges[rangeIdx];
 				newSourceText = from === 0 ?
-					newSourceText.slice(to + 1) :
-					newSourceText.slice(0, from - 1) + newSourceText.slice(to + 1);
+					newSourceText.slice(len + 1) :
+					newSourceText.slice(0, from - 1) + newSourceText.slice(from + len + 1);
 			}
 			
 			baselineLines[lineIdx] = new BaselineLine(
