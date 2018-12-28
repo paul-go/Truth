@@ -29,7 +29,6 @@ export class LineParser
 			if (cursor >= fullSource.length - 1)
 				yield fullSource.slice(statementStart);
 			
-			
 			if (char() === X.Syntax.terminal)
 			{
 				yield fullSource.slice(statementStart, cursor);
