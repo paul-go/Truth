@@ -81,6 +81,7 @@ export class RegexSet extends RegexUnit
 	constructor(
 		readonly knowns: ReadonlyArray<X.RegexSyntaxKnownSet>,
 		readonly ranges: ReadonlyArray<RegexCharRange>,
+		readonly unicodeBlocks: ReadonlyArray<string>,
 		readonly singles: ReadonlyArray<string>,
 		readonly isNegated: boolean,
 		readonly quantifier: RegexQuantifier | null)
@@ -93,20 +94,29 @@ export class RegexSet extends RegexUnit
 	{
 		const kLen = this.knowns.length;
 		const rLen = this.ranges.length;
+		const uLen = this.unicodeBlocks.length;
 		const cLen = this.singles.length;
 		
 		const setText = (() =>
 		{
-			if (kLen === 1 && rLen + cLen === 0)
+			if (kLen === 1 && rLen + uLen + cLen === 0)
 				return this.knowns[0].toString();
 			
-			if (cLen === 1 && kLen + cLen === 0)
+			if (uLen === 1 && kLen + rLen + cLen === 0)
+				return [
+					X.RegexSyntaxDelimiter.setStart + 
+					serializeUnicodeBlock(this.unicodeBlocks[0]) +
+					X.RegexSyntaxDelimiter.setEnd
+				].join("");
+			
+			if (cLen === 1 && kLen + rLen + uLen === 0)
 				return this.singles[0];
 			
 			return [
 				X.RegexSyntaxDelimiter.setStart,
 				...this.knowns,
 				...this.ranges.map(r => esc(r.from) + "-" + esc(r.to)),
+				...this.unicodeBlocks.map(serializeUnicodeBlock),
 				...escMany(this.singles),
 				X.RegexSyntaxDelimiter.setEnd
 			].join("");
@@ -358,10 +368,27 @@ function esc(maybeBackslash: string | number)
 	return maybeBackslash;
 }
 
+
 /**
  * 
  */
 function escMany(array: ReadonlyArray<string | number>)
 {
 	return array.map(esc).join("");
+}
+
+
+/**
+ * 
+ */
+function serializeUnicodeBlock(blockName: string)
+{
+	const block = X.UnicodeBlocks.get(blockName.toLowerCase());
+	if (block === undefined)
+		throw X.ExceptionMessage.unknownState();
+	
+	const rng = X.RegexSyntaxDelimiter.range;
+	const from = block[0].toString(16);
+	const to = block[1].toString(16);
+	return `\\u{${from}}${rng}\\u{${to}}`;
 }

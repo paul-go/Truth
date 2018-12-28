@@ -295,6 +295,11 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		match: "u{FFFF🐇",
 		noMatch: "\\uFFFF🐇"
 	},
+	"/\\u{Thai}": {
+		partial: true,
+		match: ["฿", "๛"],
+		noMatch: ["A", "0"]
+	},
 	
 	// Pattern Quantifiers
 	

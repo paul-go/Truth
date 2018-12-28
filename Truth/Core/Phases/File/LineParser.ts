@@ -502,13 +502,14 @@ export class LineParser
 				
 				if (regexKnownSet !== null)
 				{
-					units.push(new X.RegexSet(
-						[regexKnownSet], 
-						[],
-						[],
-						false,
-						quantifier));
-					
+					units.push(new X.RegexSet([regexKnownSet], [], [], [], false, quantifier));
+					continue;
+				}
+				
+				if (grapheme.unicodeBlockName)
+				{
+					const ubn = grapheme.unicodeBlockName;
+					units.push(new X.RegexSet([], [], [ubn], [], false, quantifier));
 					continue;
 				}
 				
@@ -546,13 +547,16 @@ export class LineParser
 			const rng = X.RegexSyntaxDelimiter.range;
 			const knowns: X.RegexSyntaxKnownSet[] = [];
 			const ranges: X.RegexCharRange[] = [];
-			const singles: (string | X.RegexSyntaxSign)[] = [];
+			const blocks: string[] = [];
+			const singles: string[] = [];
 			const isNegated = !!parser.read(X.RegexSyntaxMisc.negate);
 			
 			let closed = false;
 			
-			/** Stores all Graphemes read. */
-			const queue: Grapheme[] = [];
+			/**
+			 * Stores all Graphemes read.
+			 */
+			const graphemes: (Grapheme | null)[] = [];
 			
 			/**
 			 * Stores booleans that align with the items in "queue",
@@ -574,6 +578,14 @@ export class LineParser
 					break;
 				}
 				
+				if (g.unicodeBlockName)
+				{
+					blocks.push(g.unicodeBlockName);
+					rangableQueue.push(false);
+					graphemes.push(null);
+					continue;
+				}
+				
 				const gFull = g.escaped ? esc + g.character : g.character;
 				const known = X.RegexSyntaxKnownSet.resolve(gFull);
 				
@@ -581,10 +593,11 @@ export class LineParser
 				{
 					knowns.push(known);
 					rangableQueue.push(false);
+					graphemes.push(null);
 					continue;
 				}
 				
-				queue.push(g);
+				graphemes.push(g);
 				
 				rangableQueue.push(
 					g.character.length > 0 &&
@@ -594,44 +607,41 @@ export class LineParser
 				if (g.unicodeBlockName)
 					continue;
 				
-				const len = queue.length;
+				const len = graphemes.length;
 				
 				if (len < 3)
 					continue;
 				
-				if (queue[len - 2].character !== rng)
+				const maybeRng = graphemes[len - 2];
+				
+				if (maybeRng !== null && maybeRng.character !== rng)
 					continue;
 				
 				if (!rangableQueue[len - 3])
 					continue;
 				
+				const maybeFrom = graphemes[len - 3];
+				if (maybeFrom === null)
+					throw X.ExceptionMessage.unknownState();
+					
 				// Peel back symbol queue, and add a range
 				// to the alphabet builder if the queue gets into
 				// a state where it's ending with something
 				// looking like: ?-?
 				
-				const from = queue[len - 3].character.codePointAt(0) || 0;
+				const from = maybeFrom.character.codePointAt(0) || 0;
 				const to = g.character.codePointAt(0) || 0;
 				ranges.push(new X.RegexCharRange(from, to));
-				queue.length -= 3;
+				graphemes.length -= 3;
 				continue;
 			}
 			
 			if (!closed)
 				return ParseError;
 			
-			for (const g of queue)
-			{
-				if (g.unicodeBlockName)
-				{
-					const [from, to] = X.UnicodeBlocks[g.unicodeBlockName];
-					ranges.push(new X.RegexCharRange(from, to));
-				}
-				else
-				{
+			for (const g of graphemes)
+				if (g !== null)
 					singles.push(g.character);
-				}
-			}
 			
 			const quantifier = maybeReadRegexQuantifier();
 			if (quantifier === ParseError)
@@ -640,6 +650,7 @@ export class LineParser
 			return new X.RegexSet(
 				knowns,
 				ranges,
+				blocks,
 				singles,
 				isNegated,
 				quantifier);
@@ -892,7 +903,7 @@ export class LineParser
 			if (parser.read(X.RegexSyntaxDelimiter.utf16GroupStart))
 			{
 				const delim = X.RegexSyntaxDelimiter.utf16GroupEnd;
-				const unicodeLabel = parser.readUntil(delim);
+				const unicodeRef = parser.readUntil(delim);
 				
 				// Make sure the readUntil method stopped because it
 				// actually hit the delimiter, and not because it ran out
@@ -901,15 +912,18 @@ export class LineParser
 				{
 					parser.read(delim);
 					
-					if (/[a-f0-9]{1,5}/.test(unicodeLabel))
+					if (X.UnicodeBlocks.has(unicodeRef.toLowerCase()))
+						return new Grapheme("", unicodeRef, true);
+					
+					const len = unicodeRef.length;
+					if (len >= 1 && len <= 5)
 					{
-						const num = parseInt(unicodeLabel, 16);
-						const char = String.fromCodePoint(num);
-						return new Grapheme(char, "", true);
-					}
-					else if (unicodeLabel in X.UnicodeBlocks)
-					{
-						return new Grapheme("", unicodeLabel, true);
+						const num = parseInt(unicodeRef, 16);
+						if (num === num)
+						{
+							const char = String.fromCodePoint(num);
+							return new Grapheme(char, "", true);
+						}
 					}
 				}
 				
@@ -1000,7 +1014,13 @@ function appendQuantifier(unit: X.RegexUnit, quantifier: X.RegexQuantifier | nul
 		return unit;
 	
 	if (unit instanceof X.RegexSet)
-		return new X.RegexSet(unit.knowns, unit.ranges, unit.singles, unit.isNegated, quantifier);
+		return new X.RegexSet(
+			unit.knowns,
+			unit.ranges,
+			unit.unicodeBlocks,
+			unit.singles,
+			unit.isNegated,
+			quantifier);
 	
 	if (unit instanceof X.RegexGroup)
 		return new X.RegexGroup(unit.cases, quantifier);
