@@ -50,23 +50,29 @@ export class Parser
 	 */
 	readWhitespace()
 	{
-		const start = this._position;
-		let pos = start;
+		let count = 0;
 		
 		while (this.more())
 		{
-			this.read(X.Syntax.space);
-			this.read(X.Syntax.tab);
-			this.read(X.Syntax.escapeChar + X.Syntax.space);
-			this.read(X.Syntax.escapeChar + X.Syntax.tab);
+			const c = count;
 			
-			if (this._position === pos)
+			if (this.read(X.Syntax.tab))
+				count++;
+			
+			if (this.read(X.Syntax.space))
+				count++;
+			
+			if (this.read(X.Syntax.escapeChar + X.Syntax.space))
+				count++;
+			
+			if (this.read(X.Syntax.escapeChar + X.Syntax.tab))
+				count++;
+			
+			if (c === count)
 				break;
-			
-			pos = this._position;
 		}
 		
-		return pos - start;
+		return count;
 	}
 	
 	/**

@@ -153,7 +153,7 @@ describe("Parser Tests", () =>
 			}
 			finally
 			{
-				const statementStr = statement === null ? null : statement.toString();
+				const statementStr = statement === null ? null : statement.toString(true);
 				if (expected.emit !== statementStr)
 				{
 					debugger;
