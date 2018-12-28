@@ -40,7 +40,7 @@ export class Alphabet
 	 */
 	*eachRange()
 	{
-		if (this.hasWildcard)
+		if (this.hasWildcard())
 		{
 			for (let rangeIdx = 0; rangeIdx < this.ranges.length - 1;)
 				yield this.ranges[rangeIdx++];
@@ -122,7 +122,9 @@ export class AlphabetBuilder
 		{
 			if (item instanceof X.Alphabet)
 			{
-				for (const range of item.eachRange())
+				const theRanges = Array.from(item.eachRange());
+				
+				for (const range of theRanges)
 					this.ranges.push(range);
 			}
 			else if (item instanceof X.AlphabetRange)
@@ -179,19 +181,25 @@ export class AlphabetBuilder
 		// Quick optimization of ranges
 		for (let i = 0; i < ranges.length - 1; i++)
 		{
-			const range = ranges[i];
-			const nextRange = ranges[i + 1];
+			const thisRange = ranges[i];
 			
-			// Omit
-			if (range.to > nextRange.to)
+			while (i < ranges.length - 1 )
 			{
-				ranges.splice(i + 1, 1);
-			}
-			// Concat
-			else if (range.to >= nextRange.from)
-			{
-				ranges.splice(i + 1, 1);
-				ranges[i] = new X.AlphabetRange(range.from, nextRange.to);
+				const nextRange = ranges[i + 1];
+				
+				// Omit
+				if (thisRange.to >= nextRange.to)
+				{
+					ranges.splice(i + 1, 1);
+				}
+				// Concat
+				else if (thisRange.to + 1 >= nextRange.from)
+				{
+					ranges.splice(i + 1, 1);
+					ranges[i] = new X.AlphabetRange(thisRange.from, nextRange.to);
+				}
+				// Next
+				else break;
 			}
 		}
 		
