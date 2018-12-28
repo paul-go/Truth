@@ -30,7 +30,7 @@ export class Alphabet
 	*[Symbol.iterator]()
 	{
 		for (const range of this.ranges)
-			for (let i = range.from; i < range.to; i++)
+			for (let i = range.from; i <= range.to; i++)
 				yield String.fromCodePoint(i);
 	}
 	
