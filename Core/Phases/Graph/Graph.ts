@@ -152,7 +152,7 @@ export class Graph
 		const findNode = (uri: X.Uri) =>
 		{
 			if (uri.typePath.length === 0)
-				throw X.ExceptionMessage.invalidArgument();
+				throw X.Exception.invalidArgument();
 			
 			const existingNode = affectedNodes.find(node => 
 				node.uri.equals(uri, true));
@@ -231,7 +231,7 @@ export class Graph
 			
 			const strand = fmtr.query(uri);
 			if (strand === null)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			const container = uri.typePath.length > 1 ?
 				findNode(uri.retract(0, 1)) :
@@ -241,7 +241,7 @@ export class Graph
 			{
 				console.log(this.toString());
 				console.log(serializeNodes(affectedNodes));
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			}
 			
 			// Note that when creating a Node, it's
@@ -286,7 +286,7 @@ export class Graph
 			if (cachedNode)
 			{
 				if (cachedNode !== affectedNode)
-					throw X.ExceptionMessage.unknownState();
+					throw X.Exception.unknownState();
 			}
 			else
 			{

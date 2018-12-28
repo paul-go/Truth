@@ -1,6 +1,6 @@
 
 /** @internal */
-export class ExceptionMessage
+export class Exception
 {
 	/** */
 	static invalidArgument()

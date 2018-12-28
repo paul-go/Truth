@@ -106,7 +106,7 @@ expect.extend({
 		...expectations: [number, X.Statement | X.Span][])
 	{
 		if (!(program instanceof X.Program))
-			throw X.ExceptionMessage.invalidArgument();
+			throw X.Exception.invalidArgument();
 		
 		const expLen = expectations.length;
 		const actLen = program.faults.count;

@@ -262,7 +262,7 @@ export class BaselineParser
 				{
 					const value = line.declarations.first();
 					if (value === null)
-						throw X.ExceptionMessage.unknownState();
+						throw X.Exception.unknownState();
 					
 					return value instanceof X.Pattern ?
 						encodeURIComponent(value.toString()) :

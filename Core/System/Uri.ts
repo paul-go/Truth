@@ -98,7 +98,7 @@ export class Uri
 				else if (prot === UriProtocol.https || prot === UriProtocol.http)
 					ioPath = [];
 				
-				else throw X.ExceptionMessage.notImplemented();
+				else throw X.Exception.notImplemented();
 				
 				protocol = prot;
 			}
@@ -147,11 +147,11 @@ export class Uri
 		{
 			const mols = from.molecules;
 			if (mols.length === 0)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			const spans = mols[0].localAtom.spans;
 			if (spans.length === 0)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			const srcUri = spans[0].statement.document.sourceUri;
 			const typeSegments = from.molecules
@@ -167,7 +167,7 @@ export class Uri
 		if (from instanceof X.Uri)
 			return from;
 		
-		throw X.ExceptionMessage.unknownState();
+		throw X.Exception.unknownState();
 	}
 	
 	/** */
@@ -250,10 +250,10 @@ export class Uri
 	retract(ioRetraction = 0, typeRetraction = 1)
 	{
 		if (typeRetraction > this.typePath.length)
-			throw X.ExceptionMessage.invalidUriRetraction();
+			throw X.Exception.invalidUriRetraction();
 		
 		if (ioRetraction > this.ioPath.length)
-			throw X.ExceptionMessage.invalidUriRetraction();
+			throw X.Exception.invalidUriRetraction();
 		
 		return new Uri(
 			this.protocol,

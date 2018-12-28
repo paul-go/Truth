@@ -75,7 +75,7 @@ export class BaselineTestGenerator
 		{
 			const fakeUri = X.Uri.parse(fakeUriText);
 			if (!fakeUri)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			realProgram.documents.create(fakeUri, baselineDoc.sourceText);
 		}
@@ -190,7 +190,7 @@ function serializeSpan(span: X.Span, codes: number[], names: string[])
 	const parts = [span.subject.toString()];
 	
 	if (codes.length !== names.length)
-		throw X.ExceptionMessage.unknownState();
+		throw X.Exception.unknownState();
 	
 	if (codes.length > 0)
 	{

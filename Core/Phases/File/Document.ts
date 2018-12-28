@@ -15,7 +15,7 @@ export class Document
 	constructor(program: X.Program, sourceUri: X.Uri, sourceText: string)
 	{
 		if (sourceUri.typePath.length)
-			throw X.ExceptionMessage.invalidArgument();
+			throw X.Exception.invalidArgument();
 		
 		this.program = program;
 		this.sourceUri = sourceUri;
@@ -31,7 +31,7 @@ export class Document
 	private fill(sourceText: string)
 	{
 		if (this.inEdit)
-			throw X.ExceptionMessage.doubleTransaction();
+			throw X.Exception.doubleTransaction();
 		
 		this.statements.length = 0;
 		
@@ -366,7 +366,7 @@ export class Document
 		if (includeInitial)
 		{
 			if (!initialStatement)
-				throw X.ExceptionMessage.invalidArgument();
+				throw X.Exception.invalidArgument();
 			
 			yield { statement: initialStatement, level : 0 };
 		}
@@ -511,7 +511,7 @@ export class Document
 	edit(editFn: (facts: IDocumentMutator) => void)
 	{
 		if (this.inEdit)
-			throw X.ExceptionMessage.doubleTransaction();
+			throw X.Exception.doubleTransaction();
 		
 		class insertCall { constructor(readonly text: string, readonly at: number) { } }
 		class updateCall { constructor(readonly text: string, readonly at: number) { } }
@@ -763,7 +763,7 @@ export class Document
 						mustInvalidateDoc = true;
 						break;
 					}
-					else throw X.ExceptionMessage.unknownState();
+					else throw X.Exception.unknownState();
 				}
 				else
 				{
@@ -1031,5 +1031,5 @@ function applyBounds(index: number, length: number)
 	if (index < 0)
 		return Math.max(length + index, 0);
 	
-	throw X.ExceptionMessage.unknownState();
+	throw X.Exception.unknownState();
 }

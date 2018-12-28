@@ -14,7 +14,7 @@ export class Waterfall
 		
 		const sourceDoc = program.documents.get(directive);
 		if (sourceDoc === null)
-			throw X.ExceptionMessage.invalidArgument();
+			throw X.Exception.invalidArgument();
 		
 		/**
 		 * Stores a cursor used to identify the index of the
@@ -51,11 +51,11 @@ export class Waterfall
 		{
 			const terrace = matrix[y];
 			if (x >= terrace.length)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			const turn = terrace[x];
 			if (turn === undefined)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			return turn;
 		}
@@ -238,11 +238,11 @@ export class Waterfall
 	readTerrace(uri: X.Uri): ReadonlyArray<X.Turn | undefined>
 	{
 		if (uri.typePath.length > this.directive.typePath.length)
-			throw X.ExceptionMessage.invalidArgument();
+			throw X.Exception.invalidArgument();
 		
 		for (let i = -1; ++i < uri.typePath.length;)
 			if (uri.typePath[i] !== this.directive.typePath[i])
-				throw X.ExceptionMessage.invalidArgument();
+				throw X.Exception.invalidArgument();
 		
 		
 		
@@ -322,7 +322,7 @@ class PathCursor
 	backtrack(to: number)
 	{
 		if (to < 0 || to >= this.cursor)
-			throw X.ExceptionMessage.invalidArgument();
+			throw X.Exception.invalidArgument();
 		
 		this.cursor = to;
 	}

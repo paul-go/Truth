@@ -65,13 +65,13 @@ export class Agents
 		}
 		
 		if (!this.program)
-			throw X.ExceptionMessage.invalidCall();
+			throw X.Exception.invalidCall();
 		
 		const agent = new Agent(uri, this.hookRouter);
 		
 		const buildFunction = this.buildFunctionCache.get(sourceUri.toString());
 		if (!buildFunction)
-			throw X.ExceptionMessage.agentNotRead();
+			throw X.Exception.agentNotRead();
 		
 		buildFunction(agent.hooks, X, this.program);
 		this.agentCacheObject.add(agent);

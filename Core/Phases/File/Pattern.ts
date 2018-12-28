@@ -385,7 +385,7 @@ function serializeUnicodeBlock(blockName: string)
 {
 	const block = X.UnicodeBlocks.get(blockName.toLowerCase()); 
 	if (block === undefined)
-		throw X.ExceptionMessage.unknownState();
+		throw X.Exception.unknownState();
 	
 	const rng = X.RegexSyntaxDelimiter.range;
 	const from = block[0].toString(16);

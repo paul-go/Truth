@@ -103,7 +103,7 @@ export class DocumentGraph
 		})();
 		
 		if (!uri)
-			throw X.ExceptionMessage.invalidUri();
+			throw X.Exception.invalidUri();
 		
 		const sourceText = 
 			zeroArgs ? "" :
@@ -190,7 +190,7 @@ export class DocumentGraph
 			// Cycle detected. This condition should never pass because
 			// DocumentGraph is supposed to prevent cycles.
 			if (docsInStack.has(currentDoc))
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			docsInStack.add(currentDoc);
 			
@@ -208,7 +208,7 @@ export class DocumentGraph
 		{
 			const nextUnvisited = allDocs.find(d => !docsFinalized.has(d));
 			if (!nextUnvisited)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			recurse(nextUnvisited);
 		}
@@ -283,7 +283,7 @@ export class DocumentGraph
 		const entry = this.documents.get(doc.sourceUri.toString());
 		
 		if (entry === undefined)
-			throw X.ExceptionMessage.unknownState();
+			throw X.Exception.unknownState();
 		
 		for (const statement of doc.eachStatement())
 		{
@@ -304,7 +304,7 @@ export class DocumentGraph
 				docDep.sourceUri.toString() === uriText)!);
 		
 		if (depsSorted.some(d => d === undefined))
-			throw X.ExceptionMessage.unknownState();
+			throw X.Exception.unknownState();
 		
 		return depsSorted;
 	}
@@ -356,7 +356,7 @@ export class DocumentGraph
 				// Return the entry, which should be 
 				const newEntry = this.documents.get(uriText);
 				if (!newEntry)
-					throw X.ExceptionMessage.unknownState();
+					throw X.Exception.unknownState();
 				
 				return newEntry.document;
 			})();
@@ -390,7 +390,7 @@ export class DocumentGraph
 			this.asyncCount--;
 			
 			if (this.asyncCount < 0)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			if (this.asyncCount === 0)
 			{
@@ -556,7 +556,7 @@ export class DocumentGraph
 			const doc = entry.document;
 			
 			if (!uri)
-				throw X.ExceptionMessage.unknownState();
+				throw X.Exception.unknownState();
 			
 			lines.push(uri.toString());
 			lines.push("\tDependencies");
