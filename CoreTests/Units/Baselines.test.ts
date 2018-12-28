@@ -44,7 +44,7 @@ describe("Execute Baselines", () =>
 			{
 				debugger;
 				fail(`Baseline file did not load.`);
-				return;
+				return
 			}
 			
 			let baselineProgram: T.BaselineProgram | null = null;
