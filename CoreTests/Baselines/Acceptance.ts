@@ -37,7 +37,12 @@ export interface IExpectation
 	 * Indicates whether or not the statement should be found to
 	 * have a URI as it's sole declaration.
 	 */
-	uri?: string,
+	uri?: {
+		protocol: string,
+		ioPath: string[],
+		typePath?: string[]
+		fileName?: string
+	},
 	
 	/**
 	 * Indicates whether or not the statement should be found to
@@ -126,6 +131,47 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		refresh: true
 	},
 	
+	// URIs
+	
+	"file://a/b/c": {
+		uri: {
+			protocol: "file:",
+			ioPath: ["a", "b", "c"]
+		},
+		emit: "file://a/b/c"
+	},
+	"https://www.x.com": {
+		uri: {
+			protocol: "https:",
+			ioPath: ["www.x.com"]
+		},
+		emit: "https://www.x.com"
+	},
+	"http://www.y.com": {
+		uri: {
+			protocol: "http:",
+			ioPath: ["www.y.com"]
+		},
+		emit: "http://www.y.com"
+	},
+	"system-internal://🐇//type/path": {
+		uri: {
+			protocol: "system-internal:",
+			ioPath: ["🐇"],
+			typePath: ["type", "path"]
+		},
+		emit: "system-internal://🐇//type/path"
+	},
+	"http://abc.xyz/file.truth//type/path/here": {
+		uri: {
+			protocol: "http:",
+			ioPath: ["abc.xyz", "file.truth"],
+			typePath: ["type", "path", "here"],
+			fileName: "file.truth"
+		},
+		emit: "http://abc.xyz/file.truth//type/path/here"
+	},
+	
 	// Escaping
 	
 	"A\\: B: C": {
@@ -164,8 +210,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		joint: 8
 	},
 	"/, A, B": {
-		// Why is this unparsable?
-		unparsable: true
+		unparsable: true // Why is this unparsable?
 	},
 	
 	// Unicode

@@ -10,10 +10,11 @@ import * as Path from "path";
 export enum UriProtocol
 {
 	none = "",
+	unknown = "?",
 	file = "file:",
 	https = "https:",
 	http = "http:",
-	unsupported = "unsupported:"
+	internal = "system-internal:"
 }
 
 
@@ -35,11 +36,11 @@ export class Uri
 	static *eachProtocol(): IterableIterator<UriProtocol>
 	{
 		for (const protocol of Object.values(UriProtocol))
-			yield protocol;
+			if (protocol !== UriProtocol.none)
+				yield protocol;
 	}
 	
 	/**
-	 * 
 	 * @param uriText A string containing the URI to parse
 	 * @param relativeFallback A URI that identifies the origin
 	 * of the URI being parsed, used in the case when the
@@ -49,18 +50,18 @@ export class Uri
 	{
 		let protocol = (() =>
 		{
-			for (const [scheme, type] of this.eachProtocol())
-				if (uriText.startsWith(scheme))
-					return <UriProtocol>type;
+			for (const protocol of this.eachProtocol())
+				if (uriText.startsWith(protocol))
+					return protocol;
 			
 			if (/^([A-Za-z]+-?)+:/.test(uriText))
-				return UriProtocol.unsupported;
+				return UriProtocol.unknown;
 			
 			return UriProtocol.none;
 		})();
 		
-		if (protocol === UriProtocol.unsupported)
-			throw X.ExceptionMessage.uriNotSupported();
+		if (protocol === UriProtocol.unknown)
+			return null;
 		
 		const [filePathFull, typePathFull] = uriText
 			.replace(/^([a-z][a-z0-9-.+]*:)?\/\//, "")
@@ -69,8 +70,6 @@ export class Uri
 		const filePathParts = filePathFull.split("/");
 		
 		let fileName = "";
-		let fileNameBase = "";
-		let fileExtension = "";
 		let ioPath = filePathParts.slice();
 		let typePath = typePathFull ? typePathFull.split("/") : [];
 		
@@ -80,11 +79,7 @@ export class Uri
 			const dotPos = lastFilePathPart.lastIndexOf(".");
 			
 			if (dotPos >= 0)
-			{
 				fileName = lastFilePathPart;
-				fileNameBase = lastFilePathPart.slice(0, dotPos);
-				fileExtension = lastFilePathPart.slice(dotPos + 1);
-			}
 		}
 		
 		// If there is no protocol, then we need
@@ -121,8 +116,6 @@ export class Uri
 		return new Uri(
 			protocol,
 			fileName,
-			fileNameBase,
-			fileExtension,
 			ioPath,
 			typePath);
 	}
@@ -136,7 +129,7 @@ export class Uri
 	static create(from?: X.Spine | X.Strand | Uri): Uri
 	{
 		if (from === undefined)
-			return this.parse("system-internal://" + Math.random().toString().slice(2))!;
+			return this.parse(UriProtocol.internal + "//" + Math.random().toString().slice(2))!;
 		
 		if (from instanceof X.Spine)
 		{
@@ -146,8 +139,6 @@ export class Uri
 			return new Uri(
 				srcUri.protocol,
 				srcUri.fileName,
-				srcUri.fileNameBase,
-				srcUri.fileExtension,
 				srcUri.ioPath,
 				typeSegments);
 		}	
@@ -169,8 +160,6 @@ export class Uri
 			return new Uri(
 				srcUri.protocol,
 				srcUri.fileName,
-				srcUri.fileNameBase,
-				srcUri.fileExtension,
 				srcUri.ioPath,
 				typeSegments);
 		}
@@ -192,21 +181,6 @@ export class Uri
 		 * Stores the file name specified in the URI, if one exists.
 		 */
 		readonly fileName: string,
-		
-		/**
-		 * Stores the base file name specified in the URI.
-		 * For example, for the URI path/to/dir/file.ext, base would
-		 * be the string "file". If the URI does not contain a file
-		 * name, the field is an empty string.
-		 */
-		readonly fileNameBase: string,
-		
-		/**
-		 * Stores the extension of the file specified in the URI,
-		 * without the dot character. If the URI does not contain
-		 * a file name, the field is an empty string.
-		 */
-		readonly fileExtension: string,
 		
 		/** 
 		 * Stores the fully qualified path to the file, and the file
@@ -231,16 +205,21 @@ export class Uri
 	 */
 	toString(includeProtocol = true, includeTypePath = false)
 	{
-		const proto = includeProtocol ?
-			this.protocol + "://" :
-			"";
+		let out = "";
 		
-		const ioPath = Path.join(...this.ioPath);
-		const typePath = includeTypePath ?
-			"//" + this.typePath.map(s => s.replace(/\//g, "\\/")).join("/") : 
-			"";
+		if (includeProtocol)
+			out += this.protocol + "//";
 		
-		return proto + ioPath + typePath;
+		out += Path.join(...this.ioPath);
+		
+		if (includeTypePath)
+		{
+			const typePath = this.typePath.map(s => s.replace(/\//g, "\\/")).join("/");
+			if (typePath !== "")
+				out += "//" + typePath;
+		}
+		
+		return out;
 	}
 	
 	/** 
@@ -279,8 +258,6 @@ export class Uri
 		return new Uri(
 			this.protocol,
 			this.fileName,
-			this.fileNameBase,
-			this.fileExtension,
 			this.ioPath.slice(0, ioRetraction ? -ioRetraction : undefined),
 			this.typePath.slice(0, -typeRetraction));
 	}
@@ -313,8 +290,6 @@ export class Uri
 		return new Uri(
 			this.protocol,
 			this.fileName,
-			this.fileNameBase,
-			this.fileExtension,
 			this.ioPath.concat(...ioSegmentsArray.filter(s => s)),
 			this.typePath.concat(...typeSegmentsArray.filter(s => s)));
 	}
