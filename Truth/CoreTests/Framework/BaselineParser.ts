@@ -7,7 +7,7 @@ import * as X from "../X";
 export class BaselineParser
 {
 	/** */
-	static parse(fileContent: string)
+	static parse(sourcePath: string, fileContent: string)
 	{
 		const baselineLines: BaselineLine[] = [];
 		const descendentCheckLines = new Set<number>();
@@ -292,9 +292,10 @@ export class BaselineParser
 		}
 		
 		// 
-		// Split the baseline up into two parts: the first being the "before",
-		// which means "before the edit transaction took place", and the
-		// second being "after". The BaselineRunner will 
+		// Split the baseline up into two parts: the first being the
+		// "before", which means "before the edit transaction took
+		// place", and the second being "after the edit transaction
+		// took place".
 		// 
 		
 		//
@@ -325,9 +326,9 @@ export class BaselineParser
 			baselineDocuments.set(path, baselineDocument);
 		}
 		
-		for (const [baselineLineIdx, baselineLine] of baselineLines.entries())
+		for (let lineIdx = baselineLines.length; lineIdx-- > 0;)
 		{
-			const fakeFilePath = fakeFilePaths.get(baselineLineIdx);
+			const fakeFilePath = fakeFilePaths.get(lineIdx);
 			if (fakeFilePath)
 			{
 				storeBaselineDocument(fakeFilePath);
@@ -335,19 +336,19 @@ export class BaselineParser
 			}
 			else
 			{
-				documentLines.push(baselineLine);
+				documentLines.unshift(baselineLines[lineIdx]);
 			}
 		}
 		
-		storeBaselineDocument("");
-		return new BaselineProgram(baselineDocuments);
+		storeBaselineDocument(sourcePath);
+		return new BaselineDocuments(baselineDocuments);
 	}
 }
 
 /**
  * 
  */
-export class BaselineProgram
+export class BaselineDocuments
 {
 	constructor(
 		readonly documents: ReadonlyMap<string, BaselineDocument>)

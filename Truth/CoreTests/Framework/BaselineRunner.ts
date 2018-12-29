@@ -13,10 +13,10 @@ export interface IBaselineTest
 	readonly loadFn: () => Promise<string>;
 	
 	/** */
-	readonly parseFn: (sourceFile: string) => T.BaselineProgram;
+	readonly parseFn: (sourceFile: string) => T.BaselineDocuments;
 	
 	/** */
-	readonly execFn: (prog: T.BaselineProgram) => string[];
+	readonly execFn: (prog: T.BaselineDocuments) => [X.Program, string[]];
 }
 
 
@@ -54,8 +54,8 @@ export class BaselineTestGenerator
 		{
 			testMap.set("Executing: " + filePath, <IBaselineTest>{
 				loadFn: async () => await Fs.promises.readFile(filePath, "utf8"),
-				parseFn: (sourceFile: string) => T.BaselineParser.parse(sourceFile),
-				execFn: (prog: T.BaselineProgram) => this.execTest(prog, filePath)
+				parseFn: (sourceFile: string) => T.BaselineParser.parse(filePath, sourceFile),
+				execFn: (prog: T.BaselineDocuments) => this.execTest(prog, filePath)
 			});
 		});
 		
@@ -65,7 +65,7 @@ export class BaselineTestGenerator
 	/**
 	 * 
 	 */
-	private static execTest(baselineProgram: T.BaselineProgram, baselineFilePath: string)
+	private static execTest(baselineDocs: T.BaselineDocuments, baselineFilePath: string)
 	{
 		const realProgram = new X.Program(false);
 		const reports: Report[] = [];
@@ -73,7 +73,7 @@ export class BaselineTestGenerator
 		// Errors need to be blocked from checking while
 		// the program is populated with content.
 		
-		for (const [fakeUriText, baselineDoc] of baselineProgram.documents)
+		for (const [fakeUriText, baselineDoc] of baselineDocs.documents)
 		{
 			const fakeUri = X.Uri.parse(fakeUriText);
 			if (!fakeUri)
@@ -86,7 +86,7 @@ export class BaselineTestGenerator
 		// faults are reported (and not reported) in the locations as specified
 		// by the BaselineDocument's checks.
 		
-		for (const [fakeUriText, baselineDoc] of baselineProgram.documents)
+		for (const [fakeUriText, baselineDoc] of baselineDocs.documents)
 		{
 			const fakeUri = X.Uri.parse(fakeUriText)!;
 			const realDoc = realProgram.documents.get(fakeUri)!;
@@ -155,23 +155,6 @@ export class BaselineTestGenerator
 		
 		for (const report of reports)
 		{
-			// FaultCheck format:
-			// 
-			// StatementBeginFault.truth:5
-			// 	Expected faults: A -- B (CircularResourceReference) -- C
-			// 	Received faults: A -- B -- C (CircularResourceReference)
-			
-			// InferenceCheck format:
-			//
-			// PatternWithSlash.truth:45
-			//	Expected inference: A, B
-			//	Received inference: (none)
-			
-			// DescendantCheck format:
-			//
-			// RecursionDouble.truth:3
-			//	Missing or improperly typed descendent: A/B/C : D
-			
 			const reportLines = [
 				"Line: " + report.documentLineNumber,
 				"Source: " + report.lineSource,
@@ -181,7 +164,7 @@ export class BaselineTestGenerator
 			reportStrings.push(reportLines.join("\n"));
 		}
 		
-		return reportStrings;
+		return [realProgram, reportStrings];
 	}
 }
 
@@ -212,18 +195,6 @@ function serializeSpan(span: X.Span, codes: number[], names: string[])
 
 
 /** */
-function setSubtract<T>(setA: Set<T>, setB: Set<T>)
-{
-	const out = new Set<T>();
-	
-	for (const item of setA)
-		if (!(setB.has(item)))
-			out.add(item);
-	
-	return out;
-}
-
-
 class Report
 {
 	constructor(
