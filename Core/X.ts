@@ -19,7 +19,7 @@ export * from "./System/Agent";
 export * from "./System/HookType";
 export * from "./System/HookTypes";
 export * from "./System/HookRouter";
-export * from "./System/ExceptionMessage";
+export * from "./System/Exception";
 export * from "./System/Uri";
 export * from "./System/UriReader";
 export * from "./System/Syntax";
