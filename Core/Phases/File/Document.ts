@@ -36,13 +36,7 @@ export class Document
 		this.statements.length = 0;
 		
 		for (const statementText of readLines(sourceText))
-		{
-			const statement = new X.Statement(this, statementText);
-			this.statements.push(statement);
-			
-			if (statement.isNoop)
-				continue;
-		}
+			this.statements.push(new X.Statement(this, statementText));
 	}
 	
 	/**
