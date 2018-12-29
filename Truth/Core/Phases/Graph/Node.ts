@@ -334,6 +334,9 @@ export class Node
 		const name = span.subject.toString();
 		const st = span.statement;
 		
+		/**
+		 * Adds a fan to it's two applicable target nodes.
+		 */
 		const append = (fan: X.Fan) =>
 		{
 			this._outbounds.push(fan);
@@ -357,7 +360,8 @@ export class Node
 			
 			for (const { adjacents } of this.enumerateContainment())
 			{
-				const adjacentNode = adjacents.get(this.name);
+				//const adjacentNode = adjacents.get(this.name);
+				const adjacentNode = adjacents.get(span.subject.toString());
 				if (adjacentNode)
 				{
 					targets.push(adjacentNode);
