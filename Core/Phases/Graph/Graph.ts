@@ -324,7 +324,10 @@ export class Graph
 	 */
 	private activeTransactions = new Map<X.Document, GraphTransaction>();
 	
-	/** */
+	/**
+	 * Serializes the Graph into a format suitable
+	 * for debugging and comparing against baselines.
+	 */
 	toString()
 	{
 		if (this.nodeCache.size === 0)
