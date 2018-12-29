@@ -2,7 +2,9 @@ import * as X from "../../X";
 
 
 /**
- * 
+ * Stores information about a line, after being parsed.
+ * A Line is different from a Statement in that it has no
+ * relationship to a Document.
  */
 export class Line
 {
@@ -10,8 +12,8 @@ export class Line
 	constructor(
 		readonly sourceText: string,
 		readonly indent: number,
-		readonly declarations: X.Bounds<DeclarationSubject>,
-		readonly annotations: X.Bounds<AnnotationSubject>,
+		readonly declarations: X.Bounds<X.DeclarationSubject>,
+		readonly annotations: X.Bounds<X.AnnotationSubject>,
 		readonly flags: LineFlags,
 		readonly jointPosition: number)
 	{ }
@@ -19,22 +21,8 @@ export class Line
 
 
 /**
- * Stores a map of the character offsets within a Statement
- * that represent the starting positions of the statement's
- * declarartions.
- */
-export type DeclarationSubject = X.Identifier | X.Pattern | X.Uri | X.Anon;
-
-/**
- * Stores a map of the character offsets within a Statement
- * that represent the starting positions of the statement's
- * annotations.
- */
-export type AnnotationSubject = X.Identifier;
-
-
-/**
- * 
+ * A bit field enumeration used to efficiently store
+ * meta data about a Line (or a Statement) object.
  */
 export enum LineFlags
 {
