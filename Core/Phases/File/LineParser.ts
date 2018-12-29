@@ -20,21 +20,23 @@ export class LineParser
 	 */
 	static *read(fullSource: string)
 	{
-		let cursor = -1;
-		let statementStart = 0;
-		const char = () => fullSource[cursor];
+		if (fullSource.length === 0)
+			return;
 		
-		while (++cursor < fullSource.length)
+		let cursor = 0;
+		let statementStart = 0;
+		
+		for (; cursor < fullSource.length; cursor++)
 		{
-			if (cursor >= fullSource.length - 1)
-				yield fullSource.slice(statementStart);
-			
-			if (char() === X.Syntax.terminal)
+			if (fullSource[cursor] === X.Syntax.terminal)
 			{
 				yield fullSource.slice(statementStart, cursor);
 				statementStart = cursor + 1;
 			}
 		}
+		
+		if (statementStart < cursor)
+			yield fullSource.slice(statementStart);
 	}
 	
 	/**
