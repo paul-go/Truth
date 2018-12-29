@@ -12,6 +12,7 @@ export const enum Syntax
 	list = "...",
 	escapeChar = "\\",
 	comment = "//",
+	typePathSeparator = "//",
 	truthExtension = "truth",
 	agentExtension = "js",
 }

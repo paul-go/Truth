@@ -337,9 +337,16 @@ export class Graph
 		}
 		
 		const out: string[] = [];
-		const keys = Array.from(this.nodeCache.keys());
+		const keys = Array.from(this.nodeCache.keys()).map(s =>
+		{
+			const uri = X.Uri.parse(s);
+			return uri ?
+				uri.fileName + X.Syntax.typePathSeparator + uri.typePath.join("/") :
+				s;
+		});
+		
 		const values = Array.from(this.nodeCache.values());
-		const maxKeyLen = keys.reduce((k1, k2) => k1.length > k2.length ? k1 : k2).length;
+		const maxKeyLen = keys.reduce((k1, k2) => k1.length > k2.length ? k1 : k2).length + 5;
 		
 		for (let i = -1; ++i < keys.length;)
 		{
