@@ -39,8 +39,8 @@ export class SubjectSerializer
 		else if (subject instanceof X.Uri)
 			return subject.toString(true, true);
 		
-		else if (typeof subject === "string")
-			return subject;
+		else if (subject instanceof X.Anon)
+			return subject.toString();
 		
 		throw X.Exception.unknownState();
 	}

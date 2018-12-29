@@ -50,12 +50,9 @@ export class Pattern
 	toString()
 	{
 		const delim = X.RegexSyntaxDelimiter.main.toString();
-		
-		return (
-			delim + 
+		return delim + 
 			this.units.map(u => u.toString()).join("") + 
-			this.isTotal ? delim : ""
-		);
+			(this.isTotal ? delim : "");
 	}
 }
 

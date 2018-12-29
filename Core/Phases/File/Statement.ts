@@ -281,7 +281,7 @@ export class Statement
 		const serializeSpans = (spans: X.Span[], escStyle: X.IdentifierEscapeKind) =>
 		{
 			return spans
-				.filter(sp => typeof sp.subject !== "string")
+				.filter(sp => !(sp.subject instanceof X.Anon))
 				.map(sp => X.SubjectSerializer.invoke(sp.subject, escStyle))
 				.join(X.Syntax.combinator + X.Syntax.space);
 		}
