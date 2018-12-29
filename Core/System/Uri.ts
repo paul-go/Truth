@@ -65,7 +65,7 @@ export class Uri
 		
 		const [filePathFull, typePathFull] = uriText
 			.replace(/^([a-z][a-z0-9-.+]*:)?\/\//, "")
-			.split("//", 2);
+			.split(X.Syntax.typePathSeparator, 2);
 		
 		const filePathParts = filePathFull.split("/");
 		
@@ -216,7 +216,7 @@ export class Uri
 		{
 			const typePath = this.typePath.map(s => s.replace(/\//g, "\\/")).join("/");
 			if (typePath !== "")
-				out += "//" + typePath;
+				out += X.Syntax.typePathSeparator + typePath;
 		}
 		
 		return out;
