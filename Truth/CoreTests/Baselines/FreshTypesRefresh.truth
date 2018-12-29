@@ -27,4 +27,4 @@ Class
 	Bar : String
 
 SubClass : Class
-	Bar : #206
+	Bar : #206;

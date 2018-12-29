@@ -12,5 +12,5 @@ Range
 	High : Number
 
 /<Low> - <High>/ : Range
-	Hidden #423
+	Hidden #423;
 		DoesntExist
