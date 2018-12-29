@@ -2,7 +2,7 @@ import * as X from "../../X";
 
 
 /** */
-export type Subject = X.Identifier | X.Pattern | X.Uri | string;
+export type Subject = X.Identifier | X.Pattern | X.Uri | X.Anon;
 
 
 /** */

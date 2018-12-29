@@ -27,7 +27,7 @@ export class Span
 			throw X.Exception.unknownState();
 		
 		this.statement = statement;
-		this.subject = subject || generateInvisibleSubject();
+		this.subject = subject || new X.Anon();
 		this.offsetStart = offsetStart;
 		this.offsetEnd = offsetEnd;
 	}
@@ -166,27 +166,4 @@ export class Span
 	
 	/**  */
 	private factoredSpines: ReadonlyArray<X.Spine> | null = null;
-}
-
-
-/** */
-function generateInvisibleSubject()
-{
-	const charCount = 40;
-	const result: string[] = [];
-	
-	for (let i = -1; ++i < charCount;)
-	{
-		let code = 48 + (Math.random() * 62) | 0;
-		
-		if (code < 57)
-			code += 7;
-		
-		if (code < 90)
-			code += 6;
-		
-		result.push(String.fromCodePoint(code));
-	}
-	
-	return result.join("");
 }

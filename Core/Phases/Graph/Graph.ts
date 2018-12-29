@@ -351,7 +351,7 @@ export class Graph
 		{
 			const key = keys[i];
 			const value = values[i].toString(false);
-			out.push(key + "\n\n\t" + value);
+			out.push(`${key}\n\t${value}\n`);
 		}
 		
 		return out.join("\n").trim();

@@ -78,7 +78,26 @@ describe("Execute Baselines", () =>
 			if (baselineDocs.graphOutput)
 			{
 				const programGraphOutput = program.graph.toString();
-				if (baselineDocs.graphOutput !== programGraphOutput)
+				
+				// 
+				// Anonymous types use Anon objects as markers that are embedded within
+				// each statement. When these Anon objects serialize, they produce a unique
+				// string used to identify itself. 
+				// 
+				// Each Anon object needs to serialize differently, otherwise, problems would
+				// arise when trying to reference any of it's contained types (Ex. What specific
+				// type is being refered to in "__ANON__" in the type URI "A/B/__ANON__/C"?
+				// 
+				// However, it's impossible to make Anon objects serialize in a predictable way
+				// without involving other elements of the architecture (such as passing a
+				// Program instance to the Anon object during creation). Such changes would
+				// vastly complicate the architecture. So, the following work around just
+				// removes the serialized Anon object's uniquely identifying data (the number)
+				// before making a comparison to what is found in the baseline file.
+				// 
+				const pgoAdjusted = programGraphOutput.replace(/__ANON\d+__/g, "__ANON#__");
+				
+				if (baselineDocs.graphOutput !== pgoAdjusted)
 				{
 					debugger;
 					expect(programGraphOutput).toBe(baselineDocs.graphOutput);
