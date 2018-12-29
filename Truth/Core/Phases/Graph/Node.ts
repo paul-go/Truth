@@ -273,6 +273,9 @@ export class Node
 			}
 		}
 		
+		// Sort the output fans in the array, so that the sorting of
+		// the array aligns with the appearance of the underlying
+		// spans in the document.
 		this._outbounds.sort((fanA, fanB) =>
 		{
 			const tupleA = fanLookup.get(fanA);
@@ -302,7 +305,7 @@ export class Node
 			const annos = stmtA.annotations;
 			const findMinIndex = (fan: X.Fan) =>
 			{
-				let minIdx = -1;
+				let minIdx = Infinity;
 				
 				for (const span of fan.spans)
 				{
@@ -311,15 +314,14 @@ export class Node
 						minIdx = idx;
 				}
 				
+				if (minIdx === Infinity)
+					throw X.Exception.unknownState();
+				
 				return minIdx;
 			}
 			
 			const fanAIdx = findMinIndex(fanA);
 			const fanBIdx = findMinIndex(fanB);
-			
-			if (fanAIdx < 0 || fanBIdx < 0)
-				throw X.Exception.unknownState();
-			
 			return fanAIdx - fanBIdx;
 		});
 	}
