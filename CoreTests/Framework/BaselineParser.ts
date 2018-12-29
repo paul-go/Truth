@@ -1,3 +1,4 @@
+import * as T from "../T";
 import * as X from "../X";
 
 
@@ -9,7 +10,7 @@ export class BaselineParser
 	/** */
 	static parse(sourcePath: string, fileContent: string)
 	{
-		const baselineLines: BaselineLine[] = [];
+		const baselineLines: T.BaselineLine[] = [];
 		const fakeFilePaths = new Map<number, string>();
 		const descendantChecks = new X.MultiMap<number, X.Line>();
 		
@@ -27,10 +28,10 @@ export class BaselineParser
 				continue;
 			}
 				
-			const checks: Check[] = [];
-			const added = lineText[0] === BaselineSyntax.added;
-			const removed = lineText[0] === BaselineSyntax.removed;
-			const hasParseError = lineText[0] === BaselineSyntax.parseError;
+			const checks: T.Check[] = [];
+			const added = lineText[0] === T.BaselineSyntax.added;
+			const removed = lineText[0] === T.BaselineSyntax.removed;
+			const hasParseError = lineText[0] === T.BaselineSyntax.parseError;
 			
 			if (isLineGraphMarker(lineText))
 			{
@@ -46,7 +47,7 @@ export class BaselineParser
 				continue;
 			}
 			
-			if (lineText.startsWith(BaselineSyntax.afterEditPrefix))
+			if (lineText.startsWith(T.BaselineSyntax.afterEditPrefix))
 			{
 				fakeEditTransactionSplitPoint = fileLineIdx;
 				push();
@@ -76,7 +77,7 @@ export class BaselineParser
 			const extractedFaultInfo = maybeExtractDeclarationFault(lineText);
 			if (extractedFaultInfo)
 			{
-				checks.push(new FaultCheck(0, extractedFaultInfo.faultCode));
+				checks.push(new T.FaultCheck(0, extractedFaultInfo.faultCode));
 				lineText = extractedFaultInfo.newLineText;
 			}
 			
@@ -91,7 +92,7 @@ export class BaselineParser
 			
 			function push()
 			{
-				baselineLines.push(new BaselineLine(
+				baselineLines.push(new T.BaselineLine(
 					added,
 					removed,
 					hasParseError,
@@ -110,8 +111,8 @@ export class BaselineParser
 		 */
 		function maybeExtractDeclarationFault(lineText: string)
 		{
-			const pe = BaselineSyntax.parseError;
-			const fe = BaselineSyntax.faultEnd;
+			const pe = T.BaselineSyntax.parseError;
+			const fe = T.BaselineSyntax.faultEnd;
 			const reg = `^\\s*${pe}(\\d{3,5})${fe} `;
 			const match = new RegExp(reg).exec(lineText);
 			if (!match)
@@ -131,13 +132,13 @@ export class BaselineParser
 		 */
 		function maybeExtractInferences(lineText: string)
 		{
-			const infIdx = lineText.lastIndexOf(BaselineSyntax.inference);
+			const infIdx = lineText.lastIndexOf(T.BaselineSyntax.inference);
 			if (infIdx < 0)
 				return null;
 			
 			const lhs = lineText.slice(0, infIdx);
-			const rhs = lineText.slice(infIdx + BaselineSyntax.inference.length);
-			const neg = BaselineSyntax.inferenceNegation;
+			const rhs = lineText.slice(infIdx + T.BaselineSyntax.inference.length);
+			const neg = T.BaselineSyntax.inferenceNegation;
 			const inferences = rhs
 				.split(X.Syntax.combinator)
 				.map(s => s.trim())
@@ -145,7 +146,7 @@ export class BaselineParser
 				.map(s =>
 				{
 					const hasNegation = s[0] === neg;
-					return new InferenceCheck(
+					return new T.InferenceCheck(
 						hasNegation ? s.slice(neg.length) : s,
 						hasNegation);
 				});
@@ -161,7 +162,7 @@ export class BaselineParser
 		{
 			const jnt = X.Syntax.joint;
 			const cmb = X.Syntax.combinator;
-			const dec = BaselineSyntax.descendant;
+			const dec = T.BaselineSyntax.descendant;
 			
 			const matchReg = new RegExp(`^\\s*${dec}(\\w)+[\\w\\s${jnt + cmb}]*$`);
 			if (!matchReg.test(lineText))
@@ -174,7 +175,7 @@ export class BaselineParser
 		/** */
 		function maybeReadFileMarker(lineText: string)
 		{
-			const prefix = BaselineSyntax.fakeFilePathPrefix;
+			const prefix = T.BaselineSyntax.fakeFilePathPrefix;
 			return lineText.startsWith(prefix) ?
 				lineText.slice(prefix.length) :
 				null;
@@ -183,7 +184,7 @@ export class BaselineParser
 		/** */
 		function isLineGraphMarker(lineText: string)
 		{
-			return lineText.startsWith(BaselineSyntax.graphOutputPrefix);
+			return lineText.startsWith(T.BaselineSyntax.graphOutputPrefix);
 		}
 		
 		//
@@ -208,11 +209,11 @@ export class BaselineParser
 				if (subject === null)
 					continue;
 				
-				if (!subject.value.endsWith(BaselineSyntax.faultEnd))
+				if (!subject.value.endsWith(T.BaselineSyntax.faultEnd))
 					continue;
 				
 				const val = subject.value;
-				const hashIdx = val.lastIndexOf(BaselineSyntax.faultBegin);
+				const hashIdx = val.lastIndexOf(T.BaselineSyntax.faultBegin);
 				
 				if (hashIdx < 0)
 					continue;
@@ -220,7 +221,7 @@ export class BaselineParser
 				const faultCode = parseInt(val.slice(hashIdx + 1, -1), 10);
 				sourceTextExtractionRanges.push([offsetStart + hashIdx, val.length - hashIdx]);
 				
-				baselineLine.checks.push(new FaultCheck(
+				baselineLine.checks.push(new T.FaultCheck(
 					annotationIdx,
 					faultCode));
 			}
@@ -238,7 +239,7 @@ export class BaselineParser
 					newSourceText.slice(0, from - 1) + newSourceText.slice(from + len + 1);
 			}
 			
-			baselineLines[lineIdx] = new BaselineLine(
+			baselineLines[lineIdx] = new T.BaselineLine(
 				baselineLine.wasAdded,
 				baselineLine.wasRemoved,
 				baselineLine.hasParseError,
@@ -259,7 +260,7 @@ export class BaselineParser
 		for (const [hostLineIdx, descendantCheckLines] of descendantChecks.entries())
 		{
 			const baselineLine = baselineLines[hostLineIdx];
-			const checks: DescendantCheck[] = [];
+			const checks: T.DescendantCheck[] = [];
 			
 			for (const [chkLineIdx, descendantCheckLine] of descendantCheckLines.entries())
 			{
@@ -310,7 +311,7 @@ export class BaselineParser
 					.filter((a): a is X.Identifier => a !== null)
 					.map(ident => ident.toString());
 				
-				checks.push(new DescendantCheck(path, annotations));
+				checks.push(new T.DescendantCheck(path, annotations));
 				baselineLine.checks.push(...checks);
 			}
 		}
@@ -333,8 +334,8 @@ export class BaselineParser
 		// are ignored.
 		//
 		
-		const baselineDocuments = new Map<string, BaselineDocument>();
-		const documentLines: BaselineLine[] = [];
+		const baselineDocuments = new Map<string, T.BaselineDocument>();
+		const documentLines: T.BaselineLine[] = [];
 		
 		const storeBaselineDocument = (path: string) =>
 		{
@@ -342,7 +343,7 @@ export class BaselineParser
 				.map(baselineLine => baselineLine.line.sourceText)
 				.join(X.Syntax.terminal);
 			
-			const baselineDocument = new BaselineDocument(
+			const baselineDocument = new T.BaselineDocument(
 				path,
 				rawDocumentText,
 				Object.freeze(documentLines.slice()));
@@ -365,102 +366,8 @@ export class BaselineParser
 		}
 		
 		storeBaselineDocument(sourcePath);
-		return new BaselineDocuments(
+		return new T.BaselineDocuments(
 			baselineDocuments,
 			graphOutputLines.join("\n").trim());
 	}
-}
-
-/**
- * 
- */
-export class BaselineDocuments
-{
-	constructor(
-		readonly documents: ReadonlyMap<string, BaselineDocument>,
-		readonly graphOutput: string)
-	{ }
-}
-
-
-/**
- * 
- */
-export class BaselineDocument
-{
-	constructor(
-		readonly fakeUri: string,
-		readonly sourceText: string,
-		readonly baselineLines: ReadonlyArray<BaselineLine>)
-	{ }
-}
-
-
-/**
- * 
- */
-export class BaselineLine
-{
-	constructor(
-		readonly wasAdded: boolean,
-		readonly wasRemoved: boolean,
-		readonly hasParseError: boolean,
-		readonly checks: Check[],
-		readonly line: X.Line)
-	{ }
-}
-
-
-/**
- * Stores the faults that are applied to specific subjects in a statement.
- * If the subjectIndex is 0, this indicates that the fault generated relates
- * to the first (and only) declaration in the statement. (It can also be
- * assumed that this fault would be a StatementFault.)
- */
-export class FaultCheck
-{
-	constructor(
-		readonly spanIndex: number,
-		readonly faultCode: number)
-	{ }
-}
-
-/** */
-export class InferenceCheck
-{
-	constructor(
-		readonly typeName: string,
-		readonly isPositive: boolean)
-	{ }
-}
-
-/** */
-export class DescendantCheck
-{
-	constructor(
-		readonly path: string[],
-		readonly annotations: string[])
-	{ }
-}
-
-/** */
-export type Check = FaultCheck | InferenceCheck | DescendantCheck;
-
-
-/**
- * 
- */
-export const enum BaselineSyntax
-{
-	added = "+",
-	removed = "-",
-	inference = " ~ ",
-	inferenceNegation = "!",
-	descendant = "~ ",
-	parseError = "?",
-	faultBegin = "#",
-	faultEnd = ";",
-	fakeFilePathPrefix = "// (fake) ",
-	graphOutputPrefix = "// (graph)",
-	afterEditPrefix = "// (after edit)"
 }
