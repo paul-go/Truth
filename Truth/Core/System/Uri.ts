@@ -84,7 +84,7 @@ export class Uri
 			if (out.some(p => p === "" || p.trim() !== p))
 				throw X.Exception.invalidTypePath();
 			
-			return out.map(p => encodeURIComponent(p));
+			return out.map(p => decodeURIComponent(p));
 		})();
 		
 		if (filePathParts.length)
@@ -137,8 +137,8 @@ export class Uri
 	/**
 	 * Creates a new Uri from the specified input.
 	 * 
-	 * @param from If the parameter is omited, a unique internal
-	 * URI is generated.
+	 * @param from If the parameter is omited,
+	 * a unique internal URI is generated.
 	 */
 	static create(from?: X.Spine | X.Strand | Uri): Uri
 	{
@@ -149,8 +149,7 @@ export class Uri
 		{
 			const srcUri = from.document.sourceUri;
 			const typeSegments = from.vertebrae
-				.map(span => span.subject.toString())
-				.map(s => encodeURIComponent(s));
+				.map(span => span.subject.toString());
 			
 			return new Uri(
 				srcUri.protocol,
@@ -171,8 +170,7 @@ export class Uri
 			
 			const srcUri = spans[0].statement.document.sourceUri;
 			const typeSegments = from.molecules
-				.map(m => m.localAtom.subject.toString())
-				.map(s => encodeURIComponent(s));
+				.map(m => m.localAtom.subject.toString());
 			
 			return new Uri(
 				srcUri.protocol,
