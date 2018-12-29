@@ -364,7 +364,7 @@ export class BaselineParser
 		storeBaselineDocument(sourcePath);
 		return new BaselineDocuments(
 			baselineDocuments,
-			graphOutputLines.join("\n"));
+			graphOutputLines.join("\n").trim());
 	}
 }
 
