@@ -13,24 +13,34 @@ export class Span
 	 */
 	readonly stamp = X.VersionStamp.next();
 	
-	/** @internal */
+	/**
+	 * @internal
+	 */
 	constructor(
-		statement: X.Statement,
-		offsetStart: number,
-		offsetEnd: number,
-		subject: X.Subject | null)
-	{
-		// The below check should never happen, and likely
-		// wouldn't cause any errors, but it's unplanned so
-		// we're checking for it here.
-		if (typeof subject === "string")
-			throw X.Exception.unknownState();
+		/**
+		 * Stores a reference to the Statement that contains this Span.
+		 */
+		readonly statement: X.Statement,
 		
-		this.statement = statement;
-		this.subject = subject || new X.Anon();
-		this.offsetStart = offsetStart;
-		this.offsetEnd = offsetEnd;
-	}
+		/**
+		 * The offset in the statement that marks the start of the
+		 * region being pointed to.
+		 */
+		readonly offsetStart: number,
+		
+		/**
+		 * The offset in the statement that marks the end of the
+		 * region being pointed to.
+		 */
+		readonly offsetEnd: number,
+		
+		/**
+		 * Stores either a reference to the instance of the Subject that this
+		 * Span represents, or a unique string in the case when this is
+		 * a "Thin Span" that represents an Invisible Subject.
+		 */
+		readonly subject: X.Subject)
+	{ }
 	
 	/**
 	 * Gets an array of statements that represent the statement
@@ -52,28 +62,6 @@ export class Span
 		return this._ancestry;
 	}
 	private _ancestry: ReadonlyArray<X.Statement> | null = null;
-	
-	/** Stores a reference to the Statement that contains this Span. */
-	readonly statement: X.Statement;
-	
-	/**
-	 * Stores either a reference to the instance of the Subject that this
-	 * Span represents, or a unique string in the case when this is
-	 * a "Thin Span" that represents an Invisible Subject.
-	 */
-	readonly subject: X.Subject;
-	
-	/**
-	 * The offset in the statement that marks the start of the
-	 * region being pointed to.
-	 */
-	readonly offsetStart: number;
-	
-	/**
-	 * The offset in the statement that marks the end of the
-	 * region being pointed to.
-	 */
-	readonly offsetEnd: number;
 	
 	/**
 	 * Splits apart the groups subjects specified in the containing
