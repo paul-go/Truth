@@ -23,7 +23,7 @@ export class Line
  * that represent the starting positions of the statement's
  * declarartions.
  */
-export type DeclarationSubject = X.Identifier | X.Pattern | X.Uri;
+export type DeclarationSubject = X.Identifier | X.Pattern | X.Uri | X.Anon;
 
 /**
  * Stores a map of the character offsets within a Statement

@@ -464,7 +464,7 @@ export class Node
 		const ib = this.inbounds.size;
 		const path = includePath ? this.uri.typePath.join("/") + " " : "";
 		
-		return path + `{ spans: ${spans}, out: ${ob}, in: ${ib} }`
+		return path + `spans=${spans}, out=${ob}, in=${ib}`
 	}
 }
 

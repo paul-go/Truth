@@ -68,6 +68,14 @@ export class VersionStamp
 	{
 		return this.stamp < otherStamp.stamp;
 	}
+	
+	/** */
+	toString()
+	{
+		return Array.isArray(this.stamp) ?
+			this.stamp.join("") :
+			this.stamp.toString();
+	}
 }
 
 declare const BigInt: Function;

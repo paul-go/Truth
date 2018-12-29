@@ -150,8 +150,17 @@ export class LineParser
 				for (const boundsEntry of readResult.annotations)
 					annotationEntries.push(boundsEntry);
 				
-				if (jointPosition > -1 && readResult.annotations.length === 0)
-					flags |= X.LineFlags.isRefresh;
+				if (jointPosition > -1)
+				{
+					if (readResult.annotations.length === 0)
+						flags |= X.LineFlags.isRefresh;
+					
+					else if (declarationEntries.length === 0)
+						declarationEntries.unshift(new X.BoundsEntry(
+							jointPosition,
+							jointPosition,
+							new X.Anon()));
+				}
 				
 				return ret();
 			}
