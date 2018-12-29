@@ -194,68 +194,58 @@ export class BaselineParser
 		// properly organized into a new BaselineLine
 		// object.
 		//
-		
-		for (let lineIdx = -1; ++lineIdx < baselineLines.length;)
+		function trimAnnotationFaultChecks()
 		{
-			const baselineLine = baselineLines[lineIdx];
-			const innerLine = baselineLine.line;
-			const sourceTextExtractionRanges: [number, number][] = [];
-			let annotationIdx = innerLine.declarations.length - 1;
+			const fb = T.BaselineSyntax.faultBegin;
+			const fe = T.BaselineSyntax.faultEnd;
 			
-			for (const { offsetStart, subject } of innerLine.annotations)
+			for (let lineIdx = -1; ++lineIdx < baselineLines.length;)
 			{
-				annotationIdx++;
+				const baselineLine = baselineLines[lineIdx];
+				const innerLine = baselineLine.line;
+				const decls = innerLine.declarations;
+				const annos = innerLine.annotations;
+				let annotationIdx = decls.length - 1;
 				
-				if (subject === null)
-					continue;
+				const reg = new RegExp(`\\s*${fb}\\d+${fe}`, "g");
 				
-				if (!subject.value.endsWith(T.BaselineSyntax.faultEnd))
-					continue;
+				for (const boundEntry of annos)
+				{
+					const subjectStr = boundEntry.subject.value;
+					const matches = subjectStr.match(reg);
+					
+					if (matches === null)
+						continue;
+					
+					for (const match of matches)
+					{
+						const faultCode = parseInt(match.replace(fb, "").replace(fe, ""), 10);
+						baselineLine.checks.push(new T.FaultCheck(
+							annotationIdx,
+							faultCode));
+					}
+					
+					annotationIdx++;
+				}
 				
-				const val = subject.value;
-				const hashIdx = val.lastIndexOf(T.BaselineSyntax.faultBegin);
+				const newSourceText = innerLine.sourceText.replace(reg, "");
 				
-				if (hashIdx < 0)
-					continue;
-				
-				const faultCode = parseInt(val.slice(hashIdx + 1, -1), 10);
-				sourceTextExtractionRanges.push([offsetStart + hashIdx, val.length - hashIdx]);
-				
-				baselineLine.checks.push(new T.FaultCheck(
-					annotationIdx,
-					faultCode));
+				baselineLines[lineIdx] = new T.BaselineLine(
+					baselineLine.wasAdded,
+					baselineLine.wasRemoved,
+					baselineLine.hasParseError,
+					baselineLine.checks,
+					X.LineParser.parse(newSourceText));
 			}
-			
-			if (sourceTextExtractionRanges.length === 0)
-				continue;
-			
-			let newSourceText = innerLine.sourceText;
-			
-			for (let rangeIdx = sourceTextExtractionRanges.length; rangeIdx-- > 0;)
-			{
-				const [from, len] = sourceTextExtractionRanges[rangeIdx];
-				newSourceText = from === 0 ?
-					newSourceText.slice(len + 1) :
-					newSourceText.slice(0, from - 1) + newSourceText.slice(from + len + 1);
-			}
-			
-			baselineLines[lineIdx] = new T.BaselineLine(
-				baselineLine.wasAdded,
-				baselineLine.wasRemoved,
-				baselineLine.hasParseError,
-				baselineLine.checks,
-				X.LineParser.parse(newSourceText));
 		}
+		
+		trimAnnotationFaultChecks();
 		
 		//
 		// Update the baselineLines array so that descendant checks
 		// are properly positioned as DescendantCheck instances 
 		// beneath a BaselineLine, rather than BaselineLines themselves.
 		//
-		
-		for (let lineIdx = -1; ++lineIdx < baselineLines.length;)
-			if (!descendantChecks.has(lineIdx + 1))
-				continue;
 		
 		for (const [hostLineIdx, descendantCheckLines] of descendantChecks.entries())
 		{
@@ -340,7 +330,7 @@ export class BaselineParser
 		const storeBaselineDocument = (path: string) =>
 		{
 			const rawDocumentText = documentLines
-				.map(baselineLine => baselineLine.line.sourceText)
+				.map(docLine => docLine.line.sourceText)
 				.join(X.Syntax.terminal);
 			
 			const baselineDocument = new T.BaselineDocument(
@@ -361,6 +351,7 @@ export class BaselineParser
 			}
 			else
 			{
+				const src = baselineLines[lineIdx].line.sourceText;
 				documentLines.unshift(baselineLines[lineIdx]);
 			}
 		}
