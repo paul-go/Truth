@@ -1,3 +1,4 @@
+import * as X from "../X";
 import * as T from "../T";
 
 
@@ -47,11 +48,11 @@ describe("Execute Baselines", () =>
 				return
 			}
 			
-			let baselineProgram: T.BaselineProgram | null = null;
+			let baselineDocs: T.BaselineDocuments | null = null;
 			
 			try
 			{
-				baselineProgram = baselineTest.parseFn(fileContent);
+				baselineDocs = baselineTest.parseFn(fileContent);
 			}
 			catch (e)
 			{
@@ -60,11 +61,12 @@ describe("Execute Baselines", () =>
 				return;
 			}
 			
+			let program: X.Program | null = null;
 			let reports: string[] = [];
 			
 			try
 			{
-				reports = baselineTest.execFn(baselineProgram);
+				[program, reports] = baselineTest.execFn(baselineDocs);
 			}
 			catch (e)
 			{
@@ -75,6 +77,7 @@ describe("Execute Baselines", () =>
 			
 			for (const report of reports)
 				expect(report).emit();
+			
 		});
 	});
 });
