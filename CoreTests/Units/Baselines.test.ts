@@ -12,7 +12,7 @@ describe("Execute Baselines", () =>
 	 * tested in the specified directory. Or, a single file can be
 	 * referenced to run an isolated test.
 	 */
-	const targetPath = "CoreTests/Baselines/InheritanceUnions.truth";
+	const targetPath = "CoreTests/Baselines/";
 	const testMap = T.BaselineTestGenerator.generate(targetPath);
 	const tests = Array.from(testMap.entries());
 	
