@@ -319,8 +319,8 @@ export class Graph
 	private readonly nodeCache = new Map<string, X.Node>();
 	
 	/**
-	 * Stores a GraphTransaction instance in the case when
-	 * the program is under 
+	 * Stores a GraphTransaction instance in the case
+	 * when an edit transaction is underway.
 	 */
 	private activeTransactions = new Map<X.Document, GraphTransaction>();
 	
@@ -346,13 +346,12 @@ export class Graph
 		});
 		
 		const values = Array.from(this.nodeCache.values());
-		const maxKeyLen = keys.reduce((k1, k2) => k1.length > k2.length ? k1 : k2).length + 5;
 		
 		for (let i = -1; ++i < keys.length;)
 		{
-			const key = (keys[i] + " ".repeat(maxKeyLen)).slice(0, maxKeyLen);
-			const value = values[i];
-			out.push(key + " " + value);
+			const key = keys[i];
+			const value = values[i].toString(false);
+			out.push(key + "\n\t" + value);
 		}
 		
 		return out.join("\n");

@@ -15,17 +15,27 @@ export class BaselineParser
 		
 		let fileLineIdx = 0;
 		let fakeEditTransactionSplitPoint = -1;
+		let hitGraphMarker = false;
+		const graphOutputLines: string[] = [];
 		
 		for (let lineText of X.LineParser.read(fileContent))
 		{
+			if (hitGraphMarker)
+			{
+				graphOutputLines.push(lineText);
+				continue;
+			}
+				
 			const checks: Check[] = [];
 			const added = lineText[0] === BaselineSyntax.added;
 			const removed = lineText[0] === BaselineSyntax.removed;
 			const hasParseError = lineText[0] === BaselineSyntax.parseError;
 			
-			lineText = added || removed ?
-				lineText.slice(1) : 
-				lineText;
+			if (isLineGraphMarker(lineText))
+			{
+				hitGraphMarker = true;
+				continue;
+			}
 			
 			const fakeFilePath = maybeReadFileMarker(lineText);
 			if (fakeFilePath)
@@ -41,6 +51,10 @@ export class BaselineParser
 				push();
 				continue;
 			}
+			
+			lineText = added || removed ?
+				lineText.slice(1) : 
+				lineText;
 			
 			const lineTextExtracted = maybeExtractDescendantCheck(lineText);
 			if (lineTextExtracted !== "")
@@ -146,9 +160,16 @@ export class BaselineParser
 		/** */
 		function maybeReadFileMarker(lineText: string)
 		{
-			return lineText.startsWith(BaselineSyntax.fakeFilePathPrefix) ?
-				lineText.slice(BaselineSyntax.fakeFilePathPrefix.length) :
+			const prefix = BaselineSyntax.fakeFilePathPrefix;
+			return lineText.startsWith(prefix) ?
+				lineText.slice(prefix.length) :
 				null;
+		}
+		
+		/** */
+		function isLineGraphMarker(lineText: string)
+		{
+			return lineText.startsWith(BaselineSyntax.graphOutputPrefix);
 		}
 		
 		//
@@ -341,7 +362,9 @@ export class BaselineParser
 		}
 		
 		storeBaselineDocument(sourcePath);
-		return new BaselineDocuments(baselineDocuments);
+		return new BaselineDocuments(
+			baselineDocuments,
+			graphOutputLines.join("\n"));
 	}
 }
 
@@ -351,7 +374,8 @@ export class BaselineParser
 export class BaselineDocuments
 {
 	constructor(
-		readonly documents: ReadonlyMap<string, BaselineDocument>)
+		readonly documents: ReadonlyMap<string, BaselineDocument>,
+		readonly graphOutput: string)
 	{ }
 }
 
@@ -434,5 +458,6 @@ export const enum BaselineSyntax
 	faultBegin = "#",
 	faultEnd = ";",
 	fakeFilePathPrefix = "// (fake) ",
+	graphOutputPrefix = "// (graph)",
 	afterEditPrefix = "// (after edit)"
 }
