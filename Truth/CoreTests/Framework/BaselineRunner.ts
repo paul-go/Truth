@@ -46,7 +46,9 @@ export class BaselineTestGenerator
 		const testMap = new Map<string, IBaselineTest>();
 		const filePaths = fullPath.endsWith(".truth") ?
 			[fullPath] :
-			Fs.readdirSync(targetPath, "utf8");
+			Fs.readdirSync(targetPath, "utf8")
+				.filter(s => s.endsWith(".truth"))
+				.map(s => fullPath + s);
 		
 		filePaths.forEach(filePath =>
 		{
