@@ -6,10 +6,10 @@
 Fruit
 
 Apple : Fruit
-/0xA/, : Apple
+/0xA : Apple
 
 Banana : Fruit
-/0xB/, : Banana
+/0xB : Banana
 
 Class
 	TheFruit : Fruit
