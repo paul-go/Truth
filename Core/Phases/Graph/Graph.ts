@@ -260,7 +260,7 @@ export class Graph
 			for (const declaration of node.spans)
 				for (const annotation of declaration.statement.annotations)
 					node.addFanSpan(annotation);
-		
+				
 		// If there's no active transaction the corresponds to the input
 		// document, the most likely reason is that an entire document
 		// is being included for the first time.
