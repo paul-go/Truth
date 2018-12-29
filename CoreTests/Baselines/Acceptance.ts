@@ -180,7 +180,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 			ioPath: ["🐇"],
 			typePath: ["type", "path"]
 		},
-		emit: "system-internal://🐇//type/path"
+		emit: "system-internal://%F0%9F%90%87//type/path"
 	},
 	"http://abc.xyz/file.truth//type/path/here": {
 		uri: {
@@ -325,6 +325,16 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		partial: false,
 		total: false,
 		emit: "\\/non-pattern/ : X"
+	},
+	"/foo/, : X": {
+		partial: true,
+		match: "foo/,",
+		annotations: "X"
+	},
+	"/foo/, bar : X": {
+		partial: true,
+		match: "foo/, bar",
+		annotations: "X"
 	},
 	
 	// Pattern Sets

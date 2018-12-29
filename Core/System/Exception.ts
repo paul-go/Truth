@@ -65,6 +65,15 @@ export class Exception
 	}
 	
 	/** */
+	static invalidTypePath()
+	{
+		return error(`
+			One or more of the types in the specified type path are invalid,
+			because they contain either leading or trailing whitespace, or
+			is an empty string.`);
+	}
+	
+	/** */
 	static invalidExtension(requiredExtension: string)
 	{
 		return error(`

@@ -48,7 +48,7 @@ export class BaselineTestGenerator
 			[fullPath] :
 			Fs.readdirSync(targetPath, "utf8")
 				.filter(s => s.endsWith(".truth"))
-				.map(s => fullPath + s);
+				.map(s => Path.join(fullPath, s));
 		
 		filePaths.forEach(filePath =>
 		{

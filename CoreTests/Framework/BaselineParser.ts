@@ -10,12 +10,13 @@ export class BaselineParser
 	static parse(sourcePath: string, fileContent: string)
 	{
 		const baselineLines: BaselineLine[] = [];
-		const descendentCheckLines = new Set<number>();
 		const fakeFilePaths = new Map<number, string>();
+		const descendantChecks = new X.MultiMap<number, X.Line>();
 		
 		let fileLineIdx = 0;
 		let fakeEditTransactionSplitPoint = -1;
 		let hitGraphMarker = false;
+		let lastNonDescendantCheckLineIdx = -1;
 		const graphOutputLines: string[] = [];
 		
 		for (let lineText of X.LineParser.read(fileContent))
@@ -56,11 +57,18 @@ export class BaselineParser
 				lineText.slice(1) : 
 				lineText;
 			
-			const lineTextExtracted = maybeExtractDescendantCheck(lineText);
-			if (lineTextExtracted !== "")
+			const descendantCheckLine = maybeExtractDescendantCheck(lineText);
+			if (descendantCheckLine === null)
 			{
-				lineText = lineTextExtracted;
-				descendentCheckLines.add(fileLineIdx);
+				lastNonDescendantCheckLineIdx = fileLineIdx;
+			}
+			else
+			{
+				descendantChecks.add(
+					lastNonDescendantCheckLineIdx,
+					descendantCheckLine);
+				
+				lineText = "";
 				push();
 				continue;
 			}
@@ -151,10 +159,16 @@ export class BaselineParser
 		/** */
 		function maybeExtractDescendantCheck(lineText: string)
 		{
-			const reg = new RegExp(`(^\s*)(${BaselineSyntax.descendent}\s+)(.+)`);
-			return reg.test(lineText) ?
-				lineText.replace(reg, "$1$3") :
-				"";
+			const jnt = X.Syntax.joint;
+			const cmb = X.Syntax.combinator;
+			const dec = BaselineSyntax.descendant;
+			
+			const matchReg = new RegExp(`^\\s*${dec}(\\w)+[\\w\\s${jnt + cmb}]*$`);
+			if (!matchReg.test(lineText))
+				return null;
+			
+			const lineAdjusted = lineText.replace(/~\s*/, "");
+			return X.LineParser.parse(lineAdjusted);
 		}
 		
 		/** */
@@ -239,24 +253,24 @@ export class BaselineParser
 		//
 		
 		for (let lineIdx = -1; ++lineIdx < baselineLines.length;)
-		{
-			if (!descendentCheckLines.has(lineIdx + 1))
+			if (!descendantChecks.has(lineIdx + 1))
 				continue;
-			
-			const baselineLine = baselineLines[lineIdx];
+		
+		for (const [hostLineIdx, descendantCheckLines] of descendantChecks.entries())
+		{
+			const baselineLine = baselineLines[hostLineIdx];
 			const checks: DescendantCheck[] = [];
 			
-			while (++lineIdx < baselineLines.length)
+			for (const [chkLineIdx, descendantCheckLine] of descendantCheckLines.entries())
 			{
-				const descendantLine = baselineLines[lineIdx].line;
-				const ancestry: X.Line[] = [descendantLine];
+				const ancestry: X.Line[] = [descendantCheckLine];
 				
 				// Backtrack up the baselineLines array, find the full ancestry
 				// of the descendantLine, and compute it's path. Note that
 				// this process doesn't need to support fragmented types,
 				// because these are not allowed in baselines (at least as
 				// containers of descendant checks).
-				for (let backtrackLineIdx = lineIdx; backtrackLineIdx-- > 0;)
+				for (let backtrackLineIdx = chkLineIdx; backtrackLineIdx-- > 0;)
 				{
 					const ancestor = baselineLines[backtrackLineIdx].line;
 					const flags = 
@@ -264,7 +278,7 @@ export class BaselineParser
 						X.LineFlags.isUnparsable | 
 						X.LineFlags.isWhitespace;
 					
-					if ((ancestor.flags & flags) !== ancestor.flags)
+					if ((ancestor.flags ^ flags) !== ancestor.flags)
 						continue;
 					
 					if (ancestor.indent >= ancestry[0].indent)
@@ -291,25 +305,14 @@ export class BaselineParser
 				});
 				
 				const annotations = Array
-					.from(descendantLine.annotations)
+					.from(descendantCheckLine.annotations)
 					.map(boundsEntry => boundsEntry.subject)
 					.filter((a): a is X.Identifier => a !== null)
 					.map(ident => ident.toString());
 				
 				checks.push(new DescendantCheck(path, annotations));
-				
-				// Reset the baselineLine to an empty line, so that
-				// it doesn't show up when the lines are converted
-				// into a real document.
-				baselineLines[lineIdx] = new BaselineLine(
-					false,
-					false,
-					false,
-					[],
-					X.LineParser.parse(""));
+				baselineLine.checks.push(...checks);
 			}
-			
-			baselineLine.checks.push(...checks);
 		}
 		
 		// 
@@ -453,7 +456,7 @@ export const enum BaselineSyntax
 	removed = "-",
 	inference = " ~ ",
 	inferenceNegation = "!",
-	descendent = "~ ",
+	descendant = "~ ",
 	parseError = "?",
 	faultBegin = "#",
 	faultEnd = ";",

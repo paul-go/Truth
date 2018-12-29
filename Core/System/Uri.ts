@@ -67,11 +67,25 @@ export class Uri
 			.replace(/^([a-z][a-z0-9-.+]*:)?\/\//, "")
 			.split(X.Syntax.typePathSeparator, 2);
 		
-		const filePathParts = filePathFull.split("/");
+		const filePathParts = filePathFull
+			.split("/")
+			.map(s => decodeURIComponent(s));
 		
 		let fileName = "";
 		let ioPath = filePathParts.slice();
-		let typePath = typePathFull ? typePathFull.split("/") : [];
+		
+		const typePath = (() =>
+		{
+			if (!typePathFull)
+				return [];
+			
+			let out = typePathFull.split("/");
+			
+			if (out.some(p => p === "" || p.trim() !== p))
+				throw X.Exception.invalidTypePath();
+			
+			return out.map(p => encodeURIComponent(p));
+		})();
 		
 		if (filePathParts.length)
 		{
@@ -134,7 +148,9 @@ export class Uri
 		if (from instanceof X.Spine)
 		{
 			const srcUri = from.document.sourceUri;
-			const typeSegments = from.vertebrae.map(span => span.subject.toString());
+			const typeSegments = from.vertebrae
+				.map(span => span.subject.toString())
+				.map(s => encodeURIComponent(s));
 			
 			return new Uri(
 				srcUri.protocol,
@@ -155,7 +171,8 @@ export class Uri
 			
 			const srcUri = spans[0].statement.document.sourceUri;
 			const typeSegments = from.molecules
-				.map(m => m.localAtom.subject.toString());
+				.map(m => m.localAtom.subject.toString())
+				.map(s => encodeURIComponent(s));
 			
 			return new Uri(
 				srcUri.protocol,
@@ -210,11 +227,11 @@ export class Uri
 		if (includeProtocol)
 			out += this.protocol + "//";
 		
-		out += Path.join(...this.ioPath);
+		out += Path.join(...this.ioPath.map(s => encodeURIComponent(s)));
 		
-		if (includeTypePath)
+		if (includeTypePath && this.typePath.length > 0)
 		{
-			const typePath = this.typePath.map(s => s.replace(/\//g, "\\/")).join("/");
+			const typePath = Path.join(...this.typePath.map(s => encodeURIComponent(s)));
 			if (typePath !== "")
 				out += X.Syntax.typePathSeparator + typePath;
 		}
