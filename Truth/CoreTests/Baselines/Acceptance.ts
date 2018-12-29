@@ -192,6 +192,24 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		emit: "http://abc.xyz/file.truth//type/path/here"
 	},
 	
+	// Comments
+	
+	"//": {
+		comment: true
+	},
+	"\t//": {
+		comment: true
+	},
+	" //": {
+		comment: true
+	},
+	"// ": {
+		comment: true
+	},
+	"// :": {
+		comment: true
+	},
+	
 	// Escaping
 	
 	"D\\: E: F": {
@@ -216,15 +234,6 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	},
 	"/ :": {
 		unparsable: true
-	},
-	"//": {
-		comment: true
-	},
-	"// ": {
-		comment: true
-	},
-	"// :": {
-		comment: true
 	},
 	"\\/" : {
 		emit: "\\/",
