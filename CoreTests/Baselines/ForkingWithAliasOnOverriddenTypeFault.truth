@@ -5,13 +5,13 @@
 //
 
 Number
-/\d+/, : Number
+/\d+ : Number
 
 SignedNumber : Number
-/(\+|-)< : Number>+/, : SignedNumber
+/(\+|-)< : Number>+ : SignedNumber
 
 Decimal : Number
-/< : Number>\.d+/, : Decimal
+/< : Number>\.d+ : Decimal
 
 Class
 	Num1 : Number

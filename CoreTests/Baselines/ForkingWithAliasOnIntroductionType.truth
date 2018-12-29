@@ -5,5 +5,5 @@
 //
 
 Number
-/\d+/, : Number
+/\d+ : Number
 Intro : 2 #1001;, 3 #1001;, 4

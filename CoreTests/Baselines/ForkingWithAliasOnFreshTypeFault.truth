@@ -7,7 +7,7 @@
 //
 
 Number
-/\d+/, : Number
+/\d+ : Number
 
 Class
 	Value
