@@ -457,14 +457,14 @@ export class Node
 	}
 	
 	/** */
-	toString(includePath = false)
+	toString(includePath = true)
 	{
 		const spans = this.spans.size;
 		const ob = this.outbounds.length;
 		const ib = this.inbounds.size;
-		const path = includePath ? " " + this.uri.typePath.join("/") : ""
+		const path = includePath ? this.uri.typePath.join("/") + " " : "";
 		
-		return this.name + path + ` (spans: ${spans}, out: ${ob}, in: ${ib})`
+		return path + `{ spans: ${spans}, out: ${ob}, in: ${ib} }`
 	}
 }
 

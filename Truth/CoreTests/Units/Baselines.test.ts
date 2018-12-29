@@ -75,6 +75,16 @@ describe("Execute Baselines", () =>
 				return;
 			}
 			
+			if (baselineDocs.graphOutput)
+			{
+				const programGraphOutput = program.graph.toString();
+				if (baselineDocs.graphOutput !== programGraphOutput)
+				{
+					debugger;
+					expect(programGraphOutput).toBe(baselineDocs.graphOutput);
+				}
+			}
+			
 			for (const report of reports)
 				expect(report).emit();
 			
