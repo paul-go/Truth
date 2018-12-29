@@ -10,5 +10,5 @@ List : Item...
 List...
 	: #300;
 	: Item #300;
-	: Foo #300 #301;
+	: Foo #300; #301;
 	Foo

@@ -1,0 +1,16 @@
+//
+// This example demonstrates a fault being generated
+// due to ... ?
+//
+
+Total
+/total/ : Total
+
+Partial
+/--< : Total> : Partial
+
+Class
+	MyTotal : Total
+
+SubClass : Class
+	MyTotal : 
