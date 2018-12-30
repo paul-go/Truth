@@ -87,6 +87,16 @@ export class Program
 	}
 	
 	/**
+	 * @returns A fully constructed type object that corresponds to
+	 * the URI specified. In the case when no type could be found at
+	 * the specified location, null is returned.
+	 */
+	query(uri: X.Uri)
+	{
+		return X.Type.construct(uri, this);
+	}
+	
+	/**
 	 * Begin inspecting a document loaded
 	 * into this program, a specific location.
 	 */

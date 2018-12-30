@@ -24,10 +24,12 @@ export class Type
 		return null;
 	}
 	
-	/** */
-	constructor()
+	/**
+	 * 
+	 */
+	private constructor(waterfall: X.Waterfall)
 	{
-		this.waterfall = null!;
+		this.waterfall = waterfall;
 		this.container = null!;
 		// Perform all type checking in here.
 	}
