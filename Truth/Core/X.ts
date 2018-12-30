@@ -60,6 +60,7 @@ export * from "./Phases/File/Intermediate";
 export * from "./Phases/Graph/Graph";
 export * from "./Phases/Graph/Node";
 export * from "./Phases/Graph/Fan";
+export * from "./Phases/Graph/Anchor";
 
 // Phases/Spatial
 export * from "./Phases/Spatial/Waterfall";

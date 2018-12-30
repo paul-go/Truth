@@ -123,5 +123,11 @@ export enum FanRationale
 	 * without a coexistence flag. Sums allow these potential matches
 	 * to be processed more easily.
 	 */
-	sum
+	sum,
+	
+	/**
+	 * 
+	 */
+	infix
+	
 }	

@@ -8,7 +8,7 @@ export class Graph
 {
 	/**
 	 * @internal
-	 * Test-only field used to disable the functions of the Fragmenter.
+	 * Test-only field used to disable the functions of the Graph.
 	 */
 	static disabled: boolean | undefined;
 	
@@ -146,7 +146,7 @@ export class Graph
 		const affectedNodes: X.Node[] = [];
 		
 		/**
-		 * Returns the containing node that
+		 * @returns The containing node that
 		 * corresponds to the specified URI.
 		 */ 
 		const findNode = (uri: X.Uri) =>
@@ -176,7 +176,7 @@ export class Graph
 		// 
 		// The breadthFirstOrganizer has 3 levels of organization:
 		//
-		// (1) An array of multi-maps which corresponds to a single
+		// (1) An array of multi-maps which correspond to a single
 		// level of depth (which could possible extend to multiple
 		// statements) in the hierarchy being traversed.
 		//
@@ -186,8 +186,8 @@ export class Graph
 		//
 		// (3) A unique Span object that corresponds to a unqiue
 		// occurence of a subject in the document representation.
-		interface breadthFirstEntry { uri: X.Uri, declaration: X.Span };
-		const breadthFirstOrganizer: X.MultiMap<string, breadthFirstEntry>[] = [];
+		interface breadthFirstEntry { uri: X.Uri, declaration: X.Span | X.Anchor };
+		const breadthFirstOrganizer: Array<X.MultiMap<string, breadthFirstEntry>> = [];
 		
 		for (const { level, statement } of iterator)
 		{
@@ -203,12 +203,37 @@ export class Graph
 			{
 				for (const spine of declaration.factor())
 				{
-					const mapKey = spine.vertebrae
-						.map(n => n.subject.toString())
-						.join(X.Syntax.terminal);
-					
 					const uri = X.Uri.create(spine);
-					multiMap.add(mapKey, { uri, declaration });
+					const typeNames = spine.vertebrae
+						.map(n => n.subject.toString());
+					
+					multiMap.add(
+						typeNames.join(X.Syntax.terminal),
+						{ uri, declaration });
+					
+					// If the declaration has population infixes, these
+					// need to be added to the map as though they
+					// were regular declarations.
+					
+					if (!(declaration.subject instanceof X.Pattern))
+						continue;
+					
+					const popFlag = X.InfixFlags.population;
+					const nfxs = declaration.subject.getInfixes(popFlag);
+					if (nfxs.length === 0)
+						continue;
+					
+					for (const nfx of nfxs)
+					for (const nfxDeclaration of nfx.lhs.eachSubject())
+					{
+						const nfxText = nfxDeclaration.toString();
+						const infixSpineParts = typeNames.concat(nfxText);
+						const anchor = new X.Anchor(nfx, nfxDeclaration);
+						
+						multiMap.add(
+							infixSpineParts.join(X.Syntax.terminal),
+							{ uri: uri.extend([], nfxText), declaration: anchor });
+					}
 				}
 			}
 		}
