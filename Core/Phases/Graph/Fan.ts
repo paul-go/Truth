@@ -53,7 +53,10 @@ export class Fan
 	
 	/**
 	 * Gets an array containing the Nodes to which the origin is 
-	 * connected. If the array is empty, the Fan is technically 
+	 * connected.
+	 * 
+	 * QUESTION: If the array is empty, what does that means?
+	 * Does the fan refer to an orphan? Or is something broken?
 	 */
 	get targets()
 	{

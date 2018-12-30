@@ -6,7 +6,7 @@ import * as X from "../../X";
  */
 export class Waterfall
 {
-	/** */
+	/**  */
 	static create(directive: X.Uri, program: X.Program)
 	{
 		if (directive.typePath.length === 0)
@@ -47,78 +47,47 @@ export class Waterfall
 		let y = 0;
 		
 		/** */
-		const getCursor = () =>
-		{
-			const terrace = matrix[y];
-			if (x >= terrace.length)
-				throw X.Exception.unknownState();
-			
-			const turn = terrace[x];
-			if (turn === undefined)
-				throw X.Exception.unknownState();
-			
-			return turn;
-		}
-		
-		/** Positions a Node in the matrix at the location of the cursor. */
-		const plot = (param: X.Node | ReadonlyArray<X.Node>) =>
-		{
-			// Make sure there is a slot in the matrix
-			// before the node is plotted.
-			if (y >= matrix.length)
-				matrix.push(new Array(getTotalWidth()));
-			
-			if (x >= getTotalWidth())
-				for (const terrace of matrix)
-					terrace.push(undefined);
-			
-			const nodes = param instanceof X.Node ? [param] : param.slice();
-			const existingTurn = matrix[y][x];
-			
-			if (existingTurn)
-				existingTurn.nodes.push(...nodes);
-			else
-				matrix[y][x] = { terminal: false, nodes: nodes };
-		}
-		
-		/** */
-		const tryPlunge = () =>
+		function tryPlunge()
 		{
 			if (pathCursor.atEnd)
 				return false;
 			
-			const nextName = X.Guard.null(pathCursor.nextName);
-			const lowerNodes = <X.Node[]>getCursor().nodes
-				.map(node => node.contents.get(nextName))
+			const plungeToName = X.Guard.null(pathCursor.nextName);
+			const nodesAtPlunge = <X.Node[]>getCursor().nodes
+				.map(node => node.contents.get(plungeToName))
 				.filter(node => node !== undefined);
 			
 			// If there's nowhere to plunge.
-			if (lowerNodes.length === 0)
+			if (nodesAtPlunge.length === 0)
 				return false;
 			
 			unflownTurnStack.push([x, ++y]);
-			plot(lowerNodes);
+			plot(nodesAtPlunge);
 			pathCursor.advance();
 			return true;
 		}
 		
 		/** */
-		const tryFlow = () =>
+		function tryFlow()
 		{
 			if (unflownTurnStack.length === 0)
 				return false;
 			
 			const [turnX, turnY] = X.Guard.undefined(unflownTurnStack.pop());
+			
+			if (turnY !== y)
+				pathCursor.backtrack(turnY);
+			
 			x = turnX;
 			y = turnY;
 			
-			pathCursor.backtrack(y);
+			const cursorNodes = getCursor().nodes;
+			const cursorNodesFiltered = cursorNodes.filter(node => node.outbounds.length > 0);
 			
 			const rightFansUnflattened = getCursor().nodes
+				.filter(node => node.outbounds.length > 0)
 				.map(node => node.outbounds
-					.filter(f => 
-						f.name === pathCursor.currentName &&
-						f.targets.length > 0));
+					.filter(fan => fan.targets.length > 0));
 			
 			// If there's nowhere to flow
 			if (rightFansUnflattened.length === 0)
@@ -184,6 +153,43 @@ export class Waterfall
 			return true;
 		}
 		
+		/**
+		 * Positions a Node in the matrix at the location of the cursor.
+		 */
+		function plot(param: X.Node | ReadonlyArray<X.Node>)
+		{
+			// Make sure there is a slot in the matrix
+			// before the node is plotted.
+			if (y >= matrix.length)
+				matrix.push(new Array(getTotalWidth()));
+			
+			if (x >= getTotalWidth())
+				for (const terrace of matrix)
+					terrace.push(undefined);
+			
+			const nodes = param instanceof X.Node ? [param] : param.slice();
+			const existingTurn = matrix[y][x];
+			
+			if (existingTurn)
+				existingTurn.nodes.push(...nodes);
+			else
+				matrix[y][x] = { terminal: false, nodes: nodes };
+		}
+		
+		/** */
+		function getCursor()
+		{
+			const terrace = matrix[y];
+			if (x >= terrace.length)
+				throw X.Exception.unknownState();
+			
+			const turn = terrace[x];
+			if (turn === undefined)
+				throw X.Exception.unknownState();
+			
+			return turn;
+		}
+		
 		//
 		// Waterfall algorithm descriptive poem:
 		// 
@@ -192,11 +198,16 @@ export class Waterfall
 		// But quit if you can't,
 		// Or repeat if there's more to go.
 		//
-		do
+		plungeLoop: for (;;)
 		{
 			while (tryPlunge());
+			
+			while (unflownTurnStack.length > 0)
+				if (tryFlow())
+					continue plungeLoop;
+			
+			break;
 		}
-		while (tryFlow());
 		
 		return new Waterfall(directive, matrix, program);
 	}
@@ -243,8 +254,6 @@ export class Waterfall
 		for (let i = -1; ++i < uri.typePath.length;)
 			if (uri.typePath[i] !== this.directive.typePath[i])
 				throw X.Exception.invalidArgument();
-		
-		
 		
 		return [];
 	}
