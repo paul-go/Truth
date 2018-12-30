@@ -35,9 +35,9 @@ export class Span
 		readonly offsetEnd: number,
 		
 		/**
-		 * Stores either a reference to the instance of the Subject that this
-		 * Span represents, or a unique string in the case when this is
-		 * a "Thin Span" that represents an Invisible Subject.
+		 * Stores either a reference to the instance of the Subject that
+		 * this Span represents, or a unique string in the case when
+		 * this is a "Thin Span" that represents an Invisible Subject.
 		 */
 		readonly subject: X.Subject)
 	{ }
