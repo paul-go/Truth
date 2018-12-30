@@ -165,6 +165,13 @@ export class Node
 	 */
 	readonly spans: Set<X.Span>;
 	
+	/**
+	 * Stores a reference to the Infix and Identifier
+	 * to which this Node is linked.
+	 * @see Anchor For further explanation.
+	 */
+	readonly anchor: X.Anchor | null;
+	
 	/** */
 	get statements()
 	{
@@ -199,6 +206,29 @@ export class Node
 				out.set(name, node);
 		
 		return out;
+	}
+	
+	/**
+	 * Gets the names of the identifiers referenced
+	 * as portability targets in the infixes of the Node.
+	 * If the Node's subject is not a pattern, this property
+	 * is an empty array.
+	 */
+	get portabilityTargets()
+	{
+		if (!(this.subject instanceof X.Pattern))
+			return [];
+		
+		const identifierArrays = this.subject
+			.getInfixes(X.InfixFlags.portability)
+			.map(nfx => Array.from(nfx.rhs.eachSubject()));
+		
+		if (identifierArrays.length === 0)
+			return [];
+		
+		return (<X.Identifier[]>[])
+			.concat(...identifierArrays)
+			.map(ident => ident.toString());
 	}
 	
 	/**
@@ -468,7 +498,7 @@ export class Node
 		const ib = this.inbounds.size;
 		const path = includePath ? this.uri.typePath.join("/") + " " : "";
 		
-		return path + `spans=${spans}, out=${ob}, in=${ib}`
+		return path + `spans=${spans}, out=${ob}, in=${ib}`;
 	}
 }
 

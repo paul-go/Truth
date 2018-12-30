@@ -28,6 +28,14 @@ export class Pattern
 	{ }
 	
 	/** */
+	getInfixes(type = X.InfixFlags.none)
+	{
+		return this.units
+			.filter((u): u is X.Infix => u instanceof X.Infix)
+			.filter(nfx => (nfx.flags & type) === type);
+	}
+	
+	/** */
 	test(input: string)
 	{
 		if (this.compiledRegExp === null)
