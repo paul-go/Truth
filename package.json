@@ -23,13 +23,12 @@
 	},
 	"jest": {
 		"testRegex": "Build/CoreTests/Units/[\\w.]+\\.test\\.js$",
-		"testRegex-one": "Build/CoreTests/Units/Baselines\\.test\\.js$",
 		"verbose": true,
 		"testURL": "http://localhost/"
 	},
 	"devDependencies": {
-		"typescript": "^3.2.2",
+		"jest": "23.6.0",
 		"memfs": "^2.10.1",
-		"jest": "23.6.0"
+		"typescript": "^3.2.2"
 	}
 }

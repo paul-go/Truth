@@ -29,7 +29,6 @@ export class Program
 		// these services are going to process hooks.
 		this.agents = new X.Agents(this, hookRouter);
 		this.documents = new X.DocumentGraph(this);
-		this.fragmenter = new X.Fragmenter(this);
 		this.indentCheckService = new X.IndentCheckService(this, autoVerify);
 		this.graph = new X.Graph(this);
 		
@@ -47,9 +46,6 @@ export class Program
 	
 	/** */
 	readonly documents: X.DocumentGraph;
-	
-	/** @internal */
-	readonly fragmenter: X.Fragmenter;
 	
 	/** @internal */
 	readonly graph: X.Graph;

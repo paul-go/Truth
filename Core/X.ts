@@ -53,14 +53,12 @@ export * from "./Phases/File/Identifier";
 export * from "./Phases/File/Span";
 export * from "./Phases/File/Spine";
 export * from "./Phases/File/Subject";
-export * from "./Phases/File/Fragmenter";
-export * from "./Phases/File/Intermediate";
 
 // Phases/Graph
 export * from "./Phases/Graph/Graph";
 export * from "./Phases/Graph/Node";
 export * from "./Phases/Graph/Fan";
-export * from "./Phases/Graph/Anchor";
+export * from "./Phases/Graph/InfixSpan";
 
 // Phases/Spatial
 export * from "./Phases/Spatial/Waterfall";

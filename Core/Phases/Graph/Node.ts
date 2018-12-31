@@ -16,75 +16,36 @@ import * as X from "../../X";
  */
 export class Node
 {
-	/** */
-	private static rootNodes = new WeakMap<X.Document, Map<string, Node>>();
-	
-	/** */
-	private addRootNode(node: Node)
-	{
-		const existingSet = Node.rootNodes.get(node.document);
-		if (existingSet)
-		{
-			existingSet.set(node.name, node);
-		}
-		else
-		{
-			const map = new Map<string, Node>();
-			map.set(node.name, node);
-			Node.rootNodes.set(node.document, map);
-		}
-	}
-	
-	/** */
-	private removeRootNode(node: Node)
-	{
-		const existingSet = Node.rootNodes.get(node.document);
-		if (existingSet)
-		{
-			existingSet.delete(node.name);
-			
-			// This is somewhat redundant as the set
-			// is likely going to be GC'd away anyway in
-			// this case. It's here for completeness sake.
-			if (existingSet.size === 0)
-				Node.rootNodes.delete(node.document);
-		}
-	}
-	
-	/** */
-	private getRootNodes(fromDocument?: X.Document)
-	{
-		const fromDoc = fromDocument || this.document;
-		const out = Node.rootNodes.get(fromDoc) || new Map<string, Node>();
-		return X.HigherOrder.copy(out);
-	}
-	
-	/** */
-	private deleteRootNode(node: Node)
-	{
-		const map = Node.rootNodes.get(this.document);
-		if (map)
-			map.delete(this.name);
-	}
-	
 	/** @internal */
-	constructor(strand: X.Strand, container: Node | null)
+	constructor(
+		container: Node | null,
+		declaration: X.Span | X.InfixSpan)
 	{
-		const mols = strand.molecules;
-		const lastMol = mols[mols.length - 1];
-		const atom = lastMol.localAtom;
-		const doc = atom.spans[0].statement.document;
-		const typePath = mols.map(m => m.localAtom.subject.toString());
+		const span = declaration instanceof X.Span ?
+			declaration : 
+			declaration.containingSpan;
 		
-		this.container = container
-		this.subject = atom.subject;
-		this.name = atom.subject.toString();
-		this.uri = doc.sourceUri.extend([], typePath);
-		this.stamp = doc.version;
-		this.document = atom.spans[0].statement.document;
-		this.spans = new Set(atom.spans);
+		this.container = container;
+		this.document = span.statement.document;
+		this.stamp = this.document.version;
+		this.declarations = new Set([declaration]);
+		this.subject = declaration.subject;
+		this.name = this.subject.toString();
 		
-		if (this.spans.size === 0)
+		const containerTypePath = (() =>
+		{
+			if (container === null)
+				return [];
+			
+			return Array.from(container.enumerateContainers())
+				.reverse()
+				.map(n => n.name);
+		})();
+		
+		const typePath = containerTypePath.concat(this.name);
+		this.uri = this.document.sourceUri.extend([], typePath);
+		
+		if (this.declarations.size === 0)
 			throw X.Exception.unknownState();
 		
 		if (this.container)
@@ -98,26 +59,30 @@ export class Node
 	 */
 	dispose()
 	{
-		this.container ?
-			this.container._contents.delete(this.name) :
-			this.deleteRootNode(this);
+		if (this.container === null)
+		{
+			const map = Node.rootNodes.get(this.document);
+			if (map)
+				map.delete(this.name);
+		}
+		else this.container._contents.delete(this.name);
 		
 		const recurse = (node: Node) =>
 		{
+			for (const fan of node._outbounds)
+				this.disposeFan(fan);
+			
+			for (const node of this._contents.values())
+				recurse(node);
+			
 			// Manual memory management going on here.
 			// Clearing out the Sets is probably unnecessary
 			// because the GC would catch it anyways, but
 			// these calls are here just to be safe.
 			// It's still required that we clear out the inbounds
 			// from the nodes to which this one is connected.
-			node.spans.clear();
+			node.declarations.clear();
 			node._inbounds.clear();
-			
-			for (const fan of node._outbounds)
-				this.disposeFan(fan);
-			
-			for (const node of this._contents.values())
-				recurse(node);
 		}
 		
 		recurse(this);
@@ -138,7 +103,7 @@ export class Node
 		for (const target of fan.targets)
 			target._inbounds.delete(fan);
 		
-		fan.spans.clear();
+		fan.sources.clear();
 	}
 	
 	/** */
@@ -160,23 +125,22 @@ export class Node
 	readonly stamp: X.VersionStamp;
 	
 	/**
-	 * Stores the set of declaration-side Span
-	 * objects that compose this Node.
+	 * Stores the set of declaration-side Span objects that
+	 * compose this Node. If this the size of this set were to
+	 * reach zero, the Node would be marked for deletion.
+	 * (Node cleanup uses a reference counted collection
+	 * mechanism that uses the size of this set as it's guide).
+	 * 
+	 * Note that although the type of this field is defined as
+	 * "Set<Span | Anchor>", in practice, it is either a set of
+	 * multiple Span objects, or a set containing one single
+	 * Anchor object. This is because it's possible to have
+	 * fragments of a type declared in multiple places in
+	 * a document, however, Anchors (which are references
+	 * to declarations within an Infix) can only exist in one
+	 * place.
 	 */
-	readonly spans: Set<X.Span>;
-	
-	/**
-	 * Stores a reference to the Infix and Identifier
-	 * to which this Node is linked.
-	 * @see Anchor For further explanation.
-	 */
-	readonly anchor: X.Anchor | null;
-	
-	/** */
-	get statements()
-	{
-		return X.HigherOrder.map(this.spans, s => s.statement);
-	}
+	readonly declarations: Set<X.Span | X.InfixSpan>;
 	
 	/**
 	 * Gets a readonly map of Nodes that are contained
@@ -271,7 +235,7 @@ export class Node
 		if (this._outbounds.length === 1)
 		{
 			const fan = this._outbounds[0];
-			if (fan.spans.size === 1)
+			if (fan.sources.size === 1)
 				return;
 		}
 		
@@ -279,9 +243,9 @@ export class Node
 		
 		for (const fan of this._outbounds)
 		{
-			for (const span of fan.spans.values())
+			for (const src of fan.sources.values())
 			{
-				const st = span.statement;
+				const st = src.statement;
 				const idx = st.document.getStatementIndex(st);
 				const existingTuple = fanLookup.get(fan);
 				
@@ -337,9 +301,12 @@ export class Node
 			{
 				let minIdx = Infinity;
 				
-				for (const span of fan.spans)
+				for (const src of fan.sources)
 				{
-					const idx = annos.indexOf(span);
+					if (src instanceof X.InfixSpan)
+						throw X.Exception.unknownState();
+					
+					const idx = annos.indexOf(src);
 					if (idx < minIdx)
 						minIdx = idx;
 				}
@@ -359,10 +326,10 @@ export class Node
 	/**
 	 * @internal
 	 */
-	addFanSpan(span: X.Span)
+	addFanSource(source: X.Span | X.InfixSpan)
 	{
-		const name = span.subject.toString();
-		const st = span.statement;
+		const name = source.subject.toString();
+		const st = source.statement;
 		
 		/**
 		 * Adds a fan to it's two applicable target nodes.
@@ -381,7 +348,7 @@ export class Node
 		const existingFan = this._outbounds.find(fan => fan.name === name);
 		if (existingFan)
 		{
-			existingFan.spans.add(span);
+			existingFan.sources.add(source);
 		}
 		else
 		{
@@ -390,8 +357,7 @@ export class Node
 			
 			for (const { adjacents } of this.enumerateContainment())
 			{
-				//const adjacentNode = adjacents.get(this.name);
-				const adjacentNode = adjacents.get(span.subject.toString());
+				const adjacentNode = adjacents.get(source.subject.toString());
 				if (adjacentNode)
 				{
 					targets.push(adjacentNode);
@@ -411,7 +377,7 @@ export class Node
 					rationale = X.FanRationale.pattern;
 			}
 			
-			append(new X.Fan(this, targets, [span], rationale));
+			append(new X.Fan(this, targets, [source], rationale));
 		}
 		
 		// Refresh the sums before quitting.
@@ -420,8 +386,8 @@ export class Node
 		const sumFanForInputSpanIdx = this._outbounds.findIndex(fan => 
 		{
 			if (fan.rationale === sum)
-				for (const span of fan.spans)
-					return span.statement === sumStatement;
+				for (const src of fan.sources)
+					return src.statement === sumStatement;
 			
 			return false;
 		});
@@ -483,23 +449,105 @@ export class Node
 		}
 	}
 	
+	/**
+	 * Enumerates upwards through the containment
+	 * hierarchy of the Nodes present in this Node's
+	 * containing document, yielding each container
+	 * of this Node.
+	 */
+	private *enumerateContainers()
+	{
+		let currentLevel: Node | null = this;
+		
+		do yield currentLevel;
+		while ((currentLevel = currentLevel.container) !== null);
+	}
+	
 	/** */
-	removeFanSpan(span: X.Span)
+	removeFanSource(src: X.Span | X.InfixSpan)
 	{
 		for (let i = this._outbounds.length; --i > 0;)
-			this._outbounds[i].spans.delete(span);
+			this._outbounds[i].sources.delete(src);
 	}
 	
 	/** */
 	toString(includePath = true)
 	{
-		const spans = this.spans.size;
+		const decls = Array.from(this.declarations);
+		const spans = decls.filter((s): s is X.Span => s instanceof X.Span);
+		const anchors = decls.filter((a): a is X.InfixSpan => a instanceof X.InfixSpan);
+		
+		const spansText = spans.map(s => s.subject.toString()).join(", ");
+		const anchorText = anchors.map(a => a.subject.toString()).join(", ");
+		
 		const ob = this.outbounds.length;
 		const ib = this.inbounds.size;
 		const path = includePath ? this.uri.typePath.join("/") + " " : "";
 		
-		return path + `spans=${spans}, out=${ob}, in=${ib}`;
+		const simple = [
+			path,
+			spansText.length ? "spans=" + spansText : "",
+			anchorText.length ? "anchor=" + anchorText : "",
+			"out=" + ob,
+			"in=" + ib
+		].filter(s => s.trim()).join(", ");
+		
+		const fmt = (str: string) => str.split("\n").map(s => "\t\t" + s).join("\n");
+		const obsVerbose = this.outbounds
+			.map(ob => fmt(ob.toString()));
+		
+		const ibsVerbose = Array.from(this.inbounds.values())
+			.map(ib => fmt(ib.toString()));
+		
+		const verbose = 
+			"\n\tOuts:\n" + obsVerbose.join("\n\n")+
+			"\n\tIns:\n" + ibsVerbose.join("\n\n");
+		
+		return simple + verbose;
 	}
+	
+	/** */
+	private addRootNode(node: Node)
+	{
+		const existingSet = Node.rootNodes.get(node.document);
+		if (existingSet)
+		{
+			existingSet.set(node.name, node);
+		}
+		else
+		{
+			const map = new Map<string, Node>();
+			map.set(node.name, node);
+			Node.rootNodes.set(node.document, map);
+		}
+	}
+	
+	/** */
+	private removeRootNode(node: Node)
+	{
+		const existingSet = Node.rootNodes.get(node.document);
+		if (existingSet)
+		{
+			existingSet.delete(node.name);
+			
+			// This is somewhat redundant as the set
+			// is likely going to be GC'd away anyway in
+			// this case. It's here for completeness sake.
+			if (existingSet.size === 0)
+				Node.rootNodes.delete(node.document);
+		}
+	}
+	
+	/** */
+	private getRootNodes(fromDocument?: X.Document)
+	{
+		const fromDoc = fromDocument || this.document;
+		const out = Node.rootNodes.get(fromDoc) || new Map<string, Node>();
+		return X.HigherOrder.copy(out);
+	}
+	
+	/** */
+	private static rootNodes = new WeakMap<X.Document, Map<string, Node>>();
 }
 
 type NodeMap = ReadonlyMap<string, Node>;

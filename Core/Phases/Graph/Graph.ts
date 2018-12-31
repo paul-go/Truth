@@ -70,25 +70,24 @@ export class Graph
 		// Attempts to remove a span from the specified target. 
 		// Adds the target to a list in the case when the target's
 		// last Span was removed.
-		const tryRemoveSpan = (from: X.Node | X.Fan, span: X.Span) =>
+		const tryDelete = (from: X.Node | X.Fan, decl: X.Span | X.InfixSpan) =>
 		{
 			if (from instanceof X.Node)
 			{
-				from.spans.delete(span);
+				from.declarations.delete(decl);
 				
-				if (from.spans.size === 0)
+				if (from.declarations.size === 0)
 					txn.destabilizedNodes.push(from);
 			}
 			else
 			{
 				const node = from.origin;
-				node
-				node.removeFanSpan(span);
+				node.removeFanSource(decl);
 				
-				if (from.spans.size === 0)	
+				if (from.sources.size === 0)
 					txn.destablizedFans.push(from);
 			}
-		};
+		}
 		
 		for (const { statement } of iterator)
 		{
@@ -107,19 +106,19 @@ export class Graph
 				{
 					// Remove the declaration-side spans from the
 					// Node that corresponds to the declaration.
-					tryRemoveSpan(associatedNode, declaration);
+					tryDelete(associatedNode, declaration);
 					
 					// Attempt to remove the annotations from the
 					// Node's outbound Fans.
 					for (const outFan of associatedNode.outbounds)
 						for (const annotation of statement.annotations)
-							tryRemoveSpan(outFan, annotation);
+							tryDelete(outFan, annotation);
 					
 					// Attempt to remove the annotations from the
 					// Node's outbound Fans.
 					for (const inFan of associatedNode.inbounds)
 						for (const annotation of statement.annotations)
-							tryRemoveSpan(inFan, annotation);
+							tryDelete(inFan, annotation);
 				}
 			}
 		}
@@ -142,7 +141,6 @@ export class Graph
 	{
 		const { document, iterator } = this.methodSetup(root);
 		const txn = this.activeTransactions.get(document);
-		const fmtr = this.program.fragmenter;
 		const affectedNodes: X.Node[] = [];
 		
 		/**
@@ -186,7 +184,7 @@ export class Graph
 		//
 		// (3) A unique Span object that corresponds to a unqiue
 		// occurence of a subject in the document representation.
-		interface breadthFirstEntry { uri: X.Uri, declaration: X.Span | X.Anchor };
+		interface breadthFirstEntry { uri: X.Uri, declaration: X.Span | X.InfixSpan };
 		const breadthFirstOrganizer: Array<X.MultiMap<string, breadthFirstEntry>> = [];
 		
 		for (const { level, statement } of iterator)
@@ -228,7 +226,10 @@ export class Graph
 					{
 						const nfxText = nfxDeclaration.toString();
 						const infixSpineParts = typeNames.concat(nfxText);
-						const anchor = new X.Anchor(nfx, nfxDeclaration);
+						const anchor = new X.InfixSpan(
+							declaration,
+							nfx,
+							nfxDeclaration);
 						
 						multiMap.add(
 							infixSpineParts.join(X.Syntax.terminal),
@@ -250,13 +251,9 @@ export class Graph
 			if (nodeAtUri)
 			{
 				affectedNodes.push(nodeAtUri);
-				nodeAtUri.spans.add(declaration);
+				nodeAtUri.declarations.add(declaration);
 				continue;
 			}
-			
-			const strand = fmtr.query(uri);
-			if (strand === null)
-				throw X.Exception.unknownState();
 			
 			const container = uri.typePath.length > 1 ?
 				findNode(uri.retract(0, 1)) :
@@ -271,7 +268,7 @@ export class Graph
 			
 			// Note that when creating a Node, it's
 			// automatically bound to it's container.
-			const newNode = new X.Node(strand, container);
+			const newNode = new X.Node(container, declaration);
 			affectedNodes.push(newNode);
 		}
 		
@@ -282,9 +279,19 @@ export class Graph
 		// in the graph before new "fan spans" can be added,
 		// because doing this causes resolution to occur.
 		for (const node of affectedNodes)
-			for (const declaration of node.spans)
-				for (const annotation of declaration.statement.annotations)
-					node.addFanSpan(annotation);
+			for (const declaration of node.declarations)
+			{
+				if (declaration instanceof X.Span)
+				{
+					for (const annotation of declaration.statement.annotations)
+						node.addFanSource(annotation);
+				}
+				else for (const annotation of declaration.infix.rhs.eachSubject())
+					node.addFanSource(new X.InfixSpan(
+						declaration.containingSpan,
+						declaration.infix,
+						annotation));
+			}
 				
 		// If there's no active transaction the corresponds to the input
 		// document, the most likely reason is that an entire document
@@ -292,11 +299,11 @@ export class Graph
 		if (txn)
 		{
 			for (const maybeDeadFan of txn.destablizedFans)
-				if (maybeDeadFan.spans.size > 0)
+				if (maybeDeadFan.sources.size > 0)
 					maybeDeadFan.origin.disposeFan(maybeDeadFan);
 			
 			for (const maybeDeadNode of txn.destabilizedNodes)
-				if (maybeDeadNode.spans.size === 0)
+				if (maybeDeadNode.declarations.size === 0)
 					maybeDeadNode.dispose();
 		}
 		
