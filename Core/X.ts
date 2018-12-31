@@ -48,6 +48,7 @@ export * from "./Phases/File/Bounds";
 export * from "./Phases/File/Statement";
 export * from "./Phases/File/Pattern";
 export * from "./Phases/File/PatternPrecompiler";
+export * from "./Phases/File/RegexTypes";
 export * from "./Phases/File/Infix";
 export * from "./Phases/File/Identifier";
 export * from "./Phases/File/Span";
