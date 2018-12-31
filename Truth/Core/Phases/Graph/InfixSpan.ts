@@ -20,10 +20,19 @@ import * as X from "../../X";
  * would each have an Anchor that binds them to the infix
  * in their containing pattern in which they were instantiated.
  */
-export class Anchor
+export class InfixSpan
 {
 	constructor(
+		readonly containingSpan: X.Span,
 		readonly infix: X.Infix,
-		readonly identifier: X.Identifier)
+		readonly subject: X.Identifier)
 	{ }
+	
+	/**
+	 * Gets the Statement that contains this Anchor.
+	 */
+	get statement()
+	{
+		return this.containingSpan.statement;
+	}
 }

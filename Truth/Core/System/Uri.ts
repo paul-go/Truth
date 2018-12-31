@@ -140,7 +140,7 @@ export class Uri
 	 * @param from If the parameter is omited,
 	 * a unique internal URI is generated.
 	 */
-	static create(from?: X.Spine | X.Strand | Uri): Uri
+	static create(from?: X.Spine | Uri): Uri
 	{
 		if (from === undefined)
 			return this.parse(UriProtocol.internal + "//" + Math.random().toString().slice(2))!;
@@ -157,27 +157,6 @@ export class Uri
 				srcUri.ioPath,
 				typeSegments);
 		}	
-		
-		if (from instanceof X.Strand)
-		{
-			const mols = from.molecules;
-			if (mols.length === 0)
-				throw X.Exception.unknownState();
-			
-			const spans = mols[0].localAtom.spans;
-			if (spans.length === 0)
-				throw X.Exception.unknownState();
-			
-			const srcUri = spans[0].statement.document.sourceUri;
-			const typeSegments = from.molecules
-				.map(m => m.localAtom.subject.toString());
-			
-			return new Uri(
-				srcUri.protocol,
-				srcUri.fileName,
-				srcUri.ioPath,
-				typeSegments);
-		}
 		
 		if (from instanceof X.Uri)
 			return from;

@@ -141,8 +141,15 @@ export class Waterfall
 				{
 					if (rightNodes.has(preExistingNode))
 					{
-						for (const span of preExistingNode.spans)
-							program.faults.report(X.Faults.CircularTypeReference.create(span));
+						for (const decl of preExistingNode.declarations)
+						{
+							const span = decl instanceof X.Span ?
+								decl : 
+								decl.containingSpan;
+							
+							const fault = X.Faults.CircularTypeReference.create(span);
+							program.faults.report(fault);
+						}
 						
 						rightNodes.delete(preExistingNode);
 					}
@@ -268,44 +275,6 @@ export class Waterfall
 	}
 	
 	/** */
-	walk()
-	{
-		const waterfall = this;
-		
-		/**
-		 * A class that acts as a cursor for walking around a Waterfall
-		 * instance. Note that the WaterfallWalker does, in fact, walk
-		 * on water.
-		 */
-		return new class WaterfallWalker
-		{
-			/** */
-			plunge(): Turn | null
-			{
-				return null;
-			}
-			
-			/** */
-			canPlunge(): boolean
-			{
-				return false;
-			}
-			
-			/** */
-			flow(): Turn | null
-			{
-				return null;
-			}
-			
-			/** */
-			canFlow(): boolean
-			{
-				return false;
-			}
-		}
-	}
-	
-	/** */
 	private readonly terraces: ReadonlyArray<(Turn | undefined)[]>;
 }
 
@@ -382,3 +351,33 @@ interface IMutableTurn
 }
 
 export type Turn = Freeze<IMutableTurn>;
+
+
+/**
+ * Logs the specified matrix as a call to console.table()
+ */
+function logMatrix(matrix: (IMutableTurn | undefined)[][])
+{
+	const table: string[][] = [];
+	
+	for (const row of matrix)
+	{
+		const tableRow: string[] = [];
+		table.push(tableRow);
+		
+		for (const col of row)
+		{
+			if (col === undefined)
+			{
+				tableRow.push("undefined");
+			}
+			else
+			{
+				const label = col.nodes.map(n => n.name).join(", ");
+				tableRow.push(label + (col.terminal ? " (term)" : ""));
+			}
+		}
+	}
+	
+	console.table(table);
+}

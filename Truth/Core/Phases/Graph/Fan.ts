@@ -16,28 +16,31 @@ export class Fan
 	constructor(
 		origin: X.Node,
 		targets: ReadonlyArray<X.Node>,
-		spans: ReadonlyArray<X.Span>,
+		sources: ReadonlyArray<X.Span | X.InfixSpan>,
 		rationale: FanRationale)
 	{
-		if (spans.length === 0)
+		if (sources.length === 0)
 			throw X.Exception.invalidArgument();
 		
 		if (rationale === X.FanRationale.sum)
 		{
 			// All spans sent in are expected to be
 			// contained by the same statement.
-			if (new Set(spans.map(span => span.statement)).size !== 1)
+			if (new Set(sources.map(decl => decl.statement)).size !== 1)
 				throw X.Exception.invalidArgument();
 			
-			this.name = spans[0].statement.getAnnotationContent();
+			this.name = sources[0].statement.getAnnotationContent();
 		}
-		else this.name = spans[0].subject.toString();
+		else this.name = sources[0].subject.toString();
 		
 		this.origin = origin;
 		this._targets = targets.slice();
-		this.spans = new Set(spans);
+		this.sources = new Set(sources);
 		this._rationale = rationale;
 	}
+	
+	/** */
+	readonly origin: X.Node;
 	
 	/**
 	 * Stores a string representation of the subjects
@@ -47,9 +50,6 @@ export class Fan
 	 * content as it appears in the document.
 	 */
 	readonly name: string;
-	
-	/** */
-	readonly origin: X.Node;
 	
 	/**
 	 * Gets an array containing the Nodes to which the origin is 
@@ -72,14 +72,29 @@ export class Fan
 	private _rationale: FanRationale;
 	
 	/**
-	 * Gets an array of annotation-side Span objects that compose
-	 * the Fan. In the case when the "rationale" of this Fan is "patternSum",
-	 * this array is composed of a complete set of spans on the annotation
-	 * side of a single statement. In other cases, the array is composed of
-	 * Spans potentially scattered throughout the document across many
-	 * statements.
+	 * Stores an array of Spans or Anchors that compose the Fan.
+	 * These "sources" are built out of subjects that exist on the
+	 * annotation-side, either at the statement or the infix level.
+	 * 
+	 * In the case when the "rationale" of this Fan is "patternSum",
+	 * this array is composed of a complete set of spans on the
+	 * annotation side of a single statement. In other cases, the
+	 * array is composed of Spans potentially scattered
+	 * throughout the document across many statements.
 	 */
-	readonly spans: Set<X.Span>;
+	readonly sources: Set<X.Span | X.InfixSpan>;
+	
+	/** */
+	toString()
+	{
+		return [
+			"Origin=" + this.origin.uri.toString(false, true),
+			"Name=" + this.name,
+			"Targets=" + this.targets.map(n => n.uri.toString(false, true)),
+			"Rationale=" + FanRationale[this.rationale],
+			"Sources=" + Array.from(this.sources).map(src => src.subject).join(", ")
+		].join("\n");
+	}
 }
 
 
@@ -124,10 +139,4 @@ export enum FanRationale
 	 * to be processed more easily.
 	 */
 	sum,
-	
-	/**
-	 * 
-	 */
-	infix
-	
 }	
