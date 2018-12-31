@@ -11,7 +11,7 @@ export class Pattern
 		/**
 		 * 
 		 */
-		readonly units: ReadonlyArray<RegexUnit | X.Infix>,
+		readonly units: ReadonlyArray<X.RegexUnit | X.Infix>,
 		/**
 		 * Stores whether the pattern is considered to be "Total"
 		 * or "Partial". Total patterns must match an entire annotation
@@ -27,7 +27,21 @@ export class Pattern
 		readonly crc: string)
 	{ }
 	
-	/** */
+	/**
+	 * @returns A boolean value that indicates whether
+	 * this Pattern has at least one infix, of any type.
+	 */
+	hasInfixes()
+	{
+		return this.units.some(u => u instanceof X.Infix);
+	}
+	
+	/**
+	 * @returns An array containing the infixes of the
+	 * specified type that are defined in this Pattern.
+	 * If the argument is omitted, all infixes of any type
+	 * defined on this Pattern are returned.
+	 */
 	getInfixes(type = X.InfixFlags.none)
 	{
 		return this.units
@@ -35,7 +49,15 @@ export class Pattern
 			.filter(nfx => (nfx.flags & type) === type);
 	}
 	
-	/** */
+	/**
+	 * Performs an "expedient" test that determines whether the
+	 * specified input has a chance of being matched by this pattern.
+	 * The check is considered expedient, rather than thorough,
+	 * because any infixes that exist in this pattern are replaced
+	 * with "catch all" regular expression sequence, rather than
+	 * embedding the pattern associated with the type specified
+	 * in the infix.
+	 */
 	test(input: string)
 	{
 		if (this.compiledRegExp === null)
@@ -46,6 +68,65 @@ export class Pattern
 			return false;
 		
 		return this.compiledRegExp.test(input);
+	}
+	
+	/**
+	 * Executes the pattern (like a function) using the specified
+	 * string as the input.
+	 * 
+	 * @returns A ReadonlyMap whose keys align with the infixes
+	 * contained in this Pattern, and whose values are strings that
+	 * are the extracted "inputs", found in the place of each infix. 
+	 * If this Pattern has no infixes, an empty map is returned.
+	 */
+	exec(patternParameter: string): ReadonlyMap<X.Infix, string>
+	{
+		if (this.compiledRegExp === null)
+			this.compiledRegExp = X.PatternPrecompiler.exec(this);
+		
+		const result = new Map<X.Infix, string>();
+		const infixes = this.getInfixes();
+		
+		if (this.getInfixes().length === 0)
+			return result;
+		
+		const infixCaptureGroupIndexes = (() =>
+		{
+			const idxArray: number[] = [];
+			let idx = 0;
+			
+			const recurseUnits = (units: ReadonlyArray<X.RegexUnit | X.Infix>) =>
+			{
+				for (const unit of units)
+				{
+					if (unit instanceof X.Infix)
+					{
+						idxArray.push(++idx);
+					}
+					else if (unit instanceof X.RegexGroup)
+					{
+						++idx;
+						for (const unitCase of unit.cases)
+							recurseUnits(unitCase);
+					}
+				}
+			}
+			
+			recurseUnits(this.units);
+			return idxArray;
+		})();
+		
+		const compiled = this.compiledRegExp;
+		const reg = new RegExp(compiled.source, compiled.flags);
+		const matches = reg.exec(patternParameter);
+		
+		if (matches === null)
+			return result;
+		
+		for (const [idx, infix] of infixes.entries())
+			result.set(infix, matches[infixCaptureGroupIndexes[idx]]);
+		
+		return result;
 	}
 	
 	private compiledRegExp: RegExp | null = null;
@@ -65,335 +146,4 @@ export class Pattern
 }
 
 
-/**
- * Ambient unifier for all PatternUnit instances
- */
-export abstract class RegexUnit
-{
-	constructor(readonly quantifier: RegexQuantifier | null) { }
-	
-	/** */
-	abstract toString(): string;
-}
 
-
-/**
- * 
- */
-export class RegexSet extends RegexUnit
-{
-	/** */
-	constructor(
-		readonly knowns: ReadonlyArray<X.RegexSyntaxKnownSet>,
-		readonly ranges: ReadonlyArray<RegexCharRange>,
-		readonly unicodeBlocks: ReadonlyArray<string>,
-		readonly singles: ReadonlyArray<string>,
-		readonly isNegated: boolean,
-		readonly quantifier: RegexQuantifier | null)
-	{
-		super(quantifier);
-	}
-	
-	/** */
-	toString()
-	{
-		const kLen = this.knowns.length;
-		const rLen = this.ranges.length;
-		const uLen = this.unicodeBlocks.length;
-		const cLen = this.singles.length;
-		
-		const setText = (() =>
-		{
-			if (kLen === 1 && rLen + uLen + cLen === 0)
-				return this.knowns[0].toString();
-			
-			if (uLen === 1 && kLen + rLen + cLen === 0)
-				return [
-					X.RegexSyntaxDelimiter.setStart + 
-					serializeUnicodeBlock(this.unicodeBlocks[0]) +
-					X.RegexSyntaxDelimiter.setEnd
-				].join("");
-			
-			if (cLen === 1 && kLen + rLen + uLen === 0)
-				return this.singles[0];
-			
-			return [
-				X.RegexSyntaxDelimiter.setStart,
-				...this.knowns,
-				...this.ranges.map(r => esc(r.from) + "-" + esc(r.to)),
-				...this.unicodeBlocks.map(serializeUnicodeBlock),
-				...escMany(this.singles),
-				X.RegexSyntaxDelimiter.setEnd
-			].join("");
-		})();
-		
-		return setText + (this.quantifier ? this.quantifier.toString() : "");
-	}
-	
-	/** */
-	toAlphabet()
-	{
-		const alphabetBuilder = new X.AlphabetBuilder();
-		const gt = (char: string) => char.charCodeAt(0) + 1;
-		const lt = (char: string) => char.charCodeAt(0) - 1;
-		
-		for (const known of this.knowns)
-		{
-			switch (known)
-			{
-				case X.RegexSyntaxKnownSet.digit:
-					alphabetBuilder.add("0", "9");
-					break;
-				
-				case X.RegexSyntaxKnownSet.digitNon:
-					alphabetBuilder.add(0, lt("0"));
-					alphabetBuilder.add(gt("9"), X.UnicodeMax);
-					break;
-				
-				case X.RegexSyntaxKnownSet.alphanumeric:
-					alphabetBuilder.add("0", "9");
-					alphabetBuilder.add("A", "Z");
-					alphabetBuilder.add("a", "z");
-					break;
-				
-				case X.RegexSyntaxKnownSet.alphanumericNon:
-					alphabetBuilder.add(0, lt("0"));
-					alphabetBuilder.add(gt("9"), lt("A"));
-					alphabetBuilder.add(gt("Z"), lt("a"));
-					alphabetBuilder.add(gt("z"), X.UnicodeMax);
-					break;
-				
-				case X.RegexSyntaxKnownSet.whitespace:
-					alphabetBuilder.add(9, 13);
-					alphabetBuilder.add(160);
-					alphabetBuilder.add(5760);
-					alphabetBuilder.add(8192, 8202);
-					alphabetBuilder.add(8232);
-					alphabetBuilder.add(8233);
-					alphabetBuilder.add(8239);
-					alphabetBuilder.add(8287);
-					alphabetBuilder.add(12288);
-					alphabetBuilder.add(65279);
-					break;
-				
-				case X.RegexSyntaxKnownSet.whitespaceNon:
-					alphabetBuilder.add(0, 8);
-					alphabetBuilder.add(14, 159);
-					alphabetBuilder.add(161, 5759);
-					alphabetBuilder.add(5761, 8191);
-					alphabetBuilder.add(8203, 8231);
-					alphabetBuilder.add(8232);
-					alphabetBuilder.add(8233);
-					alphabetBuilder.add(8234, 8238);
-					alphabetBuilder.add(8240, 8286);
-					alphabetBuilder.add(8288, 12287);
-					alphabetBuilder.add(12289, 65278);
-					alphabetBuilder.add(65280, X.UnicodeMax);
-					break;
-				
-				case X.RegexSyntaxKnownSet.wild:
-					alphabetBuilder.addWild();
-					break;
-			}
-		}
-		
-		for (const range of this.ranges)
-			alphabetBuilder.add(range.from, range.to);
-		
-		for (const single of this.singles)
-			alphabetBuilder.add(single);
-		
-		return alphabetBuilder.toAlphabet(this.isNegated);
-	}
-}
-
-
-/**
- * 
- */
-export class RegexCharRange
-{
-	constructor(
-		readonly from: number,
-		readonly to: number)
-	{ }
-}
-
-
-/**
- * 
- */
-export class RegexGroup extends RegexUnit
-{
-	constructor(
-		/**
-		 * 
-		 */
-		readonly cases: ReadonlyArray<ReadonlyArray<RegexUnit>>,
-		readonly quantifier: RegexQuantifier | null)
-	{
-		super(quantifier);
-	}
-	
-	/** */
-	toString()
-	{
-		if (this.cases.length === 0)
-			return "";
-		
-		const cases = this.cases.map(ca => ca.map(unit => esc(unit.toString())));
-		const group = 
-			X.RegexSyntaxDelimiter.groupStart +
-			cases.join(X.RegexSyntaxDelimiter.alternator) +
-			X.RegexSyntaxDelimiter.groupEnd;
-		
-		return group + (this.quantifier ? this.quantifier.toString() : "");
-	}
-}
-
-
-/**
- * A pattern "grapheme" is a pattern unit class that
- * represents:
- * 
- * a) A "Literal", which is a single unicode-aware character,
- * with possible representations being an ascii character,
- * a unicode character, or an ascii or unicode escape
- * sequence.
- * 
- * or b) A "Special", which is a sequence that matches
- * something other than the character specified,
- * such as . \b \s
- */
-export class RegexGrapheme extends RegexUnit
-{
-	constructor(
-		readonly grapheme: string,
-		readonly quantifier: RegexQuantifier | null)
-	{
-		super(quantifier);
-	}
-	
-	/** */
-	toString()
-	{
-		const q = this.quantifier;
-		return this.grapheme.toString() + (q === null ? "" : esc(q.toString()));
-	}
-}
-
-
-/**
- * A Regex "Sign" refers to an escape sequence that refers
- * to one other character, as opposed to that character
- * being written directly in the parse stream.
- */
-export class RegexSign extends RegexUnit
-{
-	constructor(
-		readonly sign: X.RegexSyntaxSign,
-		readonly quantifier: RegexQuantifier | null)
-	{
-		super(quantifier);
-	}
-	
-	/** */
-	toString()
-	{
-		const q = this.quantifier;
-		return this.sign.toString() + (q === null ? "" : esc(q.toString()));
-	}
-}
-
-
-/**
- * A pattern unit class that represents +, *, 
- * and explicit quantifiers such as {1,2}.
- */
-export class RegexQuantifier
-{
-	constructor(
-		/**
-		 * Stores the lower bound of the quantifier, 
-		 * or the fewest number of graphemes to be matched.
-		 */
-		readonly min: number = 0,
-		/**
-		 * Stores the upper bound of the quantifier, 
-		 * or the most number of graphemes to be matched.
-		 */
-		readonly max: number = Infinity,
-		/**
-		 * Stores whether the the quantifier is restrained,
-		 * in that it matches the fewest possible number
-		 * of characters.
-		 * 
-		 * (Some regular expression flavours awkwardly
-		 * refer to this as "non-greedy".)
-		 */
-		readonly restrained: boolean)
-	{ }
-	
-	/**
-	 * Converts the regex quantifier to an optimized string.
-	 */
-	toString()
-	{
-		const rst = this.restrained ? X.RegexSyntaxMisc.restrained : "";
-		
-		if (this.min === 0 && this.max === Infinity)
-			return X.RegexSyntaxMisc.star + rst;
-		
-		if (this.min === 1 && this.max === Infinity)
-			return X.RegexSyntaxMisc.plus + rst;
-		
-		const qs = X.RegexSyntaxDelimiter.quantifierStart;
-		const qp = X.RegexSyntaxDelimiter.quantifierSeparator;
-		const qe = X.RegexSyntaxDelimiter.quantifierEnd;
-		
-		return this.min === this.max ?
-			qs + this.min + qe :
-			qs + this.min + qp + (this.max === Infinity ? "" : this.max.toString()) + qe;
-	}
-}
-
-
-/**
- * Utility function that returns a double escape
- * if the passed value is a backslash.
- */
-function esc(maybeBackslash: string | number)
-{
-	if (maybeBackslash === 92 || maybeBackslash === "\\")
-		return "\\\\";
-	
-	if (typeof maybeBackslash === "number")
-		return String.fromCodePoint(maybeBackslash);
-	
-	return maybeBackslash;
-}
-
-
-/**
- * 
- */
-function escMany(array: ReadonlyArray<string | number>)
-{
-	return array.map(esc).join("");
-}
-
-
-/**
- * 
- */
-function serializeUnicodeBlock(blockName: string)
-{
-	const block = X.UnicodeBlocks.get(blockName.toLowerCase()); 
-	if (block === undefined)
-		throw X.Exception.unknownState();
-	
-	const rng = X.RegexSyntaxDelimiter.range;
-	const from = block[0].toString(16);
-	const to = block[1].toString(16);
-	return `\\u{${from}}${rng}\\u{${to}}`;
-}

@@ -216,6 +216,10 @@ export class Waterfall
 			break;
 		}
 		
+		// Debugging code to bring the
+		// logMatrix() function into scope.
+		logMatrix;
+		
 		return new Waterfall(directive, matrix, program);
 	}
 	

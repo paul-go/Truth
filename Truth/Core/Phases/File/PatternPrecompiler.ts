@@ -63,4 +63,4 @@ const MustEscapeChars = ["$", "^", "{", "}"];
  * of characters, provided that the string of characters
  * don't begin or end with whitespace."
  */
-const ExpedientInfixPattern = "\\S+(\\s+\\S+)*";
+const ExpedientInfixPattern = "(\\S+(\\s+\\S+)*)";
