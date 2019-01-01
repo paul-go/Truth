@@ -23,15 +23,19 @@ export class Waterfall
 		 * As the waterfall is constructed, the directive cursor is
 		 * scaled up and down.
 		 */
-		const pathCursor = new PathCursor(directive);
+		const pathCursor = new X.PathCursor(directive);
 		
-		const originNode = X.Guard.null(program.graph.read(
+		const originNode = program.graph.read(
 			sourceDoc,
-			pathCursor.originName));
+			pathCursor.originName);
+		
+		if (originNode === null)
+			return null;
 		
 		const matrix: (IMutableTurn | undefined)[][] = [[{
 			terminal: false,
-			nodes: [originNode]
+			nodes: [originNode],
+			captures: []
 		}]];
 		
 		const getTotalWidth = () => matrix[0].length;
@@ -49,21 +53,25 @@ export class Waterfall
 		/** */
 		function tryPlunge()
 		{
+			matrix;
+			
 			if (pathCursor.atEnd)
 				return false;
 			
+			const cursorNodes = getCursor().nodes;
 			const plungeToName = X.Guard.null(pathCursor.nextName);
-			const nodesAtPlunge = <X.Node[]>getCursor().nodes
+			const plungeNodes = cursorNodes
 				.map(node => node.contents.get(plungeToName))
-				.filter(node => node !== undefined);
+				.filter((node): node is X.Node => node !== undefined);
 			
 			// If there's nowhere to plunge.
-			if (nodesAtPlunge.length === 0)
+			if (plungeNodes.length === 0)
 				return false;
 			
-			unflownTurnStack.push([x, ++y]);
-			plot(nodesAtPlunge);
+			y++;
 			pathCursor.advance();
+			plotNodes(plungeNodes);
+			unflownTurnStack.push([x, y]);
 			return true;
 		}
 		
@@ -81,32 +89,47 @@ export class Waterfall
 			x = turnX;
 			y = turnY;
 			
-			const cursorNodes = getCursor().nodes;
-			const cursorNodesFiltered = cursorNodes.filter(node => node.outbounds.length > 0);
-			
-			const rightFansUnflattened = getCursor().nodes
+			const flowFans = getCursor().nodes
 				.filter(node => node.outbounds.length > 0)
-				.map(node => node.outbounds
-					.filter(fan => fan.targets.length > 0));
+				.map(node => node.outbounds.filter(fan => fan.targets.length > 0))
+				.reduce((a, b) => a.concat(b), []);
 			
 			// If there's nowhere to flow
-			if (rightFansUnflattened.length === 0)
+			if (flowFans.length === 0)
 				return false;
 			
-			const rightFans = rightFansUnflattened.length === 1 ?
-				rightFansUnflattened[0] :
-				rightFansUnflattened.reduce((a, b) => a.concat(b));
+			const flowFansFromTypes = flowFans
+				.filter(fan => fan.rationale === X.FanRationale.type);
 			
-			const rightNodesUnflattened = rightFans.map(node => node.targets);
+			const flowFansFromAliases = flowFans
+				.filter(fan => fan.rationale === X.FanRationale.pattern);
 			
-			if (rightNodesUnflattened.length === 0)
-				return false;
+			if (flowFansFromAliases.length)
+			{
+				const flowAliases = flowFansFromAliases.map(fan => fan.name);
+				const flowPatterns = flowFansFromAliases
+					.map(fan => fan.targets
+						.map(node => node.subject)
+						.filter((sub): sub is X.Pattern => sub instanceof X.Pattern))
+					.reduce((a, b) => a.concat(b), [])
+					.filter((v, i, a) => a.indexOf(v) === i);
+				
+				flowPatterns.map(pat => pat.exec());
+			}
 			
-			const rightNodes = new Set(rightNodesUnflattened.length === 1 ?
-				rightNodesUnflattened[0] : 
-				rightNodesUnflattened.reduce((a, b) => a.concat(b)));
+			const flowFansFromSums = flowFans
+				.filter(fan => fan.rationale === X.FanRationale.sum);
 			
-			if (rightNodes.size === 0)
+			if (flowFansFromSums.length)
+			{
+				const flowSums = flowFansFromSums.map(fan => fan.name);
+			}
+			
+			const flowNodes = new Set(flowFans
+				.map(node => node.targets)
+				.reduce((a, b) => a.concat(b), []));
+			
+			if (flowNodes.size === 0)
 				return false;
 			
 			// Move the cursor far enough to the right so that
@@ -115,13 +138,27 @@ export class Waterfall
 			
 			// We can easily check for circular references by determining
 			// if any of the nodes about to be plotted already exist in the
-			// terrace, to the right of the current cursor position. We only
-			// need to do this when we're 1 level past the directive.
+			// terrace, to the left of the current cursor position. We only
+			// need to do this when we're 1 level past the directive, and
+			// this needs to stop at the previous terminal (it doesn't 
+			// necessarily go all the way back to the beginning).
 			if (x > 0)
 			{
-				const preceedingTurns = <IMutableTurn[]>matrix[y]
-					.slice(0, x - 1)
-					.filter(t => t !== undefined);
+				const row = <IMutableTurn[]>matrix[y];
+				const preceedingTurns = row
+					.filter(t => t !== undefined)
+					.slice(0, x - 1);
+				
+				const terminalIdx = (() =>
+				{
+					for (let i = preceedingTurns.length; i-- > 0;)
+						if (preceedingTurns[i].terminal)
+							return i + 1;
+					
+					return 0;
+				})();
+				
+				preceedingTurns.splice(0, terminalIdx);
 				
 				// Stores the set of nodes that were found to have already
 				// been plotted to the left of the cursor. In an fault-free
@@ -130,7 +167,7 @@ export class Waterfall
 				
 				for (const preceedingTurn of preceedingTurns)
 					for (const preceedingNode of preceedingTurn.nodes)
-						if (rightNodes.has(preceedingNode))
+						if (flowNodes.has(preceedingNode))
 							preExistingNodes.add(preceedingNode);
 				
 				// Any node that was found to be pre-existing can't be
@@ -139,7 +176,7 @@ export class Waterfall
 				// to be reported as faults.
 				for (const preExistingNode of preExistingNodes)
 				{
-					if (rightNodes.has(preExistingNode))
+					if (flowNodes.has(preExistingNode))
 					{
 						for (const decl of preExistingNode.declarations)
 						{
@@ -151,36 +188,61 @@ export class Waterfall
 							program.faults.report(fault);
 						}
 						
-						rightNodes.delete(preExistingNode);
+						flowNodes.delete(preExistingNode);
 					}
 				}
 			}
 			
-			plot(Array.from(rightNodes));
+			plotNodes(Array.from(flowNodes));
+			unflownTurnStack.push([x, y]);
 			return true;
 		}
 		
 		/**
 		 * Positions a Node in the matrix at the location of the cursor.
 		 */
-		function plot(param: X.Node | ReadonlyArray<X.Node>)
+		function plotNodes(nodes: X.Node[])
 		{
-			// Make sure there is a slot in the matrix
-			// before the node is plotted.
-			if (y >= matrix.length)
-				matrix.push(new Array(getTotalWidth()));
-			
-			if (x >= getTotalWidth())
-				for (const terrace of matrix)
-					terrace.push(undefined);
-			
-			const nodes = param instanceof X.Node ? [param] : param.slice();
+			maybeResizeMatrix(x, y);
 			const existingTurn = matrix[y][x];
 			
 			if (existingTurn)
 				existingTurn.nodes.push(...nodes);
 			else
-				matrix[y][x] = { terminal: false, nodes: nodes };
+				matrix[y][x] = { terminal: false, nodes, captures: [] };
+		}
+		
+		/**
+		 * Positions a capture in the matrix, at the position 1 down and
+		 * 1 right of the cursor.
+		 */
+		function plotCapture(capture: string)
+		{
+			const captureX = x + 1;
+			const captureY = y + 1;
+			maybeResizeMatrix(captureX, captureY);
+			const existingTurn = matrix[captureY][captureX];
+			
+			if (existingTurn)
+				existingTurn.captures.push(capture);
+			else
+				matrix[captureY][captureX] = { terminal: false, nodes: [], captures: [capture] };
+		}
+		
+		/**
+		 * Ensures that the matrix is as least as tall
+		 * and wide as the specified dimensions.
+		 */
+		function maybeResizeMatrix(desiredX: number, desiredY: number)
+		{
+			// Make sure there is a slot in the matrix
+			// before the node is plotted.
+			if (desiredY >= matrix.length)
+				matrix.push(new Array(getTotalWidth()));
+			
+			if (desiredX >= getTotalWidth())
+				for (const terrace of matrix)
+					terrace.push(undefined);
 		}
 		
 		/** */
@@ -210,8 +272,13 @@ export class Waterfall
 			while (tryPlunge());
 			
 			while (unflownTurnStack.length > 0)
+			{
 				if (tryFlow())
+				{
+					matrix[y][x]!.terminal = true;
 					continue plungeLoop;
+				}
+			}
 			
 			break;
 		}
@@ -284,57 +351,11 @@ export class Waterfall
 
 
 /**
- * A class for scaling up and down a type path.
+ * 
  */
-class PathCursor
+interface ICapture
 {
-	constructor(uri: X.Uri)
-	{
-		this.typePath = uri.typePath;
-	}
 	
-	/** */
-	advance()
-	{
-		if (!this.atEnd)
-			this.cursor++;
-	}
-	
-	/** */
-	backtrack(to: number)
-	{
-		if (to < 0 || to >= this.cursor)
-			throw X.Exception.invalidArgument();
-		
-		this.cursor = to;
-	}
-	
-	/** */
-	get originName() { return this.typePath[0]; }
-	
-	/** */
-	get finalName() { return this.typePath[this.typePath.length - 1]; }
-	
-	/** */
-	get currentName() { return this.typePath[this.cursor]; }
-	
-	/** */
-	get nextName() { return this.atEnd ? null : this.typePath[this.cursor + 1]; }
-	
-	/** */
-	get previousName() { return this.atStart ? null : this.typePath[this.cursor - 1]; }
-	
-	/** */
-	get atStart() { return this.cursor === 0; }
-	
-	/** */
-	get atEnd() { return this.cursor >= this.typePath.length - 1; }
-	
-	/** */
-	private readonly typePath: ReadonlyArray<string>;
-	
-	/** */
-	private cursor = 0;
 }
 
 
@@ -351,7 +372,12 @@ interface IMutableTurn
 	/** 
 	 * Stores the array of Node objects that correspond to this turn.
 	 */
-	nodes: X.Node[];
+	readonly nodes: X.Node[];
+	
+	/**
+	 * 
+	 */
+	readonly captures: string[];
 }
 
 export type Turn = Freeze<IMutableTurn>;
@@ -378,7 +404,7 @@ function logMatrix(matrix: (IMutableTurn | undefined)[][])
 			else
 			{
 				const label = col.nodes.map(n => n.name).join(", ");
-				tableRow.push(label + (col.terminal ? " (term)" : ""));
+				tableRow.push(label + (col.terminal ? " T" : ""));
 			}
 		}
 	}
