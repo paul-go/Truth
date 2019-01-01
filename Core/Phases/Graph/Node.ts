@@ -329,7 +329,16 @@ export class Node
 	addFanSource(source: X.Span | X.InfixSpan)
 	{
 		const name = source.subject.toString();
-		const st = source.statement;
+		const stmt = source.statement;
+		
+		// If the input source is "alone", it means that it refers to
+		// a statement-level annotation that has no other annotations
+		// beside it (e.g. in an annotation structure looking like "D: A1, A2")
+		// This is relevant, because if the source is alone, it also needs
+		// to be compared against any visible total patterns.
+		const sourceIsAlone =
+			source instanceof X.Span && 
+			source.statement.annotations.length === 1;
 		
 		/**
 		 * Adds a fan to it's two applicable target nodes.
@@ -370,8 +379,9 @@ export class Node
 				for (const { adjacents } of this.enumerateContainment())
 					for (const adjacentNode of adjacents.values())
 						if (adjacentNode.subject instanceof X.Pattern)
-							if (adjacentNode.subject.test(name))
-								targets.push(adjacentNode);
+							if (sourceIsAlone || !adjacentNode.subject.isTotal)
+								if (adjacentNode.subject.test(name))
+									targets.push(adjacentNode);
 				
 				if (targets.length > 0)
 					rationale = X.FanRationale.pattern;
@@ -381,13 +391,12 @@ export class Node
 		}
 		
 		// Refresh the sums before quitting.
-		const sum = X.FanRationale.sum;
-		const sumStatement = st;
+		
 		const sumFanForInputSpanIdx = this._outbounds.findIndex(fan => 
 		{
-			if (fan.rationale === sum)
+			if (fan.rationale === X.FanRationale.sum)
 				for (const src of fan.sources)
-					return src.statement === sumStatement;
+					return src.statement === stmt;
 			
 			return false;
 		});
@@ -395,22 +404,25 @@ export class Node
 		if (sumFanForInputSpanIdx > -1)
 			this._outbounds.splice(sumFanForInputSpanIdx, 1);
 		
-		const sumText = st.getAnnotationContent();
-		const sumTargets: Node[] = [];
-		
-		for (const { adjacents } of this.enumerateContainment())
-			for (const adjacentNode of adjacents.values())
-				if (adjacentNode.subject instanceof X.Pattern)
-					if (adjacentNode.subject.test(sumText))
-						sumTargets.push(adjacentNode);
-		
-		if (sumTargets.length > 0)
+		if (!sourceIsAlone)
 		{
-			append(new X.Fan(
-				this,
-				sumTargets,
-				st.annotations,
-				X.FanRationale.sum));
+			const sumTargets: Node[] = [];
+			
+			for (const { adjacents } of this.enumerateContainment())
+				for (const adjacentNode of adjacents.values())
+					if (adjacentNode.subject instanceof X.Pattern)
+						if (adjacentNode.subject.isTotal)
+							if (adjacentNode.subject.test(stmt.sum))
+								sumTargets.push(adjacentNode);
+			
+			if (sumTargets.length > 0)
+			{
+				append(new X.Fan(
+					this,
+					sumTargets,
+					stmt.annotations,
+					X.FanRationale.sum));
+			}
 		}
 	}
 	

@@ -59,6 +59,7 @@ export class LineParser
 		const esc = X.Syntax.escapeChar;
 		let flags = X.LineFlags.none;
 		let jointPosition = -1;
+		let sum = "";
 		
 		/**
 		 * Universal function for quickly producing a RawStatement
@@ -69,6 +70,7 @@ export class LineParser
 			indent,
 			new X.Bounds(declarationEntries),
 			new X.Bounds(annotationEntries),
+			sum,
 			flags,
 			jointPosition);
 		
@@ -147,6 +149,8 @@ export class LineParser
 				jointPosition = maybeReadJoint();
 				
 				const readResult = readAnnotations([]);
+				sum = readResult.raw.trim();
+				
 				for (const boundsEntry of readResult.annotations)
 					annotationEntries.push(boundsEntry);
 				

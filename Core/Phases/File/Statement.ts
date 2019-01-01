@@ -19,6 +19,7 @@ export class Statement
 		const line = X.LineParser.parse(text);
 		this.document = document;
 		this.sourceText = line.sourceText;
+		this.sum = line.sum;
 		this.indent = line.indent;
 		this.flags = line.flags;
 		this.declarationBounds = line.declarations;
@@ -112,6 +113,14 @@ export class Statement
 	 * as it appears in the document.
 	 */
 	readonly sourceText: string;
+	
+	/**
+	 * Stores the statement's textual *sum*, which is the
+	 * raw text of the statement's annotations, with whitespace
+	 * trimmed. The sum is suitable as an input to a total
+	 * pattern.
+	 */
+	readonly sum: string;
 	
 	/**
 	 * Gets a boolean value indicating whether or not the
@@ -249,16 +258,6 @@ export class Statement
 				return span;
 		
 		return null;
-	}
-	
-	/**
-	 * @returns The raw trimmed text of the complete
-	 * annotation side of this statement.
-	 */
-	getAnnotationContent()
-	{
-		const jntLen = X.Syntax.joint.length;
-		return this.sourceText.slice(this.jointPosition + jntLen).trim();
 	}
 	
 	/**
