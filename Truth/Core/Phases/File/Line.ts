@@ -14,6 +14,7 @@ export class Line
 		readonly indent: number,
 		readonly declarations: X.Bounds<X.DeclarationSubject>,
 		readonly annotations: X.Bounds<X.AnnotationSubject>,
+		readonly sum: string,
 		readonly flags: LineFlags,
 		readonly jointPosition: number)
 	{ }

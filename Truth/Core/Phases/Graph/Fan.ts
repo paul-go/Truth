@@ -29,7 +29,7 @@ export class Fan
 			if (new Set(sources.map(decl => decl.statement)).size !== 1)
 				throw X.Exception.invalidArgument();
 			
-			this.name = sources[0].statement.getAnnotationContent();
+			this.name = sources[0].statement.sum;
 		}
 		else this.name = sources[0].subject.toString();
 		
@@ -105,38 +105,36 @@ export class Fan
 export enum FanRationale
 {
 	/**
-	 * Indicates that the Fan was created, but doesn't
-	 * actually connect anything, due to an inability
-	 * to resolve an annotation to a meaningful place
-	 * in the document.
+	 * Indicates that the Fan was created, but doesn't actually connect
+	 * anything, due to an inability to resolve an annotation to a
+	 * meaningful place in the document.
 	 */
 	orphan,
 	
 	/**
-	 * Indicates that the Fan was created to connect
-	 * an origin Node to other Nodes through a type
-	 * relationship (meaning an exact name match).
+	 * Indicates that the Fan was created to connect an origin Node to
+	 * other Nodes through a type relationship (meaning an exact name
+	 * match).
 	 */
 	type,
 	
 	/**
-	 * Indicates that the Fan was created to connect
-	 * an origin Node to other Nodes through a pattern
-	 * with the coexistence flag set.
+	 * Indicates that the Fan was created to connect an origin Node to
+	 * other Nodes through a partial or total pattern. In the case when
+	 * the connection is as a result of a total pattern, the source is
+	 * guaranteed to be *alone* in it's annotation set.
 	 */
 	pattern,
 	
 	/**
-	 * Indicates that the Fan was created to connect
-	 * and origin Node to other Nodes through a "sum"
-	 * pattern (a pattern without the coexistence flag set).
+	 * Indicates that the Fan was created to connect an origin Node to
+	 * target Nodes, as a result of the sum of the statement that contains
+	 * one of the target nodes.
 	 * 
 	 * A Sum is a serialized representation of a series of annotations
 	 * that are all present within a single statement. It is used to handle
 	 * the case that given a statement in the form "A : B, C, D", the 
-	 * annotation "B, C, D" may actually be matchable by a pattern
-	 * without a coexistence flag. Sums allow these potential matches
-	 * to be processed more easily.
+	 * annotation "B, C, D" may actually be matchable by a total pattern.
 	 */
-	sum,
+	sum
 }	
