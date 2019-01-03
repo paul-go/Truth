@@ -19,4 +19,4 @@ Class
 	Value : MyFavouriteNumber
 ​
 SubClass : Class
-	Value : 8
+	Value : 8 ~ MyFavouriteNumber
