@@ -172,7 +172,7 @@ export class BaselineTestGenerator
 /** */
 function serializeSpan(span: X.Span, codes: number[], names: string[])
 {
-	const parts = [span.subject.toString()];
+	const parts = [span.toString()];
 	
 	if (codes.length !== names.length)
 		throw X.Exception.unknownState();

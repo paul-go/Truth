@@ -32,12 +32,7 @@ export class Waterfall
 		if (originNode === null)
 			return null;
 		
-		const matrix: (IMutableTurn | undefined)[][] = [[{
-			terminal: false,
-			nodes: [originNode],
-			captures: []
-		}]];
-		
+		const matrix: Terrace[] = [[new NodesTurn([originNode])]];
 		const getTotalWidth = () => matrix[0].length;
 		
 		/**
@@ -53,31 +48,39 @@ export class Waterfall
 		/** */
 		function tryPlunge()
 		{
-			matrix;
+			logMatrix(matrix);
 			
 			if (pathCursor.atEnd)
 				return false;
 			
-			const cursorNodes = getCursor().nodes;
 			const plungeToName = X.Guard.null(pathCursor.nextName);
+			const cursorTurn = getCursorTurn();
+			
+			console.log(`Somehow we need to end up with the captures
+				placed in the plunge array`);
+			
+			const cursorNodes = getCursorNodes();
 			const plungeNodes = cursorNodes
-				.map(node => node.contents.get(plungeToName))
-				.filter((node): node is X.Node => node !== undefined);
+				.map(node => node instanceof X.Node ? 
+					node.contents.get(plungeToName) :
+					undefined);
 			
 			// If there's nowhere to plunge.
-			if (plungeNodes.length === 0)
+			if (plungeNodes.filter(n => n !== undefined).length === 0)
 				return false;
 			
 			y++;
 			pathCursor.advance();
-			plotNodes(plungeNodes);
+			plot(new NodesTurn(plungeNodes));
 			unflownTurnStack.push([x, y]);
+			logMatrix(matrix);
 			return true;
 		}
 		
 		/** */
 		function tryFlow()
 		{
+			logMatrix(matrix);
 			if (unflownTurnStack.length === 0)
 				return false;
 			
@@ -89,15 +92,17 @@ export class Waterfall
 			x = turnX;
 			y = turnY;
 			
-			const flowFans = getCursor().nodes
+			const flowFans = getCursorNodes()
+				.filter((node): node is X.Node => node instanceof X.Node)
 				.filter(node => node.outbounds.length > 0)
 				.map(node => node.outbounds.filter(fan => fan.targets.length > 0))
-				.reduce((a, b) => a.concat(b), []);
+				.reduce((a, b) => (a || []).concat(b), []);
 			
 			// If there's nowhere to flow
 			if (flowFans.length === 0)
 				return false;
 			
+			/*
 			const flowFansFromTypes = flowFans
 				.filter(fan => fan.rationale === X.FanRationale.type);
 			
@@ -123,7 +128,7 @@ export class Waterfall
 			if (flowFansFromSums.length)
 			{
 				const flowSums = flowFansFromSums.map(fan => fan.name);
-			}
+			}*/
 			
 			const flowNodes = new Set(flowFans
 				.map(node => node.targets)
@@ -136,6 +141,26 @@ export class Waterfall
 			// it clears other turns to the left of it.
 			x = getTotalWidth();
 			
+			// Before you plot, you need to yield all the way out,
+			// I think even to the type checker. This is because you
+			// can't just plot something that potentially has bogus
+			// annotations. You want to make sure that you can
+			// rely on everything being plotted. The tryPlunge and
+			// tryFlow functions should return other functions that
+			// get executed after the way has already been cleared
+			// by the type checker (and possibly other agents).
+			
+			plot(new FansTurn(flowFans));
+			unflownTurnStack.push([x, y]);
+			logMatrix(matrix);
+			return true;
+			
+			/*
+			DEPRECATION: All of this code is dead. This isn't how you
+			check for circular references. Circular references are checked
+			when you resolve an entanglement, and the type you're trying
+			to apply to the entangement is already in the directive.
+			
 			// We can easily check for circular references by determining
 			// if any of the nodes about to be plotted already exist in the
 			// terrace, to the left of the current cursor position. We only
@@ -144,10 +169,12 @@ export class Waterfall
 			// necessarily go all the way back to the beginning).
 			if (x > 0)
 			{
-				const row = <IMutableTurn[]>matrix[y];
+				const row = matrix[y];
 				const preceedingTurns = row
-					.filter(t => t !== undefined)
+					.filter((t): t is NodesTurn => t !== undefined)
 					.slice(0, x - 1);
+				
+				row.reduce
 				
 				const terminalIdx = (() =>
 				{
@@ -192,41 +219,32 @@ export class Waterfall
 					}
 				}
 			}
-			
-			plotNodes(Array.from(flowNodes));
-			unflownTurnStack.push([x, y]);
-			return true;
+			.*/
 		}
 		
 		/**
 		 * Positions a Node in the matrix at the location of the cursor.
 		 */
-		function plotNodes(nodes: X.Node[])
+		function plot(turn: NodesTurn | FansTurn)
 		{
 			maybeResizeMatrix(x, y);
 			const existingTurn = matrix[y][x];
 			
-			if (existingTurn)
-				existingTurn.nodes.push(...nodes);
-			else
-				matrix[y][x] = { terminal: false, nodes, captures: [] };
-		}
-		
-		/**
-		 * Positions a capture in the matrix, at the position 1 down and
-		 * 1 right of the cursor.
-		 */
-		function plotCapture(capture: string)
-		{
-			const captureX = x + 1;
-			const captureY = y + 1;
-			maybeResizeMatrix(captureX, captureY);
-			const existingTurn = matrix[captureY][captureX];
-			
-			if (existingTurn)
-				existingTurn.captures.push(capture);
-			else
-				matrix[captureY][captureX] = { terminal: false, nodes: [], captures: [capture] };
+			if (existingTurn instanceof NodesTurn)
+			{
+				if (turn instanceof FansTurn)
+					throw X.Exception.unknownState();
+				
+				existingTurn.nodes.push(...turn.nodes);
+			}
+			else if (existingTurn instanceof FansTurn)
+			{
+				if (turn instanceof NodesTurn)
+					throw X.Exception.unknownState();
+				
+				existingTurn.fans.push(...turn.fans);
+			}
+			else matrix[y][x] = turn;
 		}
 		
 		/**
@@ -245,8 +263,42 @@ export class Waterfall
 					terrace.push(undefined);
 		}
 		
+		/**
+		 * Returns an array containing the nodes that have been
+		 * plotted on the matrix and the current cursor location.
+		 * 
+		 * In the case when a NodesTurn is located at the cursor
+		 * location, the nodes of this turn are returned.
+		 * 
+		 * In the case when a FansTurn is located at the cursor
+		 * location, the nodes targeted by these fans are returned.
+		 * 
+		 * In the case when the cursor location points to an undefined
+		 * value, an error is generated.
+		 */
+		function getCursorNodes()
+		{
+			const terrace = matrix[y];
+			if (x >= terrace.length)
+				throw X.Exception.unknownState();
+			
+			const turn = terrace[x];
+			
+			if (turn instanceof NodesTurn)
+				return turn.nodes;
+			
+			if (turn instanceof FansTurn)
+				return turn.fans
+					.filter((f): f is X.Fan => f instanceof X.Fan)
+					.map(f => f.targets)
+					.reduce((a, b) => a.concat(b), [])
+					.filter((v, i, a) => a.indexOf(v) === i);
+			
+			throw X.Exception.unknownState();
+		}
+		
 		/** */
-		function getCursor()
+		function getCursorTurn()
 		{
 			const terrace = matrix[y];
 			if (x >= terrace.length)
@@ -272,20 +324,15 @@ export class Waterfall
 			while (tryPlunge());
 			
 			while (unflownTurnStack.length > 0)
-			{
 				if (tryFlow())
-				{
-					matrix[y][x]!.terminal = true;
 					continue plungeLoop;
-				}
-			}
 			
 			break;
 		}
 		
 		// Debugging code to bring the
 		// logMatrix() function into scope.
-		logMatrix;
+		logMatrix(matrix);
 		
 		return new Waterfall(directive, matrix, program);
 	}
@@ -310,12 +357,6 @@ export class Waterfall
 	 * at an unpopulated location in a document.
 	 */
 	readonly totalHeight: number = 0;
-	
-	/**
-	 * Stores an array of faults that were generated before
-	 * the Waterfall was constructed.
-	 */
-	readonly constructionFaults: ReadonlyArray<X.Fault> = [];
 	
 	/**
 	 * Reads a full terrace from the waterfall, from the specified
@@ -353,40 +394,40 @@ export class Waterfall
 /**
  * 
  */
-interface ICapture
+class NodesTurn
 {
-	
+	constructor(
+		/**
+		 * Stores an array of Nodes, captures, or undefined,
+		 * in a way where all indexes line up with the turn directly above
+		 * this turn in the matrix.
+		 */
+		readonly nodes: (X.Node | string | undefined)[] = [])
+	{ }
 }
 
 
 /**
  * 
  */
-interface IMutableTurn
+class FansTurn
 {
-	/**
-	 * Indicates whether this Turn terminates the flow of it's ledge.
-	 */
-	terminal: boolean;
-	
-	/** 
-	 * Stores the array of Node objects that correspond to this turn.
-	 */
-	readonly nodes: X.Node[];
-	
-	/**
-	 * 
-	 */
-	readonly captures: string[];
+	constructor(readonly fans: (X.Fan | undefined)[] = []) { }
 }
 
-export type Turn = Freeze<IMutableTurn>;
+type Terrace = (NodesTurn | FansTurn | undefined)[];
+
+/** */
+export type Turn = Freeze<NodesTurn | FansTurn>;
+
+
+
 
 
 /**
  * Logs the specified matrix as a call to console.table()
  */
-function logMatrix(matrix: (IMutableTurn | undefined)[][])
+function logMatrix(matrix: (Turn | undefined)[][])
 {
 	const table: string[][] = [];
 	
@@ -397,15 +438,19 @@ function logMatrix(matrix: (IMutableTurn | undefined)[][])
 		
 		for (const col of row)
 		{
-			if (col === undefined)
+			tableRow.push((() =>
 			{
-				tableRow.push("undefined");
-			}
-			else
-			{
-				const label = col.nodes.map(n => n.name).join(", ");
-				tableRow.push(label + (col.terminal ? " T" : ""));
-			}
+				if (col instanceof NodesTurn)
+					return col.nodes.map(n =>
+						n === undefined ? "un" :
+						typeof n === "string" ? n :
+						n.name).join(", ") + " N";
+			
+				else if (col instanceof FansTurn)
+					return col.fans.map(f => f === undefined ? "un" : f.name).join(", ") + " F";
+				
+				return "";
+			})());
 		}
 	}
 	

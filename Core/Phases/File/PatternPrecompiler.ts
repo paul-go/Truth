@@ -39,8 +39,16 @@ export class PatternPrecompiler
 		result.unshift("^");
 		result.push("$");
 		
-		const reg = result.join("");
-		return new RegExp(reg, "u");
+		const regText = result.join("");
+		
+		try
+		{
+			return new RegExp(regText, "u");
+		}
+		catch (e)
+		{
+			return null;
+		}
 	}
 }
 

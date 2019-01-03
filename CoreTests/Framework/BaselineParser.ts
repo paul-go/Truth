@@ -266,7 +266,7 @@ export class BaselineParser
 					const ancestor = baselineLines[backtrackLineIdx].line;
 					const flags = 
 						X.LineFlags.isComment | 
-						X.LineFlags.isUnparsable | 
+						X.LineFlags.isCruft | 
 						X.LineFlags.isWhitespace;
 					
 					if ((ancestor.flags ^ flags) !== ancestor.flags)

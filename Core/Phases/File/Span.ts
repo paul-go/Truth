@@ -23,24 +23,69 @@ export class Span
 		readonly statement: X.Statement,
 		
 		/**
-		 * The offset in the statement that marks the start of the
-		 * region being pointed to.
+		 * Stores the subject, and the location of it in the document.
 		 */
-		readonly offsetStart: number,
-		
-		/**
-		 * The offset in the statement that marks the end of the
-		 * region being pointed to.
-		 */
-		readonly offsetEnd: number,
-		
-		/**
-		 * Stores either a reference to the instance of the Subject that
-		 * this Span represents, or a unique string in the case when
-		 * this is a "Thin Span" that represents an Invisible Subject.
-		 */
-		readonly subject: X.Subject)
+		readonly boundary: X.Boundary<X.Subject>)
 	{ }
+	
+	/**
+	 * Gets the Infixes stored within this Span, in the case when
+	 * the Span corresponds to a Pattern. In other cases, and
+	 * empty array is returned.
+	 */
+	get infixes()
+	{
+		return this._infixes || (this._infixes = Object.freeze((() =>
+		{
+			return this.boundary.subject instanceof X.Pattern ?
+				Array.from(this.boundary.subject.getInfixes()) :
+				[];
+		})()));
+	}
+	private _infixes: ReadonlyArray<X.Infix> | null = null;
+	
+	/** */
+	*eachDeclarationForInfix(infix: X.Infix)
+	{
+		if (!this.infixes.includes(infix))
+			throw X.Exception.invalidCall();
+		
+		const { lhs } = this.queryInfixSpanTable(infix);
+		for (const infixSpan of lhs)
+			yield infixSpan;
+	}
+	
+	/** */
+	*eachAnnotationForInfix(infix: X.Infix)
+	{
+		if (!this.infixes.includes(infix))
+			throw X.Exception.invalidCall();
+		
+		const { rhs } = this.queryInfixSpanTable(infix);
+		for (const infixSpan of rhs)
+			yield infixSpan;
+	}
+	
+	/** */
+	private queryInfixSpanTable(infix: X.Infix)
+	{
+		return this.infixSpanTable.get(infix) || (() =>
+		{
+			const lhs: X.InfixSpan[] = [];
+			const rhs: X.InfixSpan[] = [];
+			
+			for (const boundary of infix.lhs)
+				lhs.push(new X.InfixSpan(this, infix, boundary));
+			
+			for (const boundary of infix.rhs)
+				rhs.push(new X.InfixSpan(this, infix, boundary));
+			
+			return { lhs, rhs };
+		})();
+	}
+	
+	/** */
+	private readonly infixSpanTable = new Map<X.Infix, { lhs: X.InfixSpan[], rhs: X.InfixSpan[] }>();
 	
 	/**
 	 * Gets an array of statements that represent the statement
@@ -79,13 +124,19 @@ export class Span
 		if (this.factoredSpines)
 			return this.factoredSpines;
 		
+		if (this.isCruft || this.statement.isCruft)
+			return this.factoredSpines = Object.freeze([]);
+		
 		if (this.ancestry.length === 0)
 			return this.factoredSpines = Object.freeze([new X.Spine([this])]);
 		
 		// We need to factor the ancestry. This means we're taking the
 		// specified ancestry path, and splitting where any has-a side unions
 		// exist, in effect creating all possible paths to the specified tip.
-		const factoredSpanPaths: X.Span[][] = [];
+		// It's possible to have statements in the span path in the case
+		// when the statement has been deemed as cruft, and therefore,
+		// is impossible to extract any spans from it.
+		const factoredSpanPaths: (X.Span | X.Statement)[][] = [];
 		
 		// An array of arrays. The first dimension corresponds to a statement. 
 		// The second dimension stores the declaration spans themselves.
@@ -116,12 +167,19 @@ export class Span
 		for (let i = -1; ++i < numSpines;)
 		{
 			// Do an insertion at the indexes specified by insertionIndexes
-			const spanPath: X.Span[] = [];
+			const spanPath: (X.Span | X.Statement)[] = [];
 			
 			// Cherry pick a series of terms from the ancestry terms,
 			// according to the index set we're currently on.
 			for (let level = -1; ++level < this.ancestry.length;)
 			{
+				const statement = this.ancestry[level];
+				if (statement.isCruft)
+				{
+					spanPath.push(statement);
+					continue;
+				}
+				
 				const spansForStatement = ancestryMatrix[level];
 				const spanIndex = cherryPickIndexes[level];
 				const span = spansForStatement[spanIndex];
@@ -154,4 +212,19 @@ export class Span
 	
 	/**  */
 	private factoredSpines: ReadonlyArray<X.Spine> | null = null;
+	
+	/**
+	 * Gets a boolean value that indicates whether this Span is considered
+	 * object-level cruft, and should therefore be ignored during type analysis.
+	 */
+	get isCruft()
+	{
+		return this.statement.cruftObjects.has(this);
+	}
+	
+	/** */
+	toString()
+	{
+		return this.boundary.subject.toString();
+	}
 }

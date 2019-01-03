@@ -2,30 +2,16 @@ import * as X from "../../X";
 
 
 /**
- * A class that represents a link between a Node that is
- * contained by another Node, through a Population Infix. 
- * For example, the given the following pattern:
- * 
- * /<Low : Number> - <High : Number> : Range
- * 
- * Two contained types are implicitly created that exist
- * inside the pattern definition, creating a structure that,
- * in effect, looks like:
- * 
- * /<Low> - <High> : Range
- *     Low : Number
- *     High : Number
- * 
- * In this case the implicit "Low" and "High" contained types
- * would each have an Anchor that binds them to the infix
- * in their containing pattern in which they were instantiated.
+ * A class that marks out the location of an infix Identifer within
+ * it's containing Infix, it's containing Span, and then it's containing
+ * Statement, Document, and Program.
  */
 export class InfixSpan
 {
 	constructor(
 		readonly containingSpan: X.Span,
-		readonly infix: X.Infix,
-		readonly subject: X.Identifier)
+		readonly containingInfix: X.Infix,
+		readonly boundary: X.Boundary<X.Identifier>)
 	{ }
 	
 	/**
@@ -34,5 +20,15 @@ export class InfixSpan
 	get statement()
 	{
 		return this.containingSpan.statement;
+	}
+	
+	/**
+	 * Gets a boolean value that indicates whether this InfixSpan
+	 * is considered object-level cruft, and should therefore be
+	 * ignored during type analysis.
+	 */
+	get isCruft()
+	{
+		return this.containingSpan.statement.cruftObjects.has(this);
 	}
 }

@@ -25,7 +25,36 @@ export class Pattern
 		 * annotations specified to the right of the pattern.
 		 */
 		readonly crc: string)
-	{ }
+	{
+		this.compiledRegExp = X.PatternPrecompiler.exec(this);
+		this.isValid = this.compiledRegExp instanceof X.Pattern;
+	}
+	
+	/**
+	 * Stores whether the internal regular expression
+	 * was compiled successfully.
+	 */
+	readonly isValid: boolean;
+	
+	/**
+	 * Recursively enumerates through this Pattern's unit structure.
+	 */
+	*eachUnit()
+	{
+		function *recurse(units: ReadonlyArray<X.RegexUnit | X.Infix>)
+		{
+			for (const unit of units)
+			{
+				yield unit;
+				
+				if (unit instanceof X.RegexGroup)
+					for (const unitCase of unit.cases)
+						recurse(unitCase);
+			}
+		}
+		
+		yield* recurse(this.units);
+	}
 	
 	/**
 	 * @returns A boolean value that indicates whether
@@ -60,14 +89,15 @@ export class Pattern
 	 */
 	test(input: string)
 	{
-		if (this.compiledRegExp === null)
-			this.compiledRegExp = X.PatternPrecompiler.exec(this);
+		const regExp = this.compiledRegExp;
+		if (regExp === null)
+			return false;
 		
 		const inputTrimmed = input.trim();
 		if (inputTrimmed === "")
 			return false;
 		
-		return this.compiledRegExp.test(input);
+		return regExp.test(input);
 	}
 	
 	/**
@@ -81,8 +111,9 @@ export class Pattern
 	 */
 	exec(patternParameter: string): ReadonlyMap<X.Infix, string>
 	{
-		if (this.compiledRegExp === null)
-			this.compiledRegExp = X.PatternPrecompiler.exec(this);
+		const regExp = this.compiledRegExp;
+		if (regExp === null)
+			return new Map();
 		
 		const result = new Map<X.Infix, string>();
 		const infixes = this.getInfixes();
@@ -95,29 +126,38 @@ export class Pattern
 			const idxArray: number[] = [];
 			let idx = 0;
 			
-			const recurseUnits = (units: ReadonlyArray<X.RegexUnit | X.Infix>) =>
+			for (const unit of this.eachUnit())
 			{
-				for (const unit of units)
-				{
-					if (unit instanceof X.Infix)
-					{
-						idxArray.push(++idx);
-					}
-					else if (unit instanceof X.RegexGroup)
-					{
-						++idx;
-						for (const unitCase of unit.cases)
-							recurseUnits(unitCase);
-					}
-				}
+				if (unit instanceof X.Infix)
+					idxArray.push(++idx);
+				
+				if (unit instanceof X.RegexGroup)
+					idx++;
 			}
 			
-			recurseUnits(this.units);
+			//Make sure the above produces the same behavior before deleting
+			//const recurseUnits = (units: ReadonlyArray<X.RegexUnit | X.Infix>) =>
+			//{
+			//	for (const unit of units)
+			//	{
+			//		if (unit instanceof X.Infix)
+			//		{
+			//			idxArray.push(++idx);
+			//		}
+			//		else if (unit instanceof X.RegexGroup)
+			//		{
+			//			++idx;
+			//			for (const unitCase of unit.cases)
+			//				recurseUnits(unitCase);
+			//		}
+			//	}
+			//}
+			//recurseUnits(this.units);
+			
 			return idxArray;
 		})();
 		
-		const compiled = this.compiledRegExp;
-		const reg = new RegExp(compiled.source, compiled.flags);
+		const reg = new RegExp(regExp.source, regExp.flags);
 		const matches = reg.exec(patternParameter);
 		
 		if (matches === null)
@@ -129,6 +169,7 @@ export class Pattern
 		return result;
 	}
 	
+	/** */
 	private compiledRegExp: RegExp | null = null;
 	
 	/**
@@ -144,6 +185,3 @@ export class Pattern
 			(this.isTotal ? delim : "");
 	}
 }
-
-
-

@@ -93,14 +93,11 @@ export class Graph
 		{
 			for (const declaration of statement.declarations)
 			{
-				const associatedNodesRaw = declaration
+				const associatedNodes = new Set(declaration
 					.factor()
 					.map(spine => X.Uri.create(spine))
-					.map(uri => this.nodeCache.get(uri.toString(true, true)));
-				
-				const associatedNodes = 
-					X.HigherOrder.distinct(
-						X.HigherOrder.throwOnNullable(associatedNodesRaw));
+					.map(uri => this.nodeCache.get(uri.toString(true, true)))
+					.filter((n): n is X.Node => n instanceof X.Node));
 				
 				for (const associatedNode of associatedNodes)
 				{
@@ -197,13 +194,16 @@ export class Graph
 			
 			const multiMap = breadthFirstOrganizer[level];
 			
+			if (statement.isCruft)
+				debugger;
+			
 			for (const declaration of statement.declarations)
 			{
 				for (const spine of declaration.factor())
 				{
 					const uri = X.Uri.create(spine);
 					const typeNames = spine.vertebrae
-						.map(n => n.subject.toString());
+						.map(vert => vert.toString());
 					
 					multiMap.add(
 						typeNames.join(X.Syntax.terminal),
@@ -213,27 +213,21 @@ export class Graph
 					// need to be added to the map as though they
 					// were regular declarations.
 					
-					if (!(declaration.subject instanceof X.Pattern))
+					const popInfixes = declaration.infixes.filter(nfx => nfx.isPopulation);
+					if (popInfixes.length === 0)
 						continue;
 					
-					const popFlag = X.InfixFlags.population;
-					const nfxs = declaration.subject.getInfixes(popFlag);
-					if (nfxs.length === 0)
-						continue;
-					
-					for (const nfx of nfxs)
-					for (const nfxDeclaration of nfx.lhs.eachSubject())
+					for (const infix of popInfixes)
 					{
-						const nfxText = nfxDeclaration.toString();
-						const infixSpineParts = typeNames.concat(nfxText);
-						const anchor = new X.InfixSpan(
-							declaration,
-							nfx,
-							nfxDeclaration);
-						
-						multiMap.add(
-							infixSpineParts.join(X.Syntax.terminal),
-							{ uri: uri.extend([], nfxText), declaration: anchor });
+						for (const infixSpan of declaration.eachDeclarationForInfix(infix))
+						{
+							const nfxText = infixSpan.boundary.subject.toString();
+							const infixSpineParts = typeNames.concat(nfxText);
+							
+							multiMap.add(
+								infixSpineParts.join(X.Syntax.terminal),
+								{ uri: uri.extend([], nfxText), declaration: infixSpan });
+						}
 					}
 				}
 			}
@@ -286,11 +280,18 @@ export class Graph
 					for (const annotation of declaration.statement.annotations)
 						node.addFanSource(annotation);
 				}
-				else for (const annotation of declaration.infix.rhs.eachSubject())
-					node.addFanSource(new X.InfixSpan(
-						declaration.containingSpan,
-						declaration.infix,
-						annotation));
+				else
+				{
+					const nfx = declaration.containingInfix;
+					
+					for (const boundary of nfx.rhs)
+					{
+						node.addFanSource(new X.InfixSpan(
+							declaration.containingSpan,
+							nfx,
+							boundary));
+					}
+				}
 			}
 				
 		// If there's no active transaction the corresponds to the input
