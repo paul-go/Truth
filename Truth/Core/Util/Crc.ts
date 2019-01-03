@@ -11,11 +11,17 @@ export class Crc
 	/**
 	 * Calculates a numeric CRC from the specified string, and returns the
 	 * code as a 4-character ASCII byte string.
-	 * @param seed A starting seed value, used in the case of a rolling CRC.
 	 */
-	static calculate(text: string, seed = 0)
+	static calculate(text: string): string;
+	/**
+	 * Calculates a numeric CRC from the specified string, and returns the
+	 * code as a 4-number byte array.
+	 */
+	static calculate(text: string, type: typeof Number): number[];
+	static calculate(text: string, type?: typeof Number): string | number[]
 	{
-		let len = text.length;
+		const seed = 0;
+		const len = text.length;
 		let i = 0;
 		let c = seed ^ -1;
 		let d = 0;
@@ -59,7 +65,9 @@ export class Crc
 			(255 << 1) & c
 		];
 		
-		return String.fromCharCode(...bytes);
+		return type === Number ?
+			bytes :
+			String.fromCharCode(...bytes);
 	}
 }
 
@@ -85,3 +93,4 @@ const table = (() =>
 	
 	return new Int32Array(out);
 })();
+
