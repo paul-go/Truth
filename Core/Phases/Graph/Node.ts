@@ -3,9 +3,8 @@ import * as X from "../../X";
 
 /**
  * A class that represents a single Node contained within
- * the Program's Graph. Nodes are long-lived objects that
- * persist between edit frames, and maintain referential
- * integrity.
+ * the Program's Graph. Nodes are long-lived, referentially
+ * significant objects that persist between edit frames.
  * 
  * Nodes are connected in a graph not by edges, but by
  * "Fans". A Fan is similar to a directed edge in that it has
