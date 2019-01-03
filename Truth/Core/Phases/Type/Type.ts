@@ -13,13 +13,16 @@ export class Type
 	{
 		const uri = X.Uri.create(param);
 		
-		const waterfall = X.Waterfall.create(uri, program);
+		const waterfall = X.WaterfallRenderer.invoke(uri, program);
 		if (waterfall === null)
 			return null;
 		
 		// If the URI references an unpopulated area.
 		if (waterfall.totalHeight > uri.typePath.length)
 			return null;
+		
+		const skipSet = X.WaterfallAnalyzer.invoke(waterfall);
+		const walker = new X.WaterfallWalker(waterfall, skipSet);
 		
 		const faults: X.Fault[] = [];
 		const bases: X.Type[] = [];

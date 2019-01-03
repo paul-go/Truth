@@ -2,12 +2,36 @@ import * as X from "../../X";
 
 
 /**
+ * @internal
+ * Renders a URI onto a *Waterfall*, which is a 2-dimensional
+ * matrix of Nodes and Fans.
  * 
+ * Nodes and Fans are plotted on the waterfall in the form of
+ * "Turns". Nodes are plotted by "plunging" (going downward)
+ * and it's associated fans are plotted by "flowing" (going right-
+ * ward). The oscilation between plunging and flowing follows
+ * a circular / stack based process that is best described in this
+ * poem:
+ * 
+ *	Plunge until you can't. 
+ *	Then try to flow...
+ *	But quit if you can't,
+ *	Or repeat if there's more to go.
+ * 
+ * This technique allows Truth structures to be analyzed
+ * entirely, simply by scanning one "Terrace" of the waterfall,
+ * which is a horizontal scan line of the matrix.
+ * 
+ * This technique seems as though it's probably drawing on
+ * some known or unknown graph-theoretical axiom, because
+ * it makes it so that everything that could possibly be verified
+ * in a truth document (from a type-structural point of view) is
+ * not only possible, but simplified to a *shocking* degree.
  */
 export class WaterfallRenderer
 {
 	/**  */
-	static create(directive: X.Uri, program: X.Program)
+	static invoke(directive: X.Uri, program: X.Program)
 	{
 		if (directive.typePath.length === 0)
 			return null;
@@ -32,7 +56,7 @@ export class WaterfallRenderer
 		if (originNode === null)
 			return null;
 		
-		const matrix: Terrace[] = [[new NodesTurn([originNode])]];
+		const matrix: Terrace[] = [[new X.NodesTurn([originNode])]];
 		const getTotalWidth = () => matrix[0].length;
 		
 		/**
@@ -71,7 +95,7 @@ export class WaterfallRenderer
 			
 			y++;
 			pathCursor.advance();
-			plot(new NodesTurn(plungeNodes));
+			plot(new X.NodesTurn(plungeNodes));
 			unflownTurnStack.push([x, y]);
 			logMatrix(matrix);
 			return true;
@@ -150,7 +174,7 @@ export class WaterfallRenderer
 			// get executed after the way has already been cleared
 			// by the type checker (and possibly other agents).
 			
-			plot(new FansTurn(flowFans));
+			plot(new X.FansTurn(flowFans));
 			unflownTurnStack.push([x, y]);
 			logMatrix(matrix);
 			return true;
@@ -171,7 +195,7 @@ export class WaterfallRenderer
 			{
 				const row = matrix[y];
 				const preceedingTurns = row
-					.filter((t): t is NodesTurn => t !== undefined)
+					.filter((t): t is X.NodesTurn => t !== undefined)
 					.slice(0, x - 1);
 				
 				row.reduce
@@ -225,21 +249,21 @@ export class WaterfallRenderer
 		/**
 		 * Positions a Node in the matrix at the location of the cursor.
 		 */
-		function plot(turn: NodesTurn | FansTurn)
+		function plot(turn: X.NodesTurn | X.FansTurn)
 		{
 			maybeResizeMatrix(x, y);
 			const existingTurn = matrix[y][x];
 			
-			if (existingTurn instanceof NodesTurn)
+			if (existingTurn instanceof X.NodesTurn)
 			{
-				if (turn instanceof FansTurn)
+				if (turn instanceof X.FansTurn)
 					throw X.Exception.unknownState();
 				
 				existingTurn.nodes.push(...turn.nodes);
 			}
-			else if (existingTurn instanceof FansTurn)
+			else if (existingTurn instanceof X.FansTurn)
 			{
-				if (turn instanceof NodesTurn)
+				if (turn instanceof X.NodesTurn)
 					throw X.Exception.unknownState();
 				
 				existingTurn.fans.push(...turn.fans);
@@ -284,10 +308,10 @@ export class WaterfallRenderer
 			
 			const turn = terrace[x];
 			
-			if (turn instanceof NodesTurn)
+			if (turn instanceof X.NodesTurn)
 				return turn.nodes;
 			
-			if (turn instanceof FansTurn)
+			if (turn instanceof X.FansTurn)
 				return turn.fans
 					.filter((f): f is X.Fan => f instanceof X.Fan)
 					.map(f => f.targets)
@@ -311,21 +335,13 @@ export class WaterfallRenderer
 			return turn;
 		}
 		
-		//
-		// Waterfall algorithm descriptive poem:
-		// 
-		// Plunge until you can't. 
-		// Then try to flow...
-		// But quit if you can't,
-		// Or repeat if there's more to go.
-		//
-		plungeLoop: for (;;)
+		plotLoop: for (;;)
 		{
 			while (tryPlunge());
 			
 			while (unflownTurnStack.length > 0)
 				if (tryFlow())
-					continue plungeLoop;
+					continue plotLoop;
 			
 			break;
 		}
@@ -334,100 +350,18 @@ export class WaterfallRenderer
 		// logMatrix() function into scope.
 		logMatrix(matrix);
 		
-		return new WaterfallRenderer(directive, matrix, program);
+		return new X.Waterfall(directive, matrix);
 	}
-	
-	/** @internal */
-	private constructor(directive: X.Uri, terraces: (Turn | undefined)[][], program: X.Program)
-	{
-		this.directive = directive;
-		this.origin = null!;
-		this.terraces = terraces;
-	}
-	
-	/** */
-	readonly directive: X.Uri;
-	
-	/** */
-	readonly origin: X.Turn;
-	
-	/**
-	 * @returns The number of terraces in the underlying
-	 * waterfall. Used to quickly determine if a URI was directed
-	 * at an unpopulated location in a document.
-	 */
-	readonly totalHeight: number = 0;
-	
-	/**
-	 * Reads a full terrace from the waterfall, from the specified
-	 * URI.
-	 * 
-	 * @throws If the URI has typePath that is not a strict subset
-	 * of this Waterfall's directive.
-	 */
-	readTerrace(uri: X.Uri): ReadonlyArray<X.Turn | undefined>
-	{
-		if (uri.typePath.length > this.directive.typePath.length)
-			throw X.Exception.invalidArgument();
-		
-		for (let i = -1; ++i < uri.typePath.length;)
-			if (uri.typePath[i] !== this.directive.typePath[i])
-				throw X.Exception.invalidArgument();
-		
-		return [];
-	}
-	
-	/** */
-	readFloorTerrace()
-	{
-		// Does this method just throw the Turns back at the 
-		// call site? Or should it backing this stuff into something
-		// that's easier to use?
-		return [];
-	}
-	
-	/** */
-	private readonly terraces: ReadonlyArray<(Turn | undefined)[]>;
 }
-
-
-/**
- * 
- */
-class NodesTurn
-{
-	constructor(
-		/**
-		 * Stores an array of Nodes, captures, or undefined,
-		 * in a way where all indexes line up with the turn directly above
-		 * this turn in the matrix.
-		 */
-		readonly nodes: (X.Node | string | undefined)[] = [])
-	{ }
-}
-
-
-/**
- * 
- */
-class FansTurn
-{
-	constructor(readonly fans: (X.Fan | undefined)[] = []) { }
-}
-
-type Terrace = (NodesTurn | FansTurn | undefined)[];
 
 /** */
-export type Turn = Freeze<NodesTurn | FansTurn>;
-
-
-
+type Terrace = (X.NodesTurn | X.FansTurn | undefined)[];
 
 
 /**
  * Logs the specified matrix as a call to console.table()
  */
-function logMatrix(matrix: (Turn | undefined)[][])
+function logMatrix(matrix: (X.Turn | undefined)[][])
 {
 	const table: string[][] = [];
 	
@@ -440,13 +374,13 @@ function logMatrix(matrix: (Turn | undefined)[][])
 		{
 			tableRow.push((() =>
 			{
-				if (col instanceof NodesTurn)
+				if (col instanceof X.NodesTurn)
 					return col.nodes.map(n =>
 						n === undefined ? "un" :
 						typeof n === "string" ? n :
 						n.name).join(", ") + " N";
 			
-				else if (col instanceof FansTurn)
+				else if (col instanceof X.FansTurn)
 					return col.fans.map(f => f === undefined ? "un" : f.name).join(", ") + " F";
 				
 				return "";
