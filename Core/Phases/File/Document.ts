@@ -393,6 +393,7 @@ export class Document
 	}
 	
 	/**
+	 * @deprecated
 	 * Enumerates through each unique URI defined in this document,
 	 * that are referenced within the descendants of the specified
 	 * statement. If the parameters are null or omitted, all unique
@@ -410,6 +411,11 @@ export class Document
 		initialStatement: X.Statement | null = null,
 		includeInitial?: boolean)
 	{
+		//
+		// NOTE: Although this method is deprecated, if it were
+		// to be revived, it would need to support "cruft".
+		//
+		
 		const yieldedUris = new Set<string>();
 		const iter = this.eachDescendant(initialStatement, includeInitial);
 		
