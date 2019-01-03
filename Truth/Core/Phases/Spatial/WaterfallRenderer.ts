@@ -4,7 +4,7 @@ import * as X from "../../X";
 /**
  * 
  */
-export class Waterfall
+export class WaterfallRenderer
 {
 	/**  */
 	static create(directive: X.Uri, program: X.Program)
@@ -334,7 +334,7 @@ export class Waterfall
 		// logMatrix() function into scope.
 		logMatrix(matrix);
 		
-		return new Waterfall(directive, matrix, program);
+		return new WaterfallRenderer(directive, matrix, program);
 	}
 	
 	/** @internal */

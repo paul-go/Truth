@@ -62,7 +62,7 @@ export * from "./Phases/Graph/Fan";
 export * from "./Phases/Graph/InfixSpan";
 
 // Phases/Spatial
-export * from "./Phases/Spatial/Waterfall";
+export * from "./Phases/Spatial/WaterfallRenderer";
 export * from "./Phases/Spatial/PathCursor";
 
 // Phases/Type
