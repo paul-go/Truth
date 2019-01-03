@@ -245,8 +245,8 @@ export class Node
 		{
 			for (const src of fan.sources.values())
 			{
-				const st = src.statement;
-				const idx = st.document.getStatementIndex(st);
+				const smt = src.statement;
+				const lineNum = smt.document.getLineNumber(smt);
 				const existingTuple = fanLookup.get(fan);
 				
 				if (existingTuple !== undefined)
@@ -254,7 +254,7 @@ export class Node
 					const existingStmt = existingTuple[0];
 					const existingStmtIdx = existingTuple[1];
 					
-					if (idx < existingStmtIdx)
+					if (lineNum < existingStmtIdx)
 					{
 						existingTuple[0] = existingStmt;
 						existingTuple[1] = existingStmtIdx;
@@ -262,7 +262,7 @@ export class Node
 				}
 				else
 				{
-					fanLookup.set(fan, [st, idx]);
+					fanLookup.set(fan, [smt, lineNum]);
 				}
 			}
 		}

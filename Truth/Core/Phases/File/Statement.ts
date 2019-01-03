@@ -13,7 +13,9 @@ export class Statement
 	 */
 	readonly stamp = X.VersionStamp.next();
 	
-	/** */
+	/**
+	 * @internal
+	 */
 	constructor(document: X.Document, text: string)
 	{
 		const line = X.LineParser.parse(text);
