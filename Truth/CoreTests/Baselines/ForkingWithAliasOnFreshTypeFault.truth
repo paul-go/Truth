@@ -13,4 +13,4 @@ Class
 	Value
 
 SubClass : Class
-	Value : 2 #1003;, 3 #1003;, 4
+	Value : 2, 3 #1003;, 4 #1003;
