@@ -24,46 +24,74 @@ export class Infix
 		 * of the identifiers in the Infix that are located before
 		 * any Joint operator.
 		 */
-		readonly lhs: X.Bounds<X.Identifier>,
+		readonly lhs: X.BoundaryGroup<X.Identifier>,
 		
 		/**
 		 * Stores the Bounds object that marks out the positions
 		 * of the identifiers in the Infix that are located after
 		 * any Joint operator.
 		 */
-		readonly rhs: X.Bounds<X.Identifier>,
+		readonly rhs: X.BoundaryGroup<X.Identifier>,
 		
 		/** */
 		readonly flags: InfixFlags)
 	{ }
 	
+	/**
+	 * Gets whether this Infix is of the "pattern" variety.
+	 */
+	get isPattern()
+	{
+		return (this.flags & InfixFlags.pattern) === InfixFlags.pattern;
+	}
+	
+	/**
+	 * Gets whether this Infix is of the "portability" variety.
+	 */
+	get isPortability()
+	{
+		return (this.flags & InfixFlags.portability) === InfixFlags.portability;
+	}
+	
+	/**
+	 * Gets whether this Infix is of the "population" variety.
+	 */
+	get isPopulation()
+	{
+		return (this.flags & InfixFlags.population) === InfixFlags.population;
+	}
+	
+	/**
+	 * Gets whether this Infix has the "nominal" option set.
+	 */
+	get isNominal()
+	{
+		return (this.flags & InfixFlags.nominal) === InfixFlags.nominal;
+	}
+	
 	/** */
 	toString()
 	{
-		const isPattern = (this.flags & InfixFlags.pattern) === InfixFlags.pattern;
-		const isPortability = (this.flags & InfixFlags.portability) === InfixFlags.portability;
-		const isNominal = (this.flags & InfixFlags.nominal) === InfixFlags.nominal;
-		
 		const delimL =
-			isPattern ? X.InfixSyntax.patternStart :
-			isNominal ? X.InfixSyntax.nominalStart :
-			isPortability ? X.InfixSyntax.start + X.Syntax.space + X.Syntax.joint + X.Syntax.space :
+			this.isPattern ? X.InfixSyntax.patternStart :
+			this.isNominal ? X.InfixSyntax.nominalStart :
+			this.isPortability ? X.InfixSyntax.start + X.Syntax.space + X.Syntax.joint + X.Syntax.space :
 			X.InfixSyntax.start;
 		
 		const delimR = 
-			isPattern ? X.InfixSyntax.patternEnd :
-			isNominal ? X.InfixSyntax.nominalEnd :
+			this.isPattern ? X.InfixSyntax.patternEnd :
+			this.isNominal ? X.InfixSyntax.nominalEnd :
 			X.InfixSyntax.end;
 		
-		const join = (spans: X.Bounds<X.Identifier>) =>
+		const join = (spans: X.BoundaryGroup<X.Identifier>) =>
 			Array.from(spans)
 				.map(entry => entry.subject)
 				.join(X.Syntax.combinator + X.Syntax.space);
 		
-		if (isPortability)
+		if (this.isPortability)
 			return join(this.rhs);
 		
-		if (isPattern)
+		if (this.isPattern)
 			return join(this.lhs);
 		
 		const joint = this.rhs.length > 0 ?

@@ -3,12 +3,12 @@
  * Stakes out starting and ending character positions
  * of subjects within a given region.
  */
-export class Bounds<TSubject>
+export class BoundaryGroup<TSubject>
 {
 	/** */
-	constructor(entries: BoundsEntry<TSubject>[])
+	constructor(boundaries: Boundary<TSubject>[])
 	{
-		this.entries = Object.freeze(entries.slice().sort((entryA, entryB) =>
+		this.entries = Object.freeze(boundaries.slice().sort((entryA, entryB) =>
 		{
 			return entryA.offsetStart - entryB.offsetStart;
 		}));
@@ -54,12 +54,12 @@ export class Bounds<TSubject>
 	}
 	
 	/** */
-	private readonly entries: ReadonlyArray<BoundsEntry<TSubject>>;
+	private readonly entries: ReadonlyArray<Boundary<TSubject>>;
 }
 
 
 /** */
-export class BoundsEntry<TSubject>
+export class Boundary<TSubject>
 {
 	constructor(
 		readonly offsetStart: number,

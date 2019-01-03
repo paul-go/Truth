@@ -19,6 +19,9 @@ export class ProgramScanner
 				if (level > 0)
 					continue;
 				
+				if (statement.isCruft)
+					continue;
+				
 				const typesAtStatement = statement.declarations
 					.map(decl => decl.factor())
 					.reduce((spines, s) => spines.concat(s))

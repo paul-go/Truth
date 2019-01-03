@@ -231,33 +231,32 @@ describe("Parser Tests", () =>
 					const act = infixes[nfxIdx];
 					const actLhs = Array.from(act.lhs.eachSubject()).map(id => id.toString());
 					const actRhs = Array.from(act.rhs.eachSubject()).map(id => id.toString());
-					const hasFlag = (flag: X.InfixFlags) => (act.flags & flag) === flag;
 					const exp = expected.infixes[nfxIdx];
 					const expLhs = typeof exp.lhs === "string" ? [exp.lhs] : (exp.lhs || []);
 					const expRhs = typeof exp.rhs === "string" ? [exp.rhs] : (exp.rhs || []);
 					
-					if (exp.kind === "Pattern" && !hasFlag(X.InfixFlags.pattern))
+					if (exp.kind === "Pattern" && !act.isPattern)
 					{
 						debugger;
 						fail(`Infix ${nfxIdx} expected to be of the 'Pattern' variety.`);
 						continue;
 					}
 					
-					if (exp.kind === "Portability" && !hasFlag(X.InfixFlags.portability))
+					if (exp.kind === "Portability" && !act.isPortability)
 					{
 						debugger;
 						fail(`Infix ${nfxIdx} expected to be of the 'Portability' variety.`);
 						continue;
 					}
 					
-					if (exp.kind === "Population" && !hasFlag(X.InfixFlags.population))
+					if (exp.kind === "Population" && !act.isPopulation)
 					{
 						debugger;
 						fail(`Infix ${nfxIdx} expected to be of the 'Population' variety.`);
 						continue;
 					}
 					
-					if (exp.kind === "Nominal" && !hasFlag(X.InfixFlags.nominal))
+					if (exp.kind === "Nominal" && !act.isNominal)
 					{
 						debugger;
 						fail(`Infix ${nfxIdx} expected to be of the 'Nominal' variety.`);

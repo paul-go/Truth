@@ -22,9 +22,175 @@ export class Statement
 		this.sum = line.sum;
 		this.indent = line.indent;
 		this.flags = line.flags;
-		this.declarationBounds = line.declarations;
-		this.annotationBounds = line.annotations;
 		this.jointPosition = line.jointPosition;
+		
+		this.allDeclarations = Object.freeze(Array.from(line.declarations)
+			.map(boundary => new X.Span(this, boundary)));
+		
+		this.allAnnotations = Object.freeze(Array.from(line.annotations)
+			.map(boundary => new X.Span(this, boundary)));
+		
+		const faults: X.Fault[] = [];
+		const cruftObjects = new Set<X.Statement | X.Span | X.InfixSpan>();
+		
+		if (line.parseFault !== null)
+			faults.push(new X.Fault(line.parseFault.innerType, this));
+		
+		for (const fault of this.eachStatementLevelFaults())
+		{
+			if (fault.type.severity === X.FaultSeverity.error)
+				cruftObjects.add(fault.source);
+			
+			faults.push(fault);
+			
+			// Check needed to support the unit tests, the feed
+			// fake document objects into the statement constructor.
+			if (document.program && document.program.faults)
+				document.program.faults.report(fault);
+		}
+		
+		this.cruftObjects = cruftObjects;
+		this.faults = Object.freeze(faults);
+	}
+	
+	/**
+	 * 
+	 */
+	private *eachStatementLevelFaults(): IterableIterator<Readonly<X.Fault<X.TFaultSource>>>
+	{
+		// Check for tabs and spaces mixture
+		if (this.indent > 0)
+		{
+			let hasTabs = false;
+			let hasSpaces = false;
+			
+			for (let i = -1; ++i < this.indent;)
+			{
+				const chr = this.sourceText[i];
+				
+				if (chr === X.Syntax.tab)
+					hasTabs = true;
+				
+				if (chr === X.Syntax.space)
+					hasSpaces = true;
+			}
+			
+			if (hasTabs && hasSpaces)
+				yield new X.Fault(X.Faults.TabsAndSpaces, this);
+		}
+		
+		if (this.allDeclarations.length > 1)
+		{
+			const subjects: string[] = [];
+			
+			for (const span of this.allDeclarations)
+			{
+				const subText = span.toString();
+				if (subjects.includes(subText))
+					yield new X.Fault(X.Faults.DuplicateDeclaration, span);
+				else
+					subjects.push(subText);
+			}
+		}
+		
+		if (this.allAnnotations.length > 0)
+		{
+			// This performs an expedient check for "ListIntrinsicExtendingList",
+			// however, full type analysis is required to cover all cases where
+			// this fault may be reported.
+			const getListSpans = (spans: ReadonlyArray<X.Span>) => spans.filter(span =>
+			{
+				const sub = span.boundary.subject;
+				return sub instanceof X.Identifier && sub.isList
+			});
+			
+			const lhsListSpans = getListSpans(this.allDeclarations);
+			const rhsListSpans = getListSpans(this.allAnnotations);
+			
+			if (lhsListSpans.length > 0 && rhsListSpans.length > 0)
+				for (const span of rhsListSpans)
+					yield new X.Fault(X.Faults.ListIntrinsicExtendingList, span);
+		}
+		
+		const pattern = (() =>
+		{
+			if (this.allDeclarations.length === 0)
+				return null;
+			
+			const hp = X.LineFlags.hasPattern;
+			if ((this.flags & hp) !== hp)
+				return null;
+			
+			const subject = this.allDeclarations[0].boundary.subject
+			return subject instanceof X.Pattern ?
+				subject :
+				null;
+		})();
+		
+		if (pattern === null)
+			return;
+		
+		if (!pattern.isValid)
+		{
+			yield new X.Fault(X.Faults.PatternInvalid, this);
+			return;
+		}
+		
+		if (this.allAnnotations.length === 0)
+			yield new X.Fault(X.Faults.PatternWithoutAnnotation, this);
+		
+		if (pattern.test(""))
+			yield new X.Fault(X.Faults.PatternCanMatchEmpty, this);
+		
+		if (!pattern.isTotal)
+			for (const unit of pattern.eachUnit())
+				if (unit instanceof X.RegexGrapheme)
+					if (unit.grapheme === X.Syntax.combinator)
+					{
+						yield new X.Fault(X.Faults.PatternPartialWithCombinator, this);
+						break;
+					}
+		
+		const patternSpan = this.allDeclarations[0];
+		if (patternSpan.infixes.length === 0)
+			return;
+		
+		for (const infix of patternSpan.infixes)
+		{
+			const lhs = Array.from(patternSpan.eachDeclarationForInfix(infix));
+			const rhs = Array.from(patternSpan.eachAnnotationForInfix(infix));
+			const all = lhs.concat(rhs);
+			
+			for (const infixSpan of all)
+				if (infixSpan.boundary.subject.isList)
+					yield new X.Fault(X.Faults.InfixUsingListOperator, infixSpan);
+			
+			yield* dedupInfixSubjects(lhs);
+			yield* dedupInfixSubjects(rhs);
+			
+			const lhsIdentifiers = lhs.map(nfxSpan => nfxSpan.boundary.subject.toString());
+			
+			for (const infixSpan of rhs)
+				if (lhsIdentifiers.includes(infixSpan.boundary.subject.toString()))
+					yield new X.Fault(X.Faults.InfixSelfReferential, infixSpan);
+			
+			if (infix.isPopulation)
+				for (let idx = 1; idx < lhs.length; idx++)
+					yield new X.Fault(X.Faults.InfixPopulationChaining, lhs[idx]);
+			
+			yield* expedientListCheck(lhs);
+			yield* expedientListCheck(rhs);
+		}
+		
+		for (const infixSpan of dedupInfixesAcrossInfixes(
+			patternSpan,
+			infix => patternSpan.eachDeclarationForInfix(infix)))
+			yield new X.Fault(X.Faults.PortabilityInfixHasMultipleDefinitions, infixSpan);
+		
+		for (const infixSpan of dedupInfixesAcrossInfixes(
+			patternSpan,
+			infix => patternSpan.eachAnnotationForInfix(infix)))
+			yield new X.Fault(X.Faults.PopulationInfixHasMultipleDefinitions, infixSpan);
 	}
 	
 	/**
@@ -45,8 +211,9 @@ export class Statement
 	get isVacuous()
 	{
 		return (this.isRefresh && 
-			this.declarationBounds.length === 0 &&
-			this.annotationBounds.length === 0);
+			!this.isCruft &&
+			this.declarations.length === 0 &&
+			this.annotations.length === 0);
 	}
 	
 	/**
@@ -86,8 +253,20 @@ export class Statement
 		return (this.flags & f) === f;
 	}
 	
+	/**
+	 * 
+	 */
+	get isCruft()
+	{
+		const f = X.LineFlags.isCruft;
+		return (this.flags & f) === f;
+	}
+	
 	/** @internal */
 	private flags = X.LineFlags.none;
+	
+	/** */
+	readonly faults: ReadonlyArray<X.Fault>;
 	
 	/** Stores a reference to the document that contains this statement. */
 	readonly document: X.Document;
@@ -95,11 +274,84 @@ export class Statement
 	/** Stores the indent level of the statement. */
 	readonly indent: number;
 	
-	/** */
-	private readonly declarationBounds: X.Bounds<X.DeclarationSubject>;
+	/**
+	 * Stores the set of objects that are contained by this Statement, 
+	 * and are marked as cruft. Note that the only Statement object
+	 * that may be located in this set is this Statement object itself.
+	 */
+	readonly cruftObjects: ReadonlySet<X.Statement | X.Span | X.InfixSpan>;
 	
-	/** */
-	private readonly annotationBounds: X.Bounds<X.AnnotationSubject>;
+	/**
+	 * Gets an array of spans in that represent the declarations
+	 * of this statement, excluding those that have been marked
+	 * as object-level cruft.
+	 */
+	get declarations()
+	{
+		if (this.cruftObjects.size === 0)
+			return this.allDeclarations;
+		
+		const out: X.Span[] = [];
+		
+		for (const span of this.allDeclarations)
+			if (!this.cruftObjects.has(span))
+				out.push(span);
+		
+		return Object.freeze(out);
+	}
+	
+	/**
+	 * Stores the array of spans that represent the declarations
+	 * of this statement, including those that have been marked
+	 * as object-level cruft.
+	 */
+	readonly allDeclarations: ReadonlyArray<X.Span>;
+	
+	/**
+	 * Gets an array of spans in that represent the annotations
+	 * of this statement, from left to right, excluding those that
+	 * have been marked as object-level cruft.
+	 */
+	get annotations()
+	{
+		if (this.cruftObjects.size === 0)
+			return this.allAnnotations;
+		
+		const out: X.Span[] = [];
+		
+		for (const span of this.allAnnotations)
+			if (!this.cruftObjects.has(span))
+				out.push(span);
+		
+		return Object.freeze(out);
+	}
+	
+	/**
+	 * Stores the array of spans that represent the annotations
+	 * of this statement, including those that have been marked
+	 * as object-level cruft.
+	 */
+	readonly allAnnotations: ReadonlyArray<X.Span>;
+	
+	/**
+	 * Gets an array of spans in that represent both the declarations
+	 * and the annotations of this statement, excluding those that have
+	 * been marked as object-level cruft.
+	 */
+	get spans()
+	{
+		return this.isCruft ?
+			[] :
+			this.declarations.concat(this.annotations);
+	}
+	
+	/**
+	 * 
+	 */
+	get allSpans()
+	{
+		return this.declarations.concat(this.annotations);
+	}
 	
 	/**
 	 * Stores the position at which the joint operator exists
@@ -128,8 +380,8 @@ export class Statement
 	 */
 	get hasPattern()
 	{
-		const d = this.declarations;
-		return d.length === 1 && d[0].subject instanceof X.Pattern;
+		const d = this.allDeclarations;
+		return d.length === 1 && d[0].boundary.subject instanceof X.Pattern;
 	}
 	
 	/**
@@ -147,84 +399,42 @@ export class Statement
 	 */
 	getRegion(offset: number)
 	{
-		if (this.isComment)
+		if (this.isComment || offset < this.indent || this.isCruft)
 			return StatementRegion.void;
 		
 		if (this.isWhitespace)
 			return StatementRegion.whitespace;
 		
-		if (offset < this.indent)
-			return StatementRegion.void;
-		
 		if (this.hasPattern)
 		{
-			const decl = this.declarations[0];
-			if (offset >= decl.offsetStart && offset <= decl.offsetEnd)
+			const bnd = this.allDeclarations[0].boundary;
+			if (offset >= bnd.offsetStart && offset <= bnd.offsetEnd)
 				return StatementRegion.pattern;
 		}
 		
 		if (offset <= this.jointPosition)
 		{
-			for (const span of this.declarations)
-				if (offset >= span.offsetStart && offset <= span.offsetEnd)
+			for (const span of this.allDeclarations)
+			{
+				const bnd = span.boundary;
+				if (offset >= bnd.offsetStart && offset <= bnd.offsetEnd)
 					return StatementRegion.declaration;
+			}
 			
 			return StatementRegion.declarationVoid;
 		}
 		else
 		{
 			for (const span of this.annotations)
-				if (offset >= span.offsetStart && offset <= span.offsetEnd)
+			{
+				const bnd = span.boundary;
+				if (offset >= bnd.offsetStart && offset <= bnd.offsetEnd)
 					return StatementRegion.annotation;
+			}
 			
 			return StatementRegion.annotationVoid;
 		}
 	}
-	
-	/**
-	 * Gets the set of spans in that represent all declarations
-	 * and annotations in this statement, from left to right.
-	 */
-	get spans()
-	{
-		return this.declarations.concat(this.annotations);
-	}
-	
-	/**
-	 * Gets the set of spans in that represent the
-	 * declarations of this statement, from left to right.
-	 */
-	get declarations()
-	{
-		if (this._declarations)
-			return this._declarations;
-		
-		const out: X.Span[] = [];
-		
-		for (const { offsetStart, offsetEnd, subject } of this.declarationBounds)
-			out.push(new X.Span(this, offsetStart, offsetEnd, subject));
-		
-		return this._declarations = out;
-	}
-	private _declarations: X.Span[] | null = null;
-	
-	/**
-	 * Gets the set of spans in that represent the
-	 * annotations of this statement, from left to right.
-	 */
-	get annotations()
-	{
-		if (this._annotations)
-			return this._annotations;
-		
-		const out: X.Span[] = [];
-		
-		for (const { offsetStart, offsetEnd, subject } of this.annotationBounds)
-			out.push(new X.Span(this, offsetStart, offsetEnd, subject));
-		
-		return this._annotations = out;
-	}
-	private _annotations: X.Span[] | null = null;
 	
 	/**
 	 * 
@@ -241,8 +451,11 @@ export class Statement
 	getDeclaration(offset: number)
 	{
 		for (const span of this.declarations)
-			if (offset >= span.offsetStart && offset <= span.offsetEnd)
+		{
+			const bnd = span.boundary;
+			if (offset >= bnd.offsetStart && offset <= bnd.offsetEnd)
 				return span;
+		}
 		
 		return null;
 	}
@@ -254,8 +467,11 @@ export class Statement
 	getAnnotation(offset: number)
 	{
 		for (const span of this.annotations)
-			if (offset >= span.offsetStart && offset <= span.offsetEnd)
+		{
+			const bnd = span.boundary;
+			if (offset >= bnd.offsetStart && offset <= bnd.offsetEnd)
 				return span;
+		}
 		
 		return null;
 	}
@@ -277,15 +493,20 @@ export class Statement
 	 */
 	toString(includeIndent = false)
 	{
-		const serializeSpans = (spans: X.Span[], escStyle: X.IdentifierEscapeKind) =>
+		const serializeSpans = (
+			spans: ReadonlyArray<X.Span>,
+			escStyle: X.IdentifierEscapeKind) =>
 		{
 			return spans
-				.filter(sp => !(sp.subject instanceof X.Anon))
-				.map(sp => X.SubjectSerializer.invoke(sp.subject, escStyle))
+				.filter(sp => !(sp.boundary.subject instanceof X.Anon))
+				.map(sp => X.SubjectSerializer.invoke(sp.boundary.subject, escStyle))
 				.join(X.Syntax.combinator + X.Syntax.space);
 		}
 		
 		const indent = includeIndent ? X.Syntax.tab.repeat(this.indent) : "";
+		
+		if (this.isCruft)
+			return indent + "(cruft)";
 		
 		if (this.isWhitespace)
 			return indent;
@@ -293,8 +514,8 @@ export class Statement
 		if (this.isVacuous)
 			return indent + X.Syntax.joint;
 		
-		const decls = serializeSpans(this.declarations, X.IdentifierEscapeKind.declaration);
-		const annos = serializeSpans(this.annotations, X.IdentifierEscapeKind.annotation);
+		const decls = serializeSpans(this.allDeclarations, X.IdentifierEscapeKind.declaration);
+		const annos = serializeSpans(this.allAnnotations, X.IdentifierEscapeKind.annotation);
 		
 		const joint = annos.length > 0 || this.isRefresh ? X.Syntax.joint : "";
 		const jointL = decls.length > 0 && joint !== "" ? X.Syntax.space : "";
@@ -338,4 +559,71 @@ export enum StatementRegion
 	
 	/** */
 	annotationVoid
+}
+
+
+/**
+ * Yields faults on infix spans in the case when an identifier
+ * has been re-declared multiple times within the same infix.
+ */
+function *dedupInfixSubjects(side: X.InfixSpan[])
+{
+	if (side.length === 0)
+		return;
+	
+	const subjects: string[] = [];
+	
+	for (const nfxSpan of side)
+	{
+		const subText = nfxSpan.boundary.subject.toString();
+		if (subjects.includes(subText))
+		{
+			yield new X.Fault(X.Faults.InfixHasDuplicateIdentifier, nfxSpan);
+		}
+		else subjects.push(subText);
+	}
+}
+
+
+/**
+ * Yields faults on infix spans in the case when an identifier
+ * has been re-declared multiple times across the infixes.
+ */
+function *dedupInfixesAcrossInfixes(
+	span: X.Span,
+	infixFn: (nfx: X.Infix) => IterableIterator<X.InfixSpan>)
+{
+	const identifiers: string[] = [];
+		
+	for (const infix of span.infixes)
+	{
+		const infixSpans = Array.from(infixFn(infix));
+		
+		for (const infixSpan of infixSpans)
+		{
+			const text = infixSpan.boundary.subject.toString();
+			if (identifiers.includes(text))
+			{
+				yield infixSpan;
+			}
+			else identifiers.push(text);
+		}
+	}
+}
+
+
+/**
+ * Performs a quick and dirty check to see if the infix is referencing
+ * a list, by looking to see if it has the list operator. A full check needs
+ * to perform type inspection to see if any of the types that correspond
+ * to the identifiers specified are actually lists.
+ */
+function *expedientListCheck(side: X.InfixSpan[])
+{
+	if (side.length === 0)
+		return;
+	
+	for (const nfxSpan of side)
+		if (nfxSpan.boundary.subject.isList)
+			yield new X.Fault(X.Faults.InfixUsingListOperator, nfxSpan);
 }

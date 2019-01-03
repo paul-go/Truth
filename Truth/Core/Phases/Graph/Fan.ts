@@ -15,8 +15,16 @@ export class Fan
 	/** @internal */
 	constructor(
 		origin: X.Node,
+		/**
+		 * Stores all possible Nodes to which the origin may be connected
+		 * through this FanTargets must be an array, rather than a single
+		 * node, because the graph representation needs to support
+		 * the ability for following processes to perform contextual type
+		 * resolution.
+		 */
 		targets: ReadonlyArray<X.Node>,
 		sources: ReadonlyArray<X.Span | X.InfixSpan>,
+		sum: string,
 		rationale: FanRationale)
 	{
 		if (sources.length === 0)
@@ -31,11 +39,12 @@ export class Fan
 			
 			this.name = sources[0].statement.sum;
 		}
-		else this.name = sources[0].subject.toString();
+		else this.name = sources[0].boundary.subject.toString();
 		
 		this.origin = origin;
 		this._targets = targets.slice();
 		this.sources = new Set(sources);
+		this.sum = sum;
 		this._rationale = rationale;
 	}
 	
@@ -72,17 +81,22 @@ export class Fan
 	private _rationale: FanRationale;
 	
 	/**
-	 * Stores an array of Spans or Anchors that compose the Fan.
-	 * These "sources" are built out of subjects that exist on the
-	 * annotation-side, either at the statement or the infix level.
+	 * Stores an array of Spans or InfixSpans that compose the Fan.
+	 * These "sources" are built from annotations that are present
+	 * in (potentially) multiple statements, either at the statement 
+	 * level or the infix level.
 	 * 
-	 * In the case when the "rationale" of this Fan is "patternSum",
-	 * this array is composed of a complete set of spans on the
-	 * annotation side of a single statement. In other cases, the
-	 * array is composed of Spans potentially scattered
-	 * throughout the document across many statements.
+	 * In the case when the "rationale" of this Fan is "sum", this
+	 * array is empty.
 	 */
 	readonly sources: Set<X.Span | X.InfixSpan>;
+	
+	/**
+	 * Stores the "sum" of the statement that corresponds to
+	 * this Fan, or an empty string when the "rationale" of this
+	 * Fan is not "sum".
+	 */
+	readonly sum: string;
 	
 	/** */
 	toString()
@@ -92,7 +106,8 @@ export class Fan
 			"Name=" + this.name,
 			"Targets=" + this.targets.map(n => n.uri.toString(false, true)),
 			"Rationale=" + FanRationale[this.rationale],
-			"Sources=" + Array.from(this.sources).map(src => src.subject).join(", ")
+			"Sources=" + Array.from(this.sources).map(src => 
+				src.boundary.subject).join(", ")
 		].join("\n");
 	}
 }

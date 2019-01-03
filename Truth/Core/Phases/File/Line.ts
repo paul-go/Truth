@@ -12,11 +12,12 @@ export class Line
 	constructor(
 		readonly sourceText: string,
 		readonly indent: number,
-		readonly declarations: X.Bounds<X.DeclarationSubject>,
-		readonly annotations: X.Bounds<X.AnnotationSubject>,
+		readonly declarations: X.BoundaryGroup<X.DeclarationSubject>,
+		readonly annotations: X.BoundaryGroup<X.AnnotationSubject>,
 		readonly sum: string,
+		readonly jointPosition: number,
 		readonly flags: LineFlags,
-		readonly jointPosition: number)
+		readonly parseFault: X.ParseFault | null)
 	{ }
 }
 
@@ -32,7 +33,7 @@ export enum LineFlags
 	isComment = 2,
 	isWhitespace = 4,
 	isDisposed = 8,
-	isUnparsable = 16,
+	isCruft = 16,
 	hasUri = 32,
 	hasTotalPattern = 64,
 	hasPartialPattern = 128,

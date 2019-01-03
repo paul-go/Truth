@@ -5,8 +5,26 @@ import * as X from "../../X";
  * Local marker values used as return values to
  * indicate that a pattern failed to parse.
  */
-const ParseError = Symbol();
-type TParseError = typeof ParseError;
+//const ParseError = Symbol();
+type TParseFault = Readonly<X.FaultType<X.Statement>>;
+
+
+X.Faults.StatementBeginsWithComma
+X.Faults.StatementBeginsWithEllipsis
+X.Faults.StatementBeginsWithEscapedSpace
+			
+
+/**
+ * 
+ */
+export class ParseFault
+{
+	constructor(
+		readonly innerType: Readonly<X.FaultType<X.Statement>>,
+		readonly offsetStart: number,
+		readonly offsetEnd: number)
+	{ }
+}
 
 
 /**
@@ -54,8 +72,8 @@ export class LineParser
 		const parser = new X.Parser(lineText);
 		const sourceText = lineText;
 		const indent = parser.readWhitespace();
-		const declarationEntries: X.BoundsEntry<X.DeclarationSubject>[] = [];
-		const annotationEntries: X.BoundsEntry<X.AnnotationSubject>[] = [];
+		const declarationEntries: X.Boundary<X.DeclarationSubject>[] = [];
+		const annotationEntries: X.Boundary<X.AnnotationSubject>[] = [];
 		const esc = X.Syntax.escapeChar;
 		let flags = X.LineFlags.none;
 		let jointPosition = -1;
@@ -68,11 +86,12 @@ export class LineParser
 		const ret = () => new X.Line(
 			sourceText,
 			indent,
-			new X.Bounds(declarationEntries),
-			new X.Bounds(annotationEntries),
+			new X.BoundaryGroup(declarationEntries),
+			new X.BoundaryGroup(annotationEntries),
 			sum,
+			jointPosition,
 			flags,
-			jointPosition);
+			null!);
 		
 		// In the case when the line contains only whitespace characters,
 		// this condition will pass, bypassing the entire parsing process
@@ -107,7 +126,7 @@ export class LineParser
 			if (uri)
 			{
 				flags |= X.LineFlags.hasUri;
-				declarationEntries.push(new X.BoundsEntry(
+				declarationEntries.push(new X.Boundary(
 					markBeforeUri,
 					parser.position,
 					uri));
@@ -118,9 +137,9 @@ export class LineParser
 			const markBeforePattern = parser.position;
 			const pattern = maybeReadPattern();
 			
-			if (pattern === ParseError)
+			if (isParseFault(pattern))
 			{
-				flags |= X.LineFlags.isUnparsable;
+				flags |= X.LineFlags.isCruft;
 				return ret();
 			}
 			
@@ -131,7 +150,7 @@ export class LineParser
 					X.LineFlags.hasTotalPattern :
 					X.LineFlags.hasPartialPattern;
 				
-				declarationEntries.push(new X.BoundsEntry(
+				declarationEntries.push(new X.Boundary(
 					markBeforePattern,
 					parser.position,
 					pattern));
@@ -160,7 +179,7 @@ export class LineParser
 						flags |= X.LineFlags.isRefresh;
 					
 					else if (declarationEntries.length === 0)
-						declarationEntries.unshift(new X.BoundsEntry(
+						declarationEntries.unshift(new X.Boundary(
 							jointPosition,
 							jointPosition,
 							new X.Anon()));
@@ -176,7 +195,7 @@ export class LineParser
 		 */
 		function readDeclarations(quitTokens: string[])
 		{
-			const entries: X.BoundsEntry<X.Identifier>[] = [];
+			const entries: X.Boundary<X.Identifier>[] = [];
 			const until = quitTokens.concat(X.Syntax.joint);
 			
 			while (parser.more())
@@ -184,7 +203,7 @@ export class LineParser
 				const readResult = maybeReadIdentifier(until);
 				
 				if (readResult !== null)
-					entries.push(new X.BoundsEntry<X.Identifier>(
+					entries.push(new X.Boundary<X.Identifier>(
 						readResult.at, 
 						parser.position,
 						readResult.identifier));
@@ -264,7 +283,7 @@ export class LineParser
 		 */
 		function readAnnotations(quitTokens: string[])
 		{
-			const annotations: X.BoundsEntry<X.AnnotationSubject>[] = [];
+			const annotations: X.Boundary<X.AnnotationSubject>[] = [];
 			let raw = "";
 			
 			while (parser.more())
@@ -273,7 +292,7 @@ export class LineParser
 				
 				if (readResult !== null)
 				{
-					annotations.push(new X.BoundsEntry(
+					annotations.push(new X.Boundary(
 						readResult.at, 
 						parser.position,
 						readResult.identifier));
@@ -376,7 +395,7 @@ export class LineParser
 		/**
 		 * Can be called recursively via readPatternClass and readPatternGroup.
 		 */
-		function maybeReadPattern(nested = false): X.Pattern | TParseError | null
+		function maybeReadPattern(nested = false): X.Pattern | TParseFault | null
 		{
 			if (!nested && !parser.read(X.RegexSyntaxDelimiter.main))
 				return null;
@@ -386,8 +405,8 @@ export class LineParser
 				readRegexUnits(true) :
 				readRegexUnits(false);
 			
-			if (units === ParseError)
-				return ParseError;
+			if (isParseFault(units))
+				return units;
 			
 			// Right-trim any trailing whitespace
 			while (units.length)
@@ -404,7 +423,7 @@ export class LineParser
 			}
 			
 			if (units.length === 0)
-				return ParseError;
+				return X.Faults.EmptyPattern;
 			
 			const last = units[units.length - 1];
 			const isTotal = 
@@ -433,9 +452,9 @@ export class LineParser
 		/**
 		 * 
 		 */
-		function readRegexUnits(nested: true): TParseError | (X.RegexUnit)[];
-		function readRegexUnits(nested: false): TParseError | (X.RegexUnit | X.Infix)[];
-		function readRegexUnits(nested: boolean): TParseError | (X.RegexUnit | X.Infix)[]
+		function readRegexUnits(nested: true): TParseFault | (X.RegexUnit)[];
+		function readRegexUnits(nested: false): TParseFault | (X.RegexUnit | X.Infix)[];
+		function readRegexUnits(nested: boolean): TParseFault | (X.RegexUnit | X.Infix)[]
 		{
 			const units: (X.RegexUnit | X.Infix)[] = [];
 			
@@ -443,14 +462,14 @@ export class LineParser
 			{
 				const setOrGroup = maybeReadRegexSet() || maybeReadRegexGroup();
 				
-				if (setOrGroup === ParseError)
-					return ParseError;
+				if (isParseFault(setOrGroup))
+					return setOrGroup;
 				
 				if (setOrGroup !== null)
 				{
 					const quantifier = maybeReadRegexQuantifier();
-					if (quantifier === ParseError)
-						return ParseError;
+					if (isParseFault(quantifier))
+						return quantifier;
 					
 					units.push(appendQuantifier(setOrGroup, quantifier));
 					continue;
@@ -469,8 +488,12 @@ export class LineParser
 					// Infixes are not supported anywhere other 
 					// than at the top level of the pattern.
 					const infix = maybeReadInfix();
-					if (infix === ParseError)
-						return ParseError;
+					if (isParseFault(infix))
+						return infix;
+					
+					const quantifier = maybeReadRegexQuantifier();
+					if (quantifier !== null)
+						return X.Faults.InfixHasQuantifier;
 					
 					if (infix !== null)
 					{
@@ -510,8 +533,8 @@ export class LineParser
 				
 				const quantifier = maybeReadRegexQuantifier();
 				
-				if (quantifier === ParseError)
-					return ParseError;
+				if (isParseFault(quantifier))
+					return quantifier;
 				
 				if (regexKnownSet !== null)
 				{
@@ -552,7 +575,7 @@ export class LineParser
 		 * Attempts to read a character set from the parse stream.
 		 * Example: [a-z0-9]
 		 */
-		function maybeReadRegexSet(): X.RegexSet | TParseError | null
+		function maybeReadRegexSet(): X.RegexSet | TParseFault | null
 		{
 			if (!parser.read(X.RegexSyntaxDelimiter.setStart))
 				return null;
@@ -650,15 +673,15 @@ export class LineParser
 			}
 			
 			if (!closed)
-				return ParseError;
+				return X.Faults.UnterminatedCharacterSet;
 			
 			for (const g of graphemes)
 				if (g !== null)
 					singles.push(g.character);
 			
 			const quantifier = maybeReadRegexQuantifier();
-			if (quantifier === ParseError)
-				return ParseError;
+			if (isParseFault(quantifier))
+				return quantifier;
 			
 			return new X.RegexSet(
 				knowns,
@@ -673,7 +696,7 @@ export class LineParser
 		 * Attempts to read an alternation group from the parse stream.
 		 * Example: (A|B|C)
 		 */
-		function maybeReadRegexGroup(): X.RegexGroup | TParseError | null
+		function maybeReadRegexGroup(): X.RegexGroup | TParseFault | null
 		{
 			if (!parser.read(X.RegexSyntaxDelimiter.groupStart))
 				return null;
@@ -693,15 +716,15 @@ export class LineParser
 				}
 				
 				const subUnits = readRegexUnits(true);
-				if (subUnits === ParseError)
-					return ParseError;
+				if (isParseFault(subUnits))
+					return subUnits;
 				
 				// If the call to maybeReadPattern causes the cursor
 				// to reach the end of te parse stream, the expression
 				// is invalid because it would mean the input looks
 				// something like: /(aa|bb
 				if (!parser.more())
-					return ParseError;
+					return X.Faults.UnterminatedGroup;
 				
 				// A null subPattern could come back in the case when some
 				// bizarre syntax is found in the pattern such as: (a||b)
@@ -712,11 +735,11 @@ export class LineParser
 			}
 			
 			if (!closed)
-				return ParseError;
+				return X.Faults.UnterminatedGroup;
 			
 			const quantifier = maybeReadRegexQuantifier();
-			if (quantifier === ParseError)
-				return ParseError;
+			if (isParseFault(quantifier))
+				return quantifier;
 			
 			return new X.RegexGroup(Object.freeze(cases), quantifier);
 		}
@@ -727,7 +750,7 @@ export class LineParser
 		 * regular expression flavor (and others?) cannot parse an expression
 		 * with two consecutive quantifiers.
 		 */
-		function maybeReadRegexQuantifier(): X.RegexQuantifier | TParseError | null
+		function maybeReadRegexQuantifier(): X.RegexQuantifier | TParseFault | null
 		{
 			/** */
 			function maybeReadQuantifier()
@@ -777,7 +800,7 @@ export class LineParser
 			const quantifier = maybeReadQuantifier();
 			if (quantifier)
 				if (maybeReadQuantifier())
-					return ParseError;
+					return X.Faults.DuplicateQuantifier;
 			
 			return quantifier;
 		}
@@ -814,11 +837,11 @@ export class LineParser
 		/**
 		 * 
 		 */
-		function maybeReadInfix(): X.Infix | TParseError | null
+		function maybeReadInfix(): X.Infix | TParseFault | null
 		{
 			const mark = parser.position;
-			const lhsEntries: X.BoundsEntry<X.Identifier>[] = [];
-			const rhsEntries: X.BoundsEntry<X.Identifier>[] = [];
+			const lhsEntries: X.Boundary<X.Identifier>[] = [];
+			const rhsEntries: X.Boundary<X.Identifier>[] = [];
 			let infixStart = parser.position;
 			let infixFlags: X.InfixFlags = X.InfixFlags.none;
 			let quitToken = X.InfixSyntax.end;
@@ -849,7 +872,7 @@ export class LineParser
 				parser.readWhitespace();
 				
 				for (const boundsEntry of readAnnotations([quitToken]).annotations)
-					rhsEntries.push(new X.BoundsEntry(
+					rhsEntries.push(new X.Boundary(
 						boundsEntry.offsetStart,
 						parser.position,
 						boundsEntry.subject));
@@ -867,7 +890,7 @@ export class LineParser
 					parser.readWhitespace();
 					
 					for (const boundsEntry of readAnnotations([quitToken]).annotations)
-						rhsEntries.push(new X.BoundsEntry(
+						rhsEntries.push(new X.Boundary(
 							boundsEntry.offsetStart,
 							parser.position,
 							boundsEntry.subject));
@@ -888,13 +911,13 @@ export class LineParser
 			parser.readWhitespace();
 			
 			if (!parser.read(quitToken))
-				return ParseError;
+				return X.Faults.UnterminatedInfix;
 			
 			return new X.Infix(
 				infixStart,
 				parser.position,
-				new X.Bounds(lhsEntries),
-				new X.Bounds(rhsEntries),
+				new X.BoundaryGroup(lhsEntries),
+				new X.BoundaryGroup(rhsEntries),
 				infixFlags);
 		}
 		
@@ -975,11 +998,17 @@ export class LineParser
 				parser.read(esc + X.Syntax.tab) ||
 				parser.readThenTerminal(esc))
 			{
-				flags |= X.LineFlags.isUnparsable;
+				flags |= X.LineFlags.isCruft;
 				return true;
 			}
 			
 			return false;
+		}
+		
+		/** */
+		function isParseFault(value: any): value is Readonly<X.FaultType<X.Statement>>
+		{
+			return value instanceof X.FaultType;
 		}
 	}
 	

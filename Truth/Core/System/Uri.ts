@@ -148,8 +148,7 @@ export class Uri
 		if (from instanceof X.Spine)
 		{
 			const srcUri = from.document.sourceUri;
-			const typeSegments = from.vertebrae
-				.map(span => span.subject.toString());
+			const typeSegments = from.vertebrae.map(vert => vert.toString());
 			
 			return new Uri(
 				srcUri.protocol,

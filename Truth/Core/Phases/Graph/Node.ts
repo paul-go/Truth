@@ -29,7 +29,7 @@ export class Node
 		this.document = span.statement.document;
 		this.stamp = this.document.version;
 		this.declarations = new Set([declaration]);
-		this.subject = declaration.subject;
+		this.subject = declaration.boundary.subject;
 		this.name = this.subject.toString();
 		
 		const containerTypePath = (() =>
@@ -328,7 +328,7 @@ export class Node
 	 */
 	addFanSource(source: X.Span | X.InfixSpan)
 	{
-		const name = source.subject.toString();
+		const name = source.boundary.subject.toString();
 		const stmt = source.statement;
 		
 		// If the input source is "alone", it means that it refers to
@@ -366,7 +366,7 @@ export class Node
 			
 			for (const { adjacents } of this.enumerateContainment())
 			{
-				const adjacentNode = adjacents.get(source.subject.toString());
+				const adjacentNode = adjacents.get(source.boundary.subject.toString());
 				if (adjacentNode)
 				{
 					targets.push(adjacentNode);
@@ -387,10 +387,12 @@ export class Node
 					rationale = X.FanRationale.pattern;
 			}
 			
-			append(new X.Fan(this, targets, [source], rationale));
+			append(new X.Fan(this, targets, [source], "", rationale));
 		}
 		
+		// 
 		// Refresh the sums before quitting.
+		// 
 		
 		const sumFanForInputSpanIdx = this._outbounds.findIndex(fan => 
 		{
@@ -405,25 +407,17 @@ export class Node
 			this._outbounds.splice(sumFanForInputSpanIdx, 1);
 		
 		if (!sourceIsAlone)
-		{
-			const sumTargets: Node[] = [];
-			
 			for (const { adjacents } of this.enumerateContainment())
 				for (const adjacentNode of adjacents.values())
 					if (adjacentNode.subject instanceof X.Pattern)
 						if (adjacentNode.subject.isTotal)
 							if (adjacentNode.subject.test(stmt.sum))
-								sumTargets.push(adjacentNode);
-			
-			if (sumTargets.length > 0)
-			{
-				append(new X.Fan(
-					this,
-					sumTargets,
-					stmt.annotations,
-					X.FanRationale.sum));
-			}
-		}
+								append(new X.Fan(
+									this,
+									[adjacentNode],
+									[],
+									stmt.sum,
+									X.FanRationale.sum));
 	}
 	
 	/**
@@ -489,8 +483,8 @@ export class Node
 		const spans = decls.filter((s): s is X.Span => s instanceof X.Span);
 		const anchors = decls.filter((a): a is X.InfixSpan => a instanceof X.InfixSpan);
 		
-		const spansText = spans.map(s => s.subject.toString()).join(", ");
-		const anchorText = anchors.map(a => a.subject.toString()).join(", ");
+		const spansText = spans.map(s => s.boundary.subject.toString()).join(", ");
+		const anchorText = anchors.map(a => a.boundary.subject.toString()).join(", ");
 		
 		const ob = this.outbounds.length;
 		const ib = this.inbounds.size;

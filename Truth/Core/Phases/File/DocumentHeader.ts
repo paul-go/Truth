@@ -33,18 +33,18 @@ export class DocumentHeader
 			// will change if scoped references become supported.
 			// Also, only one URI reference statement per line is
 			// accepted. Vaccuous statements break the header.
-			if (statement.annotations.length > 0 || statement.declarations.length !== 1)
+			if (statement.allAnnotations.length > 0 || statement.allDeclarations.length !== 1)
 				break;
 			
-			const decl = statement.declarations[0];
+			const decl = statement.allDeclarations[0];
 			
-			if (typeof decl.subject === "string")
+			if (typeof decl.boundary.subject === "string")
 				throw X.Exception.unknownState();
 			
-			if (!(decl.subject instanceof X.Uri))
+			if (!(decl.boundary.subject instanceof X.Uri))
 				break;
 			
-			newUriMap.set(statement, decl.subject);
+			newUriMap.set(statement, decl.boundary.subject);
 		}
 		
 		if (oldUriMap.size + newUriMap.size === 0)

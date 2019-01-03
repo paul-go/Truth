@@ -519,5 +519,18 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		partial: true,
 		infixes: [{ kind: "Nominal", lhs: "Nom" }],
 		annotations: "X"
+	},
+	"/==(<These>|<Arent>|<Infixes>)== : X": {
+		infixes: [],
+		annotations: "X"
+	},
+	"/==<InfixWithStar>*== : X": {
+		unparsable: true
+	},
+	"/==<InfixWithPlus>+== : X": {
+		unparsable: true
+	},
+	"/==<InfixWithRange>{1,2}== : X": {
+		unparsable: true
 	}
 };

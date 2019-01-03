@@ -18,4 +18,4 @@ Class
 	MyAnimal : Animal
 
 SubClass : Class
-	MyAnimal : Rabbit #1001;, Raccoon
+	MyAnimal : Rabbit #1003;, Raccoon

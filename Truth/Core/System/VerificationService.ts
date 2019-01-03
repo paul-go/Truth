@@ -16,9 +16,10 @@ export class VerificationService
 		program.hooks.Revalidate.capture(hook =>
 		{
 			for (const statement of hook.parents)
-				for (const declaration of statement.declarations)
-					declaration.factor().map(spine => 
-						X.Type.construct(spine, program));
+				if (!statement.isCruft)
+					for (const declaration of statement.declarations)
+						declaration.factor().map(spine => 
+							X.Type.construct(spine, program));
 		});
 	}
 }

@@ -7,8 +7,8 @@ import * as X from "../../X";
 export class Type
 {
 	/** @internal */
-	static construct(uri: X.Uri, program: X.Program): Type | null
-	static construct(spine: X.Spine, program: X.Program): Type
+	static construct(uri: X.Uri, program: X.Program): Type | null;
+	static construct(spine: X.Spine, program: X.Program): Type;
 	static construct(param: X.Uri | X.Spine, program: X.Program): Type | null
 	{
 		const uri = X.Uri.create(param);
@@ -21,23 +21,105 @@ export class Type
 		if (waterfall.totalHeight > uri.typePath.length)
 			return null;
 		
-		return null;
+		const faults: X.Fault[] = [];
+		const bases: X.Type[] = [];
+		const name = uri.typePath[uri.typePath.length - 1];
+		let container: Type | null = null;
+		let listPortal: Type | null = null;
+		let isListIntrinsic = false;
+		let isListExtrinsic = false;
+		let isFresh = false;
+		let isOverride = false;
+		let isAnonymous = false;
+		let isPattern = false;
+		let isUri = false;
+		
+		
+		
+		return new Type(
+			faults,
+			bases,
+			name,
+			container,
+			listPortal,
+			isListIntrinsic,
+			isListExtrinsic,
+			isFresh,
+			isOverride,
+			isAnonymous,
+			isPattern,
+			isUri);
 	}
 	
 	/**
 	 * 
 	 */
-	private constructor(waterfall: X.Waterfall)
-	{
-		this.waterfall = waterfall;
-		this.container = null!;
-		// Perform all type checking in here.
-	}
+	private constructor(
+		/**
+		 * 
+		 */
+		readonly faults: ReadonlyArray<X.Fault>,
+			
+		/**
+		 * Stores the array of types from which this type extends.
+		 * If this Type extends from a pattern, it is included in this
+		 * array.
+		 */
+		readonly bases: ReadonlyArray<Type>,
+		
+		/**
+		 * Stores a text representation of the name of the type,
+		 * or a serialized version of the pattern content in the
+		 * case when the type is actually a pattern.
+		 */
+		readonly name: string,
+		
+		/**
+		 * Stores the Type that contains this Type, or null in
+		 * the case when this Type is top-level.
+		 */
+		readonly container: Type | null,
+		
+		/**
+		 * Stores a reference to the intrinsic side of the list when
+		 * this type represents the extrinsic side of a list, or vice
+		 * versa. 
+		 * Stores null in the case when the type is not a list.
+		 */
+		readonly listPortal: Type | null,
+		
+		/**
+		 * Stores whether this type represents the intrinsic
+		 * side of a list.
+		 */
+		readonly isListIntrinsic: boolean,
+		
+		/**
+		 * Stores whether this type represents the extrinsic
+		 * side of a list.
+		 */
+		readonly isListExtrinsic: boolean,
+		
+		/** */
+		readonly isFresh: boolean,
+		
+		/** */
+		readonly isOverride: boolean,
+		
+		/** */
+		readonly isAnonymous: boolean,
+		
+		/** */
+		readonly isPattern: boolean,
+		
+		/** */
+		readonly isUri: boolean)
+	{ }
 	
 	/**
 	 * 
 	 */
-	constructAdjacents()
+	get adjacents()
 	{
 		// Adjacents are constructed by inspecting the constructed
 		// waterfall, and then reading the turns of the floor terrace.
@@ -46,13 +128,17 @@ export class Type
 		// those names are used to build separate URIs, which are then
 		// fed into Type.construct(), and a full set of types is returned.
 		
-		return [];
+		if (this._adjacents)
+			return this._adjacents;
+		
+		return this._adjacents = [];
 	}
+	private _adjacents: Type[] = [];
 	
 	/**
 	 * 
 	 */
-	constructContents(): Type[]
+	get contents(): Type[]
 	{
 		// The behavior of this method is similar to constructAdjacents,
 		// but with the distinction that the contents of the floor terrace
@@ -60,7 +146,10 @@ export class Type
 		// This method may also support a filtering method to find one
 		// single contained node.
 		
-		return [];
+		if (this._adjacents)
+			return this._adjacents;
+		
+		return this._adjacents = [];
 	}
 	
 	/**
@@ -68,72 +157,8 @@ export class Type
 	 * Patterns that resolve to this type. If this type is a pattern,
 	 * the input is tested against the inner regular expression.
 	 */
-	tryMatch(input: string): boolean
+	matches(input: string): boolean
 	{
 		return this.isPattern;
 	}
-	
-	/**
-	 * Stores the Waterfall diagram used to construct this type.
-	 */
-	private readonly waterfall: X.Waterfall;
-	
-	/**
-	 * Stores a text representation of the name of the type,
-	 * or a serialized version of the pattern content in the
-	 * case when the type is actually a pattern.
-	 */
-	readonly name: string = "";
-	
-	/** */
-	readonly container: Type;
-	
-	/**
-	 * Stores the array of types from which this type extends.
-	 * If this Type extends from a pattern, it is included in this
-	 * array.
-	 */
-	readonly bases: ReadonlyArray<Type> = [];
-	
-	/**
-	 * Stores a reference to the intrinsic side of the list when
-	 * this type represents the extrinsic side of a list, or vice
-	 * versa. 
-	 * Stores null in the case when the type is not a list.
-	 */
-	readonly listPortal: Type | null = null;
-	
-	/**
-	 * Stores whether this type represents the intrinsic
-	 * side of a list.
-	 */
-	readonly isListIntrinsic: boolean = false;
-	
-	/**
-	 * Stores whether this type represents the extrinsic
-	 * side of a list.
-	 */
-	readonly isListExtrinsic: boolean = false;
-	
-	/**
-	 * Stores whether the bases explicitly assigned to
-	 * this type are compliant with the requirements
-	 * imposed on this type from it's inheritance source.
-	 */
-	readonly isContractuallyCompliant: boolean = false;
-	
-	/** */
-	readonly isFresh: boolean = false;
-	
-	/** */
-	readonly isOverride: boolean = false;
-	
-	/** */
-	readonly isAnonymous: boolean = false;
-	
-	/** */
-	readonly inCircularGroup: boolean = false;
-	
-	/** */
-	readonly isPattern: boolean = false;
 }
