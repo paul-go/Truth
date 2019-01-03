@@ -172,15 +172,16 @@ export class Graph
 		// The breadthFirstOrganizer has 3 levels of organization:
 		//
 		// (1) An array of multi-maps which correspond to a single
-		// level of depth (which could possible extend to multiple
-		// statements) in the hierarchy being traversed.
+		// level of depth in the hierarchy being traversed (which
+		// could possibly extend across multiple localities in the
+		// document).
 		//
 		// (2) A multi-map, that is keyed by a serialized representation
 		// of one single spine found in the hierarchy, and whose
 		// values are...
 		//
 		// (3) A unique Span object that corresponds to a unqiue
-		// occurence of a subject in the document representation.
+		// occurence of a subject in the document.
 		interface breadthFirstEntry { uri: X.Uri, declaration: X.Span | X.InfixSpan };
 		const breadthFirstOrganizer: Array<X.MultiMap<string, breadthFirstEntry>> = [];
 		
@@ -192,10 +193,26 @@ export class Graph
 			while (breadthFirstOrganizer.length < level + 1)
 				breadthFirstOrganizer.push(new X.MultiMap<string, breadthFirstEntry>());
 			
-			const multiMap = breadthFirstOrganizer[level];
-			
+			// In the case when the current statement has been deemed
+			// as cruft, it's OK to just continue, because the breadth-first
+			// organizer will end up with an empty multi-map in the case
+			// when the portion of the hierarchy being traversed looks 
+			// like:
+			// 
+			// Foo
+			// 	[Cruft]    <=== Will correspond to an empty multi-map
+			// 		Bar
+			//
+			// Or, it will end up with a populated multi-map in the case
+			// when there is another statement at [Cruft]'s level of depth.
+			// Either way, there are no spans that need to be added from
+			// statements marked as cruft. The traversal will still reach
+			// the crufty statement's contents, causing the spines to still
+			// be computed.
 			if (statement.isCruft)
-				debugger;
+				continue;
+			
+			const multiMap = breadthFirstOrganizer[level];
 			
 			for (const declaration of statement.declarations)
 			{
