@@ -33,14 +33,14 @@ export class Graph
 		
 		program.hooks.Invalidate.capture(hook =>
 		{
-			for (const stmt of hook.parents)
-				this.exclude(stmt);
+			for (const smt of hook.parents)
+				this.exclude(smt);
 		});
 		
 		program.hooks.Revalidate.capture(hook =>
 		{
-			for (const stmt of hook.parents)
-				this.include(stmt);
+			for (const smt of hook.parents)
+				this.include(smt);
 		});
 	}
 	
