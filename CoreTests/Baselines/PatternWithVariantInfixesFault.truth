@@ -1,0 +1,38 @@
+//
+// This example demonstrates a fault being generated as a result
+// of attempting to feed an invalid input to a pattern, but where
+// the input is essentially covariant to the pattern's infixes. 
+// Infixes are essentially invariant -- their inputs must resolve to
+// the infix types exactly as specified. The only lenience is when
+// the infix types themselves do not have any associated patterns,
+// and instead have a pattern somewhere in their inheritance
+// hierarchy (this behavior is related to Truth's concept of
+// "bounded contravariance").
+//
+
+Number
+/\d+ : Number
+
+Decimal : Number
+/< : Number>(\.\d+)? : Decimal
+
+Unit : Decimal
+/< : Decimal>[a-z]{2} : Unit
+
+Distance : Unit
+/< : Decimal>(km|mi) : Distance
+
+Range
+	Low : Number
+	High : Number
+
+/<Low : Decimal> - <High : Decimal> : Range
+	
+Class
+	Amount : Range
+		Low : Distance
+		High : Distance
+	
+SubClass : Class
+	Amount : 2km - 3km #201
+	Amount : 2.5mi - 3.5mi #201

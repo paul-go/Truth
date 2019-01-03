@@ -1,7 +1,8 @@
 //
 // This example demonstrates a fault being generated
-// due to an attempt to create a pattern that has a comma
-// in it's alphabet, that also has the coexistence flag set.
+// due to an attempt to create a partial pattern that has
+// a comma in it's alphabet
+// 
 // This must be disallowed, otherwise a number of
 // ambiguities are introduced into the language.
 //
