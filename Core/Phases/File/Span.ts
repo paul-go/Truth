@@ -95,7 +95,7 @@ export class Span
 	get ancestry()
 	{
 		if (this._ancestry)
-			if (this._ancestry.every(stmt => !stmt.isDisposed))
+			if (this._ancestry.every(smt => !smt.isDisposed))
 				return this._ancestry;
 		
 		// If the ancestry has no yet been computed, or it has, but at least of
@@ -140,7 +140,7 @@ export class Span
 		
 		// An array of arrays. The first dimension corresponds to a statement. 
 		// The second dimension stores the declaration spans themselves.
-		const ancestryMatrix = this.ancestry.map(stmt => Array.from(stmt.declarations));
+		const ancestryMatrix = this.ancestry.map(smt => Array.from(smt.declarations));
 		
 		// An array that stores the number of declaration spans in each statement.
 		const ancestryLengths = ancestryMatrix.map(span => span.length);

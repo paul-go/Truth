@@ -83,14 +83,14 @@ describe("Document Scans", () =>
 					C
 		`);
 		
-		const stmtA = doc.read(0);
-		const stmtB = doc.read(1);
-		const stmtC = doc.read(2);
-		const stmtBParent = doc.getParent(stmtB);
-		const stmtCParent = doc.getParent(stmtC);
+		const smtA = doc.read(0);
+		const smtB = doc.read(1);
+		const smtC = doc.read(2);
+		const smtBParent = doc.getParent(smtB);
+		const smtCParent = doc.getParent(smtC);
 		
-		expect(stmtBParent).toBe(stmtA);
-		expect(stmtCParent).toBe(stmtB);
+		expect(smtBParent).toBe(smtA);
+		expect(smtCParent).toBe(smtB);
 	});
 
 	//
@@ -103,10 +103,10 @@ describe("Document Scans", () =>
 					C
 		`);
 		
-		const stmtA = doc.read(0);
-		const stmtBParent = doc.getParent(1);
+		const smtA = doc.read(0);
+		const smtBParent = doc.getParent(1);
 		
-		expect(stmtBParent).toBe(stmtA);
+		expect(smtBParent).toBe(smtA);
 	});
 
 	/** */
@@ -322,18 +322,18 @@ describe("Document Scans", () =>
 			F
 		`);
 		
-		const stmtA = doc.read(0);
-		const stmtB = doc.read(1);
-		const stmtC = doc.read(8);
-		const stmtD = doc.read(9);
-		const stmtE = doc.read(10);
-		const children = doc.getChildren(stmtA);
+		const smtA = doc.read(0);
+		const smtB = doc.read(1);
+		const smtC = doc.read(8);
+		const smtD = doc.read(9);
+		const smtE = doc.read(10);
+		const children = doc.getChildren(smtA);
 		
 		expect(children).toEqual(expect.arrayContaining([
-			stmtB,
-			stmtC,
-			stmtD,
-			stmtE]));
+			smtB,
+			smtC,
+			smtD,
+			smtE]));
 	});
 
 	/** */

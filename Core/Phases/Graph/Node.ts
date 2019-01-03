@@ -278,25 +278,25 @@ export class Node
 			if (tupleA === undefined || tupleB === undefined)
 				throw X.Exception.unknownState();
 			
-			const [stmtA, stmtIdxA] = tupleA;
-			const [stmtB, stmtIdxB] = tupleB;
+			const [smtA, smtIdxA] = tupleA;
+			const [smtB, smtIdxB] = tupleB;
 			
 			// If the top-most span of the origins of the
 			// fans are located in different statements,
 			// a simple comparison of the statement indexes
 			// is possible.
-			if (stmtIdxA < stmtIdxB)
+			if (smtIdxA < smtIdxB)
 				return -1;
 			
-			if (stmtIdxB < stmtIdxA)
+			if (smtIdxB < smtIdxA)
 				return 1;
 			
 			// At this point, statement A and statement B 
 			// are actually equal.
-			if (stmtA !== stmtB)
+			if (smtA !== smtB)
 				throw X.Exception.unknownState();
 			
-			const annos = stmtA.annotations;
+			const annos = smtA.annotations;
 			const findMinIndex = (fan: X.Fan) =>
 			{
 				let minIdx = Infinity;
@@ -329,7 +329,7 @@ export class Node
 	addFanSource(source: X.Span | X.InfixSpan)
 	{
 		const name = source.boundary.subject.toString();
-		const stmt = source.statement;
+		const smt = source.statement;
 		
 		// If the input source is "alone", it means that it refers to
 		// a statement-level annotation that has no other annotations
@@ -398,7 +398,7 @@ export class Node
 		{
 			if (fan.rationale === X.FanRationale.sum)
 				for (const src of fan.sources)
-					return src.statement === stmt;
+					return src.statement === smt;
 			
 			return false;
 		});
@@ -411,12 +411,12 @@ export class Node
 				for (const adjacentNode of adjacents.values())
 					if (adjacentNode.subject instanceof X.Pattern)
 						if (adjacentNode.subject.isTotal)
-							if (adjacentNode.subject.test(stmt.sum))
+							if (adjacentNode.subject.test(smt.sum))
 								append(new X.Fan(
 									this,
 									[adjacentNode],
 									[],
-									stmt.sum,
+									smt.sum,
 									X.FanRationale.sum));
 	}
 	

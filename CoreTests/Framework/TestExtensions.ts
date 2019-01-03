@@ -24,7 +24,7 @@ expect.extend({
 		if (actual.some(s => !(s instanceof X.Statement)))
 			return fail(`Expected an array of objects who are instanceof Statement.`);
 		
-		const statementStrs = actual.map(stmt => stmt.toString());
+		const statementStrs = actual.map(smt => smt.toString());
 		const expectedStrs = expected.split("\n");
 		
 		// Remove all leading whitespace-only lines.

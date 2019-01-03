@@ -47,10 +47,10 @@ export class Document
 	 */
 	getAncestry(statement: X.Statement | number)
 	{
-		const stmt = this.toStatement(statement);
+		const smt = this.toStatement(statement);
 		
 		// If the statement is root-level, it can't have an ancestry.
-		if (stmt.indent === 0)
+		if (smt.indent === 0)
 			return [];
 		
 		const startingIndex = this.toIndex(statement);
@@ -61,8 +61,8 @@ export class Document
 		if (startingIndex === 0)
 			return [];
 		
-		const ancestry = [stmt];
-		let indentToBeat = stmt.indent;
+		const ancestry = [smt];
+		let indentToBeat = smt.indent;
 		
 		for (let idx = startingIndex; --idx > -1;)
 		{
@@ -92,13 +92,13 @@ export class Document
 	 */
 	getParent(statement: X.Statement | number)
 	{
-		const stmt = this.toStatement(statement);
+		const smt = this.toStatement(statement);
 		
-		if (stmt.isNoop)
+		if (smt.isNoop)
 			return null;
 		
 		// If the statement is root-level, it can't have a parent.
-		if (stmt.indent === 0)
+		if (smt.indent === 0)
 			return this;
 		
 		const startingIndex = this.toIndex(statement);
@@ -109,7 +109,7 @@ export class Document
 		if (startingIndex === 0)
 			return this;
 		
-		let currentIndent = stmt.indent;
+		let currentIndent = smt.indent;
 		
 		for (let idx = startingIndex; --idx > -1;)
 		{
@@ -165,15 +165,15 @@ export class Document
 	 */
 	getSiblings(statement: X.Statement | number)
 	{
-		const stmt = this.toStatement(statement);
+		const smt = this.toStatement(statement);
 		
-		if (stmt.isNoop)
+		if (smt.isNoop)
 			return null;
 		
-		if (stmt.indent === 0)
+		if (smt.indent === 0)
 			return this.getChildren(null);
 		
-		const parent = this.getParent(stmt);
+		const parent = this.getParent(smt);
 		
 		if (parent === null)
 			return null;
@@ -248,11 +248,11 @@ export class Document
 		}
 		else
 		{
-			const stmt = statement instanceof X.Statement ?
+			const smt = statement instanceof X.Statement ?
 				statement : 
 				this.statements[statement];
 			
-			if (stmt.isNoop)
+			if (smt.isNoop)
 				return false;
 			
 			let idx = statement instanceof X.Statement ?
@@ -265,7 +265,7 @@ export class Document
 				if (currentStatement.isNoop)
 					continue;
 				
-				return currentStatement.indent > stmt.indent;
+				return currentStatement.indent > smt.indent;
 			}
 		}
 		
@@ -304,18 +304,18 @@ export class Document
 	 */
 	getNotes(statement: X.Statement | number)
 	{
-		const stmt = this.toStatement(statement);
-		if (stmt.isNoop)
+		const smt = this.toStatement(statement);
+		if (smt.isNoop)
 			return [];
 		
-		const stmtIdx = this.getStatementIndex(stmt);
-		if (stmtIdx < 1)
+		const smtIdx = this.getStatementIndex(smt);
+		if (smtIdx < 1)
 			return [];
 		
 		const commentLines: string[] = [];
-		const requiredIndent = stmt.indent;
+		const requiredIndent = smt.indent;
 		
-		for (let idx = stmtIdx; idx--;)
+		for (let idx = smtIdx; idx--;)
 		{
 			const currentStatement = this.statements[idx];
 			
@@ -460,9 +460,9 @@ export class Document
 		
 		for (let i = startIdx - 1; ++i < this.statements.length;)
 		{
-			const stmt = this.statements[i];
-			if (!stmt.isWhitespace)
-				yield stmt;
+			const smt = this.statements[i];
+			if (!smt.isWhitespace)
+				yield smt;
 		}
 	}
 	
@@ -583,16 +583,16 @@ export class Document
 			
 			const doInsertAt = (call: insertCall) =>
 			{
-				const stmt = new X.Statement(this, call.text);
+				const smt = new X.Statement(this, call.text);
 				if (call.at >= this.statements.length)
 				{
-					this.statementIndexCache.set(stmt, this.statements.length);
-					this.statements.push(stmt);
+					this.statementIndexCache.set(smt, this.statements.length);
+					this.statements.push(smt);
 				}
 				else
 				{
 					const at = boundAt(call);
-					this.statements.splice(at, 0, stmt);
+					this.statements.splice(at, 0, smt);
 					this.shiftStatementIndexCache(at, 1);
 				}
 			};
@@ -600,10 +600,10 @@ export class Document
 			const doUpdateAt = (call: updateCall) =>
 			{
 				const at = boundAt(call);
-				const stmt = new X.Statement(this, call.text);
+				const smt = new X.Statement(this, call.text);
 				this.statements[at].dispose();
-				this.statements[at] = stmt;
-				this.statementIndexCache.set(stmt, call.at);
+				this.statements[at] = smt;
+				this.statementIndexCache.set(smt, call.at);
 			};
 			
 			if (!hasMixed)
@@ -836,7 +836,7 @@ export class Document
 						const ancestryShort = aLessB ? ancestryA : ancestryB;
 						const ancestryLong = aLessB ? ancestryB : ancestryA;
 						
-						if (ancestryShort.every((stmt, idx) => stmt === ancestryLong[idx]))
+						if (ancestryShort.every((smt, idx) => smt === ancestryLong[idx]))
 							invalidatedAncestries.splice(aLessB ? n : i, 1);
 					}
 				}
