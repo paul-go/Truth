@@ -470,9 +470,9 @@ export class Document
 	 * Reads the Statement at the given position.
 	 * Negative numbers read Statement starting from the end of the document.
 	 */
-	read(line: number)
+	read(lineNumber: number)
 	{
-		const lineBounded = applyBounds(line, this.statements.length);
+		const lineBounded = applyBounds(lineNumber, this.statements.length);
 		return this.statements[lineBounded];
 	}
 	
