@@ -168,7 +168,10 @@ export class ProgramInspectionResult
 	constructor(
 		/**
 		 * Stores the compilation object that most closely represents
-		 * what was found at the specified location.
+		 * what was found at the specified location. Stores null in the
+		 * case when the specified location contains an object that
+		 * has been marked as cruft (the statement and span fields
+		 * are still populated in this case).
 		 */
 		readonly result: X.Document | X.Type[] | null,
 		
