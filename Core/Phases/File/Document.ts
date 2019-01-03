@@ -53,7 +53,7 @@ export class Document
 		if (smt.indent === 0)
 			return [];
 		
-		const startingIndex = this.toIndex(statement);
+		const startingIndex = this.toLineNumber(statement);
 		
 		if (startingIndex < 0)
 			return null;
@@ -101,7 +101,7 @@ export class Document
 		if (smt.indent === 0)
 			return this;
 		
-		const startingIndex = this.toIndex(statement);
+		const startingIndex = this.toLineNumber(statement);
 		
 		if (startingIndex < 0)
 			return null;
@@ -200,7 +200,7 @@ export class Document
 		let childIndent = Number.MAX_SAFE_INTEGER;
 		
 		let startIdx = statement ? 
-			this.getStatementIndex(statement) :
+			this.getLineNumber(statement) :
 			-1;
 			
 		if (startIdx >= this.statements.length)
@@ -256,7 +256,7 @@ export class Document
 				return false;
 			
 			let idx = statement instanceof X.Statement ?
-				this.getStatementIndex(statement) :
+				this.getLineNumber(statement) :
 				statement;
 			
 			while (++idx < this.statements.length)
@@ -278,7 +278,7 @@ export class Document
 	 * If the statement does not exist in the document,
 	 * the returned value is -1.
 	 */
-	getStatementIndex(statement: X.Statement)
+	getLineNumber(statement: X.Statement)
 	{
 		const idx = this.statementIndexCache.get(statement);
 		if (idx !== undefined)
@@ -308,16 +308,16 @@ export class Document
 		if (smt.isNoop)
 			return [];
 		
-		const smtIdx = this.getStatementIndex(smt);
-		if (smtIdx < 1)
+		const lineNum = this.getLineNumber(smt);
+		if (lineNum < 1)
 			return [];
 		
 		const commentLines: string[] = [];
 		const requiredIndent = smt.indent;
 		
-		for (let idx = smtIdx; idx--;)
+		for (let num = lineNum; num--;)
 		{
-			const currentStatement = this.statements[idx];
+			const currentStatement = this.statements[num];
 			
 			if (currentStatement.isWhitespace)
 				continue;
@@ -447,18 +447,18 @@ export class Document
 	 */
 	*eachStatement(statement?: X.Statement | number)
 	{
-		const startIdx = (() =>
+		const startNum = (() =>
 		{
 			if (!statement)
 				return 0;
 			
 			if (statement instanceof X.Statement)
-				return this.getStatementIndex(statement);
+				return this.getLineNumber(statement);
 			
 			return statement;
 		})();
 		
-		for (let i = startIdx - 1; ++i < this.statements.length;)
+		for (let i = startNum - 1; ++i < this.statements.length;)
 		{
 			const smt = this.statements[i];
 			if (!smt.isWhitespace)
@@ -492,10 +492,10 @@ export class Document
 	 * a statement or a statement index, into a bounded statement 
 	 * index.
 	 */
-	private toIndex(statementOrIndex: X.Statement | number)
+	private toLineNumber(statementOrIndex: X.Statement | number)
 	{
 		return statementOrIndex instanceof X.Statement ?
-			this.getStatementIndex(statementOrIndex) :
+			this.getLineNumber(statementOrIndex) :
 			applyBounds(statementOrIndex, this.statements.length);
 	}
 	
