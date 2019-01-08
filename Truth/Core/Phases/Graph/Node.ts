@@ -7,11 +7,14 @@ import * as X from "../../X";
  * significant objects that persist between edit frames.
  * 
  * Nodes are connected in a graph not by edges, but by
- * "Fans". A Fan is similar to a directed edge in that it has
- * a single origin, but differs in that it has multiple destinations.
+ * HyperEdges. A HyperEdge (from graph theory) is similar 
+ * to a directed edge in that it has a single predecessor,
+ * but differs in that it has multiple successors.
+ * 
  * It is necessary for Nodes to be connected to each other
  * in this way, in order for further phases in the pipeline
- * to perform type resolution.
+ * to execute the various kinds of polymorphic type
+ * resolution.
  */
 export class Node
 {
@@ -68,8 +71,8 @@ export class Node
 		
 		const recurse = (node: Node) =>
 		{
-			for (const fan of node._outbounds)
-				this.disposeFan(fan);
+			for (const edge of node._outbounds)
+				this.disposeEdge(edge);
 			
 			for (const node of this._contents.values())
 				recurse(node);
@@ -88,21 +91,21 @@ export class Node
 	}
 	
 	/**
-	 * Removes the specified Fan from this Node's
+	 * Removes the specified HyperEdge from this Node's
 	 * set of outbounds.
 	 * 
-	 * @throws In the case when the specified Fan is
+	 * @throws In the case when the specified HyperEdge is
 	 * not owned by this Node.
 	 */
-	disposeFan(fan: X.Fan)
+	disposeEdge(edge: X.HyperEdge)
 	{
-		if (fan.origin !== this)
+		if (edge.predecessor !== this)
 			throw X.Exception.invalidArgument();
 		
-		for (const target of fan.targets)
-			target._inbounds.delete(fan);
+		for (const scsr of edge.successors)
+			scsr.node._inbounds.delete(edge);
 		
-		fan.sources.clear();
+		edge.clearSources();
 	}
 	
 	/** */
@@ -195,7 +198,7 @@ export class Node
 	}
 	
 	/**
-	 * Gets an immutable set of Fans from adjacent or
+	 * Gets an immutable set of HyperEdges from adjacent or
 	 * contained Nodes that reference this Node. 
 	 * 
 	 * (The ordering of outbounds isn't important, as
@@ -207,10 +210,10 @@ export class Node
 	{
 		return X.HigherOrder.copy(this._inbounds);
 	}
-	private readonly _inbounds = new Set<X.Fan>();
+	private readonly _inbounds = new Set<X.HyperEdge>();
 	
 	/**
-	 * Gets an array of Fans that connect this Node to
+	 * Gets an array of HyperEdges that connect this Node to
 	 * others, being either adjacents, or Nodes that
 	 * exists somewhere in the containment hierarchy.
 	 */
@@ -218,11 +221,11 @@ export class Node
 	{
 		return X.HigherOrder.copy(this._outbounds);
 	}
-	private readonly _outbounds: X.Fan[] = [];
+	private readonly _outbounds: X.HyperEdge[] = [];
 	
 	/**
 	 * @internal
-	 * Sorts the outbound Fans, so that they're ordering
+	 * Sorts the outbound HyperEdges, so that they're ordering
 	 * is consistent with the way their corresponding
 	 * annotations appear in the underlying document.
 	 */
@@ -233,20 +236,20 @@ export class Node
 		
 		if (this._outbounds.length === 1)
 		{
-			const fan = this._outbounds[0];
-			if (fan.sources.size === 1)
+			const edge = this._outbounds[0];
+			if (edge.sources.length === 1)
 				return;
 		}
 		
-		const fanLookup = new Map<X.Fan, [X.Statement, number]>();
+		const edgeLookup = new Map<X.HyperEdge, [X.Statement, number]>();
 		
-		for (const fan of this._outbounds)
+		for (const edge of this._outbounds)
 		{
-			for (const src of fan.sources.values())
+			for (const src of edge.sources.values())
 			{
 				const smt = src.statement;
 				const lineNum = smt.document.getLineNumber(smt);
-				const existingTuple = fanLookup.get(fan);
+				const existingTuple = edgeLookup.get(edge);
 				
 				if (existingTuple !== undefined)
 				{
@@ -261,18 +264,18 @@ export class Node
 				}
 				else
 				{
-					fanLookup.set(fan, [smt, lineNum]);
+					edgeLookup.set(edge, [smt, lineNum]);
 				}
 			}
 		}
 		
-		// Sort the output fans in the array, so that the sorting of
+		// Sort the output edges in the array, so that the sorting of
 		// the array aligns with the appearance of the underlying
 		// spans in the document.
-		this._outbounds.sort((fanA, fanB) =>
+		this._outbounds.sort((edgeA, edgeB) =>
 		{
-			const tupleA = fanLookup.get(fanA);
-			const tupleB = fanLookup.get(fanB);
+			const tupleA = edgeLookup.get(edgeA);
+			const tupleB = edgeLookup.get(edgeB);
 			
 			if (tupleA === undefined || tupleB === undefined)
 				throw X.Exception.unknownState();
@@ -280,8 +283,8 @@ export class Node
 			const [smtA, smtIdxA] = tupleA;
 			const [smtB, smtIdxB] = tupleB;
 			
-			// If the top-most span of the origins of the
-			// fans are located in different statements,
+			// If the top-most span of the predecessors of
+			// the edges are located in different statements,
 			// a simple comparison of the statement indexes
 			// is possible.
 			if (smtIdxA < smtIdxB)
@@ -296,11 +299,11 @@ export class Node
 				throw X.Exception.unknownState();
 			
 			const annos = smtA.annotations;
-			const findMinIndex = (fan: X.Fan) =>
+			const findMinIndex = (edge: X.HyperEdge) =>
 			{
 				let minIdx = Infinity;
 				
-				for (const src of fan.sources)
+				for (const src of edge.sources)
 				{
 					if (src instanceof X.InfixSpan)
 						throw X.Exception.unknownState();
@@ -316,18 +319,18 @@ export class Node
 				return minIdx;
 			}
 			
-			const fanAIdx = findMinIndex(fanA);
-			const fanBIdx = findMinIndex(fanB);
-			return fanAIdx - fanBIdx;
+			const edgeAIdx = findMinIndex(edgeA);
+			const edgeBIdx = findMinIndex(edgeB);
+			return edgeAIdx - edgeBIdx;
 		});
 	}
 	
 	/**
 	 * @internal
 	 */
-	addFanSource(source: X.Span | X.InfixSpan)
+	addEdgeSource(source: X.Span | X.InfixSpan)
 	{
-		const name = source.boundary.subject.toString();
+		const value = source.boundary.subject.toString();
 		const smt = source.statement;
 		
 		// If the input source is "alone", it means that it refers to
@@ -340,83 +343,102 @@ export class Node
 			source.statement.annotations.length === 1;
 		
 		/**
-		 * Adds a fan to it's two applicable target nodes.
+		 * Adds a edge to it's two applicable successor nodes.
 		 */
-		const append = (fan: X.Fan) =>
+		const append = (edge: X.HyperEdge) =>
 		{
-			this._outbounds.push(fan);
+			this._outbounds.push(edge);
 			
-			for (const targetNode of fan.targets)
-				targetNode._inbounds.add(fan);
+			for (const suc of edge.successors)
+				suc.node._inbounds.add(edge);
 		}
 		
-		// If there is already an existing outbound Fan, we can
-		// add the new Span to the fan's list of Spans, and quit.
-		// This works whether the fan is for a type or pattern.
-		const existingFan = this._outbounds.find(fan => fan.name === name);
-		if (existingFan)
+		// If there is already an existing outbound HyperEdge, we can
+		// add the new Span to the edge's list of Spans, and quit.
+		// This works whether the edge is for a type or pattern.
+		const existingEdge = this._outbounds.find(edge => edge.textualValue === value);
+		if (existingEdge)
 		{
-			existingFan.sources.add(source);
+			existingEdge.addSource(source);
 		}
 		else
 		{
-			const targets: Node[] = [];
-			let rationale = X.FanRationale.orphan;
+			const successors: X.Successor[] = [];
+			let kind = X.HyperEdgeKind.orphan;
 			
-			for (const { adjacents } of this.enumerateContainment())
+			for (const { longitudeDelta, adjacents } of this.enumerateContainment())
 			{
 				const adjacentNode = adjacents.get(source.boundary.subject.toString());
 				if (adjacentNode)
 				{
-					targets.push(adjacentNode);
-					rationale = X.FanRationale.type;
+					successors.push(new X.Successor(
+						adjacentNode,
+						longitudeDelta));
+					
+					kind = X.HyperEdgeKind.literal;
 				}
 			}
 			
-			if (rationale === X.FanRationale.orphan)
+			if (kind === X.HyperEdgeKind.orphan)
 			{
-				for (const { adjacents } of this.enumerateContainment())
+				for (const { longitudeDelta, adjacents } of this.enumerateContainment())
 					for (const adjacentNode of adjacents.values())
 						if (adjacentNode.subject instanceof X.Pattern)
 							if (sourceIsAlone || !adjacentNode.subject.isTotal)
-								if (adjacentNode.subject.test(name))
-									targets.push(adjacentNode);
+								if (adjacentNode.subject.test(value))
+									successors.push(new X.Successor(
+										adjacentNode, 
+										longitudeDelta));
 				
-				if (targets.length > 0)
-					rationale = X.FanRationale.pattern;
+				if (successors.length > 0)
+					kind = X.HyperEdgeKind.categorical;
 			}
 			
-			append(new X.Fan(this, targets, [source], "", rationale));
+			append(new X.HyperEdge(this, source, successors, kind));
 		}
 		
 		// 
 		// Refresh the sums before quitting.
 		// 
 		
-		const sumFanForInputSpanIdx = this._outbounds.findIndex(fan => 
+		const sumEdgeForInputSpanIdx = this._outbounds.findIndex(edge => 
 		{
-			if (fan.rationale === X.FanRationale.sum)
-				for (const src of fan.sources)
+			if (edge.kind === X.HyperEdgeKind.summation)
+				for (const src of edge.sources)
 					return src.statement === smt;
 			
 			return false;
 		});
 		
-		if (sumFanForInputSpanIdx > -1)
-			this._outbounds.splice(sumFanForInputSpanIdx, 1);
+		if (sumEdgeForInputSpanIdx > -1)
+			this._outbounds.splice(sumEdgeForInputSpanIdx, 1);
 		
 		if (!sourceIsAlone)
-			for (const { adjacents } of this.enumerateContainment())
+			for (const { longitudeDelta, adjacents } of this.enumerateContainment())
 				for (const adjacentNode of adjacents.values())
 					if (adjacentNode.subject instanceof X.Pattern)
 						if (adjacentNode.subject.isTotal)
 							if (adjacentNode.subject.test(smt.sum))
-								append(new X.Fan(
+								append(new X.HyperEdge(
 									this,
-									[adjacentNode],
-									[],
 									smt.sum,
-									X.FanRationale.sum));
+									[new X.Successor(adjacentNode, longitudeDelta)],
+									X.HyperEdgeKind.summation));
+	}
+	
+	/**
+	 * 
+	 */
+	*enumerateOutbounds()
+	{
+		//const recurse = (node: X.Node) =>
+		//{
+		//	for (const edge of node.outbounds)
+		//		for (const successor of edge.successors)
+		//			//yield { node: 
+		//}
+		//
+		//yield* recurse(this);
 	}
 	
 	/**
@@ -427,21 +449,25 @@ export class Node
 	 * root level adjacents of each of the document's
 	 * dependencies.
 	 */
-	private *enumerateContainment()
+	*enumerateContainment()
 	{
 		const doc = this.document;
 		const program = doc.program;
 		const deps = program.documents.getDependencies(doc);
 		let currentLevel: Node | null = this;
+		let longitudeCount = 0;
 		
 		do
 		{
 			yield {
 				sourceDocument: doc,
-				adjacents: currentLevel.adjacents
+				adjacents: currentLevel.adjacents,
+				longitudeDelta: longitudeCount++
 			};
 		}
 		while ((currentLevel = currentLevel.container) !== null);
+		
+		// NOTE: This is broken. It needs to be recursive.
 		
 		for (let i = deps.length; --i > 0;)
 		{
@@ -449,7 +475,8 @@ export class Node
 			
 			yield {
 				sourceDocument,
-				adjacents: this.getRootNodes(sourceDocument)
+				adjacents: this.getRootNodes(sourceDocument),
+				longitudeDelta: longitudeCount
 			}
 		}
 	}
@@ -460,7 +487,7 @@ export class Node
 	 * containing document, yielding each container
 	 * of this Node.
 	 */
-	private *enumerateContainers()
+	*enumerateContainers()
 	{
 		let currentLevel: Node | null = this;
 		
@@ -469,10 +496,10 @@ export class Node
 	}
 	
 	/** */
-	removeFanSource(src: X.Span | X.InfixSpan)
+	removeEdgeSource(src: X.Span | X.InfixSpan)
 	{
 		for (let i = this._outbounds.length; --i > 0;)
-			this._outbounds[i].sources.delete(src);
+			this._outbounds[i].addSource(src);
 	}
 	
 	/** */
