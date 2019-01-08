@@ -4,7 +4,7 @@ import * as X from "../../X";
 /**
  * 
  */
-export class Graph
+export class HyperGraph
 {
 	/**
 	 * @internal
@@ -15,7 +15,7 @@ export class Graph
 	/** @internal */
 	constructor(private readonly program: X.Program)
 	{
-		if (Graph.disabled)
+		if (HyperGraph.disabled)
 			return;
 		
 		program.documents.each()
@@ -70,7 +70,7 @@ export class Graph
 		// Attempts to remove a span from the specified target. 
 		// Adds the target to a list in the case when the target's
 		// last Span was removed.
-		const tryDelete = (from: X.Node | X.Fan, decl: X.Span | X.InfixSpan) =>
+		const tryDelete = (from: X.Node | X.HyperEdge, decl: X.Span | X.InfixSpan) =>
 		{
 			if (from instanceof X.Node)
 			{
@@ -81,11 +81,11 @@ export class Graph
 			}
 			else
 			{
-				const node = from.origin;
-				node.removeFanSource(decl);
+				const node = from.predecessor;
+				node.removeEdgeSource(decl);
 				
-				if (from.sources.size === 0)
-					txn.destablizedFans.push(from);
+				if (from.sources.length === 0)
+					txn.destablizedEdges.push(from);
 			}
 		}
 		
@@ -106,16 +106,16 @@ export class Graph
 					tryDelete(associatedNode, declaration);
 					
 					// Attempt to remove the annotations from the
-					// Node's outbound Fans.
-					for (const outFan of associatedNode.outbounds)
+					// Node's outbound HyperEdges.
+					for (const outEdge of associatedNode.outbounds)
 						for (const annotation of statement.annotations)
-							tryDelete(outFan, annotation);
+							tryDelete(outEdge, annotation);
 					
 					// Attempt to remove the annotations from the
-					// Node's outbound Fans.
-					for (const inFan of associatedNode.inbounds)
+					// Node's outbound HyperEdges.
+					for (const inEdge of associatedNode.inbounds)
 						for (const annotation of statement.annotations)
-							tryDelete(inFan, annotation);
+							tryDelete(inEdge, annotation);
 				}
 			}
 		}
@@ -295,7 +295,7 @@ export class Graph
 				if (declaration instanceof X.Span)
 				{
 					for (const annotation of declaration.statement.annotations)
-						node.addFanSource(annotation);
+						node.addEdgeSource(annotation);
 				}
 				else
 				{
@@ -303,7 +303,7 @@ export class Graph
 					
 					for (const boundary of nfx.rhs)
 					{
-						node.addFanSource(new X.InfixSpan(
+						node.addEdgeSource(new X.InfixSpan(
 							declaration.containingSpan,
 							nfx,
 							boundary));
@@ -316,9 +316,9 @@ export class Graph
 		// is being included for the first time.
 		if (txn)
 		{
-			for (const maybeDeadFan of txn.destablizedFans)
-				if (maybeDeadFan.sources.size > 0)
-					maybeDeadFan.origin.disposeFan(maybeDeadFan);
+			for (const maybeDeadEdge of txn.destablizedEdges)
+				if (maybeDeadEdge.sources.length > 0)
+					maybeDeadEdge.predecessor.disposeEdge(maybeDeadEdge);
 			
 			for (const maybeDeadNode of txn.destabilizedNodes)
 				if (maybeDeadNode.declarations.size === 0)
@@ -429,7 +429,7 @@ class GraphTransaction
 	 * underlying Span objects, due to their removal in
 	 * the invalidation phase.
 	 */
-	readonly destablizedFans: X.Fan[] = [];
+	readonly destablizedEdges: X.HyperEdge[] = [];
 }
 
 
