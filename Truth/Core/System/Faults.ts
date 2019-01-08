@@ -120,16 +120,16 @@ export const Faults = Object.freeze({
 		return "";
 	},
 	
-	/** */
-	UnresolvedResource: createFault<X.Statement>(
-		100,
-		"URI points to a resource that could not be resolved."),
-	
 	
 	//
 	// Resource-related faults
 	//
 	
+	
+	/** */
+	UnresolvedResource: createFault<X.Statement>(
+		100,
+		"URI points to a resource that could not be resolved."),
 	
 	/** */
 	CircularResourceReference: createFault<X.Statement>(
@@ -160,17 +160,34 @@ export const Faults = Object.freeze({
 	
 	/** */
 	ContractViolation: createFault<X.Span>(
-		204,
+		205,
 		"Overridden types must explicitly expand the type as defined in the base."),
 	
 	/** */
 	TypeCannotBeRefreshed: createFault<X.Statement>(
 		206,
-		"This type cannot be refreshed, because one or more base types are " +
-		"imposing a specific type contract on it. Consider omitting the " + 
-		X.Syntax.joint + " operator here.",
+		`This type cannot be refreshed, because one or more base
+		types are imposing a specific type contract on it. Consider
+		omitting the ${X.Syntax.joint} operator here.`,
 		FaultSeverity.warning),
 	
+	/** */
+	IgnoredAnnotation: createFault<X.Span>(
+		207,
+		`This annotation is ignored because another annotation
+		in this statement resolves to the same type.`),
+	
+	/** */
+	IgnoredAlias: createFault<X.Span>(
+		209,
+		`Aliases (meaning annotations that are matched by patterns)
+		can't be added onto types that have a contract put in place
+		by a base type.`),
+	
+	/** */
+	TypeSelfReferential: createFault<X.Span>(
+		211,
+		`Types cannot be self-referential`),
 	
 	//
 	// List-related faults
@@ -200,48 +217,6 @@ export const Faults = Object.freeze({
 	
 	
 	//
-	// Parsing Faults
-	//
-	
-	
-	/** */
-	UnterminatedCharacterSet: createFault<X.Statement>(
-		0,
-		`Unterminated character set. Pattern has an opening "${X.RegexSyntaxDelimiter.setStart}"
-		character without a matching "${X.RegexSyntaxDelimiter.setEnd}" character.`),
-	
-	/** */
-	UnterminatedGroup: createFault<X.Statement>(
-		0,
-		`Unterminated group. Pattern has an opening "${X.RegexSyntaxDelimiter.groupStart}"
-		character without a matching "${X.RegexSyntaxDelimiter.groupEnd}" character.`),
-	
-	/** */
-	DuplicateQuantifier: createFault<X.Statement>(
-		0,
-		`Multiple consecutive quantifiers ${quantifiers} are not allowed.`),
-	
-	/** */
-	UnterminatedInfix: createFault<X.Statement>(
-		0,
-		`Unterminated infix. Pattern has an opening ${X.InfixSyntax.start},
-		${X.InfixSyntax.nominalStart}, ${X.InfixSyntax.patternStart} delimiter without
-		a matching closing delimiter.`),
-	
-	/** */
-	EmptyPattern: createFault<X.Statement>(
-		0,
-		`Pattern has no matchable content.`),
-	
-	
-	//
-	// Pre-analysis faults
-	//
-	
-	
-	
-	
-	//
 	// Pattern-related faults
 	//
 	
@@ -263,6 +238,12 @@ export const Faults = Object.freeze({
 		"Patterns must not be able to match an empty input."),
 	
 	/** */
+	PatternMatchingTypesAlreadyExists: createFault<X.Statement>(
+		406,
+		`A pattern matching these types has 
+		already been defined in this scope.`),
+	
+	/** */
 	PatternCanMatchWhitespaceOnly: createFault<X.Statement>(
 		420,
 		"Patterns must not be able to match an input " +
@@ -270,124 +251,122 @@ export const Faults = Object.freeze({
 	
 	/** */
 	PatternAcceptsLeadingWhitespace: createFault<X.Statement>(
-		434,
+		422,
 		"Patterns must not be able to match an input " +
 		"containing only whitespace characters."),
 	
 	/** */
 	PatternRequiresLeadingWhitespace: createFault<X.Statement>(
-		436,
+		424,
 		"Patterns must not be able to match an input " +
 		"containing only whitespace characters."),
 	
 	/** */
 	PatternAcceptsTrailingWhitespace: createFault<X.Statement>(
-		438,
+		426,
 		"Patterns must not be able to match an input " +
 		"containing only whitespace characters."),
 	
 	/** */
 	PatternRequiresTrailingWhitespace: createFault<X.Statement>(
-		440,
+		428,
 		"Patterns must not be able to match an input " +
 		"containing only whitespace characters."),
 	
 	/** */
 	PatternNonCovariant: createFault<X.Statement>(
-		406,
+		440,
 		"Pattern does not match it's base types."),
 	
 	/** */
-	PatternUnknownNestedTypes: createFault<X.Span>(
-		432,
-		"The base specified on the containing pattern has no type with this name."),
-	
-	/** */
-	PatternIncompatible: createFault<X.Statement>(
-		442,
-		"This pattern is incompatible with other patterns that match the specified types."),
-	
-	/** */
 	PatternPartialWithCombinator: createFault<X.Statement>(
-		444,
+		442,
 		"Partial patterns cannot explicitly match the comma character."),
 	
 	/** */
+	DiscrepantUnion: createFault<X.Span>(
+		499,
+		"A union cannot be created between these types because their " + 
+		"associated patterns conflict with each other."),
+	
+	
+	// 
+	// Infix related
+	// 
+	
+	
+	/** */
 	InfixHasQuantifier: createFault<X.Statement>(
-		0,
+		500, //0,
 		`Infixes cannot have quantifiers ${quantifiers} applied to them`),
 	
 	/** */
 	InfixHasDuplicateIdentifier: createFault<X.InfixSpan>(
-		0,
+		501, //0,
 		`Infixes cannot have duplicate identifiers.`),
 	
-	/**  */
-	InfixSelfReferential: createFault<X.InfixSpan>(
-		410,
+	/** */
+	InfixHasSelfReferentialType: createFault<X.InfixSpan>(
+		503, //410,
 		"Infixes cannot be self-referential."),
 	
-	/**  */
+	/** */
 	InfixNonConvariant: createFault<X.InfixSpan>(
-		412,
+		505, //412,
 		"Infixes must be compatible with their bases."),
 	
 	/** */
-	InfixNotDefined: createFault<X.InfixSpan>(
-		422,
-		"Infixes must be defined on at least one of their matched bases."),
+	InfixCannotDefineNewTypes: createFault<X.InfixSpan>(
+		507, //422,
+		`A type referenced in an infix must be contained
+		by the pattern statement directly, or be contained
+		by one of it's matched bases.`),
 	
 	/** */
-	InfixTypeReferenceMustHavePattern: createFault<X.InfixSpan>(
-		414,
-		"Types referenced in an infix must have at least one associated pattern."),
+	InfixReferencedTypeMustHavePattern: createFault<X.InfixSpan>(
+		509, //414,
+		"Types applied to an infix must have at least one associated pattern."),
 	
 	/** */
-	InfixRecursive: createFault<X.InfixSpan>(
-		416,
-		"Recursive types cannot be referenced within infixes."),
+	InfixReferencedTypeCannotBeRecursive: createFault<X.InfixSpan>(
+		511, //416,
+		"Types applied to an infix must not create a recursive structure."),
 	
 	/** */
 	InfixContractViolation: createFault<X.InfixSpan>(
-		424,
+		513, //424,
 		"Infix type annotations must explicitly expand the type as defined by the base."),
 	
 	/** */
 	InfixPopulationChaining: createFault<X.InfixSpan>(
-		426,
+		515, //426,
 		"Population infixes cannot have multiple declarations."),
 	
 	/** */
 	InfixUsingListOperator: createFault<X.InfixSpan>(
-		0,
+		517, //0,
 		`Infix identifiers cannot end with the list operator (${X.Syntax.list}).`),
 	
 	/** */
 	InfixReferencingList: createFault<X.InfixSpan>(
-		428,
+		519, //428,
 		"Infixes cannot reference list types."),
 	
 	/** */
 	PortabilityInfixHasMultipleDefinitions: createFault<X.InfixSpan>(
-		418,
+		521, //418,
 		"Portability infixes with compatible types cannot be specified more than once."),
 	
 	/** */
 	PopulationInfixHasMultipleDefinitions: createFault<X.InfixSpan>(
-		0,
+		523, //0,
 		`Declarartions in a population infix cannot be defined twice in the same pattern`),
 	
 	/** */
 	NominalInfixMustSubtype: createFault<X.Span>(
-		430,
+		525, //430,
 		"Patterns with nominal infixes require an input that is " +
 		"a subtype of the type specified, not the type itself."),
-	
-	/** */
-	DiscrepantUnion: createFault<X.Span>(
-		450,
-		"A union cannot be created between these types because their " + 
-		"associated patterns conflict with each other."),
 	
 	
 	//
@@ -397,23 +376,23 @@ export const Faults = Object.freeze({
 	
 	/** */
 	StatementBeginsWithComma: createFault<X.Statement>(
-		500,
+		600,
 		"Statements cannot begin with a comma."),
 	
 	/** */
 	StatementBeginsWithEllipsis: createFault<X.Statement>(
-		502,
+		602,
 		"Statements cannot begin with an ellipsis (...)."),
 	
 	/** */
 	StatementBeginsWithEscapedSpace: createFault<X.Statement>(
-		504,
+		604,
 		"Statements cannot begin with an escape character (\\) " + 
 		"that is followed by a tab or space."),
 	
 	
 	//
-	// Warnings
+	// Parsing Faults
 	//
 	
 	
@@ -429,17 +408,35 @@ export const Faults = Object.freeze({
 		"Duplicated declaration."),
 	
 	/** */
-	IgnoredAnnotation: createFault<X.Span>(
-		1003,
-		"This annotation is ignored because another annotation " +
-		"in this statement resolves to the same type."),
+	UnterminatedCharacterSet: createFault<X.Statement>(
+		1002,
+		`Unterminated character set. Pattern has an opening
+		"${X.RegexSyntaxDelimiter.setStart}" character without a matching
+		"${X.RegexSyntaxDelimiter.setEnd}" character.`),
 	
 	/** */
-	IgnoredAlias: createFault<X.Span>(
-		1005,
-		"Aliases (meaning annotations that are matched by patterns) " +
-		"can't be added onto types that have a contract put in place " +
-		"by a base type."),
+	UnterminatedGroup: createFault<X.Statement>(
+		1004,
+		`Unterminated group. Pattern has an opening
+		"${X.RegexSyntaxDelimiter.groupStart}" character without a matching
+		"${X.RegexSyntaxDelimiter.groupEnd}" character.`),
+	
+	/** */
+	DuplicateQuantifier: createFault<X.Statement>(
+		1006,
+		`Multiple consecutive quantifiers ${quantifiers} are not allowed.`),
+	
+	/** */
+	UnterminatedInfix: createFault<X.Statement>(
+		1008,
+		`Unterminated infix. Pattern has an opening ${X.InfixSyntax.start},
+		${X.InfixSyntax.nominalStart}, ${X.InfixSyntax.patternStart} delimiter without
+		a matching closing delimiter.`),
+	
+	/** */
+	EmptyPattern: createFault<X.Statement>(
+		1010,
+		`Pattern has no matchable content.`),
 });
 
 
