@@ -1,0 +1,20 @@
+// 
+// This example demonstrates an set of entanglements
+// where an entangled down-type is happening, but the
+// type causing the down-type itself is another entangled
+// type.
+// 
+
+Number
+
+ClassL1
+	AA
+	BB : AA
+	CC : BB
+	
+ClassL2 : ClassL1
+	MyAA
+		Value : Number
+	AA : MyAA
+	~ CC
+		~ Value : Number

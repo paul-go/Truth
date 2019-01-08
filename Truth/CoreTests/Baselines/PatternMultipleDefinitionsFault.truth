@@ -1,0 +1,16 @@
+//
+// This example demonstrates a fault being generated 
+// due to the declaration of two patterns that match 
+// the same set of bases. This fault is generated regardless
+// of whether the patterns are the same or different.
+//
+
+SamePattern
+	Type
+	/\d+ : Type
+	#440; /\d+ : Type
+
+DifferentPattern
+	Type
+	/\d+ : Type
+	#440; /[a-z]+ : Type

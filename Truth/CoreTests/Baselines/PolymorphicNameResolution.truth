@@ -1,0 +1,21 @@
+// 
+// This example demonstrates a simple case of
+// polymorphic name resolution. The resolved
+// name of the final "Property" type skips a level,
+// due to the contract being imposed on it from
+// it's base.
+// 
+
+Animal
+Mouse : Animal
+Device
+
+Container1
+	Property : Animal
+
+Container2
+	Mouse : Device
+	Keyboard : Device
+	
+	C1 : Container1
+		Property : Mouse ~ Animal, !Device

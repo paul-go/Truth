@@ -1,7 +1,7 @@
-//
+// 
 // This example demonstrates entanglement operating
 // on multiple levels of abstraction.
-//
+// 
 
 Number
 Animal
@@ -20,10 +20,11 @@ MyContainer	: Container
 			~ X
 		
 	B : A
-		Src : Rabbit ~ Number, Rabbit
+		Src : Number, Rabbit
 			~ X
+		Dst ~ Number, Rabbit
 
 	C : B
-		Src : Lop ~ Number, Lop
+		Src : Number, Lop
 			~ X
 		~ Dst : Number, Lop

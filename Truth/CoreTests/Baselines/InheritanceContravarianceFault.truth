@@ -13,4 +13,4 @@ Base2 : Base1
 	Property : Lop ~ Animal, Rabbit, Lop
 
 Base3 : Base2
-	Property : Rabbit #204;
+	Property : Rabbit #205;

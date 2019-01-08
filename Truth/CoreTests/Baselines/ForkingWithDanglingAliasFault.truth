@@ -16,5 +16,5 @@ Class
 	MyAnimal : Animal
 
 SubClass
-	MyAnimal : Raccoon, gibberish #1005;
+	MyAnimal : Raccoon, gibberish #209;
 	

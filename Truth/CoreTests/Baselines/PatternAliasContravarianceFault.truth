@@ -1,0 +1,20 @@
+// 
+// This example demonstrates a fault being generated
+// as a result of deriving from a type, but failing to
+// choose an alias that resolves to types that are
+// covariant to the contract being applied on the type.
+// 
+
+Digit
+Special
+/\d : Digit
+/\d! : Digit, Special
+
+Class
+	Value : Digit, Special
+
+SubClassGood : Class
+	Value : 2!
+
+SubClassBad : Class
+	Value : 2 #440;

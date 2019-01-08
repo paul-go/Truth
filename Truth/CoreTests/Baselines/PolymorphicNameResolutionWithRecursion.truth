@@ -1,0 +1,60 @@
+// 
+// This example demonstrates polymorphic name
+// resolution acting in the case when the polymorphic
+// "call site" is placed within the containment bounds
+// of a recursive type. Two examples are shown with
+// the polymorphic call site existing at different points
+// in the phase of recursion.
+// 
+
+RecursiveStatementMoreNestedThanPolymorphicCallSite
+	Animal
+	Mouse : Animal
+	FieldMouse : Mouse
+	Device
+
+	Container1
+		Property : Animal
+
+	Container2
+		Mouse : Device
+		Keyboard : Device
+		Printer : Device
+		
+		Container3 : Container1
+			Property : Mouse ~ Animal, !Device
+			
+			Container4
+				Property : Asset
+				Investment : Asset
+				Vehicle : Asset
+				
+				// Recurse!
+				Container4 : Container3
+					Property ~ Mouse, Animal, !Device, !Asset
+
+RecursiveStatementLessNestedThanPolymorphicCallSite
+	Animal
+	Mouse : Animal
+	FieldMouse : Mouse
+	Device
+	
+	Container1
+		Property : Animal
+	
+	Container2
+		Mouse : Device
+		Keyboard : Device
+		Printer : Device
+		
+		Container3 : Container1
+			Property : Mouse ~ Animal, !Device
+			
+			// Recurse!
+			Container4 : Container2
+				Property : Asset
+				Investment : Asset
+				Vehicle : Asset
+				
+				Container3
+					Property ~ Mouse

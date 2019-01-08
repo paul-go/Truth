@@ -1,9 +1,8 @@
 //
 // This example demonstrates a pattern with population,
 // infixes, but where there are two visually identical patterns 
-// that match different types. Patterns don't have the same
-// fragmentation behavior as declarations, so these two
-// patterns are not merged. 
+// that match different types. Patterns don't ever fragment,
+// so these two patterns are not merged. 
 //
 // The example demonstrates contracts at work, resulting
 // in the same pattern being resolved to two different 

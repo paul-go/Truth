@@ -1,0 +1,18 @@
+// 
+// This example demonstrates the invariant nature
+// of pattern types, even in the case when there is
+// more than one available pattern that could theoretically
+// be applied. The pattern that is applied is the one
+// whose types specified match the contract exactly.
+// 
+
+Digit
+Useless
+/\d : Digit
+/\d : Digit, Useless
+
+Class
+	Value : Digit, Useless
+
+SubClass : Class
+	Value : 2 ~ Digit, Useless

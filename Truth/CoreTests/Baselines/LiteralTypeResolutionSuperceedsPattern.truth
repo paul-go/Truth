@@ -1,0 +1,12 @@
+// 
+// This example demonstrates how literal-type resolution
+// superceeds pattern-type resolution.
+// 
+
+Digit
+2 : Digit
+
+Number
+/\d : Number
+
+Value : 2 ~ Digit

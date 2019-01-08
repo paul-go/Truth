@@ -14,4 +14,4 @@ Base2 : Base1
 	Property : Rabbit ~ Animal, Rabbit
 
 Base3 : Base2
-	Property : Hamster #204;
+	Property : Hamster #205;

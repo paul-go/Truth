@@ -14,7 +14,6 @@ Range
 		High : Number
 		Low : Number
 
-
 //
 // This example demonstrates the same error,
 // but in a more obvious form.
