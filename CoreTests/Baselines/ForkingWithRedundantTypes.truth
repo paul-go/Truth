@@ -13,4 +13,4 @@ Class
 	MyAnimal : Animal
 
 SubClass : Class
-	MyAnimal : Animal #1003;, Raccoon, Rabbit #1003;, Lionhead #1003;
+	MyAnimal : Animal #207;, Raccoon, Rabbit #207;, Lionhead #207;

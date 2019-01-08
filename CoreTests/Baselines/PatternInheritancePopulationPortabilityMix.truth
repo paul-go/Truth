@@ -1,0 +1,24 @@
+// 
+// This example demonstrates a type inheriting from another
+// type, but where the super type defines a population infix,
+// and the sub type defines a portability infix.
+// 
+
+Number
+/\d+ : Number
+
+Super
+	Property : Number
+	
+/<Property> : Super
+
+Sub : Super
+/=< : Super>= : Sub
+
+Class
+	Value : Sub
+
+ChildClass : Class
+	Value : =3=
+		~ Property : 3
+	

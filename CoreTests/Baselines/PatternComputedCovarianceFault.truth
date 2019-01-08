@@ -8,4 +8,4 @@ String
 Email : String
 
 /".*"/ : String
-#406; /\w+/ : Email
+#440; /\w+/ : Email

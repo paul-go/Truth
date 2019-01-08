@@ -1,0 +1,12 @@
+// 
+// This example demonstrates a fault being generated
+// as a result of the same type existing on both sides
+// of the joint. This isn't explicitly broken, but it's
+// pointless given the semantics of the language at
+// the time of this writing (and the meaning of this
+// this syntax may take on something more productive
+// depending on what discoveries are made in the
+// future).
+// 
+
+Self : Self #211

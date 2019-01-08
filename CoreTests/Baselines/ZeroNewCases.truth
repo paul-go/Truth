@@ -1,0 +1,84 @@
+// 
+// This file is used to demonstrate the situations that
+// don't actually create any new cases, but seem like
+// they should. This baseline serves more of a
+// documentation function than a test generation one.
+// 
+
+
+// 
+// Types specified in population infixes are within the
+// scope of the annotations of the containing statement.
+// 
+Number
+/\d+ : Number
+
+ClassL1
+	Range
+		Low : Number
+		High : Number
+	
+	/<Low> (-|=) <High> : Range
+	
+ClassL2 : ClassL1
+	Range
+	/<Low> - <High> : Range
+
+	// This "Low" is in a different scope from
+	// the Low specified as in infix above, so
+	// it's definition as a String has no effect
+	// on the infix.
+	Low : String
+
+
+// 
+// Doubly-entangled types don't appear to result in
+// any additional cases when patterns and infixes are
+// introduced, it's just additional complexity.
+// 
+DoublyEntangledTypes
+	ClassL1
+		AA
+		/aa : AA
+		
+		BB : aa
+		/bb : BB
+		
+		CC : bb
+		/cc : CC
+		
+	ClassL2 : ClassL1
+		BThing
+		BB : BThing
+
+
+// 
+// Pattern infixes still operate within the same scope
+// as the other infixes, although it technically could go
+// either way (this is for consistency).
+// 
+PatternInfixesSameScope
+	Number
+	/\d+ : Number
+
+	Class
+		Decimal : Number
+		
+	SubClass : Class
+		Decimal
+		/< : Number>\.</Number/> : Decimal
+
+// 
+// Nested statements and patterns inside pattern statements.
+// I'm fairly sure this is the same as above -- there's
+// no additional cases here, just additional complexity.
+// Even if there were infixes here ... I still can't find any
+// additional cases.
+// 
+
+MultiNestedPatterns
+	Container
+		/pattern : AA
+			Container
+				/pattern : BB
+

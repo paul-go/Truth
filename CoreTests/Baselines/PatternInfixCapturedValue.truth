@@ -1,0 +1,26 @@
+// 
+// This example demonstrates how a value can be
+// "captured" from an infix, and that captured value
+// becomes an alias for a contained type.
+// 
+
+Number
+/\d : Number
+
+Range
+	Low : Number
+	High : Number
+	
+/<Low : Number> - <High : Number>/ : Range
+	~ Low : Number
+	~ High : Number
+
+Class
+	Amount : Range
+	
+SubClass : Class
+	Amount : 3 - 4
+		~ Low : Number
+		~ Low : 3
+		~ High : Number
+		~ High : 4

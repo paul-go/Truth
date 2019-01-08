@@ -19,7 +19,7 @@ A
 	
 B : A
 	Property : Rabbit
-	Field : Animal #204;
+	Field : Animal #205;
 
 // Without fault:
 X

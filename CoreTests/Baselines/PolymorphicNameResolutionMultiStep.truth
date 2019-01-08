@@ -1,0 +1,33 @@
+// 
+// This example demonstrates polymorphic name
+// resolution acting twice in the same inheritance
+// chain. The chances of something like this actually
+// existing in the wild are low, but nevertheless, it's
+// a case that must be handled.
+// 
+
+Animal
+Mouse : Animal
+Device
+
+Container1
+	Property : Animal
+
+Container2
+	Mouse : Device
+	Keyboard : Device
+	Printer : Device
+	
+	Container3 : Container1
+		Property : Mouse ~ Animal, !Device
+		
+		Container4
+			Property : Asset
+			Investment : Asset
+			Vehicle : Asset
+			
+			Container5
+				Pet : Animal
+			
+			Container6 : Container5
+				Pet : Property ~ Animal, Mouse, !Device, !Asset

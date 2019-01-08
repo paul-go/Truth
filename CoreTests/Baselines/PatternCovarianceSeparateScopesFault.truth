@@ -1,0 +1,39 @@
+// 
+// This example shows how it's not permissable
+// to re-write a pattern in a way that is going to cause
+// a data compatibility issue, even if that rewriting
+// is happening on a different scope. 
+//
+// The system must work like this, because otherwise
+// it would be possible to rewrite a pattern in a mid-level
+// scope, rewrite a pattern, and then essentially enable
+// more deeply nested scopes to provide broken
+// data to a type. For example:
+// 
+// Number
+// /\d : Number
+// 
+// Container
+// 	\[a-z] : Number
+// 	Class
+// 		Value : Number
+// 			(^ this would refer to the Number 
+// 			type from the containing scope)
+// 	
+// 	SubClass : Class
+// 		Value : z
+// 			(^ broken)
+//
+
+Number
+/\d{5,} : Number
+
+WithFault
+	#440; /(one|two|three) : Number
+
+WithOtherFault
+	#440; /\d{4,} : Number
+	
+WithoutFault
+	/\d{6,} : Number
+	

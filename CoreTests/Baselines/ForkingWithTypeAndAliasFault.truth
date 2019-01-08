@@ -11,4 +11,4 @@ Class
 	MyNumber : Number
 
 SubClass : Class
-	MyNumber : Number, 1 #1003;, 2 #1003;, 3 #1003;, 4 #1003;
+	MyNumber : Number, 1 #207;, 2 #207;, 3 #207;, 4 #207;

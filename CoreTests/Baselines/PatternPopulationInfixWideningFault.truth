@@ -14,4 +14,4 @@ Range
 	Low : Number
 	High : Number
 
-#424; /<Low : FootNote>\* to <High : FootNote>*/ : Range
+#424; /<Low : FootNote> to <High : FootNote> : Range

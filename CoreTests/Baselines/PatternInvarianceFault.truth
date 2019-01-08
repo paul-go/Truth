@@ -1,0 +1,40 @@
+//
+// This example demonstrates a fault being generated
+// as a result of an attempt to match an alias to a pattern
+// type, through a covariant means. However, this isn't
+// allowed. Types that are matched to bases via patterns
+// must conform to the pattern's annotations exactly
+// as specified.
+//
+
+FaultDueToDerivation
+	Number
+	/\d+/ : Number
+
+	Currency : Number
+	/$< : Number>/ : Currency
+
+	Product
+		Quantity : Number
+
+	: Product
+		Quantity : $100 #201;
+
+// 
+// This causes the error to be resolved, although
+// this specific example is a bit non-sensical.
+// 
+
+NoFault
+	Number
+	/\d+/ : Number
+
+	Currency : Number
+	/$< : Number>/ : Currency
+	
+	Product
+		Quantity : Number
+	
+	: Product 
+		Quantity : Currency
+		Quantity : $100

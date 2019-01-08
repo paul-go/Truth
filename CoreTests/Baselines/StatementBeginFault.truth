@@ -7,10 +7,10 @@
 //
 
 StatementBeginsWithComma
-#500; , : StatementBeginsWithComma
+#600; , : StatementBeginsWithComma
 
 StatementBeginsWithEllipsis
-#502; ... : StatementBeginsWithEllipsis
+#602; ... : StatementBeginsWithEllipsis
 
 StatementBeginsWithEscapedSpace
-#504; \ : StatementBeginsWithEscapedSpace
+#604; \ : StatementBeginsWithEscapedSpace

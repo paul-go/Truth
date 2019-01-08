@@ -11,7 +11,7 @@ Banana : Fruit
 /0xB : Banana
 
 Class
-	TheFruit : Fruit
+	TheFruit : Apple, Banana
 
 SubClass : Class
-	TheFruit : 0xA, 0xB ~ Fruit
+	TheFruit : 0xA, 0xB ~ Apple, Banana

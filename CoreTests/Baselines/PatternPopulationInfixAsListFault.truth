@@ -9,6 +9,12 @@ Item
 /item/ : Item
 
 Foo
-#428; /\d<Item...>/ : Foo
-#428; /\d< : Item...>/ : Foo
-#428; /\d</Item.../>/ : Foo
+
+A
+	#428; /\d<Item...>/ : Foo
+
+B
+	#428; /\d< : Item...>/ : Foo
+
+C
+	#428; /\d</Item.../>/ : Foo
