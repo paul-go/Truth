@@ -18,9 +18,11 @@ export class Program
 	{
 		const hookRouter = new X.HookRouter();
 		this.hooks = hookRouter.createHookTypesInstance();
+		this._version = X.VersionStamp.next();
 		
 		this.hooks.Invalidate.capture(() =>
 		{
+			this._version = X.VersionStamp.next();
 			this.lastProgramScanner = null;
 		});
 		
@@ -30,7 +32,7 @@ export class Program
 		this.agents = new X.Agents(this, hookRouter);
 		this.documents = new X.DocumentGraph(this);
 		this.indentCheckService = new X.IndentCheckService(this, autoVerify);
-		this.graph = new X.Graph(this);
+		this.graph = new X.HyperGraph(this);
 		
 		if (autoVerify)
 			new X.VerificationService(this);
@@ -48,10 +50,17 @@ export class Program
 	readonly documents: X.DocumentGraph;
 	
 	/** @internal */
-	readonly graph: X.Graph;
+	readonly graph: X.HyperGraph;
 	
 	/**  */
 	readonly faults: X.FaultService;
+	
+	/** */
+	get version()
+	{
+		return this._version;
+	}
+	private _version: X.VersionStamp;
 	
 	/** */
 	private readonly indentCheckService: X.IndentCheckService;

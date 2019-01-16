@@ -198,8 +198,49 @@ export class Node
 	}
 	
 	/**
-	 * Gets an immutable set of HyperEdges from adjacent or
-	 * contained Nodes that reference this Node. 
+	 * @returns A set of nodes that are matched by
+	 * patterns of adjacent nodes.
+	 * 
+	 * (Note that this is possible because annotations
+	 * that have been applied to a pattern cannot be
+	 * polymorphic)
+	 */
+	getPatternNodesMatching(nodes: X.Node[])
+	{
+		const outNodes: X.Node[] = [];
+		
+		//
+		// This doesn't work because we don't know if
+		// a node has been marked as cruft at this point.
+		// This method may return junk results in the
+		// case when one of the required nodes has
+		// been marked as cruft (but then, wouldn't the
+		// incoming node also be cruft?)
+		//
+		
+		for (const [name, node] of this.adjacents)
+		{
+			if (node.subject instanceof X.Pattern)
+			{
+				const unorphaned = node.outbounds
+					.filter(ob => ob.successors.length > 0)
+					.map(ob => ob.successors[0].node);
+				
+				if (unorphaned.length === 0)
+					continue;
+				
+				if (unorphaned.length === nodes.length)
+					if (unorphaned.every(node => nodes.includes(node)))
+						outNodes.push(...unorphaned);
+			}
+		}
+		
+		return outNodes;
+	}
+	
+	/**
+	 * Gets an immutable set of HyperEdges from adjacent
+	 * or contained Nodes that reference this Node. 
 	 * 
 	 * (The ordering of outbounds isn't important, as
 	 * they have no physical representation in the
@@ -364,7 +405,6 @@ export class Node
 		else
 		{
 			const successors: X.Successor[] = [];
-			let kind = X.HyperEdgeKind.orphan;
 			
 			for (const { longitudeDelta, adjacents } of this.enumerateContainment())
 			{
@@ -374,62 +414,60 @@ export class Node
 					successors.push(new X.Successor(
 						adjacentNode,
 						longitudeDelta));
-					
-					kind = X.HyperEdgeKind.literal;
 				}
 			}
 			
-			if (kind === X.HyperEdgeKind.orphan)
-			{
-				for (const { longitudeDelta, adjacents } of this.enumerateContainment())
-					for (const adjacentNode of adjacents.values())
-						if (adjacentNode.subject instanceof X.Pattern)
-							if (sourceIsAlone || !adjacentNode.subject.isTotal)
-								if (adjacentNode.subject.test(value))
-									successors.push(new X.Successor(
-										adjacentNode, 
-										longitudeDelta));
-				
-				if (successors.length > 0)
-					kind = X.HyperEdgeKind.categorical;
-			}
+			//if (kind === X.HyperEdgeKind.orphan)
+			//{
+			//	for (const { longitudeDelta, adjacents } of this.enumerateContainment())
+			//		for (const adjacentNode of adjacents.values())
+			//			if (adjacentNode.subject instanceof X.Pattern)
+			//				if (sourceIsAlone || !adjacentNode.subject.isTotal)
+			//					if (adjacentNode.subject.test(value))
+			//						successors.push(new X.Successor(
+			//							adjacentNode, 
+			//							longitudeDelta));
+			//	
+			//	if (successors.length > 0)
+			//		kind = X.HyperEdgeKind.categorical;
+			//}
 			
-			append(new X.HyperEdge(this, source, successors, kind));
+			append(new X.HyperEdge(this, source, successors));
 		}
 		
 		// 
 		// Refresh the sums before quitting.
 		// 
 		
-		const sumEdgeForInputSpanIdx = this._outbounds.findIndex(edge => 
-		{
-			if (edge.kind === X.HyperEdgeKind.summation)
-				for (const src of edge.sources)
-					return src.statement === smt;
-			
-			return false;
-		});
-		
-		if (sumEdgeForInputSpanIdx > -1)
-			this._outbounds.splice(sumEdgeForInputSpanIdx, 1);
-		
-		if (!sourceIsAlone)
-			for (const { longitudeDelta, adjacents } of this.enumerateContainment())
-				for (const adjacentNode of adjacents.values())
-					if (adjacentNode.subject instanceof X.Pattern)
-						if (adjacentNode.subject.isTotal)
-							if (adjacentNode.subject.test(smt.sum))
-								append(new X.HyperEdge(
-									this,
-									smt.sum,
-									[new X.Successor(adjacentNode, longitudeDelta)],
-									X.HyperEdgeKind.summation));
+		//const sumEdgeForInputSpanIdx = this._outbounds.findIndex(edge => 
+		//{
+		//	if (edge.kind === X.HyperEdgeKind.summation)
+		//		for (const src of edge.sources)
+		//			return src.statement === smt;
+		//	
+		//	return false;
+		//});
+		//
+		//if (sumEdgeForInputSpanIdx > -1)
+		//	this._outbounds.splice(sumEdgeForInputSpanIdx, 1);
+		//
+		//if (!sourceIsAlone)
+		//	for (const { longitudeDelta, adjacents } of this.enumerateContainment())
+		//		for (const adjacentNode of adjacents.values())
+		//			if (adjacentNode.subject instanceof X.Pattern)
+		//				if (adjacentNode.subject.isTotal)
+		//					if (adjacentNode.subject.test(smt.sum))
+		//						append(new X.HyperEdge(
+		//							this,
+		//							smt.sum,
+		//							[new X.Successor(adjacentNode, longitudeDelta)],
+		//							X.HyperEdgeKind.summation));
 	}
 	
 	/**
 	 * 
 	 */
-	*enumerateOutbounds()
+	private enumerateOutbounds()
 	{
 		//const recurse = (node: X.Node) =>
 		//{
