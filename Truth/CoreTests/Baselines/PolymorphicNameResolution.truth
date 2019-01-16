@@ -8,14 +8,13 @@
 
 Animal
 Mouse : Animal
-Device
 
-Container1
-	Property : Animal
+Class
+	Polymorphic : Animal
 
-Container2
+Container
+	Device
 	Mouse : Device
-	Keyboard : Device
 	
-	C1 : Container1
-		Property : Mouse ~ Animal, !Device
+	SubClass : Class
+		Polymorphic : Mouse ~ Animal, !Device
