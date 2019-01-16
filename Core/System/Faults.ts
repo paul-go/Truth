@@ -244,6 +244,11 @@ export const Faults = Object.freeze({
 		already been defined in this scope.`),
 	
 	/** */
+	PatternMatchingList: createFault<X.Span>(
+		407,
+		`A pattern cannot match a list type.`),
+	
+	/** */
 	PatternCanMatchWhitespaceOnly: createFault<X.Statement>(
 		420,
 		"Patterns must not be able to match an input " +

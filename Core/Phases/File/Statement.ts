@@ -174,7 +174,7 @@ export class Statement
 			
 			for (const infixSpan of rhs)
 				if (lhsIdentifiers.includes(infixSpan.boundary.subject.toString()))
-					yield new X.Fault(X.Faults.InfixSelfReferential, infixSpan);
+					yield new X.Fault(X.Faults.InfixHasSelfReferentialType, infixSpan);
 			
 			if (infix.isPopulation)
 				for (let idx = 1; idx < lhs.length; idx++)
