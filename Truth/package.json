@@ -28,6 +28,7 @@
 	},
 	"devDependencies": {
 		"jest": "23.6.0",
+		"jsonviz": "git+https://github.com/HaroldRitter/jsonviz.git",
 		"memfs": "^2.10.1",
 		"typescript": "^3.2.2"
 	}
