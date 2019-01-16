@@ -147,7 +147,7 @@ export class Span
 		
 		// Multiplying together the number of spans in each statement will
 		// give the total number of unique spines that will be produced.
-		const numSpines = ancestryLengths.reduce((a, b) => a * b);
+		const numSpines = ancestryLengths.reduce((a, b) => a * b, 1);
 		
 		// Start with an array of 0's, whose length matches the number
 		// of statements in the ancestry. Each number in this array will be 
@@ -197,7 +197,7 @@ export class Span
 			
 			// Bump up the current cherry pick index, 
 			// or if we hit the roof, move to the next level,
-			// and keep doing this unti we find a number
+			// and keep doing this until we find a number
 			// to increment.
 			while (cherryPickIndexes[targetIncLevel] >= ancestryLengths[targetIncLevel] - 1)
 				targetIncLevel++;
