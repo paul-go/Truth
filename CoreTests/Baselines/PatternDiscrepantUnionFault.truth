@@ -4,7 +4,7 @@
 // union is an erroneous side effect of the result of creating
 // a union of types (either directly, or somewhere in the
 // subtree) that have conflicting regular expressions.
-//
+// 
 
 Foo
 	Pattern

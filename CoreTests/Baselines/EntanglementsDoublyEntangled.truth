@@ -5,16 +5,32 @@
 // type.
 // 
 
-Number
+String
+Email : String
 
-ClassL1
+Class
 	AA
+		Box
+			Value : String
+	
 	BB : AA
 	CC : BB
 	
-ClassL2 : ClassL1
+SubClassA : Class
 	MyAA
-		Value : Number
+		Box
+			Value : Email
 	AA : MyAA
-	~ CC
-		~ Value : Number
+	CC
+		Box
+			Value ~ Email
+
+SubClassB : Class
+	MyAA
+		Box
+			Value
+	
+	AA : MyAA
+	CC
+		Box
+			Value ~ String
