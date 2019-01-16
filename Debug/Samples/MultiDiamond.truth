@@ -1,0 +1,31 @@
+FieldTop
+FieldLeft : FieldTop
+FieldRight : FieldTop
+
+DistantTop
+	Field : FieldTop
+
+DistantLeft : DistantTop
+	Field : FieldLeft
+	
+DistantRight : DistantTop
+	Field : FieldRight
+
+DistantBottom0 : DistantLeft, DistantRight
+	Field
+	
+DistantBottom1 : DistantBottom0
+	Field
+
+ClassTop
+	Property : DistantBottom0
+
+ClassLeft : ClassTop
+	Property : DistantBottom1
+	
+ClassRight : ClassTop
+	Property : DistantBottom1
+
+ClassBottom : ClassLeft, ClassRight
+	Property
+		
