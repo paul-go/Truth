@@ -31,7 +31,7 @@ export class Type
 		
 		context.maybeConstruct(uri);
 		
-		for (let i = -1; ++i < uri.typePath.length;)
+		for (let i = 0; ++i < uri.typePath.length;)
 		{
 			const currentUri = uri.retractTo(i);
 			const currentUriText = currentUri.toString(true, true);
@@ -275,5 +275,4 @@ interface ITypeInfo
 	isAnonymous?: boolean;
 	isPattern?: boolean;
 	isUri?: boolean;
-	//faults?: ReadonlyArray<X.Fault>;
 }
