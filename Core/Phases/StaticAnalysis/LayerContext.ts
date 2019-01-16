@@ -36,7 +36,6 @@ export class LayerContext
 		if (genesisNode === null)
 			return null;
 		
-		const typePathText = typePath.join("/");
 		let lastLayer: X.Layer | null = null;
 		
 		for (let i = -1; ++i < typePath.length;)
