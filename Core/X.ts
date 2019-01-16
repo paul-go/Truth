@@ -11,6 +11,7 @@ export * from "./Util/HigherOrder";
 export * from "./Util/Guard";
 export * from "./Util/Parser";
 export * from "./Util/UnicodeBlocks";
+export * from "./Util/Misc";
 
 // System
 export * from "./System/Program";
@@ -56,17 +57,22 @@ export * from "./Phases/File/Spine";
 export * from "./Phases/File/Subject";
 
 // Phases/Graph
-export * from "./Phases/Graph/Graph";
+export * from "./Phases/Graph/HyperGraph";
 export * from "./Phases/Graph/Node";
-export * from "./Phases/Graph/Fan";
+export * from "./Phases/Graph/HyperEdge";
 export * from "./Phases/Graph/InfixSpan";
 
-// Phases/Spatial
-export * from "./Phases/Spatial/Waterfall";
-export * from "./Phases/Spatial/WaterfallRenderer";
-export * from "./Phases/Spatial/WaterfallAnalyzer";
-export * from "./Phases/Spatial/WaterfallWalker";
-export * from "./Phases/Spatial/PathCursor";
+// Phases/StaticAnalysis
+export * from "./Phases/StaticAnalysis/LayerContext";
+export * from "./Phases/StaticAnalysis/Layer";
+export * from "./Phases/StaticAnalysis/Parallel";
+export * from "./Phases/StaticAnalysis/SpecifiedParallel";
+export * from "./Phases/StaticAnalysis/UnspecifiedParallel";
+export * from "./Phases/StaticAnalysis/PolymorphicResolver";
+export * from "./Phases/StaticAnalysis/ParallelAnalyzer";
 
 // Phases/Type
 export * from "./Phases/Type/Type";
+export * from "./Phases/Type/TypeProxy";
+export * from "./Phases/Type/TypeProxyArray";
+export * from "./Phases/Type/TypeCache";

@@ -5,7 +5,7 @@
 export class Guard
 {
 	/** */
-	static null<T>(param: T): NotNull<T>
+	static notNull<T>(param: T): NotNull<T>
 	{
 		if (param === null)
 		{
@@ -17,7 +17,7 @@ export class Guard
 	}
 	
 	/** */
-	static undefined<T>(param: T): NotUndefined<T>
+	static defined<T>(param: T): NotUndefined<T>
 	{
 		if (param === undefined)
 		{
