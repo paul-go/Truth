@@ -189,6 +189,7 @@ export const Faults = Object.freeze({
 		211,
 		`Types cannot be self-referential`),
 	
+	
 	//
 	// List-related faults
 	//
