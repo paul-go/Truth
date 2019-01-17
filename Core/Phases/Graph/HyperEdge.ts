@@ -36,6 +36,17 @@ export class HyperEdge
 		 */
 		readonly successors: ReadonlyArray<X.Successor>)
 	{
+		if (!(source.boundary.subject instanceof X.Identifier))
+			throw X.Exception.unknownState();
+		
+		const successorNodes = successors
+			.map(scsr => scsr.node)
+			.filter((v, i, a) => a.indexOf(v) === i);
+		
+		if (successorNodes.length !== successors.length)
+			throw X.Exception.unknownState();
+		
+		this.identifier = source.boundary.subject;
 		this.sourcesMutable = [source];
 	}
 	
@@ -119,13 +130,7 @@ export class HyperEdge
 	 * 
 	 * The *-overlay kinds have not yet been implemented.
 	 */
-	get textualValue()
-	{
-		//return this.kind === X.HyperEdgeKind.summation ?
-		//	srcs[srcs.length - 1].statement.sum :
-		
-		return this.sources[0].boundary.subject.toString();
-	}
+	readonly identifier: X.Identifier;
 	
 	/**
 	 * @returns A string representation of this HyperEdge,
@@ -134,7 +139,7 @@ export class HyperEdge
 	toString()
 	{
 		return [
-			"Value=" + this.textualValue,
+			"Value=" + this.identifier,
 			"Preds=" + this.predecessor.name,
 			"Succs=" + this.successors
 				.map(n => n.node.name + " << " + n.longitude)
@@ -161,4 +166,6 @@ export class Successor
 		 */
 		readonly longitude: number)
 	{ }
+	
+	readonly stamp = X.VersionStamp.next();
 }

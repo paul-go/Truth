@@ -371,8 +371,9 @@ export class Node
 	 */
 	addEdgeSource(source: X.Span | X.InfixSpan)
 	{
-		const value = source.boundary.subject.toString();
-		const smt = source.statement;
+		const identifier = source.boundary.subject;
+		if (!(identifier instanceof X.Identifier))
+			throw X.Exception.unknownState();
 		
 		// If the input source is "alone", it means that it refers to
 		// a statement-level annotation that has no other annotations
@@ -397,7 +398,11 @@ export class Node
 		// If there is already an existing outbound HyperEdge, we can
 		// add the new Span to the edge's list of Spans, and quit.
 		// This works whether the edge is for a type or pattern.
-		const existingEdge = this._outbounds.find(edge => edge.textualValue === value);
+		const existingEdge = this._outbounds.find(edge =>
+		{
+			return edge.identifier.typeName === identifier.typeName;
+		});
+		
 		if (existingEdge)
 		{
 			existingEdge.addSource(source);
@@ -408,12 +413,23 @@ export class Node
 			
 			for (const { longitudeDelta, adjacents } of this.enumerateContainment())
 			{
-				const adjacentNode = adjacents.get(source.boundary.subject.toString());
-				if (adjacentNode)
+				// An edge should be established between all nodes in the containment
+				// hierarchy, whether they match the full name or only the type name.
+				// This is because edges should be established between nodes,
+				// regardless of list intrinsic / extrinsic state.
+				const adjacentNodes = [
+					adjacents.get(identifier.typeName),
+					adjacents.get(identifier.fullName)
+				].filter((v, i, a) => a.indexOf(v) === i);
+				
+				for (const adjacentNode of adjacentNodes)
 				{
-					successors.push(new X.Successor(
-						adjacentNode,
-						longitudeDelta));
+					if (adjacentNode)
+					{
+						successors.push(new X.Successor(
+							adjacentNode,
+							longitudeDelta));
+					}
 				}
 			}
 			
