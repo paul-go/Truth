@@ -26,7 +26,16 @@ export class Span
 		 * Stores the subject, and the location of it in the document.
 		 */
 		readonly boundary: X.Boundary<X.Subject>)
-	{ }
+	{
+		this.name = 
+			boundary.subject.toString() + 
+			` (${boundary.offsetStart}, ${boundary.offsetEnd})`;
+	}
+	
+	/**
+	 * Stores a string representation of this Span, useful for debugging.
+	 */
+	private readonly name: string;
 	
 	/**
 	 * Gets the Infixes stored within this Span, in the case when

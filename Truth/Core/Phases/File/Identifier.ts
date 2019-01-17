@@ -12,42 +12,28 @@ export class Identifier
 	/** */
 	constructor(text: string)
 	{
-		this.value = text;
 		const listTok = X.Syntax.list;
-		const len = listTok.length;
-		
-		if (text.length > len + 1)
-		{
-			this.isList = text.slice(-len) === listTok;
-			this.value = text.slice(
-				0,
-				this.isList ? text.length - len : undefined);
-		}
+		const tokLen = listTok.length;
+		this.isList = text.length > tokLen + 1 && text.slice(-tokLen) === listTok;
+		this.fullName = text;
+		this.typeName = this.isList ? text.slice(0, -tokLen) : text;
 	}
 	
 	/**
 	 * Stores a full string representation of the subject, 
 	 * as it appears in the document.
 	 */
-	readonly value: string;
-	
-	/** */
-	readonly isList: boolean = false;
+	readonly fullName: string;
 	
 	/**
-	 * @deprecated
-	 * Calculates whether this Subject is structurally equal to another.
+	 * Stores a string representation of the name of the
+	 * type to which the subject refers, without any List
+	 * operator suffix.
 	 */
-	equals(other: Identifier | string | null)
-	{
-		if (other instanceof Identifier)
-			return (
-				this.value === other.value &&
-				this.isList === other.isList
-			);
-		
-		return false;
-	}
+	readonly typeName: string;
+	
+	/** */
+	readonly isList: boolean;
 	
 	/**
 	 * Converts this Subject to it's string representation. 
@@ -62,7 +48,7 @@ export class Identifier
 			switch (escape)
 			{
 				case IdentifierEscapeKind.none:
-					return this.value;
+					return this.fullName;
 				
 				case IdentifierEscapeKind.declaration:
 				{
@@ -73,7 +59,7 @@ export class Identifier
 					const jntRegT = new RegExp(X.Syntax.joint + X.Syntax.tab);
 					const cmbReg = new RegExp(X.Syntax.combinator);
 					
-					return this.value
+					return this.fullName
 						.replace(dlmReg, X.Syntax.escapeChar + X.RegexSyntaxDelimiter.main)
 						.replace(jntRegS, X.Syntax.escapeChar + X.Syntax.joint + X.Syntax.space)
 						.replace(jntRegT, X.Syntax.escapeChar + X.Syntax.joint + X.Syntax.tab)
@@ -84,7 +70,7 @@ export class Identifier
 				{
 					const reg = new RegExp(X.Syntax.combinator);
 					const rep = X.Syntax.escapeChar + X.Syntax.combinator;
-					return this.value.replace(reg, rep);
+					return this.fullName.replace(reg, rep);
 				}
 			}
 		})()
