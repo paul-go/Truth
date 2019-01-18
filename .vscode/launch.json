@@ -4,9 +4,13 @@
 		"type": "node",
 		"request": "launch",
 		"name": "Debug Project",
-		"program": "${workspaceFolder}/Build/Core/Startup.js",
-		"internalConsoleOptions": "openOnSessionStart",
-		"sourceMaps": true
+		"program": "${workspaceFolder}/Build/Dev/Debug/Start.js",
+		"internalConsoleOptions": "neverOpen",
+		"sourceMaps": true,
+		"args": [
+			"--file=./Debug/Samples/MultiDiamond.truth",
+			"--typePath=ClassBottom/Property/Field/Value"
+		]
 	},
 	{
 		"type": "node",
@@ -14,7 +18,7 @@
 		"name": "Debug Jest Tests",
 		"program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
 		"args": [
-			"-i"
+			
 		],
 		"internalConsoleOptions": "openOnSessionStart"
 	}]
