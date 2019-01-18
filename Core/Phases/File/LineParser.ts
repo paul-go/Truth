@@ -162,31 +162,31 @@ export class LineParser
 				declarationEntries.push(boundsEntry);
 			
 			return then();
+		}
+		
+		function then()
+		{
+			jointPosition = maybeReadJoint();
 			
-			function then()
+			const readResult = readAnnotations([]);
+			sum = readResult.raw.trim();
+			
+			for (const boundsEntry of readResult.annotations)
+				annotationEntries.push(boundsEntry);
+			
+			if (jointPosition > -1)
 			{
-				jointPosition = maybeReadJoint();
+				if (readResult.annotations.length === 0)
+					flags |= X.LineFlags.isRefresh;
 				
-				const readResult = readAnnotations([]);
-				sum = readResult.raw.trim();
-				
-				for (const boundsEntry of readResult.annotations)
-					annotationEntries.push(boundsEntry);
-				
-				if (jointPosition > -1)
-				{
-					if (readResult.annotations.length === 0)
-						flags |= X.LineFlags.isRefresh;
-					
-					else if (declarationEntries.length === 0)
-						declarationEntries.unshift(new X.Boundary(
-							jointPosition,
-							jointPosition,
-							new X.Anon()));
-				}
-				
-				return ret();
+				else if (declarationEntries.length === 0)
+					declarationEntries.unshift(new X.Boundary(
+						jointPosition,
+						jointPosition,
+						new X.Anon()));
 			}
+			
+			return ret();
 		}
 		
 		/**
