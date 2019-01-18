@@ -17,12 +17,11 @@ setTimeout(() =>
 	};
 	
 	const filePath = findArg("--file=");
-	const typePath = findArg("--typePath=");
+	const typePath = findArg("--typePath=").split("/");
 	const fileContent = Fs.readFileSync(filePath, "utf8");
 	const program = new X.Program(false);
 	const doc = program.documents.create(fileContent);
-	const uri = X.Uri.create(doc.sourceUri.extend([], typePath.split("/")));
-	const type = program.query(uri);
+	const type = program.query(doc, ...typePath);
 	
 	const uriMessage = `Using URI: ${filePath}//${typePath}`;
 	const pipe = "-".repeat(uriMessage.length);

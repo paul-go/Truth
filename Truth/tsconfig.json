@@ -8,7 +8,8 @@
 		"strict": true,
 		"rootDir": "./",
 		"baseUrl": "./",
-		"outDir": "./Build",
+		"outDir": "./Build/Dev",
+		"declaration": false,
 		"lib": [
 			"es7",
 			"es2017",
@@ -19,7 +20,9 @@
 		"**/*.ts"
 	],
 	"exclude": [
-		"./CoreAgents/*.ts",
-		"./TypesBundler/*.ts"
+		"./Build/**/*.ts",
+		"./Release/**/*.ts",
+		"./CoreAgents/**/*.ts",
+		"./TypesBundler/**/*.ts"
 	]
 }

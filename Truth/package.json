@@ -1,35 +1,56 @@
 {
 	"name": "truth-compiler",
-	"version": "0.0.1",
-	"description": "Compiler front-end for the Truth language.",
+	"version": "0.1.4",
+	"description": "Verify and analyze code and data in the Truth format",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/paul-go/Truth"
+	},
+	"bugs": {
+		"url": "https://github.com/paul-go/Truth/issues"
+	},
 	"author": "Paul Go",
 	"license": "MIT",
 	"keywords": [
-		"Truth"
+		"Truth",
+		"language",
+		"data",
+		"verification",
+		"compiler"
 	],
-	"main": "./Build/Core/X.js",
-	"types": "./Build/truth.d.ts",
-	"typings": "./Build/truth.d.ts",
+	"main": "Build/Release/truth.js",
+	"types": "Build/Release/truth.d.ts",
+	"typings": "Build/Release/truth.d.ts",
 	"scripts": {
 		"test": "jest",
 		"all": "npm run compile-types-bundler && npm run compile && npm run bundle-code",
-		"compile": "npm run compile-core && npm run bundle-types && npm run compile-core-agents && npm run compile-tests",
+		"compile": "npm run compile-core && npm run compile-tests",
 		"compile-core": "cd Core && tsc",
 		"compile-core-agents": "cd CoreAgents && tsc",
 		"compile-types-bundler": "cd TypesBundler && tsc",
 		"compile-tests": "cd CoreTests && tsc",
-		"bundle-types": "node ./TypesBundler/types.config.js",
-		"bundle-code": "rollup -c"
+		"bundle-code": "rollup -c",
+		"mjs-rename": "for i in `find ./Build/Dev -mindepth 2 -name '*.js'`; do mv $i ${i%.js}.mjs; done",
+		"prepublish": "node release.js"
 	},
 	"jest": {
-		"testRegex": "Build/CoreTests/Units/[\\w.]+\\.test\\.js$",
+		"testRegex": "Build/Dev/CoreTests/Units/[\\w.]+\\.test\\.js$",
 		"verbose": true,
 		"testURL": "http://localhost/"
 	},
 	"devDependencies": {
+		"@types/jest": "^23.3.12",
+		"@types/node": "^10.12.18",
 		"jest": "23.6.0",
 		"jsonviz": "git+https://github.com/HaroldRitter/jsonviz.git",
 		"memfs": "^2.10.1",
-		"typescript": "^3.2.2"
-	}
+		"rollup": "^1.1.0",
+		"typescript": "^3.2.2",
+		"uglify-js": "^3.4.9"
+	},
+	"files": [
+		"Build/Release/truth.d.ts",
+		"Build/Release/truth.js",
+		"Build/Release/truth.min.js"
+	]
 }

@@ -48,7 +48,6 @@ class DefinitionFile
 		for (const textLine of textLines)
 		{
 			const parsedLine = Line.parse(textLine);
-			const ctorName = parsedLine.constructor.name;
 			parsedLines.push(parsedLine);
 		}
 		
