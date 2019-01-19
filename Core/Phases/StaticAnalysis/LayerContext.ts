@@ -86,20 +86,6 @@ export class LayerContext
 	}
 	
 	/**
-	 * Enumerates through the faults that have been
-	 * generated within this LayerContext.
-	 */
-	*eachFault()
-	{
-		for (const layer of this.layers.values())
-			if (layer !== null)
-				for (const { toParallel } of layer.traverseLayer())
-					if (toParallel instanceof X.SpecifiedParallel)
-						for (const fault of toParallel.faults)
-							yield fault;
-	}
-	
-	/**
 	 * Gets a map of objects that should each be converted
 	 * into a type, which are indexed by a string representation
 	 * of the associated type URI. Each object translates into
@@ -112,19 +98,28 @@ export class LayerContext
 	}
 	private _layers = new Map<string, X.Layer | null>();
 	
-	/** */
-	addCruft(cruftObject: TCruft)
+	/**
+	 * Adds a fault of the specified type to the internal set,
+	 * and marks all relevant objects as cruft.
+	 */
+	addFault(source: TCruft, type: X.FaultType)
 	{
-		this.cruft.add(cruftObject);
+		const faultSources: ReadonlyArray<X.TFaultSource> =
+			source instanceof X.Node ? source.statements : 
+			source instanceof X.HyperEdge ? source.sources :
+			[source];
+		
+		for (const fSource of faultSources)
+		{
+			const fault = new X.Fault(type, fSource);
+			this.program.faults.report(fault);
+			this.cruft.add(fSource);
+		}
+		
+		this.cruft.add(source);
 	}
 	
-	/** */
-	isCruft(cruftObject: TCruft)
-	{
-		return this.cruft.has(cruftObject);
-	}
-	
-	/** */
+	/** Stores a set of objects that have been marked as cruft. */
 	private readonly cruft = new Set<TCruft>();
 	
 	/**
@@ -191,15 +186,36 @@ export class LayerContext
 	 */
 	resolveSuccessors(parallel: X.SpecifiedParallel)
 	{
+		const circularEdgePaths: ReadonlyArray<X.HyperEdge>[] = [];
 		const polymorphicDecisions = new Map<X.HyperEdge, X.Successor>();
-		const findPolymorphicEdges = (hyperEdge: X.HyperEdge) =>
+		
+		const findPolymorphicEdges = (
+			hyperEdge: X.HyperEdge,
+			sameLevelEdgePath: X.HyperEdge[]) =>
 		{
+			if (sameLevelEdgePath.includes(hyperEdge))
+			{
+				circularEdgePaths.push(Object.freeze(sameLevelEdgePath.slice()));
+				return;
+			}
+			
+			// Necessary?
 			if (polymorphicDecisions.has(hyperEdge))
 				return;
 			
 			for (const successor of hyperEdge.successors)
+			{
 				for (const edge of successor.node.outbounds)
-					findPolymorphicEdges(edge);
+				{
+					const c1 = hyperEdge.predecessor.container;
+					const c2 = edge.predecessor.container;
+					const nextSameLevelEdgePath = c1 === c2 ?
+						sameLevelEdgePath.concat(hyperEdge) :
+						[];
+					
+					findPolymorphicEdges(edge, nextSameLevelEdgePath);
+				}
+			}
 			
 			if (hyperEdge.successors.length < 2)
 				return;
@@ -244,7 +260,22 @@ export class LayerContext
 		}
 		
 		for (const hyperEdge of parallel.node.outbounds)
-			findPolymorphicEdges(hyperEdge);
+			findPolymorphicEdges(hyperEdge, []);
+		
+		if (circularEdgePaths.length)
+		{
+			const text = circularEdgePaths
+				.map(path => path
+					.map(edge => edge.sources[0].boundary.subject.toString())
+					.join(" + "))
+				.join("\n");
+			
+			console.log(text);
+		}
+		
+		for (const item of circularEdgePaths)
+			for (const circularEdge of item)
+				this.addFault(circularEdge, X.Faults.CircularTypeReference);
 	}
 	
 	/** */
@@ -253,4 +284,4 @@ export class LayerContext
 
 
 /** */
-type TCruft = X.Node | X.HyperEdge | X.Span | X.InfixSpan;
+type TCruft = X.TFaultSource | X.Node | X.HyperEdge;

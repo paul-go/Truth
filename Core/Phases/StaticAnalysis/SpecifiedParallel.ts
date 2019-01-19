@@ -285,14 +285,4 @@ export class SpecifiedParallel extends X.Parallel
 		return this._isList || false;
 	}
 	private _isList: boolean | null = null;
-	
-	/**
-	 * Gets an array that contains the faults that have been
-	 * identified during the lifecycle of this construction context.
-	 */
-	get faults()
-	{
-		return Object.freeze(this._faults.slice());
-	}
-	private readonly _faults: X.Fault[] = [];
 }
