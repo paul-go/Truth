@@ -1,6 +1,6 @@
 {
 	"name": "truth-compiler",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "Verify and analyze code and data in the Truth format",
 	"repository": {
 		"type": "git",
