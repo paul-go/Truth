@@ -216,6 +216,11 @@ export const Faults = Object.freeze({
 		305,
 		"Lists cannot extend from non-lists."),
 	
+	/** */
+	ListDimensionalDiscrepancyFault: createFault<X.Span>(
+		307,
+		`A union cannot be created between these two types
+		because they are lists of different dimensions.`),
 	
 	//
 	// Pattern-related faults

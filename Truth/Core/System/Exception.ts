@@ -3,6 +3,15 @@
 export class Exception
 {
 	/** */
+	static objectDirty()
+	{
+		return error(`
+			Cannot call this method or access this property,
+			because the document has changed since it
+			was created.`);
+	}
+	
+	/** */
 	static invalidArgument()
 	{
 		return error(`Invalid argument.`);

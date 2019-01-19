@@ -57,23 +57,46 @@ export class LayerContext
 					layer.bootstrap(genesisNode);
 					return layer;
 				}
-				else
-				{
-					const layer = lastLayer.descend(typeName);
-					this._layers.set(uriText, layer);
-					return layer;
-				}
+				
+				const layer = lastLayer.descend(typeName);
+				this._layers.set(uriText, layer);
+				return layer;
 			})();
 			
 			if (nextLayer === null)
 				return null;
 			
-			nextLayer.analyze();
 			nextLayer.debug();
 			lastLayer = nextLayer;
 		}
 		
 		return lastLayer;
+	}
+	
+	/**
+	 * 
+	 */
+	getParallelOf(node: X.Node)
+	{
+		if (this.cruft.has(node))
+			return null;
+		
+		const layer = this.maybeConstruct(node.uri);
+		return layer && layer.origin;
+	}
+	
+	/**
+	 * Enumerates through the faults that have been
+	 * generated within this LayerContext.
+	 */
+	*eachFault()
+	{
+		for (const layer of this.layers.values())
+			if (layer !== null)
+				for (const { toParallel } of layer.traverseLayer())
+					if (toParallel instanceof X.SpecifiedParallel)
+						for (const fault of toParallel.faults)
+							yield fault;
 	}
 	
 	/**
@@ -89,48 +112,142 @@ export class LayerContext
 	}
 	private _layers = new Map<string, X.Layer | null>();
 	
+	/** */
+	addCruft(cruftObject: TCruft)
+	{
+		this.cruft.add(cruftObject);
+	}
+	
+	/** */
+	isCruft(cruftObject: TCruft)
+	{
+		return this.cruft.has(cruftObject);
+	}
+	
+	/** */
+	private readonly cruft = new Set<TCruft>();
+	
 	/**
-	 * Gets an array that contains the faults that have been
-	 * identified during the lifecycle of this construction context.
+	 * Safety enumerates through the successors of the
+	 * specified Node, carefully avoiding anything that
+	 * has been marked as cruft.
 	 */
-	get faults()
+	*eachSuccessorOf(node: X.Node)
 	{
-		return Object.freeze(this._faults.slice());
-	}
-	private readonly _faults: X.Fault[] = [];
-	
-	/** */
-	selectSuccessor(successor: X.Successor)
-	{
-		this.selectedSuccessors.add(successor);
-	}
-	
-	/** */
-	getSelectedSuccesor(hyperEdge: X.HyperEdge)
-	{
-		switch (hyperEdge.successors.length)
+		for (const hyperEdge of node.outbounds)
 		{
-			case 0: return null;
-			case 1: return hyperEdge.successors[0];
+			const scsr = this.pickSuccessor(hyperEdge);
+			if (scsr)
+				yield scsr;
+		}
+	}
+	
+	/**
+	 * @returns The successor object contained within the
+	 * specified HyperEdge that has previously been resolved
+	 * according to the polymorphic name resolution rules.
+	 */
+	pickSuccessor(hyperEdge: X.HyperEdge)
+	{
+		if (this.cruft.has(hyperEdge))
+			return null;
+		
+		if (this.cruft.has(hyperEdge.predecessor))
+			return null;
+		
+		const len = hyperEdge.successors.length;
+		
+		if (len === 0)
+			return null;
+		
+		if (len === 1)
+		{
+			const scsr = hyperEdge.successors[0];
+			return this.cruft.has(scsr.node) ? null : scsr;
 		}
 		
-		return hyperEdge.successors.find(scsr =>
-			this.selectedSuccessors.has(scsr)) || null;
+		// There can actually be two successors returned, 
+		// in the case when there is a list and a list intrinsic
+		// defined on the same level. This isn't being handled
+		// right now.
+		
+		const sel = hyperEdge.successors.find(scsr =>
+			this.selectedSuccessors.has(scsr));
+		
+		if (!sel || !this.cruft.has(sel.node))
+			return null;
+		
+		return sel;
+	}
+	
+	/**
+	 * Executes the polymorphic name resolution strategy,
+	 * and stores the results in the specified ConstructionContext
+	 * object.
+	 * 
+	 * The method assumes that the edges of the specified
+	 * parallel, and all it's edges (nested deeply) have already
+	 * been resolved.
+	 */
+	resolveSuccessors(parallel: X.SpecifiedParallel)
+	{
+		const polymorphicDecisions = new Map<X.HyperEdge, X.Successor>();
+		const findPolymorphicEdges = (hyperEdge: X.HyperEdge) =>
+		{
+			if (polymorphicDecisions.has(hyperEdge))
+				return;
+			
+			for (const successor of hyperEdge.successors)
+				for (const edge of successor.node.outbounds)
+					findPolymorphicEdges(edge);
+			
+			if (hyperEdge.successors.length < 2)
+				return;
+			
+			if (this.pickSuccessor(hyperEdge) !== null)
+				return;
+			
+			// Selects the most applicable Successor object of a HyperEdge,
+			// using the name resolution rules in the language specification.
+			// 
+			// The algorithm moves it's way up the scope chain, and selects
+			// at the nearest node target whose "existence" captures the
+			// existence computed locally (fix this).
+			const srcExistence = parallel.existence;
+			let greatestFactor = -1;
+			let resolveTarget: X.Successor | null = null;
+			
+			for (const successor of hyperEdge.successors)
+			{
+				const layer = this.maybeConstruct(successor.node.uri);
+				if (!layer || !layer.origin)
+					continue;
+				
+				const dstExistence = layer.origin.existence;
+				const factor = X.Misc.computeSubsetFactor(
+					srcExistence,
+					dstExistence);
+				
+				if (factor > greatestFactor)
+				{
+					greatestFactor = factor;
+					resolveTarget = successor;
+				}
+			}
+			
+			const selectedSuccessor = resolveTarget || hyperEdge.successors[0];
+			polymorphicDecisions.set(hyperEdge, selectedSuccessor);
+			this.selectedSuccessors.add(selectedSuccessor);
+		}
+		
+		for (const hyperEdge of parallel.node.outbounds)
+			findPolymorphicEdges(hyperEdge);
 	}
 	
 	/** */
 	private readonly selectedSuccessors = new Set<X.Successor>();
-	
-	/** */
-	addCruft(cruft: X.Node | X.Statement | X.Span | X.InfixSpan)
-	{
-		// Implement
-	}
-	
-	/** */
-	isCruft(cruft: X.Node | X.Statement | X.Span | X.InfixSpan)
-	{
-		// Implement
-		return false;
-	}
 }
+
+
+/** */
+type TCruft = X.Node | X.HyperEdge | X.Span | X.InfixSpan;

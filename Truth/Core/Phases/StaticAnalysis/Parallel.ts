@@ -72,11 +72,11 @@ export abstract class Parallel
 	readonly name: string;
 	
 	/**
-	 * Stores an array of other Parallel objects to which
+	 * Stores an array of other Parallel instances to which
 	 * this Parallel connects. For example, the following
 	 * document, the Parallel object corresponding to the
 	 * last "Field" would have two edges, pointing to two
-	 * other Parallel objects corresponding to the "Field"
+	 * other Parallel instances corresponding to the "Field"
 	 * declarations contained by "Left" and "Right".
 	 * 
 	 * Left
@@ -92,17 +92,23 @@ export abstract class Parallel
 	}
 	private readonly _edges: Parallel[] = [];
 	
-	/** */
-	addEdge(parallel: Parallel)
+	/**
+	 * Adds an edge between this Parallel instance and
+	 * the instance specified, if an equivalent edge does
+	 * not already exist.
+	 */
+	maybeAddEdge(toParallel: Parallel)
 	{
-		if (parallel === this)
+		if (toParallel === this)
 			throw X.Exception.unknownState();
 		
-		this._edges.push(parallel);
+		if (!this._edges.includes(toParallel))
+			this._edges.push(toParallel);
 	}
 	
 	/**
-	 * Performs a depth-first traversal of all nested Parallel objects.
+	 * Performs a depth-first traversal of all nested Parallel instances,
+	 * and yields each one (this Parallel instance is excluded).
 	 */
 	*traverseParallels()
 	{
@@ -112,6 +118,26 @@ export abstract class Parallel
 			{
 				yield* recurse(edge);
 				yield edge;
+			}
+		}
+		
+		yield* recurse(this);
+	}
+	
+	/**
+	 * Performs a depth-first traversal of all nested SpecifiedParallel
+	 * instances, and yields each one (this Parallel instance is excluded).
+	 */
+	*traverseParallelsSpecified()
+	{
+		function *recurse(parallel: Parallel): IterableIterator<X.SpecifiedParallel>
+		{
+			for (const edge of parallel.edges)
+			{
+				yield* recurse(edge);
+				
+				if (edge instanceof X.SpecifiedParallel)
+					yield edge;
 			}
 		}
 		

@@ -9,9 +9,13 @@ declare namespace Truth {
 		/**
 		 * Calculates a numeric CRC from the specified string, and returns the
 		 * code as a 4-character ASCII byte string.
-		 * @param seed A starting seed value, used in the case of a rolling CRC.
 		 */
-		static calculate(text: string, seed?: number): string;
+		static calculate(text: string): string;
+		/**
+		 * Calculates a numeric CRC from the specified string, and returns the
+		 * code as a 4-number byte array.
+		 */
+		static calculate(text: string, type: typeof Number): number[];
 	}
 	/**
 	 * A class that provides various higher-order functions
@@ -19,39 +23,154 @@ declare namespace Truth {
 	 */
 	export abstract class HigherOrder {
 		/**
-		 * @returns The specified array.
-		 * @throws An exception in the case when the array contains
-		 * null or undefined items.
-		 */
-		static throwOnNullable<T>(array: Array<T>): Array<NonNullable<T>>;
-		/**
-		 * @returns The specified array, but with null and undefined
-		 * items removed.
-		 */
-		static filterNullable<T>(array: Array<T>): Array<NonNullable<T>>;
-		/**
-		 * 
-		 */
-		static subtractMap<K, V>(positive: Map<K, V>, negative: Map<K, V>): void;
-		/**
-		 * 
-		 */
-		static applySymmetricDifference<K, V>(left: Map<K, V>, right: Map<K, V>): void;
-		/**
-		 * Prunes elements from the specified array
-		 * that match the specified predicate.
-		 */
-		static prune<T>(array: Array<T>, predicate: (item: T, index: number) => boolean): T[];
-		/**
 		 * @returns A readonly copy of the specified array, set, or list.
 		 */
 		static copy<T>(array: ReadonlyArray<T>): ReadonlyArray<T>;
 		static copy<T>(set: ReadonlySet<T>): ReadonlySet<T>;
 		static copy<K, V>(map: ReadonlyMap<K, V>): ReadonlyMap<K, V>;
+		private constructor();
+	}
+	/**
+	 * Utility class for performing basic guarding.
+	 */
+	export class Guard {
 		/** */
-		static map<T, R>(set: ReadonlySet<T>, fn: (item: T) => R): Set<R>;
+		static notNull<T>(param: T): NotNull<T>;
 		/** */
-		static distinct<T>(array: Array<T>): ReadonlyArray<T>;
+		static defined<T>(param: T): NotUndefined<T>;
+		/** */
+		static nullable<T>(param: T): NotNull<T> | NotUndefined<T>;
+	}
+	type NotNull<T> = T extends null ? never : T;
+	type NotUndefined<T> = T extends undefined ? never : T;
+	/**
+	 * A general parsing utility class that provides consumption
+	 * methods that operate over a given input.
+	 */
+	export class Parser {
+		/**
+		 * Constructs a new Parser object that operates over
+		 * the specified input string, optionally starting at the
+		 * specified position.
+		 */
+		constructor(input: string);
+		/**
+		 * Attempts to read the specified token immediately
+		 * following the cursor.
+		 * 
+		 * @returns The content read. In the case when no
+		 * match could be found, an empty string is returned.
+		 */
+		read(token?: string): string;
+		/**
+		 * Reads any whitespace characters and floating
+		 * escape characters.
+		 * 
+		 * @returns The number of whitespace characters
+		 * read.
+		 */
+		readWhitespace(): number;
+		/**
+		 * Attempts to read a single stream-level grapheme from the
+		 * parse stream, using unicode-aware extraction method.
+		 * If the parse stream specifies a unicode escape sequence,
+		 * such as \uFFFF, these are seen as 6 individual graphemes.
+		 * 
+		 * @returns The read grapheme, or an empty string in the case
+		 * when there is no more content in the parse stream.
+		 */
+		readGrapheme(): string;
+		/**
+		 * Reads graphemes from the parse stream, until either
+		 * the cursor reaches one of the specified quit tokens,
+		 * or the parse stream terminates.
+		 */
+		readUntil(...quitTokens: string[]): string;
+		/**
+		 * Attempts to read the specified token from the parse stream,
+		 * if and only if it's at the end of the parse stream.
+		 */
+		readThenTerminal(token: string): string;
+		/**
+		 * @returns A boolean value that indicates whether the
+		 * specified string exists immediately at the position of
+		 * the cursor.
+		 */
+		peek(token: string): boolean;
+		/**
+		 * @returns A boolean value that indicates whether the
+		 * specified string exists immediately at the position of
+		 * the cursor, and following this token is the end of the
+		 * parse stream.
+		 */
+		peekThenTerminal(token: string): boolean;
+		/**
+		 * @returns A boolean value that indicates whether
+		 * there are more characters to read in the input.
+		 */
+		more(): boolean;
+		/**
+		 * Gets or sets the position of the cursor from where
+		 * reading takes place in the cursor.
+		 */
+		position: number;
+		private _position;
+		/** */
+		private readonly input;
+		/**
+		 * 
+		 */
+		private atRealBackslash;
+		/**
+		 * @deprecated
+		 * @returns A boolean value that indicates whether an
+		 * escape character exists behind the current character.
+		 * The algorithm used is respective of sequences of
+		 * multiple escape characters.
+		 */
+		private escaped;
+	}
+	/**
+	 * Stores the maximum character code in the unicode set.
+	 */
+	export const UnicodeMax = 65536;
+	/**
+	 * Stores a map of the names of all unicode blocks,
+	 * and their character ranges.
+	 */
+	export const UnicodeBlocks: Readonly<Map<string, [number, number]>>;
+	/**
+	 * Stores unsorted general utility methods.
+	 */
+	export class Misc {
+		/**
+		 * Counts incrementally through numbers, using the specified
+		 * radix sequence. For example, if the radixes [2, 2, 2] were to
+		 * be specified, this would result in binary counting starting at
+		 * [0, 0, 0] and ending at [1, 1, 1].
+		 */
+		static variableRadixCounter(radixes: number[]): IterableIterator<number[]>;
+		/**
+		 * 
+		 */
+		static calculatePowerset<T>(array: T[]): T[][];
+		/**
+		 * @returns Whether the items of the first set object form
+		 * a subset (not a proper subset) of the items of the second
+		 * set.
+		 */
+		static isSubset(sourceSet: ReadonlySet<any>, possibleSubset: ReadonlySet<any>): boolean;
+		/**
+		 * @returns Whether the items of the first set object form
+		 * a superset (not a proper superset) of the items of the
+		 * second set.
+		 */
+		static isSuperset(sourceSet: ReadonlySet<any>, possibleSuperset: ReadonlySet<any>): boolean;
+		/**
+		 * @returns The number of items that are missing
+		 * from the second set that exist in the first set.
+		 */
+		static computeSubsetFactor(a: ReadonlyArray<any>, b: ReadonlyArray<any>): number;
 		private constructor();
 	}
 	/**
@@ -76,12 +195,15 @@ declare namespace Truth {
 		/**  */
 		readonly faults: FaultService;
 		/** */
+		readonly version: VersionStamp;
+		private _version;
+		/** */
 		private readonly indentCheckService;
 		/**
 		 * Stores an object that allows type analysis to be performed on
 		 * this Program. It is reset at the beginning of every edit cycle.
 		 */
-		private lastProgramScanner;
+		private currentProgramScanner;
 		/**
 		 * Performs a full verification of all documents loaded into the program.
 		 * This Program's .faults field is populated with any faults generated as
@@ -92,6 +214,23 @@ declare namespace Truth {
 		 * have been defined in this program.
 		 */
 		scan(): ProgramScanner;
+		/**
+		 * @returns A fully constructed Type instance that corresponds to
+		 * the type path specified. In the case when no type could be found
+		 * at the specified location, null is returned.
+		 * 
+		 * @param document An instance of a Document that specifies
+		 * where to begin the query.
+		 * 
+		 * @param typePath The type path to query within the the specified
+		 * Document.
+		 */
+		query(document: Document, ...typePath: string[]): Type | null;
+		/**
+		 * @returns An array that contains the root-level types defined
+		 * in the specified Document.
+		 */
+		queryRoots(document: Document): ReadonlyArray<Type>;
 		/**
 		 * Begin inspecting a document loaded
 		 * into this program, a specific location.
@@ -104,9 +243,12 @@ declare namespace Truth {
 	export class ProgramInspectionResult {
 		/**
 		 * Stores the compilation object that most closely represents
-		 * what was found at the specified location.
+		 * what was found at the specified location. Stores null in the
+		 * case when the specified location contains an object that
+		 * has been marked as cruft (the statement and span fields
+		 * are still populated in this case).
 		 */
-		readonly result: Document | Type[] | Alias | null;
+		readonly result: Document | Type[] | null;
 		/**
 		 * Stores the Statement found at the specified location.
 		 */
@@ -423,14 +565,18 @@ declare namespace Truth {
 	export type HookTypesInstance = {
 		[P in keyof typeof HookTypes]: Readonly<InstanceType<typeof HookTypes[P]>>;
 	};
-	/** */
+	/**
+	 * An enumeration that lists all availble protocols
+	 * supported by the system. The list can be enumerated
+	 * via Uri.eachProtocol()
+	 */
 	export enum UriProtocol {
-		none = 0,
-		file = 1,
-		https = 2,
-		http = 3,
-		internal = 4,
-		unsupported = 5
+		none = "",
+		unknown = "?",
+		file = "file:",
+		https = "https:",
+		http = "http:",
+		internal = "system-internal:"
 	}
 	/**
 	 * A class that represents a Truth URI.
@@ -451,19 +597,6 @@ declare namespace Truth {
 		 */
 		readonly fileName: string;
 		/**
-		 * Stores the base file name specified in the URI.
-		 * For example, for the URI path/to/dir/file.ext, base would
-		 * be the string "file". If the URI does not contain a file
-		 * name, the field is an empty string.
-		 */
-		readonly fileNameBase: string;
-		/**
-		 * Stores the extension of the file specified in the URI,
-		 * without the dot character. If the URI does not contain
-		 * a file name, the field is an empty string.
-		 */
-		readonly fileExtension: string;
-		/**
 		 * Stores the fully qualified path to the file, and the file
 		 * name itself, but without any protocol.
 		 */
@@ -473,7 +606,11 @@ declare namespace Truth {
 		 */
 		readonly typePath: ReadonlyArray<string>;
 		/**
-		 * 
+		 * Enumerates through the list of available
+		 * protocols supported by the system.
+		 */
+		static eachProtocol(): IterableIterator<UriProtocol>;
+		/**
 		 * @param uriText A string containing the URI to parse
 		 * @param relativeFallback A URI that identifies the origin
 		 * of the URI being parsed, used in the case when the
@@ -483,10 +620,10 @@ declare namespace Truth {
 		/**
 		 * Creates a new Uri from the specified input.
 		 * 
-		 * @param from If the parameter is omited, a unique internal
-		 * URI is generated.
+		 * @param from If the parameter is omited,
+		 * a unique internal URI is generated.
 		 */
-		static create(from?: Spine | Strand | Uri): Uri;
+		static create(from?: Spine | Uri): Uri;
 		/** */
 		protected constructor(
 		/**
@@ -497,19 +634,6 @@ declare namespace Truth {
 		 * Stores the file name specified in the URI, if one exists.
 		 */
 		fileName: string,
-		/**
-		 * Stores the base file name specified in the URI.
-		 * For example, for the URI path/to/dir/file.ext, base would
-		 * be the string "file". If the URI does not contain a file
-		 * name, the field is an empty string.
-		 */
-		fileNameBase: string,
-		/**
-		 * Stores the extension of the file specified in the URI,
-		 * without the dot character. If the URI does not contain
-		 * a file name, the field is an empty string.
-		 */
-		fileExtension: string,
 		/**
 		 * Stores the fully qualified path to the file, and the file
 		 * name itself, but without any protocol.
@@ -532,7 +656,7 @@ declare namespace Truth {
 		/**
 		 * @returns A value indicating whether two URIs point to the same resource.
 		 */
-		equals(uri: Uri | string): boolean;
+		equals(uri: Uri | string, compareTypePaths?: boolean): boolean;
 		/**
 		 * Creates a new Uri, whose typePath and ioPath
 		 * fields are retracted by the specified levels of
@@ -573,13 +697,93 @@ declare namespace Truth {
 		combinator = ",",
 		joint = ":",
 		list = "...",
-		patternDelimiter = "/",
-		infixStart = "<",
-		infixEnd = ">",
 		escapeChar = "\\",
-		comment = "// ",
+		comment = "//",
+		typePathSeparator = "//",
 		truthExtension = "truth",
 		agentExtension = "js"
+	}
+	/**
+	 * An enumeration that stores the escape sequences
+	 * that only match a single kind of character. "Sign" in
+	 * this case refers to the fact that these are escape
+	 * sequences that refer to another character.
+	 */
+	export enum RegexSyntaxSign {
+		tab = "\\t",
+		lineFeed = "\\n",
+		carriageReturn = "\\r",
+		escapedFinalizer = "\\/",
+		backslash = "\\\\"
+	}
+	export namespace RegexSyntaxSign {
+		/**
+		 * @returns A RegexSyntaxSign member from the
+		 * specified sign literal (ex: "\t") or raw signable
+		 * character (ex: "	").
+		 */
+		function resolve(value: string): RegexSyntaxSign | null;
+		/** */
+		function unescape(value: string): string;
+	}
+	/**
+	 * An enumeration that stores the escape sequences
+	 * that can match more than one kind of character.
+	 */
+	export enum RegexSyntaxKnownSet {
+		digit = "\\d",
+		digitNon = "\\D",
+		alphanumeric = "\\w",
+		alphanumericNon = "\\W",
+		whitespace = "\\s",
+		whitespaceNon = "\\S",
+		wild = "."
+	}
+	export namespace RegexSyntaxKnownSet {
+		function resolve(value: string): RegexSyntaxKnownSet | null;
+	}
+	/**
+	 * An enumeration that stores the delimiters available
+	 * in the system's regular expression flavor.
+	 */
+	export const enum RegexSyntaxDelimiter {
+		main = "/",
+		utf16GroupStart = "\\u{",
+		utf16GroupEnd = "}",
+		groupStart = "(",
+		groupEnd = ")",
+		alternator = "|",
+		setStart = "[",
+		setEnd = "]",
+		quantifierStart = "{",
+		quantifierEnd = "}",
+		quantifierSeparator = ",",
+		range = "-"
+	}
+	/**
+	 * An enumeration that stores miscellaneous regular
+	 * expression special characters that don't fit into
+	 * the other enumerations.
+	 */
+	export const enum RegexSyntaxMisc {
+		star = "*",
+		plus = "+",
+		negate = "^",
+		restrained = "?",
+		boundary = "\\b",
+		boundaryNon = "\\B"
+	}
+	/**
+	 * An enumeration that stores the delimiters available
+	 * in the infix syntax.
+	 */
+	export const enum InfixSyntax {
+		start = "<",
+		end = ">",
+		nominalStart = "<<",
+		nominalEnd = ">>",
+		patternStart = "</",
+		patternEnd = "/>"
 	}
 	/**
 	 * A class that manages the diagnostics that have been
@@ -611,12 +815,12 @@ declare namespace Truth {
 		 * at the specified source. If the source has no faults, an empty
 		 * array is returned.
 		 */
-		check(source: Span | Statement): Fault[];
+		check<TSource extends object>(source: TSource): Fault<TSource>[];
 		/**
 		 * Enumerates through the unrectified faults retained
 		 * by this FaultService.
 		 */
-		each(): IterableIterator<Fault>;
+		each(): IterableIterator<Fault<TFaultSource>>;
 		/**
 		 * Broadcasts all reports stored in activeContext,
 		 * and creates a new activeContext.
@@ -630,228 +834,192 @@ declare namespace Truth {
 		 */
 		private activeContext;
 	}
-	/** */
-	export type FaultSource = Statement | Span;
-	/** Base class for all faults. */
-	export abstract class Fault {
+	/**
+	 * A type that describes the possible objects within a document
+	 * that may be responsible for the generation of a fault.
+	 */
+	export type TFaultSource = Statement | Span | InfixSpan;
+	/**
+	 * 
+	 */
+	export class Fault<TSource = TFaultSource> {
 		/** */
-		readonly severity: FaultSeverity;
-		/** A human-readable description of the fault. */
-		readonly abstract message: string;
-		/** An error code, useful for reference purposes, or display in a user interface. */
-		readonly abstract code: number;
+		readonly type: FaultType<TSource>;
 		/** The document object that caused the fault to be reported. */
-		readonly abstract source: FaultSource;
+		readonly source: TSource;
+		constructor(
+		/** */
+		type: FaultType<TSource>,
+		/** The document object that caused the fault to be reported. */
+		source: TSource);
 	}
-	/** Base class for faults that relate to a specific statement. */
-	export abstract class StatementFault extends Fault {
-		readonly source: Statement;
-		constructor(source: Statement);
+	/**
+	 * 
+	 */
+	export class FaultType<TSource = TFaultSource> {
+		/**
+		 * An error code, useful for reference purposes, or display in a user interface.
+		 */
+		readonly code: number;
+		/**
+		 * A human-readable description of the fault.
+		 */
+		readonly message: string;
+		/**
+		 * 
+		 */
+		readonly severity: FaultSeverity;
+		constructor(
+		/**
+		 * An error code, useful for reference purposes, or display in a user interface.
+		 */
+		code: number,
+		/**
+		 * A human-readable description of the fault.
+		 */
+		message: string,
+		/**
+		 * 
+		 */
+		severity: FaultSeverity);
+		/**
+		 * Creates a fault of this type.
+		 */
+		create(source: TSource): Fault<TSource>;
 	}
-	/** Base class for faults that relate to a specific span. */
-	export abstract class SpanFault extends Fault {
-		readonly source: Span;
-		constructor(source: Span);
-	}
-	/** */
-	export enum FaultSeverity {
-		/** Reports an error. */
+	/**
+	 * 
+	 */
+	export const enum FaultSeverity {
+		/**
+		 * Indicates the severity of a fault is "error", which means that
+		 * the associated object will be ignored during type analysis.
+		 */
 		error = 1,
-		/** Reports a warning. */
+		/**
+		 * Indicates the severity of a fault is "warning", which means that
+		 * the associated object will still be processed during type analysis.
+		 */
 		warning = 2
 	}
-	/** */
-	export class UnresolvedResourceFault extends StatementFault {
-		constructor(source: Statement, error?: Error);
-		readonly code = 100;
-		readonly message = "URI points to a resource that could not be resolved.";
-	}
-	/** */
-	export class CircularResourceReferenceFault extends StatementFault {
-		readonly code = 102;
-		readonly message = "URI points to a resource that would cause a circular reference.";
-	}
-	/** */
-	export class InsecureResourceReferenceFault extends StatementFault {
-		readonly code = 104;
-		readonly message: string;
-	}
-	/** */
-	export class UnresolvedAnnotationFault extends SpanFault {
-		readonly code = 201;
-		readonly message = "Unresolved annotation.";
-	}
-	/** */
-	export class CircularTypeReferenceFault extends SpanFault {
-		readonly code = 203;
-		readonly message = "Circular type reference detected.";
-	}
-	/** */
-	export class ContractViolationFault extends StatementFault {
-		readonly code = 204;
-		readonly severity = FaultSeverity.warning;
-		readonly message = "Overridden types must explicitly expand the type as defined in the base.";
-	}
-	/** */
-	export class TypeCannotBeRefreshedFault extends StatementFault {
-		readonly code = 206;
-		readonly severity = FaultSeverity.warning;
-		readonly message: string;
-	}
-	/** */
-	export class AnonymousInListIntrinsicTypeFault extends StatementFault {
-		readonly code = 300;
-		readonly message = "Types contained directly by List-intrinsic types cannot be anonymous.";
-	}
-	/** */
-	export class ListContractViolationFault extends SpanFault {
-		readonly code = 301;
-		readonly message = "The containing list cannot contain children of this type.";
-	}
-	/** */
-	export class ListIntrinsicExtendingListFault extends SpanFault {
-		readonly code = 303;
-		readonly message = "List intrinsic types cannot extend from other lists.";
-	}
-	/** */
-	export class ListExtrinsicExtendingNonListFault extends SpanFault {
-		readonly code = 305;
-		readonly message = "Lists cannot extend from non-lists.";
-	}
-	/** */
-	export class PatternInvalidFault extends StatementFault {
-		readonly code = 400;
-		readonly message = "Invalid pattern.";
-	}
-	/** */
-	export class PatternWithoutAnnotationFault extends StatementFault {
-		readonly code = 402;
-		readonly message = "Pattern has no annotations.";
-		readonly severity = FaultSeverity.warning;
-	}
-	/** */
-	export class PatternCanMatchEmptyFault extends StatementFault {
-		readonly code = 404;
-		readonly message = "Patterns must not be able to match an empty input.";
-	}
-	/** */
-	export class PatternCanMatchWhitespaceOnlyFault extends StatementFault {
-		readonly code = 420;
-		readonly message: string;
-	}
-	/** */
-	export class PatternAcceptsLeadingWhitespaceFault extends StatementFault {
-		readonly code = 434;
-		readonly message: string;
-	}
-	/** */
-	export class PatternRequiresLeadingWhitespaceFault extends StatementFault {
-		readonly code = 436;
-		readonly message: string;
-	}
-	/** */
-	export class PatternAcceptsTrailingWhitespaceFault extends StatementFault {
-		readonly code = 438;
-		readonly message: string;
-	}
-	/** */
-	export class PatternRequiresTrailingWhitespaceFault extends StatementFault {
-		readonly code = 440;
-		readonly message: string;
-	}
-	/** */
-	export class PatternNonCovariantFault extends StatementFault {
-		readonly code = 406;
-		readonly message = "Pattern does not match it's base types.";
-	}
-	/** */
-	export class PatternUnknownNestedTypesFault extends SpanFault {
-		readonly code = 432;
-		readonly message = "The base specified on the containing pattern has no type with this name.";
-	}
-	/** */
-	export class PatternIncompatibleFault extends StatementFault {
-		readonly code = 442;
-		readonly message = "This pattern is incompatible with other patterns that match the specified types.";
-	}
-	/** */
-	export class InfixInRepeatingPatternFault extends StatementFault {
-		readonly code = 408;
-		readonly message = "Infixes cannot exist in a repeating context.";
-	}
-	/**  */
-	export class InfixSelfReferentialFault extends StatementFault {
-		readonly code = 410;
-		readonly message = "Infixes can't be self-referential.";
-	}
-	/**  */
-	export class InfixNonConvariantFault extends StatementFault {
-		readonly code = 412;
-		readonly message = "Infixes must be compatible with their bases.";
-	}
-	/** */
-	export class InfixNotDefinedFault extends StatementFault {
-		readonly code = 422;
-		readonly message = "Infixes must be defined on at least one of their matched bases.";
-	}
-	/** */
-	export class InfixMustHaveExpressionFault extends StatementFault {
-		readonly code = 414;
-		readonly message = "Infixes must have at least one associated pattern.";
-	}
-	/** */
-	export class InfixRecursiveFault extends StatementFault {
-		readonly code = 416;
-		readonly message = "Recursive types cannot be referenced within infixes.";
-	}
-	/** */
-	export class InfixContractViolationFault extends StatementFault {
-		readonly code = 424;
-		readonly message = "Infix type annotations must explicitly expand the type as defined by the base.";
-	}
-	/** */
-	export class InfixChainingFault extends StatementFault {
-		readonly code = 426;
-		readonly message = "Infixes cannot be chained together.";
-	}
-	/** */
-	export class InfixReferencingListFault extends StatementFault {
-		readonly code = 428;
-		readonly message = "Infixes cannot reference list types.";
-	}
-	/** */
-	export class PortabilityInfixDuplicatedFault extends StatementFault {
-		readonly code = 418;
-		readonly message = "Portability infixes with compatible types cannot be specified more than once.";
-	}
-	/** */
-	export class NominalInfixMustSubtypeFault extends StatementFault {
-		readonly code = 430;
-		readonly message: string;
-	}
-	/** */
-	export class DiscrepantUnionFault extends StatementFault {
-		readonly code = 450;
-		readonly message: string;
-	}
-	/** */
-	export class TabsAndSpacesFault extends StatementFault {
-		readonly code = 1000;
-		readonly message = "Statement indent contains a mixture of tabs and spaces.";
-		readonly severity = FaultSeverity.warning;
-	}
-	/** */
-	export class IgnoredAnnotationFault extends SpanFault {
-		readonly code = 1001;
-		readonly message: string;
-		readonly severity = FaultSeverity.warning;
-	}
-	/** */
-	export class IgnoredAliasFault extends SpanFault {
-		readonly code = 1003;
-		readonly message: string;
-		readonly severity = FaultSeverity.warning;
-	}
+	/**
+	 * 
+	 */
+	export const Faults: Readonly<{
+		/** */
+		each(): IterableIterator<FaultType<object>>;
+		/**
+		 * @returns An object containing the FaultType instance
+		 * associated with the fault with the specified code, as
+		 * well as the name of the instance. In the case when the
+		 * faultCode was not found, null is returned.
+		 */
+		nameOf(faultCode: number): string;
+		/** */
+		UnresolvedResource: Readonly<FaultType<Statement>>;
+		/** */
+		CircularResourceReference: Readonly<FaultType<Statement>>;
+		/** */
+		InsecureResourceReference: Readonly<FaultType<Statement>>;
+		/** */
+		UnresolvedAnnotationFault: Readonly<FaultType<Span>>;
+		/** */
+		CircularTypeReference: Readonly<FaultType<Span>>;
+		/** */
+		ContractViolation: Readonly<FaultType<Span>>;
+		/** */
+		TypeCannotBeRefreshed: Readonly<FaultType<Statement>>;
+		/** */
+		IgnoredAnnotation: Readonly<FaultType<Span>>;
+		/** */
+		IgnoredAlias: Readonly<FaultType<Span>>;
+		/** */
+		TypeSelfReferential: Readonly<FaultType<Span>>;
+		/** */
+		AnonymousInListIntrinsicType: Readonly<FaultType<Statement>>;
+		/** */
+		ListContractViolation: Readonly<FaultType<Span>>;
+		/** */
+		ListIntrinsicExtendingList: Readonly<FaultType<Span>>;
+		/** */
+		ListExtrinsicExtendingNonList: Readonly<FaultType<Span>>;
+		/** */
+		ListDimensionalDiscrepancyFault: Readonly<FaultType<Span>>;
+		/** */
+		PatternInvalid: Readonly<FaultType<Statement>>;
+		/** */
+		PatternWithoutAnnotation: Readonly<FaultType<Statement>>;
+		/** */
+		PatternCanMatchEmpty: Readonly<FaultType<Statement>>;
+		/** */
+		PatternMatchingTypesAlreadyExists: Readonly<FaultType<Statement>>;
+		/** */
+		PatternMatchingList: Readonly<FaultType<Span>>;
+		/** */
+		PatternCanMatchWhitespaceOnly: Readonly<FaultType<Statement>>;
+		/** */
+		PatternAcceptsLeadingWhitespace: Readonly<FaultType<Statement>>;
+		/** */
+		PatternRequiresLeadingWhitespace: Readonly<FaultType<Statement>>;
+		/** */
+		PatternAcceptsTrailingWhitespace: Readonly<FaultType<Statement>>;
+		/** */
+		PatternRequiresTrailingWhitespace: Readonly<FaultType<Statement>>;
+		/** */
+		PatternNonCovariant: Readonly<FaultType<Statement>>;
+		/** */
+		PatternPartialWithCombinator: Readonly<FaultType<Statement>>;
+		/** */
+		DiscrepantUnion: Readonly<FaultType<Span>>;
+		/** */
+		InfixHasQuantifier: Readonly<FaultType<Statement>>;
+		/** */
+		InfixHasDuplicateIdentifier: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixHasSelfReferentialType: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixNonConvariant: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixCannotDefineNewTypes: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixReferencedTypeMustHavePattern: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixReferencedTypeCannotBeRecursive: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixContractViolation: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixPopulationChaining: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixUsingListOperator: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixReferencingList: Readonly<FaultType<InfixSpan>>;
+		/** */
+		PortabilityInfixHasMultipleDefinitions: Readonly<FaultType<InfixSpan>>;
+		/** */
+		PopulationInfixHasMultipleDefinitions: Readonly<FaultType<InfixSpan>>;
+		/** */
+		NominalInfixMustSubtype: Readonly<FaultType<Span>>;
+		/** */
+		StatementBeginsWithComma: Readonly<FaultType<Statement>>;
+		/** */
+		StatementBeginsWithEllipsis: Readonly<FaultType<Statement>>;
+		/** */
+		StatementBeginsWithEscapedSpace: Readonly<FaultType<Statement>>;
+		/** */
+		TabsAndSpaces: Readonly<FaultType<Statement>>;
+		/** */
+		DuplicateDeclaration: Readonly<FaultType<Span>>;
+		/** */
+		UnterminatedCharacterSet: Readonly<FaultType<Statement>>;
+		/** */
+		UnterminatedGroup: Readonly<FaultType<Statement>>;
+		/** */
+		DuplicateQuantifier: Readonly<FaultType<Statement>>;
+		/** */
+		UnterminatedInfix: Readonly<FaultType<Statement>>;
+		/** */
+		EmptyPattern: Readonly<FaultType<Statement>>;
+	}>;
 	/**
 	 * Infinite incremental counter.
 	 */
@@ -865,6 +1033,8 @@ declare namespace Truth {
 		protected constructor(stamp: number | number[]);
 		/** */
 		newerThan(otherStamp: VersionStamp): boolean;
+		/** */
+		toString(): string;
 	}
 	/**
 	 * Contains members that replicate the behavior of
@@ -1144,6 +1314,62 @@ declare namespace Truth {
 	/**
 	 * 
 	 */
+	export class AlphabetRange {
+		readonly from: number;
+		readonly to: number;
+		constructor(from: number, to: number);
+	}
+	/**
+	 * A disposable class for easily creating Alphabet instances
+	 * (This design avoids introducing mutability into the Alphabet class).
+	 */
+	export class AlphabetBuilder {
+		/** */
+		constructor(...others: (X.Alphabet | AlphabetRange | string | number)[]);
+		/**
+		 * Adds an entry to the alphabet.
+		 * If the second parameter is omitted, the entry refers to a
+		 * single character, rather than a range of characters.
+		 */
+		add(from: string | number, to?: string | number): this;
+		/** */
+		addWild(): void;
+		/**
+		 * @returns An optimized Alphabet instances composed
+		 * from the characters and ranges applied to this AlphabetBuilder.
+		 * 
+		 * @param invert In true, causes the entries in the generated
+		 * Alphabet to be reversed, such that every character marked
+		 * as included is excluded, and vice versa.
+		 */
+		toAlphabet(invert?: boolean): Alphabet;
+		/** */
+		private readonly ranges;
+	}
+	/**
+	 * 
+	 */
+	export class MutableTransitionMap extends TransitionMap {
+		/** */
+		initialize(srcStateId: number): void;
+		/** */
+		set(srcStateId: number, symbol: string, dstStateId: number): void;
+	}
+	/**
+	 * 
+	 */
+	export interface ITransitionLiteral {
+		[stateId: number]: ITransitionStateLiteral;
+	}
+	/**
+	 * 
+	 */
+	export interface ITransitionStateLiteral {
+		[symbol: string]: number;
+	}
+	/**
+	 * 
+	 */
 	export class Document {
 		/**
 		 * Fills the document with the specified source code.
@@ -1202,7 +1428,7 @@ declare namespace Truth {
 		 * If the statement does not exist in the document,
 		 * the returned value is -1.
 		 */
-		getStatementIndex(statement: Statement): number;
+		getLineNumber(statement: Statement): number;
 		/**
 		 * @returns An array of strings containing the content
 		 * written in the comments directly above the specified
@@ -1233,6 +1459,7 @@ declare namespace Truth {
 			level: number;
 		}>;
 		/**
+		 * @deprecated
 		 * Enumerates through each unique URI defined in this document,
 		 * that are referenced within the descendants of the specified
 		 * statement. If the parameters are null or omitted, all unique
@@ -1262,7 +1489,7 @@ declare namespace Truth {
 		 * Reads the Statement at the given position.
 		 * Negative numbers read Statement starting from the end of the document.
 		 */
-		read(line: number): Statement;
+		read(lineNumber: number): Statement;
 		/**
 		 * Convenience method that converts a statement or it's index
 		 * within this document to a statement object.
@@ -1273,7 +1500,7 @@ declare namespace Truth {
 		 * a statement or a statement index, into a bounded statement
 		 * index.
 		 */
-		private toIndex;
+		private toLineNumber;
 		/**
 		 * Starts an edit transaction in the specified callback function.
 		 * Edit transactions are used to synchronize changes made in
@@ -1483,27 +1710,190 @@ declare namespace Truth {
 	/**
 	 * 
 	 */
+	export class ParseFault {
+		readonly innerType: Readonly<FaultType<Statement>>;
+		readonly offsetStart: number;
+		readonly offsetEnd: number;
+		constructor(innerType: Readonly<FaultType<Statement>>, offsetStart: number, offsetEnd: number);
+	}
+	/**
+	 * 
+	 */
+	export class LineParser {
+		/**
+		 * Generator function that yields all statements
+		 * (unparsed lines) of the given source text.
+		 */
+		static read(fullSource: string): IterableIterator<string>;
+		/**
+		 * Main entry point for parsing a single line and producing a
+		 * RawStatement object.
+		 * 
+		 * The parsing algorithm is some kind of quasi-recusive descent with
+		 * lookheads and backtracking in some places to make the logic easier
+		 * to follow. Technically, it's probably some mash-up of LL(k) & LALR.
+		 * Maybe if I blew 4 years of my life in some silly Comp Sci program
+		 * instead of dropping out of high school I could say for sure.
+		 */
+		static parse(lineText: string): Line;
+		/** */
+		private constructor();
+	}
+	/**
+	 * Placeholder object to mark the position of
+	 * an anonymous type within a statement.
+	 */
+	export class Anon {
+		/** */
+		toString(): string;
+	}
+	/**
+	 * Stores information about a line, after being parsed.
+	 * A Line is different from a Statement in that it has no
+	 * relationship to a Document.
+	 */
+	export class Line {
+		readonly sourceText: string;
+		readonly indent: number;
+		readonly declarations: BoundaryGroup<DeclarationSubject>;
+		readonly annotations: BoundaryGroup<AnnotationSubject>;
+		readonly sum: string;
+		readonly jointPosition: number;
+		readonly flags: LineFlags;
+		readonly parseFault: ParseFault | null;
+		/*** */
+		constructor(sourceText: string, indent: number, declarations: BoundaryGroup<DeclarationSubject>, annotations: BoundaryGroup<AnnotationSubject>, sum: string, jointPosition: number, flags: LineFlags, parseFault: ParseFault | null);
+	}
+	/**
+	 * A bit field enumeration used to efficiently store
+	 * meta data about a Line (or a Statement) object.
+	 */
+	export enum LineFlags {
+		none = 0,
+		isRefresh = 1,
+		isComment = 2,
+		isWhitespace = 4,
+		isDisposed = 8,
+		isCruft = 16,
+		hasUri = 32,
+		hasTotalPattern = 64,
+		hasPartialPattern = 128,
+		hasPattern = 256
+	}
+	/**
+	 * Stakes out starting and ending character positions
+	 * of subjects within a given region.
+	 */
+	export class BoundaryGroup<TSubject> {
+		/** */
+		constructor(boundaries: Boundary<TSubject>[]);
+		/** */
+		[Symbol.iterator](): IterableIterator<Boundary<TSubject>>;
+		/** */
+		eachSubject(): IterableIterator<TSubject>;
+		/** */
+		inspect(offset: number): TSubject | null;
+		/** */
+		first(): Boundary<TSubject> | null;
+		/** Gets the number of entries defined in the bounds. */
+		readonly length: number;
+		/** */
+		private readonly entries;
+	}
+	/** */
+	export class Boundary<TSubject> {
+		readonly offsetStart: number;
+		readonly offsetEnd: number;
+		readonly subject: TSubject;
+		constructor(offsetStart: number, offsetEnd: number, subject: TSubject);
+	}
+	/**
+	 * 
+	 */
 	export class Statement {
-		/** */
-		constructor(document: Document, text: string);
-		/** */
+		/**
+		 * 
+		 */
+		private eachStatementLevelFaults;
+		/**
+		 * Gets whether the joint operator exists at the
+		 * end of the statement, forcing the statement's
+		 * declarations to be "refresh types".
+		 */
 		readonly isRefresh: boolean;
-		/** Gets whether the statement is a comment. */
+		/**
+		 * Gets whether the statement contains nothing
+		 * other than a single joint operator.
+		 */
+		readonly isVacuous: boolean;
+		/**
+		 * Gets whether the statement is a comment.
+		 */
 		readonly isComment: boolean;
-		/** Gets whether the statement contains no non-whitespace characters. */
+		/**
+		 * Gets whether the statement contains
+		 * no non-whitespace characters.
+		 */
 		readonly isWhitespace: boolean;
-		/** Gets whether the statement is a comment or whitespace. */
+		/**
+		 * Gets whether the statement is a comment or whitespace.
+		 */
 		readonly isNoop: boolean;
-		/** Gets whether the statement has been removed from it's containing document. */
+		/**
+		 * Gets whether the statement has been
+		 * removed from it's containing document.
+		 */
 		readonly isDisposed: boolean;
+		/**
+		 * 
+		 */
+		readonly isCruft: boolean;
+		/** */
+		readonly faults: ReadonlyArray<Fault>;
 		/** Stores a reference to the document that contains this statement. */
 		readonly document: Document;
 		/** Stores the indent level of the statement. */
 		readonly indent: number;
-		/** */
-		private readonly declarationBounds;
-		/** */
-		private readonly annotationBounds;
+		/**
+		 * Stores the set of objects that are contained by this Statement,
+		 * and are marked as cruft. Note that the only Statement object
+		 * that may be located in this set is this Statement object itself.
+		 */
+		readonly cruftObjects: ReadonlySet<Statement | Span | InfixSpan>;
+		/**
+		 * Gets an array of spans in that represent the declarations
+		 * of this statement, excluding those that have been marked
+		 * as object-level cruft.
+		 */
+		readonly declarations: ReadonlyArray<Span>;
+		/**
+		 * Stores the array of spans that represent the declarations
+		 * of this statement, including those that have been marked
+		 * as object-level cruft.
+		 */
+		readonly allDeclarations: ReadonlyArray<Span>;
+		/**
+		 * Gets an array of spans in that represent the annotations
+		 * of this statement, from left to right, excluding those that
+		 * have been marked as object-level cruft.
+		 */
+		readonly annotations: ReadonlyArray<Span>;
+		/**
+		 * Stores the array of spans that represent the annotations
+		 * of this statement, including those that have been marked
+		 * as object-level cruft.
+		 */
+		readonly allAnnotations: ReadonlyArray<Span>;
+		/**
+		 * Gets an array of spans in that represent both the declarations
+		 * and the annotations of this statement, excluding those that have
+		 * been marked as object-level cruft.
+		 */
+		readonly spans: Span[];
+		/**
+		 * 
+		 */
+		readonly allSpans: Span[];
 		/**
 		 * Stores the position at which the joint operator exists
 		 * in the statement. A negative number indicates that
@@ -1514,7 +1904,14 @@ declare namespace Truth {
 		 * Stores the unprocessed text content of the statement,
 		 * as it appears in the document.
 		 */
-		readonly textContent: string;
+		readonly sourceText: string;
+		/**
+		 * Stores the statement's textual *sum*, which is the
+		 * raw text of the statement's annotations, with whitespace
+		 * trimmed. The sum is suitable as an input to a total
+		 * pattern.
+		 */
+		readonly sum: string;
 		/**
 		 * Gets a boolean value indicating whether or not the
 		 * statement contains a declaration of a pattern.
@@ -1525,23 +1922,6 @@ declare namespace Truth {
 		 * at the given character offset within the Statement.
 		 */
 		getRegion(offset: number): StatementRegion;
-		/**
-		 * Gets the set of spans in that represent all declarations
-		 * and annotations in this statement, from left to right.
-		 */
-		readonly subjects: Span[];
-		/**
-		 * Gets the set of spans in that represent the
-		 * declarations of this statement, from left to right.
-		 */
-		readonly declarations: Span[];
-		private _declarations;
-		/**
-		 * Gets the set of spans in that represent the
-		 * annotations of this statement, from left to right.
-		 */
-		readonly annotations: Span[];
-		private _annotations;
 		/**
 		 * 
 		 */
@@ -1557,11 +1937,6 @@ declare namespace Truth {
 		 */
 		getAnnotation(offset: number): Span | null;
 		/**
-		 * @returns The raw trimmed text of the complete
-		 * annotation side of this statement.
-		 */
-		getAnnotationContent(): string;
-		/**
 		 * @returns A string containing the inner comment text of
 		 * this statement, excluding the comment syntax token.
 		 * If the statement isn't a comment, null is returned.
@@ -1572,12 +1947,6 @@ declare namespace Truth {
 		 */
 		toString(includeIndent?: boolean): string;
 	}
-	/**
-	 * Stores a map of the character offsets within a Statement
-	 * that represent the starting positions of the statement's
-	 * Subjects.
-	 */
-	export type SubjectBounds = ReadonlyMap<number, Identifier | ForePattern | null>;
 	/**
 	 * Defines the areas of a statement that are significantly
 	 * different when performing inspection.
@@ -1606,6 +1975,328 @@ declare namespace Truth {
 		annotationVoid = 6
 	}
 	/**
+	 * 
+	 */
+	export class Pattern {
+		/**
+		 * 
+		 */
+		readonly units: ReadonlyArray<RegexUnit | Infix>;
+		/**
+		 * Stores whether the pattern is considered to be "Total"
+		 * or "Partial". Total patterns must match an entire annotation
+		 * set (the entire strip of content to the right of a joint, after
+		 * being trimmed). Partial patterns match individually
+		 * specified subjects (separated by commas).
+		 */
+		readonly isTotal: boolean;
+		/**
+		 * Stores a CRC which is computed from the set of
+		 * annotations specified to the right of the pattern.
+		 */
+		readonly crc: string;
+		/**
+		 * Stores whether the internal regular expression
+		 * was compiled successfully.
+		 */
+		readonly isValid: boolean;
+		/**
+		 * Recursively enumerates through this Pattern's unit structure.
+		 */
+		eachUnit(): IterableIterator<RegexUnit | Infix>;
+		/**
+		 * @returns A boolean value that indicates whether
+		 * this Pattern has at least one infix, of any type.
+		 */
+		hasInfixes(): boolean;
+		/**
+		 * @returns An array containing the infixes of the
+		 * specified type that are defined in this Pattern.
+		 * If the argument is omitted, all infixes of any type
+		 * defined on this Pattern are returned.
+		 */
+		getInfixes(type?: InfixFlags): Infix[];
+		/**
+		 * Performs an "expedient" test that determines whether the
+		 * specified input has a chance of being matched by this pattern.
+		 * The check is considered expedient, rather than thorough,
+		 * because any infixes that exist in this pattern are replaced
+		 * with "catch all" regular expression sequence, rather than
+		 * embedding the pattern associated with the type specified
+		 * in the infix.
+		 */
+		test(input: string): boolean;
+		/**
+		 * Executes the pattern (like a function) using the specified
+		 * string as the input.
+		 * 
+		 * @returns A ReadonlyMap whose keys align with the infixes
+		 * contained in this Pattern, and whose values are strings that
+		 * are the extracted "inputs", found in the place of each infix.
+		 * If this Pattern has no infixes, an empty map is returned.
+		 */
+		exec(patternParameter: string): ReadonlyMap<Infix, string>;
+		/** */
+		private compiledRegExp;
+		/**
+		 * Converts this Pattern to a string representation.
+		 * (Note that the serialized pattern cannot be used
+		 * as a parameter to a JavaScript RegExp object.)
+		 */
+		toString(): string;
+	}
+	/** */
+	export class PatternPrecompiler {
+		/**
+		 * Compiles the specified pattern into a JS-native
+		 * RegExp object that can be used to execute regular
+		 * expression pre-matching (i.e. checks that essentially
+		 * ignore any infixes that the pattern may have).
+		 */
+		static exec(pattern: Pattern): RegExp | null;
+	}
+	/**
+	 * Ambient unifier for all PatternUnit instances
+	 */
+	export abstract class RegexUnit {
+		readonly quantifier: RegexQuantifier | null;
+		constructor(quantifier: RegexQuantifier | null);
+		/** */
+		abstract toString(): string;
+	}
+	/**
+	 * 
+	 */
+	export class RegexSet extends RegexUnit {
+		readonly knowns: ReadonlyArray<RegexSyntaxKnownSet>;
+		readonly ranges: ReadonlyArray<RegexCharRange>;
+		readonly unicodeBlocks: ReadonlyArray<string>;
+		readonly singles: ReadonlyArray<string>;
+		readonly isNegated: boolean;
+		readonly quantifier: RegexQuantifier | null;
+		/** */
+		constructor(knowns: ReadonlyArray<RegexSyntaxKnownSet>, ranges: ReadonlyArray<RegexCharRange>, unicodeBlocks: ReadonlyArray<string>, singles: ReadonlyArray<string>, isNegated: boolean, quantifier: RegexQuantifier | null);
+		/** */
+		toString(): string;
+		/** */
+		toAlphabet(): Alphabet;
+	}
+	/**
+	 * 
+	 */
+	export class RegexCharRange {
+		readonly from: number;
+		readonly to: number;
+		constructor(from: number, to: number);
+	}
+	/**
+	 * 
+	 */
+	export class RegexGroup extends RegexUnit {
+		/**
+		 * 
+		 */
+		readonly cases: ReadonlyArray<ReadonlyArray<RegexUnit>>;
+		readonly quantifier: RegexQuantifier | null;
+		constructor(
+		/**
+		 * 
+		 */
+		cases: ReadonlyArray<ReadonlyArray<RegexUnit>>, quantifier: RegexQuantifier | null);
+		/** */
+		toString(): string;
+	}
+	/**
+	 * A pattern "grapheme" is a pattern unit class that
+	 * represents:
+	 * 
+	 * a) A "Literal", which is a single unicode-aware character,
+	 * with possible representations being an ascii character,
+	 * a unicode character, or an ascii or unicode escape
+	 * sequence.
+	 * 
+	 * or b) A "Special", which is a sequence that matches
+	 * something other than the character specified,
+	 * such as . \b \s
+	 */
+	export class RegexGrapheme extends RegexUnit {
+		readonly grapheme: string;
+		readonly quantifier: RegexQuantifier | null;
+		constructor(grapheme: string, quantifier: RegexQuantifier | null);
+		/** */
+		toString(): string;
+	}
+	/**
+	 * A Regex "Sign" refers to an escape sequence that refers
+	 * to one other character, as opposed to that character
+	 * being written directly in the parse stream.
+	 */
+	export class RegexSign extends RegexUnit {
+		readonly sign: RegexSyntaxSign;
+		readonly quantifier: RegexQuantifier | null;
+		constructor(sign: RegexSyntaxSign, quantifier: RegexQuantifier | null);
+		/** */
+		toString(): string;
+	}
+	/**
+	 * A pattern unit class that represents +, *,
+	 * and explicit quantifiers such as {1,2}.
+	 */
+	export class RegexQuantifier {
+		/**
+		 * Stores the lower bound of the quantifier,
+		 * or the fewest number of graphemes to be matched.
+		 */
+		readonly min: number;
+		/**
+		 * Stores the upper bound of the quantifier,
+		 * or the most number of graphemes to be matched.
+		 */
+		readonly max: number;
+		/**
+		 * Stores whether the the quantifier is restrained,
+		 * in that it matches the fewest possible number
+		 * of characters.
+		 * 
+		 * (Some regular expression flavours awkwardly
+		 * refer to this as "non-greedy".)
+		 */
+		readonly restrained: boolean;
+		constructor(
+		/**
+		 * Stores the lower bound of the quantifier,
+		 * or the fewest number of graphemes to be matched.
+		 */
+		min: number,
+		/**
+		 * Stores the upper bound of the quantifier,
+		 * or the most number of graphemes to be matched.
+		 */
+		max: number,
+		/**
+		 * Stores whether the the quantifier is restrained,
+		 * in that it matches the fewest possible number
+		 * of characters.
+		 * 
+		 * (Some regular expression flavours awkwardly
+		 * refer to this as "non-greedy".)
+		 */
+		restrained: boolean);
+		/**
+		 * Converts the regex quantifier to an optimized string.
+		 */
+		toString(): string;
+	}
+	/**
+	 * A class that represents a portion of the content
+	 * within an Infix that spans a type reference.
+	 */
+	export class Infix {
+		/**
+		 * Stores the left-most character position of the Infix
+		 * (before the delimiter), relative to the containing statement.
+		 */
+		readonly offsetStart: number;
+		/**
+		 * Stores the left-most character position of the Infix
+		 * (after the delimiter), relative to the containing statement.
+		 */
+		readonly offsetEnd: number;
+		/**
+		 * Stores the Bounds object that marks out the positions
+		 * of the identifiers in the Infix that are located before
+		 * any Joint operator.
+		 */
+		readonly lhs: BoundaryGroup<Identifier>;
+		/**
+		 * Stores the Bounds object that marks out the positions
+		 * of the identifiers in the Infix that are located after
+		 * any Joint operator.
+		 */
+		readonly rhs: BoundaryGroup<Identifier>;
+		/** */
+		readonly flags: InfixFlags;
+		constructor(
+		/**
+		 * Stores the left-most character position of the Infix
+		 * (before the delimiter), relative to the containing statement.
+		 */
+		offsetStart: number,
+		/**
+		 * Stores the left-most character position of the Infix
+		 * (after the delimiter), relative to the containing statement.
+		 */
+		offsetEnd: number,
+		/**
+		 * Stores the Bounds object that marks out the positions
+		 * of the identifiers in the Infix that are located before
+		 * any Joint operator.
+		 */
+		lhs: BoundaryGroup<Identifier>,
+		/**
+		 * Stores the Bounds object that marks out the positions
+		 * of the identifiers in the Infix that are located after
+		 * any Joint operator.
+		 */
+		rhs: BoundaryGroup<Identifier>,
+		/** */
+		flags: InfixFlags);
+		/**
+		 * Gets whether this Infix is of the "pattern" variety.
+		 */
+		readonly isPattern: boolean;
+		/**
+		 * Gets whether this Infix is of the "portability" variety.
+		 */
+		readonly isPortability: boolean;
+		/**
+		 * Gets whether this Infix is of the "population" variety.
+		 */
+		readonly isPopulation: boolean;
+		/**
+		 * Gets whether this Infix has the "nominal" option set.
+		 */
+		readonly isNominal: boolean;
+		/** */
+		toString(): string;
+	}
+	/**
+	 * 
+	 */
+	export enum InfixFlags {
+		none = 0,
+		/**
+		 * Indicates that the joint was specified within
+		 * the infix. Can be used to determine if the infix
+		 * contains some (erroneous) syntax resembing
+		 * a refresh type, eg - /<Type : >/
+		 */
+		hasJoint = 1,
+		/**
+		 * Indicates that the </Pattern/> syntax was
+		 * used to embed the patterns associated
+		 * with a specified type.
+		 */
+		pattern = 2,
+		/**
+		 * Indicates that the infix is of the "portabiity"
+		 * variety, using the syntax < : Type>
+		 */
+		portability = 4,
+		/**
+		 * Indicates that the infix is of the "popuation"
+		 * variety, using the syntax <Declaration : Annotation>
+		 * or <Declaration>
+		 */
+		population = 8,
+		/**
+		 * Indicates that the <<Double>> angle bracket
+		 * syntax was used to only match named types,
+		 * rather than aliases.
+		 */
+		nominal = 16
+	}
+	/**
 	 * A class that represents a single subject in a Statement.
 	 * Consumers of this class should not expect Subject objects
 	 * to be long-lived, as they are discarded regularly after edit
@@ -1618,23 +2309,67 @@ declare namespace Truth {
 		 * Stores a full string representation of the subject,
 		 * as it appears in the document.
 		 */
-		readonly value: string;
+		readonly fullName: string;
+		/**
+		 * Stores a string representation of the name of the
+		 * type to which the subject refers, without any List
+		 * operator suffix.
+		 */
+		readonly typeName: string;
 		/** */
 		readonly isList: boolean;
 		/**
-		 * Stores a parsed URI object, in the case the subject is
-		 * formatted as a URI. In other cases, the field is null.
+		 * Converts this Subject to it's string representation.
+		 * @param escape If true, preserves any necessary
+		 * escaping required to ensure the identifier string
+		 * is in a parsable format.
 		 */
-		readonly uri: Uri | null;
-		/** Calculates whether this Subject is structurally equal to another. */
-		equals(other: Identifier | string | null): boolean;
-		/** Converts this Subject to it's string representation. */
-		toString(): string;
+		toString(escape?: IdentifierEscapeKind): string;
+	}
+	/**
+	 * An enumeration that describes the various ways
+	 * to handle escaping when serializing an identifier.
+	 * This enumeration is used to address the differences
+	 * in the way identifiers can be serialized, which can
+	 * depend on whether the identifier is a declaration or
+	 * an annotation.
+	 */
+	export const enum IdentifierEscapeKind {
+		none = 0,
+		declaration = 1,
+		annotation = 2
 	}
 	/**
 	 * A class that represents a position in a statement.
 	 */
 	export class Span {
+		/**
+		 * Stores a reference to the Statement that contains this Span.
+		 */
+		readonly statement: Statement;
+		/**
+		 * Stores the subject, and the location of it in the document.
+		 */
+		readonly boundary: Boundary<Subject>;
+		/**
+		 * Stores a string representation of this Span, useful for debugging.
+		 */
+		private readonly name;
+		/**
+		 * Gets the Infixes stored within this Span, in the case when
+		 * the Span corresponds to a Pattern. In other cases, and
+		 * empty array is returned.
+		 */
+		readonly infixes: ReadonlyArray<Infix>;
+		private _infixes;
+		/** */
+		eachDeclarationForInfix(infix: Infix): IterableIterator<InfixSpan>;
+		/** */
+		eachAnnotationForInfix(infix: Infix): IterableIterator<InfixSpan>;
+		/** */
+		private queryInfixSpanTable;
+		/** */
+		private readonly infixSpanTable;
 		/**
 		 * Gets an array of statements that represent the statement
 		 * containment progression, all the way back to the containing
@@ -1642,24 +2377,6 @@ declare namespace Truth {
 		 */
 		readonly ancestry: ReadonlyArray<Statement>;
 		private _ancestry;
-		/** Stores a reference to the Statement that contains this Span. */
-		readonly statement: Statement;
-		/**
-		 * Stores either a reference to the instance of the Subject that this
-		 * Span represents, or a unique string in the case when this is
-		 * a "Thin Span" that represents an Invisible Subject.
-		 */
-		readonly subject: Subject;
-		/**
-		 * The offset in the statement that marks the start of the
-		 * region being pointed to.
-		 */
-		readonly offsetStart: number;
-		/**
-		 * The offset in the statement that marks the end of the
-		 * region being pointed to.
-		 */
-		readonly offsetEnd: number;
 		/**
 		 * Splits apart the groups subjects specified in the containing
 		 * statement's ancestry, and generates a series of spines,
@@ -1674,322 +2391,97 @@ declare namespace Truth {
 		factor(): ReadonlyArray<Spine>;
 		/**  */
 		private factoredSpines;
+		/**
+		 * Gets a boolean value that indicates whether this Span is considered
+		 * object-level cruft, and should therefore be ignored during type analysis.
+		 */
+		readonly isCruft: boolean;
+		/** */
+		toString(): string;
 	}
 	/**
 	 * A class that manages an array of Span objects that
 	 * represent a specific spine of declarations, starting at
 	 * a document, passing through a series of spans,
 	 * and ending at a tip span.
+	 * 
+	 * In the case when
 	 */
 	export class Spine {
 		/** */
-		constructor(nodes: Span[]);
+		constructor(vertebrae: (X.Span | Statement)[]);
 		/** Stores the last span in the array of segments. */
 		readonly tip: Span;
 		/** */
 		readonly statement: Statement;
 		/** Gets a reference to the document that sits at the top of the spine. */
 		readonly document: Document;
-		/**  */
-		readonly nodes: ReadonlyArray<Span>;
+		/** Stores an array of the Spans that compose the Spine. */
+		readonly vertebrae: ReadonlyArray<Span | CruftMarker>;
+	}
+	/**
+	 * A class that acts as a stand-in for a statement that has been
+	 * marked as cruft, suitable for usage in a Spine.
+	 */
+	export class CruftMarker {
+		readonly statement: Statement;
+		/**
+		 * Converts this cruft marker to a string representation,
+		 * which is derived from a CRC calculated from this
+		 * marker's underlying statement.
+		 */
+		toString(): string;
 	}
 	/** */
-	export type Subject = Identifier | ForePattern | string;
+	export type Subject = DeclarationSubject | AnnotationSubject;
+	/**
+	 * Stores a map of the character offsets within a Statement
+	 * that represent the starting positions of the statement's
+	 * declarartions.
+	 */
+	export type DeclarationSubject = Identifier | Pattern | Uri | Anon;
+	/**
+	 * Stores a map of the character offsets within a Statement
+	 * that represent the starting positions of the statement's
+	 * annotations.
+	 */
+	export type AnnotationSubject = Identifier;
 	/** */
+	export class SubjectSerializer {
+		/**
+		 * Universal method for serializing a subject to a string,
+		 * useful for debugging and supporting tests.
+		 */
+		static invoke(subject: Subject, escapeStyle: IdentifierEscapeKind): string;
+	}
+	/**
+	 * @deprecated
+	 * This code is only called by the Fragmenter, which is deprecated.
+	 */
 	export class SubjectParser {
-		/** */
+		/**
+		 * @deprecated
+		 * This code is only called by the Fragmenter, which is deprecated.
+		 */
 		static invoke(text: string): Subject;
 		private constructor();
 	}
 	/**
-	 * A class that stores an unparsed Pattern,
-	 * contained directly by a Statement.
-	 */
-	export class ForePattern {
-		/**
-		 * Parses a pattern from an internally serialized
-		 * representation of it.
-		 */
-		static parse(serialized: string): ForePattern | null;
-		/**
-		 * Gets whether the specified internall serialized
-		 * regular expression can be parsed through the
-		 * static .parse() method on this class.
-		 */
-		static canParse(serialized: string): boolean;
-		/** */
-		readonly content: string;
-		/** */
-		readonly chunks: ForePatternChunks;
-		/** */
-		readonly crc: string;
-		/**
-		 * Stores whether the pattern literal specifies the
-		 * coexistence (trailing comma) flag, which allows
-		 * aliases to exist within the annotation set of
-		 * other non-aliases.
-		 */
-		readonly hasCoexistenceFlag: boolean;
-		/**
-		 * Stores the inner regular expression of this pattern,
-		 * in the case when a valid RegExp object could be
-		 * created from the input passed to the constructor
-		 * of this object. In the case when the input could not
-		 * be converted into a usable RegExp object, the field
-		 * stores null.
-		 */
-		private readonly innerRegExp;
-		/**
-		 * @returns A boolean value that indicates whether
-		 * the specified input string matches the regular expression
-		 * stored inside this pattern.
-		 */
-		test(input: string): boolean;
-		/** */
-		toString(format?: PatternSerializationFormat): string;
-	}
-	/**
-	 * Identifies the various textual representations of a pattern.
-	 */
-	export const enum PatternSerializationFormat {
-		/** Refers to the inner content of the pattern. */
-		content = 1,
-		/** Refers to the pattern literal as it appears in the document. */
-		literal = 2,
-		/**
-		 * Refers to the pattern literal's system serialization format.
-		 * The internal serialization format is as follows:
-		 * 
-		 * 1 byte for the bell (for easy identification)
-		 * 1 or more bytes for the regular expression content
-		 * 1 byte for the flags
-		 * (crcLength) bytes for the computed CRC of the associated annotations.
-		 */
-		system = 4
-	}
-	/**
 	 * 
 	 */
-	export enum PatternFlags {
-		/** Indicates that no flags have been declared on the pattern. */
-		none = 0,
-		/** Indicates that the coexistence flag has been declared on the pattern. */
-		coexistence = 1
-	}
-	/**  */
-	export class ForePatternParser {
-		/**
-		 * Parses the specified pattern string (without delimiters
-		 * or flags), into an array of strings and infixes.
-		 */
-		static parse(content: string): ForePatternChunks;
-		/** */
-		private constructor();
-	}
-	/**
-	 * 
-	 */
-	export class Infix {
-		/**
-		 * Stores an array of strings that represent the
-		 * terms located before the Joint operator.
-		 */
-		readonly lhsTerms: ReadonlyArray<string>;
-		/**
-		 * Stores an array of strings that represent the
-		 * terms located after the Joint operator.
-		 */
-		readonly rhsTerms: ReadonlyArray<string>;
-		/**
-		 * Stores whether the <<Double>> angle bracket
-		 * syntax was used to only match named types,
-		 * rather than aliases.
-		 */
-		readonly forcesNominal: boolean;
-		/**
-		 * Stores whether the </Pattern/> syntax was
-		 * used to embed an external pattern.
-		 */
-		readonly requestsPattern: boolean;
-		constructor(
-		/**
-		 * Stores an array of strings that represent the
-		 * terms located before the Joint operator.
-		 */
-		lhsTerms?: ReadonlyArray<string>,
-		/**
-		 * Stores an array of strings that represent the
-		 * terms located after the Joint operator.
-		 */
-		rhsTerms?: ReadonlyArray<string>,
-		/**
-		 * Stores whether the <<Double>> angle bracket
-		 * syntax was used to only match named types,
-		 * rather than aliases.
-		 */
-		forcesNominal?: boolean,
-		/**
-		 * Stores whether the </Pattern/> syntax was
-		 * used to embed an external pattern.
-		 */
-		requestsPattern?: boolean);
-		/** */
-		readonly kind: InfixKind;
-	}
-	/** */
-	export enum InfixKind {
-		faulty = 0,
-		pattern = 1,
-		portability = 2,
-		population = 3
-	}
-	/** */
-	export type ForePatternChunks = (Infix | string)[];
-	/**
-	 * 
-	 */
-	export class Fragmenter {
-		private readonly program;
-		/** */
-		constructor(program: Program);
-		/**
-		 * Updates contents of the Fragmenter to include the
-		 * contents of the specified document.
-		 */
-		private handleDocumentAdded;
-		/**
-		 * Updates contents of the Fragmenter to exclude the
-		 * contents of the specified document.
-		 */
-		private handleDocumentRemoved;
-		/**
-		 * Performs a query on the Fragmenter.
-		 * @returns A Strand, or null in the case
-		 * when the URI specified doesn't map to a populated
-		 * location in the document.
-		 */
-		query(uri: Uri): Strand | null;
-		/** */
-		queryContents(uri: Uri): Strand[];
-		/** */
-		private queryInner;
-		/**
-		 * Translates a declaration-side atom, by collecting it's
-		 * corresponding annotation-side atoms and packaging
-		 * it into a Molecule object.
-		 */
-		private translateAtomToMolecule;
-		/**
-		 * Stores the declarations of the specified statement, and
-		 * all of the declarations in it's descendant statements in
-		 * the internal caches.
-		 * 
-		 * The statement object specified in the storeTarget parameter
-		 * is expected to not be stored in the internal caches.
-		 */
-		private storeStatement;
-		/**
-		 * Removes the fragments associated with the specified span
-		 * from all internal caches.
-		 */
-		private unstoreSpan;
-		/** */
-		private cacheFragment;
-		/** */
-		private uncacheFragment;
-		/**
-		 * A map used to quickly find the fragments associated with a span.
-		 * A separate fragment will exist in the array value for every spine
-		 * ending at the Span key. Naturally, Spans that are directly
-		 * contained by a Document will only ever have one item in it's
-		 * associated fragment array.
-		 * 
-		 * Note that the fragments in the array value may be parented by
-		 * different apexes (meaning Spans or Documents).
-		 * 
-		 * Although provisions are taken to ensure entries in this map are
-		 * all explicitly released, a WeakMap is used in this case instead of
-		 * a traditional Map as a defense measure against unforeseen bugs
-		 * resulting in memory leaks.
-		 */
-		private readonly fragmentFinder;
-		/**
-		 * A map of the Document objects loaded into the system,
-		 * and the top-level fragment objects to which they map.
-		 */
-		private readonly documents;
-		/**
-		 * Converts the contents of the Fragmenter to a string
-		 * representation, useful for testing purposes.
-		 */
-		toString(): string;
-	}
-	/**
-	 * A Strand is essentially an inspectable version of a URI's type
-	 * path. More specifically, it is a type that describes a series of
-	 * objects of the abstract Subject type, that aligns with the
-	 * components of a type URI (the ordering of the entry in the
-	 * map is relevant).
-	 * 
-	 * Each Subject key is related to a set of Span objects that
-	 * represent the points of the document that where discovered
-	 * in relation to each component of the type URI.
-	 */
-	export class Strand {
-		readonly molecules: ReadonlyArray<Molecule>;
-		/** */
-		constructor(molecules: ReadonlyArray<Molecule>);
-		/**
-		 * Creates a string representation of this Strand that
-		 * allows it's contents to be compared with other
-		 * Strand objects with equivalent contents. An example
-		 * of the string format is as follows:
-		 * 
-		 * 	file://path/to/document.truth
-		 * LocalAtom1
-		 * 	ReferencedAtom1
-		 * 	ReferencedAtom2
-		 * LocalAtom2
-		 * 	ReferencedAtom3
-		 * 	ReferencedAtom4
-		 * 
-		 * Future work may include determining whether returning
-		 * this string as an MD5 hash will result in a reduction of
-		 * memory usage.
-		 */
-		toString(): string;
-		/**
-		 * Clones this Strand into a new object, but with the
-		 * specified number of molecules trimmed from the end.
-		 */
-		retract(depth: number): Strand;
-	}
-	/**
-	 * 
-	 */
-	export class Molecule {
-		readonly localAtom: Atom;
-		readonly referencedAtoms: ReadonlyArray<Atom>;
-		constructor(localAtom: Atom, referencedAtoms: ReadonlyArray<Atom>);
-	}
-	/**
-	 * 
-	 */
-	export class Atom {
-		readonly subject: Subject;
-		readonly spans: ReadonlyArray<Span>;
-		constructor(subject: Subject, spans: ReadonlyArray<Span>);
-	}
-	/**
-	 * 
-	 */
-	export class Graph {
+	export class HyperGraph {
 		private readonly program;
 		/**
 		 * Reads a root Node with the specified
 		 * name out of the specified document.
 		 */
-		read(doc: Document, name: string): Node | null;
+		read(document: Document, name: string): Node | null;
+		/**
+		 * @returns An array containing the node objects
+		 * that are defined at the root level of the specified
+		 * document.
+		 */
+		readRoots(document: Document): IterableIterator<Node>;
 		/**
 		 * Handles a document-level exclusion, which is the removal
 		 * of a section of Spans within a document, or possibly the
@@ -2017,49 +2509,46 @@ declare namespace Truth {
 		 * have been loaded into the program, indexed
 		 * by a string representation of it's URI.
 		 */
-		private readonly nodes;
+		private readonly nodeCache;
 		/**
-		 * Stores a GraphTransaction instance in the case when
-		 * the program is under
+		 * Stores a GraphTransaction instance in the case
+		 * when an edit transaction is underway.
 		 */
 		private activeTransactions;
+		/**
+		 * Serializes the Graph into a format suitable
+		 * for debugging and comparing against baselines.
+		 */
+		toString(): string;
 	}
 	/**
 	 * A class that represents a single Node contained within
-	 * the Program's Graph. Nodes are long-lived objects that
-	 * persist between edit frames, and maintain referential
-	 * integrity.
+	 * the Program's Graph. Nodes are long-lived, referentially
+	 * significant objects that persist between edit frames.
 	 * 
 	 * Nodes are connected in a graph not by edges, but by
-	 * "Fans". A Fan is similar to a directed edge in that it has
-	 * a single origin, but differs in that it has multiple destinations.
+	 * HyperEdges. A HyperEdge (from graph theory) is similar
+	 * to a directed edge in that it has a single predecessor,
+	 * but differs in that it has multiple successors.
+	 * 
 	 * It is necessary for Nodes to be connected to each other
 	 * in this way, in order for further phases in the pipeline
-	 * to perform type resolution.
+	 * to execute the various kinds of polymorphic type
+	 * resolution.
 	 */
 	export class Node {
-		/** */
-		private static rootNodes;
-		/** */
-		private addRootNode;
-		/** */
-		private removeRootNode;
-		/** */
-		private getRootNodes;
-		/** */
-		private deleteRootNode;
 		/**
 		 * Removes this Node, and all its contents from the graph.
 		 */
 		dispose(): void;
 		/**
-		 * Removes the specified Fan from this Node's
+		 * Removes the specified HyperEdge from this Node's
 		 * set of outbounds.
 		 * 
-		 * @throws In the case when the specified Fan is
+		 * @throws In the case when the specified HyperEdge is
 		 * not owned by this Node.
 		 */
-		disposeFan(fan: Fan): void;
+		disposeEdge(edge: HyperEdge): void;
 		/** */
 		readonly container: Node | null;
 		/** */
@@ -2073,12 +2562,22 @@ declare namespace Truth {
 		/** */
 		readonly stamp: VersionStamp;
 		/**
-		 * Stores the set of declaration-side Span
-		 * objects that compose this Node.
+		 * Stores the set of declaration-side Span objects that
+		 * compose this Node. If this the size of this set were to
+		 * reach zero, the Node would be marked for deletion.
+		 * (Node cleanup uses a reference counted collection
+		 * mechanism that uses the size of this set as it's guide).
+		 * 
+		 * Note that although the type of this field is defined as
+		 * "Set<Span | Anchor>", in practice, it is either a set of
+		 * multiple Span objects, or a set containing one single
+		 * Anchor object. This is because it's possible to have
+		 * fragments of a type declared in multiple places in
+		 * a document, however, Anchors (which are references
+		 * to declarations within an Infix) can only exist in one
+		 * place.
 		 */
-		readonly spans: Set<Span>;
-		/** */
-		readonly statements: Set<Statement>;
+		readonly declarations: Set<Span | InfixSpan>;
 		/**
 		 * Gets a readonly map of Nodes that are contained
 		 * by this node in the containment hierarchy.
@@ -2091,23 +2590,43 @@ declare namespace Truth {
 		 */
 		readonly adjacents: NodeMap;
 		/**
-		 * Gets an immutable set of Fans from adjacent or
-		 * contained Nodes that reference this Node.
+		 * Gets the names of the identifiers referenced
+		 * as portability targets in the infixes of the Node.
+		 * If the Node's subject is not a pattern, this property
+		 * is an empty array.
+		 */
+		readonly portabilityTargets: string[];
+		/**
+		 * @returns A set of nodes that are matched by
+		 * patterns of adjacent nodes.
+		 * 
+		 * (Note that this is possible because annotations
+		 * that have been applied to a pattern cannot be
+		 * polymorphic)
+		 */
+		getPatternNodesMatching(nodes: Node[]): Node[];
+		/**
+		 * Gets an immutable set of HyperEdges from adjacent
+		 * or contained Nodes that reference this Node.
 		 * 
 		 * (The ordering of outbounds isn't important, as
 		 * they have no physical representation in the
 		 * document, which is why they're stored in a Set
 		 * rather than an array.)
 		 */
-		readonly inbounds: ReadonlySet<Fan>;
+		readonly inbounds: ReadonlySet<HyperEdge>;
 		private readonly _inbounds;
 		/**
-		 * Gets an array of Fans that connect this Node to
+		 * Gets an array of HyperEdges that connect this Node to
 		 * others, being either adjacents, or Nodes that
 		 * exists somewhere in the containment hierarchy.
 		 */
-		readonly outbounds: ReadonlyArray<Fan>;
+		readonly outbounds: ReadonlyArray<HyperEdge>;
 		private readonly _outbounds;
+		/**
+		 * 
+		 */
+		private enumerateOutbounds;
 		/**
 		 * Enumerates upwards through the containment
 		 * hierarchy of the Nodes present in this Node's
@@ -2116,251 +2635,640 @@ declare namespace Truth {
 		 * root level adjacents of each of the document's
 		 * dependencies.
 		 */
-		private enumerateContainment;
+		enumerateContainment(): IterableIterator<{
+			sourceDocument: Document;
+			adjacents: ReadonlyMap<string, Node>;
+			longitudeDelta: number;
+		}>;
+		/**
+		 * Enumerates upwards through the containment
+		 * hierarchy of the Nodes present in this Node's
+		 * containing document, yielding each container
+		 * of this Node.
+		 */
+		enumerateContainers(): IterableIterator<Node>;
 		/** */
-		removeFanSpan(span: Span): void;
+		removeEdgeSource(src: Span | InfixSpan): void;
+		/** */
+		toString(includePath?: boolean): string;
+		/** */
+		private addRootNode;
+		/** */
+		private removeRootNode;
+		/** */
+		private getRootNodes;
+		/** */
+		private static rootNodes;
 	}
 	type NodeMap = ReadonlyMap<string, Node>;
 	/**
-	 * A Fan connects origin Nodes to target Nodes, for a
-	 * specific reason, identified by the "rationale" field.
-	 * 
-	 * Each Fan object is always "owned" by one single Node
-	 * object, however, Nodes have a reference to the Fans
-	 * that are targeting them through their Node.inbounds
-	 * field.
+	 * A HyperEdge connects an origin predecessor Node to a series of
+	 * successor Nodes. From graph theory, a "hyper edge" is different
+	 * from an "edge" in that it can have many successors:
+	 * https://en.wikipedia.org/wiki/Hypergraph
 	 */
-	export class Fan {
+	export class HyperEdge {
 		/**
-		 * Stores a string representation of the subjects
-		 * contained by the spans that this Fan represents.
-		 * In the case when the FanRationale is a sum, the
-		 * field instead stores the raw annotation-side
-		 * content as it appears in the document.
+		 * The Node from where the HyperEdge connection begins.
+		 * For example, given the following document:
+		 * 
+		 * Foo
+		 * 	Bar : Foo
+		 * 
+		 * Two Node objects would be created, one for the first instance
+		 * of "Foo", and another for the instance of "Bar". A HyperEdge
+		 * would be created between "Bar" and "Foo", and it's
+		 * precedessor would refer to the Node representing the
+		 * instance of "Bar".
+		 */
+		readonly predecessor: Node;
+		/**
+		 * Stores all possible success Nodes to which the predecessor
+		 * Node is preemptively connected via this HyperEdge. The
+		 * connection is said to be preemptive, because the connection
+		 * might be ignored during polymorphic name resolution.
+		 */
+		readonly successors: ReadonlyArray<Successor>;
+		constructor(
+		/**
+		 * The Node from where the HyperEdge connection begins.
+		 * For example, given the following document:
+		 * 
+		 * Foo
+		 * 	Bar : Foo
+		 * 
+		 * Two Node objects would be created, one for the first instance
+		 * of "Foo", and another for the instance of "Bar". A HyperEdge
+		 * would be created between "Bar" and "Foo", and it's
+		 * precedessor would refer to the Node representing the
+		 * instance of "Bar".
+		 */
+		predecessor: Node,
+		/**
+		 * 
+		 */
+		source: Span | InfixSpan,
+		/**
+		 * Stores all possible success Nodes to which the predecessor
+		 * Node is preemptively connected via this HyperEdge. The
+		 * connection is said to be preemptive, because the connection
+		 * might be ignored during polymorphic name resolution.
+		 */
+		successors: ReadonlyArray<Successor>);
+		/** */
+		addSource(source: Span | InfixSpan): void;
+		/** */
+		removeSource(source: Span | InfixSpan): void;
+		/** */
+		clearSources(): void;
+		/**
+		 * The set of annotation-side Spans or annotation-side InfixSpans
+		 * that are responsible for the conception of this HyperEdge.
+		 * 
+		 * The original locations of these Spans (and InfixSpans?) are
+		 * potentially scattered across many statements.
+		 * 
+		 * In the case when the *kind* field is *summation*, this set
+		 * must be empty.
+		 */
+		readonly sources: ReadonlyArray<Span | InfixSpan>;
+		/** */
+		private readonly sourcesMutable;
+		/**
+		 * The textual value of an Edge represents different things
+		 * depending on the Edge's *kind* property.
+		 * 
+		 * If *kind* is *literal*, the textual value is the given name
+		 * of the type being referenced, for example "String" or
+		 * "Employee".
+		 * 
+		 * If *kind* is *categorical*, the textual value is an alias that
+		 * will later be resolved to a specific type, or set of types, for
+		 * example "10cm" (presumably resolving to "Unit") or
+		 * "user@email.com" (presumable resolving to "Email").
+		 * 
+		 * If *kind* is *summation* , the textual value is the raw
+		 * literal text of the annotation found in the document. For
+		 * example, if the document had the content:
+		 * 
+		 * Foo, Bar : foo, bar
+		 * 
+		 * This would result in two nodes named "Foo" and "Bar",
+		 * each with their own HyperEdges whose textual values
+		 * would both be: "foo, bar". In the case of a fragmented
+		 * type, the last sum in document order is counted as the
+		 * textual value. For example, given the following
+		 * document:
+		 * 
+		 * T : aa, bb
+		 * T : xx, yy
+		 * 
+		 * The "T" node would have a HyperEdge with a textual
+		 * value being "xx, yy".
+		 * 
+		 * The *-overlay kinds have not yet been implemented.
+		 */
+		readonly identifier: Identifier;
+		/**
+		 * @returns A string representation of this HyperEdge,
+		 * suitable for debugging and testing purposes.
+		 */
+		toString(): string;
+	}
+	/**
+	 * 
+	 */
+	export class Successor {
+		readonly node: Node;
+		/**
+		 * The the number of levels of depth in the containment
+		 * hierarchy that need to be crossed in order for the containing
+		 * HyperEdge to be established between the predecessor and
+		 * this successor.
+		 */
+		readonly longitude: number;
+		constructor(node: Node,
+		/**
+		 * The the number of levels of depth in the containment
+		 * hierarchy that need to be crossed in order for the containing
+		 * HyperEdge to be established between the predecessor and
+		 * this successor.
+		 */
+		longitude: number);
+		readonly stamp: VersionStamp;
+	}
+	/**
+	 * A class that marks out the location of an infix Identifer within
+	 * it's containing Infix, it's containing Span, and then it's containing
+	 * Statement, Document, and Program.
+	 */
+	export class InfixSpan {
+		readonly containingSpan: Span;
+		readonly containingInfix: Infix;
+		readonly boundary: Boundary<Identifier>;
+		constructor(containingSpan: Span, containingInfix: Infix, boundary: Boundary<Identifier>);
+		/**
+		 * Gets the Statement that contains this Anchor.
+		 */
+		readonly statement: Statement;
+		/**
+		 * Gets a boolean value that indicates whether this InfixSpan
+		 * is considered object-level cruft, and should therefore be
+		 * ignored during type analysis.
+		 */
+		readonly isCruft: boolean;
+	}
+	/**
+	 * A class that stores constructed Layers.
+	 */
+	export class LayerContext {
+		private readonly program;
+		/** */
+		constructor(program: Program);
+		/**
+		 * Retrieves the Layer that corresponds to the specified URI.
+		 * If a corresponding Layer has not already been constructed
+		 * in this context, a new one is constructed and returned.
+		 */
+		maybeConstruct(directive: Uri): Layer | null;
+		/**
+		 * 
+		 */
+		getParallelOf(node: Node): SpecifiedParallel | null;
+		/**
+		 * Enumerates through the faults that have been
+		 * generated within this LayerContext.
+		 */
+		eachFault(): IterableIterator<Fault<TFaultSource>>;
+		/**
+		 * Gets a map of objects that should each be converted
+		 * into a type, which are indexed by a string representation
+		 * of the associated type URI. Each object translates into
+		 * another component specified in the type URI provided
+		 * in the constructor of this object.
+		 */
+		readonly layers: ReadonlyMap<string, Layer | null>;
+		private _layers;
+		/** */
+		addCruft(cruftObject: TCruft): void;
+		/** */
+		isCruft(cruftObject: TCruft): boolean;
+		/** */
+		private readonly cruft;
+		/**
+		 * Safety enumerates through the successors of the
+		 * specified Node, carefully avoiding anything that
+		 * has been marked as cruft.
+		 */
+		eachSuccessorOf(node: Node): IterableIterator<Successor>;
+		/**
+		 * @returns The successor object contained within the
+		 * specified HyperEdge that has previously been resolved
+		 * according to the polymorphic name resolution rules.
+		 */
+		pickSuccessor(hyperEdge: HyperEdge): Successor | null;
+		/**
+		 * Executes the polymorphic name resolution strategy,
+		 * and stores the results in the specified ConstructionContext
+		 * object.
+		 * 
+		 * The method assumes that the edges of the specified
+		 * parallel, and all it's edges (nested deeply) have already
+		 * been resolved.
+		 */
+		resolveSuccessors(parallel: SpecifiedParallel): void;
+		/** */
+		private readonly selectedSuccessors;
+	}
+	/** */
+	type TCruft = Node | HyperEdge | Span | InfixSpan;
+	/**
+	 * A Layer is a graph of Parallel objects that represents a
+	 * complete level in a URI.
+	 */
+	export class Layer {
+		readonly container: Layer | null;
+		readonly uri: Uri;
+		private readonly context;
+		/** */
+		constructor(container: Layer | null, uri: Uri, context: LayerContext);
+		/**
+		 * Stores a string representation of the Layer,
+		 * useful for debugging purposes.
 		 */
 		readonly name: string;
-		/** */
-		readonly origin: Node;
 		/**
-		 * Gets an array containing the Nodes to which the origin is
-		 * connected. If the array is empty, the Fan is technically
-		 */
-		readonly targets: ReadonlyArray<Node>;
-		private readonly _targets;
-		/** */
-		readonly rationale: FanRationale;
-		private _rationale;
-		/**
-		 * Gets an array of annotation-side Span objects that compose
-		 * the Fan. In the case when the "rationale" of this Fan is "patternSum",
-		 * this array is composed of a complete set of spans on the annotation
-		 * side of a single statement. In other cases, the array is composed of
-		 * Spans potentially scattered throughout the document across many
-		 * statements.
-		 */
-		readonly spans: Set<Span>;
-	}
-	/**
-	 * An enumeration that describes why a Fan was
-	 * created to connect a Node to a series of others.
-	 */
-	export enum FanRationale {
-		/**
-		 * Indicates that the Fan was created, but doesn't
-		 * actually connect anything, due to an inability
-		 * to resolve an annotation to a meaningful place
-		 * in the document.
-		 */
-		orphan = 0,
-		/**
-		 * Indicates that the Fan was created to connect
-		 * an origin Node to other Nodes through a type
-		 * relationship (meaning an exact name match).
-		 */
-		type = 1,
-		/**
-		 * Indicates that the Fan was created to connect
-		 * an origin Node to other Nodes through a pattern
-		 * with the coexistence flag set.
-		 */
-		pattern = 2,
-		/**
-		 * Indicates that the Fan was created to connect
-		 * and origin Node to other Nodes through a "sum"
-		 * pattern (a pattern without the coexistence flag set).
+		 * Initializes a top-level Layer. This method is used instead
+		 * of .descend() for top-level Layer construction.
 		 * 
-		 * A Sum is a serialized representation of a series of annotations
-		 * that are all present within a single statement. It is used to handle
-		 * the case that given a statement in the form "A : B, C, D", the
-		 * annotation "B, C, D" may actually be matchable by a pattern
-		 * without a coexistence flag. Sums allow these potential matches
-		 * to be processed more easily.
+		 * @throws In the case when the specified Node instance
+		 * has a non-null container (and therefore, is not top level).
 		 */
-		sum = 3
-	}
-	/**
-	 * 
-	 */
-	export class Pattern {
-		/** */
-		constructor();
-		/** */
-		readonly compiledExpression: RegExp;
-		/** */
-		readonly ast: Object;
+		bootstrap(node: Node): void;
 		/**
-		 * Stores a boolean value indicating whether the pattern
-		 * can match individual blocks of content on the annotation
-		 * side of a statement (separated by commas), or whether
-		 * the pattern must match all annotation-side content in a
-		 * statement.
+		 * Maps this Parallel, and all it's connected Parallels, to the type
+		 * in each of their contents with the specified name.
 		 */
-		readonly canCoexist = false;
-		/** Necessary? */
-		readonly canMatchEmpty = false;
-		/** Necessary? */
-		readonly canMatchWhitespace = false;
-	}
-	/**
-	 * 
-	 */
-	export enum PatternComparisonResult {
-		/** */
-		subset = 0,
-		/** */
-		superset = 1,
-		/** */
-		equal = 2,
-		/** */
-		unequal = 3
-	}
-	/**
-	 * 
-	 */
-	export abstract class Alias {
-		/** */
-		abstract readonly span: Span;
+		descend(typeName: string): Layer | null;
 		/**
-		 * Stores an array of Patterns that match this alias.
+		 * Traverses through the entire graph of Parallels that correspond
+		 * to this Layer.
 		 */
-		abstract readonly recognizers: ReadonlyArray<Pattern>;
-	}
-	/**
-	 * 
-	 */
-	export class Waterfall {
-		/** */
-		static create(directiveUri: Uri, program: Program): Waterfall | null;
-		/** */
-		readonly origin: Turn;
-		/** */
-		readonly directive: ReadonlyArray<Turn>;
+		traverseLayer(): IterableIterator<LayerEdge>;
 		/**
-		 * @returns The number of terraces in the underlying
-		 * waterfall. Used to quickly determine if a URI was directed
-		 * at an unpopulated location in a document.
+		 * Performs a traversal on all nested Parallel objects in dependency
+		 * order, and yields an object that forms an edge that represents
+		 * a connection between two Parallel objects.
 		 */
-		readonly totalHeight: number;
+		traverseParallelEdges(): IterableIterator<{
+			from: Parallel | null;
+			to: Parallel;
+		}>;
 		/**
-		 * Stores an array of faults that were generated before the
-		 * Waterfall was constructed.
+		 * Performs a traversal of all nested Parallel objects in dependency
+		 * order, meaning, the method does not yield Parallel objects until
+		 * all its dependencies have also been yielded. The method also
+		 * ensures that the same object is not yielded more than once.
 		 */
-		readonly constructionFaults: ReadonlyArray<Fault>;
+		traverseParallels(): IterableIterator<Parallel>;
 		/**
-		 * Reads a full terrace from the waterfall, from the specified
-		 * URI.
+		 * Gets an array containing the Parallels that "seed" this
+		 * Layer, meaning that they have no inbound edges.
+		 */
+		readonly seeds: ReadonlyArray<Parallel>;
+		private readonly _seeds;
+		/**
+		 * Gets the origin seed Parallel of this Layer, if one exists,
+		 * or null in the case when it doesn't.
 		 * 
-		 * @throws If the URI has typePath that is not a strict subset
-		 * of this Waterfall's directive.
+		 * The orgin seed is available when there is exactly one
+		 * SpecifiedParallel that seeds the Layer. This is the case
+		 * when the LayerContext has been instructed to construct
+		 * a URI pointing to a specific node.
 		 */
-		readTerrace(uri: Uri): ReadonlyArray<Turn | undefined>;
-		/** */
-		readFloorTerrace(): never[];
-		/** */
-		walk(): WaterfallWalker;
+		readonly origin: SpecifiedParallel | null;
+		/**
+		 * Gets an array of
+		 */
+		readonly patterns: LayerPatterns;
+		private _patterns;
+	}
+	/** */
+	export interface LayerEdge {
+		fromParallel: Parallel | null;
+		fromNode: Node | null;
+		toParallel: Parallel;
+		toNode: Node | null;
 	}
 	/**
-	 * A class that acts as a cursor for walking around a Waterfall
-	 * instance. Note that the WaterfallWalker does, indeed, walk
-	 * on water.
+	 * Stores the information that relates to the Patterns that
+	 * have been defined within a single Layer.
 	 */
-	export class WaterfallWalker {
-		private readonly waterfall;
-		constructor(waterfall: Waterfall);
+	export class LayerPatterns {
+		private readonly layer;
 		/** */
-		plunge(): Turn | null;
+		constructor(layer: Layer);
+		/**
+		 * Stores the nodes that define patterns.
+		 */
+		readonly nodes: Node[];
+		/**
+		 * @returns The node that defines a pattern that is generalized
+		 * by the type that corresponds to the specified set of nodes.
+		 */
+		find(resolvingTo: Node[]): Node | null;
+		/**
+		 * Attempts to feed the specified string into all of the
+		 * patterns that are defined within this LayerPatterns
+		 * instance.
+		 * 
+		 * @param filterByNodes If specified, only the pattern
+		 * that is generalized by the types that correspond to
+		 * the nodes contained in the array.
+		 */
+		tryExecute(maybeAlias: string, filterByNodes?: Node[]): Node | null;
+	}
+	/**
+	 * A class that represents a single object in the graph
+	 * of (what eventually becomes) parallel types. Parallel
+	 * objects link to other Parallel objects through ParallelEdge
+	 * classes, which allow consumers to scan through the
+	 * parallels that relate to a specific Node.
+	 * 
+	 * Parallels can either be "specified" or "unspecified".
+	 * This class represents the "unspecified" variant,
+	 * where as the derived class "SpecifiedParallel" represents
+	 * the former.
+	 */
+	export abstract class Parallel {
+		readonly uri: Uri;
+		readonly container: Parallel | null;
+		protected readonly context: LayerContext;
+		/**
+		 * @returns A Parallel object that was previously constructed
+		 * within the specified LayerContext, that matches the specified
+		 * URI, or null in the case when no such Parallel exists.
+		 */
+		protected static getExistingParallel(uri: Uri, context: LayerContext): Parallel | null;
+		/**
+		 * Stores a map of all the Parallel objects that have been
+		 * created for each LayerContext. The purpose of this is
+		 * to prevent the two separate Parallel instances from
+		 * being created that correspond to the same Node.
+		 */
+		protected static readonly constructedParallels: WeakMap<LayerContext, Map<string, Parallel>>;
 		/** */
-		canPlunge(): boolean;
+		protected constructor(uri: Uri, container: Parallel | null, context: LayerContext);
+		readonly version: VersionStamp;
+		/**
+		 * Stores a string representation of this Parallel,
+		 * useful for debugging purposes.
+		 */
+		readonly name: string;
+		/**
+		 * Stores an array of other Parallel instances to which
+		 * this Parallel connects. For example, the following
+		 * document, the Parallel object corresponding to the
+		 * last "Field" would have two edges, pointing to two
+		 * other Parallel instances corresponding to the "Field"
+		 * declarations contained by "Left" and "Right".
+		 * 
+		 * Left
+		 * 	Field
+		 * Right
+		 * 	Field
+		 * Bottom : Left, Right
+		 * 	Field
+		 */
+		readonly edges: ReadonlyArray<Parallel>;
+		private readonly _edges;
+		/**
+		 * Adds an edge between this Parallel instance and
+		 * the instance specified, if an equivalent edge does
+		 * not already exist.
+		 */
+		maybeAddEdge(toParallel: Parallel): void;
+		/**
+		 * Performs a depth-first traversal of all nested Parallel instances,
+		 * and yields each one (this Parallel instance is excluded).
+		 */
+		traverseParallels(): IterableIterator<Parallel>;
+		/**
+		 * Performs a depth-first traversal of all nested SpecifiedParallel
+		 * instances, and yields each one (this Parallel instance is excluded).
+		 */
+		traverseParallelsSpecified(): IterableIterator<SpecifiedParallel>;
 		/** */
-		flow(): Turn | null;
-		/** */
-		canFlow(): boolean;
+		abstract descend(typeName: string): Parallel;
 	}
 	/**
 	 * 
 	 */
-	interface IMutableTurn {
+	export class SpecifiedParallel extends Parallel {
 		/**
-		 * Indicates whether this Turn terminates the flow of it's ledge.
+		 * Constructs a SpecifiedParallel object, or returns a
+		 * pre-existing one that corresponds to the specified Node.
 		 */
-		terminal: boolean;
+		static maybeConstruct(node: Node, container: SpecifiedParallel | null, context: LayerContext): Parallel;
+		/** */
+		private constructor();
 		/**
-		 * Stores the array of Node objects that correspond to this turn.
+		 * Stores the Node instance that corresponds to this
+		 * SpecifiedParallel instance.
 		 */
-		nodes: Node[];
+		readonly node: Node;
+		/**
+		 * Traverses through the general graph, depth-first, yielding
+		 * elements that corresponds to this parallel, and returns an
+		 * object that represents an edge that connects one node.
+		 */
+		traverseGeneralEdges(): IterableIterator<{
+			from: Node;
+			to: Node;
+		}>;
+		/**
+		 * @ignore
+		 * 
+		 * Traverses through the general edge graph, and yields
+		 * the parallel that corresponds to each discovered node,
+		 * as well as the successor attached to this SpecifiedParallel
+		 * instance through which the corresponding SpecifiedParallel
+		 * was discovered.
+		 */
+		/**
+		 * @ignore
+		 * 
+		 * Same as traverseGeneralEdgeParallels, but returns a map
+		 * with the results instead of yielding individual results.
+		 */
+		getGeneralEdgeParallelSet(): Map<Successor, ReadonlyArray<Parallel>>;
+		/**
+		 * 
+		 */
+		/**
+		 * Analyzes this SpecifiedParallel to scan for the following faults:
+		 * 	CircularTypeReference
+		 * 	ListIntrinsicExtendingList
+		 * 	ListExtrinsicExtendingNonList
+		 * 	ListDimensionalDiscrepancyFault
+		 * 	IgnoredAnnotation
+		 * 	UnresolvedAnnotationFault
+		 * 
+		 * This method may mark various parts of the document as cruft.
+		 * It also computes the existence of the parallel (which is a term
+		 * we're using to describe the set of annotations that have been
+		 * applied to a type).
+		 * 
+		 * This method also assumes that it's being called only after all
+		 * it's higher Parallels (i.e. Parallels that exist higher than this
+		 * one in the Layer) have been analyzed.
+		 * 
+		 * @deprecated
+		 */
+		analyze(): void;
+		/**
+		 * Maps this Parallel instance to another Parallel instance
+		 * that corresponds to a Node in this Parallel's underlying
+		 * Node's contents.
+		 */
+		descend(typeName: string): Parallel;
+		/** */
+		readonly existence: ReadonlyArray<Node>;
+		private _existence;
+		/**
+		 * Gets a string that represents the existence of this
+		 * SpecifiedParallel instance, useful for debugging.
+		 */
+		private readonly existenceLabel;
+		/** */
+		readonly listDimensionality: number;
+		private _listDimensionality;
+		/** */
+		readonly isList: boolean;
+		private _isList;
+		/**
+		 * Gets an array that contains the faults that have been
+		 * identified during the lifecycle of this construction context.
+		 */
+		readonly faults: ReadonlyArray<Fault<TFaultSource>>;
+		private readonly _faults;
 	}
-	export type Turn = Freeze<IMutableTurn>;
+	/**
+	 * An "unspecified parallel" is a marker object used to
+	 * maintain the connectedness of a parallel graph. For
+	 * example, consider the following document:
+	 * 
+	 * Class1
+	 * 	Property : Animal
+	 * Class2 : Class1
+	 * Class3 : Class2
+	 * 	Property : Rabbit
+	 * 
+	 * In this case, the parallel graph connecting Class3's
+	 * Property type through to it's apex parallel (which
+	 * would be Class1/Property), would have an
+	 * UnspecifiedParallel object created, and residing
+	 * within the Class2 type.
+	 * 
+	 * UnspecifiedParallels were originally intended for
+	 * use by the type representation in order to perform
+	 * operations such as collecting specified and unspecified
+	 * adjacent types, however, it appears now that this
+	 * may not be sufficient given the current design of the
+	 * system.
+	 */
+	export class UnspecifiedParallel extends Parallel {
+		/**
+		 * Constructs a UnspecifiedParallel object, or returns a
+		 * pre-existing one that corresponds to the specified Node.
+		 */
+		static maybeConstruct(uri: Uri, container: Parallel, context: LayerContext): Parallel;
+		/** */
+		private constructor();
+		/** */
+		descend(typeName: string): UnspecifiedParallel;
+	}
+	/**
+	 * 
+	 */
+	export class ParallelAnalyzer {
+		/** */
+		private static isList;
+		/**
+		 * Performs analysis
+		 */
+		private static canMerge;
+		/** */
+		private constructor();
+	}
 	/**
 	 * A class that represents a fully constructed type within the program.
 	 */
 	export class Type {
 		static construct(spine: Spine, program: Program): Type;
 		/** */
-		constructor();
+		private static layerContextMap;
 		/**
 		 * 
 		 */
-		constructAdjacents(): never[];
-		/**
-		 * 
-		 */
-		constructContents(): Type[];
-		/**
-		 * Attempts to match the specified string against the
-		 * Patterns that resolve to this type. If this type is a pattern,
-		 * the input is tested against the inner regular expression.
-		 */
-		tryMatch(input: string): boolean;
-		/**
-		 * Stores the Waterfall diagram used to construct this type.
-		 */
-		private readonly waterfall;
+		private constructor();
 		/**
 		 * Stores a text representation of the name of the type,
 		 * or a serialized version of the pattern content in the
 		 * case when the type is actually a pattern.
 		 */
 		readonly name: string;
-		/** */
-		readonly container: Type;
+		/**
+		 * Stores the URI that specifies where this Type was
+		 * found in the document.
+		 */
+		readonly uri: Uri;
+		/**
+		 * Stores a reference to the type, as it's defined in it's
+		 * next most applicable
+		 */
+		readonly parallels: ReadonlyArray<Type>;
+		/**
+		 * Stores the Type that contains this Type, or null in
+		 * the case when this Type is top-level.
+		 */
+		readonly container: Type | null;
+		/**
+		 * 
+		 */
+		readonly contents: ReadonlyArray<Type>;
+		/**
+		 * 
+		 */
+		readonly contentsIntrinsic: ReadonlyArray<Type>;
 		/**
 		 * Stores the array of types from which this type extends.
 		 * If this Type extends from a pattern, it is included in this
 		 * array.
 		 */
-		readonly bases: ReadonlyArray<Type>;
+		readonly generals: ReadonlyArray<Type>;
 		/**
-		 * Stores the array of annotations attached to this Type
-		 * that were resolved as type aliases through a Pattern.
+		 * 
 		 */
-		readonly aliases: ReadonlyArray<Alias>;
+		readonly metaphors: ReadonlyArray<Type>;
 		/**
-		 * Stores a reference to the intrinsic side of the list when
-		 * this type represents the extrinsic side of a list, or vice
-		 * versa.
-		 * Stores null in the case when the type is not a list.
+		 * 
 		 */
-		readonly listPortal: Type | null;
+		readonly specifics: ReadonlyArray<Type>;
+		/**
+		 * 
+		 */
+		readonly adjacents: ReadonlyArray<Type>;
+		/**
+		 * 
+		 */
+		readonly patterns: ReadonlyArray<Type>;
+		/**
+		 * Gets a map of raw string values representing the
+		 * type aliases with which this type has been annotated,
+		 * which are keyed by the type to which they resolve.
+		 */
+		readonly values: Map<any, any> | ReadonlyMap<Type, string>;
 		/**
 		 * Stores whether this type represents the intrinsic
 		 * side of a list.
@@ -2372,21 +3280,36 @@ declare namespace Truth {
 		 */
 		readonly isListExtrinsic: boolean;
 		/**
-		 * Stores whether the bases explicitly assigned to
-		 * this type are compliant with the requirements
-		 * imposed on this type from it's inheritance source.
+		 * Stores whether this Type instance has no annotations applied to it.
 		 */
-		readonly isContractuallyCompliant: boolean;
-		/** */
 		readonly isFresh: boolean;
 		/** */
 		readonly isOverride: boolean;
 		/** */
+		readonly isIntroduction: boolean;
+		/**
+		 * Stores a value that indicates if this Type was directly specified
+		 * in the document, or if it's existence was inferred.
+		 */
+		readonly isSpecified: boolean;
+		/** */
 		readonly isAnonymous: boolean;
 		/** */
-		readonly inCircularGroup: boolean;
-		/** */
 		readonly isPattern: boolean;
+		/** */
+		readonly isUri: boolean;
+		/** */
+		readonly isList: boolean;
+		/**
+		 * Gets a boolean value that indicates whether this Type
+		 * instance was created from a previous edit frame, and
+		 * should no longer be used.
+		 */
+		readonly isDirty: boolean;
+		/**
+		 * 
+		 */
+		readonly faults: ReadonlyArray<Fault>;
 	}
 }
 
@@ -2399,9 +3322,13 @@ declare module "truth-compiler" {
 		/**
 		 * Calculates a numeric CRC from the specified string, and returns the
 		 * code as a 4-character ASCII byte string.
-		 * @param seed A starting seed value, used in the case of a rolling CRC.
 		 */
-		static calculate(text: string, seed?: number): string;
+		static calculate(text: string): string;
+		/**
+		 * Calculates a numeric CRC from the specified string, and returns the
+		 * code as a 4-number byte array.
+		 */
+		static calculate(text: string, type: typeof Number): number[];
 	}
 	/**
 	 * A class that provides various higher-order functions
@@ -2409,39 +3336,154 @@ declare module "truth-compiler" {
 	 */
 	export abstract class HigherOrder {
 		/**
-		 * @returns The specified array.
-		 * @throws An exception in the case when the array contains
-		 * null or undefined items.
-		 */
-		static throwOnNullable<T>(array: Array<T>): Array<NonNullable<T>>;
-		/**
-		 * @returns The specified array, but with null and undefined
-		 * items removed.
-		 */
-		static filterNullable<T>(array: Array<T>): Array<NonNullable<T>>;
-		/**
-		 * 
-		 */
-		static subtractMap<K, V>(positive: Map<K, V>, negative: Map<K, V>): void;
-		/**
-		 * 
-		 */
-		static applySymmetricDifference<K, V>(left: Map<K, V>, right: Map<K, V>): void;
-		/**
-		 * Prunes elements from the specified array
-		 * that match the specified predicate.
-		 */
-		static prune<T>(array: Array<T>, predicate: (item: T, index: number) => boolean): T[];
-		/**
 		 * @returns A readonly copy of the specified array, set, or list.
 		 */
 		static copy<T>(array: ReadonlyArray<T>): ReadonlyArray<T>;
 		static copy<T>(set: ReadonlySet<T>): ReadonlySet<T>;
 		static copy<K, V>(map: ReadonlyMap<K, V>): ReadonlyMap<K, V>;
+		private constructor();
+	}
+	/**
+	 * Utility class for performing basic guarding.
+	 */
+	export class Guard {
 		/** */
-		static map<T, R>(set: ReadonlySet<T>, fn: (item: T) => R): Set<R>;
+		static notNull<T>(param: T): NotNull<T>;
 		/** */
-		static distinct<T>(array: Array<T>): ReadonlyArray<T>;
+		static defined<T>(param: T): NotUndefined<T>;
+		/** */
+		static nullable<T>(param: T): NotNull<T> | NotUndefined<T>;
+	}
+	type NotNull<T> = T extends null ? never : T;
+	type NotUndefined<T> = T extends undefined ? never : T;
+	/**
+	 * A general parsing utility class that provides consumption
+	 * methods that operate over a given input.
+	 */
+	export class Parser {
+		/**
+		 * Constructs a new Parser object that operates over
+		 * the specified input string, optionally starting at the
+		 * specified position.
+		 */
+		constructor(input: string);
+		/**
+		 * Attempts to read the specified token immediately
+		 * following the cursor.
+		 * 
+		 * @returns The content read. In the case when no
+		 * match could be found, an empty string is returned.
+		 */
+		read(token?: string): string;
+		/**
+		 * Reads any whitespace characters and floating
+		 * escape characters.
+		 * 
+		 * @returns The number of whitespace characters
+		 * read.
+		 */
+		readWhitespace(): number;
+		/**
+		 * Attempts to read a single stream-level grapheme from the
+		 * parse stream, using unicode-aware extraction method.
+		 * If the parse stream specifies a unicode escape sequence,
+		 * such as \uFFFF, these are seen as 6 individual graphemes.
+		 * 
+		 * @returns The read grapheme, or an empty string in the case
+		 * when there is no more content in the parse stream.
+		 */
+		readGrapheme(): string;
+		/**
+		 * Reads graphemes from the parse stream, until either
+		 * the cursor reaches one of the specified quit tokens,
+		 * or the parse stream terminates.
+		 */
+		readUntil(...quitTokens: string[]): string;
+		/**
+		 * Attempts to read the specified token from the parse stream,
+		 * if and only if it's at the end of the parse stream.
+		 */
+		readThenTerminal(token: string): string;
+		/**
+		 * @returns A boolean value that indicates whether the
+		 * specified string exists immediately at the position of
+		 * the cursor.
+		 */
+		peek(token: string): boolean;
+		/**
+		 * @returns A boolean value that indicates whether the
+		 * specified string exists immediately at the position of
+		 * the cursor, and following this token is the end of the
+		 * parse stream.
+		 */
+		peekThenTerminal(token: string): boolean;
+		/**
+		 * @returns A boolean value that indicates whether
+		 * there are more characters to read in the input.
+		 */
+		more(): boolean;
+		/**
+		 * Gets or sets the position of the cursor from where
+		 * reading takes place in the cursor.
+		 */
+		position: number;
+		private _position;
+		/** */
+		private readonly input;
+		/**
+		 * 
+		 */
+		private atRealBackslash;
+		/**
+		 * @deprecated
+		 * @returns A boolean value that indicates whether an
+		 * escape character exists behind the current character.
+		 * The algorithm used is respective of sequences of
+		 * multiple escape characters.
+		 */
+		private escaped;
+	}
+	/**
+	 * Stores the maximum character code in the unicode set.
+	 */
+	export const UnicodeMax = 65536;
+	/**
+	 * Stores a map of the names of all unicode blocks,
+	 * and their character ranges.
+	 */
+	export const UnicodeBlocks: Readonly<Map<string, [number, number]>>;
+	/**
+	 * Stores unsorted general utility methods.
+	 */
+	export class Misc {
+		/**
+		 * Counts incrementally through numbers, using the specified
+		 * radix sequence. For example, if the radixes [2, 2, 2] were to
+		 * be specified, this would result in binary counting starting at
+		 * [0, 0, 0] and ending at [1, 1, 1].
+		 */
+		static variableRadixCounter(radixes: number[]): IterableIterator<number[]>;
+		/**
+		 * 
+		 */
+		static calculatePowerset<T>(array: T[]): T[][];
+		/**
+		 * @returns Whether the items of the first set object form
+		 * a subset (not a proper subset) of the items of the second
+		 * set.
+		 */
+		static isSubset(sourceSet: ReadonlySet<any>, possibleSubset: ReadonlySet<any>): boolean;
+		/**
+		 * @returns Whether the items of the first set object form
+		 * a superset (not a proper superset) of the items of the
+		 * second set.
+		 */
+		static isSuperset(sourceSet: ReadonlySet<any>, possibleSuperset: ReadonlySet<any>): boolean;
+		/**
+		 * @returns The number of items that are missing
+		 * from the second set that exist in the first set.
+		 */
+		static computeSubsetFactor(a: ReadonlyArray<any>, b: ReadonlyArray<any>): number;
 		private constructor();
 	}
 	/**
@@ -2466,12 +3508,15 @@ declare module "truth-compiler" {
 		/**  */
 		readonly faults: FaultService;
 		/** */
+		readonly version: VersionStamp;
+		private _version;
+		/** */
 		private readonly indentCheckService;
 		/**
 		 * Stores an object that allows type analysis to be performed on
 		 * this Program. It is reset at the beginning of every edit cycle.
 		 */
-		private lastProgramScanner;
+		private currentProgramScanner;
 		/**
 		 * Performs a full verification of all documents loaded into the program.
 		 * This Program's .faults field is populated with any faults generated as
@@ -2482,6 +3527,23 @@ declare module "truth-compiler" {
 		 * have been defined in this program.
 		 */
 		scan(): ProgramScanner;
+		/**
+		 * @returns A fully constructed Type instance that corresponds to
+		 * the type path specified. In the case when no type could be found
+		 * at the specified location, null is returned.
+		 * 
+		 * @param document An instance of a Document that specifies
+		 * where to begin the query.
+		 * 
+		 * @param typePath The type path to query within the the specified
+		 * Document.
+		 */
+		query(document: Document, ...typePath: string[]): Type | null;
+		/**
+		 * @returns An array that contains the root-level types defined
+		 * in the specified Document.
+		 */
+		queryRoots(document: Document): ReadonlyArray<Type>;
 		/**
 		 * Begin inspecting a document loaded
 		 * into this program, a specific location.
@@ -2494,9 +3556,12 @@ declare module "truth-compiler" {
 	export class ProgramInspectionResult {
 		/**
 		 * Stores the compilation object that most closely represents
-		 * what was found at the specified location.
+		 * what was found at the specified location. Stores null in the
+		 * case when the specified location contains an object that
+		 * has been marked as cruft (the statement and span fields
+		 * are still populated in this case).
 		 */
-		readonly result: Document | Type[] | Alias | null;
+		readonly result: Document | Type[] | null;
 		/**
 		 * Stores the Statement found at the specified location.
 		 */
@@ -2813,14 +3878,18 @@ declare module "truth-compiler" {
 	export type HookTypesInstance = {
 		[P in keyof typeof HookTypes]: Readonly<InstanceType<typeof HookTypes[P]>>;
 	};
-	/** */
+	/**
+	 * An enumeration that lists all availble protocols
+	 * supported by the system. The list can be enumerated
+	 * via Uri.eachProtocol()
+	 */
 	export enum UriProtocol {
-		none = 0,
-		file = 1,
-		https = 2,
-		http = 3,
-		internal = 4,
-		unsupported = 5
+		none = "",
+		unknown = "?",
+		file = "file:",
+		https = "https:",
+		http = "http:",
+		internal = "system-internal:"
 	}
 	/**
 	 * A class that represents a Truth URI.
@@ -2841,19 +3910,6 @@ declare module "truth-compiler" {
 		 */
 		readonly fileName: string;
 		/**
-		 * Stores the base file name specified in the URI.
-		 * For example, for the URI path/to/dir/file.ext, base would
-		 * be the string "file". If the URI does not contain a file
-		 * name, the field is an empty string.
-		 */
-		readonly fileNameBase: string;
-		/**
-		 * Stores the extension of the file specified in the URI,
-		 * without the dot character. If the URI does not contain
-		 * a file name, the field is an empty string.
-		 */
-		readonly fileExtension: string;
-		/**
 		 * Stores the fully qualified path to the file, and the file
 		 * name itself, but without any protocol.
 		 */
@@ -2863,7 +3919,11 @@ declare module "truth-compiler" {
 		 */
 		readonly typePath: ReadonlyArray<string>;
 		/**
-		 * 
+		 * Enumerates through the list of available
+		 * protocols supported by the system.
+		 */
+		static eachProtocol(): IterableIterator<UriProtocol>;
+		/**
 		 * @param uriText A string containing the URI to parse
 		 * @param relativeFallback A URI that identifies the origin
 		 * of the URI being parsed, used in the case when the
@@ -2873,10 +3933,10 @@ declare module "truth-compiler" {
 		/**
 		 * Creates a new Uri from the specified input.
 		 * 
-		 * @param from If the parameter is omited, a unique internal
-		 * URI is generated.
+		 * @param from If the parameter is omited,
+		 * a unique internal URI is generated.
 		 */
-		static create(from?: Spine | Strand | Uri): Uri;
+		static create(from?: Spine | Uri): Uri;
 		/** */
 		protected constructor(
 		/**
@@ -2887,19 +3947,6 @@ declare module "truth-compiler" {
 		 * Stores the file name specified in the URI, if one exists.
 		 */
 		fileName: string,
-		/**
-		 * Stores the base file name specified in the URI.
-		 * For example, for the URI path/to/dir/file.ext, base would
-		 * be the string "file". If the URI does not contain a file
-		 * name, the field is an empty string.
-		 */
-		fileNameBase: string,
-		/**
-		 * Stores the extension of the file specified in the URI,
-		 * without the dot character. If the URI does not contain
-		 * a file name, the field is an empty string.
-		 */
-		fileExtension: string,
 		/**
 		 * Stores the fully qualified path to the file, and the file
 		 * name itself, but without any protocol.
@@ -2922,7 +3969,7 @@ declare module "truth-compiler" {
 		/**
 		 * @returns A value indicating whether two URIs point to the same resource.
 		 */
-		equals(uri: Uri | string): boolean;
+		equals(uri: Uri | string, compareTypePaths?: boolean): boolean;
 		/**
 		 * Creates a new Uri, whose typePath and ioPath
 		 * fields are retracted by the specified levels of
@@ -2963,13 +4010,93 @@ declare module "truth-compiler" {
 		combinator = ",",
 		joint = ":",
 		list = "...",
-		patternDelimiter = "/",
-		infixStart = "<",
-		infixEnd = ">",
 		escapeChar = "\\",
-		comment = "// ",
+		comment = "//",
+		typePathSeparator = "//",
 		truthExtension = "truth",
 		agentExtension = "js"
+	}
+	/**
+	 * An enumeration that stores the escape sequences
+	 * that only match a single kind of character. "Sign" in
+	 * this case refers to the fact that these are escape
+	 * sequences that refer to another character.
+	 */
+	export enum RegexSyntaxSign {
+		tab = "\\t",
+		lineFeed = "\\n",
+		carriageReturn = "\\r",
+		escapedFinalizer = "\\/",
+		backslash = "\\\\"
+	}
+	export namespace RegexSyntaxSign {
+		/**
+		 * @returns A RegexSyntaxSign member from the
+		 * specified sign literal (ex: "\t") or raw signable
+		 * character (ex: "	").
+		 */
+		function resolve(value: string): RegexSyntaxSign | null;
+		/** */
+		function unescape(value: string): string;
+	}
+	/**
+	 * An enumeration that stores the escape sequences
+	 * that can match more than one kind of character.
+	 */
+	export enum RegexSyntaxKnownSet {
+		digit = "\\d",
+		digitNon = "\\D",
+		alphanumeric = "\\w",
+		alphanumericNon = "\\W",
+		whitespace = "\\s",
+		whitespaceNon = "\\S",
+		wild = "."
+	}
+	export namespace RegexSyntaxKnownSet {
+		function resolve(value: string): RegexSyntaxKnownSet | null;
+	}
+	/**
+	 * An enumeration that stores the delimiters available
+	 * in the system's regular expression flavor.
+	 */
+	export const enum RegexSyntaxDelimiter {
+		main = "/",
+		utf16GroupStart = "\\u{",
+		utf16GroupEnd = "}",
+		groupStart = "(",
+		groupEnd = ")",
+		alternator = "|",
+		setStart = "[",
+		setEnd = "]",
+		quantifierStart = "{",
+		quantifierEnd = "}",
+		quantifierSeparator = ",",
+		range = "-"
+	}
+	/**
+	 * An enumeration that stores miscellaneous regular
+	 * expression special characters that don't fit into
+	 * the other enumerations.
+	 */
+	export const enum RegexSyntaxMisc {
+		star = "*",
+		plus = "+",
+		negate = "^",
+		restrained = "?",
+		boundary = "\\b",
+		boundaryNon = "\\B"
+	}
+	/**
+	 * An enumeration that stores the delimiters available
+	 * in the infix syntax.
+	 */
+	export const enum InfixSyntax {
+		start = "<",
+		end = ">",
+		nominalStart = "<<",
+		nominalEnd = ">>",
+		patternStart = "</",
+		patternEnd = "/>"
 	}
 	/**
 	 * A class that manages the diagnostics that have been
@@ -3001,12 +4128,12 @@ declare module "truth-compiler" {
 		 * at the specified source. If the source has no faults, an empty
 		 * array is returned.
 		 */
-		check(source: Span | Statement): Fault[];
+		check<TSource extends object>(source: TSource): Fault<TSource>[];
 		/**
 		 * Enumerates through the unrectified faults retained
 		 * by this FaultService.
 		 */
-		each(): IterableIterator<Fault>;
+		each(): IterableIterator<Fault<TFaultSource>>;
 		/**
 		 * Broadcasts all reports stored in activeContext,
 		 * and creates a new activeContext.
@@ -3020,228 +4147,192 @@ declare module "truth-compiler" {
 		 */
 		private activeContext;
 	}
-	/** */
-	export type FaultSource = Statement | Span;
-	/** Base class for all faults. */
-	export abstract class Fault {
+	/**
+	 * A type that describes the possible objects within a document
+	 * that may be responsible for the generation of a fault.
+	 */
+	export type TFaultSource = Statement | Span | InfixSpan;
+	/**
+	 * 
+	 */
+	export class Fault<TSource = TFaultSource> {
 		/** */
-		readonly severity: FaultSeverity;
-		/** A human-readable description of the fault. */
-		readonly abstract message: string;
-		/** An error code, useful for reference purposes, or display in a user interface. */
-		readonly abstract code: number;
+		readonly type: FaultType<TSource>;
 		/** The document object that caused the fault to be reported. */
-		readonly abstract source: FaultSource;
+		readonly source: TSource;
+		constructor(
+		/** */
+		type: FaultType<TSource>,
+		/** The document object that caused the fault to be reported. */
+		source: TSource);
 	}
-	/** Base class for faults that relate to a specific statement. */
-	export abstract class StatementFault extends Fault {
-		readonly source: Statement;
-		constructor(source: Statement);
+	/**
+	 * 
+	 */
+	export class FaultType<TSource = TFaultSource> {
+		/**
+		 * An error code, useful for reference purposes, or display in a user interface.
+		 */
+		readonly code: number;
+		/**
+		 * A human-readable description of the fault.
+		 */
+		readonly message: string;
+		/**
+		 * 
+		 */
+		readonly severity: FaultSeverity;
+		constructor(
+		/**
+		 * An error code, useful for reference purposes, or display in a user interface.
+		 */
+		code: number,
+		/**
+		 * A human-readable description of the fault.
+		 */
+		message: string,
+		/**
+		 * 
+		 */
+		severity: FaultSeverity);
+		/**
+		 * Creates a fault of this type.
+		 */
+		create(source: TSource): Fault<TSource>;
 	}
-	/** Base class for faults that relate to a specific span. */
-	export abstract class SpanFault extends Fault {
-		readonly source: Span;
-		constructor(source: Span);
-	}
-	/** */
-	export enum FaultSeverity {
-		/** Reports an error. */
+	/**
+	 * 
+	 */
+	export const enum FaultSeverity {
+		/**
+		 * Indicates the severity of a fault is "error", which means that
+		 * the associated object will be ignored during type analysis.
+		 */
 		error = 1,
-		/** Reports a warning. */
+		/**
+		 * Indicates the severity of a fault is "warning", which means that
+		 * the associated object will still be processed during type analysis.
+		 */
 		warning = 2
 	}
-	/** */
-	export class UnresolvedResourceFault extends StatementFault {
-		constructor(source: Statement, error?: Error);
-		readonly code = 100;
-		readonly message = "URI points to a resource that could not be resolved.";
-	}
-	/** */
-	export class CircularResourceReferenceFault extends StatementFault {
-		readonly code = 102;
-		readonly message = "URI points to a resource that would cause a circular reference.";
-	}
-	/** */
-	export class InsecureResourceReferenceFault extends StatementFault {
-		readonly code = 104;
-		readonly message: string;
-	}
-	/** */
-	export class UnresolvedAnnotationFault extends SpanFault {
-		readonly code = 201;
-		readonly message = "Unresolved annotation.";
-	}
-	/** */
-	export class CircularTypeReferenceFault extends SpanFault {
-		readonly code = 203;
-		readonly message = "Circular type reference detected.";
-	}
-	/** */
-	export class ContractViolationFault extends StatementFault {
-		readonly code = 204;
-		readonly severity = FaultSeverity.warning;
-		readonly message = "Overridden types must explicitly expand the type as defined in the base.";
-	}
-	/** */
-	export class TypeCannotBeRefreshedFault extends StatementFault {
-		readonly code = 206;
-		readonly severity = FaultSeverity.warning;
-		readonly message: string;
-	}
-	/** */
-	export class AnonymousInListIntrinsicTypeFault extends StatementFault {
-		readonly code = 300;
-		readonly message = "Types contained directly by List-intrinsic types cannot be anonymous.";
-	}
-	/** */
-	export class ListContractViolationFault extends SpanFault {
-		readonly code = 301;
-		readonly message = "The containing list cannot contain children of this type.";
-	}
-	/** */
-	export class ListIntrinsicExtendingListFault extends SpanFault {
-		readonly code = 303;
-		readonly message = "List intrinsic types cannot extend from other lists.";
-	}
-	/** */
-	export class ListExtrinsicExtendingNonListFault extends SpanFault {
-		readonly code = 305;
-		readonly message = "Lists cannot extend from non-lists.";
-	}
-	/** */
-	export class PatternInvalidFault extends StatementFault {
-		readonly code = 400;
-		readonly message = "Invalid pattern.";
-	}
-	/** */
-	export class PatternWithoutAnnotationFault extends StatementFault {
-		readonly code = 402;
-		readonly message = "Pattern has no annotations.";
-		readonly severity = FaultSeverity.warning;
-	}
-	/** */
-	export class PatternCanMatchEmptyFault extends StatementFault {
-		readonly code = 404;
-		readonly message = "Patterns must not be able to match an empty input.";
-	}
-	/** */
-	export class PatternCanMatchWhitespaceOnlyFault extends StatementFault {
-		readonly code = 420;
-		readonly message: string;
-	}
-	/** */
-	export class PatternAcceptsLeadingWhitespaceFault extends StatementFault {
-		readonly code = 434;
-		readonly message: string;
-	}
-	/** */
-	export class PatternRequiresLeadingWhitespaceFault extends StatementFault {
-		readonly code = 436;
-		readonly message: string;
-	}
-	/** */
-	export class PatternAcceptsTrailingWhitespaceFault extends StatementFault {
-		readonly code = 438;
-		readonly message: string;
-	}
-	/** */
-	export class PatternRequiresTrailingWhitespaceFault extends StatementFault {
-		readonly code = 440;
-		readonly message: string;
-	}
-	/** */
-	export class PatternNonCovariantFault extends StatementFault {
-		readonly code = 406;
-		readonly message = "Pattern does not match it's base types.";
-	}
-	/** */
-	export class PatternUnknownNestedTypesFault extends SpanFault {
-		readonly code = 432;
-		readonly message = "The base specified on the containing pattern has no type with this name.";
-	}
-	/** */
-	export class PatternIncompatibleFault extends StatementFault {
-		readonly code = 442;
-		readonly message = "This pattern is incompatible with other patterns that match the specified types.";
-	}
-	/** */
-	export class InfixInRepeatingPatternFault extends StatementFault {
-		readonly code = 408;
-		readonly message = "Infixes cannot exist in a repeating context.";
-	}
-	/**  */
-	export class InfixSelfReferentialFault extends StatementFault {
-		readonly code = 410;
-		readonly message = "Infixes can't be self-referential.";
-	}
-	/**  */
-	export class InfixNonConvariantFault extends StatementFault {
-		readonly code = 412;
-		readonly message = "Infixes must be compatible with their bases.";
-	}
-	/** */
-	export class InfixNotDefinedFault extends StatementFault {
-		readonly code = 422;
-		readonly message = "Infixes must be defined on at least one of their matched bases.";
-	}
-	/** */
-	export class InfixMustHaveExpressionFault extends StatementFault {
-		readonly code = 414;
-		readonly message = "Infixes must have at least one associated pattern.";
-	}
-	/** */
-	export class InfixRecursiveFault extends StatementFault {
-		readonly code = 416;
-		readonly message = "Recursive types cannot be referenced within infixes.";
-	}
-	/** */
-	export class InfixContractViolationFault extends StatementFault {
-		readonly code = 424;
-		readonly message = "Infix type annotations must explicitly expand the type as defined by the base.";
-	}
-	/** */
-	export class InfixChainingFault extends StatementFault {
-		readonly code = 426;
-		readonly message = "Infixes cannot be chained together.";
-	}
-	/** */
-	export class InfixReferencingListFault extends StatementFault {
-		readonly code = 428;
-		readonly message = "Infixes cannot reference list types.";
-	}
-	/** */
-	export class PortabilityInfixDuplicatedFault extends StatementFault {
-		readonly code = 418;
-		readonly message = "Portability infixes with compatible types cannot be specified more than once.";
-	}
-	/** */
-	export class NominalInfixMustSubtypeFault extends StatementFault {
-		readonly code = 430;
-		readonly message: string;
-	}
-	/** */
-	export class DiscrepantUnionFault extends StatementFault {
-		readonly code = 450;
-		readonly message: string;
-	}
-	/** */
-	export class TabsAndSpacesFault extends StatementFault {
-		readonly code = 1000;
-		readonly message = "Statement indent contains a mixture of tabs and spaces.";
-		readonly severity = FaultSeverity.warning;
-	}
-	/** */
-	export class IgnoredAnnotationFault extends SpanFault {
-		readonly code = 1001;
-		readonly message: string;
-		readonly severity = FaultSeverity.warning;
-	}
-	/** */
-	export class IgnoredAliasFault extends SpanFault {
-		readonly code = 1003;
-		readonly message: string;
-		readonly severity = FaultSeverity.warning;
-	}
+	/**
+	 * 
+	 */
+	export const Faults: Readonly<{
+		/** */
+		each(): IterableIterator<FaultType<object>>;
+		/**
+		 * @returns An object containing the FaultType instance
+		 * associated with the fault with the specified code, as
+		 * well as the name of the instance. In the case when the
+		 * faultCode was not found, null is returned.
+		 */
+		nameOf(faultCode: number): string;
+		/** */
+		UnresolvedResource: Readonly<FaultType<Statement>>;
+		/** */
+		CircularResourceReference: Readonly<FaultType<Statement>>;
+		/** */
+		InsecureResourceReference: Readonly<FaultType<Statement>>;
+		/** */
+		UnresolvedAnnotationFault: Readonly<FaultType<Span>>;
+		/** */
+		CircularTypeReference: Readonly<FaultType<Span>>;
+		/** */
+		ContractViolation: Readonly<FaultType<Span>>;
+		/** */
+		TypeCannotBeRefreshed: Readonly<FaultType<Statement>>;
+		/** */
+		IgnoredAnnotation: Readonly<FaultType<Span>>;
+		/** */
+		IgnoredAlias: Readonly<FaultType<Span>>;
+		/** */
+		TypeSelfReferential: Readonly<FaultType<Span>>;
+		/** */
+		AnonymousInListIntrinsicType: Readonly<FaultType<Statement>>;
+		/** */
+		ListContractViolation: Readonly<FaultType<Span>>;
+		/** */
+		ListIntrinsicExtendingList: Readonly<FaultType<Span>>;
+		/** */
+		ListExtrinsicExtendingNonList: Readonly<FaultType<Span>>;
+		/** */
+		ListDimensionalDiscrepancyFault: Readonly<FaultType<Span>>;
+		/** */
+		PatternInvalid: Readonly<FaultType<Statement>>;
+		/** */
+		PatternWithoutAnnotation: Readonly<FaultType<Statement>>;
+		/** */
+		PatternCanMatchEmpty: Readonly<FaultType<Statement>>;
+		/** */
+		PatternMatchingTypesAlreadyExists: Readonly<FaultType<Statement>>;
+		/** */
+		PatternMatchingList: Readonly<FaultType<Span>>;
+		/** */
+		PatternCanMatchWhitespaceOnly: Readonly<FaultType<Statement>>;
+		/** */
+		PatternAcceptsLeadingWhitespace: Readonly<FaultType<Statement>>;
+		/** */
+		PatternRequiresLeadingWhitespace: Readonly<FaultType<Statement>>;
+		/** */
+		PatternAcceptsTrailingWhitespace: Readonly<FaultType<Statement>>;
+		/** */
+		PatternRequiresTrailingWhitespace: Readonly<FaultType<Statement>>;
+		/** */
+		PatternNonCovariant: Readonly<FaultType<Statement>>;
+		/** */
+		PatternPartialWithCombinator: Readonly<FaultType<Statement>>;
+		/** */
+		DiscrepantUnion: Readonly<FaultType<Span>>;
+		/** */
+		InfixHasQuantifier: Readonly<FaultType<Statement>>;
+		/** */
+		InfixHasDuplicateIdentifier: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixHasSelfReferentialType: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixNonConvariant: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixCannotDefineNewTypes: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixReferencedTypeMustHavePattern: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixReferencedTypeCannotBeRecursive: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixContractViolation: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixPopulationChaining: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixUsingListOperator: Readonly<FaultType<InfixSpan>>;
+		/** */
+		InfixReferencingList: Readonly<FaultType<InfixSpan>>;
+		/** */
+		PortabilityInfixHasMultipleDefinitions: Readonly<FaultType<InfixSpan>>;
+		/** */
+		PopulationInfixHasMultipleDefinitions: Readonly<FaultType<InfixSpan>>;
+		/** */
+		NominalInfixMustSubtype: Readonly<FaultType<Span>>;
+		/** */
+		StatementBeginsWithComma: Readonly<FaultType<Statement>>;
+		/** */
+		StatementBeginsWithEllipsis: Readonly<FaultType<Statement>>;
+		/** */
+		StatementBeginsWithEscapedSpace: Readonly<FaultType<Statement>>;
+		/** */
+		TabsAndSpaces: Readonly<FaultType<Statement>>;
+		/** */
+		DuplicateDeclaration: Readonly<FaultType<Span>>;
+		/** */
+		UnterminatedCharacterSet: Readonly<FaultType<Statement>>;
+		/** */
+		UnterminatedGroup: Readonly<FaultType<Statement>>;
+		/** */
+		DuplicateQuantifier: Readonly<FaultType<Statement>>;
+		/** */
+		UnterminatedInfix: Readonly<FaultType<Statement>>;
+		/** */
+		EmptyPattern: Readonly<FaultType<Statement>>;
+	}>;
 	/**
 	 * Infinite incremental counter.
 	 */
@@ -3255,6 +4346,8 @@ declare module "truth-compiler" {
 		protected constructor(stamp: number | number[]);
 		/** */
 		newerThan(otherStamp: VersionStamp): boolean;
+		/** */
+		toString(): string;
 	}
 	/**
 	 * Contains members that replicate the behavior of
@@ -3534,6 +4627,62 @@ declare module "truth-compiler" {
 	/**
 	 * 
 	 */
+	export class AlphabetRange {
+		readonly from: number;
+		readonly to: number;
+		constructor(from: number, to: number);
+	}
+	/**
+	 * A disposable class for easily creating Alphabet instances
+	 * (This design avoids introducing mutability into the Alphabet class).
+	 */
+	export class AlphabetBuilder {
+		/** */
+		constructor(...others: (X.Alphabet | AlphabetRange | string | number)[]);
+		/**
+		 * Adds an entry to the alphabet.
+		 * If the second parameter is omitted, the entry refers to a
+		 * single character, rather than a range of characters.
+		 */
+		add(from: string | number, to?: string | number): this;
+		/** */
+		addWild(): void;
+		/**
+		 * @returns An optimized Alphabet instances composed
+		 * from the characters and ranges applied to this AlphabetBuilder.
+		 * 
+		 * @param invert In true, causes the entries in the generated
+		 * Alphabet to be reversed, such that every character marked
+		 * as included is excluded, and vice versa.
+		 */
+		toAlphabet(invert?: boolean): Alphabet;
+		/** */
+		private readonly ranges;
+	}
+	/**
+	 * 
+	 */
+	export class MutableTransitionMap extends TransitionMap {
+		/** */
+		initialize(srcStateId: number): void;
+		/** */
+		set(srcStateId: number, symbol: string, dstStateId: number): void;
+	}
+	/**
+	 * 
+	 */
+	export interface ITransitionLiteral {
+		[stateId: number]: ITransitionStateLiteral;
+	}
+	/**
+	 * 
+	 */
+	export interface ITransitionStateLiteral {
+		[symbol: string]: number;
+	}
+	/**
+	 * 
+	 */
 	export class Document {
 		/**
 		 * Fills the document with the specified source code.
@@ -3592,7 +4741,7 @@ declare module "truth-compiler" {
 		 * If the statement does not exist in the document,
 		 * the returned value is -1.
 		 */
-		getStatementIndex(statement: Statement): number;
+		getLineNumber(statement: Statement): number;
 		/**
 		 * @returns An array of strings containing the content
 		 * written in the comments directly above the specified
@@ -3623,6 +4772,7 @@ declare module "truth-compiler" {
 			level: number;
 		}>;
 		/**
+		 * @deprecated
 		 * Enumerates through each unique URI defined in this document,
 		 * that are referenced within the descendants of the specified
 		 * statement. If the parameters are null or omitted, all unique
@@ -3652,7 +4802,7 @@ declare module "truth-compiler" {
 		 * Reads the Statement at the given position.
 		 * Negative numbers read Statement starting from the end of the document.
 		 */
-		read(line: number): Statement;
+		read(lineNumber: number): Statement;
 		/**
 		 * Convenience method that converts a statement or it's index
 		 * within this document to a statement object.
@@ -3663,7 +4813,7 @@ declare module "truth-compiler" {
 		 * a statement or a statement index, into a bounded statement
 		 * index.
 		 */
-		private toIndex;
+		private toLineNumber;
 		/**
 		 * Starts an edit transaction in the specified callback function.
 		 * Edit transactions are used to synchronize changes made in
@@ -3873,27 +5023,190 @@ declare module "truth-compiler" {
 	/**
 	 * 
 	 */
+	export class ParseFault {
+		readonly innerType: Readonly<FaultType<Statement>>;
+		readonly offsetStart: number;
+		readonly offsetEnd: number;
+		constructor(innerType: Readonly<FaultType<Statement>>, offsetStart: number, offsetEnd: number);
+	}
+	/**
+	 * 
+	 */
+	export class LineParser {
+		/**
+		 * Generator function that yields all statements
+		 * (unparsed lines) of the given source text.
+		 */
+		static read(fullSource: string): IterableIterator<string>;
+		/**
+		 * Main entry point for parsing a single line and producing a
+		 * RawStatement object.
+		 * 
+		 * The parsing algorithm is some kind of quasi-recusive descent with
+		 * lookheads and backtracking in some places to make the logic easier
+		 * to follow. Technically, it's probably some mash-up of LL(k) & LALR.
+		 * Maybe if I blew 4 years of my life in some silly Comp Sci program
+		 * instead of dropping out of high school I could say for sure.
+		 */
+		static parse(lineText: string): Line;
+		/** */
+		private constructor();
+	}
+	/**
+	 * Placeholder object to mark the position of
+	 * an anonymous type within a statement.
+	 */
+	export class Anon {
+		/** */
+		toString(): string;
+	}
+	/**
+	 * Stores information about a line, after being parsed.
+	 * A Line is different from a Statement in that it has no
+	 * relationship to a Document.
+	 */
+	export class Line {
+		readonly sourceText: string;
+		readonly indent: number;
+		readonly declarations: BoundaryGroup<DeclarationSubject>;
+		readonly annotations: BoundaryGroup<AnnotationSubject>;
+		readonly sum: string;
+		readonly jointPosition: number;
+		readonly flags: LineFlags;
+		readonly parseFault: ParseFault | null;
+		/*** */
+		constructor(sourceText: string, indent: number, declarations: BoundaryGroup<DeclarationSubject>, annotations: BoundaryGroup<AnnotationSubject>, sum: string, jointPosition: number, flags: LineFlags, parseFault: ParseFault | null);
+	}
+	/**
+	 * A bit field enumeration used to efficiently store
+	 * meta data about a Line (or a Statement) object.
+	 */
+	export enum LineFlags {
+		none = 0,
+		isRefresh = 1,
+		isComment = 2,
+		isWhitespace = 4,
+		isDisposed = 8,
+		isCruft = 16,
+		hasUri = 32,
+		hasTotalPattern = 64,
+		hasPartialPattern = 128,
+		hasPattern = 256
+	}
+	/**
+	 * Stakes out starting and ending character positions
+	 * of subjects within a given region.
+	 */
+	export class BoundaryGroup<TSubject> {
+		/** */
+		constructor(boundaries: Boundary<TSubject>[]);
+		/** */
+		[Symbol.iterator](): IterableIterator<Boundary<TSubject>>;
+		/** */
+		eachSubject(): IterableIterator<TSubject>;
+		/** */
+		inspect(offset: number): TSubject | null;
+		/** */
+		first(): Boundary<TSubject> | null;
+		/** Gets the number of entries defined in the bounds. */
+		readonly length: number;
+		/** */
+		private readonly entries;
+	}
+	/** */
+	export class Boundary<TSubject> {
+		readonly offsetStart: number;
+		readonly offsetEnd: number;
+		readonly subject: TSubject;
+		constructor(offsetStart: number, offsetEnd: number, subject: TSubject);
+	}
+	/**
+	 * 
+	 */
 	export class Statement {
-		/** */
-		constructor(document: Document, text: string);
-		/** */
+		/**
+		 * 
+		 */
+		private eachStatementLevelFaults;
+		/**
+		 * Gets whether the joint operator exists at the
+		 * end of the statement, forcing the statement's
+		 * declarations to be "refresh types".
+		 */
 		readonly isRefresh: boolean;
-		/** Gets whether the statement is a comment. */
+		/**
+		 * Gets whether the statement contains nothing
+		 * other than a single joint operator.
+		 */
+		readonly isVacuous: boolean;
+		/**
+		 * Gets whether the statement is a comment.
+		 */
 		readonly isComment: boolean;
-		/** Gets whether the statement contains no non-whitespace characters. */
+		/**
+		 * Gets whether the statement contains
+		 * no non-whitespace characters.
+		 */
 		readonly isWhitespace: boolean;
-		/** Gets whether the statement is a comment or whitespace. */
+		/**
+		 * Gets whether the statement is a comment or whitespace.
+		 */
 		readonly isNoop: boolean;
-		/** Gets whether the statement has been removed from it's containing document. */
+		/**
+		 * Gets whether the statement has been
+		 * removed from it's containing document.
+		 */
 		readonly isDisposed: boolean;
+		/**
+		 * 
+		 */
+		readonly isCruft: boolean;
+		/** */
+		readonly faults: ReadonlyArray<Fault>;
 		/** Stores a reference to the document that contains this statement. */
 		readonly document: Document;
 		/** Stores the indent level of the statement. */
 		readonly indent: number;
-		/** */
-		private readonly declarationBounds;
-		/** */
-		private readonly annotationBounds;
+		/**
+		 * Stores the set of objects that are contained by this Statement,
+		 * and are marked as cruft. Note that the only Statement object
+		 * that may be located in this set is this Statement object itself.
+		 */
+		readonly cruftObjects: ReadonlySet<Statement | Span | InfixSpan>;
+		/**
+		 * Gets an array of spans in that represent the declarations
+		 * of this statement, excluding those that have been marked
+		 * as object-level cruft.
+		 */
+		readonly declarations: ReadonlyArray<Span>;
+		/**
+		 * Stores the array of spans that represent the declarations
+		 * of this statement, including those that have been marked
+		 * as object-level cruft.
+		 */
+		readonly allDeclarations: ReadonlyArray<Span>;
+		/**
+		 * Gets an array of spans in that represent the annotations
+		 * of this statement, from left to right, excluding those that
+		 * have been marked as object-level cruft.
+		 */
+		readonly annotations: ReadonlyArray<Span>;
+		/**
+		 * Stores the array of spans that represent the annotations
+		 * of this statement, including those that have been marked
+		 * as object-level cruft.
+		 */
+		readonly allAnnotations: ReadonlyArray<Span>;
+		/**
+		 * Gets an array of spans in that represent both the declarations
+		 * and the annotations of this statement, excluding those that have
+		 * been marked as object-level cruft.
+		 */
+		readonly spans: Span[];
+		/**
+		 * 
+		 */
+		readonly allSpans: Span[];
 		/**
 		 * Stores the position at which the joint operator exists
 		 * in the statement. A negative number indicates that
@@ -3904,7 +5217,14 @@ declare module "truth-compiler" {
 		 * Stores the unprocessed text content of the statement,
 		 * as it appears in the document.
 		 */
-		readonly textContent: string;
+		readonly sourceText: string;
+		/**
+		 * Stores the statement's textual *sum*, which is the
+		 * raw text of the statement's annotations, with whitespace
+		 * trimmed. The sum is suitable as an input to a total
+		 * pattern.
+		 */
+		readonly sum: string;
 		/**
 		 * Gets a boolean value indicating whether or not the
 		 * statement contains a declaration of a pattern.
@@ -3915,23 +5235,6 @@ declare module "truth-compiler" {
 		 * at the given character offset within the Statement.
 		 */
 		getRegion(offset: number): StatementRegion;
-		/**
-		 * Gets the set of spans in that represent all declarations
-		 * and annotations in this statement, from left to right.
-		 */
-		readonly subjects: Span[];
-		/**
-		 * Gets the set of spans in that represent the
-		 * declarations of this statement, from left to right.
-		 */
-		readonly declarations: Span[];
-		private _declarations;
-		/**
-		 * Gets the set of spans in that represent the
-		 * annotations of this statement, from left to right.
-		 */
-		readonly annotations: Span[];
-		private _annotations;
 		/**
 		 * 
 		 */
@@ -3947,11 +5250,6 @@ declare module "truth-compiler" {
 		 */
 		getAnnotation(offset: number): Span | null;
 		/**
-		 * @returns The raw trimmed text of the complete
-		 * annotation side of this statement.
-		 */
-		getAnnotationContent(): string;
-		/**
 		 * @returns A string containing the inner comment text of
 		 * this statement, excluding the comment syntax token.
 		 * If the statement isn't a comment, null is returned.
@@ -3962,12 +5260,6 @@ declare module "truth-compiler" {
 		 */
 		toString(includeIndent?: boolean): string;
 	}
-	/**
-	 * Stores a map of the character offsets within a Statement
-	 * that represent the starting positions of the statement's
-	 * Subjects.
-	 */
-	export type SubjectBounds = ReadonlyMap<number, Identifier | ForePattern | null>;
 	/**
 	 * Defines the areas of a statement that are significantly
 	 * different when performing inspection.
@@ -3996,6 +5288,328 @@ declare module "truth-compiler" {
 		annotationVoid = 6
 	}
 	/**
+	 * 
+	 */
+	export class Pattern {
+		/**
+		 * 
+		 */
+		readonly units: ReadonlyArray<RegexUnit | Infix>;
+		/**
+		 * Stores whether the pattern is considered to be "Total"
+		 * or "Partial". Total patterns must match an entire annotation
+		 * set (the entire strip of content to the right of a joint, after
+		 * being trimmed). Partial patterns match individually
+		 * specified subjects (separated by commas).
+		 */
+		readonly isTotal: boolean;
+		/**
+		 * Stores a CRC which is computed from the set of
+		 * annotations specified to the right of the pattern.
+		 */
+		readonly crc: string;
+		/**
+		 * Stores whether the internal regular expression
+		 * was compiled successfully.
+		 */
+		readonly isValid: boolean;
+		/**
+		 * Recursively enumerates through this Pattern's unit structure.
+		 */
+		eachUnit(): IterableIterator<RegexUnit | Infix>;
+		/**
+		 * @returns A boolean value that indicates whether
+		 * this Pattern has at least one infix, of any type.
+		 */
+		hasInfixes(): boolean;
+		/**
+		 * @returns An array containing the infixes of the
+		 * specified type that are defined in this Pattern.
+		 * If the argument is omitted, all infixes of any type
+		 * defined on this Pattern are returned.
+		 */
+		getInfixes(type?: InfixFlags): Infix[];
+		/**
+		 * Performs an "expedient" test that determines whether the
+		 * specified input has a chance of being matched by this pattern.
+		 * The check is considered expedient, rather than thorough,
+		 * because any infixes that exist in this pattern are replaced
+		 * with "catch all" regular expression sequence, rather than
+		 * embedding the pattern associated with the type specified
+		 * in the infix.
+		 */
+		test(input: string): boolean;
+		/**
+		 * Executes the pattern (like a function) using the specified
+		 * string as the input.
+		 * 
+		 * @returns A ReadonlyMap whose keys align with the infixes
+		 * contained in this Pattern, and whose values are strings that
+		 * are the extracted "inputs", found in the place of each infix.
+		 * If this Pattern has no infixes, an empty map is returned.
+		 */
+		exec(patternParameter: string): ReadonlyMap<Infix, string>;
+		/** */
+		private compiledRegExp;
+		/**
+		 * Converts this Pattern to a string representation.
+		 * (Note that the serialized pattern cannot be used
+		 * as a parameter to a JavaScript RegExp object.)
+		 */
+		toString(): string;
+	}
+	/** */
+	export class PatternPrecompiler {
+		/**
+		 * Compiles the specified pattern into a JS-native
+		 * RegExp object that can be used to execute regular
+		 * expression pre-matching (i.e. checks that essentially
+		 * ignore any infixes that the pattern may have).
+		 */
+		static exec(pattern: Pattern): RegExp | null;
+	}
+	/**
+	 * Ambient unifier for all PatternUnit instances
+	 */
+	export abstract class RegexUnit {
+		readonly quantifier: RegexQuantifier | null;
+		constructor(quantifier: RegexQuantifier | null);
+		/** */
+		abstract toString(): string;
+	}
+	/**
+	 * 
+	 */
+	export class RegexSet extends RegexUnit {
+		readonly knowns: ReadonlyArray<RegexSyntaxKnownSet>;
+		readonly ranges: ReadonlyArray<RegexCharRange>;
+		readonly unicodeBlocks: ReadonlyArray<string>;
+		readonly singles: ReadonlyArray<string>;
+		readonly isNegated: boolean;
+		readonly quantifier: RegexQuantifier | null;
+		/** */
+		constructor(knowns: ReadonlyArray<RegexSyntaxKnownSet>, ranges: ReadonlyArray<RegexCharRange>, unicodeBlocks: ReadonlyArray<string>, singles: ReadonlyArray<string>, isNegated: boolean, quantifier: RegexQuantifier | null);
+		/** */
+		toString(): string;
+		/** */
+		toAlphabet(): Alphabet;
+	}
+	/**
+	 * 
+	 */
+	export class RegexCharRange {
+		readonly from: number;
+		readonly to: number;
+		constructor(from: number, to: number);
+	}
+	/**
+	 * 
+	 */
+	export class RegexGroup extends RegexUnit {
+		/**
+		 * 
+		 */
+		readonly cases: ReadonlyArray<ReadonlyArray<RegexUnit>>;
+		readonly quantifier: RegexQuantifier | null;
+		constructor(
+		/**
+		 * 
+		 */
+		cases: ReadonlyArray<ReadonlyArray<RegexUnit>>, quantifier: RegexQuantifier | null);
+		/** */
+		toString(): string;
+	}
+	/**
+	 * A pattern "grapheme" is a pattern unit class that
+	 * represents:
+	 * 
+	 * a) A "Literal", which is a single unicode-aware character,
+	 * with possible representations being an ascii character,
+	 * a unicode character, or an ascii or unicode escape
+	 * sequence.
+	 * 
+	 * or b) A "Special", which is a sequence that matches
+	 * something other than the character specified,
+	 * such as . \b \s
+	 */
+	export class RegexGrapheme extends RegexUnit {
+		readonly grapheme: string;
+		readonly quantifier: RegexQuantifier | null;
+		constructor(grapheme: string, quantifier: RegexQuantifier | null);
+		/** */
+		toString(): string;
+	}
+	/**
+	 * A Regex "Sign" refers to an escape sequence that refers
+	 * to one other character, as opposed to that character
+	 * being written directly in the parse stream.
+	 */
+	export class RegexSign extends RegexUnit {
+		readonly sign: RegexSyntaxSign;
+		readonly quantifier: RegexQuantifier | null;
+		constructor(sign: RegexSyntaxSign, quantifier: RegexQuantifier | null);
+		/** */
+		toString(): string;
+	}
+	/**
+	 * A pattern unit class that represents +, *,
+	 * and explicit quantifiers such as {1,2}.
+	 */
+	export class RegexQuantifier {
+		/**
+		 * Stores the lower bound of the quantifier,
+		 * or the fewest number of graphemes to be matched.
+		 */
+		readonly min: number;
+		/**
+		 * Stores the upper bound of the quantifier,
+		 * or the most number of graphemes to be matched.
+		 */
+		readonly max: number;
+		/**
+		 * Stores whether the the quantifier is restrained,
+		 * in that it matches the fewest possible number
+		 * of characters.
+		 * 
+		 * (Some regular expression flavours awkwardly
+		 * refer to this as "non-greedy".)
+		 */
+		readonly restrained: boolean;
+		constructor(
+		/**
+		 * Stores the lower bound of the quantifier,
+		 * or the fewest number of graphemes to be matched.
+		 */
+		min: number,
+		/**
+		 * Stores the upper bound of the quantifier,
+		 * or the most number of graphemes to be matched.
+		 */
+		max: number,
+		/**
+		 * Stores whether the the quantifier is restrained,
+		 * in that it matches the fewest possible number
+		 * of characters.
+		 * 
+		 * (Some regular expression flavours awkwardly
+		 * refer to this as "non-greedy".)
+		 */
+		restrained: boolean);
+		/**
+		 * Converts the regex quantifier to an optimized string.
+		 */
+		toString(): string;
+	}
+	/**
+	 * A class that represents a portion of the content
+	 * within an Infix that spans a type reference.
+	 */
+	export class Infix {
+		/**
+		 * Stores the left-most character position of the Infix
+		 * (before the delimiter), relative to the containing statement.
+		 */
+		readonly offsetStart: number;
+		/**
+		 * Stores the left-most character position of the Infix
+		 * (after the delimiter), relative to the containing statement.
+		 */
+		readonly offsetEnd: number;
+		/**
+		 * Stores the Bounds object that marks out the positions
+		 * of the identifiers in the Infix that are located before
+		 * any Joint operator.
+		 */
+		readonly lhs: BoundaryGroup<Identifier>;
+		/**
+		 * Stores the Bounds object that marks out the positions
+		 * of the identifiers in the Infix that are located after
+		 * any Joint operator.
+		 */
+		readonly rhs: BoundaryGroup<Identifier>;
+		/** */
+		readonly flags: InfixFlags;
+		constructor(
+		/**
+		 * Stores the left-most character position of the Infix
+		 * (before the delimiter), relative to the containing statement.
+		 */
+		offsetStart: number,
+		/**
+		 * Stores the left-most character position of the Infix
+		 * (after the delimiter), relative to the containing statement.
+		 */
+		offsetEnd: number,
+		/**
+		 * Stores the Bounds object that marks out the positions
+		 * of the identifiers in the Infix that are located before
+		 * any Joint operator.
+		 */
+		lhs: BoundaryGroup<Identifier>,
+		/**
+		 * Stores the Bounds object that marks out the positions
+		 * of the identifiers in the Infix that are located after
+		 * any Joint operator.
+		 */
+		rhs: BoundaryGroup<Identifier>,
+		/** */
+		flags: InfixFlags);
+		/**
+		 * Gets whether this Infix is of the "pattern" variety.
+		 */
+		readonly isPattern: boolean;
+		/**
+		 * Gets whether this Infix is of the "portability" variety.
+		 */
+		readonly isPortability: boolean;
+		/**
+		 * Gets whether this Infix is of the "population" variety.
+		 */
+		readonly isPopulation: boolean;
+		/**
+		 * Gets whether this Infix has the "nominal" option set.
+		 */
+		readonly isNominal: boolean;
+		/** */
+		toString(): string;
+	}
+	/**
+	 * 
+	 */
+	export enum InfixFlags {
+		none = 0,
+		/**
+		 * Indicates that the joint was specified within
+		 * the infix. Can be used to determine if the infix
+		 * contains some (erroneous) syntax resembing
+		 * a refresh type, eg - /<Type : >/
+		 */
+		hasJoint = 1,
+		/**
+		 * Indicates that the </Pattern/> syntax was
+		 * used to embed the patterns associated
+		 * with a specified type.
+		 */
+		pattern = 2,
+		/**
+		 * Indicates that the infix is of the "portabiity"
+		 * variety, using the syntax < : Type>
+		 */
+		portability = 4,
+		/**
+		 * Indicates that the infix is of the "popuation"
+		 * variety, using the syntax <Declaration : Annotation>
+		 * or <Declaration>
+		 */
+		population = 8,
+		/**
+		 * Indicates that the <<Double>> angle bracket
+		 * syntax was used to only match named types,
+		 * rather than aliases.
+		 */
+		nominal = 16
+	}
+	/**
 	 * A class that represents a single subject in a Statement.
 	 * Consumers of this class should not expect Subject objects
 	 * to be long-lived, as they are discarded regularly after edit
@@ -4008,23 +5622,67 @@ declare module "truth-compiler" {
 		 * Stores a full string representation of the subject,
 		 * as it appears in the document.
 		 */
-		readonly value: string;
+		readonly fullName: string;
+		/**
+		 * Stores a string representation of the name of the
+		 * type to which the subject refers, without any List
+		 * operator suffix.
+		 */
+		readonly typeName: string;
 		/** */
 		readonly isList: boolean;
 		/**
-		 * Stores a parsed URI object, in the case the subject is
-		 * formatted as a URI. In other cases, the field is null.
+		 * Converts this Subject to it's string representation.
+		 * @param escape If true, preserves any necessary
+		 * escaping required to ensure the identifier string
+		 * is in a parsable format.
 		 */
-		readonly uri: Uri | null;
-		/** Calculates whether this Subject is structurally equal to another. */
-		equals(other: Identifier | string | null): boolean;
-		/** Converts this Subject to it's string representation. */
-		toString(): string;
+		toString(escape?: IdentifierEscapeKind): string;
+	}
+	/**
+	 * An enumeration that describes the various ways
+	 * to handle escaping when serializing an identifier.
+	 * This enumeration is used to address the differences
+	 * in the way identifiers can be serialized, which can
+	 * depend on whether the identifier is a declaration or
+	 * an annotation.
+	 */
+	export const enum IdentifierEscapeKind {
+		none = 0,
+		declaration = 1,
+		annotation = 2
 	}
 	/**
 	 * A class that represents a position in a statement.
 	 */
 	export class Span {
+		/**
+		 * Stores a reference to the Statement that contains this Span.
+		 */
+		readonly statement: Statement;
+		/**
+		 * Stores the subject, and the location of it in the document.
+		 */
+		readonly boundary: Boundary<Subject>;
+		/**
+		 * Stores a string representation of this Span, useful for debugging.
+		 */
+		private readonly name;
+		/**
+		 * Gets the Infixes stored within this Span, in the case when
+		 * the Span corresponds to a Pattern. In other cases, and
+		 * empty array is returned.
+		 */
+		readonly infixes: ReadonlyArray<Infix>;
+		private _infixes;
+		/** */
+		eachDeclarationForInfix(infix: Infix): IterableIterator<InfixSpan>;
+		/** */
+		eachAnnotationForInfix(infix: Infix): IterableIterator<InfixSpan>;
+		/** */
+		private queryInfixSpanTable;
+		/** */
+		private readonly infixSpanTable;
 		/**
 		 * Gets an array of statements that represent the statement
 		 * containment progression, all the way back to the containing
@@ -4032,24 +5690,6 @@ declare module "truth-compiler" {
 		 */
 		readonly ancestry: ReadonlyArray<Statement>;
 		private _ancestry;
-		/** Stores a reference to the Statement that contains this Span. */
-		readonly statement: Statement;
-		/**
-		 * Stores either a reference to the instance of the Subject that this
-		 * Span represents, or a unique string in the case when this is
-		 * a "Thin Span" that represents an Invisible Subject.
-		 */
-		readonly subject: Subject;
-		/**
-		 * The offset in the statement that marks the start of the
-		 * region being pointed to.
-		 */
-		readonly offsetStart: number;
-		/**
-		 * The offset in the statement that marks the end of the
-		 * region being pointed to.
-		 */
-		readonly offsetEnd: number;
 		/**
 		 * Splits apart the groups subjects specified in the containing
 		 * statement's ancestry, and generates a series of spines,
@@ -4064,322 +5704,97 @@ declare module "truth-compiler" {
 		factor(): ReadonlyArray<Spine>;
 		/**  */
 		private factoredSpines;
+		/**
+		 * Gets a boolean value that indicates whether this Span is considered
+		 * object-level cruft, and should therefore be ignored during type analysis.
+		 */
+		readonly isCruft: boolean;
+		/** */
+		toString(): string;
 	}
 	/**
 	 * A class that manages an array of Span objects that
 	 * represent a specific spine of declarations, starting at
 	 * a document, passing through a series of spans,
 	 * and ending at a tip span.
+	 * 
+	 * In the case when
 	 */
 	export class Spine {
 		/** */
-		constructor(nodes: Span[]);
+		constructor(vertebrae: (X.Span | Statement)[]);
 		/** Stores the last span in the array of segments. */
 		readonly tip: Span;
 		/** */
 		readonly statement: Statement;
 		/** Gets a reference to the document that sits at the top of the spine. */
 		readonly document: Document;
-		/**  */
-		readonly nodes: ReadonlyArray<Span>;
+		/** Stores an array of the Spans that compose the Spine. */
+		readonly vertebrae: ReadonlyArray<Span | CruftMarker>;
+	}
+	/**
+	 * A class that acts as a stand-in for a statement that has been
+	 * marked as cruft, suitable for usage in a Spine.
+	 */
+	export class CruftMarker {
+		readonly statement: Statement;
+		/**
+		 * Converts this cruft marker to a string representation,
+		 * which is derived from a CRC calculated from this
+		 * marker's underlying statement.
+		 */
+		toString(): string;
 	}
 	/** */
-	export type Subject = Identifier | ForePattern | string;
+	export type Subject = DeclarationSubject | AnnotationSubject;
+	/**
+	 * Stores a map of the character offsets within a Statement
+	 * that represent the starting positions of the statement's
+	 * declarartions.
+	 */
+	export type DeclarationSubject = Identifier | Pattern | Uri | Anon;
+	/**
+	 * Stores a map of the character offsets within a Statement
+	 * that represent the starting positions of the statement's
+	 * annotations.
+	 */
+	export type AnnotationSubject = Identifier;
 	/** */
+	export class SubjectSerializer {
+		/**
+		 * Universal method for serializing a subject to a string,
+		 * useful for debugging and supporting tests.
+		 */
+		static invoke(subject: Subject, escapeStyle: IdentifierEscapeKind): string;
+	}
+	/**
+	 * @deprecated
+	 * This code is only called by the Fragmenter, which is deprecated.
+	 */
 	export class SubjectParser {
-		/** */
+		/**
+		 * @deprecated
+		 * This code is only called by the Fragmenter, which is deprecated.
+		 */
 		static invoke(text: string): Subject;
 		private constructor();
 	}
 	/**
-	 * A class that stores an unparsed Pattern,
-	 * contained directly by a Statement.
-	 */
-	export class ForePattern {
-		/**
-		 * Parses a pattern from an internally serialized
-		 * representation of it.
-		 */
-		static parse(serialized: string): ForePattern | null;
-		/**
-		 * Gets whether the specified internall serialized
-		 * regular expression can be parsed through the
-		 * static .parse() method on this class.
-		 */
-		static canParse(serialized: string): boolean;
-		/** */
-		readonly content: string;
-		/** */
-		readonly chunks: ForePatternChunks;
-		/** */
-		readonly crc: string;
-		/**
-		 * Stores whether the pattern literal specifies the
-		 * coexistence (trailing comma) flag, which allows
-		 * aliases to exist within the annotation set of
-		 * other non-aliases.
-		 */
-		readonly hasCoexistenceFlag: boolean;
-		/**
-		 * Stores the inner regular expression of this pattern,
-		 * in the case when a valid RegExp object could be
-		 * created from the input passed to the constructor
-		 * of this object. In the case when the input could not
-		 * be converted into a usable RegExp object, the field
-		 * stores null.
-		 */
-		private readonly innerRegExp;
-		/**
-		 * @returns A boolean value that indicates whether
-		 * the specified input string matches the regular expression
-		 * stored inside this pattern.
-		 */
-		test(input: string): boolean;
-		/** */
-		toString(format?: PatternSerializationFormat): string;
-	}
-	/**
-	 * Identifies the various textual representations of a pattern.
-	 */
-	export const enum PatternSerializationFormat {
-		/** Refers to the inner content of the pattern. */
-		content = 1,
-		/** Refers to the pattern literal as it appears in the document. */
-		literal = 2,
-		/**
-		 * Refers to the pattern literal's system serialization format.
-		 * The internal serialization format is as follows:
-		 * 
-		 * 1 byte for the bell (for easy identification)
-		 * 1 or more bytes for the regular expression content
-		 * 1 byte for the flags
-		 * (crcLength) bytes for the computed CRC of the associated annotations.
-		 */
-		system = 4
-	}
-	/**
 	 * 
 	 */
-	export enum PatternFlags {
-		/** Indicates that no flags have been declared on the pattern. */
-		none = 0,
-		/** Indicates that the coexistence flag has been declared on the pattern. */
-		coexistence = 1
-	}
-	/**  */
-	export class ForePatternParser {
-		/**
-		 * Parses the specified pattern string (without delimiters
-		 * or flags), into an array of strings and infixes.
-		 */
-		static parse(content: string): ForePatternChunks;
-		/** */
-		private constructor();
-	}
-	/**
-	 * 
-	 */
-	export class Infix {
-		/**
-		 * Stores an array of strings that represent the
-		 * terms located before the Joint operator.
-		 */
-		readonly lhsTerms: ReadonlyArray<string>;
-		/**
-		 * Stores an array of strings that represent the
-		 * terms located after the Joint operator.
-		 */
-		readonly rhsTerms: ReadonlyArray<string>;
-		/**
-		 * Stores whether the <<Double>> angle bracket
-		 * syntax was used to only match named types,
-		 * rather than aliases.
-		 */
-		readonly forcesNominal: boolean;
-		/**
-		 * Stores whether the </Pattern/> syntax was
-		 * used to embed an external pattern.
-		 */
-		readonly requestsPattern: boolean;
-		constructor(
-		/**
-		 * Stores an array of strings that represent the
-		 * terms located before the Joint operator.
-		 */
-		lhsTerms?: ReadonlyArray<string>,
-		/**
-		 * Stores an array of strings that represent the
-		 * terms located after the Joint operator.
-		 */
-		rhsTerms?: ReadonlyArray<string>,
-		/**
-		 * Stores whether the <<Double>> angle bracket
-		 * syntax was used to only match named types,
-		 * rather than aliases.
-		 */
-		forcesNominal?: boolean,
-		/**
-		 * Stores whether the </Pattern/> syntax was
-		 * used to embed an external pattern.
-		 */
-		requestsPattern?: boolean);
-		/** */
-		readonly kind: InfixKind;
-	}
-	/** */
-	export enum InfixKind {
-		faulty = 0,
-		pattern = 1,
-		portability = 2,
-		population = 3
-	}
-	/** */
-	export type ForePatternChunks = (Infix | string)[];
-	/**
-	 * 
-	 */
-	export class Fragmenter {
-		private readonly program;
-		/** */
-		constructor(program: Program);
-		/**
-		 * Updates contents of the Fragmenter to include the
-		 * contents of the specified document.
-		 */
-		private handleDocumentAdded;
-		/**
-		 * Updates contents of the Fragmenter to exclude the
-		 * contents of the specified document.
-		 */
-		private handleDocumentRemoved;
-		/**
-		 * Performs a query on the Fragmenter.
-		 * @returns A Strand, or null in the case
-		 * when the URI specified doesn't map to a populated
-		 * location in the document.
-		 */
-		query(uri: Uri): Strand | null;
-		/** */
-		queryContents(uri: Uri): Strand[];
-		/** */
-		private queryInner;
-		/**
-		 * Translates a declaration-side atom, by collecting it's
-		 * corresponding annotation-side atoms and packaging
-		 * it into a Molecule object.
-		 */
-		private translateAtomToMolecule;
-		/**
-		 * Stores the declarations of the specified statement, and
-		 * all of the declarations in it's descendant statements in
-		 * the internal caches.
-		 * 
-		 * The statement object specified in the storeTarget parameter
-		 * is expected to not be stored in the internal caches.
-		 */
-		private storeStatement;
-		/**
-		 * Removes the fragments associated with the specified span
-		 * from all internal caches.
-		 */
-		private unstoreSpan;
-		/** */
-		private cacheFragment;
-		/** */
-		private uncacheFragment;
-		/**
-		 * A map used to quickly find the fragments associated with a span.
-		 * A separate fragment will exist in the array value for every spine
-		 * ending at the Span key. Naturally, Spans that are directly
-		 * contained by a Document will only ever have one item in it's
-		 * associated fragment array.
-		 * 
-		 * Note that the fragments in the array value may be parented by
-		 * different apexes (meaning Spans or Documents).
-		 * 
-		 * Although provisions are taken to ensure entries in this map are
-		 * all explicitly released, a WeakMap is used in this case instead of
-		 * a traditional Map as a defense measure against unforeseen bugs
-		 * resulting in memory leaks.
-		 */
-		private readonly fragmentFinder;
-		/**
-		 * A map of the Document objects loaded into the system,
-		 * and the top-level fragment objects to which they map.
-		 */
-		private readonly documents;
-		/**
-		 * Converts the contents of the Fragmenter to a string
-		 * representation, useful for testing purposes.
-		 */
-		toString(): string;
-	}
-	/**
-	 * A Strand is essentially an inspectable version of a URI's type
-	 * path. More specifically, it is a type that describes a series of
-	 * objects of the abstract Subject type, that aligns with the
-	 * components of a type URI (the ordering of the entry in the
-	 * map is relevant).
-	 * 
-	 * Each Subject key is related to a set of Span objects that
-	 * represent the points of the document that where discovered
-	 * in relation to each component of the type URI.
-	 */
-	export class Strand {
-		readonly molecules: ReadonlyArray<Molecule>;
-		/** */
-		constructor(molecules: ReadonlyArray<Molecule>);
-		/**
-		 * Creates a string representation of this Strand that
-		 * allows it's contents to be compared with other
-		 * Strand objects with equivalent contents. An example
-		 * of the string format is as follows:
-		 * 
-		 * 	file://path/to/document.truth
-		 * LocalAtom1
-		 * 	ReferencedAtom1
-		 * 	ReferencedAtom2
-		 * LocalAtom2
-		 * 	ReferencedAtom3
-		 * 	ReferencedAtom4
-		 * 
-		 * Future work may include determining whether returning
-		 * this string as an MD5 hash will result in a reduction of
-		 * memory usage.
-		 */
-		toString(): string;
-		/**
-		 * Clones this Strand into a new object, but with the
-		 * specified number of molecules trimmed from the end.
-		 */
-		retract(depth: number): Strand;
-	}
-	/**
-	 * 
-	 */
-	export class Molecule {
-		readonly localAtom: Atom;
-		readonly referencedAtoms: ReadonlyArray<Atom>;
-		constructor(localAtom: Atom, referencedAtoms: ReadonlyArray<Atom>);
-	}
-	/**
-	 * 
-	 */
-	export class Atom {
-		readonly subject: Subject;
-		readonly spans: ReadonlyArray<Span>;
-		constructor(subject: Subject, spans: ReadonlyArray<Span>);
-	}
-	/**
-	 * 
-	 */
-	export class Graph {
+	export class HyperGraph {
 		private readonly program;
 		/**
 		 * Reads a root Node with the specified
 		 * name out of the specified document.
 		 */
-		read(doc: Document, name: string): Node | null;
+		read(document: Document, name: string): Node | null;
+		/**
+		 * @returns An array containing the node objects
+		 * that are defined at the root level of the specified
+		 * document.
+		 */
+		readRoots(document: Document): IterableIterator<Node>;
 		/**
 		 * Handles a document-level exclusion, which is the removal
 		 * of a section of Spans within a document, or possibly the
@@ -4407,49 +5822,46 @@ declare module "truth-compiler" {
 		 * have been loaded into the program, indexed
 		 * by a string representation of it's URI.
 		 */
-		private readonly nodes;
+		private readonly nodeCache;
 		/**
-		 * Stores a GraphTransaction instance in the case when
-		 * the program is under
+		 * Stores a GraphTransaction instance in the case
+		 * when an edit transaction is underway.
 		 */
 		private activeTransactions;
+		/**
+		 * Serializes the Graph into a format suitable
+		 * for debugging and comparing against baselines.
+		 */
+		toString(): string;
 	}
 	/**
 	 * A class that represents a single Node contained within
-	 * the Program's Graph. Nodes are long-lived objects that
-	 * persist between edit frames, and maintain referential
-	 * integrity.
+	 * the Program's Graph. Nodes are long-lived, referentially
+	 * significant objects that persist between edit frames.
 	 * 
 	 * Nodes are connected in a graph not by edges, but by
-	 * "Fans". A Fan is similar to a directed edge in that it has
-	 * a single origin, but differs in that it has multiple destinations.
+	 * HyperEdges. A HyperEdge (from graph theory) is similar
+	 * to a directed edge in that it has a single predecessor,
+	 * but differs in that it has multiple successors.
+	 * 
 	 * It is necessary for Nodes to be connected to each other
 	 * in this way, in order for further phases in the pipeline
-	 * to perform type resolution.
+	 * to execute the various kinds of polymorphic type
+	 * resolution.
 	 */
 	export class Node {
-		/** */
-		private static rootNodes;
-		/** */
-		private addRootNode;
-		/** */
-		private removeRootNode;
-		/** */
-		private getRootNodes;
-		/** */
-		private deleteRootNode;
 		/**
 		 * Removes this Node, and all its contents from the graph.
 		 */
 		dispose(): void;
 		/**
-		 * Removes the specified Fan from this Node's
+		 * Removes the specified HyperEdge from this Node's
 		 * set of outbounds.
 		 * 
-		 * @throws In the case when the specified Fan is
+		 * @throws In the case when the specified HyperEdge is
 		 * not owned by this Node.
 		 */
-		disposeFan(fan: Fan): void;
+		disposeEdge(edge: HyperEdge): void;
 		/** */
 		readonly container: Node | null;
 		/** */
@@ -4463,12 +5875,22 @@ declare module "truth-compiler" {
 		/** */
 		readonly stamp: VersionStamp;
 		/**
-		 * Stores the set of declaration-side Span
-		 * objects that compose this Node.
+		 * Stores the set of declaration-side Span objects that
+		 * compose this Node. If this the size of this set were to
+		 * reach zero, the Node would be marked for deletion.
+		 * (Node cleanup uses a reference counted collection
+		 * mechanism that uses the size of this set as it's guide).
+		 * 
+		 * Note that although the type of this field is defined as
+		 * "Set<Span | Anchor>", in practice, it is either a set of
+		 * multiple Span objects, or a set containing one single
+		 * Anchor object. This is because it's possible to have
+		 * fragments of a type declared in multiple places in
+		 * a document, however, Anchors (which are references
+		 * to declarations within an Infix) can only exist in one
+		 * place.
 		 */
-		readonly spans: Set<Span>;
-		/** */
-		readonly statements: Set<Statement>;
+		readonly declarations: Set<Span | InfixSpan>;
 		/**
 		 * Gets a readonly map of Nodes that are contained
 		 * by this node in the containment hierarchy.
@@ -4481,23 +5903,43 @@ declare module "truth-compiler" {
 		 */
 		readonly adjacents: NodeMap;
 		/**
-		 * Gets an immutable set of Fans from adjacent or
-		 * contained Nodes that reference this Node.
+		 * Gets the names of the identifiers referenced
+		 * as portability targets in the infixes of the Node.
+		 * If the Node's subject is not a pattern, this property
+		 * is an empty array.
+		 */
+		readonly portabilityTargets: string[];
+		/**
+		 * @returns A set of nodes that are matched by
+		 * patterns of adjacent nodes.
+		 * 
+		 * (Note that this is possible because annotations
+		 * that have been applied to a pattern cannot be
+		 * polymorphic)
+		 */
+		getPatternNodesMatching(nodes: Node[]): Node[];
+		/**
+		 * Gets an immutable set of HyperEdges from adjacent
+		 * or contained Nodes that reference this Node.
 		 * 
 		 * (The ordering of outbounds isn't important, as
 		 * they have no physical representation in the
 		 * document, which is why they're stored in a Set
 		 * rather than an array.)
 		 */
-		readonly inbounds: ReadonlySet<Fan>;
+		readonly inbounds: ReadonlySet<HyperEdge>;
 		private readonly _inbounds;
 		/**
-		 * Gets an array of Fans that connect this Node to
+		 * Gets an array of HyperEdges that connect this Node to
 		 * others, being either adjacents, or Nodes that
 		 * exists somewhere in the containment hierarchy.
 		 */
-		readonly outbounds: ReadonlyArray<Fan>;
+		readonly outbounds: ReadonlyArray<HyperEdge>;
 		private readonly _outbounds;
+		/**
+		 * 
+		 */
+		private enumerateOutbounds;
 		/**
 		 * Enumerates upwards through the containment
 		 * hierarchy of the Nodes present in this Node's
@@ -4506,251 +5948,640 @@ declare module "truth-compiler" {
 		 * root level adjacents of each of the document's
 		 * dependencies.
 		 */
-		private enumerateContainment;
+		enumerateContainment(): IterableIterator<{
+			sourceDocument: Document;
+			adjacents: ReadonlyMap<string, Node>;
+			longitudeDelta: number;
+		}>;
+		/**
+		 * Enumerates upwards through the containment
+		 * hierarchy of the Nodes present in this Node's
+		 * containing document, yielding each container
+		 * of this Node.
+		 */
+		enumerateContainers(): IterableIterator<Node>;
 		/** */
-		removeFanSpan(span: Span): void;
+		removeEdgeSource(src: Span | InfixSpan): void;
+		/** */
+		toString(includePath?: boolean): string;
+		/** */
+		private addRootNode;
+		/** */
+		private removeRootNode;
+		/** */
+		private getRootNodes;
+		/** */
+		private static rootNodes;
 	}
 	type NodeMap = ReadonlyMap<string, Node>;
 	/**
-	 * A Fan connects origin Nodes to target Nodes, for a
-	 * specific reason, identified by the "rationale" field.
-	 * 
-	 * Each Fan object is always "owned" by one single Node
-	 * object, however, Nodes have a reference to the Fans
-	 * that are targeting them through their Node.inbounds
-	 * field.
+	 * A HyperEdge connects an origin predecessor Node to a series of
+	 * successor Nodes. From graph theory, a "hyper edge" is different
+	 * from an "edge" in that it can have many successors:
+	 * https://en.wikipedia.org/wiki/Hypergraph
 	 */
-	export class Fan {
+	export class HyperEdge {
 		/**
-		 * Stores a string representation of the subjects
-		 * contained by the spans that this Fan represents.
-		 * In the case when the FanRationale is a sum, the
-		 * field instead stores the raw annotation-side
-		 * content as it appears in the document.
+		 * The Node from where the HyperEdge connection begins.
+		 * For example, given the following document:
+		 * 
+		 * Foo
+		 * 	Bar : Foo
+		 * 
+		 * Two Node objects would be created, one for the first instance
+		 * of "Foo", and another for the instance of "Bar". A HyperEdge
+		 * would be created between "Bar" and "Foo", and it's
+		 * precedessor would refer to the Node representing the
+		 * instance of "Bar".
+		 */
+		readonly predecessor: Node;
+		/**
+		 * Stores all possible success Nodes to which the predecessor
+		 * Node is preemptively connected via this HyperEdge. The
+		 * connection is said to be preemptive, because the connection
+		 * might be ignored during polymorphic name resolution.
+		 */
+		readonly successors: ReadonlyArray<Successor>;
+		constructor(
+		/**
+		 * The Node from where the HyperEdge connection begins.
+		 * For example, given the following document:
+		 * 
+		 * Foo
+		 * 	Bar : Foo
+		 * 
+		 * Two Node objects would be created, one for the first instance
+		 * of "Foo", and another for the instance of "Bar". A HyperEdge
+		 * would be created between "Bar" and "Foo", and it's
+		 * precedessor would refer to the Node representing the
+		 * instance of "Bar".
+		 */
+		predecessor: Node,
+		/**
+		 * 
+		 */
+		source: Span | InfixSpan,
+		/**
+		 * Stores all possible success Nodes to which the predecessor
+		 * Node is preemptively connected via this HyperEdge. The
+		 * connection is said to be preemptive, because the connection
+		 * might be ignored during polymorphic name resolution.
+		 */
+		successors: ReadonlyArray<Successor>);
+		/** */
+		addSource(source: Span | InfixSpan): void;
+		/** */
+		removeSource(source: Span | InfixSpan): void;
+		/** */
+		clearSources(): void;
+		/**
+		 * The set of annotation-side Spans or annotation-side InfixSpans
+		 * that are responsible for the conception of this HyperEdge.
+		 * 
+		 * The original locations of these Spans (and InfixSpans?) are
+		 * potentially scattered across many statements.
+		 * 
+		 * In the case when the *kind* field is *summation*, this set
+		 * must be empty.
+		 */
+		readonly sources: ReadonlyArray<Span | InfixSpan>;
+		/** */
+		private readonly sourcesMutable;
+		/**
+		 * The textual value of an Edge represents different things
+		 * depending on the Edge's *kind* property.
+		 * 
+		 * If *kind* is *literal*, the textual value is the given name
+		 * of the type being referenced, for example "String" or
+		 * "Employee".
+		 * 
+		 * If *kind* is *categorical*, the textual value is an alias that
+		 * will later be resolved to a specific type, or set of types, for
+		 * example "10cm" (presumably resolving to "Unit") or
+		 * "user@email.com" (presumable resolving to "Email").
+		 * 
+		 * If *kind* is *summation* , the textual value is the raw
+		 * literal text of the annotation found in the document. For
+		 * example, if the document had the content:
+		 * 
+		 * Foo, Bar : foo, bar
+		 * 
+		 * This would result in two nodes named "Foo" and "Bar",
+		 * each with their own HyperEdges whose textual values
+		 * would both be: "foo, bar". In the case of a fragmented
+		 * type, the last sum in document order is counted as the
+		 * textual value. For example, given the following
+		 * document:
+		 * 
+		 * T : aa, bb
+		 * T : xx, yy
+		 * 
+		 * The "T" node would have a HyperEdge with a textual
+		 * value being "xx, yy".
+		 * 
+		 * The *-overlay kinds have not yet been implemented.
+		 */
+		readonly identifier: Identifier;
+		/**
+		 * @returns A string representation of this HyperEdge,
+		 * suitable for debugging and testing purposes.
+		 */
+		toString(): string;
+	}
+	/**
+	 * 
+	 */
+	export class Successor {
+		readonly node: Node;
+		/**
+		 * The the number of levels of depth in the containment
+		 * hierarchy that need to be crossed in order for the containing
+		 * HyperEdge to be established between the predecessor and
+		 * this successor.
+		 */
+		readonly longitude: number;
+		constructor(node: Node,
+		/**
+		 * The the number of levels of depth in the containment
+		 * hierarchy that need to be crossed in order for the containing
+		 * HyperEdge to be established between the predecessor and
+		 * this successor.
+		 */
+		longitude: number);
+		readonly stamp: VersionStamp;
+	}
+	/**
+	 * A class that marks out the location of an infix Identifer within
+	 * it's containing Infix, it's containing Span, and then it's containing
+	 * Statement, Document, and Program.
+	 */
+	export class InfixSpan {
+		readonly containingSpan: Span;
+		readonly containingInfix: Infix;
+		readonly boundary: Boundary<Identifier>;
+		constructor(containingSpan: Span, containingInfix: Infix, boundary: Boundary<Identifier>);
+		/**
+		 * Gets the Statement that contains this Anchor.
+		 */
+		readonly statement: Statement;
+		/**
+		 * Gets a boolean value that indicates whether this InfixSpan
+		 * is considered object-level cruft, and should therefore be
+		 * ignored during type analysis.
+		 */
+		readonly isCruft: boolean;
+	}
+	/**
+	 * A class that stores constructed Layers.
+	 */
+	export class LayerContext {
+		private readonly program;
+		/** */
+		constructor(program: Program);
+		/**
+		 * Retrieves the Layer that corresponds to the specified URI.
+		 * If a corresponding Layer has not already been constructed
+		 * in this context, a new one is constructed and returned.
+		 */
+		maybeConstruct(directive: Uri): Layer | null;
+		/**
+		 * 
+		 */
+		getParallelOf(node: Node): SpecifiedParallel | null;
+		/**
+		 * Enumerates through the faults that have been
+		 * generated within this LayerContext.
+		 */
+		eachFault(): IterableIterator<Fault<TFaultSource>>;
+		/**
+		 * Gets a map of objects that should each be converted
+		 * into a type, which are indexed by a string representation
+		 * of the associated type URI. Each object translates into
+		 * another component specified in the type URI provided
+		 * in the constructor of this object.
+		 */
+		readonly layers: ReadonlyMap<string, Layer | null>;
+		private _layers;
+		/** */
+		addCruft(cruftObject: TCruft): void;
+		/** */
+		isCruft(cruftObject: TCruft): boolean;
+		/** */
+		private readonly cruft;
+		/**
+		 * Safety enumerates through the successors of the
+		 * specified Node, carefully avoiding anything that
+		 * has been marked as cruft.
+		 */
+		eachSuccessorOf(node: Node): IterableIterator<Successor>;
+		/**
+		 * @returns The successor object contained within the
+		 * specified HyperEdge that has previously been resolved
+		 * according to the polymorphic name resolution rules.
+		 */
+		pickSuccessor(hyperEdge: HyperEdge): Successor | null;
+		/**
+		 * Executes the polymorphic name resolution strategy,
+		 * and stores the results in the specified ConstructionContext
+		 * object.
+		 * 
+		 * The method assumes that the edges of the specified
+		 * parallel, and all it's edges (nested deeply) have already
+		 * been resolved.
+		 */
+		resolveSuccessors(parallel: SpecifiedParallel): void;
+		/** */
+		private readonly selectedSuccessors;
+	}
+	/** */
+	type TCruft = Node | HyperEdge | Span | InfixSpan;
+	/**
+	 * A Layer is a graph of Parallel objects that represents a
+	 * complete level in a URI.
+	 */
+	export class Layer {
+		readonly container: Layer | null;
+		readonly uri: Uri;
+		private readonly context;
+		/** */
+		constructor(container: Layer | null, uri: Uri, context: LayerContext);
+		/**
+		 * Stores a string representation of the Layer,
+		 * useful for debugging purposes.
 		 */
 		readonly name: string;
-		/** */
-		readonly origin: Node;
 		/**
-		 * Gets an array containing the Nodes to which the origin is
-		 * connected. If the array is empty, the Fan is technically
-		 */
-		readonly targets: ReadonlyArray<Node>;
-		private readonly _targets;
-		/** */
-		readonly rationale: FanRationale;
-		private _rationale;
-		/**
-		 * Gets an array of annotation-side Span objects that compose
-		 * the Fan. In the case when the "rationale" of this Fan is "patternSum",
-		 * this array is composed of a complete set of spans on the annotation
-		 * side of a single statement. In other cases, the array is composed of
-		 * Spans potentially scattered throughout the document across many
-		 * statements.
-		 */
-		readonly spans: Set<Span>;
-	}
-	/**
-	 * An enumeration that describes why a Fan was
-	 * created to connect a Node to a series of others.
-	 */
-	export enum FanRationale {
-		/**
-		 * Indicates that the Fan was created, but doesn't
-		 * actually connect anything, due to an inability
-		 * to resolve an annotation to a meaningful place
-		 * in the document.
-		 */
-		orphan = 0,
-		/**
-		 * Indicates that the Fan was created to connect
-		 * an origin Node to other Nodes through a type
-		 * relationship (meaning an exact name match).
-		 */
-		type = 1,
-		/**
-		 * Indicates that the Fan was created to connect
-		 * an origin Node to other Nodes through a pattern
-		 * with the coexistence flag set.
-		 */
-		pattern = 2,
-		/**
-		 * Indicates that the Fan was created to connect
-		 * and origin Node to other Nodes through a "sum"
-		 * pattern (a pattern without the coexistence flag set).
+		 * Initializes a top-level Layer. This method is used instead
+		 * of .descend() for top-level Layer construction.
 		 * 
-		 * A Sum is a serialized representation of a series of annotations
-		 * that are all present within a single statement. It is used to handle
-		 * the case that given a statement in the form "A : B, C, D", the
-		 * annotation "B, C, D" may actually be matchable by a pattern
-		 * without a coexistence flag. Sums allow these potential matches
-		 * to be processed more easily.
+		 * @throws In the case when the specified Node instance
+		 * has a non-null container (and therefore, is not top level).
 		 */
-		sum = 3
-	}
-	/**
-	 * 
-	 */
-	export class Pattern {
-		/** */
-		constructor();
-		/** */
-		readonly compiledExpression: RegExp;
-		/** */
-		readonly ast: Object;
+		bootstrap(node: Node): void;
 		/**
-		 * Stores a boolean value indicating whether the pattern
-		 * can match individual blocks of content on the annotation
-		 * side of a statement (separated by commas), or whether
-		 * the pattern must match all annotation-side content in a
-		 * statement.
+		 * Maps this Parallel, and all it's connected Parallels, to the type
+		 * in each of their contents with the specified name.
 		 */
-		readonly canCoexist = false;
-		/** Necessary? */
-		readonly canMatchEmpty = false;
-		/** Necessary? */
-		readonly canMatchWhitespace = false;
-	}
-	/**
-	 * 
-	 */
-	export enum PatternComparisonResult {
-		/** */
-		subset = 0,
-		/** */
-		superset = 1,
-		/** */
-		equal = 2,
-		/** */
-		unequal = 3
-	}
-	/**
-	 * 
-	 */
-	export abstract class Alias {
-		/** */
-		abstract readonly span: Span;
+		descend(typeName: string): Layer | null;
 		/**
-		 * Stores an array of Patterns that match this alias.
+		 * Traverses through the entire graph of Parallels that correspond
+		 * to this Layer.
 		 */
-		abstract readonly recognizers: ReadonlyArray<Pattern>;
-	}
-	/**
-	 * 
-	 */
-	export class Waterfall {
-		/** */
-		static create(directiveUri: Uri, program: Program): Waterfall | null;
-		/** */
-		readonly origin: Turn;
-		/** */
-		readonly directive: ReadonlyArray<Turn>;
+		traverseLayer(): IterableIterator<LayerEdge>;
 		/**
-		 * @returns The number of terraces in the underlying
-		 * waterfall. Used to quickly determine if a URI was directed
-		 * at an unpopulated location in a document.
+		 * Performs a traversal on all nested Parallel objects in dependency
+		 * order, and yields an object that forms an edge that represents
+		 * a connection between two Parallel objects.
 		 */
-		readonly totalHeight: number;
+		traverseParallelEdges(): IterableIterator<{
+			from: Parallel | null;
+			to: Parallel;
+		}>;
 		/**
-		 * Stores an array of faults that were generated before the
-		 * Waterfall was constructed.
+		 * Performs a traversal of all nested Parallel objects in dependency
+		 * order, meaning, the method does not yield Parallel objects until
+		 * all its dependencies have also been yielded. The method also
+		 * ensures that the same object is not yielded more than once.
 		 */
-		readonly constructionFaults: ReadonlyArray<Fault>;
+		traverseParallels(): IterableIterator<Parallel>;
 		/**
-		 * Reads a full terrace from the waterfall, from the specified
-		 * URI.
+		 * Gets an array containing the Parallels that "seed" this
+		 * Layer, meaning that they have no inbound edges.
+		 */
+		readonly seeds: ReadonlyArray<Parallel>;
+		private readonly _seeds;
+		/**
+		 * Gets the origin seed Parallel of this Layer, if one exists,
+		 * or null in the case when it doesn't.
 		 * 
-		 * @throws If the URI has typePath that is not a strict subset
-		 * of this Waterfall's directive.
+		 * The orgin seed is available when there is exactly one
+		 * SpecifiedParallel that seeds the Layer. This is the case
+		 * when the LayerContext has been instructed to construct
+		 * a URI pointing to a specific node.
 		 */
-		readTerrace(uri: Uri): ReadonlyArray<Turn | undefined>;
-		/** */
-		readFloorTerrace(): never[];
-		/** */
-		walk(): WaterfallWalker;
+		readonly origin: SpecifiedParallel | null;
+		/**
+		 * Gets an array of
+		 */
+		readonly patterns: LayerPatterns;
+		private _patterns;
+	}
+	/** */
+	export interface LayerEdge {
+		fromParallel: Parallel | null;
+		fromNode: Node | null;
+		toParallel: Parallel;
+		toNode: Node | null;
 	}
 	/**
-	 * A class that acts as a cursor for walking around a Waterfall
-	 * instance. Note that the WaterfallWalker does, indeed, walk
-	 * on water.
+	 * Stores the information that relates to the Patterns that
+	 * have been defined within a single Layer.
 	 */
-	export class WaterfallWalker {
-		private readonly waterfall;
-		constructor(waterfall: Waterfall);
+	export class LayerPatterns {
+		private readonly layer;
 		/** */
-		plunge(): Turn | null;
+		constructor(layer: Layer);
+		/**
+		 * Stores the nodes that define patterns.
+		 */
+		readonly nodes: Node[];
+		/**
+		 * @returns The node that defines a pattern that is generalized
+		 * by the type that corresponds to the specified set of nodes.
+		 */
+		find(resolvingTo: Node[]): Node | null;
+		/**
+		 * Attempts to feed the specified string into all of the
+		 * patterns that are defined within this LayerPatterns
+		 * instance.
+		 * 
+		 * @param filterByNodes If specified, only the pattern
+		 * that is generalized by the types that correspond to
+		 * the nodes contained in the array.
+		 */
+		tryExecute(maybeAlias: string, filterByNodes?: Node[]): Node | null;
+	}
+	/**
+	 * A class that represents a single object in the graph
+	 * of (what eventually becomes) parallel types. Parallel
+	 * objects link to other Parallel objects through ParallelEdge
+	 * classes, which allow consumers to scan through the
+	 * parallels that relate to a specific Node.
+	 * 
+	 * Parallels can either be "specified" or "unspecified".
+	 * This class represents the "unspecified" variant,
+	 * where as the derived class "SpecifiedParallel" represents
+	 * the former.
+	 */
+	export abstract class Parallel {
+		readonly uri: Uri;
+		readonly container: Parallel | null;
+		protected readonly context: LayerContext;
+		/**
+		 * @returns A Parallel object that was previously constructed
+		 * within the specified LayerContext, that matches the specified
+		 * URI, or null in the case when no such Parallel exists.
+		 */
+		protected static getExistingParallel(uri: Uri, context: LayerContext): Parallel | null;
+		/**
+		 * Stores a map of all the Parallel objects that have been
+		 * created for each LayerContext. The purpose of this is
+		 * to prevent the two separate Parallel instances from
+		 * being created that correspond to the same Node.
+		 */
+		protected static readonly constructedParallels: WeakMap<LayerContext, Map<string, Parallel>>;
 		/** */
-		canPlunge(): boolean;
+		protected constructor(uri: Uri, container: Parallel | null, context: LayerContext);
+		readonly version: VersionStamp;
+		/**
+		 * Stores a string representation of this Parallel,
+		 * useful for debugging purposes.
+		 */
+		readonly name: string;
+		/**
+		 * Stores an array of other Parallel instances to which
+		 * this Parallel connects. For example, the following
+		 * document, the Parallel object corresponding to the
+		 * last "Field" would have two edges, pointing to two
+		 * other Parallel instances corresponding to the "Field"
+		 * declarations contained by "Left" and "Right".
+		 * 
+		 * Left
+		 * 	Field
+		 * Right
+		 * 	Field
+		 * Bottom : Left, Right
+		 * 	Field
+		 */
+		readonly edges: ReadonlyArray<Parallel>;
+		private readonly _edges;
+		/**
+		 * Adds an edge between this Parallel instance and
+		 * the instance specified, if an equivalent edge does
+		 * not already exist.
+		 */
+		maybeAddEdge(toParallel: Parallel): void;
+		/**
+		 * Performs a depth-first traversal of all nested Parallel instances,
+		 * and yields each one (this Parallel instance is excluded).
+		 */
+		traverseParallels(): IterableIterator<Parallel>;
+		/**
+		 * Performs a depth-first traversal of all nested SpecifiedParallel
+		 * instances, and yields each one (this Parallel instance is excluded).
+		 */
+		traverseParallelsSpecified(): IterableIterator<SpecifiedParallel>;
 		/** */
-		flow(): Turn | null;
-		/** */
-		canFlow(): boolean;
+		abstract descend(typeName: string): Parallel;
 	}
 	/**
 	 * 
 	 */
-	interface IMutableTurn {
+	export class SpecifiedParallel extends Parallel {
 		/**
-		 * Indicates whether this Turn terminates the flow of it's ledge.
+		 * Constructs a SpecifiedParallel object, or returns a
+		 * pre-existing one that corresponds to the specified Node.
 		 */
-		terminal: boolean;
+		static maybeConstruct(node: Node, container: SpecifiedParallel | null, context: LayerContext): Parallel;
+		/** */
+		private constructor();
 		/**
-		 * Stores the array of Node objects that correspond to this turn.
+		 * Stores the Node instance that corresponds to this
+		 * SpecifiedParallel instance.
 		 */
-		nodes: Node[];
+		readonly node: Node;
+		/**
+		 * Traverses through the general graph, depth-first, yielding
+		 * elements that corresponds to this parallel, and returns an
+		 * object that represents an edge that connects one node.
+		 */
+		traverseGeneralEdges(): IterableIterator<{
+			from: Node;
+			to: Node;
+		}>;
+		/**
+		 * @ignore
+		 * 
+		 * Traverses through the general edge graph, and yields
+		 * the parallel that corresponds to each discovered node,
+		 * as well as the successor attached to this SpecifiedParallel
+		 * instance through which the corresponding SpecifiedParallel
+		 * was discovered.
+		 */
+		/**
+		 * @ignore
+		 * 
+		 * Same as traverseGeneralEdgeParallels, but returns a map
+		 * with the results instead of yielding individual results.
+		 */
+		getGeneralEdgeParallelSet(): Map<Successor, ReadonlyArray<Parallel>>;
+		/**
+		 * 
+		 */
+		/**
+		 * Analyzes this SpecifiedParallel to scan for the following faults:
+		 * 	CircularTypeReference
+		 * 	ListIntrinsicExtendingList
+		 * 	ListExtrinsicExtendingNonList
+		 * 	ListDimensionalDiscrepancyFault
+		 * 	IgnoredAnnotation
+		 * 	UnresolvedAnnotationFault
+		 * 
+		 * This method may mark various parts of the document as cruft.
+		 * It also computes the existence of the parallel (which is a term
+		 * we're using to describe the set of annotations that have been
+		 * applied to a type).
+		 * 
+		 * This method also assumes that it's being called only after all
+		 * it's higher Parallels (i.e. Parallels that exist higher than this
+		 * one in the Layer) have been analyzed.
+		 * 
+		 * @deprecated
+		 */
+		analyze(): void;
+		/**
+		 * Maps this Parallel instance to another Parallel instance
+		 * that corresponds to a Node in this Parallel's underlying
+		 * Node's contents.
+		 */
+		descend(typeName: string): Parallel;
+		/** */
+		readonly existence: ReadonlyArray<Node>;
+		private _existence;
+		/**
+		 * Gets a string that represents the existence of this
+		 * SpecifiedParallel instance, useful for debugging.
+		 */
+		private readonly existenceLabel;
+		/** */
+		readonly listDimensionality: number;
+		private _listDimensionality;
+		/** */
+		readonly isList: boolean;
+		private _isList;
+		/**
+		 * Gets an array that contains the faults that have been
+		 * identified during the lifecycle of this construction context.
+		 */
+		readonly faults: ReadonlyArray<Fault<TFaultSource>>;
+		private readonly _faults;
 	}
-	export type Turn = Freeze<IMutableTurn>;
+	/**
+	 * An "unspecified parallel" is a marker object used to
+	 * maintain the connectedness of a parallel graph. For
+	 * example, consider the following document:
+	 * 
+	 * Class1
+	 * 	Property : Animal
+	 * Class2 : Class1
+	 * Class3 : Class2
+	 * 	Property : Rabbit
+	 * 
+	 * In this case, the parallel graph connecting Class3's
+	 * Property type through to it's apex parallel (which
+	 * would be Class1/Property), would have an
+	 * UnspecifiedParallel object created, and residing
+	 * within the Class2 type.
+	 * 
+	 * UnspecifiedParallels were originally intended for
+	 * use by the type representation in order to perform
+	 * operations such as collecting specified and unspecified
+	 * adjacent types, however, it appears now that this
+	 * may not be sufficient given the current design of the
+	 * system.
+	 */
+	export class UnspecifiedParallel extends Parallel {
+		/**
+		 * Constructs a UnspecifiedParallel object, or returns a
+		 * pre-existing one that corresponds to the specified Node.
+		 */
+		static maybeConstruct(uri: Uri, container: Parallel, context: LayerContext): Parallel;
+		/** */
+		private constructor();
+		/** */
+		descend(typeName: string): UnspecifiedParallel;
+	}
+	/**
+	 * 
+	 */
+	export class ParallelAnalyzer {
+		/** */
+		private static isList;
+		/**
+		 * Performs analysis
+		 */
+		private static canMerge;
+		/** */
+		private constructor();
+	}
 	/**
 	 * A class that represents a fully constructed type within the program.
 	 */
 	export class Type {
 		static construct(spine: Spine, program: Program): Type;
 		/** */
-		constructor();
+		private static layerContextMap;
 		/**
 		 * 
 		 */
-		constructAdjacents(): never[];
-		/**
-		 * 
-		 */
-		constructContents(): Type[];
-		/**
-		 * Attempts to match the specified string against the
-		 * Patterns that resolve to this type. If this type is a pattern,
-		 * the input is tested against the inner regular expression.
-		 */
-		tryMatch(input: string): boolean;
-		/**
-		 * Stores the Waterfall diagram used to construct this type.
-		 */
-		private readonly waterfall;
+		private constructor();
 		/**
 		 * Stores a text representation of the name of the type,
 		 * or a serialized version of the pattern content in the
 		 * case when the type is actually a pattern.
 		 */
 		readonly name: string;
-		/** */
-		readonly container: Type;
+		/**
+		 * Stores the URI that specifies where this Type was
+		 * found in the document.
+		 */
+		readonly uri: Uri;
+		/**
+		 * Stores a reference to the type, as it's defined in it's
+		 * next most applicable
+		 */
+		readonly parallels: ReadonlyArray<Type>;
+		/**
+		 * Stores the Type that contains this Type, or null in
+		 * the case when this Type is top-level.
+		 */
+		readonly container: Type | null;
+		/**
+		 * 
+		 */
+		readonly contents: ReadonlyArray<Type>;
+		/**
+		 * 
+		 */
+		readonly contentsIntrinsic: ReadonlyArray<Type>;
 		/**
 		 * Stores the array of types from which this type extends.
 		 * If this Type extends from a pattern, it is included in this
 		 * array.
 		 */
-		readonly bases: ReadonlyArray<Type>;
+		readonly generals: ReadonlyArray<Type>;
 		/**
-		 * Stores the array of annotations attached to this Type
-		 * that were resolved as type aliases through a Pattern.
+		 * 
 		 */
-		readonly aliases: ReadonlyArray<Alias>;
+		readonly metaphors: ReadonlyArray<Type>;
 		/**
-		 * Stores a reference to the intrinsic side of the list when
-		 * this type represents the extrinsic side of a list, or vice
-		 * versa.
-		 * Stores null in the case when the type is not a list.
+		 * 
 		 */
-		readonly listPortal: Type | null;
+		readonly specifics: ReadonlyArray<Type>;
+		/**
+		 * 
+		 */
+		readonly adjacents: ReadonlyArray<Type>;
+		/**
+		 * 
+		 */
+		readonly patterns: ReadonlyArray<Type>;
+		/**
+		 * Gets a map of raw string values representing the
+		 * type aliases with which this type has been annotated,
+		 * which are keyed by the type to which they resolve.
+		 */
+		readonly values: Map<any, any> | ReadonlyMap<Type, string>;
 		/**
 		 * Stores whether this type represents the intrinsic
 		 * side of a list.
@@ -4762,21 +6593,36 @@ declare module "truth-compiler" {
 		 */
 		readonly isListExtrinsic: boolean;
 		/**
-		 * Stores whether the bases explicitly assigned to
-		 * this type are compliant with the requirements
-		 * imposed on this type from it's inheritance source.
+		 * Stores whether this Type instance has no annotations applied to it.
 		 */
-		readonly isContractuallyCompliant: boolean;
-		/** */
 		readonly isFresh: boolean;
 		/** */
 		readonly isOverride: boolean;
 		/** */
+		readonly isIntroduction: boolean;
+		/**
+		 * Stores a value that indicates if this Type was directly specified
+		 * in the document, or if it's existence was inferred.
+		 */
+		readonly isSpecified: boolean;
+		/** */
 		readonly isAnonymous: boolean;
 		/** */
-		readonly inCircularGroup: boolean;
-		/** */
 		readonly isPattern: boolean;
+		/** */
+		readonly isUri: boolean;
+		/** */
+		readonly isList: boolean;
+		/**
+		 * Gets a boolean value that indicates whether this Type
+		 * instance was created from a previous edit frame, and
+		 * should no longer be used.
+		 */
+		readonly isDirty: boolean;
+		/**
+		 * 
+		 */
+		readonly faults: ReadonlyArray<Fault>;
 	}
 }
 

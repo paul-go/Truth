@@ -1,4 +1,7 @@
 
+/**
+ * Stores unsorted general utility methods.
+ */
 export class Misc
 {
 	/**
@@ -62,7 +65,9 @@ export class Misc
 	 * a subset (not a proper subset) of the items of the second
 	 * set.
 	 */
-	static isSubset(sourceSet: ReadonlySet<any>, possibleSubset: ReadonlySet<any>)
+	static isSubset(
+		sourceSet: ReadonlySet<any>,
+		possibleSubset: ReadonlySet<any>)
 	{
 		for (const item of possibleSubset)
 			if (!sourceSet.has(item))
@@ -76,13 +81,31 @@ export class Misc
 	 * a superset (not a proper superset) of the items of the
 	 * second set.
 	 */
-	static isSuperset(sourceSet: ReadonlySet<any>, possibleSuperset: ReadonlySet<any>)
+	static isSuperset(
+		sourceSet: ReadonlySet<any>,
+		possibleSuperset: ReadonlySet<any>)
 	{
 		for (const item of sourceSet)
 			if (!possibleSuperset.has(item))
 				return false;
 		
 		return true;
+	}
+	
+	/**
+	 * @returns The number of items that are missing
+	 * from the second set that exist in the first set.
+	 */
+	static computeSubsetFactor(
+		a: ReadonlyArray<any>,
+		b: ReadonlyArray<any>)
+	{
+		let count = 0;
+		
+		for (const item of a)
+			count += b.includes(item) ? 0 : 1;
+		
+		return count;
 	}
 	
 	private constructor() {}

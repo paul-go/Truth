@@ -4,7 +4,7 @@
 		"type": "node",
 		"request": "launch",
 		"name": "Debug Project",
-		"program": "${workspaceFolder}/Build/Dev/Debug/Start.js",
+		"program": "${workspaceFolder}/Build/Dev/Debug/Start.js", 
 		"internalConsoleOptions": "neverOpen",
 		"sourceMaps": true,
 		"args": [

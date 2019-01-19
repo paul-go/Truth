@@ -1,12 +1,22 @@
 import * as X from "../../X";
 
 
+interface IStoredContext
+{
+	version: X.VersionStamp;
+	context: X.LayerContext;
+}
+
+
 /**
  * A class that represents a fully constructed type within the program.
  */
 export class Type
 {
-	/** @internal */
+	/** 
+	 * @internal
+	 * Constructs one or more Type objects from the specified location.
+	 */
 	static construct(uri: X.Uri, program: X.Program): Type | null;
 	static construct(spine: X.Spine, program: X.Program): Type;
 	static construct(param: X.Uri | X.Spine, program: X.Program): Type | null
@@ -25,11 +35,33 @@ export class Type
 				return cached;
 		}
 		
-		const types: X.Type[] = [];
-		const context = new X.LayerContext(program);
-		let lastType: X.Type | null = null;
+		const context = (() =>
+		{
+			const stored = this.layerContextMap.get(program);
+			if (stored === undefined)
+			{
+				const newStored: IStoredContext = {
+					version: program.version,
+					context: new X.LayerContext(program)
+				};
+				
+				this.layerContextMap.set(program, newStored);
+				return newStored.context;
+			}
+			else if (program.version.newerThan(stored.version))
+			{
+				stored.context = new X.LayerContext(program);
+			}
+			
+			return stored.context;
+		})();
 		
 		context.maybeConstruct(uri);
+		
+		for (const fault of context.eachFault())
+			program.faults.report(fault);
+		
+		let lastType: X.Type | null = null;
 		
 		for (let i = 0; ++i < uri.typePath.length;)
 		{
@@ -39,15 +71,9 @@ export class Type
 			
 			if (layer)
 			{
-				const typeInfo: ITypeInfo = {
-					uri,
-					container: lastType
-				};
-				
-				const type = new Type(typeInfo);
-				X.TypeCache.set(currentUri, program, type);
-				types.push(type);
-				lastType = type;
+				const nextType: X.Type = new Type(layer, lastType, program);
+				X.TypeCache.set(currentUri, program, nextType);
+				lastType = nextType;
 			}
 			else
 			{
@@ -60,22 +86,72 @@ export class Type
 	}
 	
 	/**
+	 * @internal
+	 * Constructs the invisible root-level Type object that corresponds
+	 * to the specified document.
+	 */
+	static constructRoots(document: X.Document)
+	{
+		const program = document.program;
+		const roots: X.Type[] = [];
+		
+		for (const node of program.graph.readRoots(document))
+		{
+			const type = this.construct(node.uri, program);
+			if (type !== null)
+				roots.push(type);
+		}
+		
+		return Object.freeze(roots);
+	}
+	
+	/** */
+	private static layerContextMap = new WeakMap<X.Program, IStoredContext>();
+	
+	/**
 	 * 
 	 */
-	private constructor(info: ITypeInfo)
+	private constructor(
+		layer: X.Layer,
+		container: X.Type | null,
+		program: X.Program)
 	{
-		this.name = info.uri.typePath[info.uri.typePath.length - 1];
-		this.uri = info.uri;
-		//this.faults = Object.freeze(info.faults || []);
-		this.container = info.container;
-		this.parallels = Object.freeze(info.parallels || []);
-		this._generals = new X.TypeProxyArray(info.generals || []);
-		this._listPortal = info.listPortal || null;
-		this.isListIntrinsic = info.isListIntrinsic || false;
-		this.isListExtrinsic = info.isListExtrinsic || false;
-		this.isAnonymous = info.isAnonymous || false;
-		this.isPattern = info.isPattern || false;
-		this.isUri = info.isUri || false;
+		this.private = new TypePrivate(program);
+		this.name = layer.uri.typePath[layer.uri.typePath.length - 1];
+		this.uri = layer.uri;
+		this.container = container;
+		
+		/**
+		 * Populating this.parallels:
+		 * The current way we're dealing with "seeds" doesn't support this.
+		 * We need to be able to get a single origin from the URI, whether
+		 * or not it's specified. The parallels that stem from this specified
+		 * or unspecified origin would form the basis of the representative
+		 * TypeProxy instances in the .parallels field.
+		 */
+		this.parallels = Object.freeze([]);
+		
+		/** 
+		 * Populating this.generals & this.isList:
+		 * (Similar problem as above, I think)
+		 */
+		this.private.generals = new X.TypeProxyArray([]);
+		this.isList = false;
+		
+		const origin = layer.origin;
+		if (origin !== null)
+		{
+			this.isFresh = origin.edges.length === 0;
+			this.faults = origin.faults;
+			
+			const sub = origin.node.subject;
+			this.isPattern = sub instanceof X.Pattern;
+			this.isUri = sub instanceof X.Uri;
+			this.isAnonymous = sub instanceof X.Anon;
+			this.isSpecified = true;
+		}
+		
+		this.faults = origin ? origin.faults : Object.freeze([]);
 	}
 	
 	/**
@@ -108,55 +184,64 @@ export class Type
 	 */
 	get contents()
 	{
-		// The behavior of this method is similar to constructAdjacents,
-		// but with the distinction that the contents of the floor terrace
-		// turns are collected rather than the floor turns themselves.
-		// This method may also support a filtering method to find one
-		// single contained node.
+		/**
+		 * This thing needs to go through the parallels and 
+		 * find both the specified and the unspecified types.
+		 */
 		
-		if (this._contents !== null)
-			return this._contents;
+		if (this.private.contents !== null)
+			return this.private.contents;
 		
-		return this._contents = Object.freeze([]);
+		this.private.throwOnDirty();
+		return this.private.contents = Object.freeze([]);
 	}
-	private _contents: ReadonlyArray<X.Type> | null = null;
+	
+	/**
+	 * 
+	 */
+	get contentsIntrinsic()
+	{
+		if (this.private.contentsIntrinsic !== null)
+			return this.private.contentsIntrinsic;
+		
+		this.private.throwOnDirty();
+		return this.private.contentsIntrinsic = Object.freeze([]);
+	}
 	
 	/**
 	 * Stores the array of types from which this type extends.
 	 * If this Type extends from a pattern, it is included in this
 	 * array.
 	 */
-	get generals()
+	get generals(): ReadonlyArray<X.Type>
 	{
-		return this._generals.maybeCompile();
+		this.private.throwOnDirty();
+		return Object.freeze([]);
 	}
-	
-	/** @internal */
-	private readonly _generals: X.TypeProxyArray;
 	
 	/**
 	 * 
 	 */
 	get metaphors()
 	{
-		if (this._metaphors !== null)
-			return this._metaphors;
+		if (this.private.metaphors !== null)
+			return this.private.metaphors;
 		
-		return this._metaphors = Object.freeze([]);
+		this.private.throwOnDirty();
+		return this.private.metaphors = Object.freeze([]);
 	}
-	private _metaphors: ReadonlyArray<X.Type> | null = null;
 	
 	/**
 	 * 
 	 */
 	get specifics()
 	{
-		if (this._specifics !== null)
-			return this._specifics;
+		if (this.private.specifics !== null)
+			return this.private.specifics;
 		
-		return this._specifics = Object.freeze([]);
+		this.private.throwOnDirty();
+		return this.private.specifics = Object.freeze([]);
 	}
-	private _specifics: ReadonlyArray<X.Type> | null = null;
 	
 	/**
 	 * 
@@ -171,28 +256,29 @@ export class Type
 		// just need the names initially. So API consumers should have
 		// the ability to do either of these.
 		
-		if (this._adjacents !== null)
-			return this._adjacents;
+		if (this.private.adjacents !== null)
+			return this.private.adjacents;
 		
-		return this._adjacents = Object.freeze([]);
+		this.private.throwOnDirty();
+		return this.private.adjacents = Object.freeze([]);
 	}
-	private _adjacents: ReadonlyArray<Type> | null = null;
 	
 	/**
 	 * 
 	 */
 	get patterns()
 	{
-		if (this._patterns !== null)
-			return this._patterns;
+		if (this.private.patterns !== null)
+			return this.private.patterns;
+		
+		this.private.throwOnDirty();
 		
 		// This is only going to return the patterns for the immediate
 		// type scope, not the ones that exist deeply
-		return this._patterns = this.adjacents
+		return this.private.patterns = this.adjacents
 			.filter(type => type.isPattern)
 			.filter(type => type.generals.includes(this));
 	}
-	private _patterns: ReadonlyArray<X.Type> | null = null;
 	
 	/**
 	 * Gets a map of raw string values representing the
@@ -201,42 +287,29 @@ export class Type
 	 */
 	get values()
 	{
-		if (this._values !== null)
-			return this._values;
+		if (this.private.values !== null)
+			return this.private.values;
 		
-		return this._values = new Map();
+		this.private.throwOnDirty();
+		return this.private.values = new Map();
 	}
-	private _values: ReadonlyMap<X.Type, string> | null = null;
-	
-	/**
-	 * Stores a reference to the intrinsic side of the list when
-	 * this type represents the extrinsic side of a list, or vice
-	 * versa. Stores null in the case when the type is not a list.
-	 */
-	get listPortal()
-	{
-		return this._listPortal !== null ?
-			this._listPortal.maybeCompile() :
-			null;
-	}
-	
-	/** @internal */
-	private readonly _listPortal: X.TypeProxy | null;
 	
 	/**
 	 * Stores whether this type represents the intrinsic
 	 * side of a list.
 	 */
-	readonly isListIntrinsic: boolean;
+	readonly isListIntrinsic: boolean = false;
 	
 	/**
 	 * Stores whether this type represents the extrinsic
 	 * side of a list.
 	 */
-	readonly isListExtrinsic: boolean;
+	readonly isListExtrinsic: boolean = false;
 	
-	/** */
-	get isFresh() { return this.generals.length > 0; }
+	/**
+	 * Stores whether this Type instance has no annotations applied to it.
+	 */
+	readonly isFresh: boolean = false;
 	
 	/** */
 	get isOverride() { return this.parallels.length > 0; }
@@ -244,35 +317,92 @@ export class Type
 	/** */
 	get isIntroduction() { return this.parallels.length === 0; }
 	
-	/** */
-	readonly isAnonymous: boolean;
+	/**
+	 * Stores a value that indicates if this Type was directly specified
+	 * in the document, or if it's existence was inferred.
+	 */
+	readonly isSpecified: boolean = false;
 	
 	/** */
-	readonly isPattern: boolean;
+	readonly isAnonymous: boolean = false;
 	
 	/** */
-	readonly isUri: boolean;
+	readonly isPattern: boolean = false;
+	
+	/** */
+	readonly isUri: boolean = false;
+	
+	/** */
+	readonly isList: boolean = false;
+	
+	/**
+	 * Gets a boolean value that indicates whether this Type
+	 * instance was created from a previous edit frame, and
+	 * should no longer be used.
+	 */
+	get isDirty()
+	{
+		return this.private.program.version.newerThan(this.private.stamp);
+	}
 	
 	/**
 	 * 
 	 */
-	//readonly faults: ReadonlyArray<X.Fault>;
+	readonly faults: ReadonlyArray<X.Fault>;
+	
+	/**
+	 * @internal
+	 * Internal object that stores the private members
+	 * of the Type object. Do not use.
+	 */
+	private readonly private: TypePrivate;
 }
 
 
 /**
- * 
+ * @internal
+ * A hidden class that stores the private information of
+ * a Type instance, used to mitigate the risk of low-rank
+ * developers from getting themselves into trouble.
  */
-interface ITypeInfo
+class TypePrivate
 {
-	uri: X.Uri;
-	parallels?: ReadonlyArray<X.Type>;
-	generals?: ReadonlyArray<X.TypeProxy>;
-	container: X.Type | null;
-	listPortal?: X.TypeProxy;
-	isListIntrinsic?: boolean;
-	isListExtrinsic?: boolean;
-	isAnonymous?: boolean;
-	isPattern?: boolean;
-	isUri?: boolean;
+	constructor(readonly program: X.Program)
+	{
+		this.stamp = program.version;
+	}
+	
+	/** */
+	readonly stamp: X.VersionStamp;
+	
+	/** */
+	contents: ReadonlyArray<X.Type> | null = null;
+	
+	/** */
+	contentsIntrinsic: ReadonlyArray<X.Type> | null = null;
+	
+	/** */
+	generals: X.TypeProxyArray | null = null;
+	
+	/** */
+	patterns: ReadonlyArray<X.Type> | null = null;
+	
+	/** */
+	values: ReadonlyMap<X.Type, string> | null = null;
+	
+	/** */
+	metaphors: ReadonlyArray<X.Type> | null = null;
+	
+	/** */
+	specifics: ReadonlyArray<X.Type> | null = null;
+	
+	/** */
+	adjacents: ReadonlyArray<Type> | null = null;
+	
+	/** */
+	throwOnDirty()
+	{
+		if (this.program.version.newerThan(this.stamp))
+			throw X.Exception.objectDirty();
+	}
 }

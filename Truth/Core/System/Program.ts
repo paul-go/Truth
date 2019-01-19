@@ -23,7 +23,7 @@ export class Program
 		this.hooks.Invalidate.capture(() =>
 		{
 			this._version = X.VersionStamp.next();
-			this.lastProgramScanner = null;
+			this.currentProgramScanner = null;
 		});
 		
 		// The ordering of these instantations is relevant,
@@ -69,7 +69,7 @@ export class Program
 	 * Stores an object that allows type analysis to be performed on
 	 * this Program. It is reset at the beginning of every edit cycle.
 	 */
-	private lastProgramScanner: X.ProgramScanner | null = null;
+	private currentProgramScanner: X.ProgramScanner | null = null;
 	
 	/**
 	 * Performs a full verification of all documents loaded into the program.
@@ -82,8 +82,8 @@ export class Program
 	 */
 	scan()
 	{
-		if (this.lastProgramScanner)
-			return this.lastProgramScanner;
+		if (this.currentProgramScanner)
+			return this.currentProgramScanner;
 		
 		for (const doc of this.documents.each())
 			this.indentCheckService.invoke(doc);
@@ -92,20 +92,39 @@ export class Program
 	}
 	
 	/**
-	 * @returns A fully constructed type object that corresponds to
-	 * the URI specified. In the case when no type could be found at
-	 * the specified location, null is returned.
+	 * @returns A fully constructed Type instance that corresponds to
+	 * the type path specified. In the case when no type could be found
+	 * at the specified location, null is returned.
+	 * 
+	 * @param document An instance of a Document that specifies
+	 * where to begin the query.
+	 * 
+	 * @param typePath The type path to query within the the specified
+	 * Document.
 	 */
-	query(uri: X.Uri)
+	query(document: X.Document, ...typePath: string[])
 	{
+		const uri = document.sourceUri.extend([], typePath);
 		return X.Type.construct(uri, this);
+	}
+	
+	/**
+	 * @returns An array that contains the root-level types defined
+	 * in the specified Document.
+	 */
+	queryRoots(document: X.Document)
+	{
+		return X.Type.constructRoots(document);
 	}
 	
 	/**
 	 * Begin inspecting a document loaded
 	 * into this program, a specific location.
 	 */
-	inspect(document: X.Document, line: number, offset: number): ProgramInspectionResult
+	inspect(
+		document: X.Document,
+		line: number,
+		offset: number): ProgramInspectionResult
 	{
 		const statement = document.read(line);
 		const region = statement.getRegion(offset);
