@@ -34,10 +34,10 @@ export class Layer
 		if (node.container !== null)
 			throw X.Exception.unknownState();
 		
-		this._seeds.push(X.SpecifiedParallel.maybeConstruct(
+		this._seed = X.SpecifiedParallel.maybeConstruct(
 			node,
 			null,
-			this.context));
+			this.context);
 	}
 	
 	/**
@@ -117,9 +117,13 @@ export class Layer
 					seedParallels.delete(existingDescendPar);
 				}
 			}
+			
+			// This loop will quit with the lastly assigned
+			// Parallel as the Layer's seed.
+			outLayer._seed = descendParallel;
 		}
 		
-		outLayer._seeds.push(...Array.from(seedParallels));
+		//outLayer._seeds.push(...Array.from(seedParallels));
 		return outLayer;
 	}
 		
@@ -141,17 +145,17 @@ export class Layer
 					
 					if (toLayer === null || 
 						fromLayer === null ||
-						toLayer.origin === null ||
-						fromLayer.origin === null)
+						toLayer.seed === null ||
+						fromLayer.seed === null)
 					{
 						debugger;
 						continue;
 					}
 					
 					yield <LayerEdge>{
-						fromParallel: fromLayer.origin,
+						fromParallel: fromLayer.seed,
 						fromNode: fromGen,
-						toParallel: toLayer.origin,
+						toParallel: toLayer.seed,
 						toNode: toGen
 					};
 				}
@@ -187,11 +191,13 @@ export class Layer
 			yield { from, to };
 		}
 		
-		for (const parallel of this._seeds)
-			yield* recurse(null, parallel);
+		//for (const parallel of this._seeds)
+		yield* recurse(null, this.seed);
 	}
 	
 	/**
+	 * @deprecated
+	 * 
 	 * Performs a traversal of all nested Parallel objects in dependency
 	 * order, meaning, the method does not yield Parallel objects until
 	 * all its dependencies have also been yielded. The method also
@@ -215,11 +221,11 @@ export class Layer
 	 * Gets an array containing the Parallels that "seed" this
 	 * Layer, meaning that they have no inbound edges.
 	 */
-	get seeds()
-	{
-		return Object.freeze(this._seeds.slice());
-	}
-	private readonly _seeds: X.Parallel[] = [];
+	//get seeds()
+	//{
+	//	return Object.freeze(this._seeds.slice());
+	//}
+	//private readonly _seeds: X.Parallel[] = [];
 	
 	/**
 	 * Gets the origin seed Parallel of this Layer, if one exists,
@@ -230,20 +236,19 @@ export class Layer
 	 * when the LayerContext has been instructed to construct
 	 * a URI pointing to a specific node.
 	 */
-	get origin()
+	get seed()
 	{
-		if (this._seeds.length === 1)
-		{
-			const origin = this._seeds[0];
-			if (origin instanceof X.SpecifiedParallel)
-				return origin;
-		}
+		if (this._seed === null)
+			throw X.Exception.unknownState();
 		
-		return null;
+		return this._seed;
 	}
+	private _seed: X.Parallel | null = null;
 	
 	/**
-	 * Gets an array of 
+	 * Gets a LayerPatterns object that stores information and
+	 * provides utilities for working with the patterns that have
+	 * been defined on this layer.
 	 */
 	get patterns()
 	{

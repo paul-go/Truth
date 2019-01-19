@@ -82,7 +82,7 @@ export class LayerContext
 			return null;
 		
 		const layer = this.maybeConstruct(node.uri);
-		return layer && layer.origin;
+		return layer && layer.seed;
 	}
 	
 	/**
@@ -220,10 +220,13 @@ export class LayerContext
 			for (const successor of hyperEdge.successors)
 			{
 				const layer = this.maybeConstruct(successor.node.uri);
-				if (!layer || !layer.origin)
+				if (!layer || !layer.seed)
 					continue;
 				
-				const dstExistence = layer.origin.existence;
+				if (!(layer.seed instanceof X.SpecifiedParallel))
+					throw X.Exception.unknownState();
+				
+				const dstExistence = layer.seed.existence;
 				const factor = X.Misc.computeSubsetFactor(
 					srcExistence,
 					dstExistence);
