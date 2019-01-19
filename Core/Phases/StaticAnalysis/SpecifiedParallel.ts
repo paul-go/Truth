@@ -28,7 +28,7 @@ export class SpecifiedParallel extends X.Parallel
 		 * This is easy if you don't bother with code reuse.
 		 */
 		
-		for (const { from, to } of parallel.traverseGeneralEdges())
+		for (const { from, to } of parallel.traverseBaseEdges())
 		{
 			const uriText = to.uri.typePath.join("/");
 			if (uris.has(uriText))
@@ -89,11 +89,11 @@ export class SpecifiedParallel extends X.Parallel
 	readonly node: X.Node;
 	
 	/**
-	 * Traverses through the general graph, depth-first, yielding
+	 * Traverses through the base graph, depth-first, yielding
 	 * elements that corresponds to this parallel, and returns an
 	 * object that represents an edge that connects one node.
 	 */
-	*traverseGeneralEdges()
+	*traverseBaseEdges()
 	{
 		const context = this.context;
 		type FromTo = IterableIterator<{ from: X.Node; to: X.Node }>;
@@ -113,17 +113,17 @@ export class SpecifiedParallel extends X.Parallel
 	/**
 	 * @ignore
 	 * 
-	 * Traverses through the general edge graph, and yields
+	 * Traverses through the base edge graph, and yields
 	 * the parallel that corresponds to each discovered node,
 	 * as well as the successor attached to this SpecifiedParallel
 	 * instance through which the corresponding SpecifiedParallel
 	 * was discovered.
 	 */
-	//*traverseGeneralEdgeParallels()
+	//*traverseBaseEdgeParallels()
 	//{
 	//	for (const via of this.context.eachSuccessorOf(this.node))
 	//	{
-	//		for (const { to } of this.traverseGeneralEdges())
+	//		for (const { to } of this.traverseBaseEdges())
 	//		{
 	//			const parallel = this.context.getParallelOf(to);
 	//			if (parallel)
@@ -135,10 +135,10 @@ export class SpecifiedParallel extends X.Parallel
 	/**
 	 * @ignore
 	 * 
-	 * Same as traverseGeneralEdgeParallels, but returns a map
+	 * Same as traverseBaseEdgeParallels, but returns a map
 	 * with the results instead of yielding individual results.
 	 */
-	getGeneralEdgeParallelSet()
+	getBaseEdgeParallelSet()
 	{
 		const map = new Map<X.Successor, ReadonlyArray<X.Parallel>>();
 		
@@ -146,7 +146,7 @@ export class SpecifiedParallel extends X.Parallel
 		{
 			const parallels: X.Parallel[] = [];
 			
-			for (const { to } of this.traverseGeneralEdges())
+			for (const { to } of this.traverseBaseEdges())
 			{
 				const parallel = this.context.getParallelOf(to);
 				if (parallel)
@@ -194,7 +194,7 @@ export class SpecifiedParallel extends X.Parallel
 	{
 		const proposedExistence: X.Node[] = [];
 		
-		for (const { to } of this.traverseGeneralEdges())
+		for (const { to } of this.traverseBaseEdges())
 			if (!proposedExistence.includes(to))
 				proposedExistence.push(to);
 		

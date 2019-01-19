@@ -31,7 +31,7 @@ export class Type
 			
 			// If the cached type exists, but hasn't been compiled yet,
 			// we can't return it, we need to compile it first.
-			if (!(cached instanceof X.TypeProxy))
+			if (cached === null || cached instanceof X.Type)
 				return cached;
 		}
 		
@@ -121,21 +121,26 @@ export class Type
 		this.uri = layer.uri;
 		this.container = container;
 		
-		/**
-		 * Populating this.parallels:
-		 * The current way we're dealing with "seeds" doesn't support this.
-		 * We need to be able to get a single origin from the URI, whether
-		 * or not it's specified. The parallels that stem from this specified
-		 * or unspecified origin would form the basis of the representative
-		 * TypeProxy instances in the .parallels field.
-		 */
-		this.parallels = Object.freeze([]);
+		this.private.parallels = new X.TypeProxyArray(
+			layer.seed.edges.map(edge =>
+				new X.TypeProxy(edge.uri, program)));
+		
+		if (layer.seed instanceof X.SpecifiedParallel)
+		{
+			// Need a way to get the "Base edges" here
+			// (aka the annotations), and return type proxies
+			// for them, which will turn into the type's "bases".
+		}
+		else if (layer.seed instanceof X.UnspecifiedParallel)
+		{
+			
+		}
 		
 		/** 
-		 * Populating this.generals & this.isList:
+		 * Populating this.bases & this.isList:
 		 * (Similar problem as above, I think)
 		 */
-		this.private.generals = new X.TypeProxyArray([]);
+		this.private.bases = new X.TypeProxyArray([]);
 		this.isList = false;
 		
 		if (layer.seed instanceof X.SpecifiedParallel)
@@ -173,7 +178,11 @@ export class Type
 	 * Stores a reference to the type, as it's defined in it's
 	 * next most applicable 
 	 */
-	readonly parallels: ReadonlyArray<X.Type>;
+	get parallels()
+	{
+		this.private.throwOnDirty();
+		return this.private.parallels!.maybeCompile();
+	}
 	
 	/**
 	 * Stores the Type that contains this Type, or null in
@@ -215,7 +224,7 @@ export class Type
 	 * If this Type extends from a pattern, it is included in this
 	 * array.
 	 */
-	get generals(): ReadonlyArray<X.Type>
+	get bases(): ReadonlyArray<X.Type>
 	{
 		this.private.throwOnDirty();
 		return Object.freeze([]);
@@ -279,7 +288,7 @@ export class Type
 		// type scope, not the ones that exist deeply
 		return this.private.patterns = this.adjacents
 			.filter(type => type.isPattern)
-			.filter(type => type.generals.includes(this));
+			.filter(type => type.bases.includes(this));
 	}
 	
 	/**
@@ -384,7 +393,10 @@ class TypePrivate
 	contentsIntrinsic: ReadonlyArray<X.Type> | null = null;
 	
 	/** */
-	generals: X.TypeProxyArray | null = null;
+	bases: X.TypeProxyArray | null = null;
+	
+	/** */
+	parallels: X.TypeProxyArray | null = null;
 	
 	/** */
 	patterns: ReadonlyArray<X.Type> | null = null;
