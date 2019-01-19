@@ -1,0 +1,15 @@
+String
+	Attribute
+
+Number
+	Attribute
+
+Class1
+	Property : String
+	
+Class2 : Class1
+	Property : Number
+
+Class3 : Class2
+	Property
+		Attribute

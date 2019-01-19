@@ -1,4 +1,6 @@
 FieldTop
+	Value
+	
 FieldLeft : FieldTop
 FieldRight : FieldTop
 
