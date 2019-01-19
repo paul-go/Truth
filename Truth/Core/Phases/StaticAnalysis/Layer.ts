@@ -137,7 +137,7 @@ export class Layer
 		{
 			if (toPar instanceof X.SpecifiedParallel)
 			{
-				const iter = toPar.traverseGeneralEdges();
+				const iter = toPar.traverseBaseEdges();
 				for (const { from: fromGen, to: toGen } of iter)
 				{
 					const toLayer = this.context.maybeConstruct(toGen.uri);

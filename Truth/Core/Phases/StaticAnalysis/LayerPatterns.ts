@@ -16,8 +16,8 @@ export class LayerPatterns
 	readonly nodes: X.Node[] = [];
 	
 	/**
-	 * @returns The node that defines a pattern that is generalized
-	 * by the type that corresponds to the specified set of nodes.
+	 * @returns The pattern-defining node whose bases
+	 * precisely correspond to the specified set of nodes.
 	 */
 	find(resolvingTo: X.Node[]): X.Node | null
 	{
@@ -29,9 +29,9 @@ export class LayerPatterns
 	 * patterns that are defined within this LayerPatterns
 	 * instance. 
 	 * 
-	 * @param filterByNodes If specified, only the pattern
-	 * that is generalized by the types that correspond to
-	 * the nodes contained in the array.
+	 * @param filterByNodes If specified, only the pattern-defining
+	 * node whose bases precisely correspond to the specified
+	 * set of nodes will be included in the returned array.
 	 */
 	tryExecute(maybeAlias: string, filterByNodes?: X.Node[]): X.Node | null
 	{
