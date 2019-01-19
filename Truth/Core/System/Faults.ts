@@ -19,7 +19,76 @@ export class Fault<TSource = TFaultSource>
 		
 		/** The document object that caused the fault to be reported. */
 		readonly source: TSource)
-	{ }
+	{
+		const src = this.source;
+		const range =
+			src instanceof X.Statement ?
+				[src.indent, -1] :
+			src instanceof X.InfixSpan || src instanceof X.Span ? 
+				[src.boundary.offsetStart, src.boundary.offsetEnd] :
+			[-1, -1];
+		
+		this.range = range.filter(n => n >= 0);
+	}
+	
+	/**
+	 * Converts this fault into a string representation,
+	 * suitable for output as an error message.
+	 */
+	toString()
+	{
+		const doc = this.document;
+		
+		const avoidProtocols = [
+			X.UriProtocol.internal,
+			X.UriProtocol.none,
+			X.UriProtocol.unknown
+		];
+		
+		const uriText = avoidProtocols.includes(doc.sourceUri.protocol) ?
+			"" : doc.sourceUri.toString(true) + " ";
+		
+		const colNums = this.range.join("-");
+		const colText = colNums ? ", Col " + colNums : "";
+		
+		return `${this.type.message} (${uriText}Line ${this.line}${colText})`;
+	}
+	
+	/**
+	 * Gets a reference to the Document in which this Fault was detected.
+	 */
+	get document()
+	{
+		return this.statement.document;
+	}
+	
+	/**
+	 * Gets a reference to the Statement in which this Fault was detected.
+	 */
+	get statement()
+	{
+		const src = this.source;
+		return X.Guard.notNull(
+			src instanceof X.Statement ? src :
+			src instanceof X.Span ? src.statement :
+			src instanceof X.InfixSpan ? src.statement :
+			null);
+	}
+	
+	/**
+	 * Gets the line number of the Statement in which this Fault was detected.
+	 */
+	get line()
+	{
+		const smt = this.statement;
+		return smt.document.getLineNumber(smt);
+	}
+	
+	/**
+	 * Gets an array representing the starting and ending character offsets
+	 * within the Statement in which this Fault was detected.
+	 */
+	readonly range: number[];
 }
 
 

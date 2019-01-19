@@ -58,9 +58,6 @@ export class Type
 		
 		context.maybeConstruct(uri);
 		
-		for (const fault of context.eachFault())
-			program.faults.report(fault);
-		
 		let lastType: X.Type | null = null;
 		
 		for (let i = 0; ++i < uri.typePath.length;)
@@ -146,18 +143,12 @@ export class Type
 		if (layer.seed instanceof X.SpecifiedParallel)
 		{
 			this.isFresh = layer.seed.edges.length === 0;
-			this.faults = layer.seed.faults;
 			
 			const sub = layer.seed.node.subject;
 			this.isPattern = sub instanceof X.Pattern;
 			this.isUri = sub instanceof X.Uri;
 			this.isAnonymous = sub instanceof X.Anon;
 			this.isSpecified = true;
-			this.faults = layer.seed.faults;
-		}
-		else
-		{
-			this.faults = Object.freeze([]);
 		}
 	}
 	
@@ -355,11 +346,6 @@ export class Type
 	{
 		return this.private.program.version.newerThan(this.private.stamp);
 	}
-	
-	/**
-	 * 
-	 */
-	readonly faults: ReadonlyArray<X.Fault>;
 	
 	/**
 	 * @internal

@@ -67,7 +67,7 @@ export class FaultService
 	 * at the specified source. If the source has no faults, an empty
 	 * array is returned.
 	 */
-	check<TSource extends object>(source:TSource): X.Fault<TSource>[]
+	check<TSource extends object>(source: TSource): X.Fault<TSource>[]
 	{
 		const out: X.Fault<TSource>[] = [];
 		
@@ -84,9 +84,14 @@ export class FaultService
 	 */
 	*each()
 	{
-		for (const faults of this.activeContext.frozenFrame.faults.values())
-			for (const fault of faults.values())
-				yield fault;
+		const faultsSorted = 
+			Array.from(this.activeContext.frozenFrame.faults.values())
+				.map(faultMap => Array.from(faultMap.values()))
+				.reduce((a, b) => a.concat(b))
+				.sort((a, b) => a.line - b.line);
+		
+		for (const fault of faultsSorted)
+			yield fault;
 	}
 	
 	/**
@@ -267,6 +272,8 @@ class FaultFrame
 			false;
 	}
 	
-	/** */
-	readonly faults = new Map<object, Map<number, X.Fault>>();
+	/**
+	 * A doubly-nested map of fault sources, fault codes, and the actual fault.
+	 */
+	readonly faults = new Map<X.TFaultSource, Map<number, X.Fault>>();
 }

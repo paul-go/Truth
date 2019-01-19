@@ -145,12 +145,23 @@ export class Node
 	readonly declarations: Set<X.Span | X.InfixSpan>;
 	
 	/**
+	 * Gets an array containing the statements that
+	 * contain this Node.
+	*/
+	get statements()
+	{
+		return Object.freeze(
+			Array.from(this.declarations)
+			.filter((v, i, a) => a.indexOf(v) === i));
+	}
+	
+	/**
 	 * Gets a readonly map of Nodes that are contained
 	 * by this node in the containment hierarchy.
 	 */
 	get contents(): NodeMap
 	{
-		return X.HigherOrder.copy(this._contents);
+		return this._contents;
 	}
 	private readonly _contents = new Map<string, X.Node>();
 	

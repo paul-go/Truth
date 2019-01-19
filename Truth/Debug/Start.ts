@@ -29,54 +29,30 @@ setTimeout(() =>
 	console.log(uriMessage);
 	console.log(pipe);
 	
-	if (type === null)
-	{
-		console.log(`No type exists at the input URI.`);
-		return;
-	}
-	
 	const printedFaults = new Set<X.Fault>();
 	const printFault = (fault: X.Fault) =>
 	{
 		if (printedFaults.has(fault))
 			return;
-		
+		 
 		printedFaults.add(fault);
-		const t = fault.type;
-		
-		const statement = X.Guard.notNull(
-			fault.source instanceof X.Statement ? fault.source :
-			fault.source instanceof X.Span ? fault.source.statement :
-			fault.source instanceof X.InfixSpan ? fault.source.statement :
-			null);
-		
-		const line = doc.getLineNumber(statement);
-		const causedBy = fault.source.constructor.name;
-		console.log(`\t${t.code}: ${t.message} on line ${line} (${causedBy})`);
-	}
-	
-	if (type.faults.length > 0)
-	{
-		console.log(`The following faults were detected at the input URI:`);
-		
-		for (const fault of type.faults)
-			printFault(fault);
-	}
-	else
-	{
-		console.log(`No faults were detected at the input URI.`);
+		console.log(fault.toString());
 	}
 	
 	if (program.faults.count > 0)
 	{
-		console.log(`The following anciliary faults were also detected:`);
-		
 		for (const fault of program.faults.each())
 			printFault(fault);
 	}
 	else
 	{
-		console.log(`No anciliary faults were detected:`);
+		console.log(`No faults were detected:`);
+	}
+	
+	if (type === null)
+	{
+		console.log(`No type exists at the input URI.`);
+		return;
 	}
 },
 1);
