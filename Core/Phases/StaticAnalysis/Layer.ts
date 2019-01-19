@@ -23,43 +23,21 @@ export class Layer
 	readonly name: string;
 	
 	/**
-	 * Adds a new starting point to the Layer. It is possible for
-	 * a layer can have multiple starting points, which we call
-	 * "seeds". For example consider the following document:
+	 * Initializes a top-level Layer. This method is used instead
+	 * of .descend() for top-level Layer construction.
 	 * 
-	 * Top
-	 * 	Value
-	 * Left : Top
-	 * 	Value
-	 * Right : Top
-	 * 	Value
-	 * Bottom : Left, Right
-	 * 
-	 * The Layer corresponding to the type URI
-	 * "Bottom/Value" would have two seeds, one corresponding
-	 * to "Left/Value" and another corresponding to "Right/Value".
-	 * 
-	 * Only the Layer corresponding to the document root needs
-	 * to be bootstrapped. Successive layers are created via
-	 * descension.
+	 * @throws In the case when the specified Node instance 
+	 * has a non-null container (and therefore, is not top level).
 	 */
 	bootstrap(node: X.Node)
 	{
+		if (node.container !== null)
+			throw X.Exception.unknownState();
+		
 		this._seeds.push(X.SpecifiedParallel.maybeConstruct(
 			node,
 			null,
 			this.context));
-	}
-	
-	/**
-	 * Traverses through the Layer top to bottom, 
-	 * performs fault analysis, and executes name resolution.
-	 */
-	analyze()
-	{
-		for (const parallel of this.traverseParallels())
-			if (parallel instanceof X.SpecifiedParallel)
-				parallel.analyze();
 	}
 	
 	/**
@@ -124,6 +102,7 @@ export class Layer
 				return newDescendPar;
 			})();
 			
+			
 			const edgeParallels = currentLayerEdgeCache.get(info.toParallel);
 			if (edgeParallels !== undefined)
 			{
@@ -134,7 +113,7 @@ export class Layer
 					const existingDescendPar = X.Guard.defined(
 						currentToDescendMap.get(edgeParallel));
 					
-					descendParallel.addEdge(existingDescendPar);
+					descendParallel.maybeAddEdge(existingDescendPar);
 					seedParallels.delete(existingDescendPar);
 				}
 			}
@@ -150,14 +129,6 @@ export class Layer
 	 */
 	*traverseLayer()
 	{
-		interface LayerEdge
-		{
-			fromParallel: X.Parallel | null;
-			fromNode: X.Node | null;
-			toParallel: X.Parallel;
-			toNode: X.Node | null;
-		}
-		
 		for (const { from: fromPar, to: toPar } of this.traverseParallelEdges())
 		{
 			if (toPar instanceof X.SpecifiedParallel)
@@ -272,14 +243,35 @@ export class Layer
 	}
 	
 	/**
+	 * Gets an array of 
+	 */
+	get patterns()
+	{
+		return this._patterns === null ?
+			this._patterns = new X.LayerPatterns(this) : 
+			this._patterns;
+	}
+	private _patterns: X.LayerPatterns | null = null;
+	
+	/**
 	 * @internal
 	 */
 	debug()
 	{
-		viz(this.seeds, value =>
-		{
-			if (value instanceof X.Parallel)
-				return value.edges;
-		});
+		//viz(this.seeds, value =>
+		//{
+		//	if (value instanceof X.Parallel)
+		//		return value.edges;
+		//});
 	}
+}
+
+
+/** */
+export interface LayerEdge
+{
+	fromParallel: X.Parallel | null;
+	fromNode: X.Node | null;
+	toParallel: X.Parallel;
+	toNode: X.Node | null;
 }

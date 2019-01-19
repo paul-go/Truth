@@ -20,5 +20,6 @@ export class ParallelAnalyzer
 		return true;
 	}
 	
+	/** */
 	private constructor() { }
 }

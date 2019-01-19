@@ -48,13 +48,26 @@ export class HyperGraph
 	 * Reads a root Node with the specified
 	 * name out of the specified document.
 	 */
-	read(doc: X.Document, name: string): X.Node | null
+	read(document: X.Document, name: string): X.Node | null
 	{
-		const uriText = doc.sourceUri
+		const uriText = document.sourceUri
 			.extend([], name)
 			.toString(true, true);
 		
 		return this.nodeCache.get(uriText) || null;
+	}
+	
+	/**
+	 * @returns An array containing the node objects
+	 * that are defined at the root level of the specified
+	 * document.
+	 */
+	*readRoots(document: X.Document)
+	{
+		for (const node of this.nodeCache.values())
+			if (node.container === null)
+				if (node.document === document)
+					yield node;
 	}
 	
 	/**

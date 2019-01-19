@@ -1,6 +1,8 @@
 import * as X from "../../X";
 
 
+const uris = new Set<string>();
+
 /**
  * 
  */
@@ -15,8 +17,47 @@ export class SpecifiedParallel extends X.Parallel
 		container: X.SpecifiedParallel | null,
 		context: X.LayerContext)
 	{
-		return X.Parallel.getExistingParallel(node.uri, context) || 
-			new X.SpecifiedParallel(node, container, context);
+		const existingParallel = X.Parallel.getExistingParallel(node.uri, context);
+		if (existingParallel)
+			return existingParallel;
+		
+		const parallel = new X.SpecifiedParallel(node, container, context);
+		
+		/**
+		 * We need to detect circular references here
+		 * This is easy if you don't bother with code reuse.
+		 */
+		
+		for (const { from, to } of parallel.traverseGeneralEdges())
+		{
+			const uriText = to.uri.typePath.join("/");
+			if (uris.has(uriText))
+				continue;
+			
+			uris.add(uriText);
+			console.log("> " + uriText);
+		}
+		
+		const uriText = parallel.node.uri.typePath.join("/");
+		if (!uris.has(uriText))
+		{
+			console.log("> " + uriText);
+			uris.add(uriText);
+		}
+		
+		/**
+		 * You only start doing analysis when you're one
+		 * behind the apex. You obviously can't do traversal
+		 * at the actual apex because there's no other edges
+		 * to follow. You could easily just pass a depth parameter
+		 * in through the enumerator.
+		 * 
+		 * So then next question then is, even if you've done this,
+		 * you still need to be able to access stuff within the depths
+		 * of the graph.
+		 */
+		
+		return parallel;
 	}
 	
 	/** */
@@ -27,77 +68,25 @@ export class SpecifiedParallel extends X.Parallel
 	{
 		super(node.uri, container, context);
 		this.node = node;
+		context.resolveSuccessors(this);
+		
+		// Compute the existence (if we need to do this)
+		// Compute whether the thing is a list
+		// Maybe also find the associated patterns as well?
+		
+		/**
+		 * In this area, we can be sure that we can touch
+		 * any of the successors, because they've either 
+		 * been pruned, or we're at the very top, and it
+		 * doesn't matter.
+		 */
 	}
 	
-	/** */
+	/**
+	 * Stores the Node instance that corresponds to this
+	 * SpecifiedParallel instance.
+	 */
 	readonly node: X.Node;
-	
-	/**
-	 * Analyzes this SpecifiedParallel to scan for the following faults:
-	 * 	UnresolvedAnnotationFault
-	 * 	CircularTypeReference
-	 * 	IgnoredAnnotation
-	 * 	ListIntrinsicExtendingList
-	 * 	ListExtrinsicExtendingNonList
-	 * 
-	 * This method may mark various parts of the document as cruft.
-	 * It also computes the existence of the parallel (which is a term
-	 * we're using to describe the set of annotations that have been
-	 * applied to a type).
-	 */
-	analyze()
-	{
-		for (const hyperEdge of this.node.outbounds)
-		{
-			if (hyperEdge.successors.length > 1)
-				X.PolymorphicResolver.resolve(this, hyperEdge, this.context);
-		}
-	}
-	
-	/** */
-	get fullExistence()
-	{
-		return this._fullExistence || (this._fullExistence = new Set());
-	}
-	private _fullExistence: ReadonlySet<X.Node> | null = null;
-	
-	/** */
-	get specifiedExistence()
-	{
-		return this._specifiedExistence || (this._specifiedExistence = new Set());
-	}
-	private _specifiedExistence: ReadonlySet<X.Node> | null = null;
-	
-	/** */
-	get inferredExistence()
-	{
-		return this._inferredExistence || (this._inferredExistence = new Set());
-	}
-	private _inferredExistence: ReadonlySet<X.Node> | null = null;
-	
-	/**
-	 * Creates a flattened set of Parallels that represent the
-	 * other Parallels of which this parallel is said to be a kind.
-	 * 
-	 * This method is useful for computing equivalence relations
-	 * between the annotation sets of two Parallel objects.
-	 */
-	computeExistence()
-	{
-		if (this.computedExistence !== null)
-			return this.computedExistence;
-		
-		const existence = new Set<X.Node>();
-		
-		for (const parallel of this.traverseParallels())
-			if (parallel instanceof X.SpecifiedParallel)
-				existence.add(parallel.node);
-		
-		return this.computedExistence = existence;
-	}
-	
-	/** */
-	private computedExistence: ReadonlySet<X.Node> | null = null;
 	
 	/**
 	 * Traverses through the general graph, depth-first, yielding
@@ -109,36 +98,201 @@ export class SpecifiedParallel extends X.Parallel
 		const context = this.context;
 		type FromTo = IterableIterator<{ from: X.Node; to: X.Node }>;
 		
-		function *recurse(node: X.Node, hyperEdge: X.HyperEdge): FromTo
+		function *recurse(node: X.Node, scsr: X.Successor): FromTo
 		{
-			const scsr = context.getSelectedSuccesor(hyperEdge);
-			if (scsr)
-			{
-				for (const deepHyperEdge of scsr.node.outbounds)
-					yield* recurse(scsr.node, deepHyperEdge);
+			for (const deepScsr of context.eachSuccessorOf(scsr.node))
+				yield* recurse(scsr.node, deepScsr);
 				
-				yield { from: node, to: scsr.node };
-			}
+			yield { from: node, to: scsr.node };
 		}
 		
-		for (const hyperEdge of this.node.outbounds)
-			yield* recurse(this.node, hyperEdge);
+		for (const scsr of context.eachSuccessorOf(this.node))
+			yield* recurse(this.node, scsr);
 	}
 	
-	/** */
+	/**
+	 * @ignore
+	 * 
+	 * Traverses through the general edge graph, and yields
+	 * the parallel that corresponds to each discovered node,
+	 * as well as the successor attached to this SpecifiedParallel
+	 * instance through which the corresponding SpecifiedParallel
+	 * was discovered.
+	 */
+	//*traverseGeneralEdgeParallels()
+	//{
+	//	for (const via of this.context.eachSuccessorOf(this.node))
+	//	{
+	//		for (const { to } of this.traverseGeneralEdges())
+	//		{
+	//			const parallel = this.context.getParallelOf(to);
+	//			if (parallel)
+	//				yield { via, parallel };
+	//		}
+	//	}
+	//}
+	
+	/**
+	 * @ignore
+	 * 
+	 * Same as traverseGeneralEdgeParallels, but returns a map
+	 * with the results instead of yielding individual results.
+	 */
+	getGeneralEdgeParallelSet()
+	{
+		const map = new Map<X.Successor, ReadonlyArray<X.Parallel>>();
+		
+		for (const via of this.context.eachSuccessorOf(this.node))
+		{
+			const parallels: X.Parallel[] = [];
+			
+			for (const { to } of this.traverseGeneralEdges())
+			{
+				const parallel = this.context.getParallelOf(to);
+				if (parallel)
+					parallels.push(parallel);
+			}
+			
+			map.set(via, Object.freeze(parallels));
+		}
+		
+		return map;
+	}
+	
+	/**
+	 * 
+	 */
+	//reduceRecursive<TVal>(callbackFn: (
+	//	accumulatedResults: Map<X.Successor, TVal>,
+	//	parallel: X.SpecifiedParallel,
+	//	depth: number) => TVal, initialValue: TVal): TVal
+	//{
+	//	return null!;
+	//}
+	
+	/**
+	 * Analyzes this SpecifiedParallel to scan for the following faults:
+	 * 	CircularTypeReference
+	 * 	ListIntrinsicExtendingList
+	 * 	ListExtrinsicExtendingNonList
+	 * 	ListDimensionalDiscrepancyFault
+	 * 	IgnoredAnnotation
+	 * 	UnresolvedAnnotationFault
+	 * 
+	 * This method may mark various parts of the document as cruft.
+	 * It also computes the existence of the parallel (which is a term
+	 * we're using to describe the set of annotations that have been
+	 * applied to a type).
+	 * 
+	 * This method also assumes that it's being called only after all
+	 * it's higher Parallels (i.e. Parallels that exist higher than this
+	 * one in the Layer) have been analyzed.
+	 * 
+	 * @deprecated
+	 */
+	analyze()
+	{
+		const proposedExistence: X.Node[] = [];
+		
+		for (const { to } of this.traverseGeneralEdges())
+			if (!proposedExistence.includes(to))
+				proposedExistence.push(to);
+		
+		const existenceContract: X.Node[] = [];
+		
+		for (const higherPar of this.traverseParallelsSpecified())
+			for (const nodeInExistence of higherPar.existence)
+				if (existenceContract.includes(nodeInExistence))
+					existenceContract.push(nodeInExistence);
+		
+		//const unmetNodes = existenceContract.filter(n => existence.includes(n));
+		//if (unmetNodes.length > 0)
+		//	for (const node of unmetNodes)
+		//		this._faults.push(new 
+		
+		this._existence = Object.freeze(proposedExistence);
+		//this._isList = existenceContract.
+	}
+	
+	/**
+	 * Maps this Parallel instance to another Parallel instance
+	 * that corresponds to a Node in this Parallel's underlying
+	 * Node's contents.
+	 */
 	descend(typeName: string): X.Parallel
 	{
 		const containedNode = this.node.contents.get(typeName);
-		
-		return containedNode === undefined ?
-			X.UnspecifiedParallel.maybeConstruct(
+		if (containedNode === undefined)
+		{
+			return X.UnspecifiedParallel.maybeConstruct(
 				this.uri.extend([], typeName),
 				this,
-				this.context)
-			:
-			X.SpecifiedParallel.maybeConstruct(
-				containedNode,
-				this,
 				this.context);
+		}
+		
+		return X.SpecifiedParallel.maybeConstruct(
+			containedNode,
+			this,
+			this.context);
 	}
+	
+	/** */
+	get existence()
+	{
+		//if (this._existence === null)
+		//	throw X.Exception.invalidCall();
+		
+		return this._existence || [];
+	}
+	private _existence: ReadonlyArray<X.Node> | null = null;
+	
+	/**
+	 * Gets a string that represents the existence of this
+	 * SpecifiedParallel instance, useful for debugging.
+	 */
+	private get existenceLabel()
+	{
+		return this._existence !== null ?
+			this.existence.map(n => n.name).join(" + ") :
+			"(not computed)";
+	}
+	
+	/** */
+	get listDimensionality()
+	{
+		if (this._listDimensionality >= 0)
+			return this._listDimensionality;
+		
+		//const val = this.reduceRecursive((results, par, depth) => 
+		//{
+		//	const max = Math.max(...results.values());
+		//	
+		//	return max + par.;
+		//},
+		//0);
+		//
+		const val = 0;
+		return this._listDimensionality = val;
+	}
+	private _listDimensionality = -1;
+	
+	/** */
+	get isList()
+	{
+		//if (this._isList === null)
+		//	throw X.Exception.invalidCall();
+		
+		return this._isList || false;
+	}
+	private _isList: boolean | null = null;
+	
+	/**
+	 * Gets an array that contains the faults that have been
+	 * identified during the lifecycle of this construction context.
+	 */
+	get faults()
+	{
+		return Object.freeze(this._faults.slice());
+	}
+	private readonly _faults: X.Fault[] = [];
 }

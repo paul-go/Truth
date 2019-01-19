@@ -65,10 +65,10 @@ export * from "./Phases/Graph/InfixSpan";
 // Phases/StaticAnalysis
 export * from "./Phases/StaticAnalysis/LayerContext";
 export * from "./Phases/StaticAnalysis/Layer";
+export * from "./Phases/StaticAnalysis/LayerPatterns";
 export * from "./Phases/StaticAnalysis/Parallel";
 export * from "./Phases/StaticAnalysis/SpecifiedParallel";
 export * from "./Phases/StaticAnalysis/UnspecifiedParallel";
-export * from "./Phases/StaticAnalysis/PolymorphicResolver";
 export * from "./Phases/StaticAnalysis/ParallelAnalyzer";
 
 // Phases/Type

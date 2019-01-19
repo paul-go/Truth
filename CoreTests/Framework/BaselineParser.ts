@@ -211,7 +211,7 @@ export class BaselineParser
 				
 				for (const boundEntry of annos)
 				{
-					const subjectStr = boundEntry.subject.value;
+					const subjectStr = boundEntry.subject.fullName;
 					const matches = subjectStr.match(reg);
 					
 					if (matches === null)
