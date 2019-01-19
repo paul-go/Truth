@@ -81,7 +81,7 @@ export class Fault<TSource = TFaultSource>
 	get line()
 	{
 		const smt = this.statement;
-		return smt.document.getLineNumber(smt);
+		return smt.document.getLineNumber(smt) + 1;
 	}
 	
 	/**
