@@ -245,13 +245,13 @@ export class Type
 	/**
 	 * 
 	 */
-	get specifics()
+	get derivations()
 	{
-		if (this.private.specifics !== null)
-			return this.private.specifics;
+		if (this.private.derivations !== null)
+			return this.private.derivations;
 		
 		this.private.throwOnDirty();
-		return this.private.specifics = Object.freeze([]);
+		return this.private.derivations = Object.freeze([]);
 	}
 	
 	/**
@@ -408,7 +408,7 @@ class TypePrivate
 	metaphors: ReadonlyArray<X.Type> | null = null;
 	
 	/** */
-	specifics: ReadonlyArray<X.Type> | null = null;
+	derivations: ReadonlyArray<X.Type> | null = null;
 	
 	/** */
 	adjacents: ReadonlyArray<Type> | null = null;
