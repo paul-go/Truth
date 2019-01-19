@@ -138,20 +138,22 @@ export class Type
 		this.private.generals = new X.TypeProxyArray([]);
 		this.isList = false;
 		
-		const origin = layer.origin;
-		if (origin !== null)
+		if (layer.seed instanceof X.SpecifiedParallel)
 		{
-			this.isFresh = origin.edges.length === 0;
-			this.faults = origin.faults;
+			this.isFresh = layer.seed.edges.length === 0;
+			this.faults = layer.seed.faults;
 			
-			const sub = origin.node.subject;
+			const sub = layer.seed.node.subject;
 			this.isPattern = sub instanceof X.Pattern;
 			this.isUri = sub instanceof X.Uri;
 			this.isAnonymous = sub instanceof X.Anon;
 			this.isSpecified = true;
+			this.faults = layer.seed.faults;
 		}
-		
-		this.faults = origin ? origin.faults : Object.freeze([]);
+		else
+		{
+			this.faults = Object.freeze([]);
+		}
 	}
 	
 	/**
