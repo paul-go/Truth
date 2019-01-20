@@ -112,8 +112,6 @@ export class LineParser
 		}
 		
 		{
-			const mark = parser.position;
-			
 			const unparsableFaultType = (() =>
 			{
 				if (parser.read(X.Syntax.combinator))
