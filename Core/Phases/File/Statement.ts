@@ -35,21 +35,22 @@ export class Statement
 		const faults: X.Fault[] = [];
 		const cruftObjects = new Set<X.Statement | X.Span | X.InfixSpan>();
 		
-		if (line.parseFault !== null)
-			faults.push(new X.Fault(line.parseFault.innerType, this));
+		if (line.faultType !== null)
+			faults.push(new X.Fault(line.faultType, this));
 		
-		for (const fault of this.eachStatementLevelFaults())
+		for (const fault of this.eachParseFault())
 		{
 			if (fault.type.severity === X.FaultSeverity.error)
 				cruftObjects.add(fault.source);
 			
 			faults.push(fault);
-			
+		}
+		
+		for (const fault of faults)
 			// Check needed to support the unit tests, the feed
 			// fake document objects into the statement constructor.
 			if (document.program && document.program.faults)
 				document.program.faults.report(fault);
-		}
 		
 		this.cruftObjects = cruftObjects;
 		this.faults = Object.freeze(faults);
@@ -58,7 +59,7 @@ export class Statement
 	/**
 	 * 
 	 */
-	private *eachStatementLevelFaults(): IterableIterator<Readonly<X.Fault<X.TFaultSource>>>
+	private *eachParseFault(): IterableIterator<Readonly<X.Fault<X.TFaultSource>>>
 	{
 		// Check for tabs and spaces mixture
 		if (this.indent > 0)

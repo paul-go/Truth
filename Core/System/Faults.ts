@@ -470,6 +470,10 @@ export const Faults = Object.freeze({
 		"Statements cannot begin with an escape character (\\) " + 
 		"that is followed by a tab or space."),
 	
+	/** */
+	StatementContainsOnlyEscapeCharacter: createFault<X.Statement>(
+		604,
+		"A statement cannot consist of a single escape character (\\)"),
 	
 	//
 	// Parsing Faults
