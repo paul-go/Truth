@@ -224,13 +224,25 @@ export class Type
 	/**
 	 * 
 	 */
-	get metaphors()
+	get superordinates()
 	{
-		if (this.private.metaphors !== null)
-			return this.private.metaphors;
+		if (this.private.superordinates !== null)
+			return this.private.superordinates;
 		
 		this.private.throwOnDirty();
-		return this.private.metaphors = Object.freeze([]);
+		return this.private.superordinates = Object.freeze([]);
+	}
+	
+	/**
+	 * 
+	 */
+	get subordinates()
+	{
+		if (this.private.subordinates !== null)
+			return this.private.subordinates;
+		
+		this.private.throwOnDirty();
+		return this.private.subordinates = Object.freeze([]);
 	}
 	
 	/**
@@ -391,7 +403,10 @@ class TypePrivate
 	values: ReadonlyMap<X.Type, string> | null = null;
 	
 	/** */
-	metaphors: ReadonlyArray<X.Type> | null = null;
+	superordinates: ReadonlyArray<X.Type> | null = null;
+	
+	/** */
+	subordinates: ReadonlyArray<X.Type> | null = null;
 	
 	/** */
 	derivations: ReadonlyArray<X.Type> | null = null;
