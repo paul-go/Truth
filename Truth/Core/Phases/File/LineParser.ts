@@ -9,22 +9,16 @@ import * as X from "../../X";
 type TParseFault = Readonly<X.FaultType<X.Statement>>;
 
 
-X.Faults.StatementBeginsWithComma
-X.Faults.StatementBeginsWithEllipsis
-X.Faults.StatementBeginsWithEscapedSpace
-			
-
 /**
  * 
  */
-export class ParseFault
-{
-	constructor(
-		readonly innerType: Readonly<X.FaultType<X.Statement>>,
-		readonly offsetStart: number,
-		readonly offsetEnd: number)
-	{ }
-}
+//export class ParseFault
+//{
+//	constructor(
+//		readonly innerType: Readonly<X.FaultType<X.Statement>>,
+//		readonly offsetStart: number)
+//	{ }
+//}
 
 
 /**
@@ -83,7 +77,7 @@ export class LineParser
 		 * Universal function for quickly producing a RawStatement
 		 * instance using the values of the constructed local variables.
 		 */
-		const ret = () => new X.Line(
+		const ret = (fault: TParseFault | null = null) => new X.Line(
 			sourceText,
 			indent,
 			new X.BoundaryGroup(declarationEntries),
@@ -91,7 +85,7 @@ export class LineParser
 			sum,
 			jointPosition,
 			flags,
-			null!);
+			fault);
 		
 		// In the case when the line contains only whitespace characters,
 		// this condition will pass, bypassing the entire parsing process
@@ -117,8 +111,32 @@ export class LineParser
 			}
 		}
 		
-		if (maybeReadUnparsable())
-			return ret();
+		{
+			const mark = parser.position;
+			
+			const unparsableFaultType = (() =>
+			{
+				if (parser.read(X.Syntax.combinator))
+					return X.Faults.StatementBeginsWithComma;
+				
+				if (parser.read(X.Syntax.list))
+					return X.Faults.StatementBeginsWithEllipsis;
+				
+				if (parser.read(esc + X.Syntax.space) || parser.read(esc + X.Syntax.tab))
+					return X.Faults.StatementBeginsWithEscapedSpace;
+				
+				if (parser.readThenTerminal(esc))
+					return X.Faults.StatementContainsOnlyEscapeCharacter;
+				
+				return null;
+			})();
+			
+			if (unparsableFaultType)
+			{
+				flags |= X.LineFlags.isCruft;
+				return ret(unparsableFaultType);
+			}
+		}
 		
 		{
 			const markBeforeUri = parser.position;
@@ -140,7 +158,7 @@ export class LineParser
 			if (isParseFault(pattern))
 			{
 				flags |= X.LineFlags.isCruft;
-				return ret();
+				return ret(pattern);
 			}
 			
 			if (pattern)
@@ -983,26 +1001,6 @@ export class LineParser
 			}
 			
 			return new Grapheme(parser.readGrapheme(), "", false)
-		}
-		
-		/**
-		 * @returns A boolean value that indicates whether the
-		 * input content is unparsable (and assigns the appropriate
-		 * flag before doing so).
-		 */
-		function maybeReadUnparsable()
-		{
-			if (parser.read(X.Syntax.combinator) ||
-				parser.read(X.Syntax.list) ||
-				parser.read(esc + X.Syntax.space) ||
-				parser.read(esc + X.Syntax.tab) ||
-				parser.readThenTerminal(esc))
-			{
-				flags |= X.LineFlags.isCruft;
-				return true;
-			}
-			
-			return false;
 		}
 		
 		/** */

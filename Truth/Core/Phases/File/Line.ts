@@ -17,7 +17,7 @@ export class Line
 		readonly sum: string,
 		readonly jointPosition: number,
 		readonly flags: LineFlags,
-		readonly parseFault: X.ParseFault | null)
+		readonly faultType: Readonly<X.FaultType<X.Statement>> | null)
 	{ }
 }
 
