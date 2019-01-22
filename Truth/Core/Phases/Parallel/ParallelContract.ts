@@ -28,13 +28,13 @@ export class ParallelContract
 		{
 			function addForeignParallelBases(srcParallel: X.SpecifiedParallel)
 			{
-				for (const base of srcParallel.getBases())
+				for (const { base } of srcParallel.eachBase())
 					addForeignParallelBases(base);
 				
 				foreignParallelBases.add(srcParallel);
 			}
 			
-			for (const base of foreignParallel.getBases())
+			for (const { base } of foreignParallel.eachBase())
 				addForeignParallelBases(base);
 			
 			for (const foreignBase of foreignParallelBases)
@@ -67,7 +67,7 @@ export class ParallelContract
 			}
 			else if (srcParallel instanceof X.SpecifiedParallel)
 			{
-				for (const base of srcParallel.getBases())
+				for (const { base } of srcParallel.eachBase())
 					conditions.add(base);
 			}
 		}

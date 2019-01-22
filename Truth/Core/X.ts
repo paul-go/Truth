@@ -70,6 +70,7 @@ export * from "./Phases/Parallel/UnspecifiedParallel";
 export * from "./Phases/Parallel/CruftCache";
 export * from "./Phases/Parallel/ParallelCache";
 export * from "./Phases/Parallel/ParallelContract";
+export * from "./Phases/Parallel/ParallelSanitizer";
 
 // Phases/Type
 export * from "./Phases/Type/Type";
