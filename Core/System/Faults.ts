@@ -364,7 +364,7 @@ export const Faults = Object.freeze({
 		"Partial patterns cannot explicitly match the comma character."),
 	
 	/** */
-	DiscrepantUnion: createFault<X.Span>(
+	PatternsFormDiscrepantUnion: createFault<X.Span>(
 		499,
 		"A union cannot be created between these types because their " + 
 		"associated patterns conflict with each other."),
