@@ -18,6 +18,7 @@ export class SpecifiedParallel extends X.Parallel
 		super(node.uri, container);
 		this.node = node;
 		this.cruft = cruft;
+		this.contract = new X.ParallelContract(this);
 	}
 	
 	/**
@@ -25,6 +26,9 @@ export class SpecifiedParallel extends X.Parallel
 	 * SpecifiedParallel instance.
 	 */
 	readonly node: X.Node;
+	
+	/** */
+	readonly contract: X.ParallelContract;
 	
 	/** */
 	private readonly cruft: X.CruftCache;
