@@ -158,6 +158,7 @@ export class ParallelContext
 					continue;
 				
 				srcParallel.addBase(dstParallel, via);
+				this.sanitizer.sanitize(srcParallel);
 			}
 			
 			return srcParallel;
@@ -281,8 +282,8 @@ export class ParallelContext
 		
 		function *recurseBases(par: X.SpecifiedParallel): IterableIterator<X.Parallel>
 		{
-			for (const baseEdge of par.getBases())
-				yield* recurseBases(baseEdge);
+			for (const { base } of par.eachBase())
+				yield* recurseBases(base);
 			
 			yield par;
 		}
@@ -321,7 +322,8 @@ export class ParallelContext
 			{
 				const upperParallels = par.getParallels().slice();
 				if (par instanceof X.SpecifiedParallel)
-					upperParallels.push(...par.getBases());
+					for (const { base } of par.eachBase())
+						upperParallels.push(base);
 				
 				return upperParallels;
 			}
@@ -373,7 +375,11 @@ export class ParallelContext
 				if (!(par instanceof X.SpecifiedParallel))
 					return [];
 				
-				const result = (<X.Parallel[]>par.getBases().slice())
+				const bases = Array.from(par.eachBase())
+					.map(entry => <X.Parallel>entry.base)
+					.slice();
+				
+				const result = bases
 					.concat(par.getParallels())
 					.filter(par => !prunedParallels.has(par));
 				
@@ -405,4 +411,7 @@ export class ParallelContext
 	
 	/** */
 	private readonly cruft = new X.CruftCache(this.program);
+	
+	/** */
+	private readonly sanitizer = new X.ParallelSanitizer(this.cruft);
 }

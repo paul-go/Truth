@@ -34,15 +34,11 @@ export class SpecifiedParallel extends X.Parallel
 	private readonly cruft: X.CruftCache;
 	
 	/** */
-	getBases()
+	*eachBase()
 	{
-		const bases: X.SpecifiedParallel[] = [];
-		
 		for (const [key, value] of this._bases)
 			if (!this.cruft.has(key))
-				bases.push(value);
-		
-		return Object.freeze(bases);
+				yield { base: value, edge: key };
 	}
 	private readonly _bases = new Map<X.HyperEdge, X.SpecifiedParallel>();
 	
