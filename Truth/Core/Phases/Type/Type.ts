@@ -4,7 +4,7 @@ import * as X from "../../X";
 interface IStoredContext
 {
 	version: X.VersionStamp;
-	context: X.LayerContext;
+	context: X.ParallelContext;
 }
 
 
@@ -37,45 +37,60 @@ export class Type
 		
 		const context = (() =>
 		{
-			const stored = this.layerContextMap.get(program);
+			const stored = this.parallelContextMap.get(program);
 			if (stored === undefined)
 			{
 				const newStored: IStoredContext = {
 					version: program.version,
-					context: new X.LayerContext(program)
+					context: new X.ParallelContext(program)
 				};
 				
-				this.layerContextMap.set(program, newStored);
+				this.parallelContextMap.set(program, newStored);
 				return newStored.context;
 			}
 			else if (program.version.newerThan(stored.version))
 			{
-				stored.context = new X.LayerContext(program);
+				stored.context = new X.ParallelContext(program);
 			}
 			
 			return stored.context;
 		})();
 		
-		context.maybeConstruct(uri);
+		const parallel = context.excavate(uri);
+		if (parallel === null)
+		{
+			X.TypeCache.set(uri, program, null);
+			return null;
+		}
+		
+		const parallelLineage = [parallel];
+		
+		for (let currentParallel = parallel.container; currentParallel !== null;)
+		{
+			parallelLineage.unshift(currentParallel);
+			currentParallel = currentParallel.container;
+		}
 		
 		let lastType: X.Type | null = null;
 		
-		for (let i = 0; ++i < uri.typePath.length;)
+		for (const currentParallel of parallelLineage)
 		{
-			const currentUri = uri.retractTo(i);
-			const currentUriText = currentUri.toString(true, true);
-			const layer = context.layers.get(currentUriText);
-			
-			if (layer)
+			if (X.TypeCache.has(parallel.uri, program))
 			{
-				const nextType: X.Type = new Type(layer, lastType, program);
-				X.TypeCache.set(currentUri, program, nextType);
-				lastType = nextType;
+				const existingType = X.TypeCache.get(currentParallel.uri, program);
+				if (existingType instanceof X.TypeProxy)
+					throw X.Exception.unknownState();
+				
+				if (existingType === null)
+					throw X.Exception.unknownState();
+				
+				lastType = existingType;
 			}
 			else
 			{
-				X.TypeCache.set(currentUri, program, null);
-				return null;
+				const type: X.Type = new X.Type(currentParallel, lastType, program);
+				X.TypeCache.set(currentParallel.uri, program, type);
+				lastType = type;
 			}
 		}
 		
@@ -103,32 +118,32 @@ export class Type
 	}
 	
 	/** */
-	private static layerContextMap = new WeakMap<X.Program, IStoredContext>();
+	private static parallelContextMap = new WeakMap<X.Program, IStoredContext>();
 	
 	/**
 	 * 
 	 */
 	private constructor(
-		layer: X.Layer,
+		seed: X.Parallel,
 		container: X.Type | null,
 		program: X.Program)
 	{
 		this.private = new TypePrivate(program);
-		this.name = layer.uri.typePath[layer.uri.typePath.length - 1];
-		this.uri = layer.uri;
+		this.name = seed.uri.typePath[seed.uri.typePath.length - 1];
+		this.uri = seed.uri;
 		this.container = container;
 		
 		this.private.parallels = new X.TypeProxyArray(
-			layer.seed.edges.map(edge =>
+			seed.getParallels().map(edge =>
 				new X.TypeProxy(edge.uri, program)));
 		
-		if (layer.seed instanceof X.SpecifiedParallel)
+		if (seed instanceof X.SpecifiedParallel)
 		{
 			// Need a way to get the "Base edges" here
 			// (aka the annotations), and return type proxies
 			// for them, which will turn into the type's "bases".
 		}
-		else if (layer.seed instanceof X.UnspecifiedParallel)
+		else if (seed instanceof X.UnspecifiedParallel)
 		{
 			
 		}
@@ -140,11 +155,11 @@ export class Type
 		this.private.bases = new X.TypeProxyArray([]);
 		this.isList = false;
 		
-		if (layer.seed instanceof X.SpecifiedParallel)
+		if (seed instanceof X.SpecifiedParallel)
 		{
-			this.isFresh = layer.seed.edges.length === 0;
+			this.isFresh = seed.getParallels().length === 0;
 			
-			const sub = layer.seed.node.subject;
+			const sub = seed.node.subject;
 			this.isPattern = sub instanceof X.Pattern;
 			this.isUri = sub instanceof X.Uri;
 			this.isAnonymous = sub instanceof X.Anon;
