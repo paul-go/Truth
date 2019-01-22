@@ -12,18 +12,6 @@ type TParseFault = Readonly<X.FaultType<X.Statement>>;
 /**
  * 
  */
-//export class ParseFault
-//{
-//	constructor(
-//		readonly innerType: Readonly<X.FaultType<X.Statement>>,
-//		readonly offsetStart: number)
-//	{ }
-//}
-
-
-/**
- * 
- */
 export class LineParser
 {
 	/**
