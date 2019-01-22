@@ -1,11 +1,13 @@
+Container1/Container2/SubClass/Property
+
 Animal
 Mouse : Animal
 Device
 
-Namespace1
+Container1
 	Mouse : Animal
 	
-	Namespace2
+	Container2
 		Mouse : Device
 		
 		Class

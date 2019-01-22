@@ -1,0 +1,17 @@
+SubClass/Property
+
+String
+Number
+Strumber : String, Number
+
+Left
+	Property : String
+
+Right
+	Property : Number
+
+Class : Left, Right
+	
+SubClass : Class
+	Property : Strumber
+	
