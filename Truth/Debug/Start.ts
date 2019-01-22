@@ -1,6 +1,7 @@
 import * as X from "../CoreTests/X";
 import * as Viz from "./Viz";
 import * as Fs from "fs";
+import * as Os from "os";
 
 
 /**
@@ -17,12 +18,18 @@ setTimeout(() =>
 	};
 	
 	const filePath = findArg("--file=");
-	const typePath = findArg("--typePath=").split("/");
 	const fileContent = Fs.readFileSync(filePath, "utf8");
-	const program = new X.Program(false);
-	const doc = program.documents.create(fileContent);
-	const type = program.query(doc, ...typePath);
 	
+	const typePathEnd = fileContent.indexOf(Os.EOL);
+	const typePathRaw = fileContent.slice(0, typePathEnd);
+	const fileContentAdjusted =
+		" ".repeat(typePathRaw.length) + 
+		fileContent.slice(typePathRaw.length);
+	
+	const typePath = typePathRaw.trim().split("/");
+	const program = new X.Program(false);
+	const doc = program.documents.create(fileContentAdjusted);
+	const type = program.query(doc, ...typePath);
 	const uriMessage = `Using URI: ${filePath}//${typePath}`;
 	const pipe = "-".repeat(uriMessage.length);
 	console.log(pipe);
