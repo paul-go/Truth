@@ -147,19 +147,10 @@ export class ParallelContext
 		 * True circular base detection is therefore handled at a future
 		 * point in the pipeline.
 		 */
-		const rakeBaseGraph = (
-			srcParallel: X.SpecifiedParallel): X.SpecifiedParallel =>
+		const rakeBaseGraph = (srcParallel: X.SpecifiedParallel) =>
 		{
 			for (const { dstParallel, via } of this.follow(srcParallel))
 			{
-				//if (recursionStack.includes(via))
-				//	continue;
-				//
-				//const nextRecursionStack =
-				//	srcParallel.container === dstParallel.container ?
-				//		recursionStack.concat(via) :
-				//		[];
-				
 				const baseEdgeParallel = rakeBaseGraph(
 					dstParallel);
 				
@@ -209,7 +200,7 @@ export class ParallelContext
 			// If srcParallel has no Parallels, it means that it's an
 			// apex, and the polymorphic responsibilities can be
 			// avoided, and we can resolve to the closest name.
-			if (!srcParallel.hasParallels)
+			if (!srcParallel.hasParallels || possibilities.length === 1)
 			{
 				const dstNode = possibilities[0].node;
 				const dstParallel = this.excavateFromNode(dstNode);
@@ -218,18 +209,23 @@ export class ParallelContext
 				
 				yield { dstParallel, via: hyperEdge };
 			}
-			else for (const possibleScsr of possibilities)
+			else 
 			{
-				const possibleNode = possibleScsr.node;
-				const dstParallel = this.excavateFromNode(possibleNode);
-				if (dstParallel === null)
-					continue;
+				const contract = srcParallel.getParallels();
 				
-				const result = X.ParallelTools.compare(srcParallel, dstParallel);
-				
-				if (result === X.ParallelComparisonResult.equal ||
-					result === X.ParallelComparisonResult.subset)
-					yield { dstParallel, via: hyperEdge };
+				for (const possibleScsr of possibilities)
+				{
+					const possibleNode = possibleScsr.node;
+					const dstParallel = this.excavateFromNode(possibleNode);
+					if (dstParallel === null)
+						continue;
+					
+					const result = X.ParallelTools.compare(srcParallel, dstParallel);
+					
+					if (result === X.ParallelComparisonResult.equal ||
+						result === X.ParallelComparisonResult.subset)
+						yield { dstParallel, via: hyperEdge };
+				}
 			}
 		}
 	}
@@ -355,6 +351,7 @@ export class ParallelContext
 			if (!willCreateValidLayer)
 				throw X.Exception.unknownState();
 		}
+		
 		const noSpecifiedContents = (() =>
 		{
 			for (const par of recurse(zenith))
@@ -378,9 +375,11 @@ export class ParallelContext
 				if (!(par instanceof X.SpecifiedParallel))
 					return [];
 				
-				return (<X.Parallel[]>par.getBases().slice())
+				const result = (<X.Parallel[]>par.getBases().slice())
 					.concat(par.getParallels())
 					.filter(par => !prunedParallels.has(par));
+				
+				return result;
 			}
 			
 			const seed = X.Misc.reduceRecursive(
