@@ -108,5 +108,34 @@ export class Misc
 		return count;
 	}
 	
+	/**
+	 * Performs a recursive reduction operation on an initial object
+	 * that represents some abstract node of a graph. The traversal
+	 * algorithm used ensures all provided nodes are only visited
+	 * once.
+	 */
+	static reduceRecursive<TRet, T>(
+		initialObject: T,
+		followFn: (from: T) => Iterable<T>,
+		reduceFn: (current: T, nestedResults: ReadonlyArray<TRet>) => TRet
+	): TRet
+	{
+		const visited = new Set<T>();
+		
+		const recurse = (object: T) =>
+		{
+			visited.add(object);
+			const reduceResult: TRet[] = [];
+			
+			for (const next of followFn(object))
+				if (!visited.has(next))
+					reduceResult.push(recurse(next));
+			
+			return reduceFn(object, Object.freeze(reduceResult));
+		}
+		
+		return recurse(initialObject);
+	}
+	
 	private constructor() {}
 }
