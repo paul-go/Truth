@@ -2,16 +2,19 @@ SubClass/Property
 
 String
 Number
+Boolean
 Strumber : String, Number
 
 Left
 	Property : String
-
-Right
+	
+Center
 	Property : Number
-
-Class : Left, Right
+	
+Right
+	Property : Boolean
+	
+Class : Left, Center, Right
 	
 SubClass : Class
 	Property : Strumber
-	
