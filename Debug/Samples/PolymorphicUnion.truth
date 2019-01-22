@@ -1,15 +1,17 @@
 Animal
 Mouse : Animal
 Device
+Toy
+Bunny : Toy
 
 Namespace1
-	Mouse : Animal
+	Mouse : Animal, Device
 	
 	Namespace2
 		Mouse : Device
 		
 		Class
-			Property : Animal
+			Property : Animal, Device
 			
 		SubClass : Class
-			Property : Mouse
+			Property : Mouse, Toy
