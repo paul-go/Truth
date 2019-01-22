@@ -220,10 +220,8 @@ export class ParallelContext
 					if (dstParallel === null)
 						continue;
 					
-					const result = X.ParallelTools.compare(srcParallel, dstParallel);
-					
-					if (result === X.ParallelComparisonResult.equal ||
-						result === X.ParallelComparisonResult.subset)
+					const acceptResult = srcParallel.contract.accepts(dstParallel);
+					if (acceptResult.isCovered)
 						yield { dstParallel, via: hyperEdge };
 				}
 			}
