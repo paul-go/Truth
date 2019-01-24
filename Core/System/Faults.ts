@@ -230,7 +230,8 @@ export const Faults = Object.freeze({
 		"Circular type reference detected."),
 	
 	/** */
-	ContractViolation: createFault<X.Span>(
+	ContractViolation: createFault<X.Statement>(
+		// CHANGE THIS TO 204
 		205,
 		"Overridden types must explicitly expand the type as defined in the base."),
 	
@@ -282,7 +283,7 @@ export const Faults = Object.freeze({
 		303,
 		"List intrinsic types cannot extend from other lists."),
 	
-	/** */
+	/** (This is the same thing as a list dimensionality conflict) */
 	ListExtrinsicExtendingNonList: createFault<X.Span>(
 		305,
 		"Lists cannot extend from non-lists."),
