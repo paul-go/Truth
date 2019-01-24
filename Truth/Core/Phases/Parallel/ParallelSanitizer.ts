@@ -25,15 +25,13 @@ export class ParallelSanitizer
 	{
 		const sanitizer = new Sanitizer(srcParallel, baseParallel, via, this.cruft);
 		
-		if (srcParallel.baseCount === 0)
-		{
-			// In this case, we only need to do a 
-			// shallow check for circular inheritance.
-			sanitizer.trimCircularReferences();
-			if (sanitizer.foundCruft)
-				return false;
-		}
-		else
+		// In this case, we only need to do a 
+		// shallow check for circular inheritance.
+		sanitizer.trimCircularReferences();
+		if (sanitizer.foundCruft)
+			return false;
+		
+		if (srcParallel.baseCount > 0)
 		{
 			if (srcParallel.baseCount === 1)
 			{
@@ -52,15 +50,6 @@ export class ParallelSanitizer
 		
 		srcParallel.addBase(baseParallel, via);
 		return true;
-	}
-	
-	/**
-	 * Performs final checks to see if the bases specified
-	 * on the conform with it's contract.
-	 */
-	finalize(parallel: X.SpecifiedParallel)
-	{
-		// Do we need to move the contract calculation here?
 	}
 }
 

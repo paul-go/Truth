@@ -7,7 +7,7 @@ import * as X from "../../X";
 export class Contract
 {
 	/** */
-	constructor(private readonly sourceParallel: X.SpecifiedParallel)
+	constructor(sourceParallel: X.SpecifiedParallel)
 	{
 		const recurse = (srcParallel: X.Parallel) =>
 		{
@@ -19,14 +19,14 @@ export class Contract
 			else if (srcParallel instanceof X.SpecifiedParallel)
 			{
 				for (const { base } of srcParallel.eachBase())
-					this.unsatisfiedConditions.add(base);
+					this._unsatisfiedConditions.add(base);
 			}
 		}
 		
-		for (const higherParallel of this.sourceParallel.getParallels())
+		for (const higherParallel of sourceParallel.getParallels())
 			recurse(higherParallel);
 		
-		this.allConditions = Object.freeze(Array.from(this.unsatisfiedConditions));
+		this.allConditions = Object.freeze(Array.from(this._unsatisfiedConditions));
 	}
 	
 	/**
@@ -59,7 +59,7 @@ export class Contract
 			for (const foreignBase of foreignParallelBases)
 				for (const condition of this.allConditions)
 					if (foreignBase === condition)
-						satisfied += this.unsatisfiedConditions.delete(condition) ? 1 : 0;
+						satisfied += this._unsatisfiedConditions.delete(condition) ? 1 : 0;
 		}
 		
 		return satisfied;
@@ -72,7 +72,11 @@ export class Contract
 	}
 	
 	/** */
-	private readonly unsatisfiedConditions = new Set<X.SpecifiedParallel>();
+	get unsatisfiedConditions(): ReadonlySet<X.SpecifiedParallel>
+	{
+		return this._unsatisfiedConditions;
+	}
+	private readonly _unsatisfiedConditions = new Set<X.SpecifiedParallel>();
 	
 	/**
 	 * Stores an array containing the parallels that any supplied

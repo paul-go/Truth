@@ -181,6 +181,13 @@ export class ConstructionWorker
 		 */
 		const rakeBaseGraph = (srcParallel: X.SpecifiedParallel) =>
 		{
+			const contract = this.contracts.get(srcParallel) || (() =>
+			{
+				const contract = new X.Contract(srcParallel);
+				this.contracts.set(srcParallel, contract);
+				return contract;
+			})();
+			
 			for (const hyperEdge of srcParallel.node.outbounds)
 			{
 				if (this.cruft.has(hyperEdge))
@@ -210,13 +217,6 @@ export class ConstructionWorker
 					// when there are no conditions on the contract, the node
 					// that is the closest ancestor is used.
 					
-					const contract = this.contracts.get(srcParallel) || (() =>
-					{
-						const contract = new X.Contract(srcParallel);
-						this.contracts.set(srcParallel, contract);
-						return contract;
-					})();
-					
 					const satisfyCount = contract.trySatisfyCondition(baseParallel);
 					if (satisfyCount == 0 && contract.hasConditions)
 						continue;
@@ -231,7 +231,12 @@ export class ConstructionWorker
 				}
 			}
 			
-			this.sanitizer.finalize(srcParallel);
+			if (contract.unsatisfiedConditions.size > 0)
+				for (const smt of srcParallel.node.statements)
+					this.program.faults.report(new X.Fault(
+						X.Faults.ContractViolation,
+						smt));
+			
 			return srcParallel;
 		}
 		
