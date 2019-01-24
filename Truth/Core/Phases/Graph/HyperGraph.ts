@@ -355,6 +355,8 @@ export class HyperGraph
 			{
 				this.nodeCache.set(affectedUri, affectedNode);
 			}
+			
+			this.sanitize(affectedNode);
 		}
 	}
 	
@@ -372,6 +374,28 @@ export class HyperGraph
 			document.eachDescendant(root, true);
 		
 		return { document, iterator };
+	}
+	
+	/**
+	 * Reports any Node-level faults detected.
+	 * (Currently there is only a single fault being checked here)
+	 */
+	private sanitize(node: X.Node)
+	{
+		// Check for faulty refresh types
+		// This can only happen on non-infix spans
+		if (!(node.declarations.values().next().value instanceof X.Span))
+			return;
+		
+		const smts = node.statements;
+		const smtsRefresh = smts.filter(smt => smt.isRefresh);
+		const smtsAnnotated = smts.filter(smt => smt.allAnnotations.length > 0);
+		
+		if (smtsRefresh.length > 0 && smtsAnnotated.length > 0)
+			for (const smt of smtsRefresh)
+				this.program.faults.report(new X.Fault(
+					X.Faults.TypeCannotBeRefreshed,
+					smt));
 	}
 	
 	/**

@@ -152,7 +152,8 @@ export class Node
 	{
 		return Object.freeze(
 			Array.from(this.declarations)
-			.filter((v, i, a) => a.indexOf(v) === i));
+				.map(decl => decl.statement)
+				.filter((v, i, a) => a.indexOf(v) === i));
 	}
 	
 	/**
