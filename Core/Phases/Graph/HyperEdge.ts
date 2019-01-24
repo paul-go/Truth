@@ -58,6 +58,9 @@ export class HyperEdge
 		if (isPattern !== isInfix)
 			throw X.Exception.invalidCall();
 		
+		if (this.sourcesMutable.includes(source))
+			return;
+		
 		debugger;
 		"The ordering of the sources is not being handled here."
 		
@@ -84,9 +87,6 @@ export class HyperEdge
 	 * 
 	 * The original locations of these Spans (and InfixSpans?) are
 	 * potentially scattered across many statements.
-	 * 
-	 * In the case when the *kind* field is *summation*, this set
-	 * must be empty.
 	 */
 	get sources()
 	{

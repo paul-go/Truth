@@ -110,7 +110,9 @@ export class FaultType<TSource = TFaultSource>
 		 * 
 		 */
 		readonly severity: FaultSeverity)
-	{ }
+	{
+		this.message = message.trim().replace(/\s\s+/g, " ");
+	}
 	
 	/**
 	 * Creates a fault of this type.
