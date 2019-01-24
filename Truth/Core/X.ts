@@ -63,14 +63,14 @@ export * from "./Phases/Graph/HyperEdge";
 export * from "./Phases/Graph/InfixSpan";
 
 // Phases/Parallel
-export * from "./Phases/Parallel/ParallelContext";
+export * from "./Phases/Parallel/ConstructionWorker";
 export * from "./Phases/Parallel/Parallel";
 export * from "./Phases/Parallel/SpecifiedParallel";
 export * from "./Phases/Parallel/UnspecifiedParallel";
 export * from "./Phases/Parallel/CruftCache";
 export * from "./Phases/Parallel/ParallelCache";
-export * from "./Phases/Parallel/ParallelContract";
 export * from "./Phases/Parallel/ParallelSanitizer";
+export * from "./Phases/Parallel/Contract";
 
 // Phases/Type
 export * from "./Phases/Type/Type";

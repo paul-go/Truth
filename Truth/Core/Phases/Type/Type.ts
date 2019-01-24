@@ -4,7 +4,7 @@ import * as X from "../../X";
 interface IStoredContext
 {
 	version: X.VersionStamp;
-	context: X.ParallelContext;
+	context: X.ConstructionWorker;
 }
 
 
@@ -35,14 +35,14 @@ export class Type
 				return cached;
 		}
 		
-		const context = (() =>
+		const worker = (() =>
 		{
 			const stored = this.parallelContextMap.get(program);
 			if (stored === undefined)
 			{
 				const newStored: IStoredContext = {
 					version: program.version,
-					context: new X.ParallelContext(program)
+					context: new X.ConstructionWorker(program)
 				};
 				
 				this.parallelContextMap.set(program, newStored);
@@ -50,13 +50,13 @@ export class Type
 			}
 			else if (program.version.newerThan(stored.version))
 			{
-				stored.context = new X.ParallelContext(program);
+				stored.context = new X.ConstructionWorker(program);
 			}
 			
 			return stored.context;
 		})();
 		
-		const parallel = context.excavate(uri);
+		const parallel = worker.drill(uri);
 		if (parallel === null)
 		{
 			X.TypeCache.set(uri, program, null);

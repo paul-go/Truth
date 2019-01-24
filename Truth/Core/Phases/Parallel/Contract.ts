@@ -1,0 +1,93 @@
+import * as X from "../../X";
+
+
+/**
+ * 
+ */
+export class Contract
+{
+	/** */
+	constructor(private readonly sourceParallel: X.SpecifiedParallel)
+	{
+		const recurse = (srcParallel: X.Parallel) =>
+		{
+			if (srcParallel instanceof X.UnspecifiedParallel)
+			{
+				for (const nestedParallel of srcParallel.getParallels())
+					recurse(nestedParallel);
+			}
+			else if (srcParallel instanceof X.SpecifiedParallel)
+			{
+				for (const { base } of srcParallel.eachBase())
+					this.unsatisfiedConditions.add(base);
+			}
+		}
+		
+		for (const higherParallel of this.sourceParallel.getParallels())
+			recurse(higherParallel);
+		
+		this.allConditions = Object.freeze(Array.from(this.unsatisfiedConditions));
+	}
+	
+	/**
+	 * Computes whether the input SpecifiedParallel is a more derived
+	 * type of the SpecifiedParallel that corresponds to this Contract.
+	 * 
+	 * @returns A number that indicates the number of conditions that
+	 * were satisfied as a result of adding the provided SpecifiedParallel
+	 * to the Contract.
+	 */
+	trySatisfyCondition(foreignParallel: X.SpecifiedParallel)
+	{
+		const coveredBases = new Set<X.SpecifiedParallel>();
+		const foreignParallelBases = new Set<X.SpecifiedParallel>();
+		let satisfied = 0;
+		
+		if (this.allConditions.length > 0)
+		{
+			function addForeignParallelBases(srcParallel: X.SpecifiedParallel)
+			{
+				for (const { base } of srcParallel.eachBase())
+					addForeignParallelBases(base);
+				
+				foreignParallelBases.add(srcParallel);
+			}
+			
+			for (const { base } of foreignParallel.eachBase())
+				addForeignParallelBases(base);
+			
+			for (const foreignBase of foreignParallelBases)
+				for (const condition of this.allConditions)
+					if (foreignBase === condition)
+						satisfied += this.unsatisfiedConditions.delete(condition) ? 1 : 0;
+		}
+		
+		return satisfied;
+	}
+	
+	/** */
+	get hasConditions()
+	{
+		return this.allConditions.length > 0;
+	}
+	
+	/** */
+	private readonly unsatisfiedConditions = new Set<X.SpecifiedParallel>();
+	
+	/**
+	 * Stores an array containing the parallels that any supplied
+	 * parallel must have in it's base graph in order to be deemed
+	 * compliant.
+	 */
+	private readonly allConditions: ReadonlyArray<X.SpecifiedParallel>;
+}
+
+
+/**
+ * 
+ */
+export interface IContractComparisonResult
+{
+	readonly coveredBases: ReadonlyArray<X.SpecifiedParallel>,
+	readonly isCovered: boolean;
+}

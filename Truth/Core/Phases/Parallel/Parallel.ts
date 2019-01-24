@@ -15,6 +15,9 @@ export abstract class Parallel
 		readonly container: X.Parallel | null)
 	{
 		this.name = uri.typePath.join("/");
+		
+		if (container !== null)
+			container._contents.set(uri.typePath.slice(-1)[0], this);
 	}
 	
 	/**
@@ -28,6 +31,15 @@ export abstract class Parallel
 	 * useful for debugging purposes.
 	 */
 	readonly version = X.VersionStamp.next();
+	
+	/**
+	 * 
+	 */
+	get contents(): ReadonlyMap<string, X.Parallel>
+	{
+		return this._contents;
+	}
+	private _contents = new Map<string, X.Parallel>();
 	
 	/** */
 	getParallels()
