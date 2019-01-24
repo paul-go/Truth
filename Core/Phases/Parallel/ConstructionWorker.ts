@@ -2,23 +2,55 @@ import * as X from "../../X";
 
 
 /**
- * 
+ * A worker class that handles the construction of networks
+ * of Parallel instances, which are eventually transformed
+ * into type objects.
  */
-export class ParallelContext
+export class ConstructionWorker
 {
 	/** */
 	constructor(private readonly program: X.Program) { }
 	
-	/** */
-	excavate(directive: X.Uri)
+	/**
+	 * Constructs the corresponding Parallel instances for
+	 * all specified types that exist within the provided Document,
+	 * or below the provided SpecifiedParallel.
+	 */
+	excavate(from: X.Document | X.SpecifiedParallel)
 	{
-		const result = this.excavateFromUri(directive);
-		this.excavationQueue.length = 0;
+		const queue: X.SpecifiedParallel[] = [];
+		
+		const processNodes = (iterator: IterableIterator<X.Node>) =>
+		{
+			for (const node of iterator)
+			{
+				const drilledParallel = this.drillFromNode(node);
+				if (drilledParallel !== null)
+					queue.push(drilledParallel);
+			}
+		}
+		
+		from instanceof X.Document ?
+			processNodes(this.program.graph.readRoots(from)) :
+			queue.push(from);
+		
+		for (const currentParallel of queue)
+			processNodes(currentParallel.node.contents.values());
+	}
+	
+	/**
+	 * Constructs the fewest possible Parallel instances
+	 * to arrive at the type specified by the directive.
+	 */
+	drill(directive: X.Uri)
+	{
+		const result = this.drillFromUri(directive);
+		this.drillQueue.length = 0;
 		return result;
 	}
 	
 	/** */
-	private excavateFromUri(directive: X.Uri)
+	private drillFromUri(directive: X.Uri)
 	{
 		if (this.parallels.has(directive))
 			return X.Guard.defined(this.parallels.get(directive));
@@ -77,15 +109,15 @@ export class ParallelContext
 	}
 	
 	/**
-	 * An entrypoint into the excavate function that operates
+	 * An entrypoint into the drill function that operates
 	 * on a Node instead of a Uri. Detects circular invokations,
 	 * and returns null in these cases.
 	 */
-	private excavateFromNode(node: X.Node)
+	private drillFromNode(node: X.Node)
 	{
-		// Circular excavation is only a problem if we're
-		// excavating on the same level.
-		const q = this.excavationQueue;
+		// Circular drilling is only a problem if we're
+		// drilling on the same level.
+		const q = this.drillQueue;
 		
 		if (q.length === 0)
 		{
@@ -104,18 +136,18 @@ export class ParallelContext
 			q.push(node);
 		}
 		
-		const excavationResult = this.excavateFromUri(node.uri);
-		if (excavationResult === null)
+		const drillResult = this.drillFromUri(node.uri);
+		if (drillResult === null)
 			throw X.Exception.unknownState();
 		
-		if (!(excavationResult instanceof X.SpecifiedParallel))
+		if (!(drillResult instanceof X.SpecifiedParallel))
 			throw X.Exception.unknownState();
 		
-		return excavationResult;
+		return drillResult;
 	}
 	
-	/** A call queue used to prevent circular excavations. */
-	private readonly excavationQueue: X.Node[] = [];
+	/** A call queue used to prevent circular drilling. */
+	private readonly drillQueue: X.Node[] = [];
 	
 	/**
 	 * "Raking" a Parallel is the process of deeply traversing it's
@@ -149,18 +181,57 @@ export class ParallelContext
 		 */
 		const rakeBaseGraph = (srcParallel: X.SpecifiedParallel) =>
 		{
-			for (const { dstParallel, via } of this.follow(srcParallel))
+			for (const hyperEdge of srcParallel.node.outbounds)
 			{
-				const baseEdgeParallel = rakeBaseGraph(
-					dstParallel);
-				
-				if (baseEdgeParallel === null)
+				if (this.cruft.has(hyperEdge))
 					continue;
 				
-				srcParallel.addBase(dstParallel, via);
-				this.sanitizer.sanitize(srcParallel);
+				const possibilities = hyperEdge.successors
+					.filter(scsr => !this.cruft.has(scsr.node))
+					.sort((a, b) => a.longitude - b.longitude);
+				
+				for (const possibleScsr of possibilities)
+				{
+					const possibleNode = possibleScsr.node;
+					const baseParallel = this.drillFromNode(possibleNode);
+					if (baseParallel === null)
+						continue;
+					
+					const baseEdgeParallel = rakeBaseGraph(baseParallel);
+					if (baseEdgeParallel === null)
+						continue;
+					
+					// This is where the polymorphic name resolution algorithm
+					// takes place. The algorithm operates by working it's way
+					// up the list of nodes (aka the scope chain), looking for
+					// a possible resolution target where the act of applying the
+					// associated Parallel as a base causes at least one of the 
+					// conditions on the contract to be satisfied. Or, in the case
+					// when there are no conditions on the contract, the node
+					// that is the closest ancestor is used.
+					
+					const contract = this.contracts.get(srcParallel) || (() =>
+					{
+						const contract = new X.Contract(srcParallel);
+						this.contracts.set(srcParallel, contract);
+						return contract;
+					})();
+					
+					const satisfyCount = contract.trySatisfyCondition(baseParallel);
+					if (satisfyCount == 0 && contract.hasConditions)
+						continue;
+					
+					this.sanitizer.tryAddBase(srcParallel, baseParallel, hyperEdge);
+					
+					if (this.handledHyperEdges.has(hyperEdge))
+						throw X.Exception.unknownState();
+					
+					this.handledHyperEdges.add(hyperEdge);
+					break;
+				}
 			}
 			
+			this.sanitizer.finalize(srcParallel);
 			return srcParallel;
 		}
 		
@@ -181,53 +252,9 @@ export class ParallelContext
 	}
 	
 	/**
-	 * Enumerates through the bases of the specified Parallel,
-	 * applying the system's polymorphic name resolution rules.
+	 * Used for safety purposes to catch unexpected behavior.
 	 */
-	private *follow(srcParallel: X.SpecifiedParallel)
-	{
-		for (const hyperEdge of srcParallel.node.outbounds)
-		{
-			if (this.cruft.has(hyperEdge))
-				continue;
-			
-			const possibilities = hyperEdge.successors
-				.filter(scsr => !this.cruft.has(scsr.node))
-				.sort((a, b) => a.longitude - b.longitude);
-			
-			if (possibilities.length === 0)
-				continue;
-			
-			// If srcParallel has no Parallels, it means that it's an
-			// apex, and the polymorphic responsibilities can be
-			// avoided, and we can resolve to the closest name.
-			if (!srcParallel.hasParallels || possibilities.length === 1)
-			{
-				const dstNode = possibilities[0].node;
-				const dstParallel = this.excavateFromNode(dstNode);
-				if (dstParallel === null)
-					continue;
-				
-				yield { dstParallel, via: hyperEdge };
-			}
-			else 
-			{
-				const contract = srcParallel.getParallels();
-				
-				for (const possibleScsr of possibilities)
-				{
-					const possibleNode = possibleScsr.node;
-					const dstParallel = this.excavateFromNode(possibleNode);
-					if (dstParallel === null)
-						continue;
-					
-					const acceptResult = srcParallel.contract.accepts(dstParallel);
-					if (acceptResult.isCovered)
-						yield { dstParallel, via: hyperEdge };
-				}
-			}
-		}
-	}
+	private readonly handledHyperEdges = new WeakSet<X.HyperEdge>();
 	
 	/**
 	 * Constructs and returns a new seed Parallel from the specified
@@ -246,8 +273,9 @@ export class ParallelContext
 			{
 				const nextNode = zenith.node.contents.get(typeName);
 				if (nextNode)
-					return this.parallels.get(nextNode) ||
-						this.parallels.create(nextNode, this.cruft);
+					return (
+						this.parallels.get(nextNode) ||
+						this.parallels.create(nextNode, this.cruft));
 			}
 			
 			const nextUri = zenith.uri.extend([], typeName);
@@ -413,5 +441,9 @@ export class ParallelContext
 	private readonly cruft = new X.CruftCache(this.program);
 	
 	/** */
-	private readonly sanitizer = new X.ParallelSanitizer(this.cruft);
+	private readonly sanitizer = new X.ParallelSanitizer(this, this.cruft);
+	
+	/** */
+	private readonly contracts = 
+		new WeakMap<X.SpecifiedParallel, X.Contract>();
 }

@@ -18,7 +18,6 @@ export class SpecifiedParallel extends X.Parallel
 		super(node.uri, container);
 		this.node = node;
 		this.cruft = cruft;
-		this.contract = new X.ParallelContract(this);
 	}
 	
 	/**
@@ -26,9 +25,6 @@ export class SpecifiedParallel extends X.Parallel
 	 * SpecifiedParallel instance.
 	 */
 	readonly node: X.Node;
-	
-	/** */
-	readonly contract: X.ParallelContract;
 	
 	/** */
 	private readonly cruft: X.CruftCache;
@@ -42,10 +38,13 @@ export class SpecifiedParallel extends X.Parallel
 	}
 	private readonly _bases = new Map<X.HyperEdge, X.SpecifiedParallel>();
 	
-	/** */
-	get hasBases()
+	/**
+	 * Gets the number of bases that have 
+	 * been explicitly applied to this Parallel.
+	 */
+	get baseCount()
 	{
-		return this._bases.size > 0;
+		return this._bases.size;
 	}
 	
 	/** */

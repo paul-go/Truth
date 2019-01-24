@@ -46,4 +46,4 @@ export class CruftCache
 
 
 /** */
-type TCruft = X.TFaultSource | X.Node | X.HyperEdge;
+export type TCruft = X.TFaultSource | X.Node | X.HyperEdge;
