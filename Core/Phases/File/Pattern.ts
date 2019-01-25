@@ -27,7 +27,7 @@ export class Pattern
 		readonly crc: string)
 	{
 		this.compiledRegExp = X.PatternPrecompiler.exec(this);
-		this.isValid = this.compiledRegExp instanceof X.Pattern;
+		this.isValid = this.compiledRegExp instanceof RegExp;
 	}
 	
 	/**
