@@ -355,90 +355,70 @@ export class ConstructionWorker
 		// And so this algorithm stakes out cut off points so that we don't
 		// blindly just descend all Parallels in the layer.
 		const prunedParallels = new Set<X.Parallel>();
+		
+		const pruneParallelsFollowFn = (par: X.Parallel) =>
 		{
-			const parallelFollowFn = (par: X.Parallel) =>
-			{
-				const upperParallels = par.getParallels().slice();
-				if (par instanceof X.SpecifiedParallel)
-					for (const { base } of par.eachBase())
-						upperParallels.push(base);
-				
-				return upperParallels;
-			}
+			const upperParallels = par.getParallels().slice();
+			if (par instanceof X.SpecifiedParallel)
+				for (const { base } of par.eachBase())
+					upperParallels.push(base);
 			
-			const willCreateValidLayer = X.Misc.reduceRecursive(
-				zenith,
-				parallelFollowFn,
-				(current, results: ReadonlyArray<boolean>) =>
-				{
-					const prune = 
-						results.every(result => !result) &&
-						!canDescendToSpecified(current);
-					
-					if (prune)
-						prunedParallels.add(current);
-					
-					return !prune;
-				});
-			
-			// The case when the layer which is seeded by the zenith
-			// provided to this method contains nothing other than 
-			// UnspecifiedParallel instances should never happen,
-			// because such a descension should never have been
-			// allowed to happen in the first place.
-			if (!willCreateValidLayer)
-				throw X.Exception.unknownState();
+			return upperParallels;
 		}
 		
-		const noSpecifiedContents = (() =>
-		{
-			for (const par of recurse(zenith))
-				if (canDescendToSpecified(par))
-					return false;
-			
-			return true;
-		})();
+		const hasSpecifiedContents = X.Misc.reduceRecursive(
+			zenith,
+			pruneParallelsFollowFn,
+			(current, results: ReadonlyArray<boolean>) =>
+			{
+				const prune = 
+					results.every(result => !result) &&
+					!canDescendToSpecified(current);
+				
+				if (prune)
+					prunedParallels.add(current);
+				
+				return !prune;
+			});
 		
 		// In the case when the method is attempting to descend
 		// to a level where there are no nodes whose name match
 		// the type name specified (i.e. the whole layer would be 
 		// unspecified parallels), null is returned because a descend
 		// wouldn't make sense.
-		if (noSpecifiedContents)
+		if (!hasSpecifiedContents)
 			return null;
 		
+		const descendParallelsFollowFn = (par: X.Parallel) =>
 		{
-			const parallelFollowFn = (par: X.Parallel) =>
-			{
-				if (!(par instanceof X.SpecifiedParallel))
-					return [];
-				
-				const bases = Array.from(par.eachBase())
-					.map(entry => <X.Parallel>entry.base)
-					.slice();
-				
-				const result = bases
-					.concat(par.getParallels())
-					.filter(par => !prunedParallels.has(par));
-				
-				return result;
-			}
+			if (!(par instanceof X.SpecifiedParallel))
+				return [];
 			
-			const seed = X.Misc.reduceRecursive(
-				zenith,
-				parallelFollowFn,
-				(current, nested: ReadonlyArray<X.Parallel>) =>
-				{
-					const nextPar = descendOne(current);
-					
-					for (const edge of nested)
-						nextPar.addParallel(edge);
-					
-					return nextPar;
-				});
+			const bases = Array.from(par.eachBase())
+				.map(entry => <X.Parallel>entry.base)
+				.slice();
 			
-			return seed;
+			const result = bases
+				.concat(par.getParallels())
+				.filter(par => !prunedParallels.has(par));
+			
+			return result;
 		}
+		
+		const seed = X.Misc.reduceRecursive(
+			zenith,
+			descendParallelsFollowFn,
+			(current, nested: ReadonlyArray<X.Parallel>) =>
+			{
+				const nextPar = descendOne(current);
+				
+				for (const edge of nested)
+					nextPar.addParallel(edge);
+				
+				return nextPar;
+			});
+		
+		return seed;
 	}
 	
 	/** */
