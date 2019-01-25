@@ -171,7 +171,8 @@ export class Statement
 			yield* dedupInfixSubjects(lhs);
 			yield* dedupInfixSubjects(rhs);
 			
-			const lhsIdentifiers = lhs.map(nfxSpan => nfxSpan.boundary.subject.toString());
+			const lhsIdentifiers = lhs.map(nfxSpan => 
+				nfxSpan.boundary.subject.toString());
 			
 			for (const infixSpan of rhs)
 				if (lhsIdentifiers.includes(infixSpan.boundary.subject.toString()))
@@ -213,10 +214,8 @@ export class Statement
 	 */
 	get isVacuous()
 	{
-		return (this.isRefresh && 
-			!this.isCruft &&
-			this.declarations.length === 0 &&
-			this.annotations.length === 0);
+		const f = X.LineFlags.isVacuous;
+		return (this.flags & f) === f;
 	}
 	
 	/**

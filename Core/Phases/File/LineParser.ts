@@ -180,14 +180,23 @@ export class LineParser
 			
 			if (jointPosition > -1)
 			{
-				if (readResult.annotations.length === 0)
-					flags |= X.LineFlags.isRefresh;
+				const dLen = declarationEntries.length;
+				const aLen = readResult.annotations.length;
 				
-				else if (declarationEntries.length === 0)
+				if (dLen === 0)
+				{
 					declarationEntries.unshift(new X.Boundary(
 						jointPosition,
 						jointPosition,
 						new X.Anon()));
+					
+					if (aLen === 0)
+						flags |= X.LineFlags.isVacuous;
+				}
+				else if (aLen === 0)
+				{
+					flags |= X.LineFlags.isRefresh;
+				}
 			}
 			
 			return ret();
