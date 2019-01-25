@@ -55,4 +55,53 @@ export class SpecifiedParallel extends X.Parallel
 		
 		this._bases.set(via, base);
 	}
+	
+	/** */
+	get isListIntrinsic()
+	{
+		return this.node.isListExtrinsic;
+	}
+	
+	/** */
+	get intrinsicExtrinsicBridge()
+	{
+		return this._intrinsicExtrinsicBridge;
+	}
+	private _intrinsicExtrinsicBridge: X.SpecifiedParallel | null = null;
+	
+	/**
+	 * Establishes a bridge between this SpecifiedParallel and the
+	 * one provided. 
+	 */
+	createIntrinsicExtrinsicBridge(parallel: X.SpecifiedParallel)
+	{
+		if (this._intrinsicExtrinsicBridge !== null)
+			throw X.Exception.unknownState();
+		
+		if (parallel._intrinsicExtrinsicBridge !== null)
+			throw X.Exception.unknownState();
+		
+		if (parallel.node.isListIntrinsic === this.node.isListIntrinsic)
+			throw X.Exception.unknownState();
+		
+		this._intrinsicExtrinsicBridge = parallel;
+		parallel._intrinsicExtrinsicBridge = this;
+	}
+	
+	/** */
+	getListDimensionality(): number
+	{
+		// NOTE: This actually needs to be "each base inferred"
+		
+		// This is purposely only returning the dimensionality of
+		// the first base. There is a guarantee that all dimensionalities
+		// will be the same here.
+		for (const { base, edge } of this.eachBase())
+		{
+			const initialDim = base.getListDimensionality();
+			return edge.isList ? initialDim + 1 : initialDim;
+		}
+		
+		return 0;
+	}
 }

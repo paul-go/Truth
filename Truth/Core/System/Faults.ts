@@ -268,7 +268,7 @@ export const Faults = Object.freeze({
 	
 	
 	/** */
-	AnonymousInListIntrinsicType: createFault<X.Statement>(
+	AnonymousInListIntrinsic: createFault<X.Statement>(
 		300,
 		"Types contained directly by List-intrinsic types cannot be anonymous."),
 	
@@ -293,6 +293,12 @@ export const Faults = Object.freeze({
 		307,
 		`A union cannot be created between these two types
 		because they are lists of different dimensions.`),
+	
+	/** */
+	ListAnnotationConflict: createFault<X.Span>(
+		309,
+		`All fragments of this annotation need to have
+		a list operator (${X.Syntax.list})`),
 	
 	//
 	// Pattern-related faults
