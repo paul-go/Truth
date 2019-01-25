@@ -50,8 +50,14 @@ export class HyperEdge
 		this.sourcesMutable = [source];
 	}
 	
-	/** */
-	addSource(source: X.Span | X.InfixSpan)
+	/**
+	 * Attempts to add another fragment to the HyperEdge.
+	 * Reports a fault instead in the case when there is a 
+	 * list conflict between the source provided and the
+	 * existing sources. (I.e. one of the sources is defined
+	 * as a list, and another is not).
+	 */
+	maybeAddSource(source: X.Span | X.InfixSpan)
 	{
 		const isPattern = this.predecessor.subject instanceof X.Pattern;
 		const isInfix = source instanceof X.InfixSpan;
@@ -61,7 +67,6 @@ export class HyperEdge
 		if (this.sourcesMutable.includes(source))
 			return;
 		
-		debugger;
 		"The ordering of the sources is not being handled here."
 		
 		this.sourcesMutable.push(source);
@@ -91,6 +96,26 @@ export class HyperEdge
 	get sources()
 	{
 		return Object.freeze(this.sourcesMutable.slice());
+	}
+	
+	/**
+	 * Gets a value that indicates whether the sources of the edge
+	 * causes incrementation of the list dimensionality of the type
+	 * that corresponnds to this HyperEdge's predecessor Node.
+	 * 
+	 * (Note that all sources need to agree on this value, and the 
+	 * necessary faults are generated to ensure that this is always
+	 * the case.)
+	 */
+	get isList()
+	{
+		for (const source of this.sources)
+		{
+			const sub = source.boundary.subject
+			return sub instanceof X.Identifier && sub.isList;
+		}
+		
+		return false;
 	}
 	
 	/** */

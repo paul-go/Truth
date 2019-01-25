@@ -48,7 +48,7 @@ export class Identifier
 			switch (escape)
 			{
 				case IdentifierEscapeKind.none:
-					return this.fullName;
+					return this.typeName;
 				
 				case IdentifierEscapeKind.declaration:
 				{
@@ -59,7 +59,7 @@ export class Identifier
 					const jntRegT = new RegExp(X.Syntax.joint + X.Syntax.tab);
 					const cmbReg = new RegExp(X.Syntax.combinator);
 					
-					return this.fullName
+					return this.typeName
 						.replace(dlmReg, X.Syntax.escapeChar + X.RegexSyntaxDelimiter.main)
 						.replace(jntRegS, X.Syntax.escapeChar + X.Syntax.joint + X.Syntax.space)
 						.replace(jntRegT, X.Syntax.escapeChar + X.Syntax.joint + X.Syntax.tab)
@@ -70,7 +70,7 @@ export class Identifier
 				{
 					const reg = new RegExp(X.Syntax.combinator);
 					const rep = X.Syntax.escapeChar + X.Syntax.combinator;
-					return this.fullName.replace(reg, rep);
+					return this.typeName.replace(reg, rep);
 				}
 			}
 		})()

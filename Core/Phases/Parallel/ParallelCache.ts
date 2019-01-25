@@ -23,6 +23,13 @@ export class ParallelCache
 		if (this.has(key))
 			throw X.Exception.unknownState();
 		
+		const save = (par: X.Parallel) =>
+		{
+			const keyVal = this.getKeyVal(key);
+			this.parallels.set(keyVal, par);
+			return par;
+		}
+		
 		const container = (() =>
 		{
 			if (key instanceof X.Node)
@@ -35,25 +42,29 @@ export class ParallelCache
 				null;
 		})();
 		
-		const par = (() =>
-		{
-			if (key instanceof X.Node)
-			{
-				if (!(container instanceof X.SpecifiedParallel) && container !== null)
-					throw X.Exception.unknownState();
-				
-				if (cruft === undefined)
-					throw X.Exception.unknownState();
-				
-				return new X.SpecifiedParallel(key, container, cruft);
-			}
-			
-			return new X.UnspecifiedParallel(key, container);
-		})();
+		if (key instanceof X.Uri)
+			return save(new X.UnspecifiedParallel(key, container));
 		
-		const keyVal = this.getKeyVal(key);
-		this.parallels.set(keyVal, par);
-		return par;
+		if (!(container instanceof X.SpecifiedParallel) && container !== null)
+			throw X.Exception.unknownState();
+		
+		if (cruft === undefined)
+			throw X.Exception.unknownState();
+		
+		const outPar = new X.SpecifiedParallel(key, container, cruft);
+		if (key.intrinsicExtrinsicBridge === null)
+			return save(outPar);
+		
+		if (this.has(key.intrinsicExtrinsicBridge))
+			throw X.Exception.unknownState();
+		
+		const bridgePar = new X.SpecifiedParallel(
+			key.intrinsicExtrinsicBridge,
+			container,
+			cruft);
+		
+		outPar.createIntrinsicExtrinsicBridge(bridgePar);
+		return save(outPar);
 	}
 	
 	/** */
@@ -90,4 +101,14 @@ export class ParallelCache
 	 * constructed by this object.
 	 */
 	private readonly parallels = new Map<string, X.Parallel>();
+	
+	get debug()
+	{
+		let text: string[] = [];
+		
+		for (const [key, value] of this.parallels)
+			text.push(value.name);
+		
+		return text.join("\n");
+	}
 }

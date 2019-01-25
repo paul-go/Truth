@@ -25,14 +25,22 @@ export class ParallelSanitizer
 	{
 		const sanitizer = new Sanitizer(srcParallel, baseParallel, via, this.cruft);
 		
+		sanitizer.detectListFragmentConflicts();
+		if (sanitizer.foundCruft)
+			return false;
+		
 		// In this case, we only need to do a 
 		// shallow check for circular inheritance.
-		sanitizer.trimCircularReferences();
+		sanitizer.detectCircularReferences();
 		if (sanitizer.foundCruft)
 			return false;
 		
 		if (srcParallel.baseCount > 0)
 		{
+			sanitizer.detectListDimensionalityConflict();
+			if (sanitizer.foundCruft)
+				return false;
+			
 			if (srcParallel.baseCount === 1)
 			{
 				// In the case when there is exactly one existing base
@@ -68,8 +76,35 @@ class Sanitizer
 		private readonly proposedEdge: X.HyperEdge,
 		private readonly cruft: X.CruftCache) { }
 	
+	/**
+	 * Detects list operartor conflicts between the fragments of an
+	 * annotation. For example, conflicts of the following type are
+	 * caught here:
+	 * 
+	 * List : Item
+	 * List : Item...
+	 */
+	detectListFragmentConflicts()
+	{
+		const sources = this.proposedEdge.sources;
+		if (sources.length === 0)
+			return;
+		
+		const spans = sources.filter((src): src is X.Span => src instanceof X.Span);
+		const identifiers = spans
+			.map(f => f.boundary.subject)
+			.filter((sub): sub is X.Identifier => sub instanceof X.Identifier);
+		
+		const identifiersList = identifiers.filter(id => id.isList);
+		const identifiersNonList = identifiers.filter(id => !id.isList);
+		
+		if (identifiersList.length > 0 && identifiersNonList.length > 0)
+			for (const span of spans)
+				this.addFault(span, X.Faults.ListAnnotationConflict);
+	}
+	
 	/** */
-	trimCircularReferences()
+	detectCircularReferences()
 	{
 		const circularEdgePaths: X.HyperEdge[][] = [];
 		const recurse = (
@@ -96,13 +131,16 @@ class Sanitizer
 	}
 	
 	/** */
-	*basesOf(par: X.SpecifiedParallel)
+	detectListDimensionalityConflict()
 	{
-		for (const { base, edge } of par.eachBase())
-			yield { base, edge };
+		const targetDim = this.targetParallel.getListDimensionality();
 		
-		if (this.targetParallel === par)
-			yield { base: this.proposedBase, edge: this.proposedEdge };
+		const proposedDim = 
+			this.proposedBase.getListDimensionality() +
+			(this.proposedEdge.isList ? 1 : 0);
+		
+		if (targetDim !== proposedDim)
+			this.addFault(this.proposedEdge, X.Faults.ListDimensionalDiscrepancyFault);
 	}
 	
 	/** Gets a boolean value that indicates whether a fault has been reported. */
@@ -111,6 +149,16 @@ class Sanitizer
 		return this._foundCruft;
 	}
 	private _foundCruft = false;
+	
+	/** */
+	private *basesOf(par: X.SpecifiedParallel)
+	{
+		for (const { base, edge } of par.eachBase())
+			yield { base, edge };
+		
+		if (this.targetParallel === par)
+			yield { base: this.proposedBase, edge: this.proposedEdge };
+	}
 	
 	/** */
 	private addFault(source: X.TCruft, relevantFaultType: X.FaultType)

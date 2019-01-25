@@ -127,8 +127,6 @@ export class ConstructionWorker
 		{
 			if (q.includes(node))
 				return null;
-			
-			q.push(node);
 		}
 		else
 		{
@@ -181,6 +179,11 @@ export class ConstructionWorker
 		 */
 		const rakeBaseGraph = (srcParallel: X.SpecifiedParallel) =>
 		{
+			if (this.rakedBaseGraphs.has(seed))
+				return seed;
+			
+			this.rakedBaseGraphs.add(seed);
+			
 			const contract = this.contracts.get(srcParallel) || (() =>
 			{
 				const contract = new X.Contract(srcParallel);
@@ -201,12 +204,14 @@ export class ConstructionWorker
 				{
 					const possibleNode = possibleScsr.node;
 					const baseParallel = this.drillFromNode(possibleNode);
+					
+					// baseParallel will be null in the case when a circular
+					// relationship has been detected (and quitting is
+					// required here in order to avoid a stack overflow).
 					if (baseParallel === null)
 						continue;
 					
-					const baseEdgeParallel = rakeBaseGraph(baseParallel);
-					if (baseEdgeParallel === null)
-						continue;
+					rakeBaseGraph(baseParallel);
 					
 					// This is where the polymorphic name resolution algorithm
 					// takes place. The algorithm operates by working it's way
@@ -440,7 +445,7 @@ export class ConstructionWorker
 	private readonly parallels = new X.ParallelCache();
 	
 	/** Stores the set of Parallel instances that have been raked. */
-	private readonly raked = new Set<X.Parallel>();
+	private readonly rakedBaseGraphs = new WeakSet<X.Parallel>();
 	
 	/** */
 	private readonly cruft = new X.CruftCache(this.program);

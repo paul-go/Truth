@@ -375,10 +375,8 @@ export class HyperGraph
 		
 		return { document, iterator };
 	}
-	
 	/**
 	 * Reports any Node-level faults detected.
-	 * (Currently there is only a single fault being checked here)
 	 */
 	private sanitize(node: X.Node)
 	{

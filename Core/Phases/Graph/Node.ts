@@ -34,6 +34,10 @@ export class Node
 		this.subject = declaration.boundary.subject;
 		this.name = this.subject.toString();
 		
+		this.isListIntrinsic = 
+			this.subject instanceof X.Identifier &&
+			this.subject.isList;
+		
 		const containerTypePath = (() =>
 		{
 			if (container === null)
@@ -125,6 +129,55 @@ export class Node
 	
 	/** */
 	readonly stamp: X.VersionStamp;
+	
+	/**
+	 * Stores whether this Node has been explicitly defined as
+	 * a list intrinsic.
+	 */
+	readonly isListIntrinsic: boolean;
+	
+	/**
+	 * Gets whether this Node has been explicitly defined as a list
+	 * extrinsic. It is worth noting that this property in and of itself is
+	 * not sufficient to determine whether any corresponding type is
+	 * actually a list (full type analysis is required to make this conclusion).
+	 */
+	get isListExtrinsic()
+	{
+		for (const ob of this.outbounds)
+			for (const source of ob.sources)
+				if (source.boundary.subject instanceof X.Identifier)
+					if (source.boundary.subject.isList)
+						return true;
+		
+		return false;
+	}
+	
+	/**
+	 * Gets a reference to the "opposite side of the list". 
+	 * 
+	 * If this Node represents a list intrinsic type, this property gets
+	 * a reference to the Node that represents the corresponding
+	 * extrinsic side.
+	 * 
+	 * If this Node represents anything that *isn't* a list intrinsic type,
+	 * the property gets a reference to the Node that represents the
+	 * corresponding intrinsic side (whether the node is a list or not).
+	 * 
+	 * Gets null in the case when there is no corresponding list intrinsic
+	 * or extrinsic Node to connect.
+	 */
+	get intrinsicExtrinsicBridge(): X.Node | null
+	{
+		if (this.subject instanceof X.Identifier)
+			for (const [name, adjacent] of this.adjacents)
+				if (adjacent.subject instanceof X.Identifier)
+					if (adjacent.subject.typeName === this.subject.typeName)
+						if (adjacent.subject.isList !== this.isListIntrinsic)
+							return adjacent;
+		
+		return null;
+	}
 	
 	/**
 	 * Stores the set of declaration-side Span objects that
@@ -417,7 +470,7 @@ export class Node
 		
 		if (existingEdge)
 		{
-			existingEdge.addSource(source);
+			existingEdge.maybeAddSource(source);
 		}
 		else
 		{
@@ -425,40 +478,12 @@ export class Node
 			
 			for (const { longitudeDelta, adjacents } of this.enumerateContainment())
 			{
-				// An edge should be established between all nodes in the containment
-				// hierarchy, whether they match the full name or only the type name.
-				// This is because edges should be established between nodes,
-				// regardless of list intrinsic / extrinsic state.
-				const adjacentNodes = [
-					adjacents.get(identifier.typeName),
-					adjacents.get(identifier.fullName)
-				].filter((v, i, a) => a.indexOf(v) === i);
-				
-				for (const adjacentNode of adjacentNodes)
-				{
-					if (adjacentNode)
-					{
-						successors.push(new X.Successor(
-							adjacentNode,
-							longitudeDelta));
-					}
-				}
+				const adjacentNode = adjacents.get(identifier.typeName);
+				if (adjacentNode !== undefined)
+					successors.push(new X.Successor(
+						adjacentNode,
+						longitudeDelta));
 			}
-			
-			//if (kind === X.HyperEdgeKind.orphan)
-			//{
-			//	for (const { longitudeDelta, adjacents } of this.enumerateContainment())
-			//		for (const adjacentNode of adjacents.values())
-			//			if (adjacentNode.subject instanceof X.Pattern)
-			//				if (sourceIsAlone || !adjacentNode.subject.isTotal)
-			//					if (adjacentNode.subject.test(value))
-			//						successors.push(new X.Successor(
-			//							adjacentNode, 
-			//							longitudeDelta));
-			//	
-			//	if (successors.length > 0)
-			//		kind = X.HyperEdgeKind.categorical;
-			//}
 			
 			append(new X.HyperEdge(this, source, successors));
 		}
@@ -488,7 +513,9 @@ export class Node
 		//						append(new X.HyperEdge(
 		//							this,
 		//							smt.sum,
-		//							[new X.Successor(adjacentNode, longitudeDelta)],
+		//							[new X.Successor(
+		//								adjacentNode,
+		//								longitudeDelta)],
 		//							X.HyperEdgeKind.summation));
 	}
 	
@@ -565,7 +592,7 @@ export class Node
 	removeEdgeSource(src: X.Span | X.InfixSpan)
 	{
 		for (let i = this._outbounds.length; --i > 0;)
-			this._outbounds[i].addSource(src);
+			this._outbounds[i].maybeAddSource(src);
 	}
 	
 	/** */
