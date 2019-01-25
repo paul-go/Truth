@@ -227,9 +227,9 @@ export class HyperGraph
 			
 			const multiMap = breadthFirstOrganizer[level];
 			
-			for (const declaration of statement.declarations)
+			for (const decl of statement.declarations)
 			{
-				for (const spine of declaration.factor())
+				for (const spine of decl.factor())
 				{
 					const uri = X.Uri.create(spine);
 					const typeNames = spine.vertebrae
@@ -237,19 +237,19 @@ export class HyperGraph
 					
 					multiMap.add(
 						typeNames.join(X.Syntax.terminal),
-						{ uri, declaration });
+						{ uri, declaration: decl });
 					
 					// If the declaration has population infixes, these
 					// need to be added to the map as though they
 					// were regular declarations.
 					
-					const popInfixes = declaration.infixes.filter(nfx => nfx.isPopulation);
+					const popInfixes = decl.infixes.filter(nfx => nfx.isPopulation);
 					if (popInfixes.length === 0)
 						continue;
 					
 					for (const infix of popInfixes)
 					{
-						for (const infixSpan of declaration.eachDeclarationForInfix(infix))
+						for (const infixSpan of decl.eachDeclarationForInfix(infix))
 						{
 							const nfxText = infixSpan.boundary.subject.toString();
 							const infixSpineParts = typeNames.concat(nfxText);
