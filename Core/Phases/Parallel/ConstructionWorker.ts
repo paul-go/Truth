@@ -277,15 +277,19 @@ export class ConstructionWorker
 		 * or an UnspecifiedParallel instance), that corresponds to
 		 * the specified zenith parallel.
 		 */
-		const descendOne = (zenith: X.Parallel) =>
+		const descendOne = (zenith: X.Parallel): X.Parallel =>
 		{
 			if (zenith instanceof X.SpecifiedParallel)
 			{
 				const nextNode = zenith.node.contents.get(typeName);
 				if (nextNode)
-					return (
-						this.parallels.get(nextNode) ||
-						this.parallels.create(nextNode, this.cruft));
+				{
+					const out = this.parallels.get(nextNode) ||
+						this.parallels.create(nextNode, this.cruft);
+					
+					this.sanitizer.verifyDescend(zenith, out);
+					return out;
+				}
 			}
 			
 			const nextUri = zenith.uri.extend([], typeName);
@@ -431,7 +435,7 @@ export class ConstructionWorker
 	private readonly cruft = new X.CruftCache(this.program);
 	
 	/** */
-	private readonly sanitizer = new X.ParallelSanitizer(this, this.cruft);
+	private readonly sanitizer = new X.ParallelSanitizer(this.program, this, this.cruft);
 	
 	/** */
 	private readonly contracts = 
