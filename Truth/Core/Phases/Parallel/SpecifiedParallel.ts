@@ -59,7 +59,7 @@ export class SpecifiedParallel extends X.Parallel
 	/** */
 	get isListIntrinsic()
 	{
-		return this.node.isListExtrinsic;
+		return this.node.isListIntrinsic;
 	}
 	
 	/** */

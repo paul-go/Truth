@@ -10,8 +10,24 @@ import * as X from "../../X";
 export class ParallelSanitizer
 {
 	constructor(
+		private readonly program: X.Program,
 		private readonly worker: X.ConstructionWorker,
 		private readonly cruft: X.CruftCache) { }
+	
+	/**
+	 * Performs verification on the descend operation.
+	 * Reports any faults that can occur during this process.
+	 */
+	verifyDescend(
+		zenithParallel: X.SpecifiedParallel,
+		descendParallel: X.SpecifiedParallel)
+	{
+		if (descendParallel.node.subject instanceof X.Anon)
+			if (zenithParallel.isListIntrinsic)
+				this.program.faults.report(new X.Fault(
+					X.Faults.AnonymousInListIntrinsic,
+					descendParallel.node.statements[0]));
+	}
 	
 	/**
 	 * Attempts to add the specified baseParallel as a base of the
