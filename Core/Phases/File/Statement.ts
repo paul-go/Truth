@@ -189,12 +189,22 @@ export class Statement
 		for (const infixSpan of dedupInfixesAcrossInfixes(
 			patternSpan,
 			infix => patternSpan.eachDeclarationForInfix(infix)))
-			yield new X.Fault(X.Faults.PortabilityInfixHasMultipleDefinitions, infixSpan);
+		{
+			if (infixSpan.containingInfix.isPopulation)
+				yield new X.Fault(
+					X.Faults.PopulationInfixHasMultipleDefinitions,
+					infixSpan);
+		}
 		
 		for (const infixSpan of dedupInfixesAcrossInfixes(
 			patternSpan,
 			infix => patternSpan.eachAnnotationForInfix(infix)))
-			yield new X.Fault(X.Faults.PopulationInfixHasMultipleDefinitions, infixSpan);
+		{
+			if (infixSpan.containingInfix.isPortability)
+				yield new X.Fault(
+					X.Faults.PortabilityInfixHasMultipleDefinitions, 
+					infixSpan);
+		}
 	}
 	
 	/**
@@ -610,6 +620,26 @@ function *dedupInfixesAcrossInfixes(
 			}
 			else identifiers.push(text);
 		}
+	}
+}
+
+
+/**
+ * Yields when successive equivalent instances are discovered
+ * in the specified iterator.
+ */
+function *dedup<T>(
+	iterator: IterableIterator<T>,
+	equalityFn: (a: T, b: T) => boolean)
+{
+	const yielded: T[] = [];
+	
+	for (const item of iterator)
+	{
+		if (yielded.includes(item))
+			yield item;
+		else
+			yielded.push(item);
 	}
 }
 

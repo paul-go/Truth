@@ -106,11 +106,13 @@ export class FaultService
 		{
 			const doc = (() =>
 			{
-				if (fault.source instanceof X.Statement)
-					return fault.source.document;
+				const src = fault.source;
 				
-				if (fault.source instanceof X.Span)
-					return fault.source.statement.document;
+				if (src instanceof X.Statement)
+					return src.document;
+				
+				if (src instanceof X.Span || src instanceof X.InfixSpan)
+					return src.statement.document;
 				
 				throw X.Exception.unknownState();
 			})();

@@ -445,12 +445,14 @@ export const Faults = Object.freeze({
 	/** */
 	PortabilityInfixHasMultipleDefinitions: createFault<X.InfixSpan>(
 		521, //418,
-		"Portability infixes with compatible types cannot be specified more than once."),
+		`Portability infixes with compatible types cannot
+		be specified more than once.`),
 	
 	/** */
 	PopulationInfixHasMultipleDefinitions: createFault<X.InfixSpan>(
 		523, //0,
-		`Declarartions in a population infix cannot be defined twice in the same pattern`),
+		`Declarations in a population infix cannot be 
+		defined twice in the same pattern`),
 	
 	/** */
 	NominalInfixMustSubtype: createFault<X.Span>(
