@@ -30,12 +30,13 @@ export enum LineFlags
 {
 	none = 0,
 	isRefresh = 1,
-	isComment = 2,
-	isWhitespace = 4,
-	isDisposed = 8,
-	isCruft = 16,
-	hasUri = 32,
-	hasTotalPattern = 64,
-	hasPartialPattern = 128,
-	hasPattern = 256
+	isVacuous = 2,
+	isComment = 4,
+	isWhitespace = 8,
+	isDisposed = 16,
+	isCruft = 32,
+	hasUri = 64,
+	hasTotalPattern = 128,
+	hasPartialPattern = 256,
+	hasPattern = 512
 }
