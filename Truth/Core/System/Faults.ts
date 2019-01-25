@@ -270,7 +270,8 @@ export const Faults = Object.freeze({
 	/** */
 	AnonymousInListIntrinsic: createFault<X.Statement>(
 		300,
-		"Types contained directly by List-intrinsic types cannot be anonymous."),
+		"Types contained directly by List-intrinsic types cannot be anonymous.",
+		X.FaultSeverity.warning),
 	
 	/** */
 	ListContractViolation: createFault<X.Span>(
