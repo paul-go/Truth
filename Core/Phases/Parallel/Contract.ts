@@ -39,28 +39,28 @@ export class Contract
 	 */
 	trySatisfyCondition(foreignParallel: X.SpecifiedParallel)
 	{
+		if (this.allConditions.length === 0)
+			return 0;
+		
 		const coveredBases = new Set<X.SpecifiedParallel>();
 		const foreignParallelBases = new Set<X.SpecifiedParallel>();
 		let satisfied = 0;
 		
-		if (this.allConditions.length > 0)
+		const addForeignParallelBases = (srcParallel: X.SpecifiedParallel) =>
 		{
-			function addForeignParallelBases(srcParallel: X.SpecifiedParallel)
-			{
-				for (const { base } of srcParallel.eachBase())
-					addForeignParallelBases(base);
-				
-				foreignParallelBases.add(srcParallel);
-			}
-			
-			for (const { base } of foreignParallel.eachBase())
+			for (const { base } of srcParallel.eachBase())
 				addForeignParallelBases(base);
 			
-			for (const foreignBase of foreignParallelBases)
-				for (const condition of this.allConditions)
-					if (foreignBase === condition)
-						satisfied += this._unsatisfiedConditions.delete(condition) ? 1 : 0;
+			foreignParallelBases.add(srcParallel);
 		}
+		
+		for (const { base } of foreignParallel.eachBase())
+			addForeignParallelBases(base);
+		
+		for (const foreignBase of foreignParallelBases)
+			for (const condition of this.allConditions)
+				if (foreignBase === condition)
+					satisfied += this._unsatisfiedConditions.delete(condition) ? 1 : 0;
 		
 		return satisfied;
 	}
