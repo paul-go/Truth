@@ -1,5 +1,4 @@
-import * as Https from "https";
-
+import * as X from "../X";
 
 /**
  * @internal
@@ -10,45 +9,64 @@ import * as Https from "https";
 export class Fetch
 {
 	/**
-	 * Assigns a new implementation of the fetch function.
+	 * 
 	 */
-	static override(fetchFn: (url: string) => Promise<string | Error>)
+	static async exec(url: string)
 	{
-		this.fetchFn = fetchFn;
-	}
-	
-	/** */
-	static exec(url: string)
-	{
-		return this.fetchFn(url);
-	}
-	
-	/** */
-	private static fetchFn = (url: string) =>
-	{
-		return new Promise<string | Error>(resolve =>
+		const uri = X.Uri.parse(url);
+		if (!uri)
+			throw X.Exception.invalidUri(url);
+		
+		if (typeof fetch === "function")
 		{
-			const req = Https.get(url, response =>
-			{
-				const data: string[] = [];
-				
-				response.on("data", chunk =>
-				{
-					data.push(typeof chunk === "string" ?
-						chunk :
-						chunk.toString("utf8"));
-				});
-				
-				response.on("end", () =>
-				{
-					resolve(data.join(""));
-				});
-			});
+ 			// TODO: Add better support for error handling here
+			const response = await fetch(url);
+			const responseText = await response.text();
+			return responseText;
+		}
+		else if (typeof require === "function")
+		{
+			type HttpGet = typeof import("http").get;
+			type HttpsGet = typeof import("https").get;
+			type GetFn = HttpGet | HttpsGet;
 			
-			req.on("error", error =>
-			{
-				resolve(error);
-			});
-		});
+			const getFn: GetFn = 
+				uri.protocol === X.UriProtocol.https ? require("https").get :
+				uri.protocol === X.UriProtocol.http ? require("http").get :
+				null;
+			
+			if (getFn === null)
+				throw X.Exception.invalidUri(url);
+			
+			debugger;
+			"Not implemented";
+			
+			//const request = await getFn(url, response =>
+			//{
+			//	const data: string[] = [];
+			//	
+			//	response.on("data", chunk =>
+			//	{
+			//		data.push(typeof chunk === "string" ?
+			//			chunk :
+			//			chunk.toString("utf8"));
+			//	});
+			//	
+			//	response.on("error", error =>
+			//	{
+			//		resolve(error);
+			//	});
+			//	
+			//	response.on("end", () =>
+			//	{
+			//		resolve(data.join(""));
+			//	});
+			//});
+			
+			return "";
+		}
+		else throw X.Exception.unsupportedPlatform();
 	}
 }
+
+declare function fetch(...args: any): any;

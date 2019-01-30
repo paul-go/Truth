@@ -1,5 +1,17 @@
 import * as X from "../X";
-import * as Path from "path";
+
+
+/**
+ * Temporary patch until we figure out what we're
+ * doing about path handling in the browser.
+ */
+const Path: typeof import("path") =
+	typeof require === "function" ? 
+		require("path") :
+		<never>null;
+
+if (typeof Path === null)
+	throw X.Exception.unsupportedPlatform();
 
 
 /**
