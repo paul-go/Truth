@@ -66,7 +66,9 @@ export class RegexSet extends RegexUnit
 		return setText + (this.quantifier ? this.quantifier.toString() : "");
 	}
 	
-	/** */
+	/**
+	 * @internal
+	 */
 	toAlphabet()
 	{
 		const alphabetBuilder = new X.AlphabetBuilder();

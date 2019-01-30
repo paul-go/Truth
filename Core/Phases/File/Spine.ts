@@ -6,8 +6,6 @@ import * as X from "../../X";
  * represent a specific spine of declarations, starting at
  * a document, passing through a series of spans,
  * and ending at a tip span.
- * 
- * In the case when 
  */
 export class Spine
 {
