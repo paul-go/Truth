@@ -42,7 +42,7 @@ task("Bundling into a single file...", async () =>
 	const options = {
 		input: ReleaseDir + "Core/X.js",
 		output,
-		onwarn: function(warning)
+		onwarn: warning =>
 		{
 			if (warning.code === "THIS_IS_UNDEFINED")
 				return;
