@@ -140,9 +140,10 @@ export class DocumentGraph
 	 * @returns The document loaded into this graph
 	 * with the specified URI.
 	 */
-	get(uri: X.Uri)
+	get(uri: string | X.Uri)
 	{
-		const entry = this.documents.get(uri.toString());
+		const uriText = typeof uri === "string" ? uri : uri.toString(true);
+		const entry = this.documents.get(uriText);
 		return entry ? entry.document : null;
 	}
 	
