@@ -1,0 +1,10 @@
+//
+// This example demonstrates a fault being generated
+// as a result of multiple annotations being applied to
+// a type, but where said annotations conflict on whether
+// or not there is a list operator present
+//
+
+Item
+List : Item #309;
+List : Item... #309;
