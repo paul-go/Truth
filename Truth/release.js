@@ -41,7 +41,17 @@ task("Bundling into a single file...", async () =>
 	
 	const options = {
 		input: ReleaseDir + "Core/X.js",
-		output
+		output,
+		onwarn: function(warning)
+		{
+			if (warning.code === "THIS_IS_UNDEFINED")
+				return;
+			
+			if (warning.code === "CIRCULAR_DEPENDENCY")
+				return;
+			
+			console.warn(warning.message);
+		}
 	};
 	
 	const rollupBuild = await rollup(options);
