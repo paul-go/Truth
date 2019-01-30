@@ -36,7 +36,8 @@ task("Bundling into a single file...", async () =>
 		name: "Truth",
 		file: UnminifiedFile,
 		format: "iife",
-		sourcemap: "inline"
+		sourcemap: "inline",
+		footer: `typeof module === "object" && (module.exports = Truth);`
 	};
 	
 	const options = {
