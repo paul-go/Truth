@@ -2,7 +2,7 @@ import * as X from "../X";
 
 
 /**
- * 
+ * @internal
  */
 export class AlphabetRange
 {
@@ -110,6 +110,7 @@ export class Alphabet
 
 
 /**
+ * @internal
  * A disposable class for easily creating Alphabet instances
  * (This design avoids introducing mutability into the Alphabet class).
  */

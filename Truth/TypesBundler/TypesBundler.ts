@@ -226,6 +226,7 @@ class Line
 		parts.push(this.text
 			// Remove the X. references
 			.replace(/<X\.(?=\w)/g, "<")
+			.replace(/\(X\.(?=\w)/g, "(")
 			.replace(/ X\.(?=\w)/g, " ")
 			// Remove declare keyword on non-exported member
 			.replace(/^declare (?=abstract|class|namespace|function|enum|type|const|let|var)/g, "")

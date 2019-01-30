@@ -56,9 +56,13 @@ export class DocumentGraph
 	 * Reads a Document from the specified URI.
 	 * The document is created and returned, asynchronously.
 	 */
-	async read(uri: X.Uri)
+	async read(uri: string | X.Uri)
 	{
-		const readResult = await X.UriReader.tryRead(uri);
+		const uriObject = uri instanceof X.Uri ? uri : X.Uri.parse(uri);
+		if (!uriObject)
+			throw X.Exception.invalidUri();
+		
+		const readResult = await X.UriReader.tryRead(uriObject);
 		if (readResult instanceof Error)
 			return readResult;
 		

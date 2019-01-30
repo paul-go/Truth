@@ -127,7 +127,7 @@ export class TransitionMap
 
 
 /**
- * 
+ * @internal
  */
 export class MutableTransitionMap extends TransitionMap
 {
