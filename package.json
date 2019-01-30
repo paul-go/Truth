@@ -20,7 +20,6 @@
 	],
 	"main": "Build/Release/truth.js",
 	"types": "Build/Release/truth.d.ts",
-	"typings": "Build/Release/truth.d.ts",
 	"scripts": {
 		"test": "jest",
 		"all": "npm run compile-types-bundler && npm run compile && npm run bundle-code",
