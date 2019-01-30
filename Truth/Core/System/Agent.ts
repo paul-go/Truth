@@ -1,6 +1,5 @@
 import * as X from "../X";
-import * as Vm from "vm";
-
+type Vm = typeof import("vm");
 
 /**
  * A cache that stores all agents loaded by the compiler.
@@ -15,7 +14,17 @@ export class Agents
 	{
 		this.program = program;
 		this.hookRouter = hookRouter;
+		
+		if (typeof require === "function")
+			this.vm = require("vm");
+		else
+			// Temp
+			// TODO: Implement an isomorphic VM that works 
+			// both in Node and in the browser.
+			this.vm = null!;
 	}
+	
+	private readonly vm: Vm;
 	
 	/** @internal */
 	private readonly program: X.Program;
@@ -45,7 +54,7 @@ export class Agents
 			if (typeof fileContents !== "string")
 				return null;
 			
-			const vmOptions: Vm.RunningScriptOptions = {
+			const vmOptions = {
 				filename: uri.toString(),
 				lineOffset: 0,
 				columnOffset: 0,
@@ -56,7 +65,7 @@ export class Agents
 			const functionHeader = "return (function(Hooks, Truth, Program) { 'use strict';";
 			const functionFooter = "}).bind(Object.freeze({}))";
 			
-			const script = new Vm.Script(
+			const script = new this.vm.Script(
 				functionHeader + fileContents + functionFooter,
 				vmOptions);
 			

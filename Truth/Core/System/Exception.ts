@@ -146,6 +146,12 @@ export class Exception
 			Offset argument is required because the a whitespace-only
 			statement was passed.`);
 	}
+	
+	/** */
+	static unsupportedPlatform()
+	{
+		return error(`This code appears to be operating in an unsupported platform.`);
+	}
 }
 
 
