@@ -65,6 +65,14 @@ export class Contract
 		return satisfied;
 	}
 	
+	/**
+	 * 
+	 */
+	trySatisfyConditionViaAlias(alias: string)
+	{
+		
+	}
+	
 	/** */
 	get hasConditions()
 	{
@@ -84,14 +92,4 @@ export class Contract
 	 * compliant.
 	 */
 	private readonly allConditions: ReadonlyArray<X.SpecifiedParallel>;
-}
-
-
-/**
- * 
- */
-export interface IContractComparisonResult
-{
-	readonly coveredBases: ReadonlyArray<X.SpecifiedParallel>,
-	readonly isCovered: boolean;
 }

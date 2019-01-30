@@ -256,7 +256,10 @@ export class HyperGraph
 							
 							multiMap.add(
 								infixSpineParts.join(X.Syntax.terminal),
-								{ uri: uri.extend([], nfxText), declaration: infixSpan });
+								{
+									uri: uri.extend([], nfxText),
+									declaration: infixSpan
+								});
 						}
 					}
 				}

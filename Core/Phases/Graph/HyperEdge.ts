@@ -47,7 +47,7 @@ export class HyperEdge
 			throw X.Exception.unknownState();
 		
 		this.identifier = source.boundary.subject;
-		this.sourcesMutable = [source];
+		this.sourcesMutable = [source];		
 	}
 	
 	/**
@@ -57,12 +57,12 @@ export class HyperEdge
 	 * existing sources. (I.e. one of the sources is defined
 	 * as a list, and another is not).
 	 */
-	maybeAddSource(source: X.Span | X.InfixSpan)
+	addSource(source: X.Span | X.InfixSpan)
 	{
-		const isPattern = this.predecessor.subject instanceof X.Pattern;
-		const isInfix = source instanceof X.InfixSpan;
-		if (isPattern !== isInfix)
-			throw X.Exception.invalidCall();
+		//const isPattern = this.predecessor.subject instanceof X.Pattern;
+		//const isInfix = source instanceof X.InfixSpan;
+		//if (isPattern !== isInfix)
+		//	throw X.Exception.invalidCall();
 		
 		if (this.sourcesMutable.includes(source))
 			return;
@@ -87,15 +87,32 @@ export class HyperEdge
 	}
 	
 	/**
-	 * The set of annotation-side Spans or annotation-side InfixSpans
-	 * that are responsible for the conception of this HyperEdge.
+	 * Gets the set of annotation-side Spans or annotation-side
+	 * InfixSpans that are responsible for the conception of this
+	 * HyperEdge.
 	 * 
-	 * The original locations of these Spans (and InfixSpans?) are
-	 * potentially scattered across many statements.
+	 * The array contains either Span instances or InfixSpan instances,
+	 * but never both. In the case when the array stores Span instances,
+	 * the location of those Spans are potentially scattered across many
+	 * statements.
 	 */
 	get sources()
 	{
 		return Object.freeze(this.sourcesMutable.slice());
+	}
+	
+	/** */
+	private readonly sourcesMutable: (X.Span | X.InfixSpan)[];
+	
+	/**
+	 * Gets whether this HyperEdge has no immediately resolvable
+	 * successors. This means that the subject being referred to by
+	 * this HyperEdge is either a type alias which will be matched by
+	 * a pattern, or just a plain old fault.
+	 */
+	get isDangling()
+	{
+		return this.successors.length === 0;
 	}
 	
 	/**
@@ -117,9 +134,6 @@ export class HyperEdge
 		
 		return false;
 	}
-	
-	/** */
-	private readonly sourcesMutable: (X.Span | X.InfixSpan)[];
 	
 	/**
 	 * The textual value of an Edge represents different things
@@ -158,6 +172,33 @@ export class HyperEdge
 	readonly identifier: X.Identifier;
 	
 	/**
+	 * Gets a value that indicates the specific part of the
+	 * predecessor where this HyperEdge begins.
+	 */
+	get predecessorOrigin(): X.HyperEdgeOrigin
+	{
+		// Is this still necessary?
+		
+		if (this.sourcesMutable.length === 0)
+			throw X.Exception.unknownState();
+		
+		const src = this.sourcesMutable[0];
+		if (src instanceof X.Span)
+			return X.HyperEdgeOrigin.statement;
+		
+		if (src.containingInfix.isPortability)
+			return X.HyperEdgeOrigin.portabilityInfix;
+		
+		if (src.containingInfix.isPopulation)
+			return X.HyperEdgeOrigin.populationInfix;
+		
+		if (src.containingInfix.isPattern)
+			return X.HyperEdgeOrigin.patternInfix;
+		
+		throw X.Exception.unknownState();
+	}
+	
+	/**
 	 * @returns A string representation of this HyperEdge,
 	 * suitable for debugging and testing purposes.
 	 */
@@ -193,4 +234,18 @@ export class Successor
 	{ }
 	
 	readonly stamp = X.VersionStamp.next();
+}
+
+
+/**
+ * Indicates the place in a statement where a HyperEdge starts.
+ * (HyperEdges can start either at the statement level, or within
+ * various kinds of infixes.)
+ */
+export enum HyperEdgeOrigin
+{
+	statement,
+	populationInfix,
+	portabilityInfix,
+	patternInfix
 }

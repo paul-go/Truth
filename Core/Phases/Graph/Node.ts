@@ -54,10 +54,37 @@ export class Node
 		if (this.declarations.size === 0)
 			throw X.Exception.unknownState();
 		
-		if (this.container)
-			this.container._contents.set(this.name, this);
-		else
+		if (!this.container)
+		{
 			this.addRootNode(this);
+			return this;
+		}
+		
+		this.container._contents.set(this.name, this);
+		
+		//if (!(declaration instanceof X.Span))
+		//	return this;
+		//
+		//const identifier = declaration.boundary.subject;
+		//
+		//if (!(identifier instanceof X.Identifier))
+		//	return this;
+		//
+		//const containerPattern = (() =>
+		//{
+		//	for (const decl of this.container.declarations)
+		//		if (decl.boundary.subject instanceof X.Pattern)
+		//			return decl.boundary.subject;
+		//})();
+		//
+		//if (!containerPattern)
+		//	return this;
+		//
+		//for (const nfx of containerPattern.getInfixes(X.InfixFlags.population))
+		//	for (const ident of nfx.lhs.eachSubject())
+		//		if (ident.fullName === identifier.fullName)
+		//			//return (this.containerInfix = nfx), this;
+		//			return this;
 	}
 	
 	/**
@@ -115,6 +142,25 @@ export class Node
 	/** */
 	readonly container: Node | null;
 	
+	/**
+	 * In the case when this node is a direct descendent of a
+	 * pattern node, and that pattern has population infixes,
+	 * and this node directly corresponds to one of those infixes,
+	 * this property gets a reference to said corresponding infix.
+	 */
+	get containerInfix()
+	{
+		const flag = X.InfixFlags.population;
+		
+		if (this.container !== null)
+			if (this.container.subject instanceof X.Pattern)
+				for (const nfx of this.container.subject.getInfixes(flag))
+					for (const ident of nfx.lhs.eachSubject())
+						return nfx;
+		
+		return null;
+	}
+	
 	/** */
 	readonly name: string;
 	
@@ -154,7 +200,7 @@ export class Node
 	}
 	
 	/**
-	 * Gets a reference to the "opposite side of the list". 
+	 * Gets a reference to the "opposite side of the list".
 	 * 
 	 * If this Node represents a list intrinsic type, this property gets
 	 * a reference to the Node that represents the corresponding
@@ -180,19 +226,18 @@ export class Node
 	}
 	
 	/**
-	 * Stores the set of declaration-side Span objects that
+	 * Stores the set of declaration-side Span instances that
 	 * compose this Node. If this the size of this set were to
 	 * reach zero, the Node would be marked for deletion.
 	 * (Node cleanup uses a reference counted collection
 	 * mechanism that uses the size of this set as it's guide).
 	 * 
 	 * Note that although the type of this field is defined as
-	 * "Set<Span | Anchor>", in practice, it is either a set of
-	 * multiple Span objects, or a set containing one single
-	 * Anchor object. This is because it's possible to have
+	 * "Set<X.Span | X.InfixSpan>", in practice, it is either a set
+	 * of Span instances, or a set containing one single
+	 * InfixSpan instance. This is because it's possible to have
 	 * fragments of a type declared in multiple places in
-	 * a document, however, Anchors (which are references
-	 * to declarations within an Infix) can only exist in one
+	 * a document, however, InfixSpans can only exist in one
 	 * place.
 	 */
 	readonly declarations: Set<X.Span | X.InfixSpan>;
@@ -200,7 +245,7 @@ export class Node
 	/**
 	 * Gets an array containing the statements that
 	 * contain this Node.
-	*/
+	 */
 	get statements()
 	{
 		return Object.freeze(
@@ -240,27 +285,34 @@ export class Node
 	}
 	
 	/**
-	 * Gets the names of the identifiers referenced
-	 * as portability targets in the infixes of the Node.
-	 * If the Node's subject is not a pattern, this property
-	 * is an empty array.
+	 * Gets a 2-dimensional array containing the names of
+	 * the portability infixes that have been defined within
+	 * this node, with the first dimension corresponding to
+	 * a unique portability infix, and the second dimension
+	 * corresponding to the names defined within that infix.
+	 * 
+	 * For example, given the following pattern:
+	 * /< : A, B, C>< : D, E, F> : ???
+	 * 
+	 * The following result would be produced:
+	 * [["A", "B", "C"], ["D", "E", "F"]]
 	 */
 	get portabilityTargets()
 	{
+		if (this._portabilityTargets !== null)
+			return this._portabilityTargets;
+		
 		if (!(this.subject instanceof X.Pattern))
-			return [];
+			return this._portabilityTargets = [];
 		
 		const identifierArrays = this.subject
 			.getInfixes(X.InfixFlags.portability)
-			.map(nfx => Array.from(nfx.rhs.eachSubject()));
+			.map(nfx => Object.freeze(Array.from(nfx.rhs.eachSubject())
+				.map(ident => ident.typeName)));
 		
-		if (identifierArrays.length === 0)
-			return [];
-		
-		return (<X.Identifier[]>[])
-			.concat(...identifierArrays)
-			.map(ident => ident.toString());
+		return this._portabilityTargets = Object.freeze(identifierArrays);
 	}
+	private _portabilityTargets: ReadonlyArray<ReadonlyArray<string>> | null = null;
 	
 	/**
 	 * @returns A set of nodes that are matched by
@@ -470,7 +522,7 @@ export class Node
 		
 		if (existingEdge)
 		{
-			existingEdge.maybeAddSource(source);
+			existingEdge.addSource(source);
 		}
 		else
 		{
@@ -480,9 +532,18 @@ export class Node
 			{
 				const adjacentNode = adjacents.get(identifier.typeName);
 				if (adjacentNode !== undefined)
+				{
 					successors.push(new X.Successor(
 						adjacentNode,
 						longitudeDelta));
+					
+					// There should only ever be a single successor in the case when
+					// the node is a pattern node, because the annotations (which
+					// are eventually become bases) of these nodes do not have
+					// polymorphic behavior.
+					if (this.subject instanceof X.Pattern)
+						break;
+				}
 			}
 			
 			append(new X.HyperEdge(this, source, successors));
@@ -592,7 +653,7 @@ export class Node
 	removeEdgeSource(src: X.Span | X.InfixSpan)
 	{
 		for (let i = this._outbounds.length; --i > 0;)
-			this._outbounds[i].maybeAddSource(src);
+			this._outbounds[i].addSource(src);
 	}
 	
 	/** */

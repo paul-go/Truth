@@ -57,9 +57,7 @@ export abstract class Parallel
 	/** */
 	addParallel(parallel: X.Parallel)
 	{
-		if (this._parallels.includes(parallel))
-			throw X.Exception.unknownState();
-		
-		this._parallels.push(parallel);
+		if (!this._parallels.includes(parallel))
+			this._parallels.push(parallel);
 	}
 }

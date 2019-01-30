@@ -220,7 +220,7 @@ export const Faults = Object.freeze({
 	
 	
 	/** */
-	UnresolvedAnnotationFault: createFault<X.Span>(
+	UnresolvedAnnotation: createFault<X.Span>(
 		201,
 		"Unresolved annotation."),
 	
@@ -449,14 +449,19 @@ export const Faults = Object.freeze({
 		be specified more than once.`),
 	
 	/** */
+	PortabilityInfixHasUnion: createFault<X.InfixSpan>(
+		523, //418,
+		`Portability infixes with unioned types are not supported at this time.`),
+	
+	/** */
 	PopulationInfixHasMultipleDefinitions: createFault<X.InfixSpan>(
-		523, //0,
+		525, //0,
 		`Declarations in a population infix cannot be 
 		defined twice in the same pattern`),
 	
 	/** */
 	NominalInfixMustSubtype: createFault<X.Span>(
-		525, //430,
+		527, //430,
 		"Patterns with nominal infixes require an input that is " +
 		"a subtype of the type specified, not the type itself."),
 	
