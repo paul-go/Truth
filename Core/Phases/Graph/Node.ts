@@ -49,7 +49,7 @@ export class Node
 		})();
 		
 		const typePath = containerTypePath.concat(this.name);
-		this.uri = this.document.sourceUri.extend([], typePath);
+		this.uri = this.document.sourceUri.extendType(typePath);
 		
 		if (this.declarations.size === 0)
 			throw X.Exception.unknownState();
@@ -668,7 +668,7 @@ export class Node
 		
 		const ob = this.outbounds.length;
 		const ib = this.inbounds.size;
-		const path = includePath ? this.uri.typePath.join("/") + " " : "";
+		const path = includePath ? this.uri.types.join("/") + " " : "";
 		
 		const simple = [
 			path,

@@ -22,7 +22,7 @@ export class Type
 	static construct(param: X.Uri | X.Spine, program: X.Program): Type | null
 	{
 		const uri = X.Uri.create(param);
-		if (uri.typePath.length === 0)
+		if (uri.types.length === 0)
 			return null;
 		
 		if (X.TypeCache.has(uri, program))
@@ -129,7 +129,7 @@ export class Type
 		program: X.Program)
 	{
 		this.private = new TypePrivate(program);
-		this.name = seed.uri.typePath[seed.uri.typePath.length - 1];
+		this.name = seed.uri.types[seed.uri.types.length - 1].value;
 		this.uri = seed.uri;
 		this.container = container;
 		

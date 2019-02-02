@@ -39,10 +39,7 @@ export class Agents
 	 */
 	async add(sourceUri: X.Uri | string)
 	{
-		const uri = sourceUri instanceof X.Uri ?
-			sourceUri :
-			X.Uri.parse(sourceUri);
-		
+		const uri = X.Uri.maybeParse(sourceUri);
 		if (uri === null)
 			return null;
 		
@@ -93,10 +90,7 @@ export class Agents
 	 */
 	delete(sourceUri: X.Uri | string)
 	{
-		const uri = sourceUri instanceof X.Uri ?
-			sourceUri :
-			X.Uri.parse(sourceUri);
-		
+		const uri = X.Uri.maybeParse(sourceUri);
 		if (uri === null)
 			return false;
 		

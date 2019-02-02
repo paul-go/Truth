@@ -11,10 +11,34 @@ export const enum Syntax
 	joint = ":",
 	list = "...",
 	escapeChar = "\\",
-	comment = "//",
-	typePathSeparator = "//",
-	truthExtension = "truth",
-	agentExtension = "js",
+	comment = "//"
+}
+
+
+/**
+ * 
+ */
+export const enum UriSyntax
+{
+	retract = "..",
+	current = ".",
+	componentSeparator = "/",
+	typeSeparator = "//",
+	protocolRelative = "//",
+	indexorStart = "[",
+	indexorEnd = "]",
+}
+
+
+/**
+ * A constant enumerations that stores the valid extensions
+ * that must be present in a parsable URI.
+ */
+export const enum UriExtension
+{
+	truth = ".truth",
+	js = ".truth.js",
+	wasm = ".truth.wasm"
 }
 
 

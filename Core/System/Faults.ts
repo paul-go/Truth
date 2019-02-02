@@ -46,7 +46,7 @@ export class Fault<TSource = TFaultSource>
 		];
 		
 		const uriText = avoidProtocols.includes(doc.sourceUri.protocol) ?
-			"" : doc.sourceUri.toString(true) + " ";
+			"" : doc.sourceUri.toStoreString() + " ";
 		
 		const colNums = this.range.join("-");
 		const colText = colNums ? ", Col " + colNums : "";

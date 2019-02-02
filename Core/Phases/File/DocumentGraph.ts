@@ -58,7 +58,7 @@ export class DocumentGraph
 	 */
 	async read(uri: string | X.Uri)
 	{
-		const uriObject = uri instanceof X.Uri ? uri : X.Uri.parse(uri);
+		const uriObject = uri instanceof X.Uri ? uri : X.Uri.tryParse(uri);
 		if (!uriObject)
 			throw X.Exception.invalidUri();
 		
@@ -95,7 +95,7 @@ export class DocumentGraph
 		const uri = (() =>
 		{
 			if (zeroArgs || oneArg)
-				return X.Uri.create();
+				return X.Uri.createInternal();
 			
 			if (!param1)
 				return null;
@@ -103,7 +103,7 @@ export class DocumentGraph
 			if (param1 instanceof X.Uri)
 				return param1;
 			
-			return X.Uri.parse(param1);
+			return X.Uri.tryParse(param1);
 		})();
 		
 		if (!uri)
@@ -146,7 +146,7 @@ export class DocumentGraph
 	 */
 	get(uri: string | X.Uri)
 	{
-		const uriText = typeof uri === "string" ? uri : uri.toString(true);
+		const uriText = typeof uri === "string" ? uri : uri.toStoreString();
 		const entry = this.documents.get(uriText);
 		return entry ? entry.document : null;
 	}
@@ -557,7 +557,7 @@ export class DocumentGraph
 		
 		for (const [uriText, entry] of this.documents)
 		{
-			const uri = X.Uri.parse(uriText);
+			const uri = X.Uri.tryParse(uriText);
 			const doc = entry.document;
 			
 			if (!uri)

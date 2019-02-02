@@ -382,22 +382,12 @@ export class LineParser
 		/**
 		 * Attempts to read a URI starting at the current position
 		 * of the cursor. The position of the cursor is not changed
-		 * in the case when a URI was not read.
+		 * in the case when a valid URI was not read.
 		 */
 		function maybeReadUri()
 		{
 			const mark = parser.position;
-			let uri: X.Uri | null = null;
-			
-			for (const protocol of X.Uri.eachProtocol())
-			{
-				const prefix = protocol + "//";
-				if (!parser.peek(prefix))
-					continue;
-				
-				uri = X.Uri.parse(parser.readUntil(" ", "\t"));
-				break;
-			}
+			const uri = X.Uri.tryParse(parser.readUntil());
 			
 			if (uri === null)
 				parser.position = mark;

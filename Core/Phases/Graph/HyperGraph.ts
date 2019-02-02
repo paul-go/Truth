@@ -51,8 +51,8 @@ export class HyperGraph
 	read(document: X.Document, name: string): X.Node | null
 	{
 		const uriText = document.sourceUri
-			.extend([], name)
-			.toString(true, true);
+			.extendType(name)
+			.toString();
 		
 		return this.nodeCache.get(uriText) || null;
 	}
@@ -109,7 +109,7 @@ export class HyperGraph
 				const associatedNodes = new Set(declaration
 					.factor()
 					.map(spine => X.Uri.create(spine))
-					.map(uri => this.nodeCache.get(uri.toString(true, true)))
+					.map(uri => this.nodeCache.get(uri.toString()))
 					.filter((n): n is X.Node => n instanceof X.Node));
 				
 				for (const associatedNode of associatedNodes)
@@ -159,7 +159,7 @@ export class HyperGraph
 		 */ 
 		const findNode = (uri: X.Uri) =>
 		{
-			if (uri.typePath.length === 0)
+			if (uri.types.length === 0)
 				throw X.Exception.invalidArgument();
 			
 			const existingNode = affectedNodes.find(node => 
@@ -168,7 +168,7 @@ export class HyperGraph
 			if (existingNode)
 				return existingNode;
 			
-			const cachedNode = this.nodeCache.get(uri.toString(true, true));
+			const cachedNode = this.nodeCache.get(uri.toString());
 			if (cachedNode)
 				return cachedNode;
 			
@@ -257,7 +257,7 @@ export class HyperGraph
 							multiMap.add(
 								infixSpineParts.join(X.Syntax.terminal),
 								{
-									uri: uri.extend([], nfxText),
+									uri: uri.extendType(nfxText),
 									declaration: infixSpan
 								});
 						}
@@ -282,11 +282,11 @@ export class HyperGraph
 				continue;
 			}
 			
-			const container = uri.typePath.length > 1 ?
-				findNode(uri.retract(0, 1)) :
+			const container = uri.types.length > 1 ?
+				findNode(uri.retractType(1)) :
 				null;
 			
-			if (uri.typePath.length > 1 && container === null)
+			if (uri.types.length > 1 && container === null)
 			{
 				console.log(this.toString());
 				console.log(serializeNodes(affectedNodes));
@@ -346,7 +346,7 @@ export class HyperGraph
 		{
 			affectedNode.sortOutbounds();
 			
-			const affectedUri = affectedNode.uri.toString(true, true);
+			const affectedUri = affectedNode.uri.toString();
 			const cachedNode = this.nodeCache.get(affectedUri);
 			
 			if (cachedNode)
@@ -430,10 +430,8 @@ export class HyperGraph
 		const out: string[] = [];
 		const keys = Array.from(this.nodeCache.keys()).map(s =>
 		{
-			const uri = X.Uri.parse(s);
-			return uri ?
-				uri.fileName + X.Syntax.typePathSeparator + uri.typePath.join("/") :
-				s;
+			const uri = X.Uri.tryParse(s);
+			return uri ? uri.toString() : s;
 		});
 		
 		const values = Array.from(this.nodeCache.values());

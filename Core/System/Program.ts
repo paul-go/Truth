@@ -104,7 +104,7 @@ export class Program
 	 */
 	query(document: X.Document, ...typePath: string[])
 	{
-		const uri = document.sourceUri.extend([], typePath);
+		const uri = document.sourceUri.extendType(typePath);
 		return X.Type.construct(uri, this);
 	}
 	

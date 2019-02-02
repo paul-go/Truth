@@ -74,6 +74,20 @@ export class Exception
 	}
 	
 	/** */
+	static mustSpecifyVia()
+	{
+		return error(`
+			Must specify the "via" argument because the parsed URI 
+			was found to be relative`);
+	}
+	
+	/** */
+	static viaCannotBeRelative()
+	{
+		return error(`URI instances specified in the "via" argument must not be relative`);
+	}
+	
+	/** */
 	static invalidTypePath()
 	{
 		return error(`
