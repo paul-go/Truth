@@ -85,27 +85,27 @@ describe("Parser Tests", () =>
 						expect(expected.uri.protocol).toBe(uri.protocol);
 					}
 					
-					if (expected.uri.ioPath.join() !== uri.ioPath.join())
+					if (expected.uri.stores.join() !== uri.stores.join())
 					{
 						debugger;
-						expect(expected.uri.ioPath).toEqual(uri.ioPath);
+						expect(expected.uri.stores).toEqual(uri.stores);
 					}
 					
-					if (expected.uri.typePath)
+					if (expected.uri.types)
 					{
-						if (expected.uri.typePath.join() !== uri.typePath.join())
+						if (expected.uri.types.join() !== uri.types.join())
 						{
 							debugger;
-							expect(expected.uri.ioPath).toEqual(uri.ioPath);
+							expect(expected.uri.stores).toEqual(uri.stores);
 						}
 					}
 					
-					if (expected.uri.fileName !== undefined)
+					if (expected.uri.file !== undefined)
 					{
-						if (expected.uri.fileName !== uri.fileName)
+						if (expected.uri.file !== uri.file)
 						{
 							debugger;
-							expect(expected.uri.fileName).toBe(uri.fileName);
+							expect(expected.uri.file).toBe(uri.file);
 						}
 					}
 				}

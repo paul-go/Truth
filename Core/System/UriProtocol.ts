@@ -6,7 +6,6 @@
 export enum UriProtocol
 {
 	none = "",
-	relative = "/",
 	unknown = "?",
 	file = "file:",
 	https = "https:",
@@ -21,9 +20,6 @@ export namespace UriProtocol
 	 */
 	export function resolve(value: string): UriProtocol | null
 	{
-		if (value.length < 1 || value.length > 2)
-			return null;
-		
 		const vals: string[] = Object.values(UriProtocol);
 		const idx = vals.indexOf(value);
 		return idx < 0 ? null : <UriProtocol>vals[idx];

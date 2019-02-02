@@ -32,11 +32,8 @@ export class Uri
 		if (uriLike === null)
 			return null;
 		
-		if (uriLike.isRelative)
+		if (uriLike.isRelative && via)
 		{
-			if (!via)
-				throw X.Exception.mustSpecifyVia();
-			
 			const viaParsed = this.maybeParse(via);
 			if (viaParsed === null)
 				throw X.Exception.invalidUri();
@@ -135,9 +132,9 @@ export class Uri
 	readonly retractionCount: number = -1;
 	
 	/**
-	 * 
+	 * Stores whether the URI is a relative path.
 	 */
-	get isRelative() { return this.retractionCount >= 0; }
+	readonly isRelative: boolean = false;
 	
 	/**
 	 * Creates a new Uri whose path of types is
@@ -235,7 +232,7 @@ export class Uri
 	 */
 	toTypeString()
 	{
-		return this.types.map(t => t.value)
+		return this.types.map(t => t.toStringEncoded())
 			.join(X.UriSyntax.componentSeparator);
 	}
 	
@@ -245,8 +242,20 @@ export class Uri
 	 */
 	toStoreString()
 	{
-		return this.stores.map(t => t.toStringEncoded())
+		if (this.isRelative)
+			throw X.Exception.invalidCall();
+		
+		// In the case when the specified protocol is "file",
+		// the string should start with a / so that we get
+		// and output that looks like /Users/person/....
+		const proto = this.protocol === X.UriProtocol.file ?
+			"/" :
+			this.protocol;
+		
+		const components = this.stores.map(t => t.toStringEncoded())
 			.join(X.UriSyntax.componentSeparator);
+		
+		return proto + components;
 	}
 	
 	/**

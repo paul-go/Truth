@@ -64,7 +64,7 @@ export class UriParser
 			
 			if (parser.read(X.UriSyntax.protocolRelative))
 			{
-				protocol = X.UriProtocol.relative;
+				protocol = X.UriProtocol.unknown;
 				return true;
 			}
 			
@@ -224,7 +224,9 @@ export class UriParser
 		else if (maybeReadProtocol())
 		{ }
 		else if (parser.read(X.UriSyntax.componentSeparator))
-		{ }
+		{
+			protocol = X.UriProtocol.file;
+		}
 		else return null;
 		
 		const stores = readComponents("store");
@@ -283,6 +285,7 @@ export class UriParser
 			file,
 			ext,
 			retractionCount,
+			isRelative,
 			stores: Object.freeze(stores),
 			types: Object.freeze(types)
 		}

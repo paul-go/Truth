@@ -39,9 +39,9 @@ export interface IExpectation
 	 */
 	uri?: {
 		protocol: string,
-		ioPath: string[],
-		typePath?: string[]
-		fileName?: string
+		stores: string[],
+		types?: string[]
+		file?: string
 	},
 	
 	/**
@@ -156,38 +156,38 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	"file://a/b/c": {
 		uri: {
 			protocol: "file:",
-			ioPath: ["a", "b", "c"]
+			stores: ["a", "b", "c"]
 		},
 		emit: "file://a/b/c"
 	},
 	"https://www.x.com": {
 		uri: {
 			protocol: "https:",
-			ioPath: ["www.x.com"]
+			stores: ["www.x.com"]
 		},
 		emit: "https://www.x.com"
 	},
 	"http://www.y.com": {
 		uri: {
 			protocol: "http:",
-			ioPath: ["www.y.com"]
+			stores: ["www.y.com"]
 		},
 		emit: "http://www.y.com"
 	},
-	"system-internal://🐇//type/path": {
+	"internal://🐇//type/path": {
 		uri: {
-			protocol: "system-internal:",
-			ioPath: ["🐇"],
-			typePath: ["type", "path"]
+			protocol: "internal:",
+			stores: ["🐇"],
+			types: ["type", "path"]
 		},
-		emit: "system-internal://%F0%9F%90%87//type/path"
+		emit: "internal://%F0%9F%90%87//type/path"
 	},
 	"http://abc.xyz/file.truth//type/path/here": {
 		uri: {
 			protocol: "http:",
-			ioPath: ["abc.xyz", "file.truth"],
-			typePath: ["type", "path", "here"],
-			fileName: "file.truth"
+			stores: ["abc.xyz", "file.truth"],
+			types: ["type", "path", "here"],
+			file: "file.truth"
 		},
 		emit: "http://abc.xyz/file.truth//type/path/here"
 	},
