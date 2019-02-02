@@ -62,7 +62,7 @@ export class ConstructionWorker
 		if (this.parallels.has(directive))
 			return X.Guard.defined(this.parallels.get(directive));
 		
-		const typePath = directive.typePath.slice();
+		const typePath = directive.types.slice().map(t => t.value);
 		if (typePath.length === 0)
 			throw X.Exception.invalidArgument();
 		
@@ -79,7 +79,7 @@ export class ConstructionWorker
 		
 		let typeIdx = 0;
 		let lastSeed = 
-			this.parallels.get(directive.retractTo(1)) ||
+			this.parallels.get(directive.retractTypeTo(1)) ||
 			this.rake(this.parallels.create(surfaceNode, this.cruft));
 		
 		// We can pass by any Parallel instances that have already
@@ -88,7 +88,7 @@ export class ConstructionWorker
 		// Parallel instance.
 		for (;;)
 		{
-			const uri = directive.retractTo(typeIdx + 1);
+			const uri = directive.retractTypeTo(typeIdx + 1);
 			if (!this.parallels.has(uri))
 				break;
 			
@@ -100,8 +100,8 @@ export class ConstructionWorker
 		
 		do
 		{
-			const uri = directive.retractTo(typeIdx);
-			const uriText = uri.toString(true, true);
+			const uri = directive.retractTypeTo(typeIdx);
+			const uriText = uri.toString();
 			const typeName = typePath[typeIdx];
 			
 			const descended = this.descend(lastSeed, typeName);
@@ -294,7 +294,7 @@ export class ConstructionWorker
 						// in the case when there were actually annotations
 						// specified within the file, but they were all found to
 						// be cruft.
-						if (bases.length === 0)
+						if (bases.size === 0)
 							continue;
 						
 						parallel.tryApplyPatternBases(bases);
@@ -440,7 +440,7 @@ export class ConstructionWorker
 		
 		// TODO: Check for use of lists within any kind of infix.
 		
-		return Array.from(bases.keys());
+		return <TBaseTable>bases;
 	}
 	
 	/**
@@ -528,7 +528,7 @@ export class ConstructionWorker
 				}
 			}
 			
-			const nextUri = zenith.uri.extend([], typeName);
+			const nextUri = zenith.uri.extendType(typeName);
 			return this.parallels.create(nextUri);
 		}
 		
@@ -697,6 +697,9 @@ export class ConstructionWorker
 /** */
 interface IPatternParallel
 {
-	pattern: X.Pattern;
-	parallel: X.SpecifiedParallel;
+	readonly pattern: X.Pattern;
+	readonly parallel: X.SpecifiedParallel;
 }
+
+/** */
+export type TBaseTable = ReadonlyMap<X.SpecifiedParallel, X.HyperEdge>;

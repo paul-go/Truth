@@ -14,10 +14,10 @@ export abstract class Parallel
 		readonly uri: X.Uri,
 		readonly container: X.Parallel | null)
 	{
-		this.name = uri.typePath.join("/");
+		this.name = uri.toTypeString();
 		
 		if (container !== null)
-			container._contents.set(uri.typePath.slice(-1)[0], this);
+			container._contents.set(uri.types.slice(-1)[0].value, this);
 	}
 	
 	/**

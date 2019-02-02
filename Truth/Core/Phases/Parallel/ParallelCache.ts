@@ -37,8 +37,8 @@ export class ParallelCache
 					X.Guard.defined(this.get(key.container)) :
 					null;
 			
-			return key.typePath.length > 1 ?
-				X.Guard.defined(this.get(key.retract(0, 1))) :
+			return key.types.length > 1 ?
+				X.Guard.defined(this.get(key.retractType(1))) :
 				null;
 		})();
 		
@@ -93,7 +93,7 @@ export class ParallelCache
 	private getKeyVal(key: X.Node | X.Uri)
 	{
 		const uri = key instanceof X.Node ? key.uri : key;
-		return uri.toString(true, true);
+		return uri.toString();
 	}
 	
 	/**

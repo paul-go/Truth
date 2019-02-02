@@ -13,7 +13,7 @@ export class Fetch
 	 */
 	static async exec(url: string)
 	{
-		const uri = X.Uri.parse(url);
+		const uri = X.Uri.tryParse(url);
 		if (!uri)
 			throw X.Exception.invalidUri(url);
 		

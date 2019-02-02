@@ -2,300 +2,263 @@ import * as X from "../X";
 
 
 /**
- * Temporary patch until we figure out what we're
- * doing about path handling in the browser.
- */
-const Path: typeof import("path") =
-	typeof require === "function" ? 
-		require("path") :
-		<never>null;
-
-if (typeof Path === null)
-	throw X.Exception.unsupportedPlatform();
-
-
-/**
- * An enumeration that lists all availble protocols
- * supported by the system. The list can be enumerated
- * via Uri.eachProtocol()
- */
-export enum UriProtocol
-{
-	none = "",
-	unknown = "?",
-	file = "file:",
-	https = "https:",
-	http = "http:",
-	internal = "system-internal:"
-}
-
-
-/** 
- * A class that represents a Truth URI.
- * A Truth URI can point to a truth file, or an agent through a variety of 
- * different protocols, just like a normal URI. However, a Truth URI that
- * points to a Truth file can also point to declarations within that file
- * directly in the URI, using the double slash syntax. For example:
- * 
- * //domain.com/File.truth//Path/To/Declaration
+ * Universal class for handling URIs that exist within a Truth document.
  */
 export class Uri
 {
 	/**
-	 * Enumerates through the list of available
-	 * protocols supported by the system.
+	 * 
 	 */
-	static *eachProtocol(): IterableIterator<UriProtocol>
+	static maybeParse(value: string | Uri) : Uri | null
 	{
-		for (const protocol of Object.values(UriProtocol))
-			if (protocol !== UriProtocol.none)
-				yield protocol;
-	}
-	
-	/**
-	 * @param uriText A string containing the URI to parse
-	 * @param relativeFallback A URI that identifies the origin
-	 * of the URI being parsed, used in the case when the
-	 * uriText parameter is a relative path.
-	 */
-	static parse(uriText: string, relativeFallback?: Uri): Uri | null
-	{
-		let protocol = (() =>
-		{
-			for (const protocol of this.eachProtocol())
-				if (uriText.startsWith(protocol))
-					return protocol;
-			
-			if (/^([A-Za-z]+-?)+:/.test(uriText))
-				return UriProtocol.unknown;
-			
-			return UriProtocol.none;
-		})();
+		if (value instanceof Uri)
+			return value;
 		
-		if (protocol === UriProtocol.unknown)
+		if (!value)
 			return null;
 		
-		const [filePathFull, typePathFull] = uriText
-			.replace(/^([a-z][a-z0-9-.+]*:)?\/\//, "")
-			.split(X.Syntax.typePathSeparator, 2);
+		return this.tryParse(value)
+	}
+	
+	/**
+	 * 
+	 */
+	static tryParse(raw: string, via?: Uri | string): Uri | null
+	{
+		if (!raw)
+			return null;
 		
-		const filePathParts = filePathFull
-			.split("/")
-			.map(s => decodeURIComponent(s));
+		const uriLike = X.UriParser.parse(raw);
+		if (uriLike === null)
+			return null;
 		
-		let fileName = "";
-		let ioPath = filePathParts.slice();
-		
-		const typePath = (() =>
+		if (uriLike.isRelative)
 		{
-			if (!typePathFull)
-				return [];
+			if (!via)
+				throw X.Exception.mustSpecifyVia();
 			
-			let out = typePathFull.split("/");
+			const viaParsed = this.maybeParse(via);
+			if (viaParsed === null)
+				throw X.Exception.invalidUri();
 			
-			if (out.some(p => p === "" || p.trim() !== p))
-				throw X.Exception.invalidTypePath();
+			if (viaParsed.isRelative)
+				throw X.Exception.viaCannotBeRelative();
 			
-			return out.map(p => decodeURIComponent(p));
-		})();
-		
-		if (filePathParts.length)
-		{
-			const lastFilePathPart = filePathParts[filePathParts.length - 1];
-			const dotPos = lastFilePathPart.lastIndexOf(".");
+			const uls = uriLike.stores!;
 			
-			if (dotPos >= 0)
-				fileName = lastFilePathPart;
+			if (viaParsed.stores.length < uls.length)
+				throw X.Exception.invalidUri();
+			
+			const stores = viaParsed.stores
+				.slice(0, -uls.length)
+				.concat(uls);
+			
+			return new X.Uri(uriLike, { stores });
 		}
 		
-		// If there is no protocol, then we need
-		// to look to the relativeFallback argument to
-		// create the fully qualified path.
-		if (protocol === UriProtocol.none)
-		{
-			if (relativeFallback)
-			{
-				const prot = relativeFallback.protocol;
-				
-				if (prot === UriProtocol.file)
-					ioPath = Path.resolve(Path.join(...relativeFallback.ioPath), uriText)
-						.split(Path.sep);
-				
-				else if (prot === UriProtocol.https || prot === UriProtocol.http)
-					ioPath = [];
-				
-				else throw X.Exception.notImplemented();
-				
-				protocol = prot;
-			}
-			else
-			{
-				// If there is no detected type, and the relativeFallback
-				// argument wasn't specified, we assume that the
-				// URI refers to a local file, relative to the current
-				// working directory.
-				protocol = UriProtocol.file;
-				ioPath = Path.resolve(uriText).split(Path.sep);
-			}
-		}
-		
-		return new Uri(
-			protocol,
-			fileName,
-			ioPath,
-			typePath);
+		return new Uri(uriLike);
 	}
 	
 	/**
-	 * Creates a new Uri from the specified input.
 	 * 
-	 * @param from If the parameter is omited,
-	 * a unique internal URI is generated.
 	 */
-	static create(from?: X.Spine | Uri): Uri
+	static create(value: X.Spine | Uri): Uri
 	{
-		if (from === undefined)
-			return this.parse(UriProtocol.internal + "//" + Math.random().toString().slice(2))!;
+		if (value instanceof Uri)
+			return value;
 		
-		if (from instanceof X.Spine)
-		{
-			const srcUri = from.document.sourceUri;
-			const typeSegments = from.vertebrae.map(vert => vert.toString());
-			
-			return new Uri(
-				srcUri.protocol,
-				srcUri.fileName,
-				srcUri.ioPath,
-				typeSegments);
-		}	
+		const srcUri = value.document.sourceUri;
+		const typeSegments = value.vertebrae
+			.map(vert => new X.UriComponent(vert.toString()));
 		
-		if (from instanceof X.Uri)
-			return from;
-		
-		throw X.Exception.unknownState();
-	}
-	
-	/** */
-	protected constructor(
-		/**
-		 * Stores a reference to the protocol used by the URI.
-		 */
-		readonly protocol: UriProtocol,
-		
-		/**
-		 * Stores the file name specified in the URI, if one exists.
-		 */
-		readonly fileName: string,
-		
-		/** 
-		 * Stores the fully qualified path to the file, and the file
-		 * name itself, but without any protocol.
-		 */
-		readonly ioPath: ReadonlyArray<string>,
-		
-		/**
-		 * Stores the contents of any type path specified in the URI.
-		 */
-		readonly typePath: ReadonlyArray<string>)
-	{ }
-	
-	/**
-	 * Converts the URI to a fully-qualified path including the file name.
-	 * 
-	 * @param includeProtocol Whether the protocol portion of the URI
-	 * should be included in the final string. Defaults to true.
-	 * 
-	 * @param includeTypePath Whether the typePath portion of the URI
-	 * should be included in the final string. Defaults to false.
-	 */
-	toString(includeProtocol = true, includeTypePath = false)
-	{
-		let out = "";
-		
-		if (includeProtocol)
-			out += this.protocol + "//";
-		
-		out += Path.join(...this.ioPath.map(s => encodeURIComponent(s)));
-		
-		if (includeTypePath && this.typePath.length > 0)
-		{
-			const typePath = Path.join(...this.typePath.map(s => encodeURIComponent(s)));
-			if (typePath !== "")
-				out += X.Syntax.typePathSeparator + typePath;
-		}
-		
-		return out;
-	}
-	
-	/** 
-	 * @returns A value indicating whether two URIs point to the same resource.
-	 */
-	equals(uri: Uri | string, compareTypePaths = false)
-	{
-		if (this === uri)
-			return true;
-		
-		const thisText = this.toString(true, compareTypePaths);
-		
-		if (uri instanceof X.Uri)
-			return thisText === uri.toString(true, compareTypePaths);
-		
-		return thisText === uri;
+		return new Uri(srcUri, { types: typeSegments });
 	}
 	
 	/**
-	 * Creates a new Uri, whose typePath and ioPath
-	 * fields are retracted by the specified levels of
-	 * depth.
-	 * 
-	 * @returns A new Uri that is otherwise a copy of this 
-	 * one, but with it's IO path and type path peeled
-	 * back by the specified number of levels.
+	 * Creates an internal URI used to uniquely identify a
+	 * document that exists only in memory.
 	 */
-	retract(ioRetraction = 0, typeRetraction = 1)
+	static createInternal()
 	{
-		if (typeRetraction > this.typePath.length)
-			throw X.Exception.invalidUriRetraction();
+		const max = Number.MAX_SAFE_INTEGER;
+		const ext = X.UriExtension.truth;
 		
-		if (ioRetraction > this.ioPath.length)
-			throw X.Exception.invalidUriRetraction();
-		
-		return new Uri(
-			this.protocol,
-			this.fileName,
-			this.ioPath.slice(0, ioRetraction ? -ioRetraction : undefined),
-			this.typePath.slice(0, -typeRetraction));
+		return new Uri({
+			protocol: X.UriProtocol.internal,
+			file: Math.floor(Math.random() * max).toString(36) + ext,
+			ext
+		});
 	}
 	
 	/**
-	 * Creates a new Uri, whose typePath field is
+	 * @internal
+	 */
+	private constructor(...uriLike: Partial<Uri>[])
+	{
+		for (const uriProps of uriLike)
+			Object.assign(this, uriProps);
+		
+		Object.freeze(this.stores);
+		Object.freeze(this.types);
+		Object.freeze(this);
+	}
+	
+	/**
+	 * 
+	 */
+	readonly protocol: X.UriProtocol = X.UriProtocol.file;
+	
+	/**
+	 * Stores the name of the file referenced in the URI, including any extension.
+	 */
+	readonly file: string = "";
+	
+	/**
+	 * Stores the extension of the file referenced in the URI, if any.
+	 */
+	readonly ext: X.UriExtension = X.UriExtension.truth;
+	
+	/**
+	 * Stores the store-side components of this URI.
+	 */
+	readonly stores: ReadonlyArray<X.UriComponent> = [];
+	
+	/**
+	 * Stores the type-side components of this URI.
+	 */
+	readonly types: ReadonlyArray<X.UriComponent> = [];
+	
+	/**
+	 * Stores the number of retractions that are defined in this
+	 * URI, in the case when the URI is relative.
+	 */
+	readonly retractionCount: number = -1;
+	
+	/**
+	 * 
+	 */
+	get isRelative() { return this.retractionCount >= 0; }
+	
+	/**
+	 * Creates a new Uri whose path of types is
+	 * retracted by the specified number of levels
+	 * of depth.
+	 */
+	retractType(factor: number): Uri
+	{
+		const types = this.types.slice(0, -factor);
+		return new Uri(this, { types });
+	}
+	
+	/**
+	 * Creates a new Uri, whose path of types is
 	 * retracted to the specified level of depth.
 	 */
-	retractTo(typePathLength: number)
+	retractTypeTo(depth: number): Uri
 	{
-		return typePathLength < this.typePath.length ?
-			this.retract(0, this.typePath.length - typePathLength) :
+		return depth < this.types.length ?
+			this.retractType(this.types.length - depth) :
 			this;
 	}
 	
 	/**
-	 * @returns A new Uri, whose typePath and ioPath
-	 * fields are extended with the specified segments.
+	 * Creates a new Uri whose path of stores is
+	 * retracted by the specified number of levels
+	 * of depth.
 	 */
-	extend(ioSegments: string | string[], typeSegments: string | string[])
+	retractStore(factor: number): Uri
 	{
-		const ioSegmentsArray = typeof ioSegments === "string" ?
-			[ioSegments] :
-			ioSegments;
+		const folders = this.stores.slice(0, -factor);
+		return new Uri(this, { stores: folders });
+	}
+	
+	/**
+	 * Creates a new Uri, whose path of folders is
+	 * retracted to the specified level of depth.
+	 */
+	retractStoreTo(depth: number): Uri
+	{
+		return depth < this.stores.length ?
+			this.retractType(this.stores.length - depth) :
+			this;
+	}
+	
+	/**
+	 * 
+	 */
+	extendType(additionalTypes: string | string[]): Uri
+	{
+		if (!additionalTypes)
+			return new Uri(this);
 		
-		const typeSegmentsArray = typeof typeSegments === "string" ?
-			[typeSegments] :
-			typeSegments;
+		const types = typeof additionalTypes === "string" ?
+			[new X.UriComponent(additionalTypes)] :
+			additionalTypes.map(t => new X.UriComponent(t));
 		
-		return new Uri(
-			this.protocol,
-			this.fileName,
-			this.ioPath.concat(...ioSegmentsArray.filter(s => s)),
-			this.typePath.concat(...typeSegmentsArray.filter(s => s)));
+		return new Uri(this, { types });
+	}
+	
+	/**
+	 * 
+	 */
+	extendStore(additionalStores: string | string[]): Uri
+	{
+		if (!additionalStores)
+			return new Uri(this);
+		
+		const stores = typeof additionalStores === "string" ?
+			[new X.UriComponent(additionalStores)] :
+			additionalStores.map(s => new X.UriComponent(s));
+		
+		return new Uri(this, { stores });
+	}
+	
+	/**
+	 * @returns A boolean value that indicates whether this
+	 * Uri is structurally equivalent to the specified Uri.
+	 */
+	equals(other: Uri, compareTypes?: boolean): boolean
+	{
+		if (this === other)
+			return true;
+		
+		if (compareTypes)
+			if (this.toTypeString() !== other.toTypeString())
+				return false;
+		
+		return this.toStoreString() === other.toStoreString();
+	}
+	
+	/**
+	 * @returns The path of types contained by this URI, 
+	 * concatenated into a single string.
+	 */
+	toTypeString()
+	{
+		return this.types.map(t => t.value)
+			.join(X.UriSyntax.componentSeparator);
+	}
+	
+	/**
+	 * @returns The path of stores contained by this URI, 
+	 * concatenated into a single string.
+	 */
+	toStoreString()
+	{
+		return this.stores.map(t => t.toStringEncoded())
+			.join(X.UriSyntax.componentSeparator);
+	}
+	
+	/**
+	 * 
+	 */
+	toString()
+	{
+		let out = this.toStoreString();
+		
+		if (this.types.length > 0)
+			out += X.UriSyntax.typeSeparator + this.toTypeString();
+		
+		return out;
 	}
 }

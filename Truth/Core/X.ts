@@ -22,6 +22,9 @@ export * from "./System/HookTypes";
 export * from "./System/HookRouter";
 export * from "./System/Exception";
 export * from "./System/Uri";
+export * from "./System/UriProtocol";
+export * from "./System/UriParser";
+export * from "./System/UriComponent";
 export * from "./System/UriReader";
 export * from "./System/Syntax";
 export * from "./System/FaultService";
@@ -37,6 +40,7 @@ export * from "./Fsm/TransitionMap";
 export * from "./Fsm/TransitionState";
 export * from "./Fsm/Guide";
 export * from "./Fsm/Fsm";
+export * from "./Fsm/FsmTranslator";
 
 // Phases/File
 export * from "./Phases/File/Document";

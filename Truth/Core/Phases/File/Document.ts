@@ -14,7 +14,7 @@ export class Document
 	 */
 	constructor(program: X.Program, sourceUri: X.Uri, sourceText: string)
 	{
-		if (sourceUri.typePath.length)
+		if (sourceUri.types.length)
 			throw X.Exception.invalidArgument();
 		
 		this.program = program;

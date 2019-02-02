@@ -16,7 +16,7 @@ export class TypeCache
 	static has(uri: X.Uri, program: X.Program)
 	{
 		const cache = this.getCache(program);
-		const uriText = uri.toString(true, true);
+		const uriText = uri.toString();
 		return cache.map.has(uriText);
 	}
 	
@@ -24,7 +24,7 @@ export class TypeCache
 	static get(uri: X.Uri, program: X.Program)
 	{
 		const cache = this.getCache(program);
-		const uriText = uri.toString(true, true);
+		const uriText = uri.toString();
 		
 		if (cache.map.has(uriText))
 			return X.Guard.defined(cache.map.get(uriText));
@@ -38,7 +38,7 @@ export class TypeCache
 	static set(uri: X.Uri, program: X.Program, type: TCachedType): TCachedType
 	{
 		const cache = this.getCache(program);
-		const uriText = uri.toString(true, true);
+		const uriText = uri.toString();
 		cache.map.set(uriText, type);
 		return type;
 	}

@@ -52,7 +52,7 @@ export class Strand
 		
 		parts.push(X.Syntax.tab + this.molecules[0]
 			.localAtom.spans[0].statement
-			.document.sourceUri.toString(true, true));
+			.document.sourceUri.toString());
 		
 		for (const mol of this.molecules)
 		{
