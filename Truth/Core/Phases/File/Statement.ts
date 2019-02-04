@@ -294,6 +294,21 @@ export class Statement
 	readonly cruftObjects: ReadonlySet<X.Statement | X.Span | X.InfixSpan>;
 	
 	/**
+	 * Gets the line number of this statement in it's containing
+	 * document, or -1 if the statement is disposed and/or is not
+	 * in the document.
+	 */
+	get index()
+	{
+		if (this.isDisposed)
+			return -1;
+		
+		return this.document instanceof X.Document ?
+			this.document.getLineNumber(this) :
+			-1;
+	}
+	
+	/**
 	 * Gets an array of spans in that represent the declarations
 	 * of this statement, excluding those that have been marked
 	 * as object-level cruft.

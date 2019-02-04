@@ -284,16 +284,9 @@ export class Document
 		if (idx !== undefined)
 			return idx;
 		
-		for (let i = 0; i < this.statements.length; i++)
-		{
-			if (this.statements[i] === statement)
-			{
-				this.statementIndexCache.set(statement, i);
-				return i;
-			}
-		}
-		
-		return -1;
+		const i = this.statements.indexOf(statement);
+		this.statementIndexCache.set(statement, i);
+		return i;
 	}
 	
 	/** 
@@ -513,8 +506,8 @@ export class Document
 		if (this.inEdit)
 			throw X.Exception.doubleTransaction();
 		
-		class insertCall { constructor(readonly text: string, readonly at: number) { } }
-		class updateCall { constructor(readonly text: string, readonly at: number) { } }
+		class insertCall { constructor(readonly smt: X.Statement, readonly at: number) { } }
+		class updateCall { constructor(readonly smt: X.Statement, readonly at: number) { } }
 		class deleteCall { constructor(readonly at: number, readonly count: number) { } }
 		type callType = insertCall | updateCall | deleteCall;
 		const calls: callType[] = [];
@@ -533,12 +526,12 @@ export class Document
 			},
 			insert: (text: string, at = -1) =>
 			{
-				calls.push(new insertCall(text, at));
+				calls.push(new insertCall(new X.Statement(this, text), at));
 				hasInsert = true;
 			},
 			update: (text: string, at = -1) =>
 			{
-				calls.push(new updateCall(text, at));
+				calls.push(new updateCall(new X.Statement(this, text), at));
 				hasUpdate = true;
 			}
 		});
@@ -583,16 +576,15 @@ export class Document
 			
 			const doInsertAt = (call: insertCall) =>
 			{
-				const smt = new X.Statement(this, call.text);
 				if (call.at >= this.statements.length)
 				{
-					this.statementIndexCache.set(smt, this.statements.length);
-					this.statements.push(smt);
+					this.statementIndexCache.set(call.smt, this.statements.length);
+					this.statements.push(call.smt);
 				}
 				else
 				{
 					const at = boundAt(call);
-					this.statements.splice(at, 0, smt);
+					this.statements.splice(at, 0, call.smt);
 					this.shiftStatementIndexCache(at, 1);
 				}
 			};
@@ -600,10 +592,9 @@ export class Document
 			const doUpdateAt = (call: updateCall) =>
 			{
 				const at = boundAt(call);
-				const smt = new X.Statement(this, call.text);
 				this.statements[at].dispose();
-				this.statements[at] = smt;
-				this.statementIndexCache.set(smt, call.at);
+				this.statements[at] = call.smt;
+				this.statementIndexCache.set(call.smt, call.at);
 			};
 			
 			if (!hasMixed)
@@ -621,34 +612,46 @@ export class Document
 						.filter((call, i) => i >= calls.length - 1 || call.at !== (<updateCall>calls[i + 1]).at);
 					
 					const oldStatements = updateCalls.map(c => this.statements[c.at]);
-					const newStatements = updateCalls.map(c => new X.Statement(this, c.text));
+					const newStatements = updateCalls.map(c => c.smt);
 					const indexes = Object.freeze(updateCalls.map(c => c.at));
 					
-					const noStructuralChanges = oldStatements.every((oldSt, idx) =>
+					const noStructuralChanges = oldStatements.every((oldSmt, idx) =>
 					{
-						const newSt = newStatements[idx];
+						const newSmt = newStatements[idx];
 						return (
-							oldSt.indent === newSt.indent ||
-							oldSt.isNoop && newSt.isNoop);
+							oldSmt.indent === newSmt.indent ||
+							oldSmt.isNoop && newSmt.isNoop);
 					});
 					
 					if (noStructuralChanges)
 					{
 						// Tell subscribers to blow away all the old statements.
-						hooks.Invalidate.run(new X.InvalidateParam(
+						const invalidateParam = new X.InvalidateParam(
 							this,
 							oldStatements,
-							indexes));
+							indexes);
+						
+						hooks.Invalidate.run(invalidateParam);
 						
 						// Run the actual mutations
-						updateCalls.forEach(doUpdateAt);
+						for (const updateCall of updateCalls)
+							doUpdateAt(updateCall);
+						
+						if (newStatements.some(smt => this.getLineNumber(smt) < 0))
+						{
+							debugger;
+							
+							for (const updateCall of updateCalls)
+								doUpdateAt(updateCall);
+						}
 						
 						// Tell subscribers what changed
-						hooks.Revalidate.run(new X.RevalidateParam(
+						const revalidateParam = new X.RevalidateParam(
 							this, 
 							newStatements,
-							indexes));
-						
+							indexes);
+							
+						hooks.Revalidate.run(revalidateParam);
 						return;
 					}
 				}
@@ -708,16 +711,7 @@ export class Document
 				if (hasInsert)
 				{
 					const insertCalls = <insertCall[]>calls;
-					const hasOnlyNoop = (() =>
-					{
-						for (const insertCall of insertCalls)
-							if (!new X.Statement(this, insertCall.text).isNoop)
-								return false;
-						
-						return true;
-					})();
-					
-					if (hasOnlyNoop)
+					if (insertCalls.every(call => call.smt.isNoop))
 					{
 						insertCalls.forEach(doInsertAt);
 						return;
@@ -767,24 +761,22 @@ export class Document
 				}
 				else
 				{
-					const newStatement = new X.Statement(this, call.text);
-					
 					if (call instanceof insertCall)
 					{
-						if (newStatement.isNoop)
+						if (call.smt.isNoop)
 							continue;
 					}
 					else if (call instanceof updateCall)
 					{
 						const oldStatement = this.statements[atBounded];
 						
-						if (oldStatement.isNoop && newStatement.isNoop)
+						if (oldStatement.isNoop && call.smt.isNoop)
 							continue;
 					}
 					
 					const parent = this.getParentFromPosition(
 						call.at,
-						newStatement.indent);
+						call.smt.indent);
 					
 					if (parent instanceof X.Statement)
 					{
