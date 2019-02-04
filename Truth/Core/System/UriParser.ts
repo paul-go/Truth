@@ -268,17 +268,8 @@ export class UriParser
 			if (file.endsWith(X.UriExtension.wasm))
 				return X.UriExtension.wasm;
 			
-			return null;
+			return X.UriExtension.unknown;
 		})();
-		
-		if (ext === null)
-			return null;
-		
-		// You can't have a type path that points to a 
-		// non-truth file, so null is returned in this case.
-		if (types.length > 0)
-			if (ext !== X.UriExtension.truth)
-				return null;
 		
 		return {
 			protocol: X.UriProtocol.resolve(protocol) || X.UriProtocol.unknown,

@@ -58,11 +58,15 @@ export class DocumentGraph
 	 */
 	async read(uri: string | X.Uri)
 	{
-		const uriObject = uri instanceof X.Uri ? uri : X.Uri.tryParse(uri);
-		if (!uriObject)
+		const uriParsed = X.Uri.tryParse(uri);
+		if (!uriParsed)
 			throw X.Exception.invalidUri();
 		
-		const readResult = await X.UriReader.tryRead(uriObject);
+		const uriAbsolute = uriParsed.toAbsolute();
+		if (!uriAbsolute)
+			throw X.Exception.unknownState();
+		
+		const readResult = await X.UriReader.tryRead(uriAbsolute);
 		if (readResult instanceof Error)
 			return readResult;
 		
