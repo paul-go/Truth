@@ -74,6 +74,20 @@ export class Exception
 	}
 	
 	/** */
+	static uriNotSupported()
+	{
+		return error(`URIs of this type are not supported.`);
+	}
+	
+	/** */
+	static cannotMakeAbsolute()
+	{
+		return error(`
+			Cannot make this URI absolute because no 
+			process or window object could be found`);
+	}
+	
+	/** */
 	static mustSpecifyVia()
 	{
 		return error(`
@@ -138,12 +152,6 @@ export class Exception
 	static documentNotLoaded()
 	{
 		return error(`This document has not been loaded into the current program.`);
-	}
-	
-	/** */
-	static uriNotSupported()
-	{
-		return error(`URIs of this type are not supported.`);
 	}
 	
 	/** */

@@ -23,37 +23,64 @@ export class Uri
 	/**
 	 * 
 	 */
-	static tryParse(raw: string, via?: Uri | string): Uri | null
+	static tryParse(uri: string | Uri, via?: Uri | string): Uri | null
 	{
-		if (!raw)
+		if (!uri)
 			return null;
 		
-		const uriLike = X.UriParser.parse(raw);
+		const uriLike = typeof uri === "string" ?
+			X.UriParser.parse(uri) :
+			uri;
+		
 		if (uriLike === null)
 			return null;
 		
-		if (uriLike.isRelative && via)
+		const outUri = (() =>
 		{
-			const viaParsed = this.maybeParse(via);
+			if (!(uriLike.isRelative && via))
+				return new Uri(uriLike);
+			
+			const viaParsed = typeof via === "string" ?
+				X.UriParser.parse(via) :
+				via;
+			
 			if (viaParsed === null)
 				throw X.Exception.invalidUri();
 			
 			if (viaParsed.isRelative)
 				throw X.Exception.viaCannotBeRelative();
 			
-			const uls = uriLike.stores!;
+			const uriStores = uriLike.stores!;
+			const viaStores = viaParsed.stores!;
+			const retract = uriLike.retractionCount || 0;
 			
-			if (viaParsed.stores.length < uls.length)
+			if (viaStores.length < retract)
 				throw X.Exception.invalidUri();
 			
-			const stores = viaParsed.stores
-				.slice(0, -uls.length)
-				.concat(uls);
-			
-			return new X.Uri(uriLike, { stores });
-		}
+			return new X.Uri(uriLike, {
+				protocol: viaParsed.protocol,
+				stores : retract > 0 ?
+					viaStores.slice(0, -retract).concat(uriStores) :
+					viaStores.concat(uriStores),
+				retractionCount: -1,
+				isRelative: false
+			});
+		})();
 		
-		return new Uri(uriLike);
+		// Return null when an extension was found that isn't
+		// unknown (also when no extension was found). This
+		// is in order to reduce the number of terms that have
+		// a special meaning in a truth document.
+		if (outUri.ext === X.UriExtension.unknown)
+			return null;
+		
+		// You can't have a type path that points to a 
+		// non-truth file, so null is returned in this case.
+		if (outUri.types.length > 0)
+			if (outUri.ext !== X.UriExtension.truth)
+				return null;
+		
+		return outUri;
 	}
 	
 	/**
@@ -129,7 +156,7 @@ export class Uri
 	 * Stores the number of retractions that are defined in this
 	 * URI, in the case when the URI is relative.
 	 */
-	readonly retractionCount: number = -1;
+	readonly retractionCount: number = 0;
 	
 	/**
 	 * Stores whether the URI is a relative path.
@@ -227,6 +254,38 @@ export class Uri
 	}
 	
 	/**
+	 * 
+	 */
+	toAbsolute()
+	{
+		if (!this.isRelative)
+			return this;
+		
+		const via: string | null = (() =>
+		{
+			try
+			{
+				if (typeof process === "object")
+					if (typeof process.cwd === "function")
+						return process.cwd() || null;
+				
+				if (typeof window !== "undefined")
+					if (typeof window.location !== "undefined")
+						if (typeof window.location.href === "string")
+							return window.location.href || null;
+			}
+			catch (e) { }
+			
+			return null;
+		})();
+		
+		if (via === null)
+			throw X.Exception.cannotMakeAbsolute();
+		
+		return Uri.tryParse(this, via);
+	}
+	
+	/**
 	 * @returns The path of types contained by this URI, 
 	 * concatenated into a single string.
 	 */
@@ -242,17 +301,17 @@ export class Uri
 	 */
 	toStoreString()
 	{
-		if (this.isRelative)
-			throw X.Exception.invalidCall();
+		const thisAbsolute = (this.isRelative ? this.toAbsolute() : this)!;
 		
 		// In the case when the specified protocol is "file",
 		// the string should start with a / so that we get
 		// and output that looks like /Users/person/....
-		const proto = this.protocol === X.UriProtocol.file ?
+		const proto = thisAbsolute.protocol === X.UriProtocol.file ?
 			"/" :
-			this.protocol;
+			thisAbsolute.protocol;
 		
-		const components = this.stores.map(t => t.toStringEncoded())
+		const components = thisAbsolute.stores
+			.map(t => t.toStringEncoded())
 			.join(X.UriSyntax.componentSeparator);
 		
 		return proto + components;
@@ -271,3 +330,5 @@ export class Uri
 		return out;
 	}
 }
+
+declare const window: any;

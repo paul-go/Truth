@@ -946,11 +946,16 @@ export class Document
 	/**
 	 * Returns a formatted version of the Document.
 	 */
-	toString()
+	toString(keepOriginalFormatting?: boolean)
 	{
 		const lines: string[] = [];
 		
-		for (const { statement, level } of this.eachDescendant())
+		if (keepOriginalFormatting)
+		{
+			for (const statement of this.statements)
+				lines.push(statement.sourceText);
+		}
+		else for (const { statement, level } of this.eachDescendant())
 		{
 			const indent = X.Syntax.tab.repeat(level);
 			lines.push(indent + statement.toString());

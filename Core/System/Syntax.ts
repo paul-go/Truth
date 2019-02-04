@@ -36,6 +36,7 @@ export const enum UriSyntax
  */
 export const enum UriExtension
 {
+	unknown = "",
 	truth = ".truth",
 	js = ".truth.js",
 	wasm = ".truth.wasm"
