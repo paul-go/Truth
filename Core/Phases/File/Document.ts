@@ -118,10 +118,7 @@ export class Document
 				continue;
 			
 			if (currentStatement.indent < currentIndent)
-			{
-				this.statementIndexCache.set(currentStatement, idx);
 				return currentStatement;
-			}
 		}
 		
 		// If a parent statement wasn't found, then the
@@ -148,10 +145,7 @@ export class Document
 		{
 			const currentStatement = this.statements[idx];
 			if (!currentStatement.isNoop && currentStatement.indent < virtualOffset)
-			{
-				this.statementIndexCache.set(currentStatement, idx);
 				return currentStatement;
-			}
 		}
 		
 		return this;
@@ -280,13 +274,7 @@ export class Document
 	 */
 	getLineNumber(statement: X.Statement)
 	{
-		const idx = this.statementIndexCache.get(statement);
-		if (idx !== undefined)
-			return idx;
-		
-		const i = this.statements.indexOf(statement);
-		this.statementIndexCache.set(statement, i);
-		return i;
+		return this.statements.indexOf(statement);
 	}
 	
 	/** 
@@ -566,11 +554,9 @@ export class Document
 				
 				deleted.forEach(del =>
 				{
-					this.statementIndexCache.delete(del);
 					del.dispose();
 				});
 				
-				this.shiftStatementIndexCache(at, -1);
 				return deleted;
 			};
 			
@@ -578,14 +564,12 @@ export class Document
 			{
 				if (call.at >= this.statements.length)
 				{
-					this.statementIndexCache.set(call.smt, this.statements.length);
 					this.statements.push(call.smt);
 				}
 				else
 				{
 					const at = boundAt(call);
 					this.statements.splice(at, 0, call.smt);
-					this.shiftStatementIndexCache(at, 1);
 				}
 			};
 			
@@ -594,7 +578,6 @@ export class Document
 				const at = boundAt(call);
 				this.statements[at].dispose();
 				this.statements[at] = call.smt;
-				this.statementIndexCache.set(call.smt, call.at);
 			};
 			
 			if (!hasMixed)
@@ -636,14 +619,6 @@ export class Document
 						// Run the actual mutations
 						for (const updateCall of updateCalls)
 							doUpdateAt(updateCall);
-						
-						if (newStatements.some(smt => this.getLineNumber(smt) < 0))
-						{
-							debugger;
-							
-							for (const updateCall of updateCalls)
-								doUpdateAt(updateCall);
-						}
 						
 						// Tell subscribers what changed
 						const revalidateParam = new X.RevalidateParam(
@@ -890,34 +865,6 @@ export class Document
 	 * sorted in the order that they appear in the file.
 	 */
 	private readonly statements: X.Statement[] = [];
-	
-	/**
-	 * Shifts the cached statement indexes above the specified
-	 * number, by the specified offset. Once the size of the cache
-	 * grows past a certain threshold, the statement cache is cleared.
-	 * Shifting the indexes of small caches is a simple optimization
-	 * that allows the document to avoid throwing away the entire
-	 * cache for many edits to the document.
-	 */
-	private shiftStatementIndexCache(above: number, offset: number)
-	{
-		const threshold = 1000;
-		
-		if (this.statementIndexCache.size > threshold)
-			return this.statementIndexCache.clear();
-		
-		for (const [statement, index] of this.statementIndexCache)
-			if (index > above)
-				this.statementIndexCache.set(statement, index + offset);
-	}
-	
-	/**
-	 * Stores a cache of the indexes at which various statements
-	 * are located in the statements array. Not all statements 
-	 * contained in the document are stored in this array. The
-	 * cache is built up and cleared over time.
-	 */
-	private readonly statementIndexCache = new Map<X.Statement, number>();
 	
 	/**
 	 * A state variable that stores whether an
