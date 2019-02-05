@@ -80,28 +80,6 @@ export class HyperGraph
 		const { document, iterator } = this.methodSetup(root);
 		const txn = new GraphTransaction();
 		
-		// Attempts to remove a span from the specified target. 
-		// Adds the target to a list in the case when the target's
-		// last Span was removed.
-		const tryDelete = (from: X.Node | X.HyperEdge, decl: X.Span | X.InfixSpan) =>
-		{
-			if (from instanceof X.Node)
-			{
-				from.declarations.delete(decl);
-				
-				if (from.declarations.size === 0)
-					txn.destabilizedNodes.push(from);
-			}
-			else
-			{
-				const node = from.predecessor;
-				node.removeEdgeSource(decl);
-				
-				if (from.sources.length === 0)
-					txn.destablizedEdges.push(from);
-			}
-		}
-		
 		for (const { statement } of iterator)
 		{
 			for (const declaration of statement.declarations)
@@ -114,21 +92,14 @@ export class HyperGraph
 				
 				for (const associatedNode of associatedNodes)
 				{
-					// Remove the declaration-side spans from the
-					// Node that corresponds to the declaration.
-					tryDelete(associatedNode, declaration);
+					associatedNode.removeDeclaration(declaration);
 					
-					// Attempt to remove the annotations from the
-					// Node's outbound HyperEdges.
-					for (const outEdge of associatedNode.outbounds)
-						for (const annotation of statement.annotations)
-							tryDelete(outEdge, annotation);
+					if (associatedNode.declarations.size === 0)
+						txn.destabilizedNodes.push(associatedNode);
 					
-					// Attempt to remove the annotations from the
-					// Node's outbound HyperEdges.
-					for (const inEdge of associatedNode.inbounds)
-						for (const annotation of statement.annotations)
-							tryDelete(inEdge, annotation);
+					for (const ob of associatedNode.outbounds)
+						if (ob.sources.length === 0)
+							txn.destablizedEdges.push(ob);
 				}
 			}
 		}
@@ -278,7 +249,7 @@ export class HyperGraph
 			if (nodeAtUri)
 			{
 				affectedNodes.push(nodeAtUri);
-				nodeAtUri.declarations.add(declaration);
+				nodeAtUri.addDeclaration(declaration);
 				continue;
 			}
 			
@@ -338,7 +309,13 @@ export class HyperGraph
 			
 			for (const maybeDeadNode of txn.destabilizedNodes)
 				if (maybeDeadNode.declarations.size === 0)
+				{
 					maybeDeadNode.dispose();
+					
+					for (const [uri, node] of this.nodeCache)
+						if (node === maybeDeadNode)
+							this.nodeCache.delete(uri);
+				}
 		}
 		
 		// Populate nodeCache with any newly created nodes.
@@ -361,6 +338,14 @@ export class HyperGraph
 			
 			this.sanitize(affectedNode);
 		}
+	}
+	
+	/** */
+	private log()
+	{
+		console.log("---- INTERNAL GRAPH REPRESENTATION ----");
+		for (const node of this.nodeCache.values())
+			console.log(node.toString(true));
 	}
 	
 	/**

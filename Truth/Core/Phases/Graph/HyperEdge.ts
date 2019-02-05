@@ -72,7 +72,10 @@ export class HyperEdge
 		this.sourcesMutable.push(source);
 	}
 	
-	/** */
+	/**
+	 * Removes the specified annotation-side Span or InfixSpan
+	 * from this edge.
+	 */
 	removeSource(source: X.Span | X.InfixSpan)
 	{
 		const sourcePos = this.sourcesMutable.indexOf(source);
