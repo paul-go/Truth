@@ -24,7 +24,7 @@ export class ProgramScanner
 				
 				const typesAtStatement = statement.declarations
 					.map(decl => decl.factor())
-					.reduce((spines, s) => spines.concat(s))
+					.reduce((spines, s) => spines.concat(s), [])
 					.map(spine => X.Type.construct(spine, program));
 				
 				for (const type of typesAtStatement)

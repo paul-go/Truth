@@ -87,7 +87,7 @@ export class FaultService
 		const faultsSorted = 
 			Array.from(this.activeContext.frozenFrame.faults.values())
 				.map(faultMap => Array.from(faultMap.values()))
-				.reduce((a, b) => a.concat(b))
+				.reduce((a, b) => a.concat(b), [])
 				.sort((a, b) => a.line - b.line);
 		
 		for (const fault of faultsSorted)
