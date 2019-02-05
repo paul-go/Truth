@@ -30,7 +30,7 @@ export class Node
 		this.container = container;
 		this.document = span.statement.document;
 		this.stamp = this.document.version;
-		this.declarations = new Set([declaration]);
+		this._declarations = new Set([declaration]);
 		this.subject = declaration.boundary.subject;
 		this.name = this.subject.toString();
 		
@@ -114,7 +114,7 @@ export class Node
 			// these calls are here just to be safe.
 			// It's still required that we clear out the inbounds
 			// from the nodes to which this one is connected.
-			node.declarations.clear();
+			node._declarations.clear();
 			node._inbounds.clear();
 		}
 		
@@ -240,7 +240,50 @@ export class Node
 	 * a document, however, InfixSpans can only exist in one
 	 * place.
 	 */
-	readonly declarations: Set<X.Span | X.InfixSpan>;
+	get declarations(): ReadonlySet<X.Span | X.InfixSpan>
+	{
+		return this._declarations;
+	}
+	private readonly _declarations: Set<X.Span | X.InfixSpan>;
+	
+	/** */
+	addDeclaration(span: X.Span | X.InfixSpan)
+	{
+		this._declarations.add(span);
+	}
+	
+	/** */
+	removeDeclaration(span: X.Span | X.InfixSpan)
+	{
+		const wasDeleted = this._declarations.delete(span);
+		if (wasDeleted)
+		{
+			// Remove all of the annotations that exist on the same
+			// statement as the one that contains the declaration that
+			// was removed. Note that this won't mess up fragmented
+			// types. For example, consider the situation when the first
+			// statement is removed from the following document:
+			// 
+			// A, B : X, Y
+			// A, C : X, Y
+			// 
+			// Statements are removed atomically, so when the statement
+			// is removed, this will result in 2 calls to this method: one for
+			// the first "A", and one for the "B". When the second call is made,
+			// the associated annotations will already have been removed.
+			
+			for (let i = this._outbounds.length; i-- > 0;)
+			{
+				const ob = this._outbounds[i];
+				
+				for (const anno of span.statement.allAnnotations)
+					ob.removeSource(anno);
+				
+				if (ob.sources.length === 0)
+					this._outbounds.splice(i, 1);
+			}
+		}
+	}
 	
 	/**
 	 * Gets an array containing the statements that
@@ -435,6 +478,8 @@ export class Node
 			const tupleA = edgeLookup.get(edgeA);
 			const tupleB = edgeLookup.get(edgeB);
 			
+			const obs = this._outbounds;
+			
 			if (tupleA === undefined || tupleB === undefined)
 				throw X.Exception.unknownState();
 			
@@ -454,7 +499,9 @@ export class Node
 			// At this point, statement A and statement B 
 			// are actually equal.
 			if (smtA !== smtB)
+			{
 				throw X.Exception.unknownState();
+			}
 			
 			const annos = smtA.annotations;
 			const findMinIndex = (edge: X.HyperEdge) =>
@@ -653,7 +700,7 @@ export class Node
 	removeEdgeSource(src: X.Span | X.InfixSpan)
 	{
 		for (let i = this._outbounds.length; --i > 0;)
-			this._outbounds[i].addSource(src);
+			this._outbounds[i].removeSource(src);
 	}
 	
 	/** */
