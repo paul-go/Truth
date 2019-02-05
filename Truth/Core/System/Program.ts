@@ -143,7 +143,7 @@ export class Program
 				
 				const types = parent.declarations
 					.map(decl => decl.factor())
-					.reduce((spines, s) => spines.concat(s))
+					.reduce((spines, s) => spines.concat(s), [])
 					.map(spine => X.Type.construct(spine, this));
 				
 				return new ProgramInspectionResult(types, statement, null);
