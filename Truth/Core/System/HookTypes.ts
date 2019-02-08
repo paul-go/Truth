@@ -81,11 +81,11 @@ export namespace HookTypes
 	 */
 	export class UriReferenceRemoved extends X.HookType<UriReferenceParam> { }
 	
-	/** A hook that runs when a fault has been detected in a document. */
-	export class FaultReported extends X.HookType<FaultParam> { }
-	
-	/** A hook that runs when a fault has been rectified, and should be eliminated. */
-	export class FaultRectified extends X.HookType<FaultParam> { }
+	/**
+	 * A hook that runs when the set of faults that are detected
+	 * within the document have changed.
+	 */
+	export class FaultsChanged extends X.HookType<FaultParam> { }
 }
 
 
@@ -253,7 +253,7 @@ export class UriReferenceResult
 export class FaultParam
 {
 	constructor(
-		readonly document: X.Document,
-		readonly fault: X.Fault)
+		readonly faultsAdded: X.Fault[],
+		readonly faultsRemoved: X.Fault[])
 	{ }
 }
