@@ -21,11 +21,15 @@ export class Fault<TSource = TFaultSource>
 		readonly source: TSource)
 	{
 		const src = this.source;
+		
+		// The +1's are necessary in order to deal with the fact that
+		// most editors are 1-based whereas the internal representation
+		// of statement strings are 0-based.
 		const range =
 			src instanceof X.Statement ?
-				[src.indent, -1] :
+				[src.indent + 1, -1] :
 			src instanceof X.InfixSpan || src instanceof X.Span ? 
-				[src.boundary.offsetStart, src.boundary.offsetEnd] :
+				[src.boundary.offsetStart + 1, src.boundary.offsetEnd + 1] :
 			[-1, -1];
 		
 		this.range = range.filter(n => n >= 0);
@@ -491,6 +495,7 @@ export const Faults = Object.freeze({
 	StatementContainsOnlyEscapeCharacter: createFault<X.Statement>(
 		604,
 		"A statement cannot consist of a single escape character (\\)"),
+	
 	
 	//
 	// Parsing Faults
