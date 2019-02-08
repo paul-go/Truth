@@ -48,7 +48,7 @@ export class TypeCache
 	{
 		const cache = this.allCaches.get(program) || (() =>
 		{
-			const cache = new TypeCache(program, program.version);
+			const cache = new TypeCache(program);
 			this.allCaches.set(program, cache);
 			return cache;
 		})();
@@ -63,17 +63,23 @@ export class TypeCache
 	private static readonly allCaches = new WeakMap<X.Program, TypeCache>();
 	
 	/** */
-	private constructor(
-		private readonly program: X.Program,
-		private readonly version: X.VersionStamp)
-	{ }
+	private constructor(private readonly program: X.Program)
+	{
+		this.version = program.version;
+	}
 	
 	/** */
 	private maybeClear()
 	{
 		if (this.program.version.newerThan(this.version))
+		{
 			this.map.clear();
+			this.version = this.program.version;
+		}
 	}
+	
+	/** */
+	private version: X.VersionStamp;
 	
 	/** */
 	private readonly map = new Map<string, TCachedType>();

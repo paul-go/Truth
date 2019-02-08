@@ -158,11 +158,18 @@ export class Statement
 		if (patternSpan.infixes.length === 0)
 			return;
 		
+		const infixSpans: X.InfixSpan[] = [];
+		
 		for (const infix of patternSpan.infixes)
 		{
 			const lhs = Array.from(patternSpan.eachDeclarationForInfix(infix));
 			const rhs = Array.from(patternSpan.eachAnnotationForInfix(infix));
 			const all = lhs.concat(rhs);
+			
+			// This is a bit out of place ... but we need to populate the
+			// infixSpans array and this is probably the most efficient
+			// place to do that.
+			infixSpans.push(...all);
 			
 			for (const infixSpan of all)
 				if (infixSpan.boundary.subject.isList)
@@ -205,6 +212,8 @@ export class Statement
 					X.Faults.PortabilityInfixHasMultipleDefinitions, 
 					infixSpan);
 		}
+		
+		this._infixSpans = Object.freeze(infixSpans);
 	}
 	
 	/**
@@ -333,6 +342,15 @@ export class Statement
 	 * as object-level cruft.
 	 */
 	readonly allDeclarations: ReadonlyArray<X.Span>;
+	
+	/**
+	 * Gets a list of all infixes defined in the pattern of this statement.
+	 */
+	get infixSpans()
+	{
+		return this._infixSpans;
+	}
+	private _infixSpans: ReadonlyArray<X.InfixSpan> = Object.freeze([]);
 	
 	/**
 	 * Gets an array of spans in that represent the annotations

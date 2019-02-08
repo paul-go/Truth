@@ -18,6 +18,8 @@ export class SpecifiedParallel extends X.Parallel
 		super(node.uri, container);
 		this.node = node;
 		this.cruft = cruft;
+		
+		node.document.program.faults.inform(node);
 	}
 	
 	/**
@@ -138,8 +140,8 @@ export class SpecifiedParallel extends X.Parallel
 	}
 	
 	/**
-	 * Attempts to apply bases to this SpecifiedParallel, that are nested within
-	 * the provided target.
+	 * Attempts to indirectly apply a base to this SpecifiedParallel via an alias
+	 * and edge.
 	 * 
 	 * @param targetPatternParallel The pattern-containing SpecifiedParallel
 	 * instance whose bases should be applied to this SpecifiedParallel,
@@ -166,7 +168,6 @@ export class SpecifiedParallel extends X.Parallel
 		if (this.node.subject instanceof X.Pattern)
 			throw X.Exception.unknownState();
 		
-		debugger;
 		return true;
 	}
 	
@@ -176,8 +177,9 @@ export class SpecifiedParallel extends X.Parallel
 	 * @example
 	 * /pattern : This, Function, Adds, These
 	 */
-	tryApplyPatternBases(bases: ReadonlyArray<X.SpecifiedParallel>)
+	tryApplyPatternBases(baseTable: X.TBaseTable)
 	{
+		const bases = Array.from(baseTable.keys());
 		const pattern = this.node.subject;
 		
 		// Non-Pattern nodes should never come to this method.
@@ -186,7 +188,7 @@ export class SpecifiedParallel extends X.Parallel
 		
 		const basesDeep = bases
 			.map(b => Array.from(b.eachBaseDeep()))
-			.reduce((a, b) => a.concat(b))
+			.reduce((a, b) => a.concat(b), [])
 			.filter((v, i, a) => a.indexOf(v) === i);
 		
 		// Reminder: the SpecifiedParallels in the basesDeep array
@@ -210,39 +212,39 @@ export class SpecifiedParallel extends X.Parallel
 					.map(ob => ob.successors[0].node)
 					.every(node => basesNodes.includes(node)));
 			
-			const basesText = bases.map(b => b.name).join(" & ");
-			console.log(`---- Pattern Node Sprawl: ${basesText} ----`);
+			const basesDeepSprawlPatterns = basesDeepSprawl
+				.map(n => n.subject)
+				.filter((s): s is X.Pattern => s instanceof X.Pattern);
 			
-			for (const node of basesDeepSprawl)
-				console.log(node.name);
-			
-			console.log("----------------------------------------");
+			/**
+			 * At this point, we need to test every single one of the 
+			 * patterns in basesDeepSprawlPatterns against this
+			 * this.node.subject to make sure the two patterns are
+			 * compliant.
+			 * 
+			 * If they're not compliant, we need to start marking
+			 * bases as cruft until they are.
+			 * 
+			 * There is also a recursive infix embed process that
+			 * needs to happen here, but maybe we should just
+			 * put this off until the basic pattern functionality
+			 * is working?
+			 */
 		}
 		
-		console;
-		
-		// Deal with testing compatibility
-		// Deal with infixes
-		
 		/**
-		 * Find every pattern whose bases are a subset of the bases
-		 * provided.
-		 * 
-		 * Then this graph needs to be traversed as pairs in topological 
-		 * order so that we can determine if the pair has the required
-		 * set relationship. The function that determines if a pair has the 
-		 * right set relationship also has to take into account the 4 kinds
-		 * of infixes.
-		 * 
-		 * Topological order such that A depends on B means that
-		 * the set of bases applied to by A is a subset of the set of
-		 * bases applied to be B.
-		 * 
-		 * This graph needs to take into account both
-		 * inheritance and widening.
+		 * This also needs to take into account any other patterns
+		 * that are applied to any of the bases defined directly
+		 * inline.
 		 */
 		
-		
+		// Here we're just adding all the bases regardless of whether
+		// or not any of the associated edges were marked as cruft.
+		// The other enumerators skip over cruft edges, so this likely
+		// isn't a problem, and it keeps it consistent with the way the
+		// rest of the system works.
+		for (const [base, via] of baseTable)
+			this._bases.set(via, base);
 	}
 	
 	/**
@@ -303,10 +305,42 @@ export class SpecifiedParallel extends X.Parallel
 		return 0;
 	}
 	
+	/**
+	 * 
+	 */
+	private comparePatternTo(other: X.SpecifiedParallel)
+	{
+		
+	}
+	
+	/**
+	 * 
+	 */
+	private maybeCompilePattern()
+	{
+		const pattern = this.node.subject as X.Pattern;
+		if (!(pattern instanceof X.Pattern))
+			return;
+		
+		//if (!pattern.hasInfixes())
+		//	this.compiledExpression = pattern.
+	}
+	
+	/**
+	 * Stores a string representation of the compiled regular expression
+	 * associated with this instance, in the case when this instance is
+	 * a pattern parallel.
+	 * 
+	 * This string representation should have any infixes compiled away,
+	 * and should be passable to a JavaScript RegExp, or to the Fsm system.
+	 */
+	private compiledExpression: string | null = null;
+	
+	
 	/** */
 	get isContractSatisfied()
 	{
-		return this.contract.unsatisfiedConditions.size > 0;
+		return this.contract.unsatisfiedConditions.size === 0;
 	}
 	
 	/** */

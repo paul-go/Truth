@@ -67,7 +67,7 @@ export class BaselineTestGenerator
 	 */
 	private static execTest(baselineDocs: T.BaselineDocuments, baselineFilePath: string)
 	{
-		const realProgram = new X.Program(false);
+		const realProgram = new X.Program();
 		const reports: Report[] = [];
 		
 		// Errors need to be blocked from checking while

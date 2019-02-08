@@ -38,15 +38,9 @@ export class Node
 			this.subject instanceof X.Identifier &&
 			this.subject.isList;
 		
-		const containerTypePath = (() =>
-		{
-			if (container === null)
-				return [];
-			
-			return Array.from(container.enumerateContainers())
-				.reverse()
-				.map(n => n.name);
-		})();
+		const containerTypePath = container !== null ?
+			this.containment.slice().reverse().map(n => n.name) :
+			[];
 		
 		const typePath = containerTypePath.concat(this.name);
 		this.uri = this.document.sourceUri.extendType(typePath);
@@ -100,6 +94,9 @@ export class Node
 		}
 		else this.container._contents.delete(this.name);
 		
+		for (const ib of this._inbounds)
+			ib.removeSuccessor(this);
+		
 		const recurse = (node: Node) =>
 		{
 			for (const edge of node._outbounds)
@@ -133,10 +130,13 @@ export class Node
 		if (edge.predecessor !== this)
 			throw X.Exception.invalidArgument();
 		
+		const idx = this._outbounds.indexOf(edge);
+		this._outbounds.splice(idx, 1);
+		
 		for (const scsr of edge.successors)
 			scsr.node._inbounds.delete(edge);
 		
-		edge.clearSources();
+		edge.clearFragments();
 	}
 	
 	/** */
@@ -191,7 +191,7 @@ export class Node
 	get isListExtrinsic()
 	{
 		for (const ob of this.outbounds)
-			for (const source of ob.sources)
+			for (const source of ob.fragments)
 				if (source.boundary.subject instanceof X.Identifier)
 					if (source.boundary.subject.isList)
 						return true;
@@ -277,9 +277,9 @@ export class Node
 				const ob = this._outbounds[i];
 				
 				for (const anno of span.statement.allAnnotations)
-					ob.removeSource(anno);
+					ob.removeFragment(anno);
 				
-				if (ob.sources.length === 0)
+				if (ob.fragments.length === 0)
 					this._outbounds.splice(i, 1);
 			}
 		}
@@ -402,14 +402,14 @@ export class Node
 	 * Gets an immutable set of HyperEdges from adjacent
 	 * or contained Nodes that reference this Node. 
 	 * 
-	 * (The ordering of outbounds isn't important, as
+	 * (The ordering of inbounds isn't important, as
 	 * they have no physical representation in the
 	 * document, which is why they're stored in a Set
 	 * rather than an array.)
 	 */
-	get inbounds()
+	get inbounds(): ReadonlySet<X.HyperEdge>
 	{
-		return X.HigherOrder.copy(this._inbounds);
+		return this._inbounds;
 	}
 	private readonly _inbounds = new Set<X.HyperEdge>();
 	
@@ -418,9 +418,9 @@ export class Node
 	 * others, being either adjacents, or Nodes that
 	 * exists somewhere in the containment hierarchy.
 	 */
-	get outbounds()
+	get outbounds(): ReadonlyArray<X.HyperEdge>
 	{
-		return X.HigherOrder.copy(this._outbounds);
+		return this._outbounds;
 	}
 	private readonly _outbounds: X.HyperEdge[] = [];
 	
@@ -438,7 +438,7 @@ export class Node
 		if (this._outbounds.length === 1)
 		{
 			const edge = this._outbounds[0];
-			if (edge.sources.length === 1)
+			if (edge.fragments.length === 1)
 				return;
 		}
 		
@@ -446,7 +446,7 @@ export class Node
 		
 		for (const edge of this._outbounds)
 		{
-			for (const src of edge.sources.values())
+			for (const src of edge.fragments.values())
 			{
 				const smt = src.statement;
 				const lineNum = smt.document.getLineNumber(smt);
@@ -508,7 +508,7 @@ export class Node
 			{
 				let minIdx = Infinity;
 				
-				for (const src of edge.sources)
+				for (const src of edge.fragments)
 				{
 					if (src instanceof X.InfixSpan)
 						throw X.Exception.unknownState();
@@ -532,10 +532,14 @@ export class Node
 	
 	/**
 	 * @internal
+	 * Adds a new edge to the node, or updates an existing one with
+	 * a new fragment.
+	 * 
+	 * If no edge exists for the new fragment, a new one is created.
 	 */
-	addEdgeSource(source: X.Span | X.InfixSpan)
+	addEdgeFragment(fragment: X.Span | X.InfixSpan)
 	{
-		const identifier = source.boundary.subject;
+		const identifier = fragment.boundary.subject;
 		if (!(identifier instanceof X.Identifier))
 			throw X.Exception.unknownState();
 		
@@ -545,8 +549,8 @@ export class Node
 		// This is relevant, because if the source is alone, it also needs
 		// to be compared against any visible total patterns.
 		const sourceIsAlone =
-			source instanceof X.Span && 
-			source.statement.annotations.length === 1;
+			fragment instanceof X.Span && 
+			fragment.statement.annotations.length === 1;
 		
 		/**
 		 * Adds a edge to it's two applicable successor nodes.
@@ -569,7 +573,7 @@ export class Node
 		
 		if (existingEdge)
 		{
-			existingEdge.addSource(source);
+			existingEdge.addFragment(fragment);
 		}
 		else
 		{
@@ -593,7 +597,7 @@ export class Node
 				}
 			}
 			
-			append(new X.HyperEdge(this, source, successors));
+			append(new X.HyperEdge(this, fragment, successors));
 		}
 		
 		// 
@@ -625,6 +629,27 @@ export class Node
 		//								adjacentNode,
 		//								longitudeDelta)],
 		//							X.HyperEdgeKind.summation));
+	}
+	
+	/**
+	 * 
+	 */
+	addEdgeSuccessor(successorNode: X.Node)
+	{
+		const identifier = successorNode.subject as X.Identifier;
+		if (!(identifier instanceof X.Identifier))
+			throw X.Exception.unknownState();
+		
+		for (const ob of this.outbounds)
+		{
+			if (ob.identifier.typeName !== ob.identifier.typeName)
+				continue;
+			
+			const scsrLong = successorNode.uri.types.length;
+			const predLong = ob.predecessor.uri.types.length;
+			ob.addSuccessor(successorNode, predLong - scsrLong);
+			successorNode._inbounds.add(ob);
+		}
 	}
 	
 	/**
@@ -683,24 +708,30 @@ export class Node
 	}
 	
 	/**
-	 * Enumerates upwards through the containment
-	 * hierarchy of the Nodes present in this Node's
-	 * containing document, yielding each container
-	 * of this Node.
+	 * @returns An array that stores the containment hierarchy
+	 * of the Nodes present in this Node's containing document,
+	 * yielding each containerof this Node.
 	 */
-	*enumerateContainers()
+	get containment()
 	{
-		let currentLevel: Node | null = this;
+		if (this._containment !== null)
+			return this._containment;
 		
-		do yield currentLevel;
-		while ((currentLevel = currentLevel.container) !== null);
+		const nodes: X.Node[] = [];
+		
+		let currentLevel: Node | null = this;
+		while ((currentLevel = currentLevel.container) !== null)
+			nodes.push(currentLevel);
+		
+		return this._containment = Object.freeze(nodes);
 	}
+	private _containment: ReadonlyArray<X.Node> | null = null;
 	
 	/** */
 	removeEdgeSource(src: X.Span | X.InfixSpan)
 	{
 		for (let i = this._outbounds.length; --i > 0;)
-			this._outbounds[i].removeSource(src);
+			this._outbounds[i].removeFragment(src);
 	}
 	
 	/** */

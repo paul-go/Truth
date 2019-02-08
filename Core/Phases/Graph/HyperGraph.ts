@@ -54,7 +54,7 @@ export class HyperGraph
 			.extendType(name)
 			.toString();
 		
-		return this.nodeCache.get(uriText) || null;
+		return this.nodeIndex.getByUri(uriText) || null;
 	}
 	
 	/**
@@ -64,7 +64,7 @@ export class HyperGraph
 	 */
 	*readRoots(document: X.Document)
 	{
-		for (const node of this.nodeCache.values())
+		for (const node of this.nodeIndex.eachNode())
 			if (node.container === null)
 				if (node.document === document)
 					yield node;
@@ -79,6 +79,7 @@ export class HyperGraph
 	{
 		const { document, iterator } = this.methodSetup(root);
 		const txn = new GraphTransaction();
+		const maybeDestabilizedEdges: X.HyperEdge[] = [];
 		
 		for (const { statement } of iterator)
 		{
@@ -87,7 +88,7 @@ export class HyperGraph
 				const associatedNodes = new Set(declaration
 					.factor()
 					.map(spine => X.Uri.create(spine))
-					.map(uri => this.nodeCache.get(uri.toString()))
+					.map(uri => this.nodeIndex.getByUri(uri))
 					.filter((n): n is X.Node => n instanceof X.Node));
 				
 				for (const associatedNode of associatedNodes)
@@ -98,11 +99,18 @@ export class HyperGraph
 						txn.destabilizedNodes.push(associatedNode);
 					
 					for (const ob of associatedNode.outbounds)
-						if (ob.sources.length === 0)
+						if (ob.fragments.length === 0)
 							txn.destablizedEdges.push(ob);
+					
+					//for (const ib of associatedNode.inbounds)
+					//	maybeDestabilizedEdges.push(ib);
 				}
 			}
 		}
+		
+		//for (const edge of maybeDestabilizedEdges)
+		//	if (edge.successors.every(scsr => txn.destabilizedNodes.includes(scsr.node)))
+		//		txn.destablizedEdges.push(edge);
 		
 		this.activeTransactions.set(document, txn);
 	}
@@ -122,7 +130,15 @@ export class HyperGraph
 	{
 		const { document, iterator } = this.methodSetup(root);
 		const txn = this.activeTransactions.get(document);
+		
+		// Stores all the nodes that have been affected by a new
+		// fragment either being added or removed from it.
 		const affectedNodes: X.Node[] = [];
+		
+		// Stores a subset of the affectedNodes array. Contains
+		// only the nodes that are at the highest level of depth
+		// within the node set.
+		const topMostAffectedNodes: X.Node[] = [];
 		
 		/**
 		 * @returns The containing node that
@@ -139,7 +155,7 @@ export class HyperGraph
 			if (existingNode)
 				return existingNode;
 			
-			const cachedNode = this.nodeCache.get(uri.toString());
+			const cachedNode = this.nodeIndex.getByUri(uri);
 			if (cachedNode)
 				return cachedNode;
 			
@@ -268,7 +284,59 @@ export class HyperGraph
 			// automatically bound to it's container.
 			const newNode = new X.Node(container, declaration);
 			affectedNodes.push(newNode);
+			
+			// Populate the topMostAffectedNodes array, 
+			// which is needed to find the nodes that are
+			// affected by the change, but are not located
+			// directly within the patch.
+			if (topMostAffectedNodes.length === 0)
+			{
+				topMostAffectedNodes.push(newNode);
+			}
+			else
+			{
+				const highestDepth = affectedNodes[0].uri.types.length;
+				const nodeDepth = newNode.uri.types.length;
+				
+				if (nodeDepth < highestDepth)
+					topMostAffectedNodes.length = 0;
+				
+				if (nodeDepth <= highestDepth)
+					topMostAffectedNodes.push(newNode);
+			}
 		}
+		
+		// Expand the set of affected nodes to include the ones that
+		// were not directly contained within the "patch". This process
+		// won't include any of the newly created nodes, because at
+		// this point, they wouldn't have been added to the nodeIndex.
+		
+		/*if (topMostAffectedNodesByFrag.length > 0)
+		{
+			
+			// Stores the set of all identifiers (as strings) that exist
+			// across the set of top most affected nodes.
+			const identifiers = topMostAffectedNodesByFrag
+				.map(n => this.nodeIndex.getAssociatedIdentifiers(n))
+				.reduce((a, b) => a.concat(b), [])
+				.filter((v, i, a) => a.indexOf(v) === i);
+			
+			// Stores the series of containers that any of the newly discovered
+			// possibly affected nodes must have in their containment list
+			// in order to be included in the "affectedNodes" array.
+			const containers = topMostAffectedNodesByFrag
+				.map(node => node.container)
+				.filter((node): node is X.Node => node !== null)
+				.filter((v, i, a) => a.indexOf(v) === i);
+			
+			const checkRoot = containers.length === 0;
+			
+			for (const peripheral of affectedPeripherals)
+				for (const n of this.nodeIndex.getByAssociatedIdentifier(ident, depth))
+					if (checkRoot || n.containment.some(n => containers.includes(n)))
+						if (!affectedNodesByEdge.has(n))
+							affectedNodesByEdge.add(n);
+		}*/
 		
 		// Add or update all new Fans by feeding in all
 		// annotation spans for each declaration span.
@@ -282,7 +350,7 @@ export class HyperGraph
 				if (declaration instanceof X.Span)
 				{
 					for (const annotation of declaration.statement.annotations)
-						node.addEdgeSource(annotation);
+						node.addEdgeFragment(annotation);
 				}
 				else
 				{
@@ -290,31 +358,59 @@ export class HyperGraph
 					
 					for (const boundary of nfx.rhs)
 					{
-						node.addEdgeSource(new X.InfixSpan(
+						node.addEdgeFragment(new X.InfixSpan(
 							declaration.containingSpan,
 							nfx,
 							boundary));
 					}
 				}
 			}
+		
+		if (topMostAffectedNodes.length > 0)
+		{
+			// Stores the series of containers that any of the newly discovered
+			// possibly affected nodes must have in their containment list
+			// in order to be included in the "affectedNodes" array.
+			const containers = topMostAffectedNodes
+				.map(node => node.container)
+				.filter((node): node is X.Node => node !== null)
+				.filter((v, i, a) => a.indexOf(v) === i);
+			
+			const hasContainer = (node: X.Node) =>
+				node.containment.some(n => containers.includes(n));
 				
+			const depth = topMostAffectedNodes[0].uri.types.length;
+			const checkRoot = containers.length === 0;
+			
+			for (const scsrNode of topMostAffectedNodes)
+			{
+				const idents = this.nodeIndex.getAssociatedIdentifiers(scsrNode);
+				
+				for (const ident of idents)
+				{
+					const predNodes = this.nodeIndex.getByAssociatedIdentifier(ident, depth);
+					
+					for (const predNode of predNodes)
+						if (checkRoot || hasContainer(predNode))
+							predNode.addEdgeSuccessor(scsrNode);
+				}
+			}
+		}
+		
 		// If there's no active transaction the corresponds to the input
 		// document, the most likely reason is that an entire document
 		// is being included for the first time.
 		if (txn)
 		{
 			for (const maybeDeadEdge of txn.destablizedEdges)
-				if (maybeDeadEdge.sources.length > 0)
+				if (maybeDeadEdge.fragments.length > 0)
 					maybeDeadEdge.predecessor.disposeEdge(maybeDeadEdge);
 			
 			for (const maybeDeadNode of txn.destabilizedNodes)
 				if (maybeDeadNode.declarations.size === 0)
 				{
 					maybeDeadNode.dispose();
-					
-					for (const [uri, node] of this.nodeCache)
-						if (node === maybeDeadNode)
-							this.nodeCache.delete(uri);
+					this.nodeIndex.delete(maybeDeadNode);
 				}
 		}
 		
@@ -324,7 +420,7 @@ export class HyperGraph
 			affectedNode.sortOutbounds();
 			
 			const affectedUri = affectedNode.uri.toString();
-			const cachedNode = this.nodeCache.get(affectedUri);
+			const cachedNode = this.nodeIndex.getByUri(affectedUri);
 			
 			if (cachedNode)
 			{
@@ -333,7 +429,7 @@ export class HyperGraph
 			}
 			else
 			{
-				this.nodeCache.set(affectedUri, affectedNode);
+				this.nodeIndex.set(affectedUri, affectedNode);
 			}
 			
 			this.sanitize(affectedNode);
@@ -344,7 +440,7 @@ export class HyperGraph
 	private log()
 	{
 		console.log("---- INTERNAL GRAPH REPRESENTATION ----");
-		for (const node of this.nodeCache.values())
+		for (const node of this.nodeIndex.eachNode())
 			console.log(node.toString(true));
 	}
 	
@@ -385,11 +481,11 @@ export class HyperGraph
 	}
 	
 	/**
-	 * Stores a 2-dimensional map of all nodes that
+	 * Stores a map of all nodes that
 	 * have been loaded into the program, indexed
 	 * by a string representation of it's URI.
 	 */
-	private readonly nodeCache = new Map<string, X.Node>();
+	private readonly nodeIndex = new X.NodeIndex();
 	
 	/**
 	 * Stores a GraphTransaction instance in the case
@@ -403,32 +499,7 @@ export class HyperGraph
 	 */
 	toString()
 	{
-		if (this.nodeCache.size === 0)
-			return "(empty)";
-		
-		if (this.nodeCache.size === 1)
-		{
-			const [key, value] = this.nodeCache.entries().next().value;
-			return key + " " + value;
-		}
-		
-		const out: string[] = [];
-		const keys = Array.from(this.nodeCache.keys()).map(s =>
-		{
-			const uri = X.Uri.tryParse(s);
-			return uri ? uri.toString() : s;
-		});
-		
-		const values = Array.from(this.nodeCache.values());
-		
-		for (let i = -1; ++i < keys.length;)
-		{
-			const key = keys[i];
-			const value = values[i].toString(false);
-			out.push(`${key}\n\t${value}\n`);
-		}
-		
-		return out.join("\n").trim();
+		return this.nodeIndex.toString();
 	}
 }
 

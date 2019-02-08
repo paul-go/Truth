@@ -11,6 +11,16 @@ setTimeout(() =>
 {
 	Viz.init();
 	
+	// Make shift unit tests. Will clean up later.
+	const p1 = X.Uri.tryParse("./path/file.truth");
+	const p2 = X.Uri.tryParse("../../path/file.truth");
+	const p3 = X.Uri.tryParse("http://path/to/file.truth");
+	const p4 = X.Uri.tryParse("/absolute/file.truth");
+	const p5 = X.Uri.tryParse("//protocol/relative/file.truth");
+	const p6 = X.Uri.tryParse("/Users/x.truth//type/path/type");
+	const p7 = X.Uri.tryParse("/Users/x.truth//type/%2Fpattern%20here/type");
+	const p8 = X.Uri.tryParse("/Users/x.truth//type/[1]/Anonymous");
+	
 	const findArg = (key: string) =>
 	{
 		const val = process.argv.find(arg => arg.startsWith(key)) || "";
@@ -27,9 +37,11 @@ setTimeout(() =>
 		fileContent.slice(typePathRaw.length);
 	
 	const typePath = typePathRaw.trim().split("/");
-	const program = new X.Program(false);
+	const program = new X.Program();
 	const doc = program.documents.create(fileContentAdjusted);
-	const type = program.query(doc, ...typePath);
+	//const type = program.queryDocument(doc, ...typePath);
+	program.verify();
+	
 	const uriMessage = `Using URI: ${filePath}//${typePath}`;
 	const pipe = "-".repeat(uriMessage.length);
 	console.log(pipe);
@@ -56,10 +68,10 @@ setTimeout(() =>
 		console.log(`No faults were detected:`);
 	}
 	
-	if (type === null)
+	/*if (type === null)
 	{
 		console.log(`No type exists at the input URI.`);
 		return;
-	}
+	}*/
 },
 1);
