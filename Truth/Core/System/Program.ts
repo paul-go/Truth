@@ -9,33 +9,48 @@ export class Program
 	/**
 	 * Creates a new Program, into which Documents may
 	 * be added, and verified.
-	 * 
-	 * @param autoVerify Indicates whether verification should
-	 * occur after every edit cycle, and reports faults to this 
-	 * Program's .faults field.
 	 */
-	constructor(autoVerify = true)
+	constructor()
 	{
 		const hookRouter = new X.HookRouter();
 		this.hooks = hookRouter.createHookTypesInstance();
 		this._version = X.VersionStamp.next();
 		
-		this.hooks.Invalidate.capture(() =>
-		{
-			this._version = X.VersionStamp.next();
-			this.currentProgramScanner = null;
-		});
-		
 		// The ordering of these instantations is relevant,
 		// because it reflects the order in which each of
 		// these services are going to process hooks.
+		
+		this.hooks.DocumentCreated.capture(hook =>
+		{
+			this.unverifiedDocuments.push(hook.document);
+		});
+		
+		this.hooks.DocumentDeleted.capture(hook =>
+		{
+			const idx = this.unverifiedDocuments.indexOf(hook.document);
+			if (idx > -1)
+				this.unverifiedDocuments.splice(idx, 1);
+		});
+		
+		this.hooks.Invalidate.capture(() =>
+		{
+			this._version = X.VersionStamp.next();
+		});
+		
 		this.agents = new X.Agents(this, hookRouter);
 		this.documents = new X.DocumentGraph(this);
-		this.indentCheckService = new X.IndentCheckService(this, autoVerify);
 		this.graph = new X.HyperGraph(this);
 		
-		if (autoVerify)
-			new X.VerificationService(this);
+		this.hooks.Revalidate.capture(hook =>
+		{
+			for (let i = this.unverifiedStatements.length; i-- > 0;)
+				if (this.unverifiedStatements[i].isDisposed)
+					this.unverifiedStatements.splice(i, 1);
+			
+			for (const statement of hook.parents)
+				if (!statement.isCruft)
+					this.unverifiedStatements.push(statement);
+		});
 		
 		this.faults = new X.FaultService(this);
 	}
@@ -62,33 +77,18 @@ export class Program
 	}
 	private _version: X.VersionStamp;
 	
-	/** */
-	private readonly indentCheckService: X.IndentCheckService;
-	
 	/**
-	 * Stores an object that allows type analysis to be performed on
-	 * this Program. It is reset at the beginning of every edit cycle.
+	 * @returns A fully constructed Type instance that corresponds to
+	 * the type at the URI specified. In the case when no type could be
+	 * found at the specified location, null is returned.
 	 */
-	private currentProgramScanner: X.ProgramScanner | null = null;
-	
-	/**
-	 * Performs a full verification of all documents loaded into the program.
-	 * This Program's .faults field is populated with any faults generated as
-	 * a result of the verification. If no documents loaded into this program
-	 * has been edited since the last verification, verification is not re-attempted.
-	 * 
-	 * @returns An entrypoint into performing analysis of the Types that
-	 * have been defined in this program.
-	 */
-	scan()
+	query(uri: X.Uri | string)
 	{
-		if (this.currentProgramScanner)
-			return this.currentProgramScanner;
+		const uriObject = X.Uri.maybeParse(uri);
+		if (uriObject === null)
+			throw X.Exception.invalidUri();
 		
-		for (const doc of this.documents.each())
-			this.indentCheckService.invoke(doc);
-		
-		return new X.ProgramScanner(this);
+		return X.Type.construct(uriObject, this);
 	}
 	
 	/**
@@ -100,21 +100,16 @@ export class Program
 	 * where to begin the query.
 	 * 
 	 * @param typePath The type path to query within the the specified
-	 * Document.
+	 * Document. If omitted, an array that contains the root-level types
+	 * defined in the specified Document is returned.
 	 */
-	query(document: X.Document, ...typePath: string[])
+	queryDocument(document: X.Document, ...typePath: string[])
 	{
+		if (typePath.length === 0)
+			return X.Type.constructRoots(document);
+		
 		const uri = document.sourceUri.extendType(typePath);
 		return X.Type.construct(uri, this);
-	}
-	
-	/**
-	 * @returns An array that contains the root-level types defined
-	 * in the specified Document.
-	 */
-	queryRoots(document: X.Document)
-	{
-		return X.Type.constructRoots(document);
 	}
 	
 	/**
@@ -184,6 +179,70 @@ export class Program
 		
 		return new ProgramInspectionResult(null, statement, null);
 	}
+	
+	/**
+	 * Performs a full verification of all documents loaded into the program.
+	 * This Program's .faults field is populated with any faults generated as
+	 * a result of the verification. If no documents loaded into this program
+	 * has been edited since the last verification, verification is not re-attempted.
+	 * 
+	 * @returns An entrypoint into performing analysis of the Types that
+	 * have been defined in this program.
+	 */
+	verify()
+	{
+		for (const doc of this.documents.each())
+			for (const { statement } of doc.eachDescendant())
+				this.verifyAssociatedDeclarations(statement);
+		
+		return this.finalizeVerification();
+	}
+	
+	/**
+	 * Performs verification on the parts of the document that have
+	 * not been verified since the last call to this method. Once this
+	 * method has completed, any detected faults will be available
+	 * by using the methods located in the `.faults` property of this
+	 * instance.
+	 * 
+	 * @returns A boolean value that indicates whether verification
+	 * completed without detecting any faults in this Program.
+	 */
+	reverify()
+	{
+		for (const doc of this.unverifiedDocuments)
+			for (const { statement } of doc.eachDescendant())
+				this.verifyAssociatedDeclarations(statement);
+		
+		for (const smt of this.unverifiedStatements)
+			this.verifyAssociatedDeclarations(smt);
+		
+		return this.finalizeVerification();
+	}
+	
+	/** */
+	private verifyAssociatedDeclarations(statement: X.Statement)
+	{
+		if (!statement.isDisposed)
+			for (const decl of statement.declarations)
+				decl.factor().map(spine => 
+					X.Type.construct(spine, this));
+	}
+	
+	/** */
+	private finalizeVerification()
+	{
+		this.faults.refresh();
+		this.unverifiedDocuments.length = 0;
+		this.unverifiedStatements.length = 0;
+		return this.faults.count === 0;
+	}
+	
+	/** */
+	private readonly unverifiedStatements: X.Statement[] = [];
+	
+	/** */
+	private readonly unverifiedDocuments: X.Document[] = [];
 }
 
 
