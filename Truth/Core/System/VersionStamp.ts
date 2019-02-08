@@ -66,7 +66,7 @@ export class VersionStamp
 	/** */
 	newerThan(otherStamp: VersionStamp)
 	{
-		return this.stamp < otherStamp.stamp;
+		return this.stamp > otherStamp.stamp;
 	}
 	
 	/** */
