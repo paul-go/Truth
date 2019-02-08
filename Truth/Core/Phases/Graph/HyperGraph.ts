@@ -306,38 +306,6 @@ export class HyperGraph
 			}
 		}
 		
-		// Expand the set of affected nodes to include the ones that
-		// were not directly contained within the "patch". This process
-		// won't include any of the newly created nodes, because at
-		// this point, they wouldn't have been added to the nodeIndex.
-		
-		/*if (topMostAffectedNodesByFrag.length > 0)
-		{
-			
-			// Stores the set of all identifiers (as strings) that exist
-			// across the set of top most affected nodes.
-			const identifiers = topMostAffectedNodesByFrag
-				.map(n => this.nodeIndex.getAssociatedIdentifiers(n))
-				.reduce((a, b) => a.concat(b), [])
-				.filter((v, i, a) => a.indexOf(v) === i);
-			
-			// Stores the series of containers that any of the newly discovered
-			// possibly affected nodes must have in their containment list
-			// in order to be included in the "affectedNodes" array.
-			const containers = topMostAffectedNodesByFrag
-				.map(node => node.container)
-				.filter((node): node is X.Node => node !== null)
-				.filter((v, i, a) => a.indexOf(v) === i);
-			
-			const checkRoot = containers.length === 0;
-			
-			for (const peripheral of affectedPeripherals)
-				for (const n of this.nodeIndex.getByAssociatedIdentifier(ident, depth))
-					if (checkRoot || n.containment.some(n => containers.includes(n)))
-						if (!affectedNodesByEdge.has(n))
-							affectedNodesByEdge.add(n);
-		}*/
-		
 		// Add or update all new Fans by feeding in all
 		// annotation spans for each declaration span.
 		// This needs to happen in a second pass because
