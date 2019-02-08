@@ -10,17 +10,50 @@ export class FaultService
 	/** */
 	constructor(private readonly program: X.Program)
 	{
+		// Listen for invalidations and clear out any faults
+		// that correspond to objects that don't exist in the
+		// document anymore.
 		program.hooks.Invalidate.capture(hook =>
 		{
-			this.inEditTransaction = true;
-			this.activeContext.invalidatedParents.push(...hook.parents);
+			for (const smt of hook.parents)
+			{
+				for (const { statement } of smt.document.eachDescendant(smt, true))
+				{
+					// Makes sure the statement is disposed before we
+					// erase the faults. This shouldn't be necessary but
+					// it's safe to check anyways.
+					if (smt.isDisposed)
+						this.workFrame.removeSource(smt);
+				}
+			}
 		});
 		
-		program.hooks.EditComplete.capture(hook =>
-		{
-			this.inEditTransaction = false;
-			this.broadcastReports();
-		});
+		program.hooks.EditComplete.capture(hook => this.refresh());
+	}
+	
+	/**
+	 * Enumerates through the unrectified faults retained
+	 * by this FaultService.
+	 */
+	*each()
+	{
+		const faultsSorted = 
+			Array.from(this.visibleFrame.faults.values())
+				.map(faultMap => Array.from(faultMap.values()))
+				.reduce((a, b) => a.concat(b), [])
+				.sort((a, b) => a.line - b.line);
+		
+		for (const fault of faultsSorted)
+			yield fault;
+	}
+	
+	/**
+	 * Gets a number representing the number of
+	 * unrectified faults retained by this FaultService.
+	 */
+	get count()
+	{
+		return this.visibleFrame.faults.size;
 	}
 	
 	/**
@@ -30,21 +63,7 @@ export class FaultService
 	 */
 	report(fault: X.Fault)
 	{
-		this.activeContext.reportFrame.addFault(fault);
-		
-		// If we're not currently in an edit transaction, the fault
-		// is attempted to be broadcasted immediately.
-		if (!this.inEditTransaction)
-			this.broadcastReports();
-	}
-	
-	/**
-	 * Gets a number representing the number of
-	 * unrectified faults retained by this FaultService.
-	 */
-	get count()
-	{
-		return this.activeContext.frozenFrame.faults.size;
+		this.workFrame.addFault(fault);
 	}
 	
 	/**
@@ -79,160 +98,49 @@ export class FaultService
 	}
 	
 	/**
-	 * Enumerates through the unrectified faults retained
-	 * by this FaultService.
+	 * @internal
+	 * Used internally to inform the FaultService that type-level fault
+	 * analysis is being done on the provided Node. This is necessary
+	 * because type-level faults do not live beyond a single edit frame,
+	 * so the FaultService needs to know which Nodes were analyzed
+	 * so that newly rectified faults can be cleared out.
+	 * 
+	 * When this method is called, any the faults corresponding to the
+	 * specified Node are cleared out, and are only added back in if
+	 * they were re-detected during this edit cycle.
 	 */
-	*each()
+	inform(node: X.Node)
 	{
-		const faultsSorted = 
-			Array.from(this.activeContext.frozenFrame.faults.values())
-				.map(faultMap => Array.from(faultMap.values()))
-				.reduce((a, b) => a.concat(b), [])
-				.sort((a, b) => a.line - b.line);
+		const spans = node.statements
+			.filter(smt => !smt.isDisposed)
+			.map(smt => smt.spans)
+			.reduce((a, b) => a.concat(b), []);
 		
-		for (const fault of faultsSorted)
-			yield fault;
+		for (const span of spans)
+			this.workFrame.removeSource(span);
+		
+		const infixes = node.statements
+			.map(smt => smt.infixSpans || [])
+			.reduce((a, b) => a.concat(b), []);
+		
+		for (const infix of infixes)
+			this.workFrame.removeSource(infix);
 	}
 	
 	/**
-	 * Broadcasts all reports stored in activeContext, 
-	 * and creates a new activeContext.
+	 * @internal
 	 */
-	private broadcastReports()
+	refresh()
 	{
-		const finalizeResult = this.activeContext.finalize();
-		
-		const createParam = (fault: X.Fault) =>
-		{
-			const doc = (() =>
-			{
-				const src = fault.source;
-				
-				if (src instanceof X.Statement)
-					return src.document;
-				
-				if (src instanceof X.Span || src instanceof X.InfixSpan)
-					return src.statement.document;
-				
-				throw X.Exception.unknownState();
-			})();
-			
-			return new X.FaultParam(doc, fault);
-		}
-		
-		for (const faults of finalizeResult.removed.faults.values())
-			for (const fault of faults.values())
-				this.program.hooks.FaultRectified.run(createParam(fault));
-		
-		for (const faults of finalizeResult.added.faults.values())
-			for (const fault of faults.values())
-				this.program.hooks.FaultReported.run(createParam(fault));
-		
-		this.activeContext = new FaultFrameContext(finalizeResult.nextFrozen);
+		this.visibleFrame = this.workFrame;
+		this.workFrame = this.workFrame.clone();
 	}
 	
 	/** */
-	private inEditTransaction = false;
-	
-	/**
-	 * A rolling, mutable field that is used as the build target of the
-	 * faults found in the current frame.
-	 */
-	private activeContext = new FaultFrameContext();
-}
-
-
-/**
- * 
- */
-class FaultFrameContext
-{
-	/** */
-	constructor(frozenFrame?: FaultFrame)
-	{
-		if (frozenFrame)
-			this.frozenFrame = frozenFrame;
-	}
+	private workFrame = new FaultFrame();
 	
 	/** */
-	finalize()
-	{
-		const negativeFaultFrame = new FaultFrame();
-		
-		for (const invalidatedParent of this.invalidatedParents)
-		{
-			const containingDoc = invalidatedParent.document;
-			const iter = containingDoc.eachDescendant(invalidatedParent, true);
-			
-			for (const { statement } of iter)
-			{
-				const faultsForStatement = this.frozenFrame.faults.get(statement);
-				
-				// Copy the found faults over to the negativeFaultFrame
-				if (faultsForStatement)
-					for (const fault of faultsForStatement.values())
-						negativeFaultFrame.addFault(fault);
-			}
-		}
-		
-		const positiveFaultFrame = new FaultFrame();
-				
-		// Go through the reportFrame. When we find something
-		// that was reported that exists in negativeFaultFrame, it's
-		// removed from it. If it isn't in negativeFaultFrame, it's
-		// added to the positiveFaultFrame.
-		
-		for (const [source, faults] of this.reportFrame.faults)
-		{
-			const negFaultsForSource = negativeFaultFrame.faults.get(source);
-			if (negFaultsForSource)
-			{
-				for (const fault of faults.values())
-				{
-					negativeFaultFrame.hasFault(fault) ?
-						negativeFaultFrame.removeFault(fault) :
-						positiveFaultFrame.addFault(fault);
-				}
-			}
-			else for (const fault of faults.values())
-				positiveFaultFrame.addFault(fault);
-		}
-		
-		const newFrozenFrame = new FaultFrame();
-		
-		// Make a new frozen frame, copy the contents 
-		// from the existing frozenFrame, but without
-		// anything specified in the negativeFaultFrame.
-		for (const faults of this.frozenFrame.faults.values())
-			for (const fault of faults.values())
-				if (!negativeFaultFrame.hasFault(fault))
-					newFrozenFrame.addFault(fault);
-		
-		// Add the contents of the positiveFaultFrame
-		// from the existing referenceFrame.
-		for (const faults of positiveFaultFrame.faults.values())
-			for (const fault of faults.values())
-				newFrozenFrame.addFault(fault);
-		
-		return {
-			added: positiveFaultFrame,
-			removed: negativeFaultFrame,
-			nextFrozen: newFrozenFrame
-		};
-	}
-	
-	/**  */
-	readonly invalidatedParents: X.Statement[] = [];
-	
-	/**
-	 * A mutable frame object used as a reference to future frames.
-	 */
-	readonly frozenFrame = new FaultFrame();
-	
-	/**
-	 * The frame where reports are sent.
-	 */
-	readonly reportFrame = new FaultFrame();
+	private visibleFrame = new FaultFrame();
 }
 
 
@@ -241,6 +149,24 @@ class FaultFrameContext
  */
 class FaultFrame
 {
+	/** */
+	clone()
+	{
+		const newFrame = new FaultFrame();
+		
+		for (const [faultSource, existingMap] of this.faults)
+		{
+			const newMap: TFaultMap = new Map();
+			
+			for (const [code, fault] of existingMap)
+				newMap.set(code, fault);
+			
+			newFrame.faults.set(faultSource, newMap);
+		}
+		
+		return newFrame;
+	}
+	
 	/**  */
 	addFault(fault: X.Fault)
 	{
@@ -251,10 +177,20 @@ class FaultFrame
 		}
 		else
 		{
-			const map = new Map<number, X.Fault>();
+			const map: TFaultMap = new Map();
 			map.set(fault.type.code, fault);
 			this.faults.set(fault.source, map);
 		}
+	}
+	
+	/** */
+	removeSource(source: X.TFaultSource)
+	{
+		this.faults.delete(source);
+		
+		if (source instanceof X.Statement)
+			for (const cruftObject of source.cruftObjects)
+				this.faults.delete(cruftObject);
 	}
 	
 	/** */
@@ -277,5 +213,7 @@ class FaultFrame
 	/**
 	 * A doubly-nested map of fault sources, fault codes, and the actual fault.
 	 */
-	readonly faults = new Map<X.TFaultSource, Map<number, X.Fault>>();
+	readonly faults = new Map<X.TFaultSource, TFaultMap>();
 }
+
+type TFaultMap = Map<number, X.Fault>;
