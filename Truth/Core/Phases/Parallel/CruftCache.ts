@@ -14,12 +14,12 @@ export class CruftCache
 	 * marks all relevant objects as cruft, and reports the
 	 * relevant fault type.
 	 */
-	add(source: TCruft, relevantFaultType: X.FaultType)
+	add(cruft: TCruft, relevantFaultType: X.FaultType)
 	{
 		const faultSources: ReadonlyArray<X.TFaultSource> =
-			source instanceof X.Node ? source.statements : 
-			source instanceof X.HyperEdge ? source.sources :
-			[source];
+			cruft instanceof X.Node ? cruft.statements : 
+			cruft instanceof X.HyperEdge ? cruft.fragments :
+			[cruft];
 		
 		for (const faultSrc of faultSources)
 		{
@@ -28,7 +28,7 @@ export class CruftCache
 			this.cruft.add(faultSrc);
 		}
 		
-		this.cruft.add(source);
+		this.cruft.add(cruft);
 	}
 	
 	/**

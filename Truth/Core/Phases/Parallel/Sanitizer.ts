@@ -25,7 +25,7 @@ export class Sanitizer
 	 */
 	detectListFragmentConflicts()
 	{
-		const sources = this.proposedEdge.sources;
+		const sources = this.proposedEdge.fragments;
 		if (sources.length === 0)
 			return false;
 		

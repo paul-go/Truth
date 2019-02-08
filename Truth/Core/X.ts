@@ -15,7 +15,6 @@ export * from "./Util/Misc";
 
 // System
 export * from "./System/Program";
-export * from "./System/ProgramScanner";
 export * from "./System/Agent";
 export * from "./System/HookType";
 export * from "./System/HookTypes";
@@ -29,8 +28,6 @@ export * from "./System/UriReader";
 export * from "./System/Syntax";
 export * from "./System/FaultService";
 export * from "./System/Faults";
-export * from "./System/IndentCheckService";
-export * from "./System/VerificationService";
 export * from "./System/VersionStamp";
 export * from "./System/LanguageServer";
 
@@ -63,6 +60,7 @@ export * from "./Phases/File/Subject";
 // Phases/Graph
 export * from "./Phases/Graph/HyperGraph";
 export * from "./Phases/Graph/Node";
+export * from "./Phases/Graph/NodeIndex";
 export * from "./Phases/Graph/HyperEdge";
 export * from "./Phases/Graph/InfixSpan";
 

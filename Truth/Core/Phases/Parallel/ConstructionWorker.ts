@@ -303,7 +303,7 @@ export class ConstructionWorker
 					patternParallels.push(parallel);
 				}
 				
-				const identifiers = hyperEdge.sources
+				const identifiers = hyperEdge.fragments
 					.map(src => src.boundary.subject)
 					.filter((s): s is X.Identifier => s instanceof X.Identifier);
 				
@@ -344,7 +344,7 @@ export class ConstructionWorker
 		const bases = new Map<X.SpecifiedParallel, X.HyperEdge>();
 		const obs = patternParallel.node.outbounds;
 		const nameOf = (edge: X.HyperEdge) =>
-			edge.sources[0].boundary.subject.toString();
+			edge.fragments[0].boundary.subject.toString();
 		
 		for (let i = -1; ++i < obs.length;)
 		{

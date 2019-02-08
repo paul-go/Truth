@@ -1,6 +1,6 @@
 {
 	"name": "truth-compiler",
-	"version": "0.1.8",
+	"version": "0.1.9",
 	"description": "Verify and analyze code and data in the Truth format",
 	"repository": {
 		"type": "git",
@@ -44,6 +44,7 @@
 		"jsonviz": "git+https://github.com/HaroldRitter/jsonviz.git",
 		"memfs": "^2.10.1",
 		"rollup": "^1.1.0",
+		"terser": "^3.16.0",
 		"typescript": "^3.2.2",
 		"uglify-js": "^3.4.9"
 	},

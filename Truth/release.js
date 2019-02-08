@@ -59,10 +59,14 @@ task("Bundling into a single file...", async () =>
 	rollupBuild.write(output);
 });
 
-task("Minifying code...", () =>
+// Disable for this until we can get this:
+// https://github.com/terser-js/terser
+// working
+0 && task("Minifying code...", () =>
 {
-	exec(`uglifyjs ${UnminifiedFile}
+	exec(`terser ${UnminifiedFile}
 		--output ${MinifiedFile}
+		--keep-classnames
 		--keep-fnames`);
 });
 

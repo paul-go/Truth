@@ -24,17 +24,8 @@ export class HyperEdge
 		 * instance of "Bar".
 		 */
 		readonly predecessor: X.Node,
-		/**
-		 * 
-		 */
 		source: X.Span | X.InfixSpan,
-		/**
-		 * Stores all possible success Nodes to which the predecessor 
-		 * Node is preemptively connected via this HyperEdge. The 
-		 * connection is said to be preemptive, because the connection
-		 * might be ignored during polymorphic name resolution.
-		 */
-		readonly successors: ReadonlyArray<X.Successor>)
+		successors: ReadonlyArray<X.Successor>)
 	{
 		if (!(source.boundary.subject instanceof X.Identifier))
 			throw X.Exception.unknownState();
@@ -47,7 +38,8 @@ export class HyperEdge
 			throw X.Exception.unknownState();
 		
 		this.identifier = source.boundary.subject;
-		this.sourcesMutable = [source];		
+		this.fragmentsMutable = [source];		
+		this.successorsMutable = successors.slice();
 	}
 	
 	/**
@@ -57,36 +49,36 @@ export class HyperEdge
 	 * existing sources. (I.e. one of the sources is defined
 	 * as a list, and another is not).
 	 */
-	addSource(source: X.Span | X.InfixSpan)
+	addFragment(fragment: X.Span | X.InfixSpan)
 	{
 		//const isPattern = this.predecessor.subject instanceof X.Pattern;
 		//const isInfix = source instanceof X.InfixSpan;
 		//if (isPattern !== isInfix)
 		//	throw X.Exception.invalidCall();
 		
-		if (this.sourcesMutable.includes(source))
+		if (this.fragmentsMutable.includes(fragment))
 			return;
 		
 		"The ordering of the sources is not being handled here."
 		
-		this.sourcesMutable.push(source);
+		this.fragmentsMutable.push(fragment);
 	}
 	
 	/**
 	 * Removes the specified annotation-side Span or InfixSpan
 	 * from this edge.
 	 */
-	removeSource(source: X.Span | X.InfixSpan)
+	removeFragment(fragment: X.Span | X.InfixSpan)
 	{
-		const sourcePos = this.sourcesMutable.indexOf(source);
-		if (sourcePos >= 0)
-			this.sourcesMutable.splice(sourcePos, 1);
+		const fragPos = this.fragmentsMutable.indexOf(fragment);
+		if (fragPos >= 0)
+			this.fragmentsMutable.splice(fragPos, 1);
 	}
 	
 	/** */
-	clearSources()
+	clearFragments()
 	{
-		this.sourcesMutable.length = 0;
+		this.fragmentsMutable.length = 0;
 	}
 	
 	/**
@@ -99,13 +91,46 @@ export class HyperEdge
 	 * the location of those Spans are potentially scattered across many
 	 * statements.
 	 */
-	get sources()
+	get fragments(): ReadonlyArray<X.Span | X.InfixSpan>
 	{
-		return Object.freeze(this.sourcesMutable.slice());
+		return this.fragmentsMutable;
 	}
 	
 	/** */
-	private readonly sourcesMutable: (X.Span | X.InfixSpan)[];
+	private readonly fragmentsMutable: (X.Span | X.InfixSpan)[];
+	
+	/**
+	 * 
+	 */
+	addSuccessor(node: X.Node, longitude: number)
+	{
+		if (!this.successorsMutable.find(scsr => scsr.node === node))
+			this.successorsMutable.push(new Successor(node, longitude));
+	}
+	
+	/**
+	 * 
+	 */
+	removeSuccessor(node: X.Node)
+	{
+		for (let i = this.successorsMutable.length; i-- > 0;)
+			if (this.successorsMutable[i].node === node)
+				this.successorsMutable.splice(i, 1);
+	}
+	
+	/**
+	 * Stores all possible success Nodes to which the predecessor 
+	 * Node is preemptively connected via this HyperEdge. The 
+	 * connection is said to be preemptive, because the connection
+	 * might be ignored during polymorphic name resolution.
+	 */
+	get successors(): ReadonlyArray<Successor>
+	{
+		return this.successorsMutable;
+	}
+	
+	/** */
+	private readonly successorsMutable: Successor[];
 	
 	/**
 	 * Gets whether this HyperEdge has no immediately resolvable
@@ -129,7 +154,7 @@ export class HyperEdge
 	 */
 	get isList()
 	{
-		for (const source of this.sources)
+		for (const source of this.fragments)
 		{
 			const sub = source.boundary.subject
 			return sub instanceof X.Identifier && sub.isList;
@@ -182,10 +207,10 @@ export class HyperEdge
 	{
 		// Is this still necessary?
 		
-		if (this.sourcesMutable.length === 0)
+		if (this.fragmentsMutable.length === 0)
 			throw X.Exception.unknownState();
 		
-		const src = this.sourcesMutable[0];
+		const src = this.fragmentsMutable[0];
 		if (src instanceof X.Span)
 			return X.HyperEdgeOrigin.statement;
 		
@@ -209,11 +234,11 @@ export class HyperEdge
 	{
 		return [
 			"Value=" + this.identifier,
-			"Preds=" + this.predecessor.name,
-			"Succs=" + this.successors
+			"Predecessors=" + this.predecessor.name,
+			"Successors=" + this.successors
 				.map(n => n.node.name + " << " + n.longitude)
 				.join(", "),
-			"Sources=" + Array.from(this.sources)
+			"Sources=" + Array.from(this.fragments)
 				.map(src => src.boundary.subject).join(", ")
 		].join("\n");
 	}
