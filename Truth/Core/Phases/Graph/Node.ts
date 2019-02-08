@@ -97,13 +97,13 @@ export class Node
 		for (const ib of this._inbounds)
 			ib.removeSuccessor(this);
 		
-		const recurse = (node: Node) =>
+		function recurse(node: Node)
 		{
 			for (const edge of node._outbounds)
-				this.disposeEdge(edge);
+				node.disposeEdge(edge);
 			
-			for (const node of this._contents.values())
-				recurse(node);
+			for (const containedNode of node._contents.values())
+				recurse(containedNode);
 			
 			// Manual memory management going on here.
 			// Clearing out the Sets is probably unnecessary
