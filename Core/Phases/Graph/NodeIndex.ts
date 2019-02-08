@@ -175,7 +175,7 @@ export class NodeIndex
 		}
 		
 		const out: string[] = [];
-		/*const keys = Array.from(this.nodeCache.keys()).map(s =>
+		const keys = Array.from(this.nodeCache.keys()).map(s =>
 		{
 			const uri = X.Uri.tryParse(s);
 			return uri ? uri.toString() : s;
@@ -188,7 +188,7 @@ export class NodeIndex
 			const key = keys[i];
 			const value = values[i].toString(false);
 			out.push(`${key}\n\t${value}\n`);
-		}*/
+		}
 		
 		out.push("(Identifier Blocks)");
 		
