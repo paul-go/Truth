@@ -435,7 +435,7 @@ export class Statement
 	 */
 	dispose()
 	{
-		this.flags = this.flags & X.LineFlags.isDisposed;
+		this.flags = this.flags | X.LineFlags.isDisposed;
 	}
 	
 	/**

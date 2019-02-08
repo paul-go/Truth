@@ -15,20 +15,37 @@ export class FaultService
 		// document anymore.
 		program.hooks.Invalidate.capture(hook =>
 		{
-			for (const smt of hook.parents)
+			if (hook.parents.length > 0)
 			{
-				for (const { statement } of smt.document.eachDescendant(smt, true))
-				{
-					// Makes sure the statement is disposed before we
-					// erase the faults. This shouldn't be necessary but
-					// it's safe to check anyways.
-					if (smt.isDisposed)
-						this.workFrame.removeSource(smt);
-				}
+				for (const smt of hook.parents)
+					for (const { statement } of smt.document.eachDescendant(smt, true))
+						this.removeStatementFaults(statement);
 			}
+			else for (const { statement } of hook.document.eachDescendant())
+				this.removeStatementFaults(statement);
 		});
 		
 		program.hooks.EditComplete.capture(hook => this.refresh());
+	}
+	
+	/**
+	 * Removes all faults associated with the specified statement.
+	 */
+	private removeStatementFaults(statement: X.Statement)
+	{
+		// Makes sure the statement is disposed before we
+		// erase the faults. This shouldn't be necessary but
+		// it's safe to check anyways.
+		if (!statement.isDisposed)
+			return;
+		
+		this.workFrame.removeSource(statement);
+		
+		for (const span of statement.allSpans)
+			this.workFrame.removeSource(span);
+		
+		for (const infixSpan of statement.infixSpans)
+			this.workFrame.removeSource(infixSpan);
 	}
 	
 	/**
@@ -132,8 +149,30 @@ export class FaultService
 	 */
 	refresh()
 	{
+		const faultsAdded: X.Fault[] = [];
+		const faultsRemoved: X.Fault[] = [];
+		
+		for (const [faultSource, map] of this.workFrame.faults)
+			for (const [code, fault] of map)
+				if (!this.visibleFrame.hasFault(fault))
+					faultsAdded.push(fault);
+		
+		for (const [faultSource, map] of this.visibleFrame.faults)
+			for (const [code, fault] of map)
+				if (!this.workFrame.hasFault(fault))
+					faultsRemoved.push(fault);
+		
 		this.visibleFrame = this.workFrame;
 		this.workFrame = this.workFrame.clone();
+		
+		if (faultsAdded.length + faultsRemoved.length > 0)
+		{
+			const faultParam = new X.FaultParam(
+				faultsAdded,
+				faultsRemoved);
+			
+			this.program.hooks.FaultsChanged.run(faultParam);
+		}
 	}
 	
 	/** */

@@ -33,14 +33,22 @@ export class HyperGraph
 		
 		program.hooks.Invalidate.capture(hook =>
 		{
-			for (const smt of hook.parents)
-				this.exclude(smt);
+			if (hook.parents.length > 0)
+			{
+				for (const smt of hook.parents)
+					this.exclude(smt);
+			}
+			else this.exclude(hook.document);
 		});
 		
 		program.hooks.Revalidate.capture(hook =>
 		{
-			for (const smt of hook.parents)
-				this.include(smt);
+			if (hook.parents.length > 0)
+			{
+				for (const smt of hook.parents)
+					this.include(smt);
+			}
+			else this.include(hook.document);
 		});
 	}
 	
