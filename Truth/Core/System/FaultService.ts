@@ -33,12 +33,6 @@ export class FaultService
 	 */
 	private removeStatementFaults(statement: X.Statement)
 	{
-		// Makes sure the statement is disposed before we
-		// erase the faults. This shouldn't be necessary but
-		// it's safe to check anyways.
-		if (!statement.isDisposed)
-			return;
-		
 		this.workFrame.removeSource(statement);
 		
 		for (const span of statement.allSpans)
