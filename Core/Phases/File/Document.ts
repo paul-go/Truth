@@ -509,8 +509,11 @@ export class Document
 		editFn({
 			delete: (at = -1, count = 1) =>
 			{
-				calls.push(new deleteCall(at, count));
-				hasDelete = true;
+				if (count > 0)
+				{
+					calls.push(new deleteCall(at, count));
+					hasDelete = true;
+				}
 			},
 			insert: (text: string, at = -1) =>
 			{
@@ -519,8 +522,12 @@ export class Document
 			},
 			update: (text: string, at = -1) =>
 			{
-				calls.push(new updateCall(new X.Statement(this, text), at));
-				hasUpdate = true;
+				const boundAt = applyBounds(at, this.statements.length);
+				if (this.read(boundAt).sourceText !== text)
+				{
+					calls.push(new updateCall(new X.Statement(this, text), at));
+					hasUpdate = true;
+				}
 			}
 		});
 		
@@ -569,7 +576,6 @@ export class Document
 			const doUpdate = (call: updateCall) =>
 			{
 				const at = boundAt(call);
-				this.statements[at].dispose();
 				this.statements[at] = call.smt;
 			};
 			
@@ -663,9 +669,7 @@ export class Document
 						for (const call of deleteCalls)
 						{
 							const at = boundAt(call);
-							const disposed = this.statements.slice(at, at + call.count);
-							
-							for (const smt of disposed)
+							for (const smt of this.statements.slice(at, at + call.count))
 								smt.dispose();
 						}
 						
@@ -864,6 +868,11 @@ export class Document
 			));
 		})();
 		
+		if ("__DEBUG__")
+			for (const smt of this.statements)
+				if (smt.isDisposed)
+					throw X.Exception.unknownState();
+		
 		// Tell subscribers that the edit transaction completed.
 		hooks.EditComplete.run(new X.DocumentParam(this));
 		
@@ -914,7 +923,8 @@ export class Document
 		else for (const { statement, level } of this.eachDescendant())
 		{
 			const indent = X.Syntax.tab.repeat(level);
-			lines.push(indent + statement.toString());
+			const dis = statement.isDisposed ? " (X)" : " √";
+			lines.push(indent + statement.toString() + dis);
 		}
 		
 		return lines.join("\n");
