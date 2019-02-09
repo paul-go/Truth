@@ -612,7 +612,9 @@ export class Document
 					
 					if (noStructuralChanges)
 					{
-						const hasOpStatements = oldStatements.some(smt => !smt.isNoop);
+						const hasOpStatements =
+							oldStatements.some(smt => !smt.isNoop) ||
+							newStatements.some(smt => !smt.isNoop);
 						
 						if (hasOpStatements)
 						{
