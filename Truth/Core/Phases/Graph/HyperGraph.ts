@@ -62,7 +62,7 @@ export class HyperGraph
 			.extendType(name)
 			.toString();
 		
-		return this.nodeIndex.getByUri(uriText) || null;
+		return this.nodeIndex.getNodeByUri(uriText) || null;
 	}
 	
 	/**
@@ -96,7 +96,7 @@ export class HyperGraph
 				const associatedNodes = new Set(declaration
 					.factor()
 					.map(spine => X.Uri.create(spine))
-					.map(uri => this.nodeIndex.getByUri(uri))
+					.map(uri => this.nodeIndex.getNodeByUri(uri))
 					.filter((n): n is X.Node => n instanceof X.Node));
 				
 				for (const associatedNode of associatedNodes)
@@ -163,7 +163,7 @@ export class HyperGraph
 			if (existingNode)
 				return existingNode;
 			
-			const cachedNode = this.nodeIndex.getByUri(uri);
+			const cachedNode = this.nodeIndex.getNodeByUri(uri);
 			if (cachedNode)
 				return cachedNode;
 			
@@ -364,7 +364,7 @@ export class HyperGraph
 				
 				for (const ident of idents)
 				{
-					const predNodes = this.nodeIndex.getByAssociatedIdentifier(ident, depth);
+					const predNodes = this.nodeIndex.getNodesByIdentifier(ident);
 					
 					for (const predNode of predNodes)
 						if (checkRoot || hasContainer(predNode))
@@ -396,7 +396,7 @@ export class HyperGraph
 			affectedNode.sortOutbounds();
 			
 			const affectedUri = affectedNode.uri.toString();
-			const cachedNode = this.nodeIndex.getByUri(affectedUri);
+			const cachedNode = this.nodeIndex.getNodeByUri(affectedUri);
 			
 			if (cachedNode)
 			{

@@ -12,7 +12,7 @@ export class NodeIndex
 	 */
 	*eachNode()
 	{
-		for (const node of this.nodeCache.values())
+		for (const node of this.uriToNodeMap.values())
 			yield node;
 	}
 	
@@ -21,7 +21,7 @@ export class NodeIndex
 	 */
 	get count()
 	{
-		return this.nodeCache.size;
+		return this.uriToNodeMap.size;
 	}
 	
 	/**
@@ -31,7 +31,7 @@ export class NodeIndex
 	set(uri: X.Uri | string, node: X.Node)
 	{
 		const uriText = typeof uri === "string" ? uri : uri.toString();
-		this.nodeCache.set(uriText, node);
+		this.uriToNodeMap.set(uriText, node);
 		this.update(node);
 	}
 	
@@ -41,46 +41,49 @@ export class NodeIndex
 	 */
 	update(node: X.Node)
 	{
-		const getBlock = (key: string) =>
+		const pastIdentifiers = this.nodesToIdentifiersMap.get(node);
+		const presentIdentifiers = this.getAssociatedIdentifiers(node);
+		
+		if (pastIdentifiers !== undefined)
 		{
-			return this.identifierBlocks.get(key) || (() =>
+			for (const [idx, ident] of pastIdentifiers.entries())
 			{
-				const block: X.Node[][] = [];
-				this.identifierBlocks.set(key, block);
-				return block;
-			})();
+				if (presentIdentifiers.includes(ident))
+					continue;
+				
+				pastIdentifiers.splice(idx, 1);
+				
+				const map = this.identifierToNodesMap.get(ident);
+				if (map === undefined)
+					continue;
+				
+				map.delete(node);
+				
+				if (map.size === 0)
+					this.identifierToNodesMap.delete(ident);
+			}
 		}
 		
-		this.deleteIdentifiers(node);
-		
-		// The depth needs to be 1 less the number of types
-		// because in the index, depth is 0 based, where as
-		// in the document, it isn't.
-		const depth = node.uri.types.length - 1;
-		const identifiers = this.getAssociatedIdentifiers(node);
-		
-		for (const identifier of identifiers)
+		for (const identifier of presentIdentifiers)
 		{
-			const block = getBlock(identifier);
+			const nodesForIdent = this.identifierToNodesMap.get(identifier) || (() =>
+			{
+				const out = new Set<X.Node>();
+				this.identifierToNodesMap.set(identifier, out);
+				return out;
+			})();
 			
-			// Expand out the first dimension of the block
-			// (which is a jagged array) so that we don't
-			// cause a sparse array.
-			for (let i = block.length - 1; i < depth; i++)
-				block.push([]);
-			
-			const nodes = block[depth];
-			
-			if (!nodes.includes(node))
-				nodes.push(node);
+			nodesForIdent.add(node);
 		}
+		
+		this.nodesToIdentifiersMap.set(node, presentIdentifiers);
 	}
 	
 	/** */
-	getByUri(uri: X.Uri | string)
+	getNodeByUri(uri: X.Uri | string)
 	{
 		const uriText = typeof uri === "string" ? uri : uri.toString();
-		return this.nodeCache.get(uriText);
+		return this.uriToNodeMap.get(uriText);
 	}
 	
 	/**
@@ -89,13 +92,10 @@ export class NodeIndex
 	 * depth. "Associated" means that the identifier is either equivalent
 	 * to the Node's main subject, or it is referenced in one of it's edges.
 	 */
-	getByAssociatedIdentifier(identifer: string, minDepth = 1)
+	getNodesByIdentifier(identifer: string)
 	{
-		const block = this.identifierBlocks.get(identifer);
-		if (block === undefined || block.length < minDepth)
-			return [];
-		
-		return Object.freeze(block.slice(minDepth).reduce((a, b) => a.concat(b), []));
+		const out = this.identifierToNodesMap.get(identifer);
+		return out ? Array.from(out) : [];
 	}
 	
 	/**
@@ -103,44 +103,27 @@ export class NodeIndex
 	 */
 	delete(deadNode: X.Node)
 	{
-		this.deleteCached(deadNode);
-		this.deleteIdentifiers(deadNode);
-	}
-	
-	/** */
-	private deleteCached(deadNode: X.Node)
-	{
-		for (const [uri, node] of this.nodeCache)
+		for (const [uri, node] of this.uriToNodeMap)
 			if (node === deadNode)
-				this.nodeCache.delete(uri);
-	}
-	
-	/** */
-	private deleteIdentifiers(deadNode: X.Node)
-	{
-		for (const identifier of this.getAssociatedIdentifiers(deadNode))
+				this.uriToNodeMap.delete(uri);
+		
+		const existingIdentifiers = this.nodesToIdentifiersMap.get(deadNode);
+		if (existingIdentifiers === undefined)
+			return;
+		
+		for (const identifier of existingIdentifiers)
 		{
-			const block = this.identifierBlocks.get(identifier);
-			if (block === undefined)
+			const nodes = this.identifierToNodesMap.get(identifier);
+			if (nodes === undefined)
 				continue;
 			
-			for (let depthArrayIdx = block.length; depthArrayIdx-- > 0;)
-			{
-				const depthArray = block[depthArrayIdx];
-				
-				for (let nodeIdx = depthArray.length; nodeIdx-- > 0;)
-					if (depthArray[nodeIdx] === deadNode)
-						depthArray.splice(nodeIdx, 1);
-			}
+			nodes.delete(deadNode);
 			
-			// Prune empty node arrays from the end
-			while (block.length && block[block.length - 1].length === 0)
-				block.pop();
-			
-			// Prune the entire block if everything was removed
-			if (block.length === 0)
-				this.identifierBlocks.delete(identifier);
+			if (nodes.size === 0)
+				this.identifierToNodesMap.delete(identifier);
 		}
+		
+		this.nodesToIdentifiersMap.delete(deadNode);
 	}
 	
 	/** 
@@ -166,22 +149,26 @@ export class NodeIndex
 	 * Stores a map of all nodes that have been loaded into the program,
 	 * indexed by a string representation of it's URI.
 	 */
-	private readonly nodeCache = new Map<string, X.Node>();
+	private readonly uriToNodeMap = new Map<string, X.Node>();
 	
 	/**
-	 * Stores a map that is indexed by a string representation of an identifier,
-	 * and has values that are a 2-dimensional node array.
-	 * 
-	 * The first dimension of this array represents a particular level of depth
-	 * where nodes that are associated with the identifier exist. 
-	 * 
-	 * The second dimension stores the actual Nodes that are associated with
-	 * the identifier.
+	 * Stores a map which is indexed by a unique identifier, and which as
+	 * values that are the nodes that use that identifier, either as a declaration
+	 * or an annotation.
 	 * 
 	 * The purpose of this cache is to get a quick answer to the question:
-	 * "We added a new identifier at position X ... what could possibly
+	 * "We added a new identifier at position X ... what nodes might possibly
+	 * have been affected by this?"
 	 */
-	private readonly identifierBlocks = new Map<string, X.Node[][]>();
+	private readonly identifierToNodesMap = new Map<string, Set<X.Node>>();
+	
+	/**
+	 * Stores a map which is essentially a reverse of identifierToNodesMap.
+	 * This is so that when nodes need to be deleted or updated, we can
+	 * quickly find the place in identifierToNodesMap where the node has
+	 * been referenced.
+	 */
+	private readonly nodesToIdentifiersMap = new WeakMap<X.Node, string[]>();
 	
 	/**
 	 * Serializes the index into a format suitable
@@ -189,17 +176,17 @@ export class NodeIndex
 	 */
 	toString()
 	{
-		if (this.nodeCache.size === 0)
+		if (this.uriToNodeMap.size === 0)
 			return "(empty)";
 		
 		const out: string[] = [];
-		const keys = Array.from(this.nodeCache.keys()).map(s =>
+		const keys = Array.from(this.uriToNodeMap.keys()).map(s =>
 		{
 			const uri = X.Uri.tryParse(s);
 			return uri ? uri.toString() : s;
 		});
 		
-		const values = Array.from(this.nodeCache.values());
+		const values = Array.from(this.uriToNodeMap.values());
 		
 		for (let i = -1; ++i < keys.length;)
 		{
@@ -208,19 +195,17 @@ export class NodeIndex
 			out.push(`${key}\n\t${value}\n`);
 		}
 		
-		out.push("(Identifier Blocks)");
+		out.push("(Identifier Cache)");
 		
-		for (const [identifier, block] of this.identifierBlocks)
+		for (const [identifier, nodes] of this.identifierToNodesMap)
 		{
 			out.push("\t" + identifier);
-			
-			for (let i = -1; ++i < block.length;)
-			{
-				const nodes = block[i];
-				out.push(`\t\t${i}: ${nodes.map(n => n.name).join(", ")}`);
-			}
+			out.push("\t\t: " + Array.from(nodes)
+				.map(node => node.uri.toTypeString())
+				.join(", "));
 		}
 		
 		return out.join("\n").trim();
 	}
 }
+
