@@ -861,6 +861,9 @@ export class Document
 			));
 		})();
 		
+		// Perform a debug-time check to be sure that there are
+		// no disposed statements left hanging around in the document
+		// after the edit cycle has completed.
 		if ("__DEBUG__")
 			for (const smt of this.statements)
 				if (smt.isDisposed)
@@ -916,8 +919,7 @@ export class Document
 		else for (const { statement, level } of this.eachDescendant())
 		{
 			const indent = X.Syntax.tab.repeat(level);
-			const dis = statement.isDisposed ? " (X)" : " √";
-			lines.push(indent + statement.toString() + dis);
+			lines.push(indent + statement.toString());
 		}
 		
 		return lines.join("\n");
