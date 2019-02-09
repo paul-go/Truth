@@ -25,13 +25,22 @@ export class NodeIndex
 	}
 	
 	/**
-	 * 
+	 * Updates the index, establishing a cached relationship
+	 * between the specified uri and the specified node.
 	 */
 	set(uri: X.Uri | string, node: X.Node)
 	{
 		const uriText = typeof uri === "string" ? uri : uri.toString();
 		this.nodeCache.set(uriText, node);
-		
+		this.update(node);
+	}
+	
+	/** 
+	 * Updates the index by refreshing in the set of identifiers
+	 * that are associated with the specified node.
+	 */
+	update(node: X.Node)
+	{
 		const getBlock = (key: string) =>
 		{
 			return this.identifierBlocks.get(key) || (() =>
@@ -41,6 +50,8 @@ export class NodeIndex
 				return block;
 			})();
 		}
+		
+		this.deleteIdentifiers(node);
 		
 		// The depth needs to be 1 less the number of types
 		// because in the index, depth is 0 based, where as
@@ -58,7 +69,10 @@ export class NodeIndex
 			for (let i = block.length - 1; i < depth; i++)
 				block.push([]);
 			
-			block[depth].push(node);
+			const nodes = block[depth];
+			
+			if (!nodes.includes(node))
+				nodes.push(node);
 		}
 	}
 	
@@ -89,14 +103,24 @@ export class NodeIndex
 	 */
 	delete(deadNode: X.Node)
 	{
+		this.deleteCached(deadNode);
+		this.deleteIdentifiers(deadNode);
+	}
+	
+	/** */
+	private deleteCached(deadNode: X.Node)
+	{
 		for (const [uri, node] of this.nodeCache)
 			if (node === deadNode)
 				this.nodeCache.delete(uri);
-		
+	}
+	
+	/** */
+	private deleteIdentifiers(deadNode: X.Node)
+	{
 		for (const identifier of this.getAssociatedIdentifiers(deadNode))
 		{
 			const block = this.identifierBlocks.get(identifier);
-			
 			if (block === undefined)
 				continue;
 			
@@ -167,12 +191,6 @@ export class NodeIndex
 	{
 		if (this.nodeCache.size === 0)
 			return "(empty)";
-		
-		if (this.nodeCache.size === 1)
-		{
-			const [key, value] = this.nodeCache.entries().next().value;
-			return key + " " + value;
-		}
 		
 		const out: string[] = [];
 		const keys = Array.from(this.nodeCache.keys()).map(s =>
