@@ -54,7 +54,11 @@ export class Statement
 		
 		this.cruftObjects = cruftObjects;
 		this.faults = Object.freeze(faults);
+		
+		this.programStamp = document.program.version;
 	}
+	
+	readonly programStamp: X.VersionStamp;
 	
 	/**
 	 * 
@@ -265,8 +269,11 @@ export class Statement
 	}
 	
 	/**
-	 * Gets whether the statement has been
-	 * removed from it's containing document.
+	 * Gets whether the statement has been removed from it's
+	 * containing document. Removal occurs after the statement
+	 * has been invalidated. Therefore, this property will be false
+	 * before the invalidation phase has occured, even if it will be
+	 * disposed in the current edit cycle.
 	 */
 	get isDisposed()
 	{

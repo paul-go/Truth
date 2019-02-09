@@ -557,7 +557,12 @@ export class Document
 			const doDelete = (call: deleteCall) =>
 			{
 				const at = boundAt(call);
-				return this.statements.splice(at, call.count);
+				const smts = this.statements.splice(at, call.count);
+				
+				for (const smt of smts)
+					smt.dispose();
+				
+				return smts;
 			};
 			
 			const doInsert = (call: insertCall) =>
@@ -576,6 +581,7 @@ export class Document
 			const doUpdate = (call: updateCall) =>
 			{
 				const at = boundAt(call);
+				this.statements[at].dispose();
 				this.statements[at] = call.smt;
 			};
 			
@@ -600,35 +606,40 @@ export class Document
 					const noStructuralChanges = oldStatements.every((oldSmt, idx) =>
 					{
 						const newSmt = newStatements[idx];
-						return (
-							oldSmt.indent === newSmt.indent ||
+						return (oldSmt.indent === newSmt.indent ||
 							oldSmt.isNoop && newSmt.isNoop);
 					});
 					
 					if (noStructuralChanges)
 					{
-						for (const smt of oldStatements)
-							smt.dispose();
+						const hasOpStatements = oldStatements.some(smt => !smt.isNoop);
 						
-						// Tell subscribers to blow away all the old statements.
-						const invalidateParam = new X.InvalidateParam(
-							this,
-							oldStatements,
-							indexes);
-						
-						hooks.Invalidate.run(invalidateParam);
+						if (hasOpStatements)
+						{
+							// Tell subscribers to blow away all the old statements.
+							const invalidateParam = new X.InvalidateParam(
+								this,
+								oldStatements,
+								indexes);
+							
+							hooks.Invalidate.run(invalidateParam);
+						}
 						
 						// Run the actual mutations
 						for (const updateCall of updateCalls)
 							doUpdate(updateCall);
 						
-						// Tell subscribers what changed
-						const revalidateParam = new X.RevalidateParam(
-							this, 
-							newStatements,
-							indexes);
+						if (hasOpStatements)
+						{
+							// Tell subscribers what changed
+							const revalidateParam = new X.RevalidateParam(
+								this, 
+								newStatements,
+								indexes);
 							
-						hooks.Revalidate.run(revalidateParam);
+							hooks.Revalidate.run(revalidateParam);
+						}
+						
 						return;
 					}
 				}
@@ -639,56 +650,49 @@ export class Document
 				if (hasDelete)
 				{
 					const deleteCalls = <deleteCall[]>calls;
-					const oldStatements: X.Statement[] = [];
-					const oldIndexes: number[] = [];
+					const deadStatements: X.Statement[] = [];
+					const deadIndexes: number[] = [];
+					let hasOpStatements = false;
 					
 					forCalls:
 					for (const deleteCall of deleteCalls)
 					{
 						for (let i = -1; ++i < deleteCall.count;)
 						{
-							const oldStmt = this.statements[deleteCall.at + i];
-							if (this.hasDescendants(oldStmt))
+							const deadSmt = this.statements[deleteCall.at + i];
+							if (this.hasDescendants(deadSmt))
 							{
-								oldStatements.length = 0;
+								deadStatements.length = 0;
 								break forCalls;
 							}
 							
-							if (!oldStmt.isNoop)
-							{
-								oldStatements.push(oldStmt);
-								oldIndexes.push(i);
-							}
+							deadStatements.push(deadSmt);
+							deadIndexes.push(i);
+							
+							if (!deadSmt.isNoop)
+								hasOpStatements = true;
 						}
 					}
 					
-					if (oldStatements.length)
-					{
-						// Handles the disposal of Statement instances, which
-						// needs to happen before the invalidate hook executes.
-						for (const call of deleteCalls)
-						{
-							const at = boundAt(call);
-							for (const smt of this.statements.slice(at, at + call.count))
-								smt.dispose();
-						}
-						
-						// Tell subscribers to blow away all the old statements.
+					// Tell subscribers to blow away all the old statements.
+					// An edit cycle can be avoided completely in the case
+					// when the only statements that were deleted were noops.
+					if (hasOpStatements)
 						hooks.Invalidate.run(new X.InvalidateParam(
 							this,
-							oldStatements,
-							oldIndexes));
-						
-						// Run the actual mutations
-						deleteCalls.forEach(doDelete);
-						
-						// Run an empty revalidation hook, to comply with the
-						// rule that for every invalidation hook, there is always a
-						// corresponding revalidation hook.
+							deadStatements,
+							deadIndexes));
+					
+					// Run the actual mutations
+					deleteCalls.forEach(doDelete);
+					
+					// Run an empty revalidation hook, to comply with the
+					// rule that for every invalidation hook, there is always a
+					// corresponding revalidation hook.
+					if (hasOpStatements)
 						hooks.Revalidate.run(new X.RevalidateParam(this, [], []));
-						
-						return;
-					}
+					
+					return;
 				}
 				
 				// This handles the third optimization, which is the case
@@ -822,17 +826,6 @@ export class Document
 			
 			const parents = mustInvalidateDoc ? [] : Array.from(invalidatedParents.values());
 			const indexes = mustInvalidateDoc ? [] : Array.from(invalidatedParents.keys());
-			
-			if (parents.length === 0)
-			{
-				for (const smt of this.statements)
-					smt.dispose();
-			}
-			else for (const parent of parents)
-			{
-				for (const { statement } of this.eachDescendant(parent, true))
-					statement.dispose();
-			}
 			
 			// Notify observers of the Invalidate hook to invalidate the
 			// descendants of the specified set of parent statements.
