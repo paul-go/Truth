@@ -402,6 +402,8 @@ export class HyperGraph
 			{
 				if (cachedNode !== affectedNode)
 					throw X.Exception.unknownState();
+				
+				this.nodeIndex.update(affectedNode);
 			}
 			else
 			{
