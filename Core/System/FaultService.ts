@@ -118,7 +118,7 @@ export class FaultService
 	 * 
 	 * When this method is called, any the faults corresponding to the
 	 * specified Node are cleared out, and are only added back in if
-	 * they were re-detected during this edit cycle.
+	 * they were re-detected during this edit transaction.
 	 */
 	inform(node: X.Node)
 	{
