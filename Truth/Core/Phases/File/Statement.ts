@@ -273,7 +273,7 @@ export class Statement
 	 * containing document. Removal occurs after the statement
 	 * has been invalidated. Therefore, this property will be false
 	 * before the invalidation phase has occured, even if it will be
-	 * disposed in the current edit cycle.
+	 * disposed in the current edit transaction.
 	 */
 	get isDisposed()
 	{

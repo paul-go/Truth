@@ -677,7 +677,7 @@ export class Document
 					}
 					
 					// Tell subscribers to blow away all the old statements.
-					// An edit cycle can be avoided completely in the case
+					// An edit transaction can be avoided completely in the case
 					// when the only statements that were deleted were noops.
 					if (hasOpStatements)
 						hooks.Invalidate.run(new X.InvalidateParam(
@@ -865,7 +865,7 @@ export class Document
 		
 		// Perform a debug-time check to be sure that there are
 		// no disposed statements left hanging around in the document
-		// after the edit cycle has completed.
+		// after the edit transaction has completed.
 		if ("__DEBUG__")
 			for (const smt of this.statements)
 				if (smt.isDisposed)
@@ -876,6 +876,117 @@ export class Document
 		
 		this._version = X.VersionStamp.next();
 		this.inEdit = false;
+	}
+	
+	/**
+	 * Executes a complete edit transaction, applying the series
+	 * of edits specified in the `edits` parameter. 
+	 */
+	editAtomic(edits: IDocumentEdit[])
+	{
+		this.edit(statements =>
+		{
+			for (const editInfo of edits)
+			{
+				if (!editInfo.range)
+					throw "No range included.";
+				
+				const startLine = editInfo.range.startLineNumber - 1;
+				const endLine = editInfo.range.endLineNumber - 1;
+				
+				const startChar = editInfo.range.startColumn - 1;
+				const endChar = editInfo.range.endColumn - 1;
+				
+				const startLineText = this.read(startLine).sourceText;
+				const endLineText = this.read(endLine).sourceText;
+				
+				const prefixSegment = startLineText.slice(0, startChar);
+				const suffixSegment = endLineText.slice(endChar);
+				
+				const segments = editInfo.text.split("\n");
+				const pastCount = endLine - startLine + 1;
+				const presentCount = segments.length;
+				const deltaCount = presentCount - pastCount;
+				
+				// Detect the pure update cases
+				if (deltaCount === 0)
+				{
+					if (pastCount === 1)
+					{
+						statements.update(
+							prefixSegment + editInfo.text + suffixSegment, 
+							startLine);
+					}
+					else 
+					{
+						statements.update(prefixSegment + segments[0], startLine);
+						
+						for (let i = startLine; i <= endLine; i++)
+						{
+							statements.update(
+								prefixSegment + segments[i] + suffixSegment,
+								startLine);
+						}
+						
+						statements.update(segments.slice(-1)[0] + suffixSegment, endLine);
+					}
+					
+					return;
+				}
+				
+				// Detect the pure delete cases
+				if (deltaCount < 0)
+				{
+					const deleteCount = deltaCount * -1;
+					
+					// Detect a delete ranging from the end of 
+					// one line, to the end of a successive line
+					if (startChar === startLineText.length)
+						if (endChar === endLineText.length)
+							return statements.delete(startLine + 1, deleteCount);
+					
+					// Detect a delete ranging from the start of
+					// one line to the start of a successive line
+					if (startChar + endChar === 0)
+						return statements.delete(startLine, deleteCount);
+				}
+				
+				// Detect the pure insert cases
+				if (deltaCount > 0)
+				{
+					// Cursor is at the end of the line, and the first line of the 
+					// inserted content is empty (most likely, enter was pressed)						
+					if (startChar === startLineText.length && segments[0] === "")
+					{
+						for (let i = 0; ++i < segments.length;)
+							statements.insert(segments[i], startLine + i);
+						
+						return;
+					}
+					// Cursor is at the beginning of the line, and the
+					// last line of the inserted content is empty.
+					if (startChar === 0 && segments.slice(-1)[0] === "")
+					{
+						for (let i = -1; ++i < segments.length - 1;)
+							statements.insert(segments[i], startLine + i);
+						
+						return;
+					}
+				}
+				
+				// This is the "fallback" behavior -- simply delete everything
+				// that is old, and insert everything that is new.
+				const deleteCount = endLine - startLine + 1;
+				statements.delete(startLine, deleteCount);
+				
+				const insertLines = segments.slice();
+				insertLines[0] = prefixSegment + insertLines[0];
+				insertLines[insertLines.length - 1] += suffixSegment;
+				
+				for (let i = -1; ++i < insertLines.length;)
+					statements.insert(insertLines[i], startLine + i);
+			}
+		});
 	}
 	
 	/** Stores the URI from where this document was loaded. */
@@ -898,7 +1009,7 @@ export class Document
 	
 	/**
 	 * @internal
-	 * A rolling version stamp that increments after each edit cycle.
+	 * A rolling version stamp that increments after each edit transaction.
 	 */
 	get version()
 	{
@@ -954,6 +1065,55 @@ interface IDocumentMutator
 	 * Negative numbers delete facts starting from the end of the document.
 	 */
 	delete(at: number, count: number): void;
+}
+
+
+/**
+ * 
+ */
+interface IDocumentEdit
+{
+	/**
+	 * Stores a range in the document that represents the
+	 * content that should be replaced.
+	 */
+	readonly range: IDocumentEditRange;
+	
+	/**
+	 * Stores the new text to be inserted into the document.
+	 */
+	readonly text: string;
+}
+
+
+/**
+ * An interface that represents a text range within the loaded document.
+ * This interface is explicitly designed to be compatible with the Monaco
+ * text editor API (and maybe others) to simplify integrations.
+ */
+export interface IDocumentEditRange
+{
+	/**
+	 * Stores the line number on which the range starts (starts at 0).
+	 */
+	readonly startLineNumber: number;
+	
+	/**
+	 * Stores the column on which the range starts in line
+	 * `startLineNumber` (starts at 0).
+	 */
+	readonly startColumn: number;
+	
+	/**
+	 * Stores the line number on which the range ends.
+	 */
+	readonly endLineNumber: number;
+	
+	/**
+	 * Stores the Column on which the range ends in line
+	 * `endLineNumber`.
+	 */
+	readonly endColumn: number;
 }
 
 
