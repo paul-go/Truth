@@ -59,11 +59,13 @@ export class Uri
 			
 			return new X.Uri(uriLike, {
 				protocol: viaParsed.protocol,
-				stores : retract > 0 ?
+				stores: retract > 0 ?
 					viaStores.slice(0, -retract).concat(uriStores) :
 					viaStores.concat(uriStores),
 				retractionCount: -1,
-				isRelative: false
+				isRelative: false,
+				file: viaParsed.file,
+				ext: viaParsed.ext
 			});
 		})();
 		
@@ -144,6 +146,7 @@ export class Uri
 	
 	/**
 	 * Stores the store-side components of this URI.
+	 * Excludes the file name.
 	 */
 	readonly stores: ReadonlyArray<X.UriComponent> = [];
 	
@@ -311,6 +314,7 @@ export class Uri
 			thisAbsolute.protocol + "//";
 		
 		const components = thisAbsolute.stores
+			.concat(new X.UriComponent(this.file))
 			.map(t => t.toStringEncoded())
 			.join(X.UriSyntax.componentSeparator);
 		
