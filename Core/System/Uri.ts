@@ -63,9 +63,7 @@ export class Uri
 					viaStores.slice(0, -retract).concat(uriStores) :
 					viaStores.concat(uriStores),
 				retractionCount: -1,
-				isRelative: false,
-				file: viaParsed.file,
-				ext: viaParsed.ext
+				isRelative: false
 			});
 		})();
 		
