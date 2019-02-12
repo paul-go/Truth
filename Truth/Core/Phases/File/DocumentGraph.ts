@@ -358,7 +358,7 @@ export class DocumentGraph
 				if (result instanceof Error)
 				{
 					const fault = X.Faults.UnresolvedResource.create(containingStatement);
-					this.program.faults.report(fault);
+					this.program.faults.reportAsync(fault);
 					return null;
 				}
 				
@@ -381,14 +381,14 @@ export class DocumentGraph
 				dstProto === X.UriProtocol.file)
 			{
 				const param = X.Faults.InsecureResourceReference.create(containingStatement);
-				this.program.faults.report(param);
+				this.program.faults.reportAsync(param);
 			}
 			
 			// Bail if the addition of the reference is going to result in a circular reference.
 			if (this.wouldCreateCycles(containingDocument, refDocument))
 			{
 				const param = X.Faults.CircularResourceReference.create(containingStatement);
-				this.program.faults.report(param);
+				this.program.faults.reportAsync(param);
 			}
 			else
 			{
