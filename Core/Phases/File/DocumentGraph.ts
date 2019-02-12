@@ -362,7 +362,6 @@ export class DocumentGraph
 					return null;
 				}
 				
-				// Return the entry, which should be 
 				const newEntry = this.documents.get(uriText);
 				if (!newEntry)
 					throw X.Exception.unknownState();
