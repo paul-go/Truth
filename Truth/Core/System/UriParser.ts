@@ -271,9 +271,15 @@ export class UriParser
 			return X.UriExtension.unknown;
 		})();
 		
+		// If an extension was detected, the last component
+		// from the end of the URI should be removed, because
+		// "stores" does not include file names.
+		if (ext !== X.UriExtension.unknown)
+			stores.pop();
+		
 		return {
 			protocol: X.UriProtocol.resolve(protocol) || X.UriProtocol.unknown,
-			file,
+			file: ext ? file : "",
 			ext,
 			retractionCount,
 			isRelative,
