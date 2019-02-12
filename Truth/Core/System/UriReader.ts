@@ -14,7 +14,8 @@ export class UriReader
 		if (uri.protocol === X.UriProtocol.file)
 			return await readFile(uri.toStoreString());
 		
-		else if (uri.protocol === X.UriProtocol.https)
+		else if (uri.protocol === X.UriProtocol.http ||
+			uri.protocol === X.UriProtocol.https)
 			return await X.Fetch.exec(uri.toStoreString());
 		
 		throw X.Exception.notImplemented();

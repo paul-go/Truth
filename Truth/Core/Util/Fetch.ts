@@ -1,5 +1,6 @@
 import * as X from "../X";
 
+
 /**
  * @internal
  * A class that provides browser-style fetch functionality,
@@ -11,7 +12,7 @@ export class Fetch
 	/**
 	 * 
 	 */
-	static async exec(url: string)
+	static async exec(url: string): Promise<string | Error>
 	{
 		const uri = X.Uri.tryParse(url);
 		if (!uri)
@@ -19,10 +20,21 @@ export class Fetch
 		
 		if (typeof fetch === "function")
 		{
- 			// TODO: Add better support for error handling here
-			const response = await fetch(url);
-			const responseText = await response.text();
-			return responseText;
+			try
+			{
+				const response = await fetch(url);
+				
+				if (response.status === 200)
+					return response.text();
+				
+				return new FetchError(
+					response.status,
+					response.statusText);
+			}
+			catch (e)
+			{
+				return new Error("Unknown error.");
+			}
 		}
 		else if (typeof require === "function")
 		{
@@ -38,35 +50,48 @@ export class Fetch
 			if (getFn === null)
 				throw X.Exception.invalidUri(url);
 			
-			debugger;
-			"Not implemented";
-			
-			//const request = await getFn(url, response =>
-			//{
-			//	const data: string[] = [];
-			//	
-			//	response.on("data", chunk =>
-			//	{
-			//		data.push(typeof chunk === "string" ?
-			//			chunk :
-			//			chunk.toString("utf8"));
-			//	});
-			//	
-			//	response.on("error", error =>
-			//	{
-			//		resolve(error);
-			//	});
-			//	
-			//	response.on("end", () =>
-			//	{
-			//		resolve(data.join(""));
-			//	});
-			//});
-			
-			return "";
+			return await new Promise<string | Error>(resolve =>
+			{
+				getFn(url, response =>
+				{
+					const data: string[] = [];
+					
+					response.on("data", chunk =>
+					{
+						data.push(typeof chunk === "string" ?
+							chunk :
+							chunk.toString("utf8"));
+					});
+					
+					response.on("error", error =>
+					{
+						resolve(error);
+					});
+					
+					response.on("end", () =>
+					{
+						resolve(data.join(""));
+					});
+				});
+				
+				return "";
+			});
 		}
-		else throw X.Exception.unsupportedPlatform();
+		
+		throw X.Exception.unsupportedPlatform();
 	}
+}
+
+
+/**
+ * 
+ */
+export class FetchError extends Error
+{
+	constructor(
+		readonly statusCode: number,
+		readonly statusText: string)
+	{ super(); }
 }
 
 declare function fetch(...args: any): any;

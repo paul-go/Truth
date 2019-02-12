@@ -308,7 +308,7 @@ export class Uri
 		// and output that looks like /Users/person/....
 		const proto = thisAbsolute.protocol === X.UriProtocol.file ?
 			"/" :
-			thisAbsolute.protocol;
+			thisAbsolute.protocol + "//";
 		
 		const components = thisAbsolute.stores
 			.map(t => t.toStringEncoded())
