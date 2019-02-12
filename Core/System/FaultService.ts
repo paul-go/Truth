@@ -23,23 +23,32 @@ export class FaultService
 			}
 			else for (const { statement } of hook.document.eachDescendant())
 				this.removeStatementFaults(statement);
+			
+			this.inEditTransaction = true;
 		});
 		
-		program.hooks.EditComplete.capture(hook => this.refresh());
+		program.hooks.EditComplete.capture(hook =>
+		{
+			this.inEditTransaction = false;
+			this.refresh();
+		});
 	}
+	
+	/** */
+	private inEditTransaction = false;
 	
 	/**
 	 * Removes all faults associated with the specified statement.
 	 */
 	private removeStatementFaults(statement: X.Statement)
 	{
-		this.workFrame.removeSource(statement);
+		this.bufferFrame.removeSource(statement);
 		
 		for (const span of statement.allSpans)
-			this.workFrame.removeSource(span);
+			this.bufferFrame.removeSource(span);
 		
 		for (const infixSpan of statement.infixSpans)
-			this.workFrame.removeSource(infixSpan);
+			this.bufferFrame.removeSource(infixSpan);
 	}
 	
 	/**
@@ -49,7 +58,8 @@ export class FaultService
 	*each()
 	{
 		const faultsSorted = 
-			Array.from(this.visibleFrame.faults.values())
+			Array.from(this.asyncFrame.faults.values())
+				.concat(Array.from(this.visibleFrame.faults.values()))
 				.map(faultMap => Array.from(faultMap.values()))
 				.reduce((a, b) => a.concat(b), [])
 				.sort((a, b) => a.line - b.line);
@@ -74,7 +84,20 @@ export class FaultService
 	 */
 	report(fault: X.Fault)
 	{
-		this.workFrame.addFault(fault);
+		this.bufferFrame.addFault(fault);
+	}
+	
+	/**
+	 * Reports a fault outside the context of an edit transaction.
+	 * This method is to be used for faults that are reported in
+	 * asynchronous callbacks, such as network errors.
+	 */
+	reportAsync(fault: X.Fault)
+	{
+		this.bufferFrame.addFault(fault);
+		
+		if (!this.inEditTransaction)
+			this.refresh();
 	}
 	
 	/**
@@ -128,14 +151,14 @@ export class FaultService
 			.reduce((a, b) => a.concat(b), []);
 		
 		for (const span of spans)
-			this.workFrame.removeSource(span);
+			this.bufferFrame.removeSource(span);
 		
 		const infixes = node.statements
 			.map(smt => smt.infixSpans || [])
 			.reduce((a, b) => a.concat(b), []);
 		
 		for (const infix of infixes)
-			this.workFrame.removeSource(infix);
+			this.bufferFrame.removeSource(infix);
 	}
 	
 	/**
@@ -146,18 +169,18 @@ export class FaultService
 		const faultsAdded: X.Fault[] = [];
 		const faultsRemoved: X.Fault[] = [];
 		
-		for (const [faultSource, map] of this.workFrame.faults)
+		for (const [faultSource, map] of this.bufferFrame.faults)
 			for (const [code, fault] of map)
 				if (!this.visibleFrame.hasFault(fault))
 					faultsAdded.push(fault);
 		
 		for (const [faultSource, map] of this.visibleFrame.faults)
 			for (const [code, fault] of map)
-				if (!this.workFrame.hasFault(fault))
+				if (!this.bufferFrame.hasFault(fault))
 					faultsRemoved.push(fault);
 		
-		this.visibleFrame = this.workFrame;
-		this.workFrame = this.workFrame.clone();
+		this.visibleFrame = this.bufferFrame;
+		this.bufferFrame = this.bufferFrame.clone();
 		
 		if (faultsAdded.length + faultsRemoved.length > 0)
 		{
@@ -169,11 +192,24 @@ export class FaultService
 		}
 	}
 	
-	/** */
-	private workFrame = new FaultFrame();
-	
-	/** */
+	/**
+	 * Stores the faults that are presented to external consumers
+	 * of the fault service when they use the accessor methods.
+	 */
 	private visibleFrame = new FaultFrame();
+	
+	/**
+	 * Stores the faults that have been built up during an edit transaction.
+	 * These faults are copied to the `visibleFrame` when the edit
+	 * transaction completes.
+	 */
+	private bufferFrame = new FaultFrame();
+	
+	/**
+	 * Stores the faults that were reported asynchronously, and therefore
+	 * are not bound to any edit transaction.
+	 */
+	private asyncFrame = new FaultFrame();
 }
 
 
