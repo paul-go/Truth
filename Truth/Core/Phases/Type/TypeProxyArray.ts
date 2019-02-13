@@ -19,9 +19,12 @@ export class TypeProxyArray
 		if (this.compiledArray !== undefined)
 			return this.compiledArray;
 		
-		const out = this.array.map(lazy => lazy.maybeCompile());
+		const out = this.array
+			.map(lazy => lazy.maybeCompile())
+			.filter((type): type is X.Type => type !== null);
+		
 		return this.compiledArray = Object.freeze(out);
 	}
 	
-	private compiledArray: ReadonlyArray<X.Type | null> | undefined = undefined;
+	private compiledArray: ReadonlyArray<X.Type> | undefined = undefined;
 }
