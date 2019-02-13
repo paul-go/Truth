@@ -49,7 +49,7 @@ export class Program
 		
 		this.faults = new X.FaultService(this);
 		
-		this.hooks.EditComplete.contribute(hook =>
+		this.hooks.EditComplete.capture(hook =>
 		{
 			this._version = X.VersionStamp.next();
 		});
@@ -155,25 +155,30 @@ export class Program
 			// Return all the types related to the specified declaration.
 			case X.StatementRegion.declaration:
 			{
-				const declSpan = statement.getDeclaration(offset);
-				if (!declSpan)
+				const decl = statement.getDeclaration(offset);
+				if (!decl)
 					throw X.Exception.unknownState();
 				
-				const types = declSpan
+				const types = decl
 					.factor()
 					.map(spine => X.Type.construct(spine, this));
 				
-				return new ProgramInspectionResult(types, statement, declSpan);
+				return new ProgramInspectionResult(types, statement, decl);
 			}
 			// 
 			case X.StatementRegion.annotation:
 			{
-				const annoSpan = statement.getAnnotation(offset);
-				if (!annoSpan)
+				const anno = statement.getAnnotation(offset);
+				if (!anno)
 					throw X.Exception.unknownState();
 				
-				// This will be implemented after type construction.
-				throw X.Exception.notImplemented();
+				const spine = statement.declarations[0].factor()[0];
+				const type = X.Type.construct(spine, this);
+				const annoText = anno.boundary.subject.toString();
+				const base = type.bases.find(b => b.name === annoText);
+				const bases = base ? [base] : [];
+				
+				return new ProgramInspectionResult(bases, statement, anno);
 			}
 		}
 		
