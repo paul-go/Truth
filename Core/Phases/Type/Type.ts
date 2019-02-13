@@ -4,7 +4,7 @@ import * as X from "../../X";
 interface IStoredContext
 {
 	version: X.VersionStamp;
-	context: X.ConstructionWorker;
+	worker: X.ConstructionWorker;
 }
 
 
@@ -42,18 +42,18 @@ export class Type
 			{
 				const newStored: IStoredContext = {
 					version: program.version,
-					context: new X.ConstructionWorker(program)
+					worker: new X.ConstructionWorker(program)
 				};
 				
 				this.parallelContextMap.set(program, newStored);
-				return newStored.context;
+				return newStored.worker;
 			}
 			else if (program.version.newerThan(stored.version))
 			{
-				stored.context = new X.ConstructionWorker(program);
+				stored.worker = new X.ConstructionWorker(program);
 			}
 			
-			return stored.context;
+			return stored.worker;
 		})();
 		
 		const parallel = worker.drill(uri);
@@ -139,9 +139,11 @@ export class Type
 		
 		if (seed instanceof X.SpecifiedParallel)
 		{
-			// Need a way to get the "Base edges" here
-			// (aka the annotations), and return type proxies
-			// for them, which will turn into the type's "bases".
+			const bases = Array.from(seed.eachBase());
+			const proxies = bases.map(entry => 
+				new X.TypeProxy(entry.base.node.uri, program));
+			
+			this.private.bases = new X.TypeProxyArray(proxies);
 		}
 		else if (seed instanceof X.UnspecifiedParallel)
 		{
@@ -152,7 +154,7 @@ export class Type
 		 * Populating this.bases & this.isList:
 		 * (Similar problem as above, I think)
 		 */
-		this.private.bases = new X.TypeProxyArray([]);
+		//this.private.bases = new X.TypeProxyArray([]);
 		this.isList = false;
 		
 		if (seed instanceof X.SpecifiedParallel)
@@ -197,7 +199,9 @@ export class Type
 	readonly container: X.Type | null;
 	
 	/**
-	 * 
+	 * Stores the array of types that are contained directly by this
+	 * one. In the case when this type is a list type, this array does
+	 * not include the list's intrinsic types.
 	 */
 	get contents()
 	{
@@ -214,15 +218,21 @@ export class Type
 	}
 	
 	/**
-	 * 
+	 * Stores the array of types that are contained directly by this
+	 * one. In the case when this type is not a list type, this array
+	 * is empty.
 	 */
 	get contentsIntrinsic()
 	{
 		if (this.private.contentsIntrinsic !== null)
 			return this.private.contentsIntrinsic;
 		
+		if (!this.isList)
+			return this.private.contentsIntrinsic = Object.freeze([]);
+		
 		this.private.throwOnDirty();
-		return this.private.contentsIntrinsic = Object.freeze([]);
+		
+		throw X.Exception.notImplemented();
 	}
 	
 	/**
@@ -233,7 +243,11 @@ export class Type
 	get bases(): ReadonlyArray<X.Type>
 	{
 		this.private.throwOnDirty();
-		return Object.freeze([]);
+		
+		if (this.private.bases === null)
+			throw X.Exception.unknownState();
+		
+		return this.private.bases.maybeCompile();
 	}
 	
 	/**
