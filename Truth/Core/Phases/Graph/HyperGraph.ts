@@ -283,8 +283,11 @@ export class HyperGraph
 			
 			if (uri.types.length > 1 && container === null)
 			{
-				console.log(this.toString());
-				console.log(serializeNodes(affectedNodes));
+				if ("DEBUG")
+				{
+					console.log(this.toString());
+					console.log(serializeNodes(affectedNodes));
+				}
 				throw X.Exception.unknownState();
 			}
 			
