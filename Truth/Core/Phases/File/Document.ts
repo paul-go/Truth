@@ -866,7 +866,7 @@ export class Document
 		// Perform a debug-time check to be sure that there are
 		// no disposed statements left hanging around in the document
 		// after the edit transaction has completed.
-		if ("__DEBUG__")
+		if ("DEBUG")
 			for (const smt of this.statements)
 				if (smt.isDisposed)
 					throw X.Exception.unknownState();
