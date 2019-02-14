@@ -211,16 +211,16 @@ export class Uri
 	/**
 	 * 
 	 */
-	extendType(additionalTypes: string | string[]): Uri
+	extendType(additionalTypeNames: string | string[]): Uri
 	{
-		if (!additionalTypes)
+		if (!additionalTypeNames)
 			return new Uri(this);
 		
-		const types = typeof additionalTypes === "string" ?
-			[new X.UriComponent(additionalTypes)] :
-			additionalTypes.map(t => new X.UriComponent(t));
+		const components = typeof additionalTypeNames === "string" ?
+			[new X.UriComponent(additionalTypeNames)] :
+			additionalTypeNames.map(t => new X.UriComponent(t));
 		
-		return new Uri(this, { types });
+		return new Uri(this, { types: this.types.concat(components) });
 	}
 	
 	/**

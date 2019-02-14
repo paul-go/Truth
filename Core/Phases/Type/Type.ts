@@ -128,7 +128,7 @@ export class Type
 		container: X.Type | null,
 		program: X.Program)
 	{
-		this.private = new TypePrivate(program);
+		this.private = new TypePrivate(program, seed);
 		this.name = seed.uri.types[seed.uri.types.length - 1].value;
 		this.uri = seed.uri;
 		this.container = container;
@@ -147,25 +147,19 @@ export class Type
 		}
 		else if (seed instanceof X.UnspecifiedParallel)
 		{
-			
+			// This still needs work
 		}
 		
-		/** 
-		 * Populating this.bases & this.isList:
-		 * (Similar problem as above, I think)
-		 */
-		//this.private.bases = new X.TypeProxyArray([]);
 		this.isList = false;
 		
 		if (seed instanceof X.SpecifiedParallel)
 		{
-			this.isFresh = seed.getParallels().length === 0;
-			
 			const sub = seed.node.subject;
 			this.isPattern = sub instanceof X.Pattern;
 			this.isUri = sub instanceof X.Uri;
 			this.isAnonymous = sub instanceof X.Anon;
 			this.isSpecified = true;
+			this.isFresh = seed.getParallels().length === 0;
 		}
 	}
 	
@@ -205,19 +199,35 @@ export class Type
 	 */
 	get contents()
 	{
-		/**
-		 * This thing needs to go through the parallels and 
-		 * find both the specified and the unspecified types.
-		 */
-		
 		if (this.private.contents !== null)
 			return this.private.contents;
 		
 		this.private.throwOnDirty();
-		return this.private.contents = Object.freeze([]);
+		const containedNames: string[] = [];
+		
+		// Dig through the parallel graph recursively, and at each parallel,
+		// dig through the base graph recursively, and collect all the names
+		// that are found.
+		for (const { type: parallelType } of this.visit(t => t.parallels))
+			for (const { type: baseType } of parallelType.visit(t => t.bases))
+				if (baseType.private.seed instanceof X.SpecifiedParallel)
+					for (const name of baseType.private.seed.node.contents.keys())
+						if (!containedNames.includes(name))
+							containedNames.push(name);
+		
+		const contents = containedNames
+			.map(containedName =>
+			{
+				const maybeContainedUri = this.uri.extendType(containedName);
+				return X.Type.construct(maybeContainedUri, this.private.program);
+			})
+			.filter((t): t is Type => t !== null);
+		
+		return this.private.contents = Object.freeze(contents);
 	}
 	
 	/**
+	 * @internal
 	 * Stores the array of types that are contained directly by this
 	 * one. In the case when this type is not a list type, this array
 	 * is empty.
@@ -251,7 +261,8 @@ export class Type
 	}
 	
 	/**
-	 * 
+	 * @internal
+	 * Not implemented.
 	 */
 	get superordinates()
 	{
@@ -259,11 +270,12 @@ export class Type
 			return this.private.superordinates;
 		
 		this.private.throwOnDirty();
+		throw X.Exception.notImplemented();
 		return this.private.superordinates = Object.freeze([]);
 	}
 	
 	/**
-	 * 
+	 * @internal
 	 */
 	get subordinates()
 	{
@@ -271,11 +283,16 @@ export class Type
 			return this.private.subordinates;
 		
 		this.private.throwOnDirty();
+		throw X.Exception.notImplemented();
 		return this.private.subordinates = Object.freeze([]);
 	}
 	
 	/**
+	 * Gets an array that contains the types that derive from the 
+	 * this Type instance.
 	 * 
+	 * The types that derive from this one as a result of the use of
+	 * an alias are excluded from this array.
 	 */
 	get derivations()
 	{
@@ -283,31 +300,45 @@ export class Type
 			return this.private.derivations;
 		
 		this.private.throwOnDirty();
-		return this.private.derivations = Object.freeze([]);
+		
+		if (!(this.private.seed instanceof X.SpecifiedParallel))
+			return this.private.derivations = Object.freeze([]);
+		
+		const derivations = Array.from(this.private.seed.node.inbounds)
+			.map(ib => ib.predecessor.uri)
+			.map(uri => Type.construct(uri, this.private.program))
+			.filter((t): t is Type => t instanceof Type)
+			.filter(type => type.bases.includes(this));
+		
+		return this.private.derivations = Object.freeze(derivations);
 	}
 	
 	/**
-	 * 
+	 * Gets an array that contains the that share the same containing
+	 * type as this one.
 	 */
 	get adjacents()
 	{
-		// Adjacents need to be constructed in two steps. The first
-		// step is to get the names of all the adjacent types (which
-		// basically means get their URIs. The second step is to actually
-		// construct these types. However, some services don't actually
-		// need the fully constructed type (suggestions windows), they
-		// just need the names initially. So API consumers should have
-		// the ability to do either of these.
-		
 		if (this.private.adjacents !== null)
 			return this.private.adjacents;
 		
 		this.private.throwOnDirty();
-		return this.private.adjacents = Object.freeze([]);
+		
+		if (this.container)
+			return this.private.adjacents = this.container.contents.filter(t => t !== this);
+		
+		const program = this.private.program;
+		const document = X.Guard.notNull(program.documents.get(this.uri));
+		const roots = Array.from(this.private.program.graph.readRoots(document));
+		const adjacents = roots
+			.map(node => Type.construct(node.uri, program))
+			.filter((t): t is Type => t !== null && t !== this);
+		
+		return this.private.adjacents = Object.freeze(adjacents);
 	}
 	
 	/**
-	 * 
+	 * Gets an array that contains the patterns that resolve to this type.
 	 */
 	get patterns()
 	{
@@ -316,11 +347,34 @@ export class Type
 		
 		this.private.throwOnDirty();
 		
-		// This is only going to return the patterns for the immediate
-		// type scope, not the ones that exist deeply
-		return this.private.patterns = this.adjacents
-			.filter(type => type.isPattern)
-			.filter(type => type.bases.includes(this));
+		// Stores a map whose keys are a concatenation of the Uris of all
+		// the bases that are matched by a particular pattern, and whose
+		// values are the type object containing that pattern. This map
+		// provides an easy way to determine if there is already a pattern
+		// that matches a particular set of types in the type scope.
+		const patternMap = new Map<string, Type>();
+		
+		for (const { type } of this.visit(t => t.container))
+		{
+			const applicablePatternTypes = type.adjacents
+				.filter(t => t.isPattern)
+				.filter(t => t.bases.includes(type));
+			
+			const applicablePatternsBasesLabels =
+				applicablePatternTypes.map(p => p.bases
+					.map(b => b.uri.toString())
+					.join(X.Syntax.terminal));
+			
+			for (let i = -1; ++i < applicablePatternTypes.length;)
+			{
+				const baseLabel = applicablePatternsBasesLabels[i];
+				if (!patternMap.has(baseLabel))
+					patternMap.set(baseLabel, applicablePatternTypes[i]);
+			}
+		}
+		
+		const out = Array.from(patternMap.values());
+		return this.private.patterns = Object.freeze(out);
 	}
 	
 	/**
@@ -334,6 +388,7 @@ export class Type
 			return this.private.values;
 		
 		this.private.throwOnDirty();
+		throw X.Exception.notImplemented();
 		return this.private.values = new Map();
 	}
 	
@@ -389,6 +444,46 @@ export class Type
 	}
 	
 	/**
+	 * Performs an arbitrary recursive, breadth-first traversal
+	 * that begins at this Type instance. Ensures that no types
+	 * types are yielded multiple times.
+	 * 
+	 * @param nextFn A function that returns a type, or an iterable
+	 * of types that are to be visited next.
+	 * 
+	 * @yields An object that contains a `type` property that is the
+	 * the Type being visited, and a `via` property that is the Type
+	 * that was returned in the previous call to `nextFn`.
+	 */
+	*visit(nextFn: (type: Type) => Iterable<Type | null> | Type | null)
+	{
+		const yielded: Type[] = [];
+		
+		type RecurseType = IterableIterator<{ type: X.Type, via: X.Type | null }>;
+		function *recurse(type: X.Type, via: X.Type | null): RecurseType
+		{
+			if (yielded.includes(type))
+				return;
+			
+			yielded.push(type);
+			yield { type, via };
+			
+			const reduced = nextFn(type);
+			if (reduced === null || reduced === undefined)
+				return;
+			
+			if (reduced instanceof Type)
+				return yield* recurse(reduced, type);
+			
+			for (const nextType of reduced)
+				if (nextType instanceof Type)
+					yield* recurse(nextType, type);
+		}
+		
+		yield* recurse(this, null);
+	}
+	
+	/**
 	 * @internal
 	 * Internal object that stores the private members
 	 * of the Type object. Do not use.
@@ -405,7 +500,9 @@ export class Type
  */
 class TypePrivate
 {
-	constructor(readonly program: X.Program)
+	constructor(
+		readonly program: X.Program,
+		readonly seed: X.Parallel)
 	{
 		this.stamp = program.version;
 	}
