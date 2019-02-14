@@ -464,7 +464,7 @@ export class Statement
 				return StatementRegion.pattern;
 		}
 		
-		if (offset <= this.jointPosition)
+		if (offset <= this.jointPosition || this.jointPosition < 0)
 		{
 			for (const span of this.allDeclarations)
 			{
