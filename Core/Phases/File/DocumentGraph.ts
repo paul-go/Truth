@@ -39,7 +39,7 @@ export class DocumentGraph
 				header.recompute();
 		});
 		
-		program.hooks.UriReferenceAdded.contribute(hook =>
+		program.hooks.UriReferenceAdded.capture(hook =>
 		{
 			this.tryLink(hook.document, hook.statement, hook.uri);
 		});
