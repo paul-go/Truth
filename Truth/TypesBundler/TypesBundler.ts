@@ -18,8 +18,6 @@ class DefinitionFile
 	/** */
 	static async read(path: string)
 	{
-		console.log(path);
-		
 		if (!path.endsWith(".d.ts"))
 		{
 			if (path.endsWith(".js") || path.endsWith(".ts"))
