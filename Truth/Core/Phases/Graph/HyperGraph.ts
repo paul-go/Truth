@@ -466,7 +466,7 @@ export class HyperGraph
 	 * have been loaded into the program, indexed
 	 * by a string representation of it's URI.
 	 */
-	private readonly nodeIndex = new X.NodeIndex();
+	private readonly nodeIndex = new X.NodeIndex(this.program);
 	
 	/**
 	 * Stores a GraphTransaction instance in the case

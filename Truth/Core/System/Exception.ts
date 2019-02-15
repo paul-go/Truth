@@ -134,6 +134,14 @@ export class Exception
 	}
 	
 	/** */
+	static invalidWhileInEditTransaction()
+	{
+		return error(
+			`Cannot call this method, or run this hook while an edit
+			transaction is underway.`);
+	}
+	
+	/** */
 	static uncachableDocument()
 	{
 		return error(`

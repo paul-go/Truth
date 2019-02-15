@@ -6,6 +6,31 @@ import * as X from "../../X";
  */
 export class NodeIndex
 {
+	/** */
+	constructor(private readonly program: X.Program)
+	{
+		program.hooks.DocumentUriChanged.capture(hook =>
+		{
+			// Update the entire cache when the URI of any document changes.
+			const newUriStore = hook.newUri.retractTypeTo(0);
+			const entries = Array.from(this.uriToNodeMap.entries())
+			
+			for (const [oldUriText, node] of entries)
+			{
+				if (node.document !== hook.document)
+					continue;
+				
+				const oldUri = X.Guard.notNull(X.Uri.tryParse(oldUriText));
+				const newUriText = newUriStore
+					.extendType(oldUri.types.map(t => t.value))
+					.toString();
+				
+				this.uriToNodeMap.delete(oldUriText);
+				this.uriToNodeMap.set(newUriText, node);
+			}
+		});
+	}
+	
 	/**
 	 * Enumerates through all Node instances stored
 	 * in the index.

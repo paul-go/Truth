@@ -32,6 +32,11 @@ export class Program
 				this.unverifiedDocuments.splice(idx, 1);
 		});
 		
+		this.hooks.DocumentUriChanged.capture(hook =>
+		{
+			this._version = X.VersionStamp.next();
+		});
+		
 		this.agents = new X.Agents(this, hookRouter);
 		this.documents = new X.DocumentGraph(this);
 		this.graph = new X.HyperGraph(this);

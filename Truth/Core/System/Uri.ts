@@ -211,7 +211,7 @@ export class Uri
 	/**
 	 * 
 	 */
-	extendType(additionalTypeNames: string | string[]): Uri
+	extendType(additionalTypeNames: string | ReadonlyArray<string>): Uri
 	{
 		if (!additionalTypeNames)
 			return new Uri(this);
@@ -226,7 +226,7 @@ export class Uri
 	/**
 	 * 
 	 */
-	extendStore(additionalStores: string | string[]): Uri
+	extendStore(additionalStores: string | ReadonlyArray<string>): Uri
 	{
 		if (!additionalStores)
 			return new Uri(this);
