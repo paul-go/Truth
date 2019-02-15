@@ -265,7 +265,7 @@ export class ProgramInspectionResult
 		 * has been marked as cruft (the statement and span fields
 		 * are still populated in this case).
 		 */
-		readonly result: X.Document | X.Type[] | null,
+		readonly foundObject: X.Document | X.Type[] | null,
 		
 		/**
 		 * Stores the Statement found at the specified location.

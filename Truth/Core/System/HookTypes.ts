@@ -13,7 +13,7 @@ export namespace HookTypes
 	export class DocumentDeleted extends X.HookType<DocumentParam> { }
 	
 	/** A hook that runs when a document's file name changes. */
-	export class DocumentRenamed extends X.HookType<DocumentRenameParam> { }
+	export class DocumentUriChanged extends X.HookType<DocumentUriChangedParam> { }
 	
 	/** A base class for a hook that is run during type resolution events. */
 	export class Resolution extends X.HookType<ResolutionParam, ResolutionResult> { }
@@ -26,38 +26,6 @@ export namespace HookTypes
 	
 	/** A hook that runs when the core is unable to resolve a particular term. */
 	export class NotResolved extends HookTypes.Resolution { }
-	
-	
-	/** A base class for a hook that performs editor navigations. */
-	export class Navigation extends X.HookType<NavigationParam> { }
-	
-	/** A hook that runs when a "Find References" operation has been requested. */
-	export class FindReferences extends HookTypes.Navigation { }
-	
-	/** A hook that runs when a "Find Fragments" operation has been requested. */
-	export class FindFragments extends HookTypes.Navigation { }
-	
-	/** A hook that runs when a "Find Declarations" operation has been requested. */
-	export class FindDeclarations extends HookTypes.Navigation { }
-	
-	
-	/** A hook that runs when a quick fix operation is requested. Not implemented. */
-	export class Fix<TIn extends object> extends X.HookType<TIn> { }
-	
-	
-	/** A hook that runs when checking whether a rename operation can be executed. */
-	export class CanRename extends X.HookType<CanParam, CanResult> { }
-	
-	/** A hook that runs when a rename operation should be executed. */
-	export class DoRename extends X.HookType<DoRenameParam> { }
-	
-	
-	/** A hook that runs when a dialog should be displayed. Not implemented. */
-	export class Dialog extends X.HookType<void> { }
-	
-	/** A hook that runs when completion. */
-	export class Completion extends X.HookType<CompletionParam, CompletionResult> { }
-	
 	
 	/** */
 	export class Invalidate extends X.HookType<InvalidateParam> { }
@@ -96,19 +64,17 @@ export class DocumentParam
 }
 
 
-/** Input parameters for documents being renamed. */
-export class DocumentRenameParam
+/** */
+export class DocumentUriChangedParam
 {
 	constructor(
 		readonly document: X.Document,
-		readonly oldUri: X.Uri)
+		readonly newUri: X.Uri)
 	{ }
 }
 
 
-/**
- * 
- */
+/** */
 export class InvalidateParam
 {
 	constructor(
@@ -130,9 +96,7 @@ export class InvalidateParam
 }
 
 
-/**
- * 
- */
+/** */
 export class RevalidateParam
 {
 	constructor(
@@ -153,76 +117,12 @@ export class RevalidateParam
 }
 
 
-/**
- * Generic class that stores the inputs of a "Can" hook. 
- * "Can" hooks are hooks where the system needs to perform
- * a pre-flight check to see if the command can be run at 
- * a certain position within a document.
- */
-export class CanParam
-{
-	constructor(
-		readonly document: X.Document,
-		readonly span: X.Span)
-	{ }
-}
-
-
-/** Generic class that stores the output of a "Can" hook. */
-export class CanResult
-{
-	constructor(readonly value: boolean) { }
-}
-
-
-/** Input parameters for resolution hooks */
-export class ResolutionParam
-{
-	constructor(
-		readonly program: X.Program,
-		readonly spine: X.Spine)
-	{ }
-}
-
 /** Output for resolution hooks */
 export class ResolutionResult
 {
 	resolves = false;
 }
 
-/** Input parameters for navigation hooks. */
-export class NavigationParam
-{
-	constructor(
-		readonly document: X.Document,
-		readonly initiatingSubject: X.Subject)
-	{ }
-}
-
-/** */
-export class DoRenameParam
-{
-	constructor(
-		readonly document: X.Document,
-		readonly span: X.Span)
-	{ }
-}
-
-/** Input parameters for completion hooks. */
-export class CompletionParam
-{
-	constructor(
-		readonly document: X.Document,
-		readonly line: number,
-		readonly offset: number)
-	{ }
-}
-
-/** Output for completion hooks. */
-export class CompletionResult
-{
-	constructor(readonly items: X.LanguageServer.CompletionItem[]) { }
-}
 
 /** */
 export class FillParam
@@ -231,6 +131,7 @@ export class FillParam
 		readonly document: X.Document)
 	{ }
 }
+
 
 /** */
 export class UriReferenceParam
@@ -242,10 +143,21 @@ export class UriReferenceParam
 	{ }
 }
 
+
 /** */
 export class UriReferenceResult
 {
 	constructor(readonly accepted: boolean) { }
+}
+
+
+/** Input parameters for resolution hooks */
+export class ResolutionParam
+{
+	constructor(
+		readonly program: X.Program,
+		readonly spine: X.Spine)
+	{ }
 }
 
 

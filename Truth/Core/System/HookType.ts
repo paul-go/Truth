@@ -27,7 +27,7 @@ export abstract class HookType<TIn extends object | void = object, TOut extends 
 	 * Adds a hook contributor function that executes in 
 	 * response to the running of hooks of the containing type.
 	 */
-	contribute(fn: (hookIn: Readonly<TIn>) => TOut | void)
+	contribute(fn: (hookIn: Readonly<TIn>) => TOut)
 	{
 		this.router.addContributor(this, this.agent, fn);
 	}

@@ -12,17 +12,24 @@ export class DocumentGraph
 	{
 		this.program = program;
 		
-		program.hooks.DocumentRenamed.capture(hook =>
+		program.hooks.DocumentUriChanged.capture(hook =>
 		{
-			const oldUri = hook.oldUri.toString();
-			const newUri = hook.document.sourceUri.toString();
-			
-			const entry = this.documents.get(oldUri);
-			if (!entry)
+			for (const [oldUriText, docEntry] of this.documents)
+			{
+				if (docEntry.document !== hook.document)
+					continue;
+				
+				const newUri = hook.document.sourceUri.toString();
+				const entry = this.documents.get(oldUriText);
+				
+				if (entry)
+				{
+					this.documents.delete(oldUriText);
+					this.documents.set(newUri, entry);
+				}
+				
 				return;
-			
-			this.documents.delete(oldUri);
-			this.documents.set(newUri, entry);
+			}
 		});
 		
 		program.hooks.Revalidate.capture(hook =>
