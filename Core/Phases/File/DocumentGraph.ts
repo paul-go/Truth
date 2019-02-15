@@ -19,13 +19,13 @@ export class DocumentGraph
 				if (docEntry.document !== hook.document)
 					continue;
 				
-				const newUri = hook.document.sourceUri.toString();
+				const newUriText = hook.newUri.toStoreString();
 				const entry = this.documents.get(oldUriText);
 				
 				if (entry)
 				{
 					this.documents.delete(oldUriText);
-					this.documents.set(newUri, entry);
+					this.documents.set(newUriText, entry);
 				}
 				
 				return;

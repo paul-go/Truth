@@ -24,7 +24,12 @@ export class Document
 		program.hooks.DocumentUriChanged.capture(hook =>
 		{
 			if (hook.document === this)
+			{
+				if (this.inEdit)
+					throw X.Exception.invalidWhileInEditTransaction();
+					
 				this._sourceUri = hook.newUri;
+			}
 		});
 	}
 	

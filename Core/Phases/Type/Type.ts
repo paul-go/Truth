@@ -50,6 +50,7 @@ export class Type
 			}
 			else if (program.version.newerThan(stored.version))
 			{
+				stored.version = program.version;
 				stored.worker = new X.ConstructionWorker(program);
 			}
 			

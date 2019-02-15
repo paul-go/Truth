@@ -42,8 +42,7 @@ export class Node
 			this.containment.slice().reverse().map(n => n.name) :
 			[];
 		
-		const typePath = containerTypePath.concat(this.name);
-		this.uri = this.document.sourceUri.extendType(typePath);
+		this.typePath = containerTypePath.concat(this.name);
 		
 		if (this.declarations.size === 0)
 			throw X.Exception.unknownState();
@@ -168,7 +167,21 @@ export class Node
 	readonly subject: X.Subject;
 	
 	/** */
-	readonly uri: X.Uri;
+	get uri()
+	{
+		// Because the URI of the document can change, we need to 
+		// make sure it's not hard coded into the node instance.
+		const outUri = this.document.sourceUri.extendType(this.typePath);
+		
+		if (this.lastUri !== null)
+			if (outUri.equals(this.lastUri))
+				return this.lastUri;
+		
+		return this.lastUri = outUri;
+	}
+	
+	private lastUri: X.Uri | null = null;
+	private readonly typePath: ReadonlyArray<string>;
 	
 	/** Stores the document that contains this Node. */
 	readonly document: X.Document;
