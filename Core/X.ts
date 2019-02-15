@@ -29,7 +29,6 @@ export * from "./System/Syntax";
 export * from "./System/FaultService";
 export * from "./System/Faults";
 export * from "./System/VersionStamp";
-export * from "./System/LanguageServer";
 
 // Finite State Machine
 export * from "./Fsm/Alphabet";

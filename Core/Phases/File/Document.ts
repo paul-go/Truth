@@ -18,9 +18,14 @@ export class Document
 			throw X.Exception.invalidArgument();
 		
 		this.program = program;
-		this.sourceUri = sourceUri;
-		
+		this._sourceUri = sourceUri;
 		this.fill(sourceText);
+		
+		program.hooks.DocumentUriChanged.capture(hook =>
+		{
+			if (hook.document === this)
+				this._sourceUri = hook.newUri;
+		});
 	}
 	
 	/**
@@ -990,7 +995,11 @@ export class Document
 	}
 	
 	/** Stores the URI from where this document was loaded. */
-	readonly sourceUri: X.Uri;
+	get sourceUri()
+	{
+		return this._sourceUri;
+	}
+	private _sourceUri: X.Uri;
 	
 	/** A reference to the instance of the Compiler that owns this Document. */
 	readonly program: X.Program;
