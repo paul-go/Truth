@@ -1,5 +1,38 @@
 import * as X from "../X";
-type Vm = typeof import("vm");
+
+
+/**
+ * Stores the function signature that wraps all agent functions.
+ */
+export type AgentFn = (
+	hooks: X.HookTypesInstance,
+	truth: typeof X,
+	program: X.Program) => void;
+
+
+const cache = Object.freeze({
+	
+	/**
+	 * Stores a set of all agents added to the system.
+	 */
+	agentObjects: new Set<Agent>(),
+	
+	/**
+	 * Stores a map of agent build functions, indexed by their absolute URI.
+	 */
+	agentFns: new Map<string, X.AgentFn>(),
+	
+	/**
+	 * Stores a multi map of agents, and the documents that reference them.
+	 */
+	agentToDocuments: new X.MultiMap<Agent, X.Document>(),
+	
+	/**
+	 * Stores a multi map of each document, and the agents they reference.
+	 */
+	documentToAgents: new X.MultiMap<X.Document, Agent>()
+});
+
 
 /**
  * A cache that stores all agents loaded by the compiler.
@@ -10,27 +43,33 @@ export class Agents
 	 * @internal
 	 * Called by Program once, during it's initialization.
 	 */
-	constructor(program: X.Program, hookRouter: X.HookRouter)
+	constructor(program: X.Program, router: X.HookRouter)
 	{
 		this.program = program;
-		this.hookRouter = hookRouter;
+		this.router = router;
 		
-		if (typeof require === "function")
-			this.vm = require("vm");
-		else
-			// Temp
-			// TODO: Implement an isomorphic VM that works 
-			// both in Node and in the browser.
-			this.vm = null!;
+		program.hooks.UriReferenceAdded.capture(hook =>
+		{
+			if (hook.uri.ext !== X.UriExtension.js)
+				return;
+			
+			this.add(hook.uri);
+		});
+		
+		program.hooks.UriReferenceRemoved.capture(hook =>
+		{
+			if (hook.uri.ext !== X.UriExtension.js)
+				return;
+			
+			this.remove(hook.uri);
+		});
 	}
 	
-	private readonly vm: Vm;
-	
-	/** @internal */
+	/** */
 	private readonly program: X.Program;
 	
-	/** @internal */
-	private readonly hookRouter: X.HookRouter;
+	/** */
+	private readonly router: X.HookRouter;
 	
 	/**
 	 * Constructs an agent from the specified file, or from
@@ -43,44 +82,34 @@ export class Agents
 		if (uri === null)
 			return null;
 		
-		// Be sure the agent build function
-		// is in the cache before we proceed.
-		if (!this.buildFunctionCache.has(uri.toString()))
+		const uriText = uri.toStoreString();
+		let agentFn: AgentFn;
+		
+		if (!cache.agentFns.has(uriText))
 		{
-			const fileContents = X.UriReader.tryRead(uri);
-			if (typeof fileContents !== "string")
+			const agentSource = await X.UriReader.tryRead(uri);
+			if (agentSource instanceof Error)
+				return agentSource;
+			
+			try
+			{
+				agentFn = <AgentFn>new Function("program", "editor", agentSource);
+				cache.agentFns.set(uriText, agentFn);
+			}
+			catch (e)
+			{
 				return null;
-			
-			const vmOptions = {
-				filename: uri.toString(),
-				lineOffset: 0,
-				columnOffset: 0,
-				displayErrors: true,
-				timeout: 5000
-			};
-			
-			const functionHeader = "return (function(Hooks, Truth, Program) { 'use strict';";
-			const functionFooter = "}).bind(Object.freeze({}))";
-			
-			const script = new this.vm.Script(
-				functionHeader + fileContents + functionFooter,
-				vmOptions);
-			
-			const agentBuildFn = <AgentBuildFunction>script.runInThisContext(vmOptions);
-			this.buildFunctionCache.set(uri.toString(), agentBuildFn);
+			}
 		}
 		
-		if (!this.program)
-			throw X.Exception.invalidCall();
+		const agent = new Agent(uri, this.router);
 		
-		const agent = new Agent(uri, this.hookRouter);
+		const constructFn = cache.agentFns.get(uriText);
+		if (!constructFn)
+			return X.Exception.agentNotRead();
 		
-		const buildFunction = this.buildFunctionCache.get(sourceUri.toString());
-		if (!buildFunction)
-			throw X.Exception.agentNotRead();
-		
-		buildFunction(agent.hooks, X, this.program);
-		this.agentCacheObject.add(agent);
+		constructFn(agent.hooks, X, this.program);
+		cache.agentObjects.add(agent);
 		return agent;
 	}
 	
@@ -88,35 +117,31 @@ export class Agents
 	 * Removes the agent from the system having the specified source file path. 
 	 * @returns A boolean indicating whether an agent was deleted.
 	 */
-	delete(sourceUri: X.Uri | string)
+	remove(sourceUri: X.Uri | string)
 	{
 		const uri = X.Uri.maybeParse(sourceUri);
 		if (uri === null)
 			return false;
 		
-		this.buildFunctionCache.delete(uri.toString());
+		cache.agentFns.delete(uri.toString());
 		
-		for (const agent of this.agentCacheObject)
+		for (const agent of cache.agentObjects)
 		{
 			if (agent.sourceUri.equals(uri))
 			{
-				this.agentCacheObject.delete(agent);
+				cache.agentObjects.delete(agent);
 				return true;
 			}
 		}
 		
 		return false;
 	}
-	
-	/** Stores a map of agent build functions, indexed by their absolute URI. */
-	private readonly buildFunctionCache = new Map<string, AgentBuildFunction>();
-	
-	/** Stores a set of all agents added to the system. */
-	private readonly agentCacheObject = new Set<Agent>();
 }
 
 
-/** */
+/**
+ * @internal
+ */
 export class Agent
 {
 	/**
@@ -129,16 +154,15 @@ export class Agent
 		this.hooks = router.createHookTypesInstance(this);
 	}
 	
-	/** Stores an array of documents that reference this Agent. */
-	readonly referencingDocuments: X.Document[] = [];
-	
-	/** Stores the absolute path to the JavaScript file that contains the agent source code. */
+	/**
+	 * Stores the absolute path to the JavaScript file that contains
+	 * the agent source code.
+	 */
 	readonly sourceUri: X.Uri;
 	
-	/** Store the built-in hooks, as well as the hooks specified in the document. */
+	/**
+	 * Store the built-in hooks, as well as the hooks specified in
+	 * the document.
+	 */
 	readonly hooks: X.HookTypesInstance;
 }
-
-
-/** Stores the function signature that wraps all agent functions. */
-type AgentBuildFunction = (hooks: X.HookTypesInstance, truth: typeof X, program: X.Program) => void;

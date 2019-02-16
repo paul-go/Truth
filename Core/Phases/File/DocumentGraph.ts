@@ -48,12 +48,18 @@ export class DocumentGraph
 		
 		program.hooks.UriReferenceAdded.capture(hook =>
 		{
+			if (hook.uri.ext !== X.UriExtension.truth)
+				return;
+			
 			this.tryLink(hook.document, hook.statement, hook.uri);
 		});
 		
 		program.hooks.UriReferenceRemoved.capture(hook =>
 		{
-			const entry = this.documents.get(hook.uri.toString());
+			if (hook.uri.ext !== X.UriExtension.truth)
+				return;
+			
+			const entry = this.documents.get(hook.uri.toStoreString());
 			if (entry)
 				this.unlink(hook.document, entry.document);
 		});
@@ -77,7 +83,7 @@ export class DocumentGraph
 		if (readResult instanceof Error)
 			return readResult;
 		
-		return this.create(uri, readResult);
+		return this.create(uriAbsolute, readResult);
 	}
 	
 	/**
@@ -128,7 +134,7 @@ export class DocumentGraph
 		const document = new X.Document(this.program, uri, sourceText);
 		const header = new X.DocumentHeader(document);
 		const entry: IDocumentEntry = { document, header };
-		this.documents.set(uri.toString(), entry);
+		this.documents.set(uri.toStoreString(), entry);
 		header.recompute();
 		
 		const param = new X.DocumentParam(document);

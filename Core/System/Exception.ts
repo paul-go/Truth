@@ -36,12 +36,6 @@ export class Exception
 	}
 	
 	/** */
-	static agentInvalid(rawUri: string)
-	{
-		return error(`File at URI ${rawUri} is not an agent.`);
-	}
-	
-	/** */
 	static agentNotRead()
 	{
 		return error(`
@@ -53,6 +47,32 @@ export class Exception
 	static agentMissing(rawUri: string)
 	{
 		return error(`Could not load an agent from the URI ${rawUri}`);
+	}
+	
+	/** */
+	static agentImportError(agentUri: string, errorText: string)
+	{
+		return error(`
+			An error occured while trying to evaluate the agent at "${agentUri}".
+			The error message returned was: ${errorText}`);
+	}
+	
+	/** */
+	static agentInvalid(rawUri: string)
+	{
+		return error(`
+			The code file at ${rawUri} does not export a function. Consider looking
+			at the documention and examples for the proper way to stucture an
+			agent code file.`);
+	}
+	
+	/** */
+	static noRemoteAgents()
+	{
+		return error(`
+			Agents cannot be loaded from remote URIs in this context.
+			(Most likely, this code is running in Node.js where the loading
+			of remote code is a security risk).`);
 	}
 	
 	/** */

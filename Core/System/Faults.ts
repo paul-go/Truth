@@ -18,7 +18,13 @@ export class Fault<TSource = TFaultSource>
 		readonly type: FaultType<TSource>,
 		
 		/** The document object that caused the fault to be reported. */
-		readonly source: TSource)
+		readonly source: TSource,
+		
+		/**
+		 * A human-readable message that contains more in-depth detail
+		 * of the fault that occured, in addition to the standard message.
+		 */
+		readonly additionalDetail: string = "")
 	{
 		const src = this.source;
 		

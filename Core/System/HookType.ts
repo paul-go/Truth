@@ -4,13 +4,16 @@ import * as X from "../X";
 /**
  * @internal
  * */
-export type HookTypeConstructor = new (router: X.HookRouter, agent: X.Agent | null) => HookType;
+export type HookTypeConstructor = new (
+		router: X.HookRouter,
+		agent: X.Agent | null) => HookType;
 
 
 /**
  * 
  */
-export abstract class HookType<TIn extends object | void = object, TOut extends object | void = void>
+export abstract class HookType
+	<TIn extends object | void = object, TOut extends object | void = void>
 {
 	/**
 	 * @internal
