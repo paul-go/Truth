@@ -44,7 +44,11 @@ export class DocumentHeader
 			if (!(decl.boundary.subject instanceof X.Uri))
 				break;
 			
-			newUriMap.set(statement, decl.boundary.subject);
+			const refUri = decl.boundary.subject;
+			const docUri = this.document.sourceUri;
+			const uriAbsolute = X.Guard.notNull(X.Uri.tryParse(refUri, docUri));
+			
+			newUriMap.set(statement, uriAbsolute);
 		}
 		
 		if (oldUriMap.size + newUriMap.size === 0)
@@ -65,10 +69,16 @@ export class DocumentHeader
 		const hooks = doc.program.hooks;
 		
 		for (const [uri, statement] of removedUriMap)
-			hooks.UriReferenceRemoved.run(new X.UriReferenceParam(doc, statement, uri));
+		{
+			const param = new X.UriReferenceParam(doc, statement, uri);
+			hooks.UriReferenceRemoved.run(param);
+		}
 		
 		for (const [uri, statement] of addedUriMap)
-			hooks.UriReferenceAdded.run(new X.UriReferenceParam(doc, statement, uri));
+		{
+			const param = new X.UriReferenceParam(doc, statement, uri);
+			hooks.UriReferenceAdded.run(param);
+		}
 		
 		this.uriMap.clear();
 		newUriMap.forEach((uri, statement) => this.uriMap.set(statement, uri));

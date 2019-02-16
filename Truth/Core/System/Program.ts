@@ -12,8 +12,8 @@ export class Program
 	 */
 	constructor()
 	{
-		const hookRouter = new X.HookRouter();
-		this.hooks = hookRouter.createHookTypesInstance();
+		const router = new X.HookRouter();
+		this.hooks = router.createHookTypesInstance();
 		this._version = X.VersionStamp.next();
 		
 		// The ordering of these instantations is relevant,
@@ -37,7 +37,7 @@ export class Program
 			this._version = X.VersionStamp.next();
 		});
 		
-		this.agents = new X.Agents(this, hookRouter);
+		this.agents = new X.Agents(this, router);
 		this.documents = new X.DocumentGraph(this);
 		this.graph = new X.HyperGraph(this);
 		
