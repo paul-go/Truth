@@ -160,6 +160,7 @@ export class AlphabetBuilder
 	addWild()
 	{
 		this.ranges.push(Alphabet.wildcardRange);
+		return this;
 	}
 	
 	/**

@@ -61,6 +61,39 @@ const Oblivion = Symbol();
  */
 export class Fsm
 {
+	/**
+	 * @returns A new Fsm instance that accept
+	 * no inputs, not even an empty string.
+	 */
+	static empty(alphabet: X.Alphabet)
+	{
+		const tsl: X.ITransitionStateLiteral = {};
+		
+		for (const symbol of alphabet)
+			tsl[symbol] = 0;
+		
+		return new Fsm(
+			alphabet,
+			new Set([0]),
+			0,
+			new Set(),
+			new X.TransitionMap({ 0: tsl }));
+	}
+
+
+	/**
+	 * @returns An Fsm that matches only an empty string.
+	 */
+	static epsilon(alphabet: X.Alphabet)
+	{
+		return new Fsm(
+			alphabet,
+			new Set([0]),
+			0,
+			new Set([0]),
+			new X.TransitionMap());
+	}
+	
 	/** */
 	constructor(
 		/**
@@ -274,7 +307,7 @@ export class Fsm
 			return false;
 		}
 		
-		return crawl(this.alphabet, initial, finalFn, followFn).or(epsilon(this.alphabet));
+		return crawl(this.alphabet, initial, finalFn, followFn).or(Fsm.epsilon(this.alphabet));
 	}
 	
 	/**
@@ -661,40 +694,6 @@ export class Fsm
 function prependFsm(fsm: Fsm, fsms: Fsm[])
 {
 	return [fsm].concat(...fsms);
-}
-
-
-/**
- * @returns A new Fsm instance that accept
- * no inputs, not even an empty string.
- */
-function nil(alphabet: X.Alphabet)
-{
-	const tsl: X.ITransitionStateLiteral = {};
-	
-	for (const symbol of alphabet)
-		tsl[symbol] = 0;
-	
-	return new Fsm(
-		alphabet,
-		new Set([0]),
-		0,
-		new Set(),
-		new X.TransitionMap({ 0: tsl }));
-}
-
-
-/**
- * @returns An Fsm that matches only an empty string.
- */
-function epsilon(alphabet: X.Alphabet)
-{
-	return new Fsm(
-		alphabet,
-		new Set([0]),
-		0,
-		new Set([0]),
-		new X.TransitionMap());
 }
 
 
