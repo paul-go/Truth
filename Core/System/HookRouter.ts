@@ -6,27 +6,22 @@ import * as X from "../X";
  * Stores all of the hook functions attached by all agents
  * in an internal database. Also deals with the invokation
  * of contributors and capturers, and routing their outputs
- * to the correct locations. Only one HookRouter instance
- * should be created in the Truth namespace.
+ * to the correct locations.
  */
 export class HookRouter
 {
 	/**
-	 * @internal
 	 * Test-only field used to disable running of hook functions.
 	 */
 	static disabled?: boolean;
 	
 	/**
-	 * @internal
 	 * Test-only field that is used to enable the logging, useful for debugging.
 	 */
 	static enableLogging?: boolean;
 	
-	/** @internal */
-	constructor()
-	{
-	}
+	/** */
+	constructor() { }
 	
 	/** Worker method for Hook.contribute(). */
 	addContributor(
