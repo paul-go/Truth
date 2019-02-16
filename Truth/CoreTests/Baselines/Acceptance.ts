@@ -185,11 +185,18 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	"http://abc.xyz/file.truth//type/path/here": {
 		uri: {
 			protocol: "http:",
-			stores: ["abc.xyz", "file.truth"],
+			stores: ["abc.xyz"],
 			types: ["type", "path", "here"],
 			file: "file.truth"
 		},
 		emit: "http://abc.xyz/file.truth//type/path/here"
+	},
+	"./path/to/file.js": {
+		uri: {
+			protocol: "file:",
+			stores: ["path", "to"],
+			file: "file.js"
+		}
 	},
 	
 	// Comments
