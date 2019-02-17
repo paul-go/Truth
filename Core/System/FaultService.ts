@@ -13,21 +13,21 @@ export class FaultService
 		// Listen for invalidations and clear out any faults
 		// that correspond to objects that don't exist in the
 		// document anymore.
-		program.hooks.Invalidate.capture(hook =>
+		program.on(X.CauseInvalidate, data =>
 		{
-			if (hook.parents.length > 0)
+			if (data.parents.length > 0)
 			{
-				for (const smt of hook.parents)
+				for (const smt of data.parents)
 					for (const { statement } of smt.document.eachDescendant(smt, true))
 						this.removeStatementFaults(statement);
 			}
-			else for (const { statement } of hook.document.eachDescendant())
+			else for (const { statement } of data.document.eachDescendant())
 				this.removeStatementFaults(statement);
 			
 			this.inEditTransaction = true;
 		});
 		
-		program.hooks.EditComplete.capture(hook =>
+		program.on(X.CauseEditComplete, () =>
 		{
 			this.inEditTransaction = false;
 			this.refresh();
@@ -183,13 +183,9 @@ export class FaultService
 		this.bufferFrame = this.bufferFrame.clone();
 		
 		if (faultsAdded.length + faultsRemoved.length > 0)
-		{
-			const faultParam = new X.FaultParam(
+			this.program.cause(new X.CauseFaultChange(
 				faultsAdded,
-				faultsRemoved);
-			
-			this.program.hooks.FaultsChanged.run(faultParam);
-		}
+				faultsRemoved));
 	}
 	
 	/**

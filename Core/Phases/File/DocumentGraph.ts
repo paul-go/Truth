@@ -12,14 +12,14 @@ export class DocumentGraph
 	{
 		this.program = program;
 		
-		program.hooks.DocumentUriChanged.capture(hook =>
+		program.on(X.CauseDocumentUriChange, data =>
 		{
 			for (const [oldUriText, docEntry] of this.documents)
 			{
-				if (docEntry.document !== hook.document)
+				if (docEntry.document !== data.document)
 					continue;
 				
-				const newUriText = hook.newUri.toStoreString();
+				const newUriText = data.newUri.toStoreString();
 				const entry = this.documents.get(oldUriText);
 				
 				if (entry)
@@ -32,9 +32,9 @@ export class DocumentGraph
 			}
 		});
 		
-		program.hooks.Revalidate.capture(hook =>
+		program.on(X.CauseRevalidate, data =>
 		{
-			const docUri = hook.document.sourceUri.toString();
+			const docUri = data.document.sourceUri.toString();
 			const entry = this.documents.get(docUri);
 			const header = entry ? entry.header : null;
 			
@@ -46,22 +46,28 @@ export class DocumentGraph
 				header.recompute();
 		});
 		
-		program.hooks.UriReferenceAdded.capture(hook =>
+		program.on(X.CauseUriReferenceAdd, data =>
 		{
-			if (hook.uri.ext !== X.UriExtension.truth)
+			if (data.uri.ext !== X.UriExtension.truth)
 				return;
 			
-			this.tryLink(hook.document, hook.statement, hook.uri);
+			const smt = data.statement;
+			if (smt)
+				this.tryLink(smt.document, smt, data.uri);
 		});
 		
-		program.hooks.UriReferenceRemoved.capture(hook =>
+		program.on(X.CauseUriReferenceRemove, data =>
 		{
-			if (hook.uri.ext !== X.UriExtension.truth)
+			if (data.uri.ext !== X.UriExtension.truth)
 				return;
 			
-			const entry = this.documents.get(hook.uri.toStoreString());
-			if (entry)
-				this.unlink(hook.document, entry.document);
+			const entry = this.documents.get(data.uri.toStoreString());
+			if (!entry)
+				return;
+			
+			const smt = data.statement;
+			if (smt)
+				this.unlink(smt.document, entry.document);
 		});
 	}
 	
@@ -137,9 +143,7 @@ export class DocumentGraph
 		this.documents.set(uri.toStoreString(), entry);
 		header.recompute();
 		
-		const param = new X.DocumentParam(document);
-		this.program.hooks.DocumentCreated.run(param);
-		
+		this.program.cause(new X.CauseDocumentCreate(document));
 		return document;
 	}
 	
@@ -253,8 +257,7 @@ export class DocumentGraph
 		if (!doc)
 			return;
 		
-		const param = new X.DocumentParam(doc);
-		this.program.hooks.DocumentDeleted.run(param);
+		this.program.cause(new X.CauseDocumentCreate(doc));
 		
 		// Go through the entire map of dependent documents, 
 		// and find documents that have the deleted document 

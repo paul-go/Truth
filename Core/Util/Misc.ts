@@ -137,5 +137,24 @@ export class Misc
 		return recurse(initialObject);
 	}
 	
+	/**
+	 * @returns A proxy of the specified object, whose members
+	 * have been patched with the specified patch object.
+	 */
+	static patch<T extends object>(source: T, patch: Partial<T>)
+	{
+		type K = ReadonlyArray<(keyof T)>;
+		const patchKeys = <K>Object.freeze(Object.keys(patch));
+		
+		return new Proxy(source, {
+			get(target: T, key: keyof T)
+			{
+				return patchKeys.includes(key) ?
+					patch[key] :
+					source[key];
+			}
+		});
+	}
+	
 	private constructor() {}
 }

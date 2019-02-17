@@ -21,34 +21,34 @@ export class HyperGraph
 		program.documents.each()
 			.forEach(this.include.bind(this));
 		
-		program.hooks.DocumentCreated.capture(hook =>
+		program.on(X.CauseDocumentCreate, data =>
 		{
-			this.include(hook.document);
+			this.include(data.document);
 		});
 		
-		program.hooks.DocumentDeleted.capture(hook =>
+		program.on(X.CauseDocumentDelete, data =>
 		{
-			this.exclude(hook.document);
+			this.exclude(data.document);
 		});
 		
-		program.hooks.Invalidate.capture(hook =>
+		program.on(X.CauseInvalidate, data =>
 		{
-			if (hook.parents.length > 0)
+			if (data.parents.length > 0)
 			{
-				for (const smt of hook.parents)
+				for (const smt of data.parents)
 					this.exclude(smt);
 			}
-			else this.exclude(hook.document);
+			else this.exclude(data.document);
 		});
 		
-		program.hooks.Revalidate.capture(hook =>
+		program.on(X.CauseRevalidate, data =>
 		{
-			if (hook.parents.length > 0)
+			if (data.parents.length > 0)
 			{
-				for (const smt of hook.parents)
+				for (const smt of data.parents)
 					this.include(smt);
 			}
-			else this.include(hook.document);
+			else this.include(data.document);
 		});
 	}
 	
