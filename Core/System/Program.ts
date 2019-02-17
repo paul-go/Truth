@@ -114,10 +114,7 @@ export class Program
 		if (attachments.length === 0)
 			return [];
 		
-		const ownerUri = ownerOf(this);
-		const applicable = attachments.filter(a => a.uri === ownerUri);
-		
-		for (const attachment of applicable)
+		for (const attachment of attachments)
 			if (attachment.via === "aid")
 				attachment.callback(cause);
 		
@@ -125,7 +122,7 @@ export class Program
 			cause.returns :
 			null;
 		
-		for (const attachment of applicable)
+		for (const attachment of attachments)
 		{
 			if (attachment.via === "on")
 			{

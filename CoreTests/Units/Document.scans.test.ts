@@ -5,10 +5,6 @@ import "../Framework/TestExtensions";
 
 describe("Document Scans", () =>
 {
-	// Hooks are disabled for document tests
-	beforeEach(() => X.HookRouter.disabled = true);
-	afterEach(() => X.HookRouter.disabled = false);
-	
 	//
 	test(".getAncestry() with a statement", () =>
 	{
