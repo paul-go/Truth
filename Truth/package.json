@@ -22,13 +22,12 @@
 	"types": "Build/Release/truth.d.ts",
 	"scripts": {
 		"test": "jest",
-		"all": "npm run compile-types-bundler && npm run compile && npm run bundle-code",
+		"all": "npm run compile-types-bundler && npm run compile",
 		"compile": "npm run compile-core && npm run compile-tests",
 		"compile-core": "cd Core && tsc",
 		"compile-core-agents": "cd CoreAgents && tsc",
 		"compile-types-bundler": "cd TypesBundler && tsc",
 		"compile-tests": "cd CoreTests && tsc",
-		"bundle-code": "rollup -c",
 		"mjs-rename": "for i in `find ./Build/Dev -mindepth 2 -name '*.js'`; do mv $i ${i%.js}.mjs; done",
 		"prepublish": "node release.js"
 	},
