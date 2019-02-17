@@ -496,10 +496,11 @@ export class Document
 	 * an underlying file, typically done by a user in a text editing
 	 * environment. System-initiated changes such as automated
 	 * fixes, refactors, or renames do not go through this pathway.
+	 * 
 	 * @param editFn The callback function in which to perform
 	 * document mutation operations.
 	 */
-	edit(editFn: (facts: IDocumentMutator) => void)
+	edit(editFn: (mutator: IDocumentMutator) => void)
 	{
 		if (this.inEdit)
 			throw X.Exception.doubleTransaction();
@@ -1072,7 +1073,7 @@ interface IDocumentMutator
 	 * Deletes a fact at the given position, and returns the deleted Fact. 
 	 * Negative numbers delete facts starting from the end of the document.
 	 */
-	delete(at: number, count: number): void;
+	delete(at: number, count?: number): void;
 }
 
 
