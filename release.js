@@ -26,7 +26,7 @@ task("Generating type definitions file...", () =>
 	bundle({
 		in: ReleaseTempDir + "X.d.ts",
 		out: [
-			ReleaseTempDir + "truth.d.ts"
+			ReleaseDir + "truth.d.ts"
 		],
 		namespace: "Truth",
 		module: "truth-compiler",
