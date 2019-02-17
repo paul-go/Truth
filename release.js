@@ -24,8 +24,7 @@ task("Generating type definitions file...", () =>
 		namespace: "Truth",
 		module: "truth-compiler",
 		footer: [
-			"declare const Hooks: Truth.HookTypesInstance;",
-			"declare const Program: Truth.Program;"
+			"declare const program: Truth.Program;"
 		]
 	});
 });
