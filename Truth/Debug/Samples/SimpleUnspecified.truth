@@ -1,9 +1,0 @@
-String
-	Max
-
-Email : String
-	
-Class
-	Property : Email
-	
-SubClass : Class

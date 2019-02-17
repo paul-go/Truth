@@ -1,0 +1,16 @@
+// 
+
+Number
+/\d+ : Number
+
+String
+/".+" : String
+
+/"< : Number>" : Number, String
+NumberInString : Number, String
+
+Class
+	Property : NumberInString
+
+SubClass : Class
+	Property : "2"

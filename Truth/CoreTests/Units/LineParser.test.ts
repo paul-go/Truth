@@ -1,6 +1,6 @@
 import * as X from "../X";
 import * as T from "../T";
-import "../Framework/TestExtensions";
+import "../Framework/TestExtensionsImplementation";
 
 
 //

@@ -1,0 +1,29 @@
+{
+	"name": "truth-compiler",
+	"version": "0.2.1",
+	"description": "Verify and analyze code and data in the Truth format",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/paul-go/Truth"
+	},
+	"bugs": {
+		"url": "https://github.com/paul-go/Truth/issues"
+	},
+	"author": "Paul Go",
+	"license": "MIT",
+	"keywords": [
+		"Truth",
+		"language",
+		"data",
+		"verification",
+		"compiler"
+	],
+	"main": "../Build/Release/truth.js",
+	"types": "../Build/Release/truth.d.ts",
+	"scripts": {
+		"compile": "tsc"
+	},
+	"devDependencies": {
+		"@types/node": "^10.12.18"
+	}
+}

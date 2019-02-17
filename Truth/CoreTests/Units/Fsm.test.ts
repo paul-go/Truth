@@ -1,5 +1,5 @@
 import * as X from "../X";
-import "../Framework/TestExtensions";
+import "../Framework/TestExtensionsImplementation";
 
 
 //

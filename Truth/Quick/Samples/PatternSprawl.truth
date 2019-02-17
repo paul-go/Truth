@@ -1,0 +1,23 @@
+// Class3/Value
+
+NoopBase
+/noopbase : NoopBase
+
+Noop : NoopBase
+
+Class1
+	/noop : Noop
+
+/c1 : Class1
+
+Class2 : Class1
+	/noop : Noop
+	
+/c2 : Class2
+
+Namespace
+	/c1 : Class1
+	/c2 : Class2
+
+Class3 : Class2
+	Value : c2

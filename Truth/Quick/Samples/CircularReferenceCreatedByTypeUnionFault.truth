@@ -1,0 +1,11 @@
+// Class
+
+Left
+	Field
+	Property : Field
+
+Right
+	Property
+	Field : Property
+
+Class : Left, Right

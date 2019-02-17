@@ -3,6 +3,7 @@
  */
 
 const ReleaseDir = "./Build/Release/";
+const ReleaseTempDir = "./Build/Release/Temp/";
 const UnminifiedFile = ReleaseDir + "truth.js";
 const MinifiedFile = ReleaseDir + "truth.min.js";
 
@@ -10,16 +11,22 @@ const Fs = require("fs");
 
 task("Compiling to temporary directory...", () =>
 {
-	exec("tsc -p ./tsconfig.release.json");
+	exec(`tsc
+		--project ./Core/tsconfig.json
+		--outDir ${ReleaseTempDir}
+		--module es2015
+		--downlevelIteration
+		--declaration
+	`);
 });
 
 task("Generating type definitions file...", () =>
 {
 	const bundle = require("./TypesBundler/TypesBundler.js");
 	bundle({
-		in: ReleaseDir + "Core/X.d.ts",
+		in: ReleaseTempDir + "X.d.ts",
 		out: [
-			ReleaseDir + "truth.d.ts"
+			ReleaseTempDir + "truth.d.ts"
 		],
 		namespace: "Truth",
 		module: "truth-compiler",
@@ -42,7 +49,7 @@ task("Bundling into a single file...", async () =>
 	};
 	
 	const options = {
-		input: ReleaseDir + "Core/X.js",
+		input: ReleaseTempDir + "X.js",
 		output,
 		treeshake: false,
 		onwarn: warning =>
@@ -107,6 +114,19 @@ task("Minifying code...", () =>
 	Fs.writeFileSync(MinifiedFile, terserResult.code);
 });
 
+task("Cleanup", async () =>
+{
+	// This is a hack for now that waits a second before cleaning
+	// everything up. At some point someone can figure out why
+	// this task isn't running after all others.
+	return new Promise(r => setTimeout(() =>
+	{
+		exec("rm -rf " + ReleaseTempDir);
+		r();
+	},
+	1000));
+});
+
 task("Done", () => {});
 
 
@@ -117,7 +137,7 @@ task("Done", () => {});
 
 function exec(cmd)
 {
-	require("child_process").execSync(cmd.replace(/[\r\n]/g, ""));
+	require("child_process").execSync(cmd.replace(/[\r\n]/g, "").trim());
 }
 
 async function task(title, taskFn)
