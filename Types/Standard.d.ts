@@ -4,9 +4,6 @@ declare global
 	/** */
 	type Constructor<T> = { new(...args: any[]): T };
 	
-	/** Omit the members named in the second type from the first. */
-	type Omit<T, TOmit> = T extends TOmit ? never : T;
-	
 	/** Create a fully locked version of the type. */
 	type Freeze<T> = {
 		readonly [P in keyof T]: 
