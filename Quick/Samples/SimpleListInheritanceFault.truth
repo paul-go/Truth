@@ -1,0 +1,18 @@
+// Class1/ErrorNotList
+
+Item
+Single
+
+Class1
+	List : Item...
+	ErrorNotList : Single, List
+
+Class2
+	List : Item...
+	ErrorIsList : List, Single
+
+//Harder
+//	Class
+//		List : Item...
+//	SubClass : Class
+//		List : Single

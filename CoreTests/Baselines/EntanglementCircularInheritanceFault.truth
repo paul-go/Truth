@@ -8,6 +8,7 @@
 Thing
 
 Class
+	// How is this not a circular reference right here?
 	Property : Thing
 	Field : Property
 	

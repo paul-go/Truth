@@ -1,0 +1,21 @@
+// Container/SubClass/Polymorphic
+
+Animal
+Mouse : Animal
+
+Thing
+MyThing : Thing
+
+Class
+	Polymorphic : Animal
+	Mouse : Thing, Polymorphic
+
+Container
+	Device
+	Mouse : Device
+	
+	SubClass : Class
+		Polymorphic : Mouse
+		Middle : Polymorphic
+		Mouse : Middle, Animal
+		

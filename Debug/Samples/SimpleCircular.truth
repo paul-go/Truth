@@ -1,6 +1,0 @@
-Namespace/AA
-
-Namespace
-	AA : BB
-	BB : CC
-	CC : AA

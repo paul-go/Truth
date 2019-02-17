@@ -1,0 +1,21 @@
+// 
+
+EasyNoInfixes
+	Top
+		Value
+
+	/\d : Top
+	Left : 2
+	Right : 2
+	Bottom : Left, Right
+		Value
+
+HardInfixes
+	Top
+		Value
+
+	/\d : Top
+	Left : 2
+	Right : 2
+	Bottom : Left, Right
+		Value

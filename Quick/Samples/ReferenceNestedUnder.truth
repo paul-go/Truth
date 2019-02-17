@@ -1,0 +1,20 @@
+// Namespace/Class/Property/Field
+
+Animal
+Bunny : Animal
+
+String
+Email : String
+	Field : Animal
+	
+Basespace
+	Value1 : String
+	Value2 : Value1
+
+Namespace : Basespace
+	Value1 : Email
+	Value2
+	
+	Class
+		Property : Value2
+			Field : Bunny

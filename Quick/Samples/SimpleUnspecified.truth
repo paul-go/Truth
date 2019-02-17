@@ -1,0 +1,13 @@
+// Class
+
+String
+	Max
+
+Email : String
+	
+Class
+	Property : Email
+	
+ClassA : Class
+ClassB : Class
+ClassC : ClassA, ClassB

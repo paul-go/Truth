@@ -1,0 +1,18 @@
+{
+	"name": "truth-compiler-runner",
+	"version": "0.2.1",
+	"description": "Quick runner project for getting fast entry points into the compiler",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/paul-go/Truth"
+	},
+	"author": "Paul Go",
+	"license": "MIT",
+	"scripts": {
+		"compile": "tsc"
+	},
+	"devDependencies": {
+		"@types/node": "^10.12.18",
+		"@types/jest": "^23.3.12"
+	}
+}

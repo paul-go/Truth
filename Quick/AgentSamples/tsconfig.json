@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es2017",
+		"inlineSourceMap": true,
+		"inlineSources": true,
+		"strict": true,
+		"declaration": false,
+		"lib": [
+			"es7",
+			"es2017",
+			"es2017.object"
+		],
+		"rootDirs": [
+			"../../Build/Release"
+		]
+	},
+	"include": [
+		"**/*.ts",
+		"../../Build/Release/truth.d.ts"
+	]
+}

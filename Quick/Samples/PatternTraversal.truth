@@ -1,0 +1,23 @@
+// ClassBottom/Property
+
+A, B, C
+Root, Top, Left, Right, Bottom
+/root : Root
+
+P1, P2, P3, P4
+
+ClassTop
+	/top : Top
+	Property
+
+ClassLeft : ClassTop
+	/left : Left, A, B, C
+	Property
+	
+ClassRight : ClassTop
+	/right : Right
+	Property
+
+ClassBottom : ClassLeft, ClassRight
+	/bottom : Bottom
+	Property : bottom

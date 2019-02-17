@@ -1,0 +1,22 @@
+// Bottom
+
+Item
+Boolean
+true : Boolean
+false : Boolean
+
+List : Item...
+Left : List...
+Right : List...
+Bottom : Left, Right
+
+Class
+	List : Item...
+	List...
+		Sorted : Boolean
+	
+SubClass : Class
+	List
+		Sorted : true
+		: Item
+	

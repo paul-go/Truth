@@ -1,0 +1,24 @@
+// Container2/Container4/Property
+
+Animal
+Mouse : Animal
+Device
+
+Container1
+	Property : Animal
+
+Container2
+	Mouse : Device
+	Keyboard : Device
+	Printer : Device
+	
+	Container2 : Container1
+		// Mouse like Animal
+		Property : Mouse
+	
+	Container3 : Container1
+		Property : Animal, Device
+	
+	Container4 : Container3
+		// Mouse, Mouse like Animal, Device
+		Property : Mouse, Mouse
