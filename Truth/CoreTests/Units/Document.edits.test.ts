@@ -5,10 +5,6 @@ import "../Framework/TestExtensions";
 
 describe("Document Edits", () =>
 {
-	// Hooks are disabled for document tests
-	beforeEach(() => X.HookRouter.disabled = true);
-	afterEach(() => X.HookRouter.disabled = false);
-	
 	/** */
 	test(".edit() with single update", () =>
 	{
