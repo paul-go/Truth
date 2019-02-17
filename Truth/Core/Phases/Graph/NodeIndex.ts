@@ -9,15 +9,15 @@ export class NodeIndex
 	/** */
 	constructor(private readonly program: X.Program)
 	{
-		program.hooks.DocumentUriChanged.capture(hook =>
+		program.on(X.CauseDocumentUriChange, data =>
 		{
 			// Update the entire cache when the URI of any document changes.
-			const newUriStore = hook.newUri.retractTypeTo(0);
+			const newUriStore = data.newUri.retractTypeTo(0);
 			const entries = Array.from(this.uriToNodeMap.entries())
 			
 			for (const [oldUriText, node] of entries)
 			{
-				if (node.document !== hook.document)
+				if (node.document !== data.document)
 					continue;
 				
 				const oldUri = X.Guard.notNull(X.Uri.tryParse(oldUriText));

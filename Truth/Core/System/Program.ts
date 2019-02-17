@@ -12,59 +12,59 @@ export class Program
 	 */
 	constructor()
 	{
-		const router = new X.HookRouter();
-		this.hooks = router.createHookTypesInstance();
 		this._version = X.VersionStamp.next();
 		
 		// The ordering of these instantations is relevant,
 		// because it reflects the order in which each of
 		// these services are going to process hooks.
 		
-		this.hooks.DocumentCreated.capture(hook =>
+		this.on(X.CauseDocumentCreate, data =>
 		{
-			this.unverifiedDocuments.push(hook.document);
+			this.unverifiedDocuments.push(data.document);
 		});
 		
-		this.hooks.DocumentDeleted.capture(hook =>
+		this.on(X.CauseDocumentDelete, data =>
 		{
-			const idx = this.unverifiedDocuments.indexOf(hook.document);
+			const idx = this.unverifiedDocuments.indexOf(data.document);
 			if (idx > -1)
 				this.unverifiedDocuments.splice(idx, 1);
 		});
 		
-		this.hooks.DocumentUriChanged.capture(hook =>
+		this.on(X.CauseDocumentUriChange, () =>
 		{
 			this._version = X.VersionStamp.next();
 		});
 		
-		this.agents = new X.Agents(this, router);
+		this.on(X.CauseAgentDetach, data =>
+		{
+			for (const [cause, attachments] of this.causes)
+				for (const attachment of attachments)
+					if (attachment.uri && attachment.uri.equals(data.uri))
+						this.causes.delete(cause, attachment);
+		});
+		
+		new X.AgentCache(this);
 		this.documents = new X.DocumentGraph(this);
 		this.graph = new X.HyperGraph(this);
 		
-		this.hooks.Revalidate.capture(hook =>
+		this.on(X.CauseRevalidate, data =>
 		{
 			for (let i = this.unverifiedStatements.length; i-- > 0;)
 				if (this.unverifiedStatements[i].isDisposed)
 					this.unverifiedStatements.splice(i, 1);
 			
-			for (const statement of hook.parents)
+			for (const statement of data.parents)
 				if (!statement.isCruft)
 					this.unverifiedStatements.push(statement);
 		});
 		
 		this.faults = new X.FaultService(this);
 		
-		this.hooks.EditComplete.capture(hook =>
+		this.on(X.CauseEditComplete, data =>
 		{
 			this._version = X.VersionStamp.next();
 		});
 	}
-	
-	/** */
-	readonly hooks: X.HookTypesInstance;
-	
-	/** */
-	readonly agents: X.Agents;
 	
 	/** */
 	readonly documents: X.DocumentGraph;
@@ -81,6 +81,81 @@ export class Program
 		return this._version;
 	}
 	private _version: X.VersionStamp;
+	
+	/**
+	 * 
+	 */
+	aid<T extends X.Cause<any>>(
+		causeType: new (...args: any[]) => T,
+		fn: (data: X.TCauseData<T>) => X.TCauseReturn<T>)
+	{
+		const ca = new CauseAttachment(ownerOf(this), fn, "aid");
+		this.causes.add(causeType, ca);
+	}
+	
+	/**
+	 * 
+	 */
+	on<T extends X.Cause<any>>(
+		causeType: new(...args: any[]) => T,
+		fn: (data: X.TCauseData<T>) => void): void
+	{
+		const ca = new CauseAttachment(ownerOf(this), fn, "on");
+		this.causes.add(causeType, ca);
+	}
+	
+	/**
+	 * 
+	 */
+	cause<R>(cause: X.Cause<R>): R[]
+	{
+		const causeType = <typeof X.Cause>cause.constructor;
+		const attachments = this.causes.get(causeType) || [];
+		if (attachments.length === 0)
+			return [];
+		
+		const ownerUri = ownerOf(this);
+		const applicable = attachments.filter(a => a.uri === ownerUri);
+		
+		for (const attachment of applicable)
+			if (attachment.via === "aid")
+				attachment.callback(cause);
+		
+		const returns = cause.returns instanceof Array ?
+			cause.returns :
+			null;
+		
+		for (const attachment of applicable)
+		{
+			if (attachment.via === "on")
+			{
+				const ret = attachment.callback(cause);
+				if (returns && ret !== null && ret !== undefined)
+					returns.push(ret);
+			}
+		}	
+		
+		return returns || [];
+	}
+	
+	/**
+	 * 
+	 */
+	async attach(agentUri: X.Uri): Promise<Error | void>
+	{
+		
+	}
+	
+	/**
+	 * 
+	 */
+	detach(agentUri: X.Uri)
+	{
+		
+	}
+	
+	/** @internal */
+	private readonly causes = new X.MultiMap<typeof X.Cause, CauseAttachment>();
 	
 	/**
 	 * @returns A fully constructed Type instance that corresponds to
@@ -253,6 +328,45 @@ export class Program
 	
 	/** */
 	private readonly unverifiedDocuments: X.Document[] = [];
+	
+	/**
+	 * @internal
+	 * Stores a function that returns a reference to the Agent that
+	 * holds the reference to this Program instance, or undefined in
+	 * the case when it's not held by an agent.
+	 * 
+	 * This value is applied through the Misc.patch() function, which
+	 * uses a Proxy object to provide 
+	 */
+	readonly instanceOwnerUri?: X.Uri;
+}
+
+
+/**
+ * Gets a stringified version of the Uri that is the owner
+ * of this Program instance.
+ */
+function ownerOf(program: Program)
+{
+	return typeof program.instanceOwnerUri !== "undefined" ?
+		program.instanceOwnerUri :
+		null;
+}
+
+
+/**
+ * @internal
+ * Stores information about the attachment
+ * of a cause callback function.
+ */
+class CauseAttachment
+{
+	/** */
+	constructor(
+		readonly uri: X.Uri | null,
+		readonly callback: (data: any) => any,
+		readonly via: "on" | "aid")
+	{ }
 }
 
 

@@ -65,20 +65,13 @@ export class DocumentHeader
 			if (!oldUriMap.has(statement))
 				addedUriMap.set(newUri, statement);
 		
-		const doc = this.document;
-		const hooks = doc.program.hooks;
+		const program = this.document.program;
 		
 		for (const [uri, statement] of removedUriMap)
-		{
-			const param = new X.UriReferenceParam(doc, statement, uri);
-			hooks.UriReferenceRemoved.run(param);
-		}
+			program.cause(new X.CauseUriReferenceRemove(statement, uri));
 		
 		for (const [uri, statement] of addedUriMap)
-		{
-			const param = new X.UriReferenceParam(doc, statement, uri);
-			hooks.UriReferenceAdded.run(param);
-		}
+			program.cause(new X.CauseUriReferenceAdd(statement, uri));
 		
 		this.uriMap.clear();
 		newUriMap.forEach((uri, statement) => this.uriMap.set(statement, uri));

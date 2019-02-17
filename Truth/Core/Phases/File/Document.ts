@@ -21,14 +21,14 @@ export class Document
 		this._sourceUri = sourceUri;
 		this.fill(sourceText);
 		
-		program.hooks.DocumentUriChanged.capture(hook =>
+		program.on(X.CauseDocumentUriChange, data =>
 		{
-			if (hook.document === this)
+			if (data.document === this)
 			{
 				if (this.inEdit)
 					throw X.Exception.invalidWhileInEditTransaction();
 					
-				this._sourceUri = hook.newUri;
+				this._sourceUri = data.newUri;
 			}
 		});
 	}
@@ -547,8 +547,6 @@ export class Document
 			return;
 		}
 		
-		const hooks = this.program.hooks;
-		
 		// Begin the algorithm that determines the changeset,
 		// and runs the appropriate invalidation and revalidation
 		// hooks. This is wrapped in an IIFE because we need to
@@ -629,12 +627,10 @@ export class Document
 						if (hasOpStatements)
 						{
 							// Tell subscribers to blow away all the old statements.
-							const invalidateParam = new X.InvalidateParam(
+							this.program.cause(new X.CauseInvalidate(
 								this,
 								oldStatements,
-								indexes);
-							
-							hooks.Invalidate.run(invalidateParam);
+								indexes));
 						}
 						
 						// Run the actual mutations
@@ -644,12 +640,10 @@ export class Document
 						if (hasOpStatements)
 						{
 							// Tell subscribers what changed
-							const revalidateParam = new X.RevalidateParam(
+							this.program.cause(new X.CauseRevalidate(
 								this, 
 								newStatements,
-								indexes);
-							
-							hooks.Revalidate.run(revalidateParam);
+								indexes));
 						}
 						
 						return;
@@ -690,7 +684,7 @@ export class Document
 					// An edit transaction can be avoided completely in the case
 					// when the only statements that were deleted were noops.
 					if (hasOpStatements)
-						hooks.Invalidate.run(new X.InvalidateParam(
+						this.program.cause(new X.CauseInvalidate(
 							this,
 							deadStatements,
 							deadIndexes));
@@ -702,7 +696,7 @@ export class Document
 					// rule that for every invalidation hook, there is always a
 					// corresponding revalidation hook.
 					if (hasOpStatements)
-						hooks.Revalidate.run(new X.RevalidateParam(this, [], []));
+						this.program.cause(new X.CauseRevalidate(this, [], []));
 					
 					return;
 				}
@@ -841,7 +835,7 @@ export class Document
 			
 			// Notify observers of the Invalidate hook to invalidate the
 			// descendants of the specified set of parent statements.
-			hooks.Invalidate.run(new X.InvalidateParam(this, parents, indexes));
+			this.program.cause(new X.CauseInvalidate(this, parents, indexes));
 			
 			const deletedStatements: X.Statement[] = [];
 			
@@ -866,7 +860,7 @@ export class Document
 			
 			// Notify observers of the Revalidate hook to update the
 			// descendants of the specified set of parent statements.
-			hooks.Revalidate.run(new X.RevalidateParam(
+			this.program.cause(new X.CauseRevalidate(
 				this, 
 				Array.from(invalidatedParents.values()),
 				Array.from(invalidatedParents.keys())
@@ -882,7 +876,7 @@ export class Document
 					throw X.Exception.unknownState();
 		
 		// Tell subscribers that the edit transaction completed.
-		hooks.EditComplete.run(new X.DocumentParam(this));
+		this.program.cause(new X.CauseEditComplete(this));
 		
 		this._version = X.VersionStamp.next();
 		this.inEdit = false;
