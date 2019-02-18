@@ -105,12 +105,40 @@ export class Program
 	}
 	
 	/**
+	 * Progates the specified Cause object to all subscribers that
+	 * are listening for causes of object's type. 
 	 * 
+	 * @param cause A reference to the Cause instance to broadcast.
+	 * 
+	 * @param filter An optional array of Uri instances that
+	 * specify the origin from where an agent that is attached
+	 * to the cause must loaded in order to be delivered the
+	 * cause instance.
+	 * 
+	 * @returns An object that stores information about the
+	 * cause results that were returned, and the URI of the 
+	 * agent that produced the result. In the case when the
+	 * agent was attached programmatically, the URI value 
+	 * will be null.
 	 */
-	cause<R>(cause: X.Cause<R>): R[]
+	cause<R>(
+		cause: X.Cause<R>,
+		filter: X.Uri[] = []): { from: X.Uri | null, returned: R }[]
 	{
 		const causeType = <typeof X.Cause>cause.constructor;
-		const attachments = this.causes.get(causeType) || [];
+		const attachmentsAll = this.causes.get(causeType) || [];
+		const attachments = attachmentsAll.filter(attachment =>
+		{
+			if (filter.length === 0)
+				return true;
+			
+			const otherUri = attachment.uri;
+			if (otherUri === null)
+				return true;
+			
+			return filter.find(uri => !uri.equals(otherUri));
+		});
+		
 		if (attachments.length === 0)
 			return [];
 		
@@ -130,7 +158,7 @@ export class Program
 				if (returns && ret !== null && ret !== undefined)
 					returns.push(ret);
 			}
-		}	
+		}
 		
 		return returns || [];
 	}
@@ -140,7 +168,7 @@ export class Program
 	 */
 	async attach(agentUri: X.Uri): Promise<Error | void>
 	{
-		
+		throw X.Exception.notImplemented();
 	}
 	
 	/**
@@ -148,7 +176,7 @@ export class Program
 	 */
 	detach(agentUri: X.Uri)
 	{
-		
+		throw X.Exception.notImplemented();
 	}
 	
 	/** @internal */
@@ -396,3 +424,5 @@ export class ProgramInspectionResult
 		readonly span: X.Span | null = null)
 	{ }
 }
+
+

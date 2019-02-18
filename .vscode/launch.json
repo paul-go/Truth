@@ -4,11 +4,11 @@
 		"type": "node",
 		"request": "launch",
 		"name": "Debug Project",
-		"program": "${workspaceFolder}/Build/Dev/Debug/Start.js", 
+		"program": "${workspaceFolder}/Build/Dev/Quick/Start.js", 
 		"internalConsoleOptions": "neverOpen",
 		"sourceMaps": true,
 		"args": [
-			"--file=./Debug/Samples/MultiDiamond.truth"
+			"--file=./Quick/Samples/SimpleUnspecified.truth"
 		]
 	},
 	{
@@ -18,6 +18,16 @@
 		"program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
 		"args": [
 			
+		],
+		"internalConsoleOptions": "openOnSessionStart"
+	},
+	{
+		"type": "node",
+		"request": "launch",
+		"name": "Debug Release Script",
+		"program": "${workspaceRoot}/mod.js",
+		"args": [
+			"--debug-brk"
 		],
 		"internalConsoleOptions": "openOnSessionStart"
 	}]
