@@ -9,7 +9,7 @@ import * as Fs from "fs";
  */
 
 const JsonViz = require("jsonviz");
-const dirPath = "./Debug/GraphLogs/";
+const dirPath = "./Quick/GraphLogs/";
 let nextFileNumber = 0;
 const getFileNumber = (specificNumber?: number) =>
 {

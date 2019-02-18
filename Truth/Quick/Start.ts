@@ -31,13 +31,9 @@ setTimeout(async () =>
 	const targetTypePath = (() =>
 	{
 		const fileContent = Fs.readFileSync(filePath, "utf8");
-		const typePathEnd = fileContent.indexOf(Os.EOL);
-		const typePathRaw = fileContent.slice(0, typePathEnd);
-		const fileContentAdjusted =
-			" ".repeat(typePathRaw.length) + 
-			fileContent.slice(typePathRaw.length);
-		
-		return typePathRaw.trim().split("/");
+		const firstLineEnd = fileContent.indexOf(Os.EOL);
+		const firstLine = fileContent.slice("// ".length, firstLineEnd);
+		return firstLine.trim().split("/");
 	})();
 	
 	const program = new X.Program();
@@ -53,8 +49,8 @@ setTimeout(async () =>
 	// Wait for the agents to load before continuing
 	await new Promise(r => setTimeout(r, 100));
 	
-	doc.edit(mutator => mutator.update("// ", 0));
-	doc.edit(mutator => mutator.delete(2));
+	//doc.edit(mutator => mutator.update("// ", 0));
+	//doc.edit(mutator => mutator.delete(2));
 	
 	console.log(program.graph.toString());
 	program.verify();
