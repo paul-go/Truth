@@ -1,6 +1,6 @@
 {
 	"name": "truth-compiler",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"description": "Verify and analyze code and data in the Truth format",
 	"repository": {
 		"type": "git",
@@ -18,8 +18,8 @@
 		"verification",
 		"compiler"
 	],
-	"main": "Build/Release/truth.js",
-	"types": "Build/Release/truth.d.ts",
+	"main": "./Build/Release/truth.js",
+	"types": "./Build/Release/truth.d.ts",
 	"scripts": {
 		"test": "jest",
 		"compile": "npm run compile-core && npm run compile-tests && npm run compile-quick",
@@ -47,8 +47,8 @@
 		"uglify-js": "^3.4.9"
 	},
 	"files": [
-		"Build/Release/truth.d.ts",
-		"Build/Release/truth.js",
-		"Build/Release/truth.min.js"
+		"./Build/Release/truth.d.ts",
+		"./Build/Release/truth.js",
+		"./Build/Release/truth.min.js"
 	]
 }

@@ -31,7 +31,10 @@ task("Generating type definitions file...", () =>
 		namespace: "Truth",
 		module: "truth-compiler",
 		footer: [
-			"declare const program: Truth.Program;"
+			"declare global {",
+			"\tconst program: Truth.Program;",
+			"}",
+			"export { }"
 		]
 	});
 });
