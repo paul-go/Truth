@@ -135,20 +135,28 @@ export class FaultType<TSource = TFaultSource>
 
 
 /**
- * 
+ * The following definitions are intentionally equivalent
+ * to the severity codes from the monaco editor.
  */
 export const enum FaultSeverity
 {
-	/**
-	 * Indicates the severity of a fault is "error", which means that
-	 * the associated object will be ignored during type analysis.
-	 */
-	error = 1,
+	/** Unused. */
+	hint = 1,
+	
+	/** Unused. */
+	info = 2,
+	
 	/**
 	 * Indicates the severity of a fault is "warning", which means that
 	 * the associated object will still be processed during type analysis.
 	 */
-	warning = 2
+	warning = 4,
+	
+	/**
+	 * Indicates the severity of a fault is "error", which means that
+	 * the associated object will be ignored during type analysis.
+	 */
+	error = 8
 }
 
 
