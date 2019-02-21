@@ -1,5 +1,6 @@
 
 /**
+ * @internal
  * Stores unsorted general utility methods.
  */
 export class Misc
@@ -154,6 +155,21 @@ export class Misc
 					source[key];
 			}
 		});
+	}
+	
+	/**
+	 * Safely parses a JSON object, silencing any thrown parse exceptions.
+	 */
+	static tryParseJson(jsonText: string)
+	{
+		try
+		{
+			return JSON.parse(jsonText);
+		}
+		catch (e)
+		{
+			return null;
+		}
 	}
 	
 	private constructor() {}
