@@ -25,7 +25,7 @@
 		"type": "node",
 		"request": "launch",
 		"name": "Debug Release Script",
-		"program": "${workspaceRoot}/mod.js",
+		"program": "${workspaceRoot}/release.js",
 		"args": [
 			"--debug-brk"
 		],
