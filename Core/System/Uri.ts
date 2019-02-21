@@ -300,7 +300,7 @@ export class Uri
 	 * @returns The path of stores contained by this URI, 
 	 * concatenated into a single string.
 	 */
-	toStoreString()
+	toStoreString(omitFile = false)
 	{
 		const thisAbsolute = (this.isRelative ? this.toAbsolute() : this)!;
 		
@@ -312,7 +312,7 @@ export class Uri
 			thisAbsolute.protocol + "//";
 		
 		const components = thisAbsolute.stores
-			.concat(new X.UriComponent(this.file))
+			.concat(omitFile ? [] : [new X.UriComponent(this.file)])
 			.map(t => t.toStringEncoded())
 			.join(X.UriSyntax.componentSeparator);
 		
