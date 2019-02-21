@@ -1,12 +1,11 @@
 /**
- * Build script that creates a new release of the TypeScript compiler.
+ * Build script that creates a new release of the Truth compiler.
  */
 
 const ReleaseDir = "./Build/Release/";
 const ReleaseTempDir = "./Build/Release/Temp/";
 const UnminifiedFile = ReleaseDir + "truth.js";
 const MinifiedFile = ReleaseDir + "truth.min.js";
-
 const Fs = require("fs");
 
 task("Compiling to temporary directory...", () =>
@@ -115,6 +114,26 @@ task("Minifying code...", () =>
 			console.log(warning);
 	
 	Fs.writeFileSync(MinifiedFile, terserResult.code);
+});
+
+task("Emitting release package.json", () =>
+{
+	const jsonText = Fs.readFileSync("./package.json").toString("utf8");
+	const json = JSON.parse(jsonText);
+	
+	delete json.jest;
+	delete json.devDependencies;
+	
+	json.main = "./truth.js";
+	json.types = "./truth.d.ts";
+	json.files = [
+		"truth.d.ts",
+		"truth.js",
+		"truth.min.js"
+	];
+	
+	const jsonOutput = JSON.stringify(json, null, "\t");
+	Fs.writeFileSync(ReleaseDir + "package.json", jsonOutput);
 });
 
 task("Cleanup", async () =>

@@ -1,6 +1,6 @@
 {
 	"name": "truth-compiler",
-	"version": "0.2.2",
+	"version": "0.2.9",
 	"description": "Verify and analyze code and data in the Truth format",
 	"repository": {
 		"type": "git",
@@ -19,7 +19,6 @@
 		"compiler"
 	],
 	"main": "./Build/Release/truth.js",
-	"types": "./Build/Release/truth.d.ts",
 	"scripts": {
 		"test": "jest",
 		"compile": "npm run compile-core && npm run compile-tests && npm run compile-quick",
@@ -28,7 +27,7 @@
 		"compile-quick": "tsc -p ./Quick/tsconfig.json",
 		"compile-types-bundler": "tsc -p ./TypesBundler/tsconfig.json",
 		"mjs-rename": "for i in `find ./Build/Dev -mindepth 2 -name '*.js'`; do mv $i ${i%.js}.mjs; done",
-		"prepublish": "node release.js"
+		"release": "node release.js && cd Build/Release && npm publish"
 	},
 	"jest": {
 		"testRegex": "Build/Dev/CoreTests/Units/[\\w.]+\\.test\\.js$",
@@ -45,10 +44,5 @@
 		"terser": "^3.16.0",
 		"typescript": "^3.2.2",
 		"uglify-js": "^3.4.9"
-	},
-	"files": [
-		"./Build/Release/truth.d.ts",
-		"./Build/Release/truth.js",
-		"./Build/Release/truth.min.js"
-	]
+	}
 }
