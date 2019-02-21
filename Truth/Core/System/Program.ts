@@ -123,20 +123,20 @@ export class Program
 	 */
 	cause<R>(
 		cause: X.Cause<R>,
-		filter: X.Uri[] = []): { from: X.Uri | null, returned: R }[]
+		...filters: X.Uri[]): { from: X.Uri | null, returned: R }[]
 	{
 		const causeType = <typeof X.Cause>cause.constructor;
 		const attachmentsAll = this.causes.get(causeType) || [];
 		const attachments = attachmentsAll.filter(attachment =>
 		{
-			if (filter.length === 0)
+			if (filters.length === 0)
 				return true;
 			
 			const otherUri = attachment.uri;
 			if (otherUri === null)
 				return true;
 			
-			return filter.find(uri => !uri.equals(otherUri));
+			return filters.find(uri => !uri.equals(otherUri));
 		});
 		
 		if (attachments.length === 0)
@@ -163,6 +163,9 @@ export class Program
 		return returns || [];
 	}
 	
+	/** @internal */
+	private readonly causes = new X.MultiMap<typeof X.Cause, CauseAttachment>();
+	
 	/**
 	 * 
 	 */
@@ -178,9 +181,6 @@ export class Program
 	{
 		throw X.Exception.notImplemented();
 	}
-	
-	/** @internal */
-	private readonly causes = new X.MultiMap<typeof X.Cause, CauseAttachment>();
 	
 	/**
 	 * @returns A fully constructed Type instance that corresponds to
@@ -424,5 +424,3 @@ export class ProgramInspectionResult
 		readonly span: X.Span | null = null)
 	{ }
 }
-
-
