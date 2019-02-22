@@ -1,5 +1,4 @@
 
-
 // Poor mans node definitions.
 declare const process: any;
 declare const require: (moduleName: string) => any;
@@ -85,7 +84,7 @@ class DefinitionFile
 	}
 	
 	/** */
-	emit(namespace?: string, moduleName?: string)
+	emit(moduleName?: string, namespace?: string, globalize?: boolean)
 	{
 		const lineObjects = this.collectLines();
 		
@@ -111,20 +110,33 @@ class DefinitionFile
 		if (namespace)
 		{
 			lines.push("");
-			lines.unshift(`declare namespace ${namespace} {`);
+			
+			if (globalize)
+			{
+				lines.push("declare global {");
+				lines.push(`namespace ${namespace} {`);
+			}
+			else
+			{
+				lines.push(`declare namespace ${namespace} {`);
+			}
 			
 			emitLines();
-			
 			lines.push("}");
+			
+			if (globalize)
+			{
+				lines.push("}");
+				lines.push("export { }");
+			}
+			
 			lines.push("");
 		}
 		
 		if (moduleName)
 		{
 			lines.push(`declare module "${moduleName}" {`);
-			
 			emitLines();
-			
 			lines.push(`}`);
 			lines.push("");
 		}
@@ -132,9 +144,9 @@ class DefinitionFile
 		if (!namespace && !moduleName)
 		{
 			emitLines(false);
+			lines.push("");
 		}
 		
-		lines.push("");
 		return lines;
 	}
 	
@@ -373,6 +385,7 @@ interface IBundleOptions
 	in: string;
 	out: string|string[];
 	namespace: string;
+	globalize: boolean;
 	module: string;
 	header: string|string[];
 	footer: string|string[];
@@ -383,7 +396,7 @@ interface IBundleOptions
 const runningAsModule = !!module.parent;
 
 
-const bundle = (options?: IBundleOptions) =>
+async function bundle(options?: IBundleOptions)
 {
 	/** Stores the directory containing the entry point script. */
 	const scriptDirectory = (() =>
@@ -411,14 +424,14 @@ const bundle = (options?: IBundleOptions) =>
 		Path.resolve(inPath);
 	
 	/** Reads the argument with the specified name from the process arguments. */
-	const readArgument = (name: keyof IBundleOptions, required = false) =>
+	function readArgument<T = string>(name: keyof IBundleOptions, required = false): T
 	{
 		if (runningAsModule)
 		{
 			if (!options || typeof options !== "object")
 				throw `Options object must be passed to this function.`;
 			
-			return <string>options[name];
+			return <T><any>options[name];
 		}
 		else
 		{
@@ -430,7 +443,7 @@ const bundle = (options?: IBundleOptions) =>
 			{
 				const outValue = fullArgumentText.slice(prefix.length).trim();
 				if (outValue)
-					return outValue;
+					return <T><any>outValue;
 				
 				throw `Argument ${prefix} cannot be empty`;
 			}
@@ -441,48 +454,47 @@ const bundle = (options?: IBundleOptions) =>
 		}
 	}
 	
-	(async () =>
-	{
-		const inArgument = readArgument("in", true);
-		const outArgument = readArgument("out", true);
-		const nsArgument = readArgument("namespace");
-		const modArgument = readArgument("module");
-		const headerArgument = readArgument("header");
-		const footerArgument = readArgument("footer");
-		
-		const outFiles: string[] = Array.isArray(outArgument) ?
-			outArgument : [outArgument];
-		
-		const headerLines: string[] = Array.isArray(headerArgument) ? 
-			headerArgument : [headerArgument];
-		
-		const footerLines: string[] = Array.isArray(footerArgument) ?
-			footerArgument : [footerArgument];
-		
-		const homeDefinitionFile = await DefinitionFile.read(translatePath(inArgument));
-		if (!homeDefinitionFile)
-			throw "No definition file found at: " + inArgument;
-		
-		await homeDefinitionFile.resolve();
-		
-		const definitionLines = homeDefinitionFile.emit(nsArgument, modArgument);
-		definitionLines.unshift(...headerLines);
-		definitionLines.push(...footerLines);
-		
-		if (footerLines.length)
-			definitionLines.push("");
-		
-		for (const outFile of outFiles)
-			Fs.writeFile(
-				translatePath(outFile), 
-				definitionLines.join("\n"), 
-				"utf8", 
-				(error: Error) => error && console.error(error));
+	const inArgument = readArgument("in", true);
+	const outArgument = readArgument("out", true);
+	const nsArgument = readArgument("namespace");
+	const globalize = readArgument<boolean>("globalize");
+	const modArgument = readArgument("module");
+	const headerArgument = readArgument("header");
+	const footerArgument = readArgument("footer");
 	
-	})().catch(reason =>
+	const outFiles: string[] = Array.isArray(outArgument) ?
+		outArgument : [outArgument];
+	
+	const headerLines: string[] = Array.isArray(headerArgument) ? 
+		headerArgument : [headerArgument];
+	
+	const footerLines: string[] = Array.isArray(footerArgument) ?
+		footerArgument : [footerArgument];
+	
+	const homeDefinitionFile = await DefinitionFile.read(translatePath(inArgument));
+	if (!homeDefinitionFile)
+		throw "No definition file found at: " + inArgument;
+	
+	await homeDefinitionFile.resolve();
+	
+	const definitionLines = homeDefinitionFile.emit(
+		modArgument,
+		nsArgument,
+		globalize);
+	
+	definitionLines.unshift(...headerLines);
+	definitionLines.push(...footerLines);
+	
+	if (footerLines.length)
+		definitionLines.push("");
+	
+	for (const outFile of outFiles)
 	{
-		console.error(reason);
-	});
+		Fs.writeFileSync(
+			translatePath(outFile), 
+			definitionLines.join("\n"), 
+			"utf8");
+	}
 }
 
 if (runningAsModule)

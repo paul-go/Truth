@@ -19,7 +19,7 @@
 		"compiler"
 	],
 	"main": "../Build/Release/truth.js",
-	"types": "../Build/Release/truth.d.ts",
+	"types": "../Build/Release/truth-compiler.d.ts",
 	"scripts": {
 		"compile": "tsc"
 	},
