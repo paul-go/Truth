@@ -1,6 +1,6 @@
 {
-	"name": "truth-compiler",
-	"version": "0.2.9",
+	"name": "truth",
+	"version": "0.2.10",
 	"description": "Verify and analyze code and data in the Truth format",
 	"repository": {
 		"type": "git",
@@ -21,13 +21,14 @@
 	"main": "./Build/Release/truth.js",
 	"scripts": {
 		"test": "jest",
+		"mjs-rename": "for i in `find ./Build/Dev -mindepth 2 -name '*.js'`; do mv $i ${i%.js}.mjs; done",
 		"compile": "npm run compile-core && npm run compile-tests && npm run compile-quick",
 		"compile-core": "tsc -p ./Core/tsconfig.json",
 		"compile-tests": "tsc -p ./CoreTests/tsconfig.json",
 		"compile-quick": "tsc -p ./Quick/tsconfig.json",
 		"compile-types-bundler": "tsc -p ./TypesBundler/tsconfig.json",
-		"mjs-rename": "for i in `find ./Build/Dev -mindepth 2 -name '*.js'`; do mv $i ${i%.js}.mjs; done",
-		"release": "node release.js && cd Build/Release && npm publish"
+		"compile-release": "node release.js",
+		"release": "node release.js --publish"
 	},
 	"jest": {
 		"testRegex": "Build/Dev/CoreTests/Units/[\\w.]+\\.test\\.js$",

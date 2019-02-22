@@ -1,43 +1,36 @@
+const Fs = require("fs");
+const Path = require("path");
+const Process = require("child_process");
+
 /**
  * Build script that creates a new release of the Truth compiler.
  */
 
-const ReleaseDir = "./Build/Release/";
-const ReleaseTempDir = "./Build/Release/Temp/";
-const UnminifiedFile = ReleaseDir + "truth.js";
-const MinifiedFile = ReleaseDir + "truth.min.js";
-const Fs = require("fs");
+const BuildDir = "./Build/";
+const TempDir = BuildDir + "Temp/";
+const ReleaseDir = BuildDir + "Release/";
+const UnminifiedFileName = "truth.js";
+const MinifiedFileName = "truth.min.js";
+const UnminifiedFile = ReleaseDir + UnminifiedFileName;
+const MinifiedFile = ReleaseDir + MinifiedFileName;
+const ShouldPublish = process.argv.includes("--publish");
 
+
+//
+//
 task("Compiling to temporary directory...", () =>
 {
 	exec(`tsc
 		--project ./Core/tsconfig.json
-		--outDir ${ReleaseTempDir}
+		--outDir ${TempDir}
 		--module es2015
 		--downlevelIteration
 		--declaration
 	`);
 });
 
-task("Generating type definitions file...", () =>
-{
-	const bundle = require("./TypesBundler/TypesBundler.js");
-	bundle({
-		in: ReleaseTempDir + "X.d.ts",
-		out: [
-			ReleaseDir + "truth.d.ts"
-		],
-		namespace: "Truth",
-		module: "truth-compiler",
-		footer: [
-			"declare global {",
-			"\tconst program: Truth.Program;",
-			"}",
-			"export { }"
-		]
-	});
-});
-
+//
+//
 task("Bundling into a single file...", async () =>
 {
 	const rollup = require("rollup").rollup;
@@ -51,7 +44,7 @@ task("Bundling into a single file...", async () =>
 	};
 	
 	const options = {
-		input: ReleaseTempDir + "X.js",
+		input: TempDir + "X.js",
 		output,
 		treeshake: false,
 		onwarn: warning =>
@@ -70,6 +63,8 @@ task("Bundling into a single file...", async () =>
 	await built.write(output);
 });
 
+//
+//
 task("Replacing debug constant", () =>
 {
 	const content = Fs.readFileSync(UnminifiedFile)
@@ -83,9 +78,8 @@ task("Replacing debug constant", () =>
 	Fs.writeFileSync(UnminifiedFile, content);
 });
 
-// Disable for this until we can get this:
-// https://github.com/terser-js/terser
-// working
+//
+//
 task("Minifying code...", () =>
 {
 	const terser = require("terser");
@@ -116,26 +110,45 @@ task("Minifying code...", () =>
 	Fs.writeFileSync(MinifiedFile, terserResult.code);
 });
 
-task("Emitting release package.json", () =>
+
+// 
+// At this point the JavaScript side should be fully compiled, and
+// so now it's time to deploy the two separate projects to npm.
+// 
+
+
+//
+//
+task("Generating agent type definitions file...", async () =>
 {
-	const jsonText = Fs.readFileSync("./package.json").toString("utf8");
-	const json = JSON.parse(jsonText);
+	const bundlerOptions = {
+		namespace: "Truth",
+		globalize: true,
+		header: [
+			"declare global {",
+			"\tconst program: Truth.Program;",
+			"}"
+		]
+	};
 	
-	delete json.jest;
-	delete json.devDependencies;
-	
-	json.main = "./truth.js";
-	json.types = "./truth.d.ts";
-	json.files = [
-		"truth.d.ts",
-		"truth.js",
-		"truth.min.js"
-	];
-	
-	const jsonOutput = JSON.stringify(json, null, "\t");
-	Fs.writeFileSync(ReleaseDir + "package.json", jsonOutput);
+	await createBundle("truth-agent", bundlerOptions);
 });
 
+
+//
+//
+task("Generating compiler type definitions file...", async () =>
+{
+	const bundlerOptions = {
+		module: "truth-compiler"
+	};
+	
+	await createBundle("truth-compiler", bundlerOptions);
+});
+
+
+//
+//
 task("Cleanup", async () =>
 {
 	// This is a hack for now that waits a second before cleaning
@@ -143,13 +156,61 @@ task("Cleanup", async () =>
 	// this task isn't running after all others.
 	return new Promise(r => setTimeout(() =>
 	{
-		exec("rm -rf " + ReleaseTempDir);
+		exec("rm -rf " + TempDir);
 		r();
 	},
 	1000));
 });
 
+
+//
+//
 task("Done", () => {});
+
+
+/** */
+async function createBundle(packageName, dtsBundlerOptions)
+{
+	const targetDir = Path.join(ReleaseDir, packageName);
+	const dtsFile = packageName + ".d.ts";
+	exec("mkdir -p " + targetDir);
+	
+	const bundle = require("./TypesBundler/TypesBundler.js");
+	await bundle({
+		in: TempDir + "X.d.ts",
+		out: [
+			Path.join(targetDir, dtsFile)
+		],
+		...dtsBundlerOptions
+	});
+	
+	Fs.copyFileSync(MinifiedFile, Path.join(targetDir, MinifiedFileName));
+	Fs.copyFileSync(UnminifiedFile, Path.join(targetDir, UnminifiedFileName));
+	Fs.copyFileSync(UnminifiedFile, Path.join(targetDir, UnminifiedFileName));
+	
+	const readmeSrc = Path.join(process.cwd(), "README.md");
+	const readmeDst = Path.join(targetDir, "README.md");
+	Fs.copyFileSync(readmeSrc, readmeDst);
+	
+	const packageJson = readPackageJson(process.cwd());
+	delete packageJson.jest;
+	delete packageJson.scripts;
+	delete packageJson.devDependencies;
+	
+	packageJson.name = packageName;
+	packageJson.main = "./" + UnminifiedFileName;
+	packageJson.types = `./${packageName}.d.ts`;
+	packageJson.files = [
+		UnminifiedFileName,
+		MinifiedFileName,
+		packageName + ".d.ts"
+	];
+	
+	writePackageJson(targetDir, packageJson);
+	
+	if (ShouldPublish)
+		exec(`cd ${targetDir} && npm publish`);
+}
 
 
 //
@@ -157,9 +218,34 @@ task("Done", () => {});
 //
 
 
-function exec(cmd)
+function exec(command)
 {
-	require("child_process").execSync(cmd.replace(/[\r\n]/g, "").trim());
+	const cmd = command.replace(/[\r\n]/g, "").trim();
+	
+	try
+	{
+		return Process.execSync(cmd).toString("utf8");
+	}
+	catch (e)
+	{
+		console.error(e.message);
+		return null;
+	}
+}
+
+function readPackageJson(dir)
+{
+	const path = Path.join(dir, "package.json");
+	const jsonText = Fs.readFileSync(path).toString("utf8");
+	const json = JSON.parse(jsonText);
+	return json;
+}
+
+function writePackageJson(dir, packageJson)
+{
+	const path = Path.join(dir, "package.json")
+	const output = JSON.stringify(packageJson, null, "\t");
+	Fs.writeFileSync(path, output);
 }
 
 async function task(title, taskFn)
