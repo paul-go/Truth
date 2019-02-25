@@ -18,7 +18,7 @@
 		"verification",
 		"compiler"
 	],
-	"main": "./Build/Release/truth.js",
+	"main": "./Build/Dev/Core/X.js",
 	"scripts": {
 		"test": "jest",
 		"mjs-rename": "for i in `find ./Build/Dev -mindepth 2 -name '*.js'`; do mv $i ${i%.js}.mjs; done",
