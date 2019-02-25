@@ -336,7 +336,7 @@ export class LineParser
 				.filter(tok => tok !== X.Syntax.joint);
 			
 			const shouldQuitOnJoint = quitTokens.includes(X.Syntax.joint);
-			const at = parser.position;
+			const at = parser.position + parser.readWhitespace();
 			let token = "";
 			
 			while (parser.more())
@@ -367,14 +367,9 @@ export class LineParser
 				token += g1;
 			}
 			
-			const tokenTrim = token.trim();
-			
-			if (tokenTrim === "")
-				return null;
-			
 			return {
 				at,
-				identifier: new X.Identifier(tokenTrim),
+				identifier: new X.Identifier(token.trim()),
 				raw: token
 			};
 		}
