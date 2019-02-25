@@ -43,7 +43,7 @@ export class Program
 						this.causes.delete(cause, attachment);
 		});
 		
-		new X.AgentCache(this);
+		this.agentCache = new X.AgentCache(this);
 		this.documents = new X.DocumentGraph(this);
 		this.graph = new X.HyperGraph(this);
 		
@@ -66,6 +66,9 @@ export class Program
 		});
 	}
 	
+	/** @internal */
+	private readonly agentCache: X.AgentCache;
+	
 	/** */
 	readonly documents: X.DocumentGraph;
 	
@@ -83,24 +86,44 @@ export class Program
 	private _version: X.VersionStamp;
 	
 	/**
+	 * Probes the program and returns an array containing information
+	 * about the callbacks that will be triggered if a cause of the specified
+	 * type is broadcasted. Essentially, this method answers the question, 
+	 * "Who is listening for Causes of type X?".
 	 * 
+	 * If no agents have attached to the specified type, an empty array
+	 * is returned.
 	 */
-	aid<T extends X.Cause<any>>(
-		causeType: new (...args: any[]) => T,
-		fn: (data: X.TCauseData<T>) => X.TCauseReturn<T>)
+	probe(causeType: new (...args: any[]) => any, scope: AttachmentScope = this)
 	{
-		const ca = new CauseAttachment(ownerOf(this), fn, "aid");
-		this.causes.add(causeType, ca);
+		if (scope instanceof X.Type)
+			throw X.Exception.notImplemented();
+		
+		const results: { uri: X.Uri | null, scope: AttachmentScope }[] = [];
+		const push = (ca: CauseAttachment) =>
+			results.push({ uri: ca.uri, scope: ca.scope });
+		
+		for (const [causeTypeKey, attachments] of this.causes)
+			if (causeType === causeTypeKey)
+				for (const ca of attachments)
+					if (scope === ca.scope || 
+						(scope instanceof X.Program && ca.scope instanceof X.Document))
+						push(ca);
+		
+		return results;
 	}
 	
 	/**
 	 * 
 	 */
 	on<T extends X.Cause<any>>(
-		causeType: new(...args: any[]) => T,
-		fn: (data: X.TCauseData<T>) => void): void
+		causeType: new (...args: any[]) => T,
+		fn: (data: X.TCauseData<T>) => X.TCauseReturn<T>,
+		scope?: X.Document | X.Type): void
 	{
-		const ca = new CauseAttachment(ownerOf(this), fn, "on");
+		const info = getHolderInfo(this);
+		const usingScope: AttachmentScope = scope || info.scope || this;
+		const ca = new CauseAttachment(info.uri, fn, usingScope);
 		this.causes.add(causeType, ca);
 	}
 	
@@ -121,9 +144,7 @@ export class Program
 	 * agent was attached programmatically, the URI value 
 	 * will be null.
 	 */
-	cause<R>(
-		cause: X.Cause<R>,
-		...filters: X.Uri[]): { from: X.Uri | null, returned: R }[]
+	cause<R>(cause: X.Cause<R>, ...filters: X.Uri[])
 	{
 		const causeType = <typeof X.Cause>cause.constructor;
 		const attachmentsAll = this.causes.get(causeType) || [];
@@ -136,35 +157,37 @@ export class Program
 			if (otherUri === null)
 				return true;
 			
-			return filters.find(uri => !uri.equals(otherUri));
+			return filters.find(uri => uri.equals(otherUri));
 		});
 		
 		if (attachments.length === 0)
 			return [];
 		
-		for (const attachment of attachments)
-			if (attachment.via === "aid")
-				attachment.callback(cause);
-		
-		const returns = cause.returns instanceof Array ?
-			cause.returns :
-			null;
+		const result: { from: X.Uri | null, returned: R }[] = [];
 		
 		for (const attachment of attachments)
 		{
-			if (attachment.via === "on")
-			{
-				const ret = attachment.callback(cause);
-				if (returns && ret !== null && ret !== undefined)
-					returns.push(ret);
-			}
+			const returned: R = attachment.callback(cause);
+			if (returned !== null && returned !== undefined)
+				result.push({ from: attachment.uri, returned });
 		}
 		
-		return returns || [];
+		return result;
 	}
 	
 	/** @internal */
 	private readonly causes = new X.MultiMap<typeof X.Cause, CauseAttachment>();
+	
+	/**
+	 * Augments the global scope of the agents attached to this
+	 * program with a variable whose name and value are specified
+	 * in the arguments to this method. (Note that this only affects
+	 * agents that are attached *after* this call has been made.)
+	 */
+	augment(name: string, value: object)
+	{
+		this.agentCache.augment(name, value);
+	}
 	
 	/**
 	 * 
@@ -356,26 +379,31 @@ export class Program
 	
 	/**
 	 * @internal
-	 * Stores a function that returns a reference to the Agent that
-	 * holds the reference to this Program instance, or undefined in
-	 * the case when it's not held by an agent.
+	 * Stores information about the agent that holds the reference
+	 * to this Program instance. The property is undefined in the
+	 * case when the instance is not held by an agent.
 	 * 
 	 * This value is applied through the Misc.patch() function, which
 	 * uses a Proxy object to provide 
 	 */
-	readonly instanceOwnerUri?: X.Uri;
+	readonly instanceHolder?: {
+		uri: X.Uri,
+		scope: AttachmentScope
+	}
 }
 
 
 /**
- * Gets a stringified version of the Uri that is the owner
- * of this Program instance.
+ * Gets a stringified version of the Uri that holds this Program instance.
  */
-function ownerOf(program: Program)
+function getHolderInfo(program: Program)
 {
-	return typeof program.instanceOwnerUri !== "undefined" ?
-		program.instanceOwnerUri :
-		null;
+	const ih = program.instanceHolder;
+	
+	return {
+		uri: <X.Uri | null>(ih ? ih.uri : null),
+		scope: <AttachmentScope>(ih ? ih.scope : program)
+	};
 }
 
 
@@ -390,9 +418,15 @@ class CauseAttachment
 	constructor(
 		readonly uri: X.Uri | null,
 		readonly callback: (data: any) => any,
-		readonly via: "on" | "aid")
+		readonly scope: AttachmentScope)
 	{ }
 }
+
+
+/**
+ * Describes a place in the program where a cause is attached.
+ */
+export type AttachmentScope = X.Program | X.Document | X.Type;
 
 
 /**
