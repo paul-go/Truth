@@ -8,105 +8,110 @@ import * as X from "../X";
 export class AgentCache
 {
 	/** */
-	constructor(program: X.Program)
+	constructor(private readonly program: X.Program)
 	{
-		this.program = program;
-		
 		program.on(X.CauseUriReferenceAdd, data =>
 		{
-			if (data.uri.ext !== X.UriExtension.js)
-				return;
-			
-			const uriText = data.uri.toStoreString();
-			const existingCacheSet = this.cache.get(uriText);
-			const reference = data.statement || this.program;
-			
-			if (existingCacheSet)
-			{
-				existingCacheSet.add(reference);
-				return;
-			}
-			
-			this.exec(data.uri).then(result =>
-			{
-				if (result instanceof Error)
-				{
-					"Need to deal with reporting agent load errors as faults here.";
-					debugger;
-					return;
-				}
-				
-				this.program.cause(new X.CauseAgentAttach(data.uri));
-				result();
-				
-				const set = new Set<X.Statement | X.Program>([reference]);
-				this.cache.set(uriText, set);
-			});
+			if (data.uri.ext === X.UriExtension.js)
+				this.attachAgent(data.uri, data.statement);
 		});
 		
 		program.on(X.CauseUriReferenceRemove, data =>
 		{
-			if (data.uri.ext !== X.UriExtension.js)
-				return;
-			
-			const uriText = data.uri.toStoreString();
-			const existingCacheSet = this.cache.get(uriText);
-			if (!existingCacheSet)
-				return;
-			
-			existingCacheSet.delete(data.statement || this.program);
-			if (existingCacheSet.size === 0)
-			{
-				this.cache.delete(uriText);
-				this.program.cause(new X.CauseAgentDetach(data.uri));
-			}
+			if (data.uri.ext === X.UriExtension.js)
+				this.detachAgent(data.uri, data.statement);
 		});
 	}
 	
 	/** */
-	private readonly program: X.Program;
-	
-	/**
-	 * Execute the code file containing the agent at the specified URI.
-	 */
-	private async exec(agentUri: X.Uri): Promise<(() => any) | Error>
+	private async attachAgent(uri: X.Uri, statement: X.Statement | null)
 	{
-		const uri = X.Uri.maybeParse(agentUri);
-		if (uri === null)
-			return X.Exception.invalidUri();
-		
 		const uriText = uri.toStoreString();
+		const existingCacheSet = this.cache.get(uriText);
+		const reference = statement || this.program;
+		
+		if (existingCacheSet)
+		{
+			existingCacheSet.add(reference);
+			return;
+		}
+		
+		const scope = statement instanceof X.Statement ?
+			statement.document :
+			this.program;
 		
 		const sourceRaw = await X.UriReader.tryRead(uri);
 		if (sourceRaw instanceof Error)
 			return sourceRaw;
 		
-		const source = this.maybeAdjustSourceMap(
-			agentUri,
-			sourceRaw);
+		const source = this.maybeAdjustSourceMap(uri, sourceRaw);
+		const patchedProgram = X.Misc.patch(this.program, {
+			instanceHolder: { uri, scope }
+		});
+		
+		const params = [
+			"program",
+			"Truth",
+			"require",
+			...this.agentFunctionParameters.keys(),
+			source
+		];
+		
+		const args = [
+			patchedProgram,
+			X,
+			AgentCache.hijackedRequireFn,
+			...this.agentFunctionParameters.values()
+		];
 		
 		try
 		{
-			const patchedProgram = X.Misc.patch(this.program,
-			{
-				instanceOwnerUri: uri
-			});
-			
-			// For the time being, these are the only 3 parameters that
-			// are fed to agent functions. In the future, it may be possible
-			// To declare your own agent globals that are fed to all agents.
-			const ctor = new Function("program", "Truth", "require", source);
-			return ctor.bind(
-				Object.freeze({}),
-				patchedProgram,
-				X,
-				AgentCache.hijackedRequireFn);
+			const fn = Object.freeze(Function.apply(Function, params));
+			await fn.apply(fn, <any>args);
 		}
 		catch (e)
 		{
-			return new Error(e.message || "");
+			this.reportUserLandError(e);
+			return;
+		}
+		
+		this.program.cause(new X.CauseAgentAttach(uri, scope));
+		const set = new Set<X.Statement | X.Program>([reference]);
+		this.cache.set(uriText, set);
+	}
+	
+	/** */
+	private detachAgent(uri: X.Uri, statement: X.Statement | null)
+	{
+		const uriText = uri.toStoreString();
+		const existingCacheSet = this.cache.get(uriText);
+		if (!existingCacheSet)
+			return;
+		
+		existingCacheSet.delete(statement || this.program);
+		if (existingCacheSet.size === 0)
+		{
+			this.cache.delete(uriText);
+			this.program.cause(new X.CauseAgentDetach(uri));
 		}
 	}
+	
+	/**
+	 * @internal
+	 * (Called by Program)
+	 */
+	augment(name: string, value: object)
+	{
+		if (this.agentFunctionParameters.has(name))
+			throw X.Exception.causeParameterNameInUse(name);
+		
+		this.agentFunctionParameters.set(
+			name,
+			value);
+	}
+	
+	/** */
+	private readonly agentFunctionParameters = new Map<string, any>();
 	
 	/**
 	 * Adjusts the content of the sourcemap in the specified source code 
@@ -177,10 +182,24 @@ export class AgentCache
 		
 		// The source code is wrapped in a setTimeout in order
 		// to give any attached debuggers a chance to connect.
-		const newSourceCodeDelayed = "setTimeout(() => {\n" + newSourceCode + "}, 1)\n";
-		const newPrefix = sourceCode.slice(lastLineStart, endPos);
+		const varName = "$$__RESOLVE_FUNCTION__$$";
 		
+		const newSourceCodeDelayed = 
+			`return new Promise(${varName} => setTimeout(() => {\n` + 
+			newSourceCode + 
+			`; ${varName}(); }, 1))\n`;
+		
+		const newPrefix = sourceCode.slice(lastLineStart, endPos);
 		return newSourceCodeDelayed + newPrefix + newSourceMap;
+	}
+	
+	/** */
+	private reportUserLandError(e: Error)
+	{
+		// NOTE: This should probably be reporting the error
+		// somewhere where it's visible.
+		debugger;
+		throw e;
 	}
 	
 	/** */

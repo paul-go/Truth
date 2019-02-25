@@ -5,7 +5,7 @@ import * as X from "../X";
  * Abstract base class for all Causes defined both within
  * the compiler core, and in user code.
  */
-export abstract class Cause<R = null>
+export abstract class Cause<R = void>
 {
 	/**
 	 * Stores the return type of the Cause, if any. In a cause callback function,
@@ -15,10 +15,12 @@ export abstract class Cause<R = null>
 	readonly returns: R = null!;
 }
 
+
 /**
  * Extracts the *Result* type parameter of a Cause.
  */
 export type TCauseReturn<T> = T extends { returns: infer R } ? R : never;
+
 
 /**
  * Maps a Cause type over to it's corresponding object
@@ -36,10 +38,32 @@ export type TCauseData<T> = {
 // 
 
 
-/**  */
+/** */
 export class CauseAgentAttach extends Cause
 {
-	constructor(readonly uri: X.Uri) { super(); }
+	constructor(
+		/**
+		 * Stores the URI from where the agent was loaded.
+		 */
+		readonly uri: X.Uri,
+		/**
+		 * Stores an object that represents the scope of where the agent
+		 * applies.
+		 * 
+		 * If the value is `instanceof Program`, this indicates that
+		 * the agent's causes are scoped to a particular program (which
+		 * is effectively "unscoped").
+		 * 
+		 * If the value is `instanceof Document`, this indicates that
+		 * the agent's causes are scoped to the causes that can
+		 * originate from a single document.
+		 * 
+		 * (Not implemented). If the value is `instanceof Type`, this 
+		 * indicates that the agent's causes are scoped to the causes
+		 * that can originate from a single type.
+		 */
+		readonly scope: X.Program | X.Document | X.Type)
+	{ super(); }
 }
 
 /** */
@@ -141,7 +165,7 @@ export class CauseEditComplete extends Cause
 }
 
 /** */
-export abstract class CauseUriReference extends Cause<boolean>
+export abstract class CauseUriReference extends Cause
 {
 	constructor(
 		/**

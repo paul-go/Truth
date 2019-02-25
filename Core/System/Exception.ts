@@ -76,6 +76,14 @@ export class Exception
 	}
 	
 	/** */
+	static causeParameterNameInUse(paramName: string)
+	{
+		return error(`
+			Cannot use the name "${paramName}" as a parameter
+			name because it's already in use.`);
+	}
+	
+	/** */
 	static doubleTransaction()
 	{
 		return error(`Cannot start a new transaction while another is executing.`);
