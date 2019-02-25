@@ -145,8 +145,8 @@ export class HyperGraph
 		
 		// Stores a subset of the affectedNodes array. Contains
 		// only the nodes that are at the highest level of depth
-		// within the node set.
-		const topMostAffectedNodes: X.Node[] = [];
+		// within the node set (not necessarily the document root).
+		const affectedNodesApexes: X.Node[] = [];
 		
 		/**
 		 * @returns The containing node that
@@ -300,28 +300,31 @@ export class HyperGraph
 			// which is needed to find the nodes that are
 			// affected by the change, but are not located
 			// directly within the patch.
-			if (topMostAffectedNodes.length === 0)
+			if (affectedNodesApexes.length === 0)
 			{
-				topMostAffectedNodes.push(newNode);
+				affectedNodesApexes.push(newNode);
 			}
 			else
 			{
+				// If we've encountered a node that is higher
+				// than the level of depth defined in the nodes currently
+				// in the affectedNodesApexes array.
 				const highestDepth = affectedNodes[0].uri.types.length;
 				const nodeDepth = newNode.uri.types.length;
 				
 				if (nodeDepth < highestDepth)
-					topMostAffectedNodes.length = 0;
+					affectedNodesApexes.length = 0;
 				
 				if (nodeDepth <= highestDepth)
-					topMostAffectedNodes.push(newNode);
+					affectedNodesApexes.push(newNode);
 			}
 		}
 		
-		// Add or update all new Fans by feeding in all
+		// Add or update all new HyperEdges by feeding in all
 		// annotation spans for each declaration span.
 		// This needs to happen in a second pass because
 		// all new nodes need to be created and positioned
-		// in the graph before new "fan spans" can be added,
+		// in the graph before new "HyperEdge spans" can be added,
 		// because doing this causes resolution to occur.
 		for (const node of affectedNodes)
 			for (const declaration of node.declarations)
@@ -345,33 +348,35 @@ export class HyperGraph
 				}
 			}
 		
-		if (topMostAffectedNodes.length > 0)
+		// This is doing the reverse of what the above affectedNodes
+		// loop is doing ... this is connecting other nodes to the affected
+		// nodes, whereas the loop above is connecting affectedNodes
+		// to others.
+		if (affectedNodesApexes.length > 0)
 		{
 			// Stores the series of containers that any of the newly discovered
 			// possibly affected nodes must have in their containment list
 			// in order to be included in the "affectedNodes" array.
-			const containers = topMostAffectedNodes
+			const apexContainers = affectedNodesApexes
 				.map(node => node.container)
 				.filter((node): node is X.Node => node !== null)
 				.filter((v, i, a) => a.indexOf(v) === i);
 			
-			const hasContainer = (node: X.Node) =>
-				node.containment.some(n => containers.includes(n));
-				
-			const depth = topMostAffectedNodes[0].uri.types.length;
-			const checkRoot = containers.length === 0;
+			const checkRoot = apexContainers.length === 0;
+			const isBelowAnApexContainer = (node: X.Node) =>
+				node.containment.some(n => apexContainers.includes(n));
 			
-			for (const scsrNode of topMostAffectedNodes)
+			for (const scsrNode of affectedNodesApexes)
 			{
 				const idents = this.nodeIndex.getAssociatedIdentifiers(scsrNode);
 				
 				for (const ident of idents)
 				{
-					const predNodes = this.nodeIndex.getNodesByIdentifier(ident);
+					const predecessors = this.nodeIndex.getNodesByIdentifier(ident);
 					
-					for (const predNode of predNodes)
-						if (checkRoot || hasContainer(predNode))
-							predNode.addEdgeSuccessor(scsrNode);
+					for (const predecessor of predecessors)
+						if (checkRoot || isBelowAnApexContainer(predecessor))
+							predecessor.addEdgeSuccessor(scsrNode);
 				}
 			}
 		}
