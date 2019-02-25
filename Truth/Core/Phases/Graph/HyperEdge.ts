@@ -239,7 +239,8 @@ export class HyperEdge
 				.map(n => n.node.name + " << " + n.longitude)
 				.join(", "),
 			"Sources=" + Array.from(this.fragments)
-				.map(src => src.boundary.subject).join(", ")
+				.map(src => src.boundary.subject).join(", "),
+			"---"
 		].join("\n");
 	}
 }

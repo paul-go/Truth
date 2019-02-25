@@ -936,7 +936,7 @@ export class Document
 						statements.update(segments.slice(-1)[0] + suffixSegment, endLine);
 					}
 					
-					return;
+					continue;
 				}
 				
 				// Detect the pure delete cases
@@ -948,12 +948,18 @@ export class Document
 					// one line, to the end of a successive line
 					if (startChar === startLineText.length)
 						if (endChar === endLineText.length)
-							return statements.delete(startLine + 1, deleteCount);
+						{
+							statements.delete(startLine + 1, deleteCount);
+							continue;
+						}
 					
 					// Detect a delete ranging from the start of
 					// one line to the start of a successive line
 					if (startChar + endChar === 0)
-						return statements.delete(startLine, deleteCount);
+					{
+						statements.delete(startLine, deleteCount);
+						continue;
+					}
 				}
 				
 				// Detect the pure insert cases
@@ -966,8 +972,9 @@ export class Document
 						for (let i = 0; ++i < segments.length;)
 							statements.insert(segments[i], startLine + i);
 						
-						return;
+						continue;
 					}
+					
 					// Cursor is at the beginning of the line, and the
 					// last line of the inserted content is empty.
 					if (startChar === 0 && segments.slice(-1)[0] === "")
@@ -975,7 +982,7 @@ export class Document
 						for (let i = -1; ++i < segments.length - 1;)
 							statements.insert(segments[i], startLine + i);
 						
-						return;
+						continue;
 					}
 				}
 				
