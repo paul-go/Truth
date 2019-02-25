@@ -655,7 +655,7 @@ export class Node
 		
 		for (const ob of this.outbounds)
 		{
-			if (ob.identifier.typeName !== ob.identifier.typeName)
+			if (ob.identifier.typeName !== successorNode.name)
 				continue;
 			
 			const scsrLong = successorNode.uri.types.length;
