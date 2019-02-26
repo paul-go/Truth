@@ -681,25 +681,28 @@ export class Document
 						}
 					}
 					
-					// Tell subscribers to blow away all the old statements.
-					// An edit transaction can be avoided completely in the case
-					// when the only statements that were deleted were noops.
-					if (hasOpStatements)
-						this.program.cause(new X.CauseInvalidate(
-							this,
-							deadStatements,
-							deadIndexes));
-					
-					// Run the actual mutations
-					deleteCalls.forEach(doDelete);
-					
-					// Run an empty revalidation hook, to comply with the
-					// rule that for every invalidation hook, there is always a
-					// corresponding revalidation hook.
-					if (hasOpStatements)
-						this.program.cause(new X.CauseRevalidate(this, [], []));
-					
-					return;
+					if (deadStatements.length > 0)
+					{
+						// Tell subscribers to blow away all the old statements.
+						// An edit transaction can be avoided completely in the case
+						// when the only statements that were deleted were noops.
+						if (hasOpStatements)
+							this.program.cause(new X.CauseInvalidate(
+								this,
+								deadStatements,
+								deadIndexes));
+						
+						// Run the actual mutations
+						deleteCalls.forEach(doDelete);
+						
+						// Run an empty revalidation hook, to comply with the
+						// rule that for every invalidation hook, there is always a
+						// corresponding revalidation hook.
+						if (hasOpStatements)
+							this.program.cause(new X.CauseRevalidate(this, [], []));
+						
+						return;
+					}
 				}
 				
 				// This handles the third optimization, which is the case
@@ -943,6 +946,7 @@ export class Document
 				if (deltaCount < 0)
 				{
 					const deleteCount = deltaCount * -1;
+					
 					
 					// Detect a delete ranging from the end of 
 					// one line, to the end of a successive line
