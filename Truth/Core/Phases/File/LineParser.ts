@@ -395,12 +395,20 @@ export class LineParser
 		}
 		
 		/**
-		 * Can be called recursively via readPatternClass and readPatternGroup.
+		 * Attempts to read a pattern from the steam.
 		 */
 		function maybeReadPattern(nested = false): X.Pattern | TParseFault | null
 		{
 			if (!nested && !parser.read(X.RegexSyntaxDelimiter.main))
 				return null;
+			
+			// These are reserved starting sequences. They're invalid
+			// regex syntax, and we may use them in the future to pack
+			// in other language features.
+			if (parser.peek(X.RegexSyntaxMisc.plus) ||
+				parser.peek(X.RegexSyntaxMisc.star) ||
+				parser.peek(X.RegexSyntaxMisc.restrained))
+				return X.Faults.StatementBeginsWithInvalidSequence;
 			
 			// TypeScript isn't perfect.
 			const units = nested ?
@@ -493,12 +501,12 @@ export class LineParser
 					if (isParseFault(infix))
 						return infix;
 					
-					const quantifier = maybeReadRegexQuantifier();
-					if (quantifier !== null)
-						return X.Faults.InfixHasQuantifier;
-					
 					if (infix !== null)
 					{
+						const quantifier = maybeReadRegexQuantifier();
+						if (quantifier !== null)
+							return X.Faults.InfixHasQuantifier;
+						
 						units.push(infix);
 						continue;
 					}
