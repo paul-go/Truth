@@ -367,9 +367,13 @@ export class LineParser
 				token += g1;
 			}
 			
+			const tokenTrimmed = token.trim();
+			if (!tokenTrimmed.length)
+				return null;
+			
 			return {
 				at,
-				identifier: new X.Identifier(token.trim()),
+				identifier: new X.Identifier(tokenTrimmed),
 				raw: token
 			};
 		}
