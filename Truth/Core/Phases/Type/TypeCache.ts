@@ -27,7 +27,7 @@ export class TypeCache
 		const uriText = uri.toString();
 		
 		if (cache.map.has(uriText))
-			return X.Guard.defined(cache.map.get(uriText));
+			return X.Not.undefined(cache.map.get(uriText));
 		
 		const proxy = new X.TypeProxy(uri, program);
 		this.set(uri, program, proxy);

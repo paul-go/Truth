@@ -329,7 +329,7 @@ export class Type
 			return this.private.adjacents = this.container.contents.filter(t => t !== this);
 		
 		const program = this.private.program;
-		const document = X.Guard.notNull(program.documents.get(this.uri));
+		const document = X.Not.null(program.documents.get(this.uri));
 		const roots = Array.from(this.private.program.graph.readRoots(document));
 		const adjacents = roots
 			.map(node => Type.construct(node.uri, program))

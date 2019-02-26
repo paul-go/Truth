@@ -34,11 +34,11 @@ export class ParallelCache
 		{
 			if (key instanceof X.Node)
 				return key.container !== null ?
-					X.Guard.defined(this.get(key.container)) :
+					X.Not.undefined(this.get(key.container)) :
 					null;
 			
 			return key.types.length > 1 ?
-				X.Guard.defined(this.get(key.retractType(1))) :
+				X.Not.undefined(this.get(key.retractType(1))) :
 				null;
 		})();
 		

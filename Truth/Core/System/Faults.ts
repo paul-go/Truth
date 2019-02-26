@@ -78,7 +78,7 @@ export class Fault<TSource = TFaultSource>
 	get statement()
 	{
 		const src = this.source;
-		return X.Guard.notNull(
+		return X.Not.null(
 			src instanceof X.Statement ? src :
 			src instanceof X.Span ? src.statement :
 			src instanceof X.InfixSpan ? src.statement :
