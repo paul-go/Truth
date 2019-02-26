@@ -64,6 +64,14 @@ describe("Parser Tests", () =>
 			fail("Line should have the whitespace flag: " + source);
 		}
 		
+		const first = parsedLine.declarations.first();
+		
+		if (expected.uri === undefined && !!first && (first.subject instanceof X.Uri))
+		{
+			debugger;
+			fail("Line should not have parsed as a URI.");
+		}
+		
 		if (expected.uri !== undefined)
 		{
 			if (flagMissing(X.LineFlags.hasUri))
@@ -73,8 +81,6 @@ describe("Parser Tests", () =>
 			}
 			else
 			{
-				const first = parsedLine.declarations.first();
-				
 				if (first !== null && first.subject instanceof X.Uri)
 				{
 					const uri = first.subject;
@@ -85,10 +91,34 @@ describe("Parser Tests", () =>
 						expect(expected.uri.protocol).toBe(uri.protocol);
 					}
 					
+					if (expected.uri.retractionCount !== uri.retractionCount)
+					{
+						debugger;
+						expect(expected.uri.retractionCount).toBe(uri.retractionCount);
+					}
+					
+					if (expected.uri.isRelative !== uri.isRelative)
+					{
+						debugger;
+						expect(expected.uri.isRelative).toBe(uri.isRelative);
+					}
+					
 					if (expected.uri.stores.join() !== uri.stores.join())
 					{
 						debugger;
 						expect(expected.uri.stores).toEqual(uri.stores);
+					}
+					
+					if (expected.uri.file !== uri.file)
+					{
+						debugger;
+						expect(expected.uri.file).toBe(uri.file);
+					}
+					
+					if (expected.uri.ext !== uri.ext)
+					{
+						debugger;
+						expect(expected.uri.ext).toBe(uri.ext);
 					}
 					
 					if (expected.uri.types)
