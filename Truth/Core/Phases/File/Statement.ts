@@ -55,7 +55,9 @@ export class Statement
 		this.cruftObjects = cruftObjects;
 		this.faults = Object.freeze(faults);
 		
-		this.programStamp = document.program.version;
+		this.programStamp = document.program ?
+			document.program.version :
+			X.VersionStamp.next();
 	}
 	
 	readonly programStamp: X.VersionStamp;

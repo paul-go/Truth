@@ -11,16 +11,6 @@ setTimeout(async () =>
 {
 	Viz.init();
 	
-	// Make shift unit tests. Will clean up later.
-	//const p1 = X.Uri.tryParse("./path/file.truth");
-	//const p2 = X.Uri.tryParse("../../path/file.truth");
-	//const p3 = X.Uri.tryParse("http://path/to/file.truth");
-	//const p4 = X.Uri.tryParse("/absolute/file.truth");
-	//const p5 = X.Uri.tryParse("//protocol/relative/file.truth");
-	//const p6 = X.Uri.tryParse("/Users/x.truth//type/path/type");
-	//const p7 = X.Uri.tryParse("/Users/x.truth//type/%2Fpattern%20here/type");
-	//const p8 = X.Uri.tryParse("/Users/x.truth//type/[1]/Anonymous");
-	
 	const findArg = (key: string) =>
 	{
 		const val = process.argv.find(arg => arg.startsWith(key)) || "";
@@ -37,7 +27,7 @@ setTimeout(async () =>
 	})();
 	
 	const program = new X.Program();
-	const uri = X.Guard.notNull(X.Uri.tryParse(filePath));
+	const uri = X.Not.null(X.Uri.tryParse(filePath));
 	const doc = await program.documents.read(uri);
 	
 	if (doc instanceof Error)

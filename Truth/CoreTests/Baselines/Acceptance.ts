@@ -40,8 +40,11 @@ export interface IExpectation
 	uri?: {
 		protocol: string,
 		stores: string[],
-		types?: string[]
-		file?: string
+		types: string[]
+		file: string,
+		retractionCount: number,
+		isRelative: boolean,
+		ext: string
 	},
 	
 	/**
@@ -153,50 +156,141 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	
 	// URIs
 	
-	"file://a/b/c": {
+	"/x.truth": {
 		uri: {
 			protocol: "file:",
-			stores: ["a", "b", "c"]
-		},
-		emit: "file://a/b/c"
+			retractionCount: 0,
+			isRelative: false,
+			stores: [],
+			file: "x.truth",
+			ext: ".truth",
+			types: []
+		}
 	},
-	"https://www.x.com": {
+	"/x.truth.js": {
 		uri: {
-			protocol: "https:",
-			stores: ["www.x.com"]
-		},
-		emit: "https://www.x.com"
+			protocol: "file:",
+			retractionCount: 0,
+			isRelative: false,
+			stores: [],
+			file: "x.truth.js",
+			ext: ".truth.js",
+			types: []
+		}
 	},
-	"http://www.y.com": {
+	"/x.truth.wasm": {
+		uri: {
+			protocol: "file:",
+			retractionCount: 0,
+			isRelative: false,
+			stores: [],
+			file: "x.truth.wasm",
+			ext: ".truth.wasm",
+			types: []
+		}
+	},
+	"./file-with-unknown-extension.txt": {
+		uri: undefined
+	},
+	"./path/file.truth": {
+		uri: {
+			protocol: "?",
+			retractionCount: 0,
+			isRelative: true,
+			stores: ["path"],
+			file: "file.truth",
+			ext: ".truth",
+			types: []
+		}	
+	},
+	"../../path/file.truth": {
+		uri: {
+			protocol: "?",
+			retractionCount: 2,
+			isRelative: true,
+			stores: ["path"],
+			file: "file.truth",
+			ext: ".truth",
+			types: []
+		}
+	},
+	"http://path/to/file.truth": {
 		uri: {
 			protocol: "http:",
-			stores: ["www.y.com"]
-		},
-		emit: "http://www.y.com"
+			retractionCount: 0,
+			isRelative: false,
+			stores: ["path", "to"],
+			file: "file.truth",
+			ext: ".truth",
+			types: []
+		}
 	},
-	"internal://🐇//type/path": {
+	"/absolute/file.truth": {
 		uri: {
-			protocol: "internal:",
-			stores: ["🐇"],
-			types: ["type", "path"]
-		},
-		emit: "internal://%F0%9F%90%87//type/path"
+			protocol: "file:",
+			retractionCount: 0,
+			isRelative: false,
+			stores: ["absolute"],
+			file: "file.truth",
+			ext: ".truth",
+			types: []
+		}
+	},
+	"//protocol/relative/file.truth": {
+		uri: {
+			protocol: "?",
+			retractionCount: 0,
+			isRelative: false,
+			stores: ["protocol", "relative"],
+			file: "file.truth",
+			ext: ".truth",
+			types: []
+		}
+	},
+	"/Users/x.truth//type/path/type": {
+		uri: {
+			protocol: "file:",
+			retractionCount: 0,
+			isRelative: false,
+			stores: ["Users"],
+			file: "x.truth",
+			ext: ".truth",
+			types: ["type", "path", "type"]
+		}
+	},
+	"/Users/x.truth//type/%2Fpattern%20here/type": {
+		uri: {
+			protocol: "file:",
+			retractionCount: 0,
+			isRelative: false,
+			stores: ["Users"],
+			file: "x.truth",
+			ext: ".truth",
+			types: ["type", "/pattern here", "type"]
+		}
+	},
+	"/Users/x.truth//type/[1]/Anonymous": {
+		uri: {
+			protocol: "file:",
+			retractionCount: 0,
+			isRelative: false,
+			stores: ["Users"],
+			file: "x.truth",
+			ext: ".truth",
+			types: ["type", "1", "Anonymous"]
+		}
 	},
 	"http://abc.xyz/file.truth//type/path/here": {
 		uri: {
 			protocol: "http:",
+			retractionCount: 0,
+			isRelative: false,
 			stores: ["abc.xyz"],
-			types: ["type", "path", "here"],
-			file: "file.truth"
+			file: "file.truth",
+			ext: ".truth",
+			types: ["type", "path", "here"]
 		},
 		emit: "http://abc.xyz/file.truth//type/path/here"
-	},
-	"./path/to/file.js": {
-		uri: {
-			protocol: "file:",
-			stores: ["path", "to"],
-			file: "file.js"
-		}
 	},
 	
 	// Comments
