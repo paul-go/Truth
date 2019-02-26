@@ -31,14 +31,23 @@ export class Fault<TSource = TFaultSource>
 		// The +1's are necessary in order to deal with the fact that
 		// most editors are 1-based whereas the internal representation
 		// of statement strings are 0-based.
-		const range =
-			src instanceof X.Statement ?
-				[src.indent + 1, -1] :
-			src instanceof X.InfixSpan || src instanceof X.Span ? 
-				[src.boundary.offsetStart + 1, src.boundary.offsetEnd + 1] :
-			[-1, -1];
 		
-		this.range = range.filter(n => n >= 0);
+		if (src instanceof X.Statement)
+		{
+			// The TabsAndSpaces fault is the only fault that needs a
+			// special case where it has a different reporting location.
+			this.range = type.code === Faults.TabsAndSpaces.code ?
+				[1, src.indent + 1] :
+				[src.indent + 1, src.sourceText.length + 1];
+		}
+		else if (src instanceof X.Span || src instanceof X.InfixSpan)
+		{
+			this.range = [
+				src.boundary.offsetStart + 1,
+				src.boundary.offsetEnd + 1
+			];
+		}
+		else throw X.Exception.unknownState();
 	}
 	
 	/**
@@ -96,7 +105,9 @@ export class Fault<TSource = TFaultSource>
 	
 	/**
 	 * Gets an array representing the starting and ending character offsets
-	 * within the Statement in which this Fault was detected.
+	 * within the Statement in which this Fault was detected. The character
+	 * offsets are 1-based (not 0-based) to comply with the behaviour of 
+	 * most text editors.
 	 */
 	readonly range: number[];
 }
