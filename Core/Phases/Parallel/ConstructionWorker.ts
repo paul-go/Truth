@@ -173,7 +173,7 @@ export class ConstructionWorker
 			if (!(seed instanceof X.SpecifiedParallel))
 				throw X.Exception.unknownState();
 			
-			this.rakeBaseGraph(seed);
+			this.rakeSpecifiedParallel(seed);
 		}
 		else this.rakeParallelGraph(seed);
 		
@@ -181,7 +181,8 @@ export class ConstructionWorker
 	}
 	
 	/**
-	 * 
+	 * Recursive function that digs through the parallel graph,
+	 * and rakes all SpecifiedParallels that are discovered.
 	 */
 	private rakeParallelGraph(par: X.Parallel)
 	{
@@ -189,12 +190,24 @@ export class ConstructionWorker
 			this.rakeParallelGraph(edgePar);
 		
 		if (par instanceof X.SpecifiedParallel)
-		{
-			if (par.node.subject instanceof X.Pattern)
-				this.collectPatternBases(par);
-			else
-				this.rakeBaseGraph(par);
-		}
+			this.rakeSpecifiedParallel(par);
+	}
+	
+	/**
+	 * Splitter method that rakes both a pattern and a non-pattern
+	 * containing SpecifiedParallel.
+	 */
+	private rakeSpecifiedParallel(par: X.SpecifiedParallel)
+	{
+		if (this.rakedParallels.has(par))
+			return par;
+		
+		this.rakedParallels.add(par);
+		
+		if (par.pattern)
+			this.rakePatternBases(par);
+		else
+			this.rakeBaseGraph(par);
 	}
 	
 	/**
@@ -211,10 +224,8 @@ export class ConstructionWorker
 	 */
 	private rakeBaseGraph(srcParallel: X.SpecifiedParallel)
 	{
-		if (this.rakedParallels.has(srcParallel))
-			return srcParallel;
-		
-		this.rakedParallels.add(srcParallel);
+		if (srcParallel.pattern)
+			throw X.Exception.unknownState();
 		
 		for (const hyperEdge of srcParallel.node.outbounds)
 		{
@@ -246,7 +257,7 @@ export class ConstructionWorker
 					if (baseParallel === null)
 						continue;
 					
-					this.rakeBaseGraph(baseParallel);
+					this.rakeSpecifiedParallel(baseParallel);
 					
 					// There are cases when an entire parallel needs to be
 					// "excavated", meaning that the Parallel's entire subtree
@@ -279,27 +290,13 @@ export class ConstructionWorker
 				// going to try to resolve as an alias. If this doesn't work,
 				// the edge will be marked as cruft. Possibly a future version
 				// of this compiler will allow other agents to hook into this
-				// resolution process and provide custom resolution.
+				// process and augment the resolution strategy.
 				
 				const patternParallels: X.SpecifiedParallel[] = [];
 				
 				for (const { parallel } of this.ascend(srcParallel))
 				{
-					if (!this.patternizedParallels.has(parallel))
-					{
-						this.patternizedParallels.add(parallel);
-						const bases = this.collectPatternBases(parallel);
-						
-						// It's possible for no collected bases to be returned
-						// in the case when there were actually annotations
-						// specified within the file, but they were all found to
-						// be cruft.
-						if (bases.size === 0)
-							continue;
-						
-						parallel.tryApplyPatternBases(bases);
-					}
-					
+					this.rakePatternBases(parallel);
 					patternParallels.push(parallel);
 				}
 				
@@ -337,10 +334,14 @@ export class ConstructionWorker
 	
 	/**
 	 * Finds the set of bases that should be applied to the provided
-	 * pattern-containing SpecifiedParallel instance.
+	 * pattern-containing SpecifiedParallel instance, and attempts
+	 * to have them applied.
 	 */
-	private collectPatternBases(patternParallel: X.SpecifiedParallel)
+	private rakePatternBases(patternParallel: X.SpecifiedParallel)
 	{
+		if (!patternParallel.pattern)
+			throw X.Exception.unknownState();
+		
 		const bases = new Map<X.SpecifiedParallel, X.HyperEdge>();
 		const obs = patternParallel.node.outbounds;
 		const nameOf = (edge: X.HyperEdge) =>
@@ -355,9 +356,9 @@ export class ConstructionWorker
 			
 			const len = hyperEdge.successors.length;
 			
-			// Because pattern bases aren't polymorphic, we can get away
-			// with checking for these faults here without going through the
-			// whole drilling process
+			// Because resolving pattern bases has non-polymorphic behavior, 
+			// we can get away with checking for these faults here without going
+			// through the whole drilling process.
 			
 			if (len === 0)
 			{
@@ -439,18 +440,26 @@ export class ConstructionWorker
 		}
 		
 		// TODO: Check for use of lists within any kind of infix.
+		// It's possible for no collected bases to be returned
+		// in the case when there were actually annotations
+		// specified within the file, but they were all found to
+		// be cruft.
+		if (bases.size === 0)
+			return;
 		
-		return <TBaseTable>bases;
+		patternParallel.tryApplyPatternBases(bases);
 	}
 	
 	/**
-	 * Yields the series of Parallels that contain Patterns that are visible
-	 * to the specified srcParallel. The bases of these parallels have not 
-	 * necessarily been applied.
+	 * A generator function that works its way upwards, starting at the
+	 * provided SpecifiedParallel. The function yields the series of
+	 * Parallels that contain Patterns that are visible to the provided
+	 * srcParallel. The bases of these parallels have not necessarily
+	 * been applied.
 	 * 
-	 * The ordering of the Parallels yielded
-	 * is relevant. The instances that were yielded closer to the beginning
-	 * take prescedence over the ones yielded at the end.
+	 * The ordering of the Parallels yielded is relevant. The instances
+	 * that were yielded closer to the beginning take prescedence over
+	 * the ones yielded at the end.
 	 */
 	private *ascend(srcParallel: X.SpecifiedParallel)
 	{
@@ -679,15 +688,15 @@ export class ConstructionWorker
 	/** */
 	private readonly parallels = new X.ParallelCache();
 	
-	/** Stores the set of Parallel instances that have been raked. */
-	private readonly rakedParallels = new WeakSet<X.Parallel>();
-	
 	/**
-	 * Stores the set of pattern-containing SpecifiedParallel instances
-	 * that have gone through the process of having their requested
-	 * bases applied.
+	 * Stores the set of Parallel instances that have been "raked",
+	 * which means that that have gone through the process of
+	 * having their requested bases applied.
+	 * 
+	 * This set may include both pattern and non-patterns Parallels,
+	 * (even though their raking processes are completely different).
 	 */
-	private readonly patternizedParallels = new WeakSet<X.SpecifiedParallel>();
+	private readonly rakedParallels = new WeakSet<X.Parallel>();
 	
 	/** */
 	private readonly cruft = new X.CruftCache(this.program);
