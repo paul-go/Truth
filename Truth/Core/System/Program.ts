@@ -304,7 +304,7 @@ export class Program
 				const type = X.Type.construct(spine, this);
 				const annoText = anno.boundary.subject.toString();
 				const base = type.bases.find(b => b.name === annoText);
-				const bases = base ? [base] : [];
+				const bases = base ? [base] : null;
 				
 				return new ProgramInspectionResult(bases, statement, anno);
 			}
@@ -456,5 +456,8 @@ export class ProgramInspectionResult
 		 * the specified location is whitespace or a comment.
 		 */
 		readonly span: X.Span | null = null)
-	{ }
+	{
+		if (Array.isArray(foundObject) && foundObject.length === 0)
+			this.foundObject = null;
+	}
 }
