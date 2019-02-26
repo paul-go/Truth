@@ -507,9 +507,13 @@ export const Faults = Object.freeze({
 	
 	/** */
 	StatementContainsOnlyEscapeCharacter: createFault<X.Statement>(
-		604,
+		606,
 		"A statement cannot consist of a single escape character (\\)"),
 	
+	/** */
+	StatementBeginsWithInvalidSequence: createFault<X.Statement>(
+		608,
+		"A statement cannot begin with the sequences: /*, /+, or /?"),
 	
 	//
 	// Parsing Faults
