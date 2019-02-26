@@ -111,8 +111,9 @@ export class SpecifiedParallel extends X.Parallel
 			throw X.Exception.unknownState();
 		
 		// Just as a reminder -- pattern-containing parallels 
-		// don't come into this method.
-		if (this.node.subject instanceof X.Pattern)
+		// don't come into this method. Bases are applied to
+		// patterns in tryApplyPatternBases.
+		if (this.pattern)
 			throw X.Exception.unknownState();
 		
 		const satisfyCount = this.contract.trySatisfyCondition(base);
@@ -163,12 +164,26 @@ export class SpecifiedParallel extends X.Parallel
 		if (this._bases.has(viaEdge))
 			throw X.Exception.unknownState();
 		
+		const targetPattern = targetPatternParallel.pattern;
+		
 		// Just as a reminder -- pattern-containing parallels don't come
 		// into this method ... only the aliases that might match them.
-		if (this.node.subject instanceof X.Pattern)
+		if (this.pattern || !targetPattern)
 			throw X.Exception.unknownState();
 		
-		return true;
+		// If the targetPattern has no infixes, we can get away with a simple
+		// check to see if the alias matches the regular expression.
+		if (!targetPattern.hasInfixes())
+		{
+			if (!targetPattern.test(viaAlias))
+				return false;
+			
+			this._bases.set(viaEdge, targetPatternParallel);
+			return true;
+		}
+		
+		// Not implemented, but we shouldn't throw an exception here yet.
+		return false;
 	}
 	
 	/**
@@ -180,10 +195,9 @@ export class SpecifiedParallel extends X.Parallel
 	tryApplyPatternBases(baseTable: X.TBaseTable)
 	{
 		const bases = Array.from(baseTable.keys());
-		const pattern = this.node.subject;
 		
 		// Non-Pattern nodes should never come to this method.
-		if (!(pattern instanceof X.Pattern))
+		if (!this.pattern)
 			throw X.Exception.unknownState();
 		
 		const basesDeep = bases
@@ -197,7 +211,7 @@ export class SpecifiedParallel extends X.Parallel
 		
 		if (basesDeep.length > 0)
 		{
-			const basesNodes = Object.freeze(bases.map(b => b.node));
+			const basesNodes = bases.map(b => b.node);
 			
 			// Finds all pattern nodes that have an edge that points
 			// to at least one of the bases in the basesDeep array.
@@ -318,12 +332,23 @@ export class SpecifiedParallel extends X.Parallel
 	 */
 	private maybeCompilePattern()
 	{
-		const pattern = this.node.subject as X.Pattern;
-		if (!(pattern instanceof X.Pattern))
+		if (!this.pattern)
 			return;
 		
 		//if (!pattern.hasInfixes())
 		//	this.compiledExpression = pattern.
+	}
+	
+	/**
+	 * Gets the Pattern instance that resides inside this SpecifiedParallel,
+	 * or null in the case when this SpecifiedParallel does not have an
+	 * inner Pattern.
+	 */
+	get pattern(): X.Pattern | null
+	{
+		return this.node.subject instanceof X.Pattern ?
+			this.node.subject :
+			null;
 	}
 	
 	/**

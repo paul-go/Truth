@@ -28,7 +28,7 @@ setTimeout(async () =>
 	};
 	
 	const filePath = findArg("--file=");
-	const targetTypePath = (() =>
+	const targetTypePath = !filePath ? [] : (() =>
 	{
 		const fileContent = Fs.readFileSync(filePath, "utf8");
 		const firstLineEnd = fileContent.indexOf(Os.EOL);
@@ -49,10 +49,12 @@ setTimeout(async () =>
 	// Wait for the agents to load before continuing
 	await new Promise(r => setTimeout(r, 100));
 	
-	//doc.edit(mutator => mutator.update("// ", 0));
-	//doc.edit(mutator => mutator.delete(2));
-	
-	console.log(program.graph.toString());
+	//doc.edit(mutator => mutator.insert("A : B, C", 1));
+	//console.log(program.graph.toString());
+	//program.verify();
+	//
+	//doc.edit(mutator => mutator.insert("B", 2));
+	//console.log(program.graph.toString());
 	program.verify();
 	
 	//{
