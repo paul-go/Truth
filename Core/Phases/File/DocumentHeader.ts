@@ -46,7 +46,7 @@ export class DocumentHeader
 			
 			const refUri = decl.boundary.subject;
 			const docUri = this.document.sourceUri;
-			const uriAbsolute = X.Guard.notNull(X.Uri.tryParse(refUri, docUri));
+			const uriAbsolute = X.Not.null(X.Uri.tryParse(refUri, docUri));
 			
 			newUriMap.set(statement, uriAbsolute);
 		}

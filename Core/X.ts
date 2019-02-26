@@ -8,7 +8,7 @@ export * from "./Util/Fs";
 export * from "./Util/Fetch";
 export * from "./Util/Crc";
 export * from "./Util/HigherOrder";
-export * from "./Util/Guard";
+export * from "./Util/Not";
 export * from "./Util/Parser";
 export * from "./Util/UnicodeBlocks";
 export * from "./Util/Misc";

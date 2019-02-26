@@ -20,7 +20,7 @@ export class NodeIndex
 				if (node.document !== data.document)
 					continue;
 				
-				const oldUri = X.Guard.notNull(X.Uri.tryParse(oldUriText));
+				const oldUri = X.Not.null(X.Uri.tryParse(oldUriText));
 				const newUriText = newUriStore
 					.extendType(oldUri.types.map(t => t.value))
 					.toString();

@@ -60,7 +60,7 @@ export class ConstructionWorker
 	private drillFromUri(directive: X.Uri)
 	{
 		if (this.parallels.has(directive))
-			return X.Guard.defined(this.parallels.get(directive));
+			return X.Not.undefined(this.parallels.get(directive));
 		
 		const typePath = directive.types.slice().map(t => t.value);
 		if (typePath.length === 0)
@@ -92,7 +92,7 @@ export class ConstructionWorker
 			if (!this.parallels.has(uri))
 				break;
 			
-			lastSeed = X.Guard.defined(this.parallels.get(uri));
+			lastSeed = X.Not.undefined(this.parallels.get(uri));
 			
 			if (++typeIdx >= typePath.length)
 				return lastSeed;
@@ -469,7 +469,7 @@ export class ConstructionWorker
 		{
 			discoveredPatternNodes.add(patternNode);
 			
-			return X.Guard.notNull(
+			return X.Not.null(
 				this.parallels.get(patternNode) ||
 				this.parallels.create(patternNode, this.cruft));
 		}
