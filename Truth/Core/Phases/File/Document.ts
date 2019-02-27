@@ -431,7 +431,8 @@ export class Document
 	
 	/**
 	 * Enumerates through each statement in the document,
-	 * starting at the specified statement, or numeric position.
+	 * including comments and whitespace-only lines, starting
+	 * at the specified statement or numeric position.
 	 * 
 	 * @yields The statements in the order that they appear
 	 * in the document, excluding whitespace-only statements.
@@ -450,11 +451,7 @@ export class Document
 		})();
 		
 		for (let i = startNum - 1; ++i < this.statements.length;)
-		{
-			const smt = this.statements[i];
-			if (!smt.isWhitespace)
-				yield smt;
-		}
+			yield this.statements[i];
 	}
 	
 	/**
