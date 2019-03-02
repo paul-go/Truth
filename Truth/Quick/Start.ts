@@ -39,19 +39,19 @@ setTimeout(async () =>
 	// Wait for the agents to load before continuing
 	await new Promise(r => setTimeout(r, 100));
 	
-	//doc.edit(mutator => mutator.insert("A : B, C", 1));
-	//console.log(program.graph.toString());
-	//program.verify();
-	//
-	//doc.edit(mutator => mutator.insert("B", 2));
-	//console.log(program.graph.toString());
+	///doc.edit(mutator => mutator.insert("A : B, C", 1));
+	///console.log(program.graph.toString());
+	///program.verify();
+	///
+	///doc.edit(mutator => mutator.insert("B", 2));
+	///console.log(program.graph.toString());
 	program.verify();
 	
-	//{
-	//	const newUri = doc.sourceUri.extendStore("x");
-	//	const param = new X.DocumentUriChangedParam(doc, newUri);
-	//	program.hooks.DocumentUriChanged.run(param);
-	//}
+	///{
+	///	const newUri = doc.sourceUri.extendStore("x");
+	///	const param = new X.DocumentUriChangedParam(doc, newUri);
+	///	program.hooks.DocumentUriChanged.run(param);
+	///}
 	
 	const type = program.queryDocument(doc, ...targetTypePath);
 	if (type instanceof X.Type)
@@ -86,13 +86,13 @@ setTimeout(async () =>
 	}
 	else
 	{
-		console.log(`No faults were detected:`);
+		console.log("No faults were detected:");
 	}
 	
-	/*if (type === null)
-	{
-		console.log(`No type exists at the input URI.`);
-		return;
-	}*/
+	///if (type === null)
+	///{
+	///	console.log(`No type exists at the input URI.`);
+	///	return;
+	///}
 },
 1);

@@ -1,7 +1,5 @@
 import * as X from "../X";
 import * as T from "../T";
-//import "../Framework/TestExtensions";
-
 
 describe("Document Scans", () =>
 {
@@ -23,7 +21,7 @@ describe("Document Scans", () =>
 		const ancestryAtD = doc.getAncestry(doc.read(3))!;
 		const ancestryAtE = doc.getAncestry(doc.read(4))!;
 		
-		expect(ancestryAtA).toRead(``);
+		expect(ancestryAtA).toRead("");
 		
 		expect(ancestryAtB).toRead(`
 			A
@@ -296,7 +294,7 @@ describe("Document Scans", () =>
 		const doc = prog.documents.create("\t".repeat(5));
 		const children = doc.getChildren();
 		
-		expect(children).toRead(``);
+		expect(children).toRead("");
 	});
 
 	/** */
@@ -329,7 +327,8 @@ describe("Document Scans", () =>
 			smtB,
 			smtC,
 			smtD,
-			smtE]));
+			smtE
+		]));
 	});
 
 	/** */

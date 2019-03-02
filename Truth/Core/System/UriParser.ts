@@ -222,7 +222,9 @@ export class UriParser
 			isRelative = true;
 		}
 		else if (maybeReadProtocol())
-		{ }
+		{
+			// Do nothing
+		}
 		else if (parser.read(X.UriSyntax.componentSeparator))
 		{
 			protocol = X.UriProtocol.file;

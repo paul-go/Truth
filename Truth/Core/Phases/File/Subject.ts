@@ -43,25 +43,3 @@ export class SubjectSerializer
 		throw X.Exception.unknownState();
 	}
 }
-
-
-/**
- * @deprecated
- * This code is only called by the Fragmenter, which is deprecated.
- */
-export class SubjectParser
-{
-	/**
-	 * @deprecated
-	 * This code is only called by the Fragmenter, which is deprecated.
-	 */
-	static invoke(text: string): Subject
-	{
-		if (text.trim().length === 0)
-			throw X.Exception.invalidArgument();
-		
-		return new X.Identifier(text);
-	}
-	
-	private constructor() { }
-}

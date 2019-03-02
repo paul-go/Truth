@@ -553,9 +553,9 @@ export class Document
 		(() =>
 		{
 			const hasMixed =
-				(hasInsert && hasUpdate) ||
-				(hasInsert && hasDelete) ||
-				(hasUpdate && hasDelete);
+				hasInsert && hasUpdate ||
+				hasInsert && hasDelete ||
+				hasUpdate && hasDelete;
 			
 			const boundAt = (call: callType) =>
 				applyBounds(call.at, this.statements.length);
@@ -603,7 +603,7 @@ export class Document
 					// that would be overridden in a following call.
 					const updateCalls = (<updateCall[]>calls)
 						.sort((a, b) => a.at - b.at)
-						.filter((call, i) => i >= calls.length - 1 || call.at !== (<updateCall>calls[i + 1]).at);
+						.filter((call, i) => i >= calls.length - 1 || call.at !== calls[i + 1].at);
 					
 					const oldStatements = updateCalls.map(c => this.statements[c.at]);
 					const newStatements = updateCalls.map(c => c.smt);
@@ -612,8 +612,8 @@ export class Document
 					const noStructuralChanges = oldStatements.every((oldSmt, idx) =>
 					{
 						const newSmt = newStatements[idx];
-						return (oldSmt.indent === newSmt.indent ||
-							oldSmt.isNoop && newSmt.isNoop);
+						return oldSmt.indent === newSmt.indent ||
+							oldSmt.isNoop && newSmt.isNoop;
 					});
 					
 					if (noStructuralChanges)
@@ -894,7 +894,7 @@ export class Document
 			for (const editInfo of edits)
 			{
 				if (!editInfo.range)
-					throw "No range included.";
+					throw new TypeError("No range included.");
 				
 				const startLine = editInfo.range.startLineNumber - 1;
 				const endLine = editInfo.range.endLineNumber - 1;

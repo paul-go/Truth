@@ -143,9 +143,9 @@ function vizFn(root: any | null, fn: (value: any) => any)
  */
 function createTemplate(title: string, kind: string)
 {
-	kind = kind.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+	const kindText = kind.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 	
-	if (title === kind)
+	if (title === kindText)
 		return title;
 	
 	return JsonViz.HTML(`
@@ -154,7 +154,7 @@ function createTemplate(title: string, kind: string)
 		<font point-size="8" color="white">.</font>
 		<br/>
 		<font point-size="12" color="#888888">
-			<i>${kind}</i>
+			<i>${kindText}</i>
 		</font>
 	`)
 }
@@ -165,7 +165,8 @@ function createTemplate(title: string, kind: string)
  */
 function emitHtmlViewer()
 {
-	const html = [`<!doctype html>
+	const html = [
+		`<!doctype html>
 		<style>
 			*
 			{
@@ -198,8 +199,8 @@ function emitHtmlViewer()
 				display: block;
 				margin: auto;
 			}
-		</style>
-	`];
+		</style>`
+	];
 	
 	for (let i = 0; ++i <= nextFileNumber;)
 		html.push(`<div><img src="${getFileNumber(i)}"></div>`);
@@ -213,5 +214,6 @@ export function init()
 	for (const path of Fs.readdirSync(dirPath, "utf8"))
 		Fs.unlinkSync(dirPath + path);
 	
-	(<any>global).viz = vizFn;
+	const anyGlobal: any = global;
+	anyGlobal.viz = vizFn;
 }

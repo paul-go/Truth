@@ -18,6 +18,7 @@ export class SpecifiedParallel extends X.Parallel
 		super(node.uri, container);
 		this.node = node;
 		this.cruft = cruft;
+		this.contract = new X.Contract(this);
 		
 		node.document.program.faults.inform(node);
 	}
@@ -332,11 +333,11 @@ export class SpecifiedParallel extends X.Parallel
 	 */
 	private maybeCompilePattern()
 	{
-		if (!this.pattern)
-			return;
+		///if (!this.pattern)
+		///	return;
 		
-		//if (!pattern.hasInfixes())
-		//	this.compiledExpression = pattern.
+		///if (!pattern.hasInfixes())
+		///	this.compiledExpression = pattern.
 	}
 	
 	/**
@@ -369,5 +370,5 @@ export class SpecifiedParallel extends X.Parallel
 	}
 	
 	/** */
-	private readonly contract: X.Contract = new X.Contract(this);
+	private readonly contract: X.Contract;
 }

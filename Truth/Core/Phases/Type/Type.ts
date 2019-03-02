@@ -272,6 +272,8 @@ export class Type
 		
 		this.private.throwOnDirty();
 		throw X.Exception.notImplemented();
+		
+		// eslint-disable-next-line no-unreachable
 		return this.private.superordinates = Object.freeze([]);
 	}
 	
@@ -285,6 +287,8 @@ export class Type
 		
 		this.private.throwOnDirty();
 		throw X.Exception.notImplemented();
+		
+		// eslint-disable-next-line no-unreachable
 		return this.private.subordinates = Object.freeze([]);
 	}
 	
@@ -390,6 +394,8 @@ export class Type
 		
 		this.private.throwOnDirty();
 		throw X.Exception.notImplemented();
+		
+		// eslint-disable-next-line no-unreachable
 		return this.private.values = new Map();
 	}
 	

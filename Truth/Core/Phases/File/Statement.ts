@@ -477,17 +477,15 @@ export class Statement
 			
 			return StatementRegion.declarationVoid;
 		}
-		else
+		
+		for (const span of this.allAnnotations)
 		{
-			for (const span of this.annotations)
-			{
-				const bnd = span.boundary;
-				if (offset >= bnd.offsetStart && offset <= bnd.offsetEnd)
-					return StatementRegion.annotation;
-			}
-			
-			return StatementRegion.annotationVoid;
+			const bnd = span.boundary;
+			if (offset >= bnd.offsetStart && offset <= bnd.offsetEnd)
+				return StatementRegion.annotation;
 		}
+		
+		return StatementRegion.annotationVoid;
 	}
 	
 	/**
