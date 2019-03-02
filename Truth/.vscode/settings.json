@@ -14,5 +14,7 @@
 	},
 	
 	// Causes annoyances with the X bundle format
-	"typescript.suggest.autoImports": false
+	"typescript.suggest.autoImports": false,
+	
+	"eslint.run": "onSave"
 }
