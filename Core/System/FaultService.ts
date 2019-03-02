@@ -12,7 +12,8 @@ export class FaultService
 	{
 		// Listen for invalidations and clear out any faults
 		// that correspond to objects that don't exist in the
-		// document anymore.
+		// document anymore. 
+		
 		program.on(X.CauseInvalidate, data =>
 		{
 			if (data.parents.length > 0)
@@ -189,7 +190,7 @@ export class FaultService
 	}
 	
 	/**
-	 * Stores the faults that are presented to external consumers
+	 * Stores the faults that are presented to external consumer
 	 * of the fault service when they use the accessor methods.
 	 */
 	private visibleFrame = new FaultFrame();
@@ -232,7 +233,7 @@ class FaultFrame
 		return newFrame;
 	}
 	
-	/**  */
+	/** */
 	addFault(fault: X.Fault)
 	{
 		const faultsForSource = this.faults.get(fault.source);

@@ -7,7 +7,6 @@ import * as X from "../X";
  */
 export type TFaultSource = X.Statement | X.Span | X.InfixSpan;
 
-
 /**
  * 
  */
@@ -112,7 +111,6 @@ export class Fault<TSource = TFaultSource>
 	readonly range: number[];
 }
 
-
 /**
  * 
  */
@@ -144,7 +142,6 @@ export class FaultType<TSource = TFaultSource>
 	}
 }
 
-
 /**
  * The following definitions are intentionally equivalent
  * to the severity codes from the monaco editor.
@@ -169,7 +166,6 @@ export const enum FaultSeverity
 	 */
 	error = 8
 }
-
 
 /**
  * Utility function for creating frozen fault instances.
@@ -220,11 +216,7 @@ export const Faults = Object.freeze({
 		return "";
 	},
 	
-	
-	//
-	// Resource-related faults
-	//
-	
+	//# Resource-related faults
 	
 	/** */
 	UnresolvedResource: createFault<X.Statement>(
@@ -242,11 +234,7 @@ export const Faults = Object.freeze({
 		"Documents loaded from remote locations " +
 		"cannot reference documents stored locally."),
 	
-	
-	//
-	// Type verification faults
-	//
-	
+	//# Type verification faults
 	
 	/** */
 	UnresolvedAnnotation: createFault<X.Span>(
@@ -260,7 +248,7 @@ export const Faults = Object.freeze({
 	
 	/** */
 	ContractViolation: createFault<X.Statement>(
-		// CHANGE THIS TO 204
+		//! CHANGE THIS TO 204
 		205,
 		"Overridden types must explicitly expand the type as defined in the base."),
 	
@@ -290,11 +278,7 @@ export const Faults = Object.freeze({
 		211,
 		`Types cannot be self-referential`),
 	
-	
-	//
-	// List-related faults
-	//
-	
+	//# List-related faults
 	
 	/** */
 	AnonymousInListIntrinsic: createFault<X.Statement>(
@@ -330,10 +314,7 @@ export const Faults = Object.freeze({
 		`All fragments of this annotation need to have
 		a list operator (${X.Syntax.list})`),
 	
-	//
-	// Pattern-related faults
-	//
-	
+	//# Pattern-related faults
 	
 	/** */
 	PatternInvalid: createFault<X.Statement>(
@@ -408,11 +389,7 @@ export const Faults = Object.freeze({
 		"A union cannot be created between these types because their " + 
 		"associated patterns conflict with each other."),
 	
-	
-	// 
-	// Infix related
-	// 
-	
+	//# Infix related
 	
 	/** */
 	InfixHasQuantifier: createFault<X.Statement>(
@@ -494,11 +471,7 @@ export const Faults = Object.freeze({
 		"Patterns with nominal infixes require an input that is " +
 		"a subtype of the type specified, not the type itself."),
 	
-	
-	//
-	// Parse errors
-	//
-	
+	//# Parse errors
 	
 	/** */
 	StatementBeginsWithComma: createFault<X.Statement>(
@@ -526,10 +499,7 @@ export const Faults = Object.freeze({
 		608,
 		"A statement cannot begin with the sequences: /*, /+, or /?"),
 	
-	//
-	// Parsing Faults
-	//
-	
+	//# Parsing Faults
 	
 	/** */
 	TabsAndSpaces: createFault<X.Statement>(

@@ -51,15 +51,15 @@ export class HyperEdge
 	 */
 	addFragment(fragment: X.Span | X.InfixSpan)
 	{
-		//const isPattern = this.predecessor.subject instanceof X.Pattern;
-		//const isInfix = source instanceof X.InfixSpan;
-		//if (isPattern !== isInfix)
-		//	throw X.Exception.invalidCall();
+		///const isPattern = this.predecessor.subject instanceof X.Pattern;
+		///const isInfix = source instanceof X.InfixSpan;
+		///if (isPattern !== isInfix)
+		///	throw X.Exception.invalidCall();
 		
 		if (this.fragmentsMutable.includes(fragment))
 			return;
 		
-		"The ordering of the sources is not being handled here."
+		//! The ordering of the sources is not being handled here.
 		
 		this.fragmentsMutable.push(fragment);
 	}
@@ -205,7 +205,7 @@ export class HyperEdge
 	 */
 	get predecessorOrigin(): X.HyperEdgeOrigin
 	{
-		// Is this still necessary?
+		//! Is this still necessary?
 		
 		if (this.fragmentsMutable.length === 0)
 			throw X.Exception.unknownState();
