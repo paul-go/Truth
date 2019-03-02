@@ -10,24 +10,23 @@ export class FsmTranslator
 	/** */
 	static exec(units: Iterable<X.RegexUnit>)
 	{
-		
 		for (const unit of units)
 		{
 			if (unit instanceof X.RegexSet)
 			{
-				
+				throw X.Exception.notImplemented();
 			}
 			else if (unit instanceof X.RegexGroup)
 			{
-				
+				throw X.Exception.notImplemented();
 			}
 			else if (unit instanceof X.RegexGrapheme)
 			{
-				
+				throw X.Exception.notImplemented();
 			}
 			else if (unit instanceof X.RegexSign)
 			{
-				
+				throw X.Exception.notImplemented();
 			}
 			else throw X.Exception.unknownState();
 		}
@@ -48,7 +47,7 @@ export class FsmTranslator
 		group: X.RegexGroup,
 		alpha: X.AlphabetBuilder | null = null)
 	{
-		alpha = alpha || (new X.AlphabetBuilder().addWild());
+		const builder = alpha || new X.AlphabetBuilder().addWild();
 	}
 	
 	/** */
@@ -59,7 +58,7 @@ export class FsmTranslator
 		
 		for (const element of group.cases)
 		{
-			
+			throw X.Exception.notImplemented();
 		}
 	}
 	

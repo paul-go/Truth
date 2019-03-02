@@ -66,7 +66,7 @@ describe("Parser Tests", () =>
 		
 		const first = parsedLine.declarations.first();
 		
-		if (expected.uri === undefined && !!first && (first.subject instanceof X.Uri))
+		if (expected.uri === undefined && !!first && first.subject instanceof X.Uri)
 		{
 			debugger;
 			fail("Line should not have parsed as a URI.");
@@ -218,7 +218,7 @@ describe("Parser Tests", () =>
 							{
 								debugger;
 								firstDecl.test(match);
-								throw "Pattern does not match: " + match;
+								throw new Error("Pattern does not match: " + match);
 							}
 					
 					if (noMatches)
@@ -227,7 +227,7 @@ describe("Parser Tests", () =>
 							{
 								debugger;
 								firstDecl.test(noMatch);
-								throw "Pattern matches: " + noMatch;
+								throw new Error("Pattern matches: " + noMatch);
 							}
 				}
 			}
@@ -262,8 +262,8 @@ describe("Parser Tests", () =>
 					const actLhs = Array.from(act.lhs.eachSubject()).map(id => id.toString());
 					const actRhs = Array.from(act.rhs.eachSubject()).map(id => id.toString());
 					const exp = expected.infixes[nfxIdx];
-					const expLhs = typeof exp.lhs === "string" ? [exp.lhs] : (exp.lhs || []);
-					const expRhs = typeof exp.rhs === "string" ? [exp.rhs] : (exp.rhs || []);
+					const expLhs = typeof exp.lhs === "string" ? [exp.lhs] : exp.lhs || [];
+					const expRhs = typeof exp.rhs === "string" ? [exp.rhs] : exp.rhs || [];
 					
 					if (exp.kind === "Pattern" && !act.isPattern)
 					{

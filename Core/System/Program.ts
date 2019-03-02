@@ -107,7 +107,7 @@ export class Program
 			if (causeType === causeTypeKey)
 				for (const ca of attachments)
 					if (scope === ca.scope || 
-						(scope instanceof X.Program && ca.scope instanceof X.Document))
+						scope instanceof X.Program && ca.scope instanceof X.Document)
 						push(ca);
 		
 		return results;
@@ -192,9 +192,12 @@ export class Program
 	/**
 	 * 
 	 */
-	async attach(agentUri: X.Uri): Promise<Error | void>
+	attach(agentUri: X.Uri): Promise<Error | void>
 	{
-		throw X.Exception.notImplemented();
+		return new Promise(() =>
+		{
+			throw X.Exception.notImplemented();
+		});
 	}
 	
 	/**

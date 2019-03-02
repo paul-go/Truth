@@ -1,6 +1,5 @@
 import * as X from "../X";
 
-
 /**
  * A type that describes the possible objects within a document
  * that may be responsible for the generation of a fault.
@@ -231,8 +230,8 @@ export const Faults = Object.freeze({
 	/** */
 	InsecureResourceReference: createFault<X.Statement>(
 		104,
-		"Documents loaded from remote locations " +
-		"cannot reference documents stored locally."),
+		`Documents loaded from remote locations
+		cannot reference documents stored locally.`),
 	
 	//# Type verification faults
 	
@@ -276,7 +275,7 @@ export const Faults = Object.freeze({
 	/** */
 	TypeSelfReferential: createFault<X.Span>(
 		211,
-		`Types cannot be self-referential`),
+		"Types cannot be self-referential"),
 	
 	//# List-related faults
 	
@@ -341,7 +340,7 @@ export const Faults = Object.freeze({
 	/** */
 	PatternMatchingList: createFault<X.Span>(
 		407,
-		`A pattern cannot match a list type.`),
+		"A pattern cannot match a list type."),
 	
 	/** */
 	PatternCanMatchWhitespaceOnly: createFault<X.Statement>(
@@ -399,7 +398,7 @@ export const Faults = Object.freeze({
 	/** */
 	InfixHasDuplicateIdentifier: createFault<X.InfixSpan>(
 		501, //0,
-		`Infixes cannot have duplicate identifiers.`),
+		"Infixes cannot have duplicate identifiers."),
 	
 	/** */
 	InfixHasSelfReferentialType: createFault<X.InfixSpan>(
@@ -457,7 +456,7 @@ export const Faults = Object.freeze({
 	/** */
 	PortabilityInfixHasUnion: createFault<X.InfixSpan>(
 		523, //418,
-		`Portability infixes with unioned types are not supported at this time.`),
+		"Portability infixes with unioned types are not supported at this time."),
 	
 	/** */
 	PopulationInfixHasMultipleDefinitions: createFault<X.InfixSpan>(
@@ -541,7 +540,7 @@ export const Faults = Object.freeze({
 	/** */
 	EmptyPattern: createFault<X.Statement>(
 		1010,
-		`Pattern has no matchable content.`),
+		"Pattern has no matchable content."),
 });
 
 

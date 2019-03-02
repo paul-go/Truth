@@ -195,11 +195,14 @@ export class Fsm
 			const result = new X.Guide();
 			result.add(idx, substateId);
 			
-			while (idx < fsms.length - 1 && fsms[idx].finals.has(substateId))
+			let i = idx;
+			let id = substateId;
+			
+			while (i < fsms.length - 1 && fsms[i].finals.has(id))
 			{
-				idx++;
-				substateId = fsms[idx].initial;
-				result.add(idx, substateId);
+				i++;
+				id = fsms[i].initial;
+				result.add(i, id);
 			}
 			
 			return result;
@@ -409,7 +412,7 @@ export class Fsm
 	{
 		return crawlParallel(
 			prependFsm(this, fsms), 
-			accepts => (accepts.filter(val => val).length % 2) === 1);
+			accepts => accepts.filter(val => val).length % 2 === 1);
 	}
 	
 	/**
@@ -507,7 +510,7 @@ export class Fsm
 	 */
 	unequivalent(other: Fsm)
 	{
-		return !(this.xor(other).isEmpty());
+		return !this.xor(other).isEmpty();
 	}
 	
 	/**
@@ -648,7 +651,7 @@ export class Fsm
 			{
 				if (this.alphabet.has(char))
 				{
-					if (!(this.alphabet.hasWildcard))
+					if (!this.alphabet.hasWildcard)
 						throw new Error(char);
 					
 					return X.Alphabet.wildcard;
@@ -677,13 +680,13 @@ export class Fsm
 	 */
 	toString()
 	{
-		return ([
+		return [
 			"alphabet = " + this.alphabet.toString(),
 			"states = " + Array.from(this.states).join(),
 			"inital = " + this.initial,
 			"finals = " + Array.from(this.finals).join(),
 			"transitions = " + this.transitions.toString()
-		]).join("\n");
+		].join("\n");
 	}
 }
 
@@ -706,7 +709,7 @@ function crawlParallel(fsms: Fsm[], testFn: (accepts: boolean[]) => boolean)
 {
 	const initial = new X.Guide();
 	
-	for (const [index, fsm]  of fsms.entries())
+	for (const [index, fsm] of fsms.entries())
 		initial.add(index, fsm.initial);
 	
 	/**
@@ -720,11 +723,11 @@ function crawlParallel(fsms: Fsm[], testFn: (accepts: boolean[]) => boolean)
 		for (const [index, fsm] of fsms.entries())
 		{
 			const stateId = guide.get(index);
-			if (stateId == null)
+			if (stateId === null || stateId === undefined)
 				continue;
 			
 			const substateId = fsm.transitions.get(stateId);
-			if (substateId == undefined)
+			if (substateId === undefined)
 				continue;
 			
 			const alpha = fsm.alphabet;
@@ -753,7 +756,7 @@ function crawlParallel(fsms: Fsm[], testFn: (accepts: boolean[]) => boolean)
 		for (const [idx, fsm] of fsms.entries())
 		{
 			const substateId = guide.get(idx);
-			if (substateId != null)
+			if (substateId !== null && substateId !== undefined)
 				accepts.push(guide.has(idx) && fsm.finals.has(substateId));
 		}
 		

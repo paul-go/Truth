@@ -1,5 +1,8 @@
 import * as X from "../X";
 
+//! Is this code even needed anymore?
+
+/* eslint require-await: 0 */
 
 /**
  * Jest entry point.

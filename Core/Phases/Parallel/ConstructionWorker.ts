@@ -9,7 +9,10 @@ import * as X from "../../X";
 export class ConstructionWorker
 {
 	/** */
-	constructor(private readonly program: X.Program) { }
+	constructor(private readonly program: X.Program)
+	{
+		this.cruft = new X.CruftCache(this.program);
+	}
 	
 	/**
 	 * Constructs the corresponding Parallel instances for
@@ -34,8 +37,9 @@ export class ConstructionWorker
 			}
 		}
 		
-		from instanceof X.Document ?
-			processNodes(this.program.graph.readRoots(from)) :
+		if (from instanceof X.Document)
+			processNodes(this.program.graph.readRoots(from));
+		else
 			queue.push(from);
 		
 		for (const currentParallel of queue)
@@ -436,7 +440,7 @@ export class ConstructionWorker
 			// 	/< : Email>< : String> : Type
 			// (hint: it doesn't work)
 			
-			"not implemented";
+			//! Not implemented
 		}
 		
 		// TODO: Check for use of lists within any kind of infix.
@@ -699,7 +703,7 @@ export class ConstructionWorker
 	private readonly rakedParallels = new WeakSet<X.Parallel>();
 	
 	/** */
-	private readonly cruft = new X.CruftCache(this.program);
+	private readonly cruft: X.CruftCache;
 }
 
 

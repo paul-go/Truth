@@ -50,10 +50,7 @@ describe("Indentation Fault Tests", () =>
 		const prog = new X.Program();
 		const t = X.Syntax.tab;
 		const s = X.Syntax.space;
-		
-		const lines = [
-			t + s + "TabSpace"
-		];
+		const lines = [t + s + "TabSpace"];
 		
 		const doc = prog.documents.create(lines.join("\n"));
 		expect(prog).toHaveFault(X.Faults.TabsAndSpaces.code, 0);

@@ -20,7 +20,7 @@ export class UriComponent
 		
 		if (raw.length > 2)
 			if (raw[0] === X.UriSyntax.indexorStart)
-				if (raw[raw.length - 1] == X.UriSyntax.indexorEnd)
+				if (raw[raw.length - 1] === X.UriSyntax.indexorEnd)
 					if (/\d+/.test(raw.slice(1, -1)))
 						this.index = +raw.slice(1, -1);
 		

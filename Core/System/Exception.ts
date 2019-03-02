@@ -14,25 +14,25 @@ export class Exception
 	/** */
 	static invalidArgument()
 	{
-		return error(`Invalid argument.`);
+		return error("Invalid argument.");
 	}
 	
 	/** */
 	static unknownState()
 	{
-		return error(`An unknown state has been reached in the program.`);
+		return error("An unknown state has been reached in the program.");
 	}
 	
 	/** */
 	static invalidCall()
 	{
-		return error(`Cannot call this method given the current state of the program.`);
+		return error("Cannot call this method given the current state of the program.");
 	}
 	
 	/** */
 	static notImplemented()
 	{
-		return error(`Not implemented.`);
+		return error("Not implemented.");
 	}
 	
 	/** */
@@ -86,25 +86,25 @@ export class Exception
 	/** */
 	static doubleTransaction()
 	{
-		return error(`Cannot start a new transaction while another is executing.`);
+		return error("Cannot start a new transaction while another is executing.");
 	}
 	
 	/** */
 	static invalidUriRetraction()
 	{
-		return error(`URI contains too few path segments to perform this retraction.`);
+		return error("URI contains too few path segments to perform this retraction.");
 	}
 	
 	/** */
 	static invalidUri(rawUri?: string)
 	{
-		return error(`Invalid URI` + (typeof rawUri === "string" ? ": " + rawUri : ""));
+		return error("Invalid URI" + (typeof rawUri === "string" ? ": " + rawUri : ""));
 	}
 	
 	/** */
 	static uriNotSupported()
 	{
-		return error(`URIs of this type are not supported.`);
+		return error("URIs of this type are not supported.");
 	}
 	
 	/** */
@@ -158,7 +158,7 @@ export class Exception
 	/** */
 	static nonEmptyDocument()
 	{
-		return error(`Cannot call this method on a non-empty document.`);
+		return error("Cannot call this method on a non-empty document.");
 	}
 	
 	/** */
@@ -187,7 +187,7 @@ export class Exception
 	/** */
 	static documentNotLoaded()
 	{
-		return error(`This document has not been loaded into the current program.`);
+		return error("This document has not been loaded into the current program.");
 	}
 	
 	/** */
@@ -208,7 +208,7 @@ export class Exception
 	/** */
 	static unsupportedPlatform()
 	{
-		return error(`This code appears to be operating in an unsupported platform.`);
+		return error("This code appears to be operating in an unsupported platform.");
 	}
 }
 

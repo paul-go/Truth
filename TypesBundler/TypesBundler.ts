@@ -17,18 +17,20 @@ class DefinitionFile
 	/** */
 	static async read(path: string)
 	{
-		if (!path.endsWith(".d.ts"))
+		let filePath = path;
+		
+		if (!filePath.endsWith(".d.ts"))
 		{
-			if (path.endsWith(".js") || path.endsWith(".ts"))
-				path = path.slice(0, -3);
+			if (filePath.endsWith(".js") || filePath.endsWith(".ts"))
+				filePath = filePath.slice(0, -3);
 			
-			path += ".d.ts";
+			filePath += ".d.ts";
 		}
 		
-		if (!path.startsWith("/"))
-			throw path + " is not absolute.";
+		if (!filePath.startsWith("/"))
+			throw new Error(filePath + " is not absolute.");
 		
-		const [fileContents, error] = await readFile(path);
+		const [fileContents, error] = await readFile(filePath);
 		
 		if (error)
 			throw error;
@@ -48,7 +50,7 @@ class DefinitionFile
 			parsedLines.push(parsedLine);
 		}
 		
-		return new DefinitionFile(path, parsedLines);
+		return new DefinitionFile(filePath, parsedLines);
 	}
 	
 	/** */
@@ -137,7 +139,7 @@ class DefinitionFile
 		{
 			lines.push(`declare module "${moduleName}" {`);
 			emitLines();
-			lines.push(`}`);
+			lines.push("}");
 			lines.push("");
 		}
 		
@@ -185,7 +187,7 @@ class Line
 			ctor.pattern.test(textTrimmed));
 		
 		if (!lineCtor)
-			throw "Internal error";
+			throw new Error("Internal error");
 		
 		const line: Line = new lineCtor(text);
 		const matchObject = <RegExpExecArray & { groups: object }>lineCtor.pattern.exec(textTrimmed);
@@ -213,7 +215,7 @@ class Line
 	readonly leadingSpaces: number;
 	
 	/** */
-	get indentDepth() { return (this.leadingSpaces / 4) | 0; }
+	get indentDepth() { return this.leadingSpaces / 4 | 0; }
 	
 	/** */
 	static get pattern() { return /./; }
@@ -406,11 +408,13 @@ async function bundle(options?: IBundleOptions)
 			const args: string[] = process.argv;
 			
 			if (args.length < 2)
-				throw "Unparsable command line arguments";
+				throw new Error("Unparsable command line arguments");
 			
 			const jsFile = args[1];
 			if (!jsFile.endsWith(".js"))
-				throw "Second argument expected to be a file with the .js extension.";
+				throw new Error(
+					"Second argument expected to be a " +
+					"file with the .js extension.");
 			
 			return Path.dirname(jsFile);
 		}
@@ -429,29 +433,26 @@ async function bundle(options?: IBundleOptions)
 		if (runningAsModule)
 		{
 			if (!options || typeof options !== "object")
-				throw `Options object must be passed to this function.`;
+				throw new Error("Options object must be passed to this function.");
 			
 			return <T><any>options[name];
 		}
-		else
+		
+		const processArgs: string[] = process.argv;
+		const prefix = `--${name}=`;
+		const fullArgumentText = processArgs.find(arg => arg.startsWith(prefix));
+		
+		if (fullArgumentText)
 		{
-			const processArgs: string[] = process.argv;
-			const prefix = `--${name}=`;
-			const fullArgumentText = processArgs.find(arg => arg.startsWith(prefix));
+			const outValue = fullArgumentText.slice(prefix.length).trim();
+			if (outValue)
+				return <T><any>outValue;
 			
-			if (fullArgumentText)
-			{
-				const outValue = fullArgumentText.slice(prefix.length).trim();
-				if (outValue)
-					return <T><any>outValue;
-				
-				throw `Argument ${prefix} cannot be empty`;
-			}
-			else if (required)
-			{
-				throw `Missing required argument ${prefix}).`;
-			}
+			throw new Error(`Argument ${prefix} cannot be empty`);
 		}
+		
+		if (required)
+			throw new Error(`Missing required argument ${prefix}).`);
 	}
 	
 	const inArgument = readArgument("in", true);
@@ -473,7 +474,7 @@ async function bundle(options?: IBundleOptions)
 	
 	const homeDefinitionFile = await DefinitionFile.read(translatePath(inArgument));
 	if (!homeDefinitionFile)
-		throw "No definition file found at: " + inArgument;
+		throw new Error("No definition file found at: " + inArgument);
 	
 	await homeDefinitionFile.resolve();
 	

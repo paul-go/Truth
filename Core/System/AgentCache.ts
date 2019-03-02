@@ -224,14 +224,13 @@ export class AgentCache
 	 * is fed into all agent functions to prevent any otherwise available
 	 * require() function from being accessed.
 	 */
-	private static readonly hijackedRequireFn = Object.freeze(((specifier: string) =>
+	private static readonly hijackedRequireFn = Object.freeze((specifier: string) =>
 	{
 		throw new Error(
 			"The require() function is not available in this context. " +
 			"Multi-file agents should be bundled with a bundler " + 
 			"such as RollupJS.");
-		
-	}).bind(null));
+	});
 	
 	/**
 	 * Stores the number of lines that are introduced by the script
@@ -241,9 +240,10 @@ export class AgentCache
 	 */
 	private readonly sourceMapLineOffset = (() =>
 	{
+		// eslint-disable-next-line no-new-func
 		const testFn = new Function("a", "b", "c", ";");
 		const lineCount = testFn.toString().split("\n").length;
-		return lineCount - 2;
+		return lineCount - 2; 
 	})();
 	
 	/**

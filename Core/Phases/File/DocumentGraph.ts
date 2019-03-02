@@ -150,7 +150,7 @@ export class DocumentGraph
 	/**
 	 * Blocks execution until all queued IO operations have completed.
 	 */
-	async await()
+	wait()
 	{
 		return new Promise<void>(resolve =>
 		{

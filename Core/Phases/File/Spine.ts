@@ -67,10 +67,10 @@ export class CruftMarker
 	toString()
 	{
 		const toLowerCaseChar = (num: number) => 
-			String.fromCharCode((num & ((1 << 4) - 1)) + 97) +
-			String.fromCharCode((num & ((1 << 8) - 1)) + 97) +
-			String.fromCharCode((num & ((1 << 12) - 1)) + 97) +
-			String.fromCharCode((num & ((1 << 16) - 1)) + 97);
+			String.fromCharCode((num & (1 << 4) - 1) + 97) +
+			String.fromCharCode((num & (1 << 8) - 1) + 97) +
+			String.fromCharCode((num & (1 << 12) - 1) + 97) +
+			String.fromCharCode((num & (1 << 16) - 1) + 97);
 		
 		const crc = X.Crc.calculate(this.statement.sourceText, Number);
 		return "≈" + crc.map(num => toLowerCaseChar(num)).join("");

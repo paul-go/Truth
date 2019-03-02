@@ -5,7 +5,6 @@ import * as X from "../../X";
  * Local marker values used as return values to
  * indicate that a pattern failed to parse.
  */
-//const ParseError = Symbol();
 type TParseFault = Readonly<X.FaultType<X.Statement>>;
 
 
@@ -272,9 +271,9 @@ export class LineParser
 		{
 			const innerPeekJoint = () =>
 			{
-				return (parser.peek(X.Syntax.joint + X.Syntax.space) ||
+				return parser.peek(X.Syntax.joint + X.Syntax.space) ||
 					parser.peek(X.Syntax.joint + X.Syntax.tab) ||
-					parser.peekThenTerminal(X.Syntax.joint));
+					parser.peekThenTerminal(X.Syntax.joint);
 			}
 			
 			if (innerPeekJoint())
@@ -840,7 +839,7 @@ export class LineParser
 			}
 			
 			return integerText.length > 0 ?
-				parseInt(integerText) :
+				parseInt(integerText, 10) :
 				null;
 		}
 		

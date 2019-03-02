@@ -15,6 +15,8 @@ export class HyperGraph
 	/** @internal */
 	constructor(private readonly program: X.Program)
 	{
+		this.nodeIndex = new X.NodeIndex(this.program);
+		
 		if (HyperGraph.disabled)
 			return;
 		
@@ -190,7 +192,7 @@ export class HyperGraph
 		//
 		// (3) A unique Span object that corresponds to a unqiue
 		// occurence of a subject in the document.
-		interface breadthFirstEntry { uri: X.Uri, declaration: X.Span | X.InfixSpan };
+		interface breadthFirstEntry { uri: X.Uri, declaration: X.Span | X.InfixSpan }
 		const breadthFirstOrganizer: Array<X.MultiMap<string, breadthFirstEntry>> = [];
 		
 		for (const { level, statement } of iterator)
@@ -471,7 +473,7 @@ export class HyperGraph
 	 * have been loaded into the program, indexed
 	 * by a string representation of it's URI.
 	 */
-	private readonly nodeIndex = new X.NodeIndex(this.program);
+	private readonly nodeIndex: X.NodeIndex;
 	
 	/**
 	 * Stores a GraphTransaction instance in the case

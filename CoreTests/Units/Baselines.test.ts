@@ -1,8 +1,5 @@
 import * as X from "../X";
 import * as T from "../T";
-import * as Fs from "fs";
-import * as Path from "path";
-
 
 describe("Execute Baselines", () =>
 {
@@ -46,7 +43,7 @@ describe("Execute Baselines", () =>
 			catch (e)
 			{
 				debugger;
-				fail(`Baseline file did not load.`);
+				fail("Baseline file did not load.");
 				return
 			}
 			

@@ -19,10 +19,10 @@ expect.extend({
 		});
 		
 		if (!Array.isArray(actual))
-			return fail(`Expected an array of statement objects, but recieved a non-array.`);
+			return fail("Expected an array of statement objects, but recieved a non-array.");
 		
 		if (actual.some(s => !(s instanceof X.Statement)))
-			return fail(`Expected an array of objects who are instanceof Statement.`);
+			return fail("Expected an array of objects who are instanceof Statement.");
 		
 		const statementStrs = actual.map(smt => smt.toString());
 		const expectedStrs = expected.split("\n");
@@ -46,7 +46,7 @@ expect.extend({
 			return fail(`Expected:\n${exp}\nRecieved:${rcv}`);
 		
 		return {
-			message: () => ``,
+			message: () => "",
 			pass: true
 		}
 	},
@@ -175,7 +175,7 @@ expect.extend({
 			if (expType !== actType || expSrc !== actSrc)
 			{
 				return {
-					message: () => `Expected faults do not match faults generated.`,
+					message: () => "Expected faults do not match faults generated.",
 					pass: false
 				}
 			}
@@ -183,7 +183,7 @@ expect.extend({
 		.*/
 		
 		return {
-			message: () => ``,
+			message: () => "",
 			pass: true
 		}
 	}

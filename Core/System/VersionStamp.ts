@@ -17,6 +17,8 @@ export class VersionStamp
 			if (this.nextStamp === undefined)
 				return createStamp(this.nextStamp = BigInt(1));
 			
+			// See: https://github.com/eslint/eslint/issues/10574
+			// eslint-disable-next-line valid-typeof
 			if (typeof this.nextStamp === "bigint")
 				return createStamp(++this.nextStamp);
 		}

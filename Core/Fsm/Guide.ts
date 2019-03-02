@@ -64,8 +64,8 @@ export class Guide
 			if (stateIdDst !== stateIdDst)
 				throw new TypeError();
 			
-			if ((this.hasDst === true && typeof stateIdDst !== "number") ||
-				(this.hasDst === false && typeof stateIdDst === "number"))
+			if (this.hasDst === true && typeof stateIdDst !== "number" ||
+				this.hasDst === false && typeof stateIdDst === "number")
 				throw new Error("Parameters need to be kept consistent across the instance.");
 			
 			this.arrows.set(stateIdSrc, stateIdDst);
