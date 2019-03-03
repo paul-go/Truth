@@ -67,8 +67,8 @@ export class Misc
 	 * set.
 	 */
 	static isSubset(
-		sourceSet: ReadonlySet<any>,
-		possibleSubset: ReadonlySet<any>)
+		sourceSet: ReadonlySet<unknown>,
+		possibleSubset: ReadonlySet<unknown>)
 	{
 		for (const item of possibleSubset)
 			if (!sourceSet.has(item))
@@ -83,8 +83,8 @@ export class Misc
 	 * second set.
 	 */
 	static isSuperset(
-		sourceSet: ReadonlySet<any>,
-		possibleSuperset: ReadonlySet<any>)
+		sourceSet: ReadonlySet<unknown>,
+		possibleSuperset: ReadonlySet<unknown>)
 	{
 		for (const item of sourceSet)
 			if (!possibleSuperset.has(item))
@@ -98,8 +98,8 @@ export class Misc
 	 * from the second set that exist in the first set.
 	 */
 	static computeSubsetFactor(
-		a: ReadonlyArray<any>,
-		b: ReadonlyArray<any>)
+		a: ReadonlyArray<unknown>,
+		b: ReadonlyArray<unknown>)
 	{
 		let count = 0;
 		

@@ -1,5 +1,5 @@
 import * as NodeFs from "fs";
-
+import * as X from "../X";
 
 /**
  * @internal
@@ -24,7 +24,7 @@ export class Fs
 			return this._module;
 		
 		this._module = require("fs");
-		return this._module!;
+		return X.Not.null(this._module);
 	}
 	
 	/** */

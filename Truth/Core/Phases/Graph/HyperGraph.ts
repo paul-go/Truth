@@ -192,8 +192,8 @@ export class HyperGraph
 		//
 		// (3) A unique Span object that corresponds to a unqiue
 		// occurence of a subject in the document.
-		interface breadthFirstEntry { uri: X.Uri, declaration: X.Span | X.InfixSpan }
-		const breadthFirstOrganizer: Array<X.MultiMap<string, breadthFirstEntry>> = [];
+		interface IBreadthFirstEntry { uri: X.Uri; declaration: X.Span | X.InfixSpan }
+		const breadthFirstOrganizer: Array<X.MultiMap<string, IBreadthFirstEntry>> = [];
 		
 		for (const { level, statement } of iterator)
 		{
@@ -201,7 +201,7 @@ export class HyperGraph
 			// at the end of the organizer, so that we don't
 			// access an uninitialized index down below.
 			while (breadthFirstOrganizer.length < level + 1)
-				breadthFirstOrganizer.push(new X.MultiMap<string, breadthFirstEntry>());
+				breadthFirstOrganizer.push(new X.MultiMap<string, IBreadthFirstEntry>());
 			
 			// In the case when the current statement has been deemed
 			// as cruft, it's OK to just continue, because the breadth-first

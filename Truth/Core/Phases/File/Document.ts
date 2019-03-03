@@ -365,8 +365,8 @@ export class Document
 		let level = initialStatement ? 1 : 0;
 		
 		function *recurse(statement: X.Statement): IterableIterator<{
-			statement: X.Statement,
-			level: number
+			statement: X.Statement;
+			level: number;
 		}>
 		{
 			yield { statement, level };

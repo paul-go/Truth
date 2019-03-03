@@ -117,7 +117,10 @@ function vizFn(root: any | null, fn: (value: any) => any)
 			}
 			
 			if (objects.has(previous))
-				jsonViz.addEdge([objects.get(previous)!, nodeName]);
+			{
+				const obj = X.Not.undefined(objects.get(previous));
+				jsonViz.addEdge([obj, nodeName]);
+			}
 		};
 		
 		if (root instanceof Array || root instanceof Set)

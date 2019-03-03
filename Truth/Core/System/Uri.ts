@@ -9,7 +9,7 @@ export class Uri
 	/**
 	 * 
 	 */
-	static maybeParse(value: string | Uri) : Uri | null
+	static maybeParse(value: string | Uri): Uri | null
 	{
 		if (value instanceof Uri)
 			return value;
@@ -50,8 +50,8 @@ export class Uri
 			if (viaParsed.isRelative)
 				throw X.Exception.viaCannotBeRelative();
 			
-			const uriStores = uriLike.stores!;
-			const viaStores = viaParsed.stores!;
+			const uriStores = X.Not.undefined(uriLike.stores);
+			const viaStores = X.Not.undefined(viaParsed.stores);
 			const retract = uriLike.retractionCount || 0;
 			
 			if (viaStores.length < retract)
@@ -302,7 +302,7 @@ export class Uri
 	 */
 	toStoreString(omitFile = false)
 	{
-		const thisAbsolute = (this.isRelative ? this.toAbsolute() : this)!;
+		const thisAbsolute = X.Not.null(this.isRelative ? this.toAbsolute() : this);
 		
 		// In the case when the specified protocol is "file",
 		// the string should start with a / so that we get

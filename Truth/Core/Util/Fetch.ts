@@ -94,4 +94,4 @@ export class FetchError extends Error
 	{ super(); }
 }
 
-declare function fetch(...args: any): any;
+declare function fetch(...args: unknown[]): any;

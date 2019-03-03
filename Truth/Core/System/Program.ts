@@ -99,7 +99,7 @@ export class Program
 		if (scope instanceof X.Type)
 			throw X.Exception.notImplemented();
 		
-		const results: { uri: X.Uri | null, scope: AttachmentScope }[] = [];
+		const results: { uri: X.Uri | null; scope: AttachmentScope }[] = [];
 		const push = (ca: CauseAttachment) =>
 			results.push({ uri: ca.uri, scope: ca.scope });
 		
@@ -163,7 +163,7 @@ export class Program
 		if (attachments.length === 0)
 			return [];
 		
-		const result: { from: X.Uri | null, returned: R }[] = [];
+		const result: { from: X.Uri | null; returned: R }[] = [];
 		
 		for (const attachment of attachments)
 		{
@@ -390,8 +390,8 @@ export class Program
 	 * uses a Proxy object to provide 
 	 */
 	readonly instanceHolder?: {
-		uri: X.Uri,
-		scope: AttachmentScope
+		uri: X.Uri;
+		scope: AttachmentScope;
 	}
 }
 

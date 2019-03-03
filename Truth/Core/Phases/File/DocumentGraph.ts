@@ -325,8 +325,8 @@ export class DocumentGraph
 		}
 		
 		const depsSorted = urisSorted.map(uriText => 
-			docDependencies.find(docDep => 
-				docDep.sourceUri.toString() === uriText)!);
+			X.Not.undefined(docDependencies.find(docDep => 
+				docDep.sourceUri.toString() === uriText)));
 		
 		if (depsSorted.some(d => d === undefined))
 			throw X.Exception.unknownState();

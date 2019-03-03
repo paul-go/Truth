@@ -10,7 +10,7 @@ describe("Parser Tests", () =>
 	
 	test.each(cases)(`Parse "%s"`, (source: string, expected: T.IExpectation) =>
 	{
-		const parsedLine: X.Line = (() =>
+		const parsedLine: X.Line = X.Not.undefined((() =>
 		{
 			let out: X.Line | null = null;
 			
@@ -36,7 +36,7 @@ describe("Parser Tests", () =>
 			}
 			
 			return out;
-		})()!;
+		})());
 		
 		const flagMissing = (flag: X.LineFlags) => (parsedLine.flags & flag) !== flag;
 		

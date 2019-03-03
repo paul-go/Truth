@@ -15,11 +15,11 @@ describe("Document Scans", () =>
 							E
 		`);
 		
-		const ancestryAtA = doc.getAncestry(doc.read(0))!;
-		const ancestryAtB = doc.getAncestry(doc.read(1))!;
-		const ancestryAtC = doc.getAncestry(doc.read(2))!;
-		const ancestryAtD = doc.getAncestry(doc.read(3))!;
-		const ancestryAtE = doc.getAncestry(doc.read(4))!;
+		const ancestryAtA = X.Not.null(doc.getAncestry(doc.read(0)));
+		const ancestryAtB = X.Not.null(doc.getAncestry(doc.read(1)));
+		const ancestryAtC = X.Not.null(doc.getAncestry(doc.read(2)));
+		const ancestryAtD = X.Not.null(doc.getAncestry(doc.read(3)));
+		const ancestryAtE = X.Not.null(doc.getAncestry(doc.read(4)));
 		
 		expect(ancestryAtA).toRead("");
 		
