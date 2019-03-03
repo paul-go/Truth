@@ -278,5 +278,5 @@ interface ISourceMap
 	sources?: string[];
 	names?: string[];
 	mappings: string;
-	sourcesContent?: string[]
+	sourcesContent?: string[];
 }

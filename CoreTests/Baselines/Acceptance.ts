@@ -20,65 +20,65 @@ export interface IExpectation
 	 * Indicates whether or not the declarations in the statement should
 	 * be marked as a "refresh types" (types that are forcibly fresh).
 	 */
-	refresh?: boolean,
+	refresh?: boolean;
 	
 	/**
 	 * Indicates whether or not the statement should be a comment.
 	 */
-	comment?: boolean,
+	comment?: boolean;
 	
 	/**
 	 * Indicates whether or not the statement should be marked as
 	 * one containing only whitespace characters.
 	 */
-	whitespace?: boolean,
+	whitespace?: boolean;
 	
 	/**
 	 * Indicates whether or not the statement should be found to
 	 * have a URI as it's sole declaration.
 	 */
 	uri?: {
-		protocol: string,
-		stores: string[],
-		types: string[]
-		file: string,
-		retractionCount: number,
-		isRelative: boolean,
-		ext: string
-	},
+		protocol: string;
+		stores: string[];
+		types: string[];
+		file: string;
+		retractionCount: number;
+		isRelative: boolean;
+		ext: string;
+	};
 	
 	/**
 	 * Indicates whether or not the statement should be found to
 	 * have pattern as it's sole declaration, and which happens to
 	 * be a "total pattern".
 	 */
-	total?: boolean,
+	total?: boolean;
 	
 	/**
 	 * Indicates whether or not the statement should be found to
 	 * have pattern as it's sole declaration, and which happens to
 	 * be a "partial pattern".
 	 */
-	partial?: boolean,
+	partial?: boolean;
 	
 	/**
 	 * Indicates the character position within the statement where
 	 * the joint operator should be found.
 	 */
-	joint?: number,
+	joint?: number;
 	
 	/**
 	 * Indicates what should be emitted as text after the statement
 	 * has been parsed, and is then converted back to a string.
 	 */
-	emit?: string,
+	emit?: string;
 	
 	/**
 	 * Indicates the annotation or array of annotations that should
 	 * be found on the statement. (An empty array or empty string
 	 * indicates that no annotations should be found on the statement).
 	 */
-	annotations?: string | string[],
+	annotations?: string | string[];
 	
 	/**
 	 * Indicates that the statement was found to have a pattern as
@@ -86,13 +86,13 @@ export interface IExpectation
 	 * pattern), and that the specified string or array of strings should
 	 * each be matchable by this pattern.
 	 */
-	match?: string | string[],
+	match?: string | string[];
 	
 	/**
 	 * Similar to match, but reversed in that the string or strings should
 	 * NOT be matchable by the pattern.
 	 */
-	noMatch?: string | string[],
+	noMatch?: string | string[];
 	
 	/**
 	 * 
@@ -105,7 +105,7 @@ export interface IExpectation
 }
 
 
-export const Acceptance: { [source: string]: IExpectation; } = {
+export const Acceptance: { [source: string]: IExpectation } = {
 	"": {
 		whitespace: true,
 		emit: ""

@@ -94,7 +94,7 @@ export class Span
 	}
 	
 	/** */
-	private readonly infixSpanTable = new Map<X.Infix, { lhs: X.InfixSpan[], rhs: X.InfixSpan[] }>();
+	private readonly infixSpanTable = new Map<X.Infix, { lhs: X.InfixSpan[]; rhs: X.InfixSpan[] }>();
 	
 	/**
 	 * Gets an array of statements that represent the statement

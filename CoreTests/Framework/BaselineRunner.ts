@@ -88,8 +88,8 @@ export class BaselineTestGenerator
 		
 		for (const [fakeUriText, baselineDoc] of baselineDocs.documents)
 		{
-			const fakeUri = X.Uri.tryParse(fakeUriText)!;
-			const realDoc = realProgram.documents.get(fakeUri)!;
+			const fakeUri = X.Not.null(X.Uri.tryParse(fakeUriText));
+			const realDoc = X.Not.null(realProgram.documents.get(fakeUri));
 			
 			for (const [docLineIdx, baselineLine] of baselineDoc.baselineLines.entries())
 			{

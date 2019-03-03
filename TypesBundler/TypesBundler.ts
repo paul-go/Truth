@@ -441,7 +441,7 @@ async function bundle(options?: IBundleOptions)
 			if (!options || typeof options !== "object")
 				throw new Error("Options object must be passed to this function.");
 			
-			return <T><any>options[name];
+			return <T><unknown>options[name];
 		}
 		
 		const processArgs: string[] = process.argv;
@@ -452,7 +452,7 @@ async function bundle(options?: IBundleOptions)
 		{
 			const outValue = fullArgumentText.slice(prefix.length).trim();
 			if (outValue)
-				return <T><any>outValue;
+				return <T><unknown>outValue;
 			
 			throw new Error(`Argument ${prefix} cannot be empty`);
 		}

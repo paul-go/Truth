@@ -184,7 +184,7 @@ export class Type
 	get parallels()
 	{
 		this.private.throwOnDirty();
-		return this.private.parallels!.maybeCompile();
+		return X.Not.null(this.private.parallels).maybeCompile();
 	}
 	
 	/**
@@ -466,7 +466,7 @@ export class Type
 	{
 		const yielded: Type[] = [];
 		
-		type RecurseType = IterableIterator<{ type: X.Type, via: X.Type | null }>;
+		type RecurseType = IterableIterator<{ type: X.Type; via: X.Type | null }>;
 		function *recurse(type: X.Type, via: X.Type | null): RecurseType
 		{
 			if (yielded.includes(type))

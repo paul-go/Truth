@@ -12,8 +12,6 @@ module.exports = {
 	],
 	
 	"rules": {
-		//# Possible Errors
-		
 		"getter-return": [2],
 		"no-async-promise-executor": [2],
 		"no-compare-neg-zero": [2],
@@ -39,12 +37,10 @@ module.exports = {
 		"dot-notation": [2],
 		"eqeqeq": [2],
 		"guard-for-in": [2],
-		
+		"no-case-declarations": [2],
 		"no-alert": [2],
 		"no-caller": [2],
 		"no-extend-native": [2],
-		
-		"no-case-declarations": [2],
 		"no-else-return": [2],
 		"no-empty-pattern": [2],
 		"no-eval": [2],
@@ -173,6 +169,54 @@ module.exports = {
 			"before": true,
 			"after": false
 		}],
-		"yoda": [2, "never"]
+		"yoda": [2, "never"],
+		
+		//# TypeScript-specific rules
+		
+		"@typescript-eslint/adjacent-overload-signatures": [2],
+		"@typescript-eslint/ban-types": [2, {
+			"types": {
+				"Object": {
+					"message": "Use {} instead",
+					"fixWith": "{}"
+				},
+				"String": {
+					"message": "Use string instead",
+					"fixWith": "string"
+				},
+				"Number": {
+					"message": "Use number instead",
+					"fixWith": "number"
+				},
+				"Boolean": {
+					"message": "Use boolean instead",
+					"fixWith": "boolean"
+				}
+			}
+		}],
+		"@typescript-eslint/class-name-casing": [2],
+		"@typescript-eslint/member-delimiter-style": [2, {
+			"multiline": {
+				"delimiter": "semi",
+				"requireLast": true
+			},
+			"singleline": {
+				"delimiter": "semi",
+				"requireLast": false
+			}
+		}],
+		"@typescript-eslint/no-misused-new": [2],
+		"@typescript-eslint/no-triple-slash-reference": [2],
+		"@typescript-eslint/prefer-namespace-keyword": [2],
+		"@typescript-eslint/type-annotation-spacing": [2, {
+			"before": false,
+			"after": true,
+			"overrides": {
+				"arrow": {
+					"before": true,
+					"after": true
+				}
+			}
+		}]
 	}
 }

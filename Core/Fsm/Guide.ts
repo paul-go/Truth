@@ -122,7 +122,7 @@ export class Guide
 	{
 		if (this.hasDst === true)
 			for (const dst of this.arrows.values())
-				yield dst!;
+				yield X.Not.null(dst);
 	}
 	
 	/** */
@@ -132,7 +132,7 @@ export class Guide
 			throw new Error("Cannot enumerate the full entries of this instance.");
 		
 		for (const [stateIdSrc, stateIdDst] of this.arrows)
-			yield <[number, number]>[stateIdSrc, stateIdDst!];
+			yield <[number, number]>[stateIdSrc, X.Not.null(stateIdDst)];
 	}
 	
 	/** */

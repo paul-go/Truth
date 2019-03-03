@@ -995,7 +995,7 @@ export class LineParser
 		}
 		
 		/** */
-		function isParseFault(value: any): value is Readonly<X.FaultType<X.Statement>>
+		function isParseFault(value: unknown): value is Readonly<X.FaultType<X.Statement>>
 		{
 			return value instanceof X.FaultType;
 		}
