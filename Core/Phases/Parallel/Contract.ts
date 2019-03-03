@@ -21,7 +21,7 @@ export class Contract
 				for (const { base } of srcParallel.eachBase())
 					this._unsatisfiedConditions.add(base);
 			}
-		}
+		};
 		
 		for (const higherParallel of sourceParallel.getParallels())
 			recurse(higherParallel);
@@ -52,7 +52,7 @@ export class Contract
 				addForeignParallelBases(base);
 			
 			foreignParallelBases.add(srcParallel);
-		}
+		};
 		
 		for (const { base } of foreignParallel.eachBase())
 			addForeignParallelBases(base);

@@ -480,14 +480,14 @@ export class Type
 				return;
 			
 			if (reduced instanceof Type)
-				return yield* recurse(reduced, type);
+				return yield *recurse(reduced, type);
 			
 			for (const nextType of reduced)
 				if (nextType instanceof Type)
-					yield* recurse(nextType, type);
+					yield *recurse(nextType, type);
 		}
 		
-		yield* recurse(this, null);
+		yield *recurse(this, null);
 	}
 	
 	/**

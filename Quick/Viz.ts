@@ -18,7 +18,7 @@ const getFileNumber = (specificNumber?: number) =>
 		specificNumber;
 	
 	return ("0".repeat(6) + num).slice(-5) + ".svg";
-}
+};
 
 /** */
 function vizFn(root: any | null, fn: (value: any) => any)
@@ -38,7 +38,7 @@ function vizFn(root: any | null, fn: (value: any) => any)
 		});
 		
 		return nodeName;
-	}
+	};
 	
 	if (root === null)
 	{
@@ -88,7 +88,7 @@ function vizFn(root: any | null, fn: (value: any) => any)
 				if (current !== current)
 					return "NaN";
 				
-				if (typeof current === "number"|| typeof current === "boolean")
+				if (typeof current === "number" || typeof current === "boolean")
 					return current.toString();
 				
 				if (current.constructor && current.constructor.name)
@@ -148,6 +148,7 @@ function createTemplate(title: string, kind: string)
 	if (title === kindText)
 		return title;
 	
+	// eslint-disable-next-line new-cap
 	return JsonViz.HTML(`
 		${title}
 		<br/>
@@ -156,7 +157,7 @@ function createTemplate(title: string, kind: string)
 		<font point-size="12" color="#888888">
 			<i>${kindText}</i>
 		</font>
-	`)
+	`);
 }
 
 

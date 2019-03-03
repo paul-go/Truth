@@ -274,7 +274,7 @@ export class LineParser
 				return parser.peek(X.Syntax.joint + X.Syntax.space) ||
 					parser.peek(X.Syntax.joint + X.Syntax.tab) ||
 					parser.peekThenTerminal(X.Syntax.joint);
-			}
+			};
 			
 			if (innerPeekJoint())
 				return true;
@@ -321,7 +321,7 @@ export class LineParser
 			return {
 				annotations,
 				raw
-			}
+			};
 		}
 		
 		/**
@@ -782,7 +782,7 @@ export class LineParser
 					
 					// {2}
 					if (parser.read(quantEnd))
-						return new X.RegexQuantifier(min, min, isRestrained())
+						return new X.RegexQuantifier(min, min, isRestrained());
 					
 					// {2,} or {2,3} or {2,???
 					if (parser.read(X.RegexSyntaxDelimiter.quantifierSeparator))
@@ -851,7 +851,7 @@ export class LineParser
 			const mark = parser.position;
 			const lhsEntries: X.Boundary<X.Identifier>[] = [];
 			const rhsEntries: X.Boundary<X.Identifier>[] = [];
-			let infixStart = parser.position;
+			const infixStart = parser.position;
 			let infixFlags: X.InfixFlags = X.InfixFlags.none;
 			let quitToken = X.InfixSyntax.end;
 			let hasJoint = false;
@@ -991,7 +991,7 @@ export class LineParser
 				return new Grapheme(decoded, "", true);
 			}
 			
-			return new Grapheme(parser.readGrapheme(), "", false)
+			return new Grapheme(parser.readGrapheme(), "", false);
 		}
 		
 		/** */

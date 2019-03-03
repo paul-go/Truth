@@ -88,18 +88,15 @@ export class Guide
 				this.arrows.set(src, dst);
 			}
 		}
+		else if (other.hasDst === null)
+		{
+			if (other.size !== 0)
+				throw X.Exception.unknownState();
+		}
 		else
 		{
-			if (other.hasDst === null)
-			{
-				if (other.size !== 0)
-					throw X.Exception.unknownState();
-			}
-			else
-			{
-				for (const [src, dst] of other.arrows)
-					this.arrows.set(src, dst);
-			}
+			for (const [src, dst] of other.arrows)
+				this.arrows.set(src, dst);
 		}
 	}
 	

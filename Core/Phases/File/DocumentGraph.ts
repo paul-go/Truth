@@ -150,7 +150,7 @@ export class DocumentGraph
 	/**
 	 * Blocks execution until all queued IO operations have completed.
 	 */
-	wait()
+	await()
 	{
 		return new Promise<void>(resolve =>
 		{
@@ -228,7 +228,7 @@ export class DocumentGraph
 			
 			docsFinalized.add(currentDoc);
 			sortedResult.unshift(currentDoc);
-		}
+		};
 		
 		while (docsFinalized.size < allDocs.length)
 		{
@@ -422,8 +422,8 @@ export class DocumentGraph
 				this.waitFns.length = 0;
 				waitFns.forEach(fn => fn());
 			}
-			
-		})(), 0);
+		})(),
+		0);
 	}
 	
 	/**
@@ -466,7 +466,7 @@ export class DocumentGraph
 				return true;
 			
 			return false;
-		}
+		};
 		
 		return checkForCyclesRecursive(proposedTo);
 	}

@@ -79,71 +79,68 @@ describe("Parser Tests", () =>
 				debugger;
 				fail("Line should have the hasUri flag: " + source);
 			}
-			else
+			else if (first !== null && first.subject instanceof X.Uri)
 			{
-				if (first !== null && first.subject instanceof X.Uri)
+				const uri = first.subject;
+				
+				if (expected.uri.protocol !== uri.protocol.toString())
 				{
-					const uri = first.subject;
-					
-					if (expected.uri.protocol !== uri.protocol.toString())
-					{
-						debugger;
-						expect(expected.uri.protocol).toBe(uri.protocol);
-					}
-					
-					if (expected.uri.retractionCount !== uri.retractionCount)
-					{
-						debugger;
-						expect(expected.uri.retractionCount).toBe(uri.retractionCount);
-					}
-					
-					if (expected.uri.isRelative !== uri.isRelative)
-					{
-						debugger;
-						expect(expected.uri.isRelative).toBe(uri.isRelative);
-					}
-					
-					if (expected.uri.stores.join() !== uri.stores.join())
+					debugger;
+					expect(expected.uri.protocol).toBe(uri.protocol);
+				}
+				
+				if (expected.uri.retractionCount !== uri.retractionCount)
+				{
+					debugger;
+					expect(expected.uri.retractionCount).toBe(uri.retractionCount);
+				}
+				
+				if (expected.uri.isRelative !== uri.isRelative)
+				{
+					debugger;
+					expect(expected.uri.isRelative).toBe(uri.isRelative);
+				}
+				
+				if (expected.uri.stores.join() !== uri.stores.join())
+				{
+					debugger;
+					expect(expected.uri.stores).toEqual(uri.stores);
+				}
+				
+				if (expected.uri.file !== uri.file)
+				{
+					debugger;
+					expect(expected.uri.file).toBe(uri.file);
+				}
+				
+				if (expected.uri.ext !== uri.ext)
+				{
+					debugger;
+					expect(expected.uri.ext).toBe(uri.ext);
+				}
+				
+				if (expected.uri.types)
+				{
+					if (expected.uri.types.join() !== uri.types.join())
 					{
 						debugger;
 						expect(expected.uri.stores).toEqual(uri.stores);
 					}
-					
+				}
+				
+				if (expected.uri.file !== undefined)
+				{
 					if (expected.uri.file !== uri.file)
 					{
 						debugger;
 						expect(expected.uri.file).toBe(uri.file);
 					}
-					
-					if (expected.uri.ext !== uri.ext)
-					{
-						debugger;
-						expect(expected.uri.ext).toBe(uri.ext);
-					}
-					
-					if (expected.uri.types)
-					{
-						if (expected.uri.types.join() !== uri.types.join())
-						{
-							debugger;
-							expect(expected.uri.stores).toEqual(uri.stores);
-						}
-					}
-					
-					if (expected.uri.file !== undefined)
-					{
-						if (expected.uri.file !== uri.file)
-						{
-							debugger;
-							expect(expected.uri.file).toBe(uri.file);
-						}
-					}
 				}
-				else
-				{
-					debugger;
-					fail("No URI found at line: " + source);
-				}
+			}
+			else
+			{
+				debugger;
+				fail("No URI found at line: " + source);
 			}
 		}
 		

@@ -53,7 +53,7 @@ export class Pattern
 			}
 		}
 		
-		yield* recurse(this.units);
+		yield *recurse(this.units);
 	}
 	
 	/**

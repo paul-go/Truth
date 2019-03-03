@@ -156,7 +156,7 @@ export class HyperEdge
 	{
 		for (const source of this.fragments)
 		{
-			const sub = source.boundary.subject
+			const sub = source.boundary.subject;
 			return sub instanceof X.Identifier && sub.isList;
 		}
 		

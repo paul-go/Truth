@@ -142,12 +142,8 @@ export class BaselineTestGenerator
 					}
 				}
 				
-				// TODO: Handle inference checks
-				
-				
-				// TODO: Handle descendent checks
-				
-				
+				//! TODO: Handle inference checks
+				//! TODO: Handle descendent checks
 			}
 		}
 		

@@ -119,7 +119,7 @@ export class Document
 		if (startingIndex === 0)
 			return this;
 		
-		let currentIndent = smt.indent;
+		const currentIndent = smt.indent;
 		
 		for (let idx = startingIndex; --idx > -1;)
 		{
@@ -203,7 +203,7 @@ export class Document
 		const breakIndent = statement ? statement.indent : -1;
 		let childIndent = Number.MAX_SAFE_INTEGER;
 		
-		let startIdx = statement ? 
+		const startIdx = statement ? 
 			this.getLineNumber(statement) :
 			-1;
 			
@@ -353,7 +353,7 @@ export class Document
 			if (!initialStatement)
 				throw X.Exception.invalidArgument();
 			
-			yield { statement: initialStatement, level : 0 };
+			yield { statement: initialStatement, level: 0 };
 		}
 		
 		const initialChildren = this.getChildren(initialStatement);
@@ -372,7 +372,7 @@ export class Document
 			yield { statement, level };
 			
 			level++;
-			 
+			
 			for (const childStatement of self.getChildren(statement))
 				yield *recurse(childStatement);
 			
@@ -502,11 +502,11 @@ export class Document
 		if (this.inEdit)
 			throw X.Exception.doubleTransaction();
 		
-		class insertCall { constructor(readonly smt: X.Statement, readonly at: number) { } }
-		class updateCall { constructor(readonly smt: X.Statement, readonly at: number) { } }
-		class deleteCall { constructor(readonly at: number, readonly count: number) { } }
-		type callType = insertCall | updateCall | deleteCall;
-		const calls: callType[] = [];
+		class InsertCall { constructor(readonly smt: X.Statement, readonly at: number) { } }
+		class UpdateCall { constructor(readonly smt: X.Statement, readonly at: number) { } }
+		class DeleteCall { constructor(readonly at: number, readonly count: number) { } }
+		type TCallType = InsertCall | UpdateCall | DeleteCall;
+		const calls: TCallType[] = [];
 		
 		let hasDelete = false;
 		let hasInsert = false;
@@ -519,13 +519,13 @@ export class Document
 			{
 				if (count > 0)
 				{
-					calls.push(new deleteCall(at, count));
+					calls.push(new DeleteCall(at, count));
 					hasDelete = true;
 				}
 			},
 			insert: (text: string, at = -1) =>
 			{
-				calls.push(new insertCall(new X.Statement(this, text), at));
+				calls.push(new InsertCall(new X.Statement(this, text), at));
 				hasInsert = true;
 			},
 			update: (text: string, at = -1) =>
@@ -533,7 +533,7 @@ export class Document
 				const boundAt = applyBounds(at, this.statements.length);
 				if (this.read(boundAt).sourceText !== text)
 				{
-					calls.push(new updateCall(new X.Statement(this, text), at));
+					calls.push(new UpdateCall(new X.Statement(this, text), at));
 					hasUpdate = true;
 				}
 			}
@@ -557,10 +557,10 @@ export class Document
 				hasInsert && hasDelete ||
 				hasUpdate && hasDelete;
 			
-			const boundAt = (call: callType) =>
+			const boundAt = (call: TCallType) =>
 				applyBounds(call.at, this.statements.length);
 			
-			const doDelete = (call: deleteCall) =>
+			const doDelete = (call: DeleteCall) =>
 			{
 				const at = boundAt(call);
 				const smts = this.statements.splice(at, call.count);
@@ -571,7 +571,7 @@ export class Document
 				return smts;
 			};
 			
-			const doInsert = (call: insertCall) =>
+			const doInsert = (call: InsertCall) =>
 			{
 				if (call.at >= this.statements.length)
 				{
@@ -584,7 +584,7 @@ export class Document
 				}
 			};
 			
-			const doUpdate = (call: updateCall) =>
+			const doUpdate = (call: UpdateCall) =>
 			{
 				const at = boundAt(call);
 				this.statements[at].dispose();
@@ -601,7 +601,7 @@ export class Document
 				{
 					// Sort the update calls by their index, and prune updates
 					// that would be overridden in a following call.
-					const updateCalls = (<updateCall[]>calls)
+					const updateCalls = (<UpdateCall[]>calls)
 						.sort((a, b) => a.at - b.at)
 						.filter((call, i) => i >= calls.length - 1 || call.at !== calls[i + 1].at);
 					
@@ -653,7 +653,7 @@ export class Document
 				// descendants. This will handle the majority of "delete a line" cases.
 				if (hasDelete)
 				{
-					const deleteCalls = <deleteCall[]>calls;
+					const deleteCalls = <DeleteCall[]>calls;
 					const deadStatements: X.Statement[] = [];
 					const deadIndexes: number[] = [];
 					let hasOpStatements = false;
@@ -707,7 +707,7 @@ export class Document
 				// into the document.
 				if (hasInsert)
 				{
-					const insertCalls = <insertCall[]>calls;
+					const insertCalls = <InsertCall[]>calls;
 					if (insertCalls.every(call => call.smt.isNoop))
 					{
 						insertCalls.forEach(doInsert);
@@ -737,7 +737,7 @@ export class Document
 			{
 				const atBounded = applyBounds(call.at, this.statements.length);
 				
-				if (call instanceof deleteCall)
+				if (call instanceof DeleteCall)
 				{
 					const deletedStatement = this.statements[atBounded];
 					if (deletedStatement.isNoop)
@@ -758,12 +758,12 @@ export class Document
 				}
 				else
 				{
-					if (call instanceof insertCall)
+					if (call instanceof InsertCall)
 					{
 						if (call.smt.isNoop)
 							continue;
 					}
-					else if (call instanceof updateCall)
+					else if (call instanceof UpdateCall)
 					{
 						const oldStatement = this.statements[atBounded];
 						
@@ -843,13 +843,13 @@ export class Document
 			// Perform the document mutations.
 			for (const call of calls)
 			{
-				if (call instanceof deleteCall)
+				if (call instanceof DeleteCall)
 					deletedStatements.push(...doDelete(call));
 				
-				else if (call instanceof insertCall)
+				else if (call instanceof InsertCall)
 					doInsert(call);
 				
-				else if (call instanceof updateCall)
+				else if (call instanceof UpdateCall)
 					doUpdate(call);
 			}
 			
@@ -1138,7 +1138,7 @@ export interface IDocumentEditRange
  * Generator function that yields all statements (unparsed lines)
  * of the given source text. 
  */
-function* readLines(source: string)
+function *readLines(source: string)
 {
 	let cursor = -1;
 	let statementStart = 0;

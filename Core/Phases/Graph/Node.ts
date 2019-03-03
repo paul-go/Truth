@@ -55,29 +55,29 @@ export class Node
 		
 		this.container._contents.set(this.name, this);
 		
-		//if (!(declaration instanceof X.Span))
-		//	return this;
-		//
-		//const identifier = declaration.boundary.subject;
-		//
-		//if (!(identifier instanceof X.Identifier))
-		//	return this;
-		//
-		//const containerPattern = (() =>
-		//{
-		//	for (const decl of this.container.declarations)
-		//		if (decl.boundary.subject instanceof X.Pattern)
-		//			return decl.boundary.subject;
-		//})();
-		//
-		//if (!containerPattern)
-		//	return this;
-		//
-		//for (const nfx of containerPattern.getInfixes(X.InfixFlags.population))
-		//	for (const ident of nfx.lhs.eachSubject())
-		//		if (ident.fullName === identifier.fullName)
-		//			//return (this.containerInfix = nfx), this;
-		//			return this;
+		///if (!(declaration instanceof X.Span))
+		///	return this;
+		///
+		///const identifier = declaration.boundary.subject;
+		///
+		///if (!(identifier instanceof X.Identifier))
+		///	return this;
+		///
+		///const containerPattern = (() =>
+		///{
+		///	for (const decl of this.container.declarations)
+		///		if (decl.boundary.subject instanceof X.Pattern)
+		///			return decl.boundary.subject;
+		///})();
+		///
+		///if (!containerPattern)
+		///	return this;
+		///
+		///for (const nfx of containerPattern.getInfixes(X.InfixFlags.population))
+		///	for (const ident of nfx.lhs.eachSubject())
+		///		if (ident.fullName === identifier.fullName)
+		///			//return (this.containerInfix = nfx), this;
+		///			return this;
 	}
 	
 	/**
@@ -535,7 +535,7 @@ export class Node
 					throw X.Exception.unknownState();
 				
 				return minIdx;
-			}
+			};
 			
 			const edgeAIdx = findMinIndex(edgeA);
 			const edgeBIdx = findMinIndex(edgeB);
@@ -574,7 +574,7 @@ export class Node
 			
 			for (const suc of edge.successors)
 				suc.node._inbounds.add(edge);
-		}
+		};
 		
 		// If there is already an existing outbound HyperEdge, we can
 		// add the new Span to the edge's list of Spans, and quit.
@@ -617,31 +617,31 @@ export class Node
 		// Refresh the sums before quitting.
 		// 
 		
-		//const sumEdgeForInputSpanIdx = this._outbounds.findIndex(edge => 
-		//{
-		//	if (edge.kind === X.HyperEdgeKind.summation)
-		//		for (const src of edge.sources)
-		//			return src.statement === smt;
-		//	
-		//	return false;
-		//});
-		//
-		//if (sumEdgeForInputSpanIdx > -1)
-		//	this._outbounds.splice(sumEdgeForInputSpanIdx, 1);
-		//
-		//if (!sourceIsAlone)
-		//	for (const { longitudeDelta, adjacents } of this.enumerateContainment())
-		//		for (const adjacentNode of adjacents.values())
-		//			if (adjacentNode.subject instanceof X.Pattern)
-		//				if (adjacentNode.subject.isTotal)
-		//					if (adjacentNode.subject.test(smt.sum))
-		//						append(new X.HyperEdge(
-		//							this,
-		//							smt.sum,
-		//							[new X.Successor(
-		//								adjacentNode,
-		//								longitudeDelta)],
-		//							X.HyperEdgeKind.summation));
+		///const sumEdgeForInputSpanIdx = this._outbounds.findIndex(edge => 
+		///{
+		///	if (edge.kind === X.HyperEdgeKind.summation)
+		///		for (const src of edge.sources)
+		///			return src.statement === smt;
+		///	
+		///	return false;
+		///});
+		///
+		///if (sumEdgeForInputSpanIdx > -1)
+		///	this._outbounds.splice(sumEdgeForInputSpanIdx, 1);
+		///
+		///if (!sourceIsAlone)
+		///	for (const { longitudeDelta, adjacents } of this.enumerateContainment())
+		///		for (const adjacentNode of adjacents.values())
+		///			if (adjacentNode.subject instanceof X.Pattern)
+		///				if (adjacentNode.subject.isTotal)
+		///					if (adjacentNode.subject.test(smt.sum))
+		///						append(new X.HyperEdge(
+		///							this,
+		///							smt.sum,
+		///							[new X.Successor(
+		///								adjacentNode,
+		///								longitudeDelta)],
+		///							X.HyperEdgeKind.summation));
 	}
 	
 	/**
@@ -670,14 +670,14 @@ export class Node
 	 */
 	private enumerateOutbounds()
 	{
-		//const recurse = (node: X.Node) =>
-		//{
-		//	for (const edge of node.outbounds)
-		//		for (const successor of edge.successors)
-		//			//yield { node: 
-		//}
-		//
-		//yield* recurse(this);
+		///const recurse = (node: X.Node) =>
+		///{
+		///	for (const edge of node.outbounds)
+		///		for (const successor of edge.successors)
+		///			//yield { node: 
+		///}
+		///
+		///yield *recurse(this);
 	}
 	
 	/**
@@ -716,7 +716,7 @@ export class Node
 				sourceDocument,
 				adjacents: this.getRootNodes(sourceDocument),
 				longitudeDelta: longitudeCount
-			}
+			};
 		}
 	}
 	
@@ -777,7 +777,7 @@ export class Node
 			.map(ib => fmt(ib.toString()));
 		
 		const verbose = 
-			"\n\tOuts:\n" + obsVerbose.join("\n\n")+
+			"\n\tOuts:\n" + obsVerbose.join("\n\n") +
 			"\n\tIns:\n" + ibsVerbose.join("\n\n");
 		
 		return simple + verbose;

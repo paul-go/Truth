@@ -89,7 +89,7 @@ export class HyperGraph
 	{
 		const { document, iterator } = this.methodSetup(root);
 		const txn = new GraphTransaction();
-		const maybeDestabilizedEdges: X.HyperEdge[] = [];
+		///const maybeDestabilizedEdges: X.HyperEdge[] = [];
 		
 		for (const { statement } of iterator)
 		{
@@ -112,15 +112,15 @@ export class HyperGraph
 						if (ob.fragments.length === 0)
 							txn.destablizedEdges.push(ob);
 					
-					//for (const ib of associatedNode.inbounds)
-					//	maybeDestabilizedEdges.push(ib);
+					///for (const ib of associatedNode.inbounds)
+					///	maybeDestabilizedEdges.push(ib);
 				}
 			}
 		}
 		
-		//for (const edge of maybeDestabilizedEdges)
-		//	if (edge.successors.every(scsr => txn.destabilizedNodes.includes(scsr.node)))
-		//		txn.destablizedEdges.push(edge);
+		///for (const edge of maybeDestabilizedEdges)
+		///	if (edge.successors.every(scsr => txn.destabilizedNodes.includes(scsr.node)))
+		///		txn.destablizedEdges.push(edge);
 		
 		this.activeTransactions.set(document, txn);
 	}
@@ -170,7 +170,7 @@ export class HyperGraph
 				return cachedNode;
 			
 			return null;
-		}
+		};
 		
 		// It's important that these declarations are enumerated
 		// in breadth-first order, so that deeper nodes have a 
@@ -268,59 +268,59 @@ export class HyperGraph
 		// in through the "root" parameter. New Node objects
 		// are created if necessary.
 		for (const multiMap of breadthFirstOrganizer)
-		for (const entry of multiMap.values())
-		for (const { uri, declaration } of entry)
-		{
-			const nodeAtUri = findNode(uri);
-			if (nodeAtUri)
-			{
-				affectedNodes.push(nodeAtUri);
-				nodeAtUri.addDeclaration(declaration);
-				continue;
-			}
-			
-			const container = uri.types.length > 1 ?
-				findNode(uri.retractType(1)) :
-				null;
-			
-			if (uri.types.length > 1 && container === null)
-			{
-				if ("DEBUG")
+			for (const entry of multiMap.values())
+				for (const { uri, declaration } of entry)
 				{
-					console.log(this.toString());
-					console.log(serializeNodes(affectedNodes));
+					const nodeAtUri = findNode(uri);
+					if (nodeAtUri)
+					{
+						affectedNodes.push(nodeAtUri);
+						nodeAtUri.addDeclaration(declaration);
+						continue;
+					}
+					
+					const container = uri.types.length > 1 ?
+						findNode(uri.retractType(1)) :
+						null;
+					
+					if (uri.types.length > 1 && container === null)
+					{
+						if ("DEBUG")
+						{
+							console.log(this.toString());
+							console.log(serializeNodes(affectedNodes));
+						}
+						throw X.Exception.unknownState();
+					}
+					
+					// Note that when creating a Node, it's
+					// automatically bound to it's container.
+					const newNode = new X.Node(container, declaration);
+					affectedNodes.push(newNode);
+					
+					// Populate the topMostAffectedNodes array, 
+					// which is needed to find the nodes that are
+					// affected by the change, but are not located
+					// directly within the patch.
+					if (affectedNodesApexes.length === 0)
+					{
+						affectedNodesApexes.push(newNode);
+					}
+					else
+					{
+						// If we've encountered a node that is higher
+						// than the level of depth defined in the nodes currently
+						// in the affectedNodesApexes array.
+						const highestDepth = affectedNodes[0].uri.types.length;
+						const nodeDepth = newNode.uri.types.length;
+						
+						if (nodeDepth < highestDepth)
+							affectedNodesApexes.length = 0;
+						
+						if (nodeDepth <= highestDepth)
+							affectedNodesApexes.push(newNode);
+					}
 				}
-				throw X.Exception.unknownState();
-			}
-			
-			// Note that when creating a Node, it's
-			// automatically bound to it's container.
-			const newNode = new X.Node(container, declaration);
-			affectedNodes.push(newNode);
-			
-			// Populate the topMostAffectedNodes array, 
-			// which is needed to find the nodes that are
-			// affected by the change, but are not located
-			// directly within the patch.
-			if (affectedNodesApexes.length === 0)
-			{
-				affectedNodesApexes.push(newNode);
-			}
-			else
-			{
-				// If we've encountered a node that is higher
-				// than the level of depth defined in the nodes currently
-				// in the affectedNodesApexes array.
-				const highestDepth = affectedNodes[0].uri.types.length;
-				const nodeDepth = newNode.uri.types.length;
-				
-				if (nodeDepth < highestDepth)
-					affectedNodesApexes.length = 0;
-				
-				if (nodeDepth <= highestDepth)
-					affectedNodesApexes.push(newNode);
-			}
-		}
 		
 		// Add or update all new HyperEdges by feeding in all
 		// annotation spans for each declaration span.

@@ -13,7 +13,7 @@ export class NodeIndex
 		{
 			// Update the entire cache when the URI of any document changes.
 			const newUriStore = data.newUri.retractTypeTo(0);
-			const entries = Array.from(this.uriToNodeMap.entries())
+			const entries = Array.from(this.uriToNodeMap.entries());
 			
 			for (const [oldUriText, node] of entries)
 			{

@@ -35,7 +35,7 @@ export class ConstructionWorker
 				if (drilledParallel !== null)
 					queue.push(drilledParallel);
 			}
-		}
+		};
 		
 		if (from instanceof X.Document)
 			processNodes(this.program.graph.readRoots(from));
@@ -114,7 +114,7 @@ export class ConstructionWorker
 			
 			lastSeed = this.rake(descended);
 		}
-		while(++typeIdx < typePath.length);
+		while (++typeIdx < typePath.length);
 		
 		return lastSeed;
 	}
@@ -476,13 +476,13 @@ export class ConstructionWorker
 			return X.Not.null(
 				this.parallels.get(patternNode) ||
 				this.parallels.create(patternNode, this.cruft));
-		}
+		};
 		
 		function *recurse(current: X.SpecifiedParallel): 
 			IterableIterator<IPatternParallel>
 		{
 			for (const { base, edge } of current.eachBase())
-				yield* recurse(base);
+				yield *recurse(base);
 			
 			if (current instanceof X.SpecifiedParallel)
 				for (const node of current.node.contents.values())
@@ -497,7 +497,7 @@ export class ConstructionWorker
 		for (let current = srcParallel.container;
 			current instanceof X.SpecifiedParallel;)
 		{
-			yield* recurse(current);
+			yield *recurse(current);
 			current = current.container;
 		}
 		
@@ -543,7 +543,7 @@ export class ConstructionWorker
 			
 			const nextUri = zenith.uri.extendType(typeName);
 			return this.parallels.create(nextUri);
-		}
+		};
 		
 		/**
 		 * @returns A boolean value that indicates whether the act
@@ -566,7 +566,7 @@ export class ConstructionWorker
 		function *recurseParallels(par: X.Parallel): IterableIterator<X.Parallel>
 		{
 			for (const parEdge of par.getParallels())
-				yield* recurseParallels(parEdge);
+				yield *recurseParallels(parEdge);
 			
 			yield par;
 		}
@@ -574,7 +574,7 @@ export class ConstructionWorker
 		function *recurseBases(par: X.SpecifiedParallel): IterableIterator<X.Parallel>
 		{
 			for (const { base } of par.eachBase())
-				yield* recurseBases(base);
+				yield *recurseBases(base);
 			
 			yield par;
 		}
@@ -617,7 +617,7 @@ export class ConstructionWorker
 					upperParallels.push(base);
 			
 			return upperParallels;
-		}
+		};
 		
 		const hasSpecifiedContents = X.Misc.reduceRecursive(
 			zenith,
@@ -656,7 +656,7 @@ export class ConstructionWorker
 				.filter(par => !prunedParallels.has(par));
 			
 			return result;
-		}
+		};
 		
 		const seed = X.Misc.reduceRecursive(
 			zenith,

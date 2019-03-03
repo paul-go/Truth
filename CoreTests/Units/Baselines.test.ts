@@ -44,7 +44,7 @@ describe("Execute Baselines", () =>
 			{
 				debugger;
 				fail("Baseline file did not load.");
-				return
+				return;
 			}
 			
 			let baselineDocs: T.BaselineDocuments | null = null;
@@ -105,7 +105,6 @@ describe("Execute Baselines", () =>
 			
 			for (const report of reports)
 				expect(report).emit();
-			
 		});
 	});
 });

@@ -35,6 +35,10 @@
 		"verbose": true,
 		"testURL": "http://localhost/"
 	},
+	"eslintIgnore": [
+		"**/node_modules/**/*.ts",
+		"**/*.d.ts"
+	],
 	"devDependencies": {
 		"@types/jest": "^23.3.12",
 		"@types/node": "^10.12.18",
