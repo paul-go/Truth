@@ -73,7 +73,7 @@ export class Identifier
 					return this.typeName.replace(reg, rep);
 				}
 			}
-		})()
+		})();
 		
 		return val + (this.isList ? X.Syntax.list : "");
 	}

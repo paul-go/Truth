@@ -40,7 +40,7 @@ export class Spine
 	readonly tip: X.Span;
 	
 	/** */
-	get statement() { return this.tip.statement }
+	get statement() { return this.tip.statement; }
 	
 	/** Gets a reference to the document that sits at the top of the spine. */
 	get document() { return this.statement.document; }

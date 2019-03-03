@@ -17,7 +17,7 @@ export class Uri
 		if (!value)
 			return null;
 		
-		return this.tryParse(value)
+		return this.tryParse(value);
 	}
 	
 	/**

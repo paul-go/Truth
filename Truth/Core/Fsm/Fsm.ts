@@ -206,7 +206,7 @@ export class Fsm
 			}
 			
 			return result;
-		}
+		};
 		
 		/**
 		 * Use a superset containing states from all Fsms at once.
@@ -228,7 +228,7 @@ export class Fsm
 					return true;
 			
 			return false;
-		}
+		};
 		
 		/** */
 		const followFn = (guide: X.Guide, symbol: string) =>
@@ -249,7 +249,7 @@ export class Fsm
 			return next.size === 0 ?
 				Oblivion :
 				next;
-		}
+		};
 		
 		const alphabets = fsms.map(fsm => fsm.alphabet);
 		const alphabet = new X.AlphabetBuilder(...alphabets).toAlphabet();
@@ -298,7 +298,7 @@ export class Fsm
 			return next.size === 0 ?
 				Oblivion :
 				next;
-		}
+		};
 		
 		/** */
 		const finalFn = (guide: X.Guide) =>
@@ -308,7 +308,7 @@ export class Fsm
 					return true;
 			
 			return false;
-		}
+		};
 		
 		return crawl(this.alphabet, initial, finalFn, followFn).or(Fsm.epsilon(this.alphabet));
 	}
@@ -332,7 +332,7 @@ export class Fsm
 						return true;
 			
 			return false;
-		}
+		};
 		
 		/** */
 		const followFn = (guide: X.Guide, symbol: string) =>
@@ -355,7 +355,7 @@ export class Fsm
 				return Oblivion;
 			
 			return next;
-		}
+		};
 		
 		return crawl(this.alphabet, initial, finalFn, followFn).reduce();
 	}
@@ -444,14 +444,14 @@ export class Fsm
 					next.add(0, this.transitions.get(first, symbol));
 			
 			return next;
-		}
+		};
 		
 		/** */
 		const finalFn = (guide: X.Guide) =>
 		{
 			const first = guide.first();
 			return !(first !== undefined && this.finals.has(first));
-		}
+		};
 		
 		return crawl(this.alphabet, initial, finalFn, followFn);
 	}
@@ -485,7 +485,7 @@ export class Fsm
 			return next.size === 0 ?
 				Oblivion :
 				next;
-		}
+		};
 		
 		/** */
 		const finalFn = (guide: X.Guide) => guide.has(this.initial);
@@ -645,7 +645,7 @@ export class Fsm
 	{
 		let stateId: number = this.initial;
 		
-		for (let char of input)
+		for (const char of input)
 		{
 			const symbol = (() =>
 			{
@@ -743,7 +743,7 @@ function crawlParallel(fsms: Fsm[], testFn: (accepts: boolean[]) => boolean)
 			return Oblivion;
 		
 		return next;
-	}
+	};
 	
 	/**
 	 * Determine the "is final?" condition of each substateId, then pass it to the
@@ -761,7 +761,7 @@ function crawlParallel(fsms: Fsm[], testFn: (accepts: boolean[]) => boolean)
 		}
 		
 		return testFn(accepts);
-	}
+	};
 	
 	const alphabets = fsms.map(fsm => fsm.alphabet);
 	const alphabet = new X.AlphabetBuilder(...alphabets).toAlphabet();

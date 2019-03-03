@@ -74,10 +74,10 @@ setTimeout(async () =>
 	{
 		if (printedFaults.has(fault))
 			return;
-		 
+		
 		printedFaults.add(fault);
 		console.log(fault.toString());
-	}
+	};
 	
 	if (program.faults.count > 0)
 	{

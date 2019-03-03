@@ -73,7 +73,7 @@ export class UriComponent
 	{
 		if (this.isPattern)
 		{
-			const de = X.RegexSyntaxDelimiter.main
+			const de = X.RegexSyntaxDelimiter.main;
 			return de + encodeURIComponent(this.value.slice(de.length));
 		}
 		

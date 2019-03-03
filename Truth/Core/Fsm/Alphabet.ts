@@ -185,7 +185,7 @@ export class AlphabetBuilder
 		{
 			const thisRange = ranges[i];
 			
-			while (i < ranges.length - 1 )
+			while (i < ranges.length - 1)
 			{
 				const nextRange = ranges[i + 1];
 				

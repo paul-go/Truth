@@ -48,7 +48,7 @@ expect.extend({
 		return {
 			message: () => "",
 			pass: true
-		}
+		};
 	},
 	
 	/**
@@ -185,8 +185,8 @@ expect.extend({
 		return {
 			message: () => "",
 			pass: true
-		}
+		};
 	}
 });
 
-export { }
+export { };

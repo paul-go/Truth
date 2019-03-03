@@ -180,7 +180,7 @@ function createFault<T>(
 const quantifiers = 
 	`(${X.RegexSyntaxMisc.star}, 
 	${X.RegexSyntaxMisc.plus},
-	${X.RegexSyntaxDelimiter.quantifierStart}..${X.RegexSyntaxDelimiter.quantifierEnd})`
+	${X.RegexSyntaxDelimiter.quantifierStart}..${X.RegexSyntaxDelimiter.quantifierEnd})`;
 
 /**
  * 
@@ -392,81 +392,96 @@ export const Faults = Object.freeze({
 	
 	/** */
 	InfixHasQuantifier: createFault<X.Statement>(
-		500, //0,
+		///0,
+		500,
 		`Infixes cannot have quantifiers ${quantifiers} applied to them`),
 	
 	/** */
 	InfixHasDuplicateIdentifier: createFault<X.InfixSpan>(
-		501, //0,
+		///0,
+		501,
 		"Infixes cannot have duplicate identifiers."),
 	
 	/** */
 	InfixHasSelfReferentialType: createFault<X.InfixSpan>(
-		503, //410,
+		///410,
+		503,
 		"Infixes cannot be self-referential."),
 	
 	/** */
 	InfixNonConvariant: createFault<X.InfixSpan>(
-		505, //412,
+		///412,
+		505,
 		"Infixes must be compatible with their bases."),
 	
 	/** */
 	InfixCannotDefineNewTypes: createFault<X.InfixSpan>(
-		507, //422,
+		///422,
+		507,
 		`A type referenced in an infix must be contained
 		by the pattern statement directly, or be contained
 		by one of it's matched bases.`),
 	
 	/** */
 	InfixReferencedTypeMustHavePattern: createFault<X.InfixSpan>(
-		509, //414,
+		///414,
+		509,
 		"Types applied to an infix must have at least one associated pattern."),
 	
 	/** */
 	InfixReferencedTypeCannotBeRecursive: createFault<X.InfixSpan>(
-		511, //416,
+		///416,
+		511,
 		"Types applied to an infix must not create a recursive structure."),
 	
 	/** */
 	InfixContractViolation: createFault<X.InfixSpan>(
-		513, //424,
+		///424,
+		513,
 		"Infix type annotations must explicitly expand the type as defined by the base."),
 	
 	/** */
 	InfixPopulationChaining: createFault<X.InfixSpan>(
-		515, //426,
+		///426,
+		515,
 		"Population infixes cannot have multiple declarations."),
 	
 	/** */
 	InfixUsingListOperator: createFault<X.InfixSpan>(
-		517, //0,
+		///0,
+		517,
 		`Infix identifiers cannot end with the list operator (${X.Syntax.list}).`),
 	
 	/** */
 	InfixReferencingList: createFault<X.InfixSpan>(
-		519, //428,
+		///428,
+		519,
 		"Infixes cannot reference list types."),
 	
 	/** */
 	PortabilityInfixHasMultipleDefinitions: createFault<X.InfixSpan>(
-		521, //418,
+		///418,
+		521,
 		`Portability infixes with compatible types cannot
 		be specified more than once.`),
 	
 	/** */
 	PortabilityInfixHasUnion: createFault<X.InfixSpan>(
-		523, //418,
+		///418,
+		523,
 		"Portability infixes with unioned types are not supported at this time."),
 	
 	/** */
 	PopulationInfixHasMultipleDefinitions: createFault<X.InfixSpan>(
-		525, //0,
+		///0,
+		525,
 		`Declarations in a population infix cannot be 
 		defined twice in the same pattern`),
 	
 	/** */
 	NominalInfixMustSubtype: createFault<X.Span>(
-		527, //430,
+		///430,
+		527,
 		"Patterns with nominal infixes require an input that is " +
 		"a subtype of the type specified, not the type itself."),
 	
@@ -540,7 +555,7 @@ export const Faults = Object.freeze({
 	/** */
 	EmptyPattern: createFault<X.Statement>(
 		1010,
-		"Pattern has no matchable content."),
+		"Pattern has no matchable content.")
 });
 
 

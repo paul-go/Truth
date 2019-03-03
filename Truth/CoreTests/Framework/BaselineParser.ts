@@ -123,7 +123,7 @@ export class BaselineParser
 			return {
 				faultCode,
 				newLineText: lineText.replace(pe + faultCode + fe + " ", "")
-			}
+			};
 		}
 		
 		/**
@@ -339,7 +339,7 @@ export class BaselineParser
 				Object.freeze(documentLines.slice()));
 			
 			baselineDocuments.set(path, baselineDocument);
-		}
+		};
 		
 		for (let lineIdx = baselineLines.length; lineIdx-- > 0;)
 		{

@@ -110,7 +110,7 @@ export class Statement
 			const getListSpans = (spans: ReadonlyArray<X.Span>) => spans.filter(span =>
 			{
 				const sub = span.boundary.subject;
-				return sub instanceof X.Identifier && sub.isList
+				return sub instanceof X.Identifier && sub.isList;
 			});
 			
 			const lhsListSpans = getListSpans(this.allDeclarations);
@@ -130,7 +130,7 @@ export class Statement
 			if ((this.flags & hp) !== hp)
 				return null;
 			
-			const subject = this.allDeclarations[0].boundary.subject
+			const subject = this.allDeclarations[0].boundary.subject;
 			return subject instanceof X.Pattern ?
 				subject :
 				null;
@@ -181,8 +181,8 @@ export class Statement
 				if (infixSpan.boundary.subject.isList)
 					yield new X.Fault(X.Faults.InfixUsingListOperator, infixSpan);
 			
-			yield* dedupInfixSubjects(lhs);
-			yield* dedupInfixSubjects(rhs);
+			yield *dedupInfixSubjects(lhs);
+			yield *dedupInfixSubjects(rhs);
 			
 			const lhsIdentifiers = lhs.map(nfxSpan => 
 				nfxSpan.boundary.subject.toString());
@@ -195,8 +195,8 @@ export class Statement
 				for (let idx = 1; idx < lhs.length; idx++)
 					yield new X.Fault(X.Faults.InfixPopulationChaining, lhs[idx]);
 			
-			yield* expedientListCheck(lhs);
-			yield* expedientListCheck(rhs);
+			yield *expedientListCheck(lhs);
+			yield *expedientListCheck(rhs);
 		}
 		
 		for (const infixSpan of dedupInfixesAcrossInfixes(
@@ -553,7 +553,7 @@ export class Statement
 				.filter(sp => !(sp.boundary.subject instanceof X.Anon))
 				.map(sp => X.SubjectSerializer.invoke(sp.boundary.subject, escStyle))
 				.join(X.Syntax.combinator + X.Syntax.space);
-		}
+		};
 		
 		const indent = includeIndent ? X.Syntax.tab.repeat(this.indent) : "";
 		

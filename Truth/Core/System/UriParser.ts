@@ -12,7 +12,6 @@ export class UriParser
 	static parse(raw: string): Partial<X.Uri> | null
 	{
 		let isRelative = false;
-		let isProtocolRelative = false;
 		let retractionCount = 0;
 		let protocol = "";
 		
@@ -72,7 +71,7 @@ export class UriParser
 			{
 				parser.position = mark;
 				return false;
-			}
+			};
 			
 			while (parser.more())
 			{
@@ -118,7 +117,7 @@ export class UriParser
 			{
 				parser.position = mark;
 				return null;
-			}
+			};
 			
 			while (parser.more())
 			{
@@ -194,7 +193,7 @@ export class UriParser
 			{
 				parser.position = mark;
 				return null;
-			}
+			};
 			
 			let anon = parser.read(X.UriSyntax.indexorStart);
 			if (!anon)
@@ -287,7 +286,7 @@ export class UriParser
 			isRelative,
 			stores: Object.freeze(stores),
 			types: Object.freeze(types)
-		}
+		};
 	}
 }
 

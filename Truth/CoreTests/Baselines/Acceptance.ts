@@ -154,7 +154,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		emit: "\t\t\t"
 	},
 	
-	// URIs
+	//# URIs
 	
 	"/x.truth": {
 		uri: {
@@ -293,7 +293,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		emit: "http://abc.xyz/file.truth//type/path/here"
 	},
 	
-	// Comments
+	//# Comments
 	
 	"//": {
 		comment: true
@@ -311,7 +311,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		comment: true
 	},
 	
-	// Escaping
+	//# Escaping
 	
 	"D\\: E: F": {
 		emit: "D\\: E : F",
@@ -328,7 +328,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		emit: "\t\t\t\tEsc-Tab-Spc-Esc-Spc-Esc-Tab"
 	},
 	
-	// Strange slash usage
+	//# Strange slash usage
 	
 	"/": {
 		unparsable: true
@@ -336,7 +336,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	"/ :": {
 		unparsable: true
 	},
-	"\\/" : {
+	"\\/": {
 		emit: "\\/",
 		partial: false,
 		total: false
@@ -347,10 +347,11 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		joint: 8
 	},
 	"/, A, B": {
-		unparsable: true // Why is this unparsable?
+		// Why is this unparsable?
+		unparsable: true 
 	},
 	
-	// Unicode
+	//# Unicode
 	
 	"🐇 : Bunny": {
 		emit: "🐇 : Bunny"
@@ -365,7 +366,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		emit: "\u{1F407} : NotBunny"
 	},
 	
-	// Strange colon usage
+	//# Strange colon usage
 	
 	"A : B\\": {
 		emit: "A : B\\",
@@ -386,7 +387,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		joint: 1
 	},
 	
-	// Strange comma usage
+	//# Strange comma usage
 	
 	"X,,,": {
 		emit: "X",
@@ -399,7 +400,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		unparsable: true
 	},
 	
-	// Pattern Partiality & Totality flags
+	//# Pattern Partiality & Totality flags
 	
 	"/total/ : X": {
 		annotations: "X",
@@ -438,7 +439,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		annotations: "X"
 	},
 	
-	// Pattern Sets
+	//# Pattern Sets
 	
 	"/[A-Z]/ : X": {
 		annotations: "X",
@@ -470,7 +471,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		match: ["-\t-", "-$-"]
 	},
 	
-	// Patterns with unicode
+	//# Patterns with unicode
 	
 	"/\\u{1F407}/": {
 		total: true,
@@ -493,7 +494,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		noMatch: ["A", "0"]
 	},
 	
-	// Pattern Quantifiers
+	//# Pattern Quantifiers
 	
 	"/\\d+ : X": {
 		annotations: "X",
@@ -524,7 +525,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		noMatch: ["12", "1234567"]
 	},
 	
-	// Non Pattern Quantifiers
+	//# Non Pattern Quantifiers
 	
 	"/\\d{,3} : X": {
 		annotations: "X",
@@ -540,15 +541,15 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	"/\\d{} : X": {
 		annotations: "X",
 		partial: true,
-		match: "2{}",
+		match: "2{}"
 	},
 	"/\\d{ } : X": {
 		annotations: "X",
 		partial: true,
-		match: "2{ }",
+		match: "2{ }"
 	},
 	
-	// Pattern Groups
+	//# Pattern Groups
 	
 	"/(A|B) : X": {
 		annotations: "X",
@@ -565,7 +566,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 	"/(A|B|C|D) : X": {
 		annotations: "X",
 		partial: true,
-		match: ["A", "B", "C", "D"],
+		match: ["A", "B", "C", "D"]
 	},
 	"/([0-5]|[a-c]|[e-f]) : X": {
 		annotations: "X",
@@ -579,7 +580,7 @@ export const Acceptance: { [source: string]: IExpectation; } = {
 		noMatch: ["6", "eee"]
 	},
 	
-	// Pattern Infixes
+	//# Pattern Infixes
 	
 	"/</Pat/> : X": {
 		partial: true,

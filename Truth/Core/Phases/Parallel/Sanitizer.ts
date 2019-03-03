@@ -52,8 +52,6 @@ export class Sanitizer
 			srcBase: X.SpecifiedParallel,
 			path: X.HyperEdge[]) =>
 		{
-			const bases = Array.from(this.basesOf(srcBase));
-			
 			for (const { base, edge } of this.basesOf(srcBase))
 			{
 				if (path.includes(edge))
@@ -61,7 +59,7 @@ export class Sanitizer
 				else
 					recurse(base, path.concat(edge));
 			}
-		}
+		};
 		
 		for (const { base, edge } of this.basesOf(this.targetParallel))
 			recurse(base, []);

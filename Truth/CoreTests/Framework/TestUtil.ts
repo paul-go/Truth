@@ -101,8 +101,6 @@ export abstract class File
 			cwd: "",
 			detached: true
 		});
-		
-		
 	}
 	
 	/** */

@@ -90,7 +90,7 @@ class DefinitionFile
 	{
 		const lineObjects = this.collectLines();
 		
-		function* eachIdentifierLine()
+		function *eachIdentifierLine()
 		{
 			for (const lineObject of lineObjects)
 				if (lineObject instanceof IdentifierLine)
@@ -105,7 +105,7 @@ class DefinitionFile
 				if (emitted !== null)
 					lines.push((indent ? "\t" : "") + emitted);
 			}
-		}
+		};
 		
 		const lines: string[] = [];
 		
@@ -189,14 +189,20 @@ class Line
 		if (!lineCtor)
 			throw new Error("Internal error");
 		
+		// eslint-disable-next-line new-cap
 		const line: Line = new lineCtor(text);
 		const matchObject = <RegExpExecArray & { groups: object }>lineCtor.pattern.exec(textTrimmed);
 		
 		if (matchObject && matchObject.groups)
+		{
 			for (const key of Object.keys(matchObject.groups))
-				key in line ?
-					line[key] = matchObject.groups[key] :
+			{
+				if (key in line)
+					line[key] = matchObject.groups[key];
+				else
 					Object.defineProperty(line, key, { value: matchObject.groups[key] });
+			}
+		}
 		
 		return line;
 	}

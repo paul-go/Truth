@@ -28,7 +28,7 @@ export class ParallelCache
 			const keyVal = this.getKeyVal(key);
 			this.parallels.set(keyVal, par);
 			return par;
-		}
+		};
 		
 		const container = (() =>
 		{
@@ -102,9 +102,10 @@ export class ParallelCache
 	 */
 	private readonly parallels = new Map<string, X.Parallel>();
 	
+	/** */
 	get debug()
 	{
-		let text: string[] = [];
+		const text: string[] = [];
 		
 		for (const [key, value] of this.parallels)
 			text.push(value.name);

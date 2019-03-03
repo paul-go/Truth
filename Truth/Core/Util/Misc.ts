@@ -133,7 +133,7 @@ export class Misc
 					reduceResult.push(recurse(next));
 			
 			return reduceFn(object, Object.freeze(reduceResult));
-		}
+		};
 		
 		return recurse(initialObject);
 	}
