@@ -1,0 +1,87 @@
+
+@keyframes view-line-inserted
+{
+	from { z-index: 1; }
+	to { z-index: 1; }
+}
+
+.view-line
+{
+	animation-duration: 0.0001s;
+	animation-name: view-line-inserted;
+}
+
+.view-line[data-comment]
+{
+	
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+}
+
+.view-line[data-block-comment]
+{
+	background-image: linear-gradient(
+		hsla(215, 80%, 50%, 0.16),
+		hsla(215, 80%, 50%, 0.16));
+}
+
+.view-line[data-block-comment] SPAN
+{
+	text-shadow: 1px 1px 1px white;
+}
+
+.view-line[data-section-comment]
+{
+	background-image: linear-gradient(
+		hsla(215, 55%, 45%, 0.7),
+		hsla(215, 55%, 45%, 0.7));
+}
+
+.view-line[data-section-comment] SPAN
+{
+	color: rgba(255, 255, 255, 1) !important;
+	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.view-line[data-line-comment]
+{
+	text-shadow: 1px 1px 1px white;
+	background-image: linear-gradient(
+		hsla(215, 80%, 50%, 0.06),
+		hsla(215, 80%, 50%, 0.06));
+}
+
+.view-line[data-line-comment] SPAN
+{
+	color: hsl(215, 75%, 80%) !important;
+}
+
+.view-line[data-dead-comment] SPAN
+{
+	color: rgba(0, 0, 0, 0.5) !important;
+	font-style: italic;
+}
+
+.view-line[data-dead-comment] SPAN SPAN
+{
+	text-decoration: rgba(0, 0, 0, 0.15) line-through;
+}
+
+.view-line[data-dead-comment] SPAN.mtk1:first-child
+{
+	text-decoration: none;
+}
+
+.view-line[data-attention-comment]
+{
+	background-image: linear-gradient(
+		hsla(345, 80%, 40%, 0.40),
+		hsla(345, 80%, 40%, 0.40));
+}
+
+.view-line[data-attention-comment] SPAN
+{
+	color: white !important;
+	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+}
+

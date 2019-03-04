@@ -1,0 +1,10 @@
+{
+	"name": "artistry",
+	"version": "1.0.0",
+	"description": "A VS Code hack project to facilitate the artistry style guide.",
+	"main": "ESLintConfiguration.js",
+	"license": "MIT",
+	"scripts": {
+		"compile": "tsc"
+	}
+}
