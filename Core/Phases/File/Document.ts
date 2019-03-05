@@ -601,7 +601,10 @@ export class Document
 				{
 					// Sort the update calls by their index, and prune updates
 					// that would be overridden in a following call.
-					const updateCalls = (<UpdateCall[]>calls)
+					//! Remove this unnecessary variable once we can do that
+					//! without ESLint complaining (unnecessary brackets).
+					const updateCallsTyped = calls as UpdateCall[];
+					const updateCalls = updateCallsTyped
 						.sort((a, b) => a.at - b.at)
 						.filter((call, i) => i >= calls.length - 1 || call.at !== calls[i + 1].at);
 					
