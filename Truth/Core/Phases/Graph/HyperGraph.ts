@@ -370,6 +370,12 @@ export class HyperGraph
 			
 			for (const scsrNode of affectedNodesApexes)
 			{
+				// Pattern and URI resolution doesn't occur in the
+				// Node graph, so when the node's subject isn't 
+				// an identifier, we don't add any edges to it.
+				if (!(scsrNode.subject instanceof X.Identifier))
+					continue;
+				
 				const idents = this.nodeIndex.getAssociatedIdentifiers(scsrNode);
 				
 				for (const ident of idents)
