@@ -15,9 +15,7 @@ const UnminifiedFile = ReleaseDir + UnminifiedFileName;
 const MinifiedFile = ReleaseDir + MinifiedFileName;
 const ShouldPublish = process.argv.includes("--publish");
 
-
-//
-//
+//#
 task("Compiling to temporary directory...", () =>
 {
 	exec(`tsc
@@ -29,8 +27,7 @@ task("Compiling to temporary directory...", () =>
 	`);
 });
 
-//
-//
+//#
 task("Bundling into a single file...", async () =>
 {
 	const rollup = require("rollup").rollup;
@@ -63,8 +60,7 @@ task("Bundling into a single file...", async () =>
 	await built.write(output);
 });
 
-//
-//
+//#
 task("Replacing debug constant", () =>
 {
 	const content = Fs.readFileSync(UnminifiedFile)
@@ -78,8 +74,7 @@ task("Replacing debug constant", () =>
 	Fs.writeFileSync(UnminifiedFile, content);
 });
 
-//
-//
+//#
 task("Minifying code...", () =>
 {
 	const terser = require("terser");
@@ -110,15 +105,12 @@ task("Minifying code...", () =>
 	Fs.writeFileSync(MinifiedFile, terserResult.code);
 });
 
-
 // 
 // At this point the JavaScript side should be fully compiled, and
 // so now it's time to deploy the two separate projects to npm.
 // 
 
-
-//
-//
+//#
 task("Generating agent type definitions file...", async () =>
 {
 	const bundlerOptions = {
@@ -135,8 +127,7 @@ task("Generating agent type definitions file...", async () =>
 });
 
 
-//
-//
+//#
 task("Generating compiler type definitions file...", async () =>
 {
 	const bundlerOptions = {
@@ -147,8 +138,7 @@ task("Generating compiler type definitions file...", async () =>
 });
 
 
-//
-//
+//#
 task("Cleanup", async () =>
 {
 	// This is a hack for now that waits a second before cleaning
@@ -162,11 +152,8 @@ task("Cleanup", async () =>
 	1000));
 });
 
-
-//
-//
+//#
 task("Done", () => {});
-
 
 /** */
 async function createBundle(packageName, dtsBundlerOptions)
@@ -212,11 +199,7 @@ async function createBundle(packageName, dtsBundlerOptions)
 		exec(`cd ${targetDir} && npm publish`);
 }
 
-
-//
-// Build script tools
-//
-
+//# Build script tools
 
 function exec(command)
 {
