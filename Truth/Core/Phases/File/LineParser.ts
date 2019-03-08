@@ -772,6 +772,9 @@ export class LineParser
 				if (parser.read(X.RegexSyntaxMisc.plus))
 					return new X.RegexQuantifier(1, Infinity, isRestrained());
 				
+				if (parser.read(X.RegexSyntaxMisc.restrained))
+					return new X.RegexQuantifier(0, 1, false);
+				
 				if (!parser.read(X.RegexSyntaxDelimiter.quantifierStart))
 					return null;
 				

@@ -179,13 +179,15 @@ export class RegexGroup extends RegexUnit
 		if (this.cases.length === 0)
 			return "";
 		
-		const cases = this.cases.map(ca => ca.map(unit => esc(unit.toString())));
-		const group = 
-			X.RegexSyntaxDelimiter.groupStart +
-			cases.join(X.RegexSyntaxDelimiter.alternator) +
-			X.RegexSyntaxDelimiter.groupEnd;
+		const start = X.RegexSyntaxDelimiter.groupStart;
+		const mid = this.cases
+			.map(ca => ca.map(unit => esc(unit.toString())).join(""))
+			.join(X.RegexSyntaxDelimiter.alternator);
 		
-		return group + (this.quantifier ? this.quantifier.toString() : "");
+		const end = X.RegexSyntaxDelimiter.groupEnd;
+		const quant = this.quantifier ? this.quantifier.toString() : "";
+		
+		return start + mid + end + quant;
 	}
 }
 
@@ -284,6 +286,9 @@ export class RegexQuantifier
 		
 		if (this.min === 1 && this.max === Infinity)
 			return X.RegexSyntaxMisc.plus + rst;
+		
+		if (this.min === 0 && this.max === 1)
+			return X.RegexSyntaxMisc.restrained;
 		
 		const qs = X.RegexSyntaxDelimiter.quantifierStart;
 		const qp = X.RegexSyntaxDelimiter.quantifierSeparator;
