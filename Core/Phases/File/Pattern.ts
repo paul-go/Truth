@@ -135,24 +135,24 @@ export class Pattern
 					idx++;
 			}
 			
-			//Make sure the above produces the same behavior before deleting
-			//const recurseUnits = (units: ReadonlyArray<X.RegexUnit | X.Infix>) =>
-			//{
-			//	for (const unit of units)
-			//	{
-			//		if (unit instanceof X.Infix)
-			//		{
-			//			idxArray.push(++idx);
-			//		}
-			//		else if (unit instanceof X.RegexGroup)
-			//		{
-			//			++idx;
-			//			for (const unitCase of unit.cases)
-			//				recurseUnits(unitCase);
-			//		}
-			//	}
-			//}
-			//recurseUnits(this.units);
+			///Make sure the above produces the same behavior before deleting
+			///const recurseUnits = (units: ReadonlyArray<X.RegexUnit | X.Infix>) =>
+			///{
+			///	for (const unit of units)
+			///	{
+			///		if (unit instanceof X.Infix)
+			///		{
+			///			idxArray.push(++idx);
+			///		}
+			///		else if (unit instanceof X.RegexGroup)
+			///		{
+			///			++idx;
+			///			for (const unitCase of unit.cases)
+			///				recurseUnits(unitCase);
+			///		}
+			///	}
+			///}
+			///recurseUnits(this.units);
 			
 			return idxArray;
 		})();

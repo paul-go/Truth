@@ -60,7 +60,7 @@ export class Program
 		
 		this.faults = new X.FaultService(this);
 		
-		this.on(X.CauseEditComplete, data =>
+		this.on(X.CauseEditComplete, () =>
 		{
 			this._version = X.VersionStamp.next();
 		});
