@@ -9,7 +9,7 @@ Truth is not someone's side project. We have financial backing from enterprise c
 ## Installing
 
 ```
-npm install truth-compiler
+npm install truth-compiler --save
 ```
 
 ## Documentation
