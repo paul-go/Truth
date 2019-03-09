@@ -196,7 +196,7 @@ async function createBundle(packageName, dtsBundlerOptions)
 	writePackageJson(targetDir, packageJson);
 	
 	if (ShouldPublish)
-		exec(`cd ${targetDir} && npm publish`);
+		exec(`cd ${targetDir} && npm publish --tag latest`);
 }
 
 //# Build script tools
