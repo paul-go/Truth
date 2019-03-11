@@ -137,7 +137,7 @@ export class AgentCache
 		if (lastLineStart < 0)
 			return sourceCode;
 		
-		const sourceMapUrl = "//# sourceMappingURL=";
+		const sourceMapUrl = ["//", "#", " source", "MappingURL="].join("");
 		if (sourceCode.substr(lastLineStart, sourceMapUrl.length) !== sourceMapUrl)
 			return sourceCode;
 		
