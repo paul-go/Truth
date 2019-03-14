@@ -30,7 +30,7 @@ npm install artistry-code-style --save-dev
 .eslintrc.js example:
 ```javascript
 module.exports = {
-	"extends": "artistry-code-style",
+	"extends": require.resolve("artistry-code-style"),
 	"env": {
 		"browser": true,
 		"node": true,
@@ -38,4 +38,3 @@ module.exports = {
 	}
 }
 ```
-
