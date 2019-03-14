@@ -7,7 +7,6 @@ In one man's humble opinion, this idea is reminiscent of the pre-Apple renaissan
 The Artistry code is was designed around the contrarian idea that code formatting and code beauty *is* something that programmers should spend time thinking about. The aesthetic quality of the code in some ways is as important as the algorithms themselves. Writing code in an environment where code aesthetic is intentional, respected, and sought-after breeds a culture of craftsmanship. When code aesthetic isn't a focal point of the team, it tends to breed a culture of carelessness. And while these teams can deliver code assets that *function*, they tend to be lacking in *thoughtfulness*.
 
 
-
 ## Contents
 
 This package contains:
@@ -15,3 +14,29 @@ This package contains:
 - A JavaScript and CSS file that words in tandem with the [VSCode Custom CSS](https://github.com/be5invis/vscode-custom-css) extension. This extension hacks VS Code to allow you to shoehorn in your own code into the internal Monaco code editor. 
 - The `Open Sans Code` font, which is a derivation of the `Open Sans'.
 - ESLint rules
+
+## Usage
+
+The default export contains all of our ESLint rules.
+
+**It requires:**
+
+* [eslint@4.14.0](https://github.com/eslint/eslint)
+
+```
+npm install artistry-code-style --save-dev
+```
+
+.eslintrc example:
+```javascript
+{
+	"extends": "artistry",
+	"env": {
+		"jasmine": true,
+		"browser": true,
+		"node": true,
+		"es6": true
+	}
+}
+```
+
