@@ -27,12 +27,11 @@ The default export contains all of our ESLint rules.
 npm install artistry-code-style --save-dev
 ```
 
-.eslintrc example:
+.eslintrc.js example:
 ```javascript
-{
-	"extends": "artistry",
+module.exports = {
+	"extends": "artistry-code-style",
 	"env": {
-		"jasmine": true,
 		"browser": true,
 		"node": true,
 		"es6": true
