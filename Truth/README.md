@@ -4,7 +4,6 @@ Truth is type-safe data language for allowing big, complex, and non-uniform (aka
 
 Once your domain is modelled, Truth provides a natural way to attach "agents", which are plugin-like packages that analyst the host file, and emit various digital asset, such as mobile apps, reporting tools, visualization tools, etc. The Truth mindset allows this to happen quite easily (documentation coming).
 
-Truth is not someone's side project. We have financial backing from enterprise customers who are using it for their mission critical operations.
 
 ## Installing
 
@@ -15,3 +14,8 @@ npm install truth-compiler --save
 ## Documentation
 
 - [Quick start](https://www.truthlanguage.org)
+
+
+## Longevity
+
+Truth is being actively developed by a real company with enterprise customers and a sound business model. It's being used to tackle some of the most challenging data complexity problems.
