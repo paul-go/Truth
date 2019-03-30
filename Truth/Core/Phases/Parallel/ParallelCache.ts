@@ -7,13 +7,13 @@ import * as X from "../../X";
 export class ParallelCache
 {
 	/**
-	 * Creates a ParaType instance from the specified Node or
+	 * Creates a Parallel instance from the specified Node or
 	 * Uri instance. 
 	 * 
-	 * @throws In the case when all containing ParaTypes to have
+	 * @throws In the case when all containing ParallelTypes to have
 	 * not been created beforehand.
 	 * 
-	 * @throw In the case when a ParaType corresponding to the
+	 * @throw In the case when a ParallelType corresponding to the
 	 * input was already created.
 	 */
 	create(node: X.Node, cruft: X.CruftCache): X.SpecifiedParallel;
