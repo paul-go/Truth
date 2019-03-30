@@ -7,7 +7,18 @@ import * as X from "../X";
 export class Uri
 {
 	/**
-	 * 
+	 * Constructs a new Uri instance that points to a (possibly nested)
+	 * type defined in the specified document.
+	 */
+	static from(document: X.Document, ...types: string[])
+	{
+		return document.sourceUri.extendType(types);
+	}
+	
+	/**
+	 * Attempts to parse the specified string or Uri into
+	 * another Uri instance. If the parameter is already
+	 * a Uri, it is returned without further processing.
 	 */
 	static maybeParse(value: string | Uri): Uri | null
 	{
@@ -21,7 +32,8 @@ export class Uri
 	}
 	
 	/**
-	 * 
+	 * Attempts to parse the specified string into a Uri instance.
+	 * Returns null in the case when the Uri could not be parsed.
 	 */
 	static tryParse(uri: string | Uri, via?: Uri | string): Uri | null
 	{
@@ -84,9 +96,9 @@ export class Uri
 	}
 	
 	/**
-	 * 
+	 * Copies the specified URI or Spine into another URI instance.
 	 */
-	static create(value: X.Spine | Uri): Uri
+	static clone(value: X.Spine | Uri): Uri
 	{
 		if (value instanceof Uri)
 			return value;
@@ -99,6 +111,7 @@ export class Uri
 	}
 	
 	/**
+	 * @internal
 	 * Creates an internal URI used to uniquely identify a
 	 * document that exists only in memory.
 	 */

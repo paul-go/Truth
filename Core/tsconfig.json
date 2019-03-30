@@ -3,6 +3,7 @@
 	"compilerOptions": {
 		"rootDir": "./",
 		"baseUrl": "./",
+		"declaration": true,
 		"outDir": "../Build/Dev/Core"
 	},
 	"include": [
