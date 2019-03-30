@@ -97,7 +97,7 @@ export class HyperGraph
 			{
 				const associatedNodes = new Set(declaration
 					.factor()
-					.map(spine => X.Uri.create(spine))
+					.map(spine => X.Uri.clone(spine))
 					.map(uri => this.nodeIndex.getNodeByUri(uri))
 					.filter((n): n is X.Node => n instanceof X.Node));
 				
@@ -228,7 +228,7 @@ export class HyperGraph
 			{
 				for (const spine of decl.factor())
 				{
-					const uri = X.Uri.create(spine);
+					const uri = X.Uri.clone(spine);
 					const typeNames = spine.vertebrae
 						.map(vert => vert.toString());
 					

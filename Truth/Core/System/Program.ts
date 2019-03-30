@@ -234,6 +234,8 @@ export class Program
 	 * Document. If omitted, an array that contains the root-level types
 	 * defined in the specified Document is returned.
 	 */
+	queryDocument(document: X.Document): X.Type[]
+	queryDocument(document: X.Document, ...typePath: string[]): X.Type
 	queryDocument(document: X.Document, ...typePath: string[])
 	{
 		if (typePath.length === 0)
@@ -397,7 +399,8 @@ export class Program
 
 
 /**
- * Gets a stringified version of the Uri that holds this Program instance.
+ * Gets information about the object that holds 
+ * the specified Program instance.
  */
 function getHolderInfo(program: Program)
 {
@@ -427,7 +430,7 @@ class CauseAttachment
 
 
 /**
- * Describes a place in the program where a cause is attached.
+ * Describes a place in the program where a Cause is attached.
  */
 export type AttachmentScope = X.Program | X.Document | X.Type;
 

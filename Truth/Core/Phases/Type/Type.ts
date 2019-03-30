@@ -21,7 +21,7 @@ export class Type
 	static construct(spine: X.Spine, program: X.Program): Type;
 	static construct(param: X.Uri | X.Spine, program: X.Program): Type | null
 	{
-		const uri = X.Uri.create(param);
+		const uri = X.Uri.clone(param);
 		if (uri.types.length === 0)
 			return null;
 		
@@ -138,17 +138,38 @@ export class Type
 			seed.getParallels().map(edge =>
 				new X.TypeProxy(edge.uri, program)));
 		
+		const getBases = (sp: X.SpecifiedParallel) =>
+		{
+			const bases = Array.from(sp.eachBase());
+			return bases.map(entry => 
+				new X.TypeProxy(entry.base.node.uri, program));
+		};
+		
 		if (seed instanceof X.SpecifiedParallel)
 		{
-			const bases = Array.from(seed.eachBase());
-			const proxies = bases.map(entry => 
-				new X.TypeProxy(entry.base.node.uri, program));
-			
-			this.private.bases = new X.TypeProxyArray(proxies);
+			this.private.bases = new X.TypeProxyArray(getBases(seed));
 		}
 		else if (seed instanceof X.UnspecifiedParallel)
 		{
-			// This still needs work
+			const queue: X.Parallel[] = [seed];
+			const specifiedParallels: X.SpecifiedParallel[] = [];
+			
+			for (let i = -1; ++i < queue.length;)
+			{
+				const current = queue[i];
+				if (current instanceof X.UnspecifiedParallel)
+					queue.push(...current.getParallels());
+				
+				else if (current instanceof X.SpecifiedParallel)
+					specifiedParallels.push(current);
+			}
+			
+			const bases = specifiedParallels
+				.map(par => getBases(par))
+				.reduce((a, b) => a.concat(b), [])
+				.filter((v, i, a) => a.indexOf(v) === i);
+			
+			this.private.bases = new X.TypeProxyArray(bases);
 		}
 		
 		this.isList = false;
@@ -179,7 +200,7 @@ export class Type
 	
 	/**
 	 * Stores a reference to the type, as it's defined in it's
-	 * next most applicable 
+	 * next most applicable type.
 	 */
 	get parallels()
 	{

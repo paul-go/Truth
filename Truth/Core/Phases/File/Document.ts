@@ -416,7 +416,7 @@ export class Document
 			{
 				for (const spine of span.factor())
 				{
-					const uri = X.Uri.create(spine);
+					const uri = X.Uri.clone(spine);
 					const uriText = uri.toString();
 					
 					if (!yieldedUris.has(uriText))

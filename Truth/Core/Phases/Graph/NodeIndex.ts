@@ -7,7 +7,7 @@ import * as X from "../../X";
 export class NodeIndex
 {
 	/** */
-	constructor(private readonly program: X.Program)
+	constructor(program: X.Program)
 	{
 		program.on(X.CauseDocumentUriChange, data =>
 		{

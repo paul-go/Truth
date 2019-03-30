@@ -542,7 +542,9 @@ export class ConstructionWorker
 			}
 			
 			const nextUri = zenith.uri.extendType(typeName);
-			return this.parallels.create(nextUri);
+			return (
+				this.parallels.get(nextUri) ||
+				this.parallels.create(nextUri));
 		};
 		
 		/**
