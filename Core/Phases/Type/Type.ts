@@ -1,12 +1,11 @@
 import * as X from "../../X";
 
-
+/** */
 interface IStoredContext
 {
 	version: X.VersionStamp;
 	worker: X.ConstructionWorker;
 }
-
 
 /**
  * A class that represents a fully constructed type within the program.
@@ -404,9 +403,12 @@ export class Type
 	}
 	
 	/**
-	 * Gets a map of raw string values representing the
-	 * type aliases with which this type has been annotated,
-	 * which are keyed by the type to which they resolve.
+	 * Gets an array that contains the raw string values representing
+	 * the type aliases with which this type has been annotated.
+	 * 
+	 * If this type is unspecified, the parallel graph is searched,
+	 * and any applicable type aliases will be present in the returned
+	 * array.
 	 */
 	get values()
 	{
@@ -414,10 +416,48 @@ export class Type
 			return this.private.values;
 		
 		this.private.throwOnDirty();
-		throw X.Exception.notImplemented();
+		const values: string[] = [];
 		
-		// eslint-disable-next-line no-unreachable
-		return this.private.values = new Map();
+		const extractAlias = (sp: X.SpecifiedParallel) =>
+		{
+			for (const { edge, aliased } of sp.eachBase())
+				if (aliased)
+					values.push(edge.identifier.toString());
+		};
+		
+		if (this.private.seed instanceof X.SpecifiedParallel)
+		{
+			extractAlias(this.private.seed);
+		}
+		else if (this.private.seed instanceof X.UnspecifiedParallel)
+		{
+			const queue: X.UnspecifiedParallel[] = [this.private.seed];
+			
+			for (let i = -1; ++i < queue.length;)
+			{
+				const current = queue[i];
+				
+				for (const parallel of current.getParallels())
+				{
+					if (parallel instanceof X.SpecifiedParallel)
+						extractAlias(parallel);
+					
+					else if (parallel instanceof X.UnspecifiedParallel)
+						queue.push(parallel);
+				}
+			}
+		}
+		
+		return this.private.values = values;
+	}
+	
+	/**
+	 * Gets the first alias stored in the .values array, or null if the
+	 * values array is empty.
+	 */
+	get value()
+	{
+		return this.values.length > 0 ? this.values[0] : null;
 	}
 	
 	/**
@@ -554,7 +594,7 @@ class TypePrivate
 	patterns: ReadonlyArray<X.Type> | null = null;
 	
 	/** */
-	values: ReadonlyMap<X.Type, string> | null = null;
+	values: ReadonlyArray<string> | null = null;
 	
 	/** */
 	superordinates: ReadonlyArray<X.Type> | null = null;
