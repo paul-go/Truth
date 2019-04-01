@@ -38,8 +38,8 @@ export class SpecifiedParallel extends X.Parallel
 	 */
 	get firstBase()
 	{
-		for (const [edge, parallel] of this._bases)
-			return parallel;
+		for (const baseEntry of this._bases.values())
+			return baseEntry.parallel;
 		
 		throw X.Exception.unknownState();
 	}
@@ -50,11 +50,15 @@ export class SpecifiedParallel extends X.Parallel
 	 */
 	*eachBase()
 	{
-		for (const [key, value] of this._bases)
-			if (!this.cruft.has(key))
-				yield { base: value, edge: key };
+		for (const [hyperEdge, baseEntry] of this._bases)
+			if (!this.cruft.has(hyperEdge))
+				yield { 
+					base: baseEntry.parallel,
+					edge: hyperEdge,
+					aliased: baseEntry.aliased
+				};
 	}
-	private readonly _bases = new Map<X.HyperEdge, X.SpecifiedParallel>();
+	private readonly _bases = new Map<X.HyperEdge, IBaseEntry>();
 	
 	/**
 	 * Performs a deep traversal on the non-cruft bases
@@ -137,7 +141,7 @@ export class SpecifiedParallel extends X.Parallel
 				return false;
 		}
 		
-		this._bases.set(via, base);
+		this._bases.set(via, { parallel: base, aliased: false });
 		return true;
 	}
 	
@@ -157,7 +161,7 @@ export class SpecifiedParallel extends X.Parallel
 	 * @returns A boolean value that indicates whether a base was added
 	 * successfully.
 	 */
-	tryAddAliasBase(
+	tryAddAliasedBase(
 		targetPatternParallel: X.SpecifiedParallel,
 		viaEdge: X.HyperEdge,
 		viaAlias: string)
@@ -179,7 +183,11 @@ export class SpecifiedParallel extends X.Parallel
 			if (!targetPattern.test(viaAlias))
 				return false;
 			
-			this._bases.set(viaEdge, targetPatternParallel);
+			this._bases.set(viaEdge, {
+				parallel: targetPatternParallel,
+				aliased: true
+			});
+			
 			return true;
 		}
 		
@@ -259,7 +267,7 @@ export class SpecifiedParallel extends X.Parallel
 		// isn't a problem, and it keeps it consistent with the way the
 		// rest of the system works.
 		for (const [base, via] of baseTable)
-			this._bases.set(via, base);
+			this._bases.set(via, { parallel: base, aliased: false });
 	}
 	
 	/**
@@ -371,4 +379,17 @@ export class SpecifiedParallel extends X.Parallel
 	
 	/** */
 	private readonly contract: X.Contract;
+}
+
+/**
+ * A type that describes an entry in the bases map
+ * of a SpecifiedParallel.
+ */
+interface IBaseEntry
+{
+	/** Stores the SpecifiedParallel that caused the base to be constructed. */
+	parallel: X.SpecifiedParallel;
+	
+	/** Stores whether the identifier is an alias (matched by a pattern). */
+	aliased: boolean;
 }

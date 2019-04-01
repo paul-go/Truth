@@ -315,7 +315,7 @@ export class ConstructionWorker
 				
 				for (const parallel of patternParallels)
 				{
-					if (srcParallel.tryAddAliasBase(parallel, hyperEdge, alias))
+					if (srcParallel.tryAddAliasedBase(parallel, hyperEdge, alias))
 					{
 						this.handledHyperEdges.add(hyperEdge);
 						break;
