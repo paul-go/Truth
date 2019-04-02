@@ -9,7 +9,19 @@ type TParseFault = Readonly<X.FaultType<X.Statement>>;
 
 
 /**
- * 
+ * Stores the options for the line parser.
+ */
+export interface ILineParserOptions
+{
+	readPatterns?: boolean;
+	readUris?: boolean;
+}
+
+
+/**
+ * Parses a single line of Truth code, and returns
+ * a Line object that contains information about
+ * what was read.
  */
 export class LineParser
 {
@@ -48,8 +60,13 @@ export class LineParser
 	 * Maybe if I blew 4 years of my life in some silly Comp Sci program
 	 * instead of dropping out of high school I could say for sure.
 	 */
-	static parse(lineText: string)
+	static parse(lineText: string, options?: ILineParserOptions)
 	{
+		const parserOptions = options || {
+			readPatterns: true,
+			readUris: true
+		};
+		
 		const parser = new X.Parser(lineText);
 		const sourceText = lineText;
 		const indent = parser.readWhitespace();
@@ -384,6 +401,9 @@ export class LineParser
 		 */
 		function maybeReadUri()
 		{
+			if (!parserOptions.readUris)
+				return null;
+			
 			const mark = parser.position;
 			const uri = X.Uri.tryParse(parser.readUntil());
 			
@@ -399,6 +419,9 @@ export class LineParser
 		function maybeReadPattern(nested = false): X.Pattern | TParseFault | null
 		{
 			if (!nested && !parser.read(X.RegexSyntaxDelimiter.main))
+				return null;
+			
+			if (!parserOptions.readPatterns)
 				return null;
 			
 			// These are reserved starting sequences. They're invalid
