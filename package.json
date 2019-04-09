@@ -50,7 +50,6 @@
 		"memfs": "^2.10.1",
 		"rollup": "^1.1.0",
 		"terser": "^3.16.0",
-		"typescript": "^3.2.2",
-		"uglify-js": "^3.4.9"
+		"typescript": "^3.2.2"
 	}
 }
