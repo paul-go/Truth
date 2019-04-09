@@ -27,7 +27,8 @@ The default export contains all of our ESLint rules.
 npm install artistry-code-style --save-dev
 ```
 
-.eslintrc.js example:
+After installing, you'll need to include a `.eslintrc.js` file in the root directory of your project that contains the following code:
+
 ```javascript
 module.exports = {
 	"extends": require.resolve("artistry-code-style"),
@@ -38,3 +39,11 @@ module.exports = {
 	}
 }
 ```
+
+## Development
+
+This repository is under active development, as we're always adding new ESLint rules. Here are some helpful resources to get started building customer ESLint rules:
+
+https://www.kenneth-truyers.net/2016/05/27/writing-custom-eslint-rules/
+https://flexport.engineering/writing-custom-lint-rules-for-your-picky-developers-67732afa1803
+https://insideops.wordpress.com/2015/12/08/creating-custom-rules-for-eslint/
