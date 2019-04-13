@@ -151,11 +151,20 @@ export class UriParser
 		{
 			const mark = parser.position;
 			const encChars = "._-~%".split("");
+			const portChar = ":";
 			let value = "";
+			let port = "";
+			let isParsingPort = false;
 			
 			const anonComp = maybeReadAnonymousComponent();
 			if (anonComp)
 				return anonComp;
+			
+			const quit = () =>
+			{
+				parser.position = mark;
+				return null;
+			};
 			
 			while (parser.more())
 			{
@@ -164,22 +173,36 @@ export class UriParser
 				
 				const g = parser.readGrapheme();
 				
-				if (!encChars.includes(g) && !isUpperAscii(g) && !isLowerAscii(g) && !isDigit(g))
+				if (g === portChar)
 				{
-					parser.position = mark;
-					return null;
+					if (!isValidHostName(value) || !isValidIPv4Address(value))
+						return quit();
+					
+					isParsingPort = true;
+					continue;
 				}
 				
-				value += g;
+				if (isParsingPort)
+				{
+					if (!isDigit(g))
+						return quit();
+					
+					port += g;
+					
+					if (port.length > 5)
+						return quit();
+				}
+				else if (!encChars.includes(g) && !isUpperAscii(g) && !isLowerAscii(g) && !isDigit(g))
+				{
+					return quit();
+				}
+				else value += g;
 			}
 			
 			if (value === "")
-			{
-				parser.position = mark;
-				return null;
-			}
+				return quit();
 			
-			return new X.UriComponent(value);
+			return new X.UriComponent(port ? value + portChar + port : value);
 		}
 		
 		/**
@@ -290,7 +313,6 @@ export class UriParser
 	}
 }
 
-
 /** */
 function isUpperAscii(char: string)
 {
@@ -312,4 +334,61 @@ function isDigit(char: string)
 {
 	const point = char.codePointAt(0) || 0;
 	return point >= 48 && point <= 57;
+}
+
+/** */
+function isValidIPv4Address(maybeIP: string)
+{
+	if (!maybeIP)
+		return false;
+	
+	const ipParts = maybeIP.split(".").filter(s => s);
+	
+	if (ipParts.length !== 4)
+		return false;
+	
+	if (ipParts.some(s => !/^\d{1,3}$/.test(s)))
+		return false;
+	
+	if (ipParts.some(s => parseInt(s, 10) > 255))
+		return false;
+	
+	return true;
+}
+
+/** */
+function isValidHostName(maybeHostName: string)
+{
+	if (!maybeHostName)
+		return false;
+	
+	const hostParts = maybeHostName.split(".");
+	if (hostParts.some(s => s.length === 0))
+		return false;
+	
+	for (const hostPart of hostParts)
+	{
+		// NOTE: This is a make-shift host name validation
+		// method. It should be replaced with something
+		// that conforms to the relevant RFC specifications.
+		const hostSegmentParts = hostPart.split(/-|--/);
+		for (const hostSegmentPart of hostSegmentParts)
+		{
+			if (hostSegmentPart.length === 0)
+				return false;
+			
+			for (const cp of [...hostSegmentPart].map(s => s.codePointAt(0)))
+			{
+				if (!cp || !(
+					cp >= 48 && cp <= 57 ||
+					cp >= 65 && cp <= 90 ||
+					cp >= 97 && cp <= 122 ||
+					cp >= 128 && cp <= 165 ||
+					cp >= 255))
+					return false;
+			}
+		}
+	}
+	
+	return true;
 }

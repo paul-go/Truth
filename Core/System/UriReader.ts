@@ -1,15 +1,14 @@
 import * as X from "../X";
 
-
 /** */
-export class UriReader
+export const UriReader = new class UriReader
 {
 	/**
 	 * Attempts to read the contents of the given URI.
 	 * If an error is generated while trying to read a file 
 	 * at the specified location, the errors is returned.
 	 */
-	static async tryRead(uri: X.Uri)
+	async tryRead(uri: X.Uri)
 	{
 		if (uri.protocol === X.UriProtocol.file)
 			return await readFile(uri.toStoreString());
@@ -20,7 +19,7 @@ export class UriReader
 		
 		throw X.Exception.notImplemented();
 	}
-}
+}();
 
 
 /** */
