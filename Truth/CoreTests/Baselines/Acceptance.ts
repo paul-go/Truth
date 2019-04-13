@@ -225,6 +225,23 @@ export const Acceptance: { [source: string]: IExpectation } = {
 			types: []
 		}
 	},
+	"http://127.0.0.1:8000/file.truth": {
+		uri: {
+			protocol: "http:",
+			retractionCount: 0,
+			isRelative: false,
+			stores: ["127.0.0.1:8000"],
+			file: "file.truth",
+			ext: ".truth",
+			types: []
+		}
+	},
+	"http://127.0.0.1:800099/file.truth": {
+		uri: undefined
+	},
+	"http://127.0.0.1:8000XYZ/file.truth": {
+		uri: undefined
+	},
 	"/absolute/file.truth": {
 		uri: {
 			protocol: "file:",
