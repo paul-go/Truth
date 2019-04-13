@@ -13,8 +13,8 @@ type TParseFault = Readonly<X.FaultType<X.Statement>>;
  */
 export interface ILineParserOptions
 {
-	readPatterns?: boolean;
-	readUris?: boolean;
+	readonly readPatterns?: boolean;
+	readonly readUris?: boolean;
 }
 
 
