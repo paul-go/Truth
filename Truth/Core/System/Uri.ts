@@ -324,9 +324,18 @@ export class Uri
 			"/" :
 			thisAbsolute.protocol + "//";
 		
+		const isWeb = 
+			thisAbsolute.protocol === X.UriProtocol.http || 
+			thisAbsolute.protocol === X.UriProtocol.https;
+		
 		const components = thisAbsolute.stores
 			.concat(omitFile ? [] : [new X.UriComponent(this.file)])
-			.map(t => t.toStringEncoded())
+			.map((t, i) =>
+			{
+				return i === 0 && isWeb ?
+					t.toStringHost() :
+					t.toStringEncoded();
+			})
 			.join(X.UriSyntax.componentSeparator);
 		
 		return proto + components;
