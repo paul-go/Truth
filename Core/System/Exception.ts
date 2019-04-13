@@ -18,6 +18,12 @@ export class Exception
 	}
 	
 	/** */
+	static passedArrayCannotBeEmpty(paramName: string)
+	{
+		return error("Array cannot be empty for parameter: " + paramName);
+	}
+	
+	/** */
 	static unknownState()
 	{
 		return error("An unknown state has been reached in the program.");
@@ -113,6 +119,12 @@ export class Exception
 		return error(`
 			Cannot make this URI absolute because no 
 			process or window object could be found`);
+	}
+	
+	/** */
+	static absoluteUriExpected()
+	{
+		return error(`This method expects an absolute URI to be specified.`);
 	}
 	
 	/** */

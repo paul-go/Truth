@@ -209,40 +209,117 @@ export class Program
 	}
 	
 	/**
-	 * @returns A fully constructed Type instance that corresponds to
-	 * the type at the URI specified. In the case when no type could be
-	 * found at the specified location, null is returned.
+	 * Queries the program for the root-level types that exist within
+	 * the specified document.
+	 * 
+	 * @param document The document to query.
+	 * 
+	 * @returns An array containing the top-level types that are
+	 * defined within the specified document.
 	 */
-	query(uri: X.Uri | string)
-	{
-		const uriObject = X.Uri.maybeParse(uri);
-		if (uriObject === null)
-			throw X.Exception.invalidUri();
-		
-		return X.Type.construct(uriObject, this);
-	}
-	
+	query(document: X.Document): X.Type[];
 	/**
+	 * Queries the program for the root-level types that exist within
+	 * the specified document, at the specified type path.
+	 * 
+	 * @param document The document to query.
+	 * @param typePath The type path within the document to search.
+	 * 
 	 * @returns A fully constructed Type instance that corresponds to
-	 * the type path specified. In the case when no type could be found
-	 * at the specified location, null is returned.
-	 * 
-	 * @param document An instance of a Document that specifies
-	 * where to begin the query.
-	 * 
-	 * @param typePath The type path to query within the the specified
-	 * Document. If omitted, an array that contains the root-level types
-	 * defined in the specified Document is returned.
+	 * the type at the URI specified, or null in the case when no type
+	 * could be found.
 	 */
-	queryDocument(document: X.Document): X.Type[]
-	queryDocument(document: X.Document, ...typePath: string[]): X.Type | null
-	queryDocument(document: X.Document, ...typePath: string[])
+	query(document: X.Document, ...typePath: string[]): X.Type | null;
+	/**
+	 * Queries the program for the root-level types that exist within
+	 * the specified document.
+	 * 
+	 * @param uri The URI of the document to query. If the URI contains
+	 * a type path, it is factored into the search.
+	 * 
+	 * @returns An array containing the top-level types that are
+	 * defined within the specified document. If the specified URI has a
+	 * type path, the returned array will contain a single Type instance
+	 * that corresponds to the Type found. In the case when no type
+	 * could be found at the type path, an empty array is returned.
+	 */
+	query(uri: X.Uri): X.Type[];
+	/**
+	 * Queries the program for the root-level types that exist within
+	 * the specified document.
+	 * 
+	 * @param uri The URI of the document to query. If the URI contains
+	 * a type path, it is factored into the search.
+	 * @param typePath The type path within the document to search.
+	 * 
+	 * @returns A fully constructed Type instance that corresponds to
+	 * the type at the URI specified, or null in the case when no type
+	 * could be found.
+	 */
+	query(uri: X.Uri, ...typePath: string[]): X.Type | null;
+	/**
+	 * Queries the program for the root-level types that exist within
+	 * the specified document.
+	 * 
+	 * @param uri The a string representation of the URI of the document
+	 * to query. If the URI contains a type path, it is factored into the search.
+	 * 
+	 * @returns An array containing the top-level types that are
+	 * defined within the specified document. If the specified URI has a
+	 * type path, the returned array will contain a single Type instance
+	 * that corresponds to the Type found. In the case when no type
+	 * could be found at the type path, an empty array is returned.
+	 */
+	query(uri: string): X.Type[];
+	/**
+	 * Queries the program for the root-level types that exist within
+	 * the specified document.
+	 * 
+	 * @param uri The URI of the document to query. If the URI contains
+	 * a type path, it is factored into the search.
+	 * @param typePath The type path within the document to search.
+	 * 
+	 * @returns A fully constructed Type instance that corresponds to
+	 * the type at the URI specified, or null in the case when no type
+	 * could be found.
+	 */
+	query(uri: string, ...typePath: string[]): X.Type | null;
+	query(root: X.Document | X.Uri | string, ...typePath: string[]): 
+		ReadonlyArray<X.Type> | X.Type | null
 	{
-		if (typePath.length === 0)
-			return X.Type.constructRoots(document);
+		if (arguments.length > 1 && typePath.length === 0)
+			throw X.Exception.passedArrayCannotBeEmpty("typePath");
 		
-		const uri = document.sourceUri.extendType(typePath);
-		return X.Type.construct(uri, this);
+		if (root instanceof X.Document)
+		{
+			if (typePath.length === 0)
+				return X.Type.constructRoots(root);
+			
+			const uri = root.sourceUri.extendType(typePath);
+			return X.Type.construct(uri, this);
+		}
+		
+		const docUri = X.Uri.maybeParse(root);
+		if (docUri === null)
+			throw X.Exception.absoluteUriExpected();
+		
+		const doc = this.documents.get(root);
+		if (!doc)
+			return null;
+		
+		const types = docUri.types.map(t => t.toString()).concat(typePath);
+		if (types.length === 0)
+			return X.Type.constructRoots(doc);
+		
+		const fullUri = docUri.extendType(typePath);
+		const constructed = X.Type.construct(fullUri, this);
+		
+		if (typePath.length === 0)
+			return constructed ?
+				Object.freeze([constructed]) :
+				[];
+		
+		return constructed;
 	}
 	
 	/**
