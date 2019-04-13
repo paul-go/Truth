@@ -291,7 +291,7 @@ export class BaselineParser
 						throw X.Exception.unknownState();
 					
 					return value instanceof X.Pattern ?
-						encodeURIComponent(value.toString()) :
+						escape(value.toString()) :
 						value.toString();
 				});
 				

@@ -15,7 +15,7 @@ export class UriComponent
 		this.isCurrent = raw === ".";
 		this.isPattern = 
 			raw.startsWith(delim) ||
-			raw.startsWith(encodeURIComponent(delim));
+			raw.startsWith(escape(delim));
 		
 		if (raw.length > 2)
 			if (raw[0] === X.UriSyntax.indexorStart)
@@ -25,7 +25,7 @@ export class UriComponent
 		
 		this.value = this.index >= 0 ?
 			this.index.toString() :
-			decodeURIComponent(raw);
+			unescape(raw);
 		
 		Object.freeze(this);
 	}
@@ -73,13 +73,13 @@ export class UriComponent
 		if (this.isPattern)
 		{
 			const de = X.RegexSyntaxDelimiter.main;
-			return de + encodeURIComponent(this.value.slice(de.length));
+			return de + escape(this.value.slice(de.length));
 		}
 		
 		if (this.index >= 0)
 			return X.UriSyntax.indexorStart + this.index + X.UriSyntax.indexorEnd;
 		
-		return encodeURIComponent(this.value);
+		return escape(this.value);
 	}
 	
 	/**
