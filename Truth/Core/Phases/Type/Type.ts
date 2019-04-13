@@ -552,6 +552,26 @@ export class Type
 	}
 	
 	/**
+	 * Queries for a Type that is nested underneath this Type,
+	 * at the specified type path.
+	 */
+	query(...typePath: string[])
+	{
+		let currentType: X.Type | null = null;
+		
+		for (const typeName of typePath)
+		{
+			const nextType = this.contents.find(type => type.name === typeName);
+			if (!nextType)
+				break;
+			
+			currentType = nextType;
+		}
+		
+		return currentType;
+	}
+	
+	/**
 	 * @internal
 	 * Internal object that stores the private members
 	 * of the Type object. Do not use.

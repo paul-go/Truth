@@ -53,7 +53,7 @@ setTimeout(async () =>
 	///	program.hooks.DocumentUriChanged.run(param);
 	///}
 	
-	const type = program.queryDocument(doc, ...targetTypePath);
+	const type = program.query(doc, ...targetTypePath);
 	if (type instanceof X.Type)
 	{
 		type.derivations;
