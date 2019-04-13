@@ -226,7 +226,7 @@ export const Faults = Object.freeze({
 	CircularResourceReference: createFault<X.Statement>(
 		102,
 		"URI points to a resource that would cause a circular reference."),
-
+	
 	/** */
 	InsecureResourceReference: createFault<X.Statement>(
 		104,
