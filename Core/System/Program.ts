@@ -235,7 +235,7 @@ export class Program
 	 * defined in the specified Document is returned.
 	 */
 	queryDocument(document: X.Document): X.Type[]
-	queryDocument(document: X.Document, ...typePath: string[]): X.Type
+	queryDocument(document: X.Document, ...typePath: string[]): X.Type | null
 	queryDocument(document: X.Document, ...typePath: string[])
 	{
 		if (typePath.length === 0)
