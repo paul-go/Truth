@@ -1,6 +1,5 @@
 import * as X from "../X";
 
-
 /**
  * A class that represents a single component of a Uri.
  * Handled encoding and decoding of the underlying value.
@@ -59,7 +58,7 @@ export class UriComponent
 	readonly value: string;
 	
 	/**
-	 * @returns The decoded text value of this UriComponent.
+	 * @returns The raw decoded text value of this UriComponent.
 	 */
 	toString()
 	{
@@ -67,7 +66,7 @@ export class UriComponent
 	}
 	
 	/**
-	 * 
+	 * @returns The URL encoded text value of this UriComponent.
 	 */
 	toStringEncoded()
 	{
@@ -82,4 +81,15 @@ export class UriComponent
 		
 		return encodeURIComponent(this.value);
 	}
+	
+	/**
+	 * @returns The text value of this UriComponent, using an
+	 * encoding that is compatible with an RFC 3986 host name.
+	 */
+	toStringHost()
+	{
+		return new URL("http://" + this.value).host;
+	}
 }
+
+declare const URL: typeof import("url").URL;
