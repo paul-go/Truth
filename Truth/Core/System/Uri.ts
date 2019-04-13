@@ -261,10 +261,21 @@ export class Uri
 			return true;
 		
 		if (compareTypes)
-			if (this.toTypeString() !== other.toTypeString())
+		{
+			if (this.types.length !== other.types.length)
 				return false;
+			
+			if (this.types.some((t, i) => t.value !== other.types[i].value))
+				return false;
+		}
 		
-		return this.toStoreString() === other.toStoreString();
+		if (this.protocol !== other.protocol)
+			return false;
+		
+		if (this.stores.some((s, i) => s.value !== other.stores[i].value))
+			return false;
+		
+		return true;
 	}
 	
 	/**
