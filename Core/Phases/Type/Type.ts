@@ -75,7 +75,7 @@ export class Type
 		
 		for (const currentParallel of parallelLineage)
 		{
-			if (X.TypeCache.has(parallel.uri, program))
+			if (X.TypeCache.has(currentParallel.uri, program))
 			{
 				const existingType = X.TypeCache.get(currentParallel.uri, program);
 				if (existingType instanceof X.TypeProxy)
