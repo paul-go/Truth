@@ -1,6 +1,5 @@
 import * as X from "../../X";
 
-
 /**
  * 
  */
@@ -19,7 +18,14 @@ export class Document
 		
 		this.program = program;
 		this._sourceUri = sourceUri;
-		this.fill(sourceText);
+		
+		if (this.inEdit)
+			throw X.Exception.doubleTransaction();
+		
+		this.statements.length = 0;
+		
+		for (const statementText of readLines(sourceText))
+			this.statements.push(new X.Statement(this, statementText));
 		
 		program.on(X.CauseDocumentUriChange, data =>
 		{
@@ -34,19 +40,20 @@ export class Document
 	}
 	
 	/**
-	 * Fills the document with the specified source code.
-	 * If the document is non-empty, it is emptied before being filled.
-	 * @param source The source text to fill the document.
+	 * Queries this document for the root-level types.
+	 * 
+	 * @param uri The URI of the document to query. If the URI contains
+	 * a type path, it is factored into the search.
+	 * 
+	 * @param typePath The type path within the document to search.
+	 * 
+	 * @returns A fully constructed Type instance that corresponds to
+	 * the type at the URI specified, or null in the case when no type
+	 * could be found.
 	 */
-	private fill(sourceText: string)
+	query(...typePath: string[]): X.Type | null
 	{
-		if (this.inEdit)
-			throw X.Exception.doubleTransaction();
-		
-		this.statements.length = 0;
-		
-		for (const statementText of readLines(sourceText))
-			this.statements.push(new X.Statement(this, statementText));
+		return this.program.query(this, ...typePath);
 	}
 	
 	/**
