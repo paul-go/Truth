@@ -57,6 +57,18 @@ export class Document
 	}
 	
 	/**
+	 * Gets the root-level types that are defined within this document.
+	 */
+	get types()
+	{
+		if (this._types)
+			return this._types;
+		
+		return this._types = Object.freeze(this.program.query(this));
+	}
+	private _types: ReadonlyArray<X.Type> | null = null;
+	
+	/**
 	 * @returns An array of Statement objects that represent
 	 * ancestry of the specified statement. If the specified
 	 * statement is not in this document, the returned value
@@ -885,6 +897,9 @@ export class Document
 			for (const smt of this.statements)
 				if (smt.isDisposed)
 					throw X.Exception.unknownState();
+		
+		// Clean out any type cache
+		this._types = null;
 		
 		// Tell subscribers that the edit transaction completed.
 		this.program.cause(new X.CauseEditComplete(this));
