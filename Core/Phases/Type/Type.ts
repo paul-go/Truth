@@ -608,6 +608,19 @@ export class Type
 	}
 	
 	/**
+	 * Checks whether this Type has the specified type
+	 * somewhere in it's base graph.
+	 */
+	is(baseType: Type)
+	{
+		for (const { type } of this.iterate(t => t.bases))
+			if (type === baseType)
+				return true;
+		
+		return false;
+	}
+	
+	/**
 	 * @internal
 	 * Internal object that stores the private members
 	 * of the Type object. Do not use.
