@@ -208,6 +208,26 @@ export class Type
 	}
 	
 	/**
+	 * Stores a reference to the parallel roots of this type.
+	 * The parallel roots are the endpoints found when
+	 * traversing upward through the parallel graph.
+	 */
+	get parallelRoots()
+	{
+		this.private.throwOnDirty();
+		
+		if (this.private.parallelRoots !== null)
+			return this.private.parallelRoots;
+		
+		const roots: X.Type[] = [];
+		for (const { type } of this.iterate(t => t.parallels))
+			if (type.parallels.length === 0)
+				roots.push(type);
+		
+		return this.private.parallelRoots = Object.freeze(roots);
+	}
+	
+	/**
 	 * Stores the Type that contains this Type, or null in
 	 * the case when this Type is top-level.
 	 */
@@ -229,8 +249,8 @@ export class Type
 		// Dig through the parallel graph recursively, and at each parallel,
 		// dig through the base graph recursively, and collect all the names
 		// that are found.
-		for (const { type: parallelType } of this.visit(t => t.parallels))
-			for (const { type: baseType } of parallelType.visit(t => t.bases))
+		for (const { type: parallelType } of this.iterate(t => t.parallels))
+			for (const { type: baseType } of parallelType.iterate(t => t.bases))
 				if (baseType.private.seed instanceof X.SpecifiedParallel)
 					for (const name of baseType.private.seed.node.contents.keys())
 						if (!containedNames.includes(name))
@@ -379,7 +399,7 @@ export class Type
 		// that matches a particular set of types in the type scope.
 		const patternMap = new Map<string, Type>();
 		
-		for (const { type } of this.visit(t => t.container))
+		for (const { type } of this.iterate(t => t.container))
 		{
 			const applicablePatternTypes = type.adjacents
 				.filter(t => t.isPattern)
@@ -516,6 +536,22 @@ export class Type
 	 * that begins at this Type instance. Ensures that no types
 	 * types are yielded multiple times.
 	 * 
+	 * @param nextFn A function that returns a type, or an
+	 * iterable of types that are to be visited next.
+	 * 
+	 * @returns An array that stores the list of types that were
+	 * visited.
+	 */
+	visit(nextFn: (type: Type) => Iterable<Type | null> | Type | null)
+	{
+		return Array.from(this.iterate(nextFn)).map(entry => entry.type);
+	}
+	
+	/**
+	 * Performs an arbitrary recursive, breadth-first iteration
+	 * that begins at this Type instance. Ensures that no types
+	 * types are yielded multiple times.
+	 * 
 	 * @param nextFn A function that returns a type, or an iterable
 	 * of types that are to be visited next.
 	 * 
@@ -523,7 +559,7 @@ export class Type
 	 * the Type being visited, and a `via` property that is the Type
 	 * that was returned in the previous call to `nextFn`.
 	 */
-	*visit(nextFn: (type: Type) => Iterable<Type | null> | Type | null)
+	*iterate(nextFn: (type: Type) => Iterable<Type | null> | Type | null)
 	{
 		const yielded: Type[] = [];
 		
@@ -609,6 +645,9 @@ class TypePrivate
 	
 	/** */
 	parallels: X.TypeProxyArray | null = null;
+	
+	/** */
+	parallelRoots: ReadonlyArray<X.Type> | null = null;
 	
 	/** */
 	patterns: ReadonlyArray<X.Type> | null = null;
