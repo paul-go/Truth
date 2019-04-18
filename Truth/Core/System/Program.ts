@@ -219,7 +219,7 @@ export class Program
 	 */
 	query(document: X.Document): X.Type[];
 	/**
-	 * Queries the program for the root-level types that exist within
+	 * Queries the program for the types that exist within
 	 * the specified document, at the specified type path.
 	 * 
 	 * @param document The document to query.
@@ -231,8 +231,8 @@ export class Program
 	 */
 	query(document: X.Document, ...typePath: string[]): X.Type | null;
 	/**
-	 * Queries the program for the root-level types that exist within
-	 * the specified document.
+	 * Queries the program for types that exist within this program,
+	 * at the specified type URI.
 	 * 
 	 * @param uri The URI of the document to query. If the URI contains
 	 * a type path, it is factored into the search.
@@ -245,8 +245,8 @@ export class Program
 	 */
 	query(uri: X.Uri): X.Type[];
 	/**
-	 * Queries the program for the root-level types that exist within
-	 * the specified document.
+	 * Queries the program for types that exist within this program,
+	 * at the specified URI and type path.
 	 * 
 	 * @param uri The URI of the document to query. If the URI contains
 	 * a type path, it is factored into the search.
@@ -258,8 +258,8 @@ export class Program
 	 */
 	query(uri: X.Uri, ...typePath: string[]): X.Type | null;
 	/**
-	 * Queries the program for the root-level types that exist within
-	 * the specified document.
+	 * Queries the program for types that exist within this document,
+	 * at the specified URI.
 	 * 
 	 * @param uri The a string representation of the URI of the document
 	 * to query. If the URI contains a type path, it is factored into the search.
@@ -272,8 +272,8 @@ export class Program
 	 */
 	query(uri: string): X.Type[];
 	/**
-	 * Queries the program for the root-level types that exist within
-	 * the specified document.
+	 * Queries the program for types that exist within this program,
+	 * at the specified URI and type path.
 	 * 
 	 * @param uri The URI of the document to query. If the URI contains
 	 * a type path, it is factored into the search.
