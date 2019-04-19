@@ -249,8 +249,8 @@ export class Type
 		// Dig through the parallel graph recursively, and at each parallel,
 		// dig through the base graph recursively, and collect all the names
 		// that are found.
-		for (const { type: parallelType } of this.iterate(t => t.parallels))
-			for (const { type: baseType } of parallelType.iterate(t => t.bases))
+		for (const { type: parallelType } of this.iterate(t => t.parallels, true))
+			for (const { type: baseType } of parallelType.iterate(t => t.bases, true))
 				if (baseType.private.seed instanceof X.SpecifiedParallel)
 					for (const name of baseType.private.seed.node.contents.keys())
 						if (!containedNames.includes(name))
@@ -538,13 +538,16 @@ export class Type
 	 * 
 	 * @param nextFn A function that returns a type, or an
 	 * iterable of types that are to be visited next.
+	 * @param reverse An optional boolean value that indicates
+	 * whether types in the returned array should be sorted
+	 * with the most deeply visited nodes occuring first.
 	 * 
 	 * @returns An array that stores the list of types that were
 	 * visited.
 	 */
-	visit(nextFn: (type: Type) => Iterable<Type | null> | Type | null)
+	visit(nextFn: (type: Type) => Iterable<Type | null> | Type | null, reverse?: boolean)
 	{
-		return Array.from(this.iterate(nextFn)).map(entry => entry.type);
+		return Array.from(this.iterate(nextFn, reverse)).map(entry => entry.type);
 	}
 	
 	/**
@@ -554,12 +557,15 @@ export class Type
 	 * 
 	 * @param nextFn A function that returns a type, or an iterable
 	 * of types that are to be visited next.
+	 * @param reverse An optional boolean value that indicates
+	 * whether the iterator should yield types starting with the
+	 * most deeply nested types first.
 	 * 
 	 * @yields An object that contains a `type` property that is the
 	 * the Type being visited, and a `via` property that is the Type
 	 * that was returned in the previous call to `nextFn`.
 	 */
-	*iterate(nextFn: (type: Type) => Iterable<Type | null> | Type | null)
+	*iterate(nextFn: (type: Type) => Iterable<Type | null> | Type | null, reverse?: boolean)
 	{
 		const yielded: Type[] = [];
 		
@@ -569,19 +575,28 @@ export class Type
 			if (yielded.includes(type))
 				return;
 			
-			yielded.push(type);
-			yield { type, via };
+			if (!reverse)
+			{
+				yielded.push(type);
+				yield { type, via };
+			}
 			
 			const reduced = nextFn(type);
-			if (reduced === null || reduced === undefined)
-				return;
+			if (reduced !== null && reduced !== undefined)
+			{
+				if (reduced instanceof Type)
+					return yield *recurse(reduced, type);
+				
+				for (const nextType of reduced)
+					if (nextType instanceof Type)
+						yield *recurse(nextType, type);
+			}
 			
-			if (reduced instanceof Type)
-				return yield *recurse(reduced, type);
-			
-			for (const nextType of reduced)
-				if (nextType instanceof Type)
-					yield *recurse(nextType, type);
+			if (reverse)
+			{
+				yielded.push(type);
+				yield { type, via };
+			}
 		}
 		
 		yield *recurse(this, null);
