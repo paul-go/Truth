@@ -1,0 +1,17 @@
+// Bottom
+
+Left
+	A
+	B
+	C
+
+Right
+	D
+	C
+	B
+	A
+
+Bottom : Left, Right
+	A
+	C
+	W
