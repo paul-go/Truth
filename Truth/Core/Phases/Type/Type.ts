@@ -221,7 +221,7 @@ export class Type
 		
 		const roots: X.Type[] = [];
 		for (const { type } of this.iterate(t => t.parallels))
-			if (type.parallels.length === 0)
+			if (type !== this && type.parallels.length === 0)
 				roots.push(type);
 		
 		return this.private.parallelRoots = Object.freeze(roots);
