@@ -223,7 +223,7 @@ export class RegexGrapheme extends RegexUnit
 		
 		return escapableGraphemes.includes(g) ?
 			"\\" + g + qEsc :
-			q + qEsc;
+			g + qEsc;
 	}
 }
 
