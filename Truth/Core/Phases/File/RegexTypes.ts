@@ -218,10 +218,29 @@ export class RegexGrapheme extends RegexUnit
 	toString()
 	{
 		const q = this.quantifier;
-		return this.grapheme.toString() + (q === null ? "" : esc(q.toString()));
+		const qEsc = q === null ? "" : esc(q.toString());
+		const g = this.grapheme.toString();
+		
+		return escapableGraphemes.includes(g) ?
+			"\\" + g + qEsc :
+			q + qEsc;
 	}
 }
 
+/** */
+const escapableGraphemes: string[] = [
+	X.RegexSyntaxMisc.star,
+	X.RegexSyntaxMisc.plus,
+	X.RegexSyntaxMisc.negate,
+	X.RegexSyntaxMisc.restrained,
+	X.RegexSyntaxDelimiter.groupStart,
+	X.RegexSyntaxDelimiter.groupEnd,
+	X.RegexSyntaxDelimiter.alternator,
+	X.RegexSyntaxDelimiter.setStart,
+	X.RegexSyntaxDelimiter.setEnd,
+	X.RegexSyntaxDelimiter.quantifierStart,
+	X.RegexSyntaxDelimiter.quantifierEnd
+];
 
 /**
  * A Regex "Sign" refers to an escape sequence that refers

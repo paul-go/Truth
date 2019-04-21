@@ -597,6 +597,13 @@ export const Acceptance: { [source: string]: IExpectation } = {
 		noMatch: ["6", "eee"]
 	},
 	
+	//# Pattern with escapables
+	
+	"/(\\+)": {
+		partial: true,
+		unparsable: false
+	},
+	
 	//# Pattern Infixes
 	
 	"/</Pat/> : X": {
