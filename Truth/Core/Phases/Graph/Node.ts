@@ -391,7 +391,7 @@ export class Node
 		// incoming node also be cruft?)
 		//
 		
-		for (const [name, node] of this.adjacents)
+		for (const node of this.adjacents.values())
 		{
 			if (node.subject instanceof X.Pattern)
 			{

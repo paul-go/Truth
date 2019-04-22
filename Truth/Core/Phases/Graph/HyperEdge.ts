@@ -21,7 +21,7 @@ export class HyperEdge
 		 * of "Foo", and another for the instance of "Bar". A HyperEdge
 		 * would be created between "Bar" and "Foo", and it's
 		 * precedessor would refer to the Node representing the
-		 * instance of "Bar".
+		 * occurence of "Bar".
 		 */
 		readonly predecessor: X.Node,
 		source: X.Span | X.InfixSpan,
