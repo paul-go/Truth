@@ -592,14 +592,20 @@ export class Node
 		{
 			const successors: X.Successor[] = [];
 			
-			for (const { longitudeDelta, adjacents } of this.enumerateContainment())
+			for (const level of this.enumerateContainment())
 			{
-				const adjacentNode = adjacents.get(identifier.typeName);
-				if (adjacentNode !== undefined)
+				const successorNode = 
+					level.container !== null && 
+					level.container !== this &&
+					level.container.name === identifier.typeName ?
+						level.container :
+						level.adjacents.get(identifier.typeName);
+				
+				if (successorNode !== undefined)
 				{
 					successors.push(new X.Successor(
-						adjacentNode,
-						longitudeDelta));
+						successorNode,
+						level.longitudeDelta));
 					
 					// There should only ever be a single successor in the case when
 					// the node is a pattern node, because the annotations (which
@@ -700,6 +706,7 @@ export class Node
 		{
 			yield {
 				sourceDocument: doc,
+				container: <Node | null>currentLevel,
 				adjacents: currentLevel.adjacents,
 				longitudeDelta: longitudeCount++
 			};
@@ -714,6 +721,7 @@ export class Node
 			
 			yield {
 				sourceDocument,
+				container: null,
 				adjacents: this.getRootNodes(sourceDocument),
 				longitudeDelta: longitudeCount
 			};
