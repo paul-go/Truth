@@ -13,3 +13,14 @@ export async function read(truthFilePathOrUri: string)
 	const program = new X.Program();
 	return await program.documents.read(truthFilePathOrUri);
 }
+
+/**
+ * Parses the specified truth content into a new Truth program.
+ * 
+ * @returns A reference to the parsed document.
+ */
+export async function parse(truthContent: string)
+{
+	const program = new X.Program();
+	return await program.documents.create(truthContent);
+}
