@@ -9,7 +9,7 @@ export class VersionStamp
 	/** */
 	static next()
 	{
-		const createStamp = (stamp: number | number[]) =>
+		const createStamp = (stamp: number | ReadonlyArray<number>) =>
 			new VersionStamp(Object.freeze(stamp));
 		
 		if (typeof BigInt !== "undefined")
@@ -60,10 +60,10 @@ export class VersionStamp
 	}
 	
 	/** */
-	private static nextStamp: number | number[];
+	private static nextStamp: number | ReadonlyArray<number>;
 	
 	/** */
-	protected constructor(private readonly stamp: number | number[]) { }
+	protected constructor(private readonly stamp: number | ReadonlyArray<number>) { }
 	
 	/** */
 	newerThan(otherStamp: VersionStamp)
