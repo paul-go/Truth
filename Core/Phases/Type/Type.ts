@@ -636,6 +636,25 @@ export class Type
 	}
 	
 	/**
+	 * Checks whether the specified type is in this Type's
+	 * `.contents` property, either directly, or indirectly via
+	 * the parallel graphs of the `.contents` Types.
+	 */
+	has(type: Type)
+	{
+		if (this.contents.includes(type))
+			return true;
+		
+		for (const containedType of this.contents)
+			if (type.name === containedType.name)
+				for (const parallel of containedType.iterate(t => t.parallels))
+					if (parallel.type === containedType)
+						return true;
+		
+		return false;
+	}
+	
+	/**
 	 * @internal
 	 * Internal object that stores the private members
 	 * of the Type object. Do not use.
