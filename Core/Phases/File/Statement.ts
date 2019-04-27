@@ -531,13 +531,13 @@ export class Statement
 	/**
 	 * @returns A string containing the inner comment text of
 	 * this statement, excluding the comment syntax token.
-	 * If the statement isn't a comment, null is returned.
+	 * If the statement isn't a comment, an empty string is returned.
 	 */
 	getCommentText()
 	{
 		return this.isComment ?
 			this.sourceText.slice(this.indent + X.Syntax.comment.length).trim() :
-			null;
+			"";
 	}
 	
 	/**
