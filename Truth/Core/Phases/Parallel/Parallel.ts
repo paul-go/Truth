@@ -17,7 +17,7 @@ export abstract class Parallel
 		this.name = uri.toTypeString();
 		
 		if (this.name.startsWith("/"))
-			this.name = escape(this.name);
+			this.name = unescape(this.name);
 		
 		if (container !== null)
 			container._contents.set(uri.types.slice(-1)[0].value, this);
