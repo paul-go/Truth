@@ -72,7 +72,7 @@ export class CruftMarker
 			String.fromCharCode((num & (1 << 12) - 1) + 97) +
 			String.fromCharCode((num & (1 << 16) - 1) + 97);
 		
-		const crc = X.Crc.calculate(this.statement.sourceText, Number);
+		const crc = X.Crc.calculate(this.statement.sourceText);
 		return "≈" + crc.map(num => toLowerCaseChar(num)).join("");
 	}
 }

@@ -176,10 +176,13 @@ export class Pattern
 	 * Converts this Pattern to a string representation.
 	 * (Note that the serialized pattern cannot be used
 	 * as a parameter to a JavaScript RegExp object.)
+	 * 
+	 * @param includeCrcPrefix If true, the Pattern's CRC
+	 * prefix will be prepended to the serialized result.
 	 */
 	toString(includeCrcPrefix?: boolean)
 	{
-		const prefix = includeCrcPrefix ? escape(this.crc.toString()) : "";
+		const prefix = includeCrcPrefix ? escape(this.crc) : "";
 		
 		const delim = X.RegexSyntaxDelimiter.main.toString();
 		return delim + prefix +

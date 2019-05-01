@@ -25,8 +25,8 @@ export const enum UriSyntax
 	componentSeparator = "/",
 	typeSeparator = "//",
 	protocolRelative = "//",
-	indexorStart = "[",
-	indexorEnd = "]",
+	indexerStart = "[",
+	indexerEnd = "]",
 }
 
 

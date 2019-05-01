@@ -9,15 +9,9 @@ export class Crc
 	
 	/**
 	 * Calculates a numeric CRC from the specified string, and returns the
-	 * code as a 4-character ASCII byte string.
-	 */
-	static calculate(text: string): string;
-	/**
-	 * Calculates a numeric CRC from the specified string, and returns the
 	 * code as a 4-number byte array.
 	 */
-	static calculate(text: string, type: typeof Number): number[];
-	static calculate(text: string, type?: typeof Number): string | number[]
+	static calculate(text: string): number[]
 	{
 		const seed = 0;
 		const len = text.length;
@@ -64,9 +58,7 @@ export class Crc
 			255 << 1 & c
 		];
 		
-		return type === Number ?
-			bytes :
-			String.fromCharCode(...bytes);
+		return bytes;
 	}
 }
 

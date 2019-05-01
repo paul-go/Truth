@@ -28,7 +28,7 @@ export class Span
 		readonly boundary: X.Boundary<X.Subject>)
 	{
 		this.name = 
-			boundary.subject.toString() + 
+			X.SubjectSerializer.forInternal(boundary) + 
 			` (${boundary.offsetStart}, ${boundary.offsetEnd})`;
 	}
 	
@@ -231,21 +231,18 @@ export class Span
 		return this.statement.cruftObjects.has(this);
 	}
 	
-	/** */
-	toString()
-	{
-		return this.boundary.subject.toString();
-	}
-	
 	/**
-	 * @internal
+	 * Converts this Span to a string representation.
 	 * 
+	 * @param includeCrcPrefix If the subject inside this Span is a
+	 * Pattern, and this argument is true, the Pattern's CRC prefix
+	 * will be prepended to the serialized result.
 	 */
-	toStringInternal()
+	toString(includeCrcPrefix?: boolean)
 	{
 		const sub = this.boundary.subject;
 		return sub instanceof X.Pattern ?
-			sub.toString(true) :
+			sub.toString(!!includeCrcPrefix) :
 			sub.toString();
 	}
 }

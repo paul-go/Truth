@@ -32,7 +32,7 @@ export class Node
 		this.stamp = this.document.version;
 		this._declarations = new Set([declaration]);
 		this.subject = declaration.boundary.subject;
-		this.name = this.subject.toString();
+		this.name = X.SubjectSerializer.forInternal(this.subject);
 		
 		this.isListIntrinsic = 
 			this.subject instanceof X.Identifier &&
@@ -762,8 +762,8 @@ export class Node
 		const spans = decls.filter((s): s is X.Span => s instanceof X.Span);
 		const anchors = decls.filter((a): a is X.InfixSpan => a instanceof X.InfixSpan);
 		
-		const spansText = spans.map(s => s.boundary.subject.toString()).join(", ");
-		const anchorText = anchors.map(a => a.boundary.subject.toString()).join(", ");
+		const spansText = spans.map(s => X.SubjectSerializer.forInternal(s)).join(", ");
+		const anchorText = anchors.map(a => X.SubjectSerializer.forInternal(a)).join(", ");
 		
 		const ob = this.outbounds.length;
 		const ib = this.inbounds.size;
