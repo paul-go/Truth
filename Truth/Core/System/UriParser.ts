@@ -218,15 +218,15 @@ export class UriParser
 				return null;
 			};
 			
-			let anon = parser.read(X.UriSyntax.indexorStart);
+			let anon = parser.read(X.UriSyntax.indexerStart);
 			if (!anon)
 				return null;
 				
 			while (parser.more())
 			{
-				if (parser.read(X.UriSyntax.indexorEnd))
+				if (parser.read(X.UriSyntax.indexerEnd))
 					return anon.length > 0 ?
-						new X.UriComponent(anon + X.UriSyntax.indexorEnd) :
+						new X.UriComponent(anon + X.UriSyntax.indexerEnd) :
 						cancel();
 				
 				const g = parser.readGrapheme();
