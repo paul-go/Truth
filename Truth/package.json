@@ -1,6 +1,6 @@
 {
 	"name": "truth",
-	"version": "0.5.2",
+	"version": "0.5.3",
 	"description": "Verify and analyze code and data in the Truth format",
 	"repository": {
 		"type": "git",
