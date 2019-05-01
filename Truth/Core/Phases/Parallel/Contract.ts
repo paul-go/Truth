@@ -43,6 +43,8 @@ export class Contract
 			return 0;
 		
 		const foreignParallelBases = new Set<X.SpecifiedParallel>();
+		foreignParallelBases.add(foreignParallel);
+		
 		let satisfied = 0;
 		
 		const addForeignParallelBases = (srcParallel: X.SpecifiedParallel) =>
