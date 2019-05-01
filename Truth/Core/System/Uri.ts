@@ -104,8 +104,8 @@ export class Uri
 			return value;
 		
 		const srcUri = value.document.sourceUri;
-		const typeSegments = value.vertebrae
-			.map(vert => new X.UriComponent(vert.toString()));
+		const typeSegments = value.vertebrae.map(vert =>
+			new X.UriComponent(vert.toString(true)));
 		
 		return new Uri(srcUri, { types: typeSegments });
 	}
@@ -139,6 +139,12 @@ export class Uri
 		Object.freeze(this.types);
 		Object.freeze(this);
 	}
+	
+	/**
+	 * @internal
+	 * Debugging utility. Do not use.
+	 */
+	private get value() { return this.toTypeString(); }
 	
 	/**
 	 * 

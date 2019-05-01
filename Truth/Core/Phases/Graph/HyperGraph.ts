@@ -229,10 +229,7 @@ export class HyperGraph
 				for (const spine of decl.factor())
 				{
 					const uri = X.Uri.clone(spine);
-					const typeNames = spine.vertebrae.map(v =>
-						v instanceof X.Span ?
-							v.toStringInternal() : 
-							v.toString());
+					const typeNames = spine.vertebrae.map(v => v.toString(true));
 					
 					multiMap.add(
 						typeNames.join(X.Syntax.terminal),
@@ -250,7 +247,7 @@ export class HyperGraph
 					{
 						for (const infixSpan of decl.eachDeclarationForInfix(infix))
 						{
-							const nfxText = infixSpan.boundary.subject.toString();
+							const nfxText = X.SubjectSerializer.forInternal(infixSpan);
 							const infixSpineParts = typeNames.concat(nfxText);
 							
 							multiMap.add(

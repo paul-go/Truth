@@ -551,7 +551,7 @@ export class Statement
 		{
 			return spans
 				.filter(sp => !(sp.boundary.subject instanceof X.Anon))
-				.map(sp => X.SubjectSerializer.invoke(sp.boundary.subject, escStyle))
+				.map(sp => X.SubjectSerializer.forExternal(sp, escStyle))
 				.join(X.Syntax.combinator + X.Syntax.space);
 		};
 		

@@ -26,13 +26,43 @@ export class SubjectSerializer
 	 * Universal method for serializing a subject to a string,
 	 * useful for debugging and supporting tests.
 	 */
-	static invoke(subject: Subject, escapeStyle: X.IdentifierEscapeKind)
+	static forExternal(
+		target: SubjectContainer,
+		escapeStyle: X.IdentifierEscapeKind = X.IdentifierEscapeKind.none)
+	{
+		const subject = this.resolveSubject(target);
+		return this.serialize(subject, escapeStyle, false);
+	}
+	
+	/**
+	 * Serializes a subject, or a known subject containing object for internal use.
+	 */
+	static forInternal(target: SubjectContainer)
+	{
+		const subject = this.resolveSubject(target);
+		return this.serialize(subject, X.IdentifierEscapeKind.none, true);
+	}
+	
+	/** */
+	private static resolveSubject(target: SubjectContainer): X.Subject
+	{
+		return target instanceof X.Boundary ? target.subject :
+			target instanceof X.Span ? target.boundary.subject :
+			target instanceof X.InfixSpan ? target.boundary.subject :
+			target;
+	}
+	
+	/** */
+	private static serialize(
+		subject: SubjectContainer,
+		escapeStyle: X.IdentifierEscapeKind,
+		includeCrc: boolean)
 	{
 		if (subject instanceof X.Identifier)
 			return subject.toString(escapeStyle);
 		
 		else if (subject instanceof X.Pattern)
-			return subject.toString();
+			return subject.toString(includeCrc);
 		
 		else if (subject instanceof X.Uri)
 			return subject.toString();
@@ -43,3 +73,6 @@ export class SubjectSerializer
 		throw X.Exception.unknownState();
 	}
 }
+
+/** Identifies a Type that is or contains a Subject. */
+export type SubjectContainer = Subject | X.Boundary<X.Subject> | X.Span | X.InfixSpan;

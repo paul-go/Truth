@@ -478,10 +478,11 @@ export class LineParser
 				.map(v => v.subject.toString())
 				.join(X.Syntax.terminal);
 			
-			const crc = X.Crc.calculate(annosArrayJoined);
+			const crcNums = X.Crc.calculate(annosArrayJoined);
+			const crcHex = crcNums.map(n => (n < 16 ? "0" : "") + n.toString(16)).join("");
 			parser.position = mark;
 			
-			return new X.Pattern(Object.freeze(units), isTotal, crc);
+			return new X.Pattern(Object.freeze(units), isTotal, crcHex);
 		}
 		
 		/**
