@@ -139,8 +139,8 @@ export class SpecifiedParallel extends X.Parallel
 		if (this.pattern)
 			throw X.Exception.unknownState();
 		
-		const satisfyCount = this.contract.trySatisfyCondition(base);
-		if (satisfyCount === 0 && this.contract.hasConditions)
+		const numSatisfied = this.contract.trySatisfyCondition(base);
+		if (numSatisfied === 0 && this.contract.hasConditions)
 			return false;
 		
 		const sanitizer = new X.Sanitizer(this, base, via, this.cruft);
