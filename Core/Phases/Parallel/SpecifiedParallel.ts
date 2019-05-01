@@ -189,28 +189,21 @@ export class SpecifiedParallel extends X.Parallel
 		
 		const candidatesPruned: X.SpecifiedParallel[] = [];
 		const conditions = this.contract.unsatisfiedConditions;
-		let maxMatchCount = 0;
+		let maxMatchCount = 1;
 		
-		for (const candidate of patternParallelCandidates)
+		nextCandidate: for (const candidate of patternParallelCandidates)
 		{
-			const candidateBases = Array.from(candidate._bases.values()).map(e => e.parallel);
-			if (candidateBases.length === 0)
+			const entries = Array.from(candidate._bases.values());
+			const candidateBases = entries.map(e => e.parallel);
+			if (candidateBases.length < maxMatchCount)
 				continue;
 			
-			const allMatched = (() =>
-			{
-				for (const par of candidateBases)
-					if (!conditions.has(par))
-						return false;
-				
-				return true;
-			})();
+			for (const candidateBase of candidateBases)
+				if (!conditions.has(candidateBase))
+					continue nextCandidate;
 			
-			if (allMatched && candidateBases.length >= maxMatchCount)
-			{
-				candidatesPruned.push(candidate);
-				maxMatchCount = candidateBases.length;
-			}
+			candidatesPruned.push(candidate);
+			maxMatchCount = candidateBases.length;
 		}
 		
 		if (candidatesPruned.length === 0)
