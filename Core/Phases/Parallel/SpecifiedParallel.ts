@@ -197,7 +197,14 @@ export class SpecifiedParallel extends X.Parallel
 			if (candidateBases.length === 0)
 				continue;
 			
-			const allMatched = candidateBases.every(par => conditions.has(par));
+			const allMatched = (() =>
+			{
+				for (const par of candidateBases)
+					if (!conditions.has(par))
+						return false;
+				
+				return true;
+			})();
 			
 			if (allMatched && candidateBases.length >= maxMatchCount)
 			{
@@ -206,7 +213,8 @@ export class SpecifiedParallel extends X.Parallel
 			}
 		}
 		
-		// TODO: Add support for parallels that match multiple patterns.
+		if (candidatesPruned.length === 0)
+			return false;
 		
 		const chosenParallel = candidatesPruned[0];
 		const chosenPattern = chosenParallel.pattern;
