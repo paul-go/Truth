@@ -18,7 +18,6 @@ export class SpecifiedParallel extends X.Parallel
 		super(node.uri, container);
 		this.node = node;
 		this.cruft = cruft;
-		this.contract = new X.Contract(this);
 		
 		node.document.program.faults.inform(node);
 	}
@@ -28,6 +27,25 @@ export class SpecifiedParallel extends X.Parallel
 	 * SpecifiedParallel instance.
 	 */
 	readonly node: X.Node;
+	
+	/** */
+	get isContractSatisfied()
+	{
+		return this.contract.unsatisfiedConditions.size === 0;
+	}
+	
+	/** */
+	private get contract(): X.Contract
+	{
+		// It's important that this contract is computed lazily, because
+		// if you try to compute it in the constructor, the Parallel graph
+		// won't be constructed, and you'll end up with an empty contract.
+		if (this._contract === null)
+			this._contract = new X.Contract(this);
+		
+		return this._contract;
+	}
+	private _contract: X.Contract | null = null;
 	
 	/** */
 	private readonly cruft: X.CruftCache;
@@ -149,45 +167,68 @@ export class SpecifiedParallel extends X.Parallel
 	 * Attempts to indirectly apply a base to this SpecifiedParallel via an alias
 	 * and edge.
 	 * 
-	 * @param targetPatternParallel The pattern-containing SpecifiedParallel
-	 * instance whose bases should be applied to this SpecifiedParallel,
-	 * if the provided alias is a match.
+	 * @param patternParallelCandidates The pattern-containing
+	 * SpecifiedParallel instance whose bases should be applied to this
+	 * SpecifiedParallel, if the provided alias is a match.
 	 * 
 	 * @param viaEdge The HyperEdge in which the alias was found.
 	 * 
 	 * @param viaAlias The string to test against the parallel embedded
-	 * within targetPatternParallel.
+	 * within patternParallelCandidates.
 	 * 
 	 * @returns A boolean value that indicates whether a base was added
 	 * successfully.
 	 */
 	tryAddAliasedBase(
-		targetPatternParallel: X.SpecifiedParallel,
+		patternParallelCandidates: X.SpecifiedParallel[],
 		viaEdge: X.HyperEdge,
 		viaAlias: string)
 	{
 		if (this._bases.has(viaEdge))
 			throw X.Exception.unknownState();
 		
-		const targetPattern = targetPatternParallel.pattern;
+		const candidatesPruned: X.SpecifiedParallel[] = [];
+		const conditions = this.contract.unsatisfiedConditions;
+		let maxMatchCount = 0;
+		
+		for (const candidate of patternParallelCandidates)
+		{
+			const candidateBases = Array.from(candidate._bases.values()).map(e => e.parallel);
+			if (candidateBases.length === 0)
+				continue;
+			
+			const allMatched = candidateBases.every(par => conditions.has(par));
+			
+			if (allMatched && candidateBases.length >= maxMatchCount)
+			{
+				candidatesPruned.push(candidate);
+				maxMatchCount = candidateBases.length;
+			}
+		}
+		
+		// TODO: Add support for parallels that match multiple patterns.
+		
+		const chosenParallel = candidatesPruned[0];
+		const chosenPattern = chosenParallel.pattern;
 		
 		// Just as a reminder -- pattern-containing parallels don't come
 		// into this method ... only the aliases that might match them.
-		if (this.pattern || !targetPattern)
+		if (this.pattern || !chosenPattern)
 			throw X.Exception.unknownState();
 		
 		// If the targetPattern has no infixes, we can get away with a simple
 		// check to see if the alias matches the regular expression.
-		if (!targetPattern.hasInfixes())
+		if (!chosenPattern.hasInfixes())
 		{
-			if (!targetPattern.test(viaAlias))
+			if (!chosenPattern.test(viaAlias))
 				return false;
 			
 			this._bases.set(viaEdge, {
-				parallel: targetPatternParallel,
+				parallel: chosenParallel,
 				aliased: true
 			});
 			
+			this.contract.trySatisfyCondition(chosenParallel);
 			return true;
 		}
 		
@@ -369,16 +410,6 @@ export class SpecifiedParallel extends X.Parallel
 	 * and should be passable to a JavaScript RegExp, or to the Fsm system.
 	 */
 	private compiledExpression: string | null = null;
-	
-	
-	/** */
-	get isContractSatisfied()
-	{
-		return this.contract.unsatisfiedConditions.size === 0;
-	}
-	
-	/** */
-	private readonly contract: X.Contract;
 }
 
 /**

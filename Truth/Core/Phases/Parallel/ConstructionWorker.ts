@@ -104,8 +104,6 @@ export class ConstructionWorker
 		
 		do
 		{
-			const uri = directive.retractTypeTo(typeIdx);
-			const uriText = uri.toString();
 			const typeName = typePath[typeIdx];
 			
 			const descended = this.descend(lastSeed, typeName);
@@ -296,26 +294,26 @@ export class ConstructionWorker
 				// of this compiler will allow other agents to hook into this
 				// process and augment the resolution strategy.
 				
-				const patternParallels: X.SpecifiedParallel[] = [];
+				const candidatePatternPars: X.SpecifiedParallel[] = [];
 				
-				for (const { parallel } of this.ascend(srcParallel))
+				for (const { patternParallel } of this.ascend(srcParallel))
 				{
-					this.rakePatternBases(parallel);
-					patternParallels.push(parallel);
+					this.rakePatternBases(patternParallel);
+					candidatePatternPars.push(patternParallel);
 				}
 				
-				const identifiers = hyperEdge.fragments
-					.map(src => src.boundary.subject)
-					.filter((s): s is X.Identifier => s instanceof X.Identifier);
-				
-				if (identifiers.length === 0)
-					continue;
-				
-				const alias = identifiers[0].fullName;
-				
-				for (const parallel of patternParallels)
+				if (candidatePatternPars.length > 0)
 				{
-					if (srcParallel.tryAddAliasedBase(parallel, hyperEdge, alias))
+					const identifiers = hyperEdge.fragments
+						.map(src => src.boundary.subject)
+						.filter((s): s is X.Identifier => s instanceof X.Identifier);
+					
+					if (identifiers.length === 0)
+						continue;
+					
+					const alias = identifiers[0].fullName;
+					
+					if (srcParallel.tryAddAliasedBase(candidatePatternPars, hyperEdge, alias))
 					{
 						this.handledHyperEdges.add(hyperEdge);
 						break;
@@ -481,7 +479,7 @@ export class ConstructionWorker
 		function *recurse(current: X.SpecifiedParallel): 
 			IterableIterator<IPatternParallel>
 		{
-			for (const { base, edge } of current.eachBase())
+			for (const { base } of current.eachBase())
 				yield *recurse(base);
 			
 			if (current instanceof X.SpecifiedParallel)
@@ -490,10 +488,14 @@ export class ConstructionWorker
 						if (!discoveredPatternNodes.has(node))
 							yield {
 								pattern: node.subject,
-								parallel: yieldable(node)
+								patternParallel: yieldable(node)
 							};
 		}
 		
+		// The process starts at the container of the current parallel,
+		// even though this function needs to yield other parallels that
+		// are adjacent to srcParallel, because we reach back into the
+		// adjacents from the container.
 		for (let current = srcParallel.container;
 			current instanceof X.SpecifiedParallel;)
 		{
@@ -506,7 +508,7 @@ export class ConstructionWorker
 				if (!discoveredPatternNodes.has(root))
 					yield {
 						pattern: root.subject,
-						parallel: yieldable(root)
+						patternParallel: yieldable(root)
 					};
 	}
 	
@@ -713,7 +715,7 @@ export class ConstructionWorker
 interface IPatternParallel
 {
 	readonly pattern: X.Pattern;
-	readonly parallel: X.SpecifiedParallel;
+	readonly patternParallel: X.SpecifiedParallel;
 }
 
 /** */
