@@ -42,7 +42,6 @@ export class Contract
 		if (this.allConditions.length === 0)
 			return 0;
 		
-		const coveredBases = new Set<X.SpecifiedParallel>();
 		const foreignParallelBases = new Set<X.SpecifiedParallel>();
 		let satisfied = 0;
 		
@@ -63,14 +62,6 @@ export class Contract
 					satisfied += this._unsatisfiedConditions.delete(condition) ? 1 : 0;
 		
 		return satisfied;
-	}
-	
-	/**
-	 * 
-	 */
-	trySatisfyConditionViaAlias(alias: string)
-	{
-		
 	}
 	
 	/** */
