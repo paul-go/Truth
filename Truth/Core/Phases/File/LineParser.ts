@@ -474,8 +474,11 @@ export class LineParser
 				return new X.Pattern(Object.freeze(units), isTotal, "");
 			
 			const annos = readAnnotations([]).annotations;
-			const annosArray = Array.from(annos.values()).sort();
-			const crc = X.Crc.calculate(annosArray.join(X.Syntax.terminal));
+			const annosArrayJoined = Array.from(annos.values())
+				.map(v => v.subject.toString())
+				.join(X.Syntax.terminal);
+			
+			const crc = X.Crc.calculate(annosArrayJoined);
 			parser.position = mark;
 			
 			return new X.Pattern(Object.freeze(units), isTotal, crc);

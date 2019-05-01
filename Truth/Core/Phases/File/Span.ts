@@ -236,4 +236,16 @@ export class Span
 	{
 		return this.boundary.subject.toString();
 	}
+	
+	/**
+	 * @internal
+	 * 
+	 */
+	toStringInternal()
+	{
+		const sub = this.boundary.subject;
+		return sub instanceof X.Pattern ?
+			sub.toString(true) :
+			sub.toString();
+	}
 }

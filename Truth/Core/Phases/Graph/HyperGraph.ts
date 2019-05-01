@@ -229,8 +229,10 @@ export class HyperGraph
 				for (const spine of decl.factor())
 				{
 					const uri = X.Uri.clone(spine);
-					const typeNames = spine.vertebrae
-						.map(vert => vert.toString());
+					const typeNames = spine.vertebrae.map(v =>
+						v instanceof X.Span ?
+							v.toStringInternal() : 
+							v.toString());
 					
 					multiMap.add(
 						typeNames.join(X.Syntax.terminal),

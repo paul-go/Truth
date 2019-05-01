@@ -38,7 +38,7 @@ export class HyperEdge
 			throw X.Exception.unknownState();
 		
 		this.identifier = source.boundary.subject;
-		this.fragmentsMutable = [source];		
+		this.fragmentsMutable = [source];
 		this.successorsMutable = successors.slice();
 	}
 	

@@ -229,7 +229,7 @@ export class Node
 	get intrinsicExtrinsicBridge(): X.Node | null
 	{
 		if (this.subject instanceof X.Identifier)
-			for (const [name, adjacent] of this.adjacents)
+			for (const adjacent of this.adjacents.values())
 				if (adjacent.subject instanceof X.Identifier)
 					if (adjacent.subject.typeName === this.subject.typeName)
 						if (adjacent.subject.isList !== this.isListIntrinsic)

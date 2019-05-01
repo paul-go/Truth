@@ -177,10 +177,12 @@ export class Pattern
 	 * (Note that the serialized pattern cannot be used
 	 * as a parameter to a JavaScript RegExp object.)
 	 */
-	toString()
+	toString(includeCrcPrefix?: boolean)
 	{
+		const prefix = includeCrcPrefix ? escape(this.crc.toString()) : "";
+		
 		const delim = X.RegexSyntaxDelimiter.main.toString();
-		return delim + 
+		return delim + prefix +
 			this.units.map(u => u.toString()).join("") + 
 			(this.isTotal ? delim : "");
 	}
