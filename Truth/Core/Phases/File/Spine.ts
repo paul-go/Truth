@@ -61,19 +61,12 @@ export class CruftMarker
 	
 	/**
 	 * Converts this cruft marker to a string representation,
-	 * which is derived from a CRC calculated from this
+	 * which is derived from a hash calculated from this
 	 * marker's underlying statement.
 	 */
 	toString()
 	{
-		const toLowerCaseChar = (num: number) => 
-			String.fromCharCode((num & (1 << 4) - 1) + 97) +
-			String.fromCharCode((num & (1 << 8) - 1) + 97) +
-			String.fromCharCode((num & (1 << 12) - 1) + 97) +
-			String.fromCharCode((num & (1 << 16) - 1) + 97);
-		
-		const crc = X.Crc.calculate(this.statement.sourceText);
-		return "≈" + crc.map(num => toLowerCaseChar(num)).join("");
+		return "≈" + X.Hash.calculate(this.statement.sourceText);
 	}
 }
 

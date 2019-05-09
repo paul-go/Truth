@@ -234,15 +234,15 @@ export class Span
 	/**
 	 * Converts this Span to a string representation.
 	 * 
-	 * @param includeCrcPrefix If the subject inside this Span is a
-	 * Pattern, and this argument is true, the Pattern's CRC prefix
+	 * @param includeHashPrefix If the subject inside this Span is a
+	 * Pattern, and this argument is true, the Pattern's hash prefix
 	 * will be prepended to the serialized result.
 	 */
-	toString(includeCrcPrefix?: boolean)
+	toString(includeHashPrefix?: boolean)
 	{
 		const sub = this.boundary.subject;
 		return sub instanceof X.Pattern ?
-			sub.toString(!!includeCrcPrefix) :
+			sub.toString(!!includeHashPrefix) :
 			sub.toString();
 	}
 }

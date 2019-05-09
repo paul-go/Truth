@@ -1,7 +1,6 @@
 import * as X from "../X";
 
-const enum crcLength { value = 8 }
-const crcRegex = new RegExp("[a-f0-9]{" + crcLength.value + "}", "i");
+const hashRegex = new RegExp("[a-f0-9]{" + X.Hash.length + "}", "i");
 
 /**
  * A class that represents a single component of a Uri.
@@ -14,27 +13,27 @@ export class UriComponent
 	{
 		this.isRetract = raw === "..";
 		this.isCurrent = raw === ".";
-		this.crc = this.tryExtractCrc(raw);
+		this.hash = this.tryExtractHash(raw);
 		
-		const rawVal = this.crc ?
-			raw.replace(this.crc, "") : 
-			raw;
+		///const rawVal = this.hash ?
+		///	raw.replace(this.hash, "") : 
+		///	raw;
 		
-		if (rawVal.length > 2)
-			if (rawVal[0] === X.UriSyntax.indexerStart)
-				if (rawVal[rawVal.length - 1] === X.UriSyntax.indexerEnd)
-					if (/\d+/.test(rawVal.slice(1, -1)))
-						this.index = +rawVal.slice(1, -1);
+		if (raw.length > 2)
+			if (raw[0] === X.UriSyntax.indexerStart)
+				if (raw[raw.length - 1] === X.UriSyntax.indexerEnd)
+					if (/\d+/.test(raw.slice(1, -1)))
+						this.index = +raw.slice(1, -1);
 		
-		this.value = this.index >= 0 ?
+		this._value = this.index >= 0 ?
 			this.index.toString() :
-			unescape(rawVal);
+			unescape(raw);
 		
 		Object.freeze(this);
 	}
 	
 	/** */
-	private tryExtractCrc(text: string)
+	private tryExtractHash(text: string)
 	{
 		const delim = X.RegexSyntaxDelimiter.main;
 		const delimEsc = escape(delim);
@@ -43,18 +42,20 @@ export class UriComponent
 			text.startsWith(delimEsc) ? delimEsc.length :
 			-1;
 		
-		if (delimLen < 0 || text.length < delimLen + crcLength.value + 1)
+		const hashLen = X.Hash.length;
+		
+		if (delimLen < 0 || text.length < delimLen + hashLen + 1)
 			return "";
 		
-		const crcHex = text.substr(delimLen, crcLength.value);
-		if (crcHex.length !== crcLength.value || !crcRegex.test(crcHex))
+		const hash = text.substr(delimLen, hashLen);
+		if (hash.length !== hashLen || !hashRegex.test(hash))
 			return "";
 		
-		return crcHex;
+		return hash;
 	}
 	
 	/** Stores whether this component represents a pattern. */
-	get isPattern() { return this.crc !== ""; }
+	get isPattern() { return this.hash !== ""; }
 	
 	/** Stores whether this component is the retraction indicator (..) */
 	readonly isRetract: boolean;
@@ -78,13 +79,17 @@ export class UriComponent
 	 * it is greater than -1.
 	 * This has the same value as the result of the .toString() method.
 	 */
-	readonly value: string;
+	get value()
+	{
+		return this._value;
+	}
+	private _value = "";
 	
 	/**
-	 * Stores a pattern CRC, in the case when this UriComponent
+	 * Stores a pattern hash, in the case when this UriComponent
 	 * relates to a pattern. Stores an empty string in other cases.
 	 */
-	private readonly crc: string = "";
+	private readonly hash: string = "";
 	
 	/**
 	 * @returns The raw decoded text value of this UriComponent.
@@ -102,7 +107,7 @@ export class UriComponent
 		if (this.isPattern)
 		{
 			const de = X.RegexSyntaxDelimiter.main;
-			return de + this.crc + escape(this.value.slice(de.length));
+			return de + this.hash + escape(this.value.slice(de.length));
 		}
 		
 		if (this.index >= 0)
