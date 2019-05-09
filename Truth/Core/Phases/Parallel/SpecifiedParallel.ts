@@ -187,54 +187,60 @@ export class SpecifiedParallel extends X.Parallel
 		if (this._bases.has(viaEdge))
 			throw X.Exception.unknownState();
 		
-		const candidatesPruned: X.SpecifiedParallel[] = [];
 		const conditions = this.contract.unsatisfiedConditions;
-		let maxMatchCount = 1;
+		const chosenParallels = patternParallelCandidates.slice();
 		
-		nextCandidate: for (const candidate of patternParallelCandidates)
+		if (conditions.size > 0)
 		{
-			const entries = Array.from(candidate._bases.values());
-			const candidateBases = entries.map(e => e.parallel);
-			if (candidateBases.length < maxMatchCount)
-				continue;
+			let maxMatchCount = 1;
 			
-			for (const candidateBase of candidateBases)
-				if (!conditions.has(candidateBase))
-					continue nextCandidate;
+			nextCandidate: for (const candidate of patternParallelCandidates)
+			{
+				const entries = Array.from(candidate._bases.values());
+				const candidateBases = entries.map(e => e.parallel);
+				if (candidateBases.length < maxMatchCount)
+					continue;
+				
+				for (const candidateBase of candidateBases)
+					if (!conditions.has(candidateBase))
+						continue nextCandidate;
+				
+				chosenParallels.push(candidate);
+				maxMatchCount = candidateBases.length;
+			}
 			
-			candidatesPruned.push(candidate);
-			maxMatchCount = candidateBases.length;
+			if (chosenParallels.length === 0)
+				return false;
 		}
 		
-		if (candidatesPruned.length === 0)
-			return false;
+		let wasAdded = false;
 		
-		const chosenParallel = candidatesPruned[0];
-		const chosenPattern = chosenParallel.pattern;
-		
-		// Just as a reminder -- pattern-containing parallels don't come
-		// into this method ... only the aliases that might match them.
-		if (this.pattern || !chosenPattern)
-			throw X.Exception.unknownState();
-		
-		// If the targetPattern has no infixes, we can get away with a simple
-		// check to see if the alias matches the regular expression.
-		if (!chosenPattern.hasInfixes())
+		for (const chosenParallel of chosenParallels)
 		{
-			if (!chosenPattern.test(viaAlias))
-				return false;
+			// Just as a reminder -- pattern-containing parallels don't come
+			// into this method ... only the aliases that might match them.
+			if (this.pattern || !chosenParallel.pattern)
+				throw X.Exception.unknownState();
 			
-			this._bases.set(viaEdge, {
-				parallel: chosenParallel,
-				aliased: true
-			});
-			
-			this.contract.trySatisfyCondition(chosenParallel);
-			return true;
+			// If the targetPattern has no infixes, we can get away with a simple
+			// check to see if the alias matches the regular expression.
+			if (!chosenParallel.pattern.hasInfixes())
+			{
+				if (!chosenParallel.pattern.test(viaAlias))
+					continue;
+				
+				this._bases.set(viaEdge, {
+					parallel: chosenParallel,
+					aliased: true
+				});
+				
+				this.contract.trySatisfyCondition(chosenParallel);
+				return wasAdded = true;
+			}
 		}
 		
 		// Not implemented, but we shouldn't throw an exception here yet.
-		return false;
+		return wasAdded;
 	}
 	
 	/**
