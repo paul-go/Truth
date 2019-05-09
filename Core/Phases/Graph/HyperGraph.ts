@@ -283,14 +283,7 @@ export class HyperGraph
 						null;
 					
 					if (uri.types.length > 1 && container === null)
-					{
-						if ("DEBUG")
-						{
-							console.log(this.toString());
-							console.log(serializeNodes(affectedNodes));
-						}
 						throw X.Exception.unknownState();
-					}
 					
 					// Note that when creating a Node, it's
 					// automatically bound to it's container.
