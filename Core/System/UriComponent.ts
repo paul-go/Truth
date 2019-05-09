@@ -15,17 +15,13 @@ export class UriComponent
 		this.isCurrent = raw === ".";
 		this.hash = this.tryExtractHash(raw);
 		
-		///const rawVal = this.hash ?
-		///	raw.replace(this.hash, "") : 
-		///	raw;
-		
 		if (raw.length > 2)
 			if (raw[0] === X.UriSyntax.indexerStart)
 				if (raw[raw.length - 1] === X.UriSyntax.indexerEnd)
 					if (/\d+/.test(raw.slice(1, -1)))
 						this.index = +raw.slice(1, -1);
 		
-		this._value = this.index >= 0 ?
+		this.value = this.index >= 0 ?
 			this.index.toString() :
 			unescape(raw);
 		
@@ -79,11 +75,7 @@ export class UriComponent
 	 * it is greater than -1.
 	 * This has the same value as the result of the .toString() method.
 	 */
-	get value()
-	{
-		return this._value;
-	}
-	private _value = "";
+	readonly value: string = "";
 	
 	/**
 	 * Stores a pattern hash, in the case when this UriComponent
@@ -107,7 +99,7 @@ export class UriComponent
 		if (this.isPattern)
 		{
 			const de = X.RegexSyntaxDelimiter.main;
-			return de + this.hash + escape(this.value.slice(de.length));
+			return de + escape(this.value.slice(de.length));
 		}
 		
 		if (this.index >= 0)
