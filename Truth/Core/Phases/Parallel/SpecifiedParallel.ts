@@ -57,7 +57,7 @@ export class SpecifiedParallel extends X.Parallel
 	get firstBase()
 	{
 		for (const baseEntry of this._bases.values())
-			return baseEntry.parallel[0];
+			return baseEntry.parallels[0];
 		
 		throw X.Exception.unknownState();
 	}
@@ -70,7 +70,7 @@ export class SpecifiedParallel extends X.Parallel
 	{
 		for (const [edge, baseEntry] of this._bases)
 			if (!this.cruft.has(edge))
-				for (const base of baseEntry.parallel)
+				for (const base of baseEntry.parallels)
 					yield { base, edge, aliased: baseEntry.aliased };
 	}
 	private readonly _bases = new Map<X.HyperEdge, IBaseEntry>();
@@ -85,9 +85,9 @@ export class SpecifiedParallel extends X.Parallel
 	{
 		const existing = this._bases.get(edge);
 		if (existing)
-			existing.parallel.push(base);
+			existing.parallels.push(base);
 		else
-			this._bases.set(edge, { parallel: [base], aliased });
+			this._bases.set(edge, { parallels: [base], aliased });
 	}
 	
 	/**
@@ -210,7 +210,7 @@ export class SpecifiedParallel extends X.Parallel
 			{
 				const entries = Array.from(candidate._bases.values());
 				const candidateBases = entries
-					.map(e => e.parallel)
+					.map(e => e.parallels)
 					.reduce((a, b) => a.concat(b));
 				
 				if (candidateBases.length < maxMatchCount)
@@ -436,8 +436,18 @@ export class SpecifiedParallel extends X.Parallel
  */
 interface IBaseEntry
 {
-	/** Stores the SpecifiedParallel that caused the base to be constructed. */
-	parallel: X.SpecifiedParallel[];
+	/**
+	 * Stores the set of SpecifiedParallels that caused the base to be constructed.
+	 * Note that a base entry can have multiple parallels in the case when the base
+	 * is actually a pattern with two equally viable matches in scope, and no contract
+	 * being imposed, for example:
+	 * 
+	 * /pattern : A
+	 * /pattern : B
+	 * 
+	 * Value : pattern ~ A, B
+	 */
+	parallels: X.SpecifiedParallel[];
 	
 	/** Stores whether the identifier is an alias (matched by a pattern). */
 	aliased: boolean;
