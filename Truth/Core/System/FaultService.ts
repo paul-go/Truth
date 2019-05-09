@@ -146,15 +146,22 @@ export class FaultService
 	 */
 	inform(node: X.Node)
 	{
-		const spans = node.statements
-			.filter(smt => !smt.isDisposed)
+		const smts = node.statements.filter(smt => !smt.isDisposed);
+		
+		// Clear out any statement-level faults that touch the node
+		for (const smt of smts)
+			this.bufferFrame.removeSource(smt);
+			
+		// Clear out any span-level faults that touch the node
+		const spans = smts
 			.map(smt => smt.spans)
 			.reduce((a, b) => a.concat(b), []);
 		
 		for (const span of spans)
 			this.bufferFrame.removeSource(span);
 		
-		const infixes = node.statements
+		// Clear out any infix-level faults that touch the node
+		const infixes = smts
 			.map(smt => smt.infixSpans || [])
 			.reduce((a, b) => a.concat(b), []);
 		
@@ -170,13 +177,13 @@ export class FaultService
 		const faultsAdded: X.Fault[] = [];
 		const faultsRemoved: X.Fault[] = [];
 		
-		for (const [faultSource, map] of this.bufferFrame.faults)
-			for (const [code, fault] of map)
+		for (const map of this.bufferFrame.faults.values())
+			for (const fault of map.values())
 				if (!this.visibleFrame.hasFault(fault))
 					faultsAdded.push(fault);
 		
-		for (const [faultSource, map] of this.visibleFrame.faults)
-			for (const [code, fault] of map)
+		for (const map of this.visibleFrame.faults.values())
+			for (const fault of map.values())
 				if (!this.bufferFrame.hasFault(fault))
 					faultsRemoved.push(fault);
 		

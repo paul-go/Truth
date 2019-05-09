@@ -199,10 +199,11 @@ export class SpecifiedParallel extends X.Parallel
 		if (this._bases.has(viaEdge))
 			throw X.Exception.unknownState();
 		
-		const conditions = this.contract.unsatisfiedConditions;
 		const chosenParallels = patternParallelCandidates.slice();
+		const conditions = this.contract.unsatisfiedConditions;
+		const beganWithConditions = conditions.size > 0;
 		
-		if (conditions.size > 0)
+		if (beganWithConditions)
 		{
 			let maxMatchCount = 1;
 			
@@ -211,7 +212,7 @@ export class SpecifiedParallel extends X.Parallel
 				const entries = Array.from(candidate._bases.values());
 				const candidateBases = entries
 					.map(e => e.parallels)
-					.reduce((a, b) => a.concat(b));
+					.reduce((a, b) => a.concat(b), []);
 				
 				if (candidateBases.length < maxMatchCount)
 					continue;
@@ -244,8 +245,15 @@ export class SpecifiedParallel extends X.Parallel
 				if (!chosenParallel.pattern.test(viaAlias))
 					continue;
 				
+				for (const [edge, entry] of chosenParallel._bases)
+					for (const parallel of entry.parallels)
+						console.log(parallel.name);
+				
+				if (beganWithConditions)
+					if (this.contract.trySatisfyCondition(chosenParallel) === 0)
+						continue;
+				
 				this.addBaseEntry(chosenParallel, viaEdge, true);
-				this.contract.trySatisfyCondition(chosenParallel);
 				wasAdded = true;
 			}
 		}
