@@ -21,10 +21,10 @@ export class Pattern
 		 */
 		readonly isTotal: boolean,
 		/**
-		 * Stores a CRC which is computed from the set of
+		 * Stores a hash which is computed from the set of
 		 * annotations specified to the right of the pattern.
 		 */
-		readonly crc: string)
+		readonly hash: string)
 	{
 		this.compiledRegExp = X.PatternPrecompiler.exec(this);
 		this.isValid = this.compiledRegExp instanceof RegExp;
@@ -177,12 +177,12 @@ export class Pattern
 	 * (Note that the serialized pattern cannot be used
 	 * as a parameter to a JavaScript RegExp object.)
 	 * 
-	 * @param includeCrcPrefix If true, the Pattern's CRC
+	 * @param includeHashPrefix If true, the Pattern's hash
 	 * prefix will be prepended to the serialized result.
 	 */
-	toString(includeCrcPrefix?: boolean)
+	toString(includeHashPrefix?: boolean)
 	{
-		const prefix = includeCrcPrefix ? escape(this.crc) : "";
+		const prefix = includeHashPrefix ? escape(this.hash) : "";
 		
 		const delim = X.RegexSyntaxDelimiter.main.toString();
 		return delim + prefix +

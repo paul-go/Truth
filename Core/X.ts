@@ -7,7 +7,7 @@ export * from "./Util/Helpers";
 export * from "./Util/MultiMap";
 export * from "./Util/Fs";
 export * from "./Util/Fetch";
-export * from "./Util/Crc";
+export * from "./Util/Hash";
 export * from "./Util/HigherOrder";
 export * from "./Util/Not";
 export * from "./Util/Parser";

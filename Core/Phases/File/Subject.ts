@@ -56,13 +56,13 @@ export class SubjectSerializer
 	private static serialize(
 		subject: SubjectContainer,
 		escapeStyle: X.IdentifierEscapeKind,
-		includeCrc: boolean)
+		includeHash: boolean)
 	{
 		if (subject instanceof X.Identifier)
 			return subject.toString(escapeStyle);
 		
 		else if (subject instanceof X.Pattern)
-			return subject.toString(includeCrc);
+			return subject.toString(includeHash);
 		
 		else if (subject instanceof X.Uri)
 			return subject.toString();

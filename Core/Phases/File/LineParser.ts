@@ -467,7 +467,7 @@ export class LineParser
 			if (isTotal)
 				units.pop();
 			
-			// Now read the annotations, in order to compute the Pattern's CRC
+			// Now read the annotations, in order to compute the Pattern's hash
 			const mark = parser.position;
 			const foundJointPosition = maybeReadJoint();
 			if (foundJointPosition < 0)
@@ -478,11 +478,10 @@ export class LineParser
 				.map(v => v.subject.toString())
 				.join(X.Syntax.terminal);
 			
-			const crcNums = X.Crc.calculate(annosArrayJoined);
-			const crcHex = crcNums.map(n => (n < 16 ? "0" : "") + n.toString(16)).join("");
+			const hash = X.Hash.calculate(annosArrayJoined);
 			parser.position = mark;
 			
-			return new X.Pattern(Object.freeze(units), isTotal, crcHex);
+			return new X.Pattern(Object.freeze(units), isTotal, hash);
 		}
 		
 		/**
