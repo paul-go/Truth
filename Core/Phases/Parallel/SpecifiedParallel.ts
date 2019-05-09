@@ -57,7 +57,7 @@ export class SpecifiedParallel extends X.Parallel
 	get firstBase()
 	{
 		for (const baseEntry of this._bases.values())
-			return baseEntry.parallel;
+			return baseEntry.parallel[0];
 		
 		throw X.Exception.unknownState();
 	}
@@ -68,15 +68,27 @@ export class SpecifiedParallel extends X.Parallel
 	 */
 	*eachBase()
 	{
-		for (const [hyperEdge, baseEntry] of this._bases)
-			if (!this.cruft.has(hyperEdge))
-				yield { 
-					base: baseEntry.parallel,
-					edge: hyperEdge,
-					aliased: baseEntry.aliased
-				};
+		for (const [edge, baseEntry] of this._bases)
+			if (!this.cruft.has(edge))
+				for (const base of baseEntry.parallel)
+					yield { base, edge, aliased: baseEntry.aliased };
 	}
 	private readonly _bases = new Map<X.HyperEdge, IBaseEntry>();
+	
+	/**
+	 * 
+	 */
+	private addBaseEntry(
+		base: SpecifiedParallel,
+		edge: X.HyperEdge,
+		aliased: boolean)
+	{
+		const existing = this._bases.get(edge);
+		if (existing)
+			existing.parallel.push(base);
+		else
+			this._bases.set(edge, { parallel: [base], aliased });
+	}
 	
 	/**
 	 * Performs a deep traversal on the non-cruft bases
@@ -159,7 +171,7 @@ export class SpecifiedParallel extends X.Parallel
 				return false;
 		}
 		
-		this._bases.set(via, { parallel: base, aliased: false });
+		this.addBaseEntry(base, via, false);
 		return true;
 	}
 	
@@ -197,7 +209,10 @@ export class SpecifiedParallel extends X.Parallel
 			nextCandidate: for (const candidate of patternParallelCandidates)
 			{
 				const entries = Array.from(candidate._bases.values());
-				const candidateBases = entries.map(e => e.parallel);
+				const candidateBases = entries
+					.map(e => e.parallel)
+					.reduce((a, b) => a.concat(b));
+				
 				if (candidateBases.length < maxMatchCount)
 					continue;
 				
@@ -229,13 +244,9 @@ export class SpecifiedParallel extends X.Parallel
 				if (!chosenParallel.pattern.test(viaAlias))
 					continue;
 				
-				this._bases.set(viaEdge, {
-					parallel: chosenParallel,
-					aliased: true
-				});
-				
+				this.addBaseEntry(chosenParallel, viaEdge, true);
 				this.contract.trySatisfyCondition(chosenParallel);
-				return wasAdded = true;
+				wasAdded = true;
 			}
 		}
 		
@@ -315,7 +326,7 @@ export class SpecifiedParallel extends X.Parallel
 		// isn't a problem, and it keeps it consistent with the way the
 		// rest of the system works.
 		for (const [base, via] of baseTable)
-			this._bases.set(via, { parallel: base, aliased: false });
+			this.addBaseEntry(base, via, false);
 	}
 	
 	/**
@@ -426,7 +437,7 @@ export class SpecifiedParallel extends X.Parallel
 interface IBaseEntry
 {
 	/** Stores the SpecifiedParallel that caused the base to be constructed. */
-	parallel: X.SpecifiedParallel;
+	parallel: X.SpecifiedParallel[];
 	
 	/** Stores whether the identifier is an alias (matched by a pattern). */
 	aliased: boolean;
