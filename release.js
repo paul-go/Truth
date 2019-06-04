@@ -131,7 +131,9 @@ task("Generating agent type definitions file...", async () =>
 task("Generating compiler type definitions file...", async () =>
 {
 	const bundlerOptions = {
-		module: "truth-compiler"
+		module: "truth-compiler",
+		globalize: true,
+		namespace: "Truth"
 	};
 	
 	await createBundle("truth-compiler", bundlerOptions);

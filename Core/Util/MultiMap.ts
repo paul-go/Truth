@@ -1,8 +1,8 @@
 
 /**
  * @internal
- * A Map of the generic Key and Value types.
- * Supports Keys that refer to multiple Values.
+ * A Map of the generic key and value types.
+ * Supports keys that refer to multiple values.
  */
 export class MultiMap<TKey, TVal> extends Map<TKey, TVal[]>
 {
