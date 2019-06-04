@@ -245,10 +245,6 @@ export class SpecifiedParallel extends X.Parallel
 				if (!chosenParallel.pattern.test(viaAlias))
 					continue;
 				
-				for (const [edge, entry] of chosenParallel._bases)
-					for (const parallel of entry.parallels)
-						console.log(parallel.name);
-				
 				if (beganWithConditions)
 					if (this.contract.trySatisfyCondition(chosenParallel) === 0)
 						continue;

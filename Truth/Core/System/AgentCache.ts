@@ -1,6 +1,5 @@
 import * as X from "../X";
 
-
 /**
  * @internal
  * A cache that stores agent build function loaded by a single program instance.
