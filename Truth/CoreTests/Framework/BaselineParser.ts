@@ -15,7 +15,6 @@ export class BaselineParser
 		const descendantChecks = new X.MultiMap<number, X.Line>();
 		
 		let fileLineIdx = 0;
-		let fakeEditTransactionSplitPoint = -1;
 		let hitGraphMarker = false;
 		let lastNonDescendantCheckLineIdx = -1;
 		const graphOutputLines: string[] = [];
@@ -33,6 +32,19 @@ export class BaselineParser
 			const removed = lineText[0] === T.BaselineSyntax.removed;
 			const hasParseError = lineText[0] === T.BaselineSyntax.parseError;
 			
+			const push = () =>
+			{
+				baselineLines.push(new T.BaselineLine(
+					added,
+					removed,
+					hasParseError,
+					checks,
+					X.LineParser.parse(lineText)
+				));
+				
+				fileLineIdx++;
+			};
+			
 			if (isLineGraphMarker(lineText))
 			{
 				hitGraphMarker = true;
@@ -49,7 +61,6 @@ export class BaselineParser
 			
 			if (lineText.startsWith(T.BaselineSyntax.afterEditPrefix))
 			{
-				fakeEditTransactionSplitPoint = fileLineIdx;
 				push();
 				continue;
 			}
@@ -89,19 +100,6 @@ export class BaselineParser
 			}
 			
 			push();
-			
-			function push()
-			{
-				baselineLines.push(new T.BaselineLine(
-					added,
-					removed,
-					hasParseError,
-					checks,
-					X.LineParser.parse(lineText)
-				));
-				
-				fileLineIdx++;
-			}
 		}
 		
 		/**
