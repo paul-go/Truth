@@ -80,4 +80,5 @@ export class VersionStamp
 	}
 }
 
-declare const BigInt: Function;
+/** @internal */
+declare const BigInt: any;
