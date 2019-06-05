@@ -22,6 +22,7 @@ task("Compiling to temporary directory...", () =>
 		--project ./Core/tsconfig.json
 		--outDir ${TempDir}
 		--module es2015
+		--target es5
 		--downlevelIteration
 		--declaration
 	`);

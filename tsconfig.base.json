@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"module": "commonjs",
-		"target": "es2017",
+		"target": "esnext",
 		"inlineSourceMap": true,
 		"inlineSources": true,
 		"stripInternal": true,
