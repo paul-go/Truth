@@ -4,8 +4,27 @@
  * A Map of the generic key and value types.
  * Supports keys that refer to multiple values.
  */
-export class MultiMap<TKey, TVal> extends Map<TKey, TVal[]>
+export class MultiMap<TKey, TVal>
 {
+	/** */
+	*[Symbol.iterator]()
+	{
+		for (const entry of this.map)
+			yield entry;
+	}
+	
+	/** */
+	entries()
+	{
+		return this.map.entries();
+	}
+	
+	/** */
+	get(key: TKey)
+	{
+		return this.map.get(key);
+	}
+	
 	/** */
 	has(key: TKey, value?: TVal)
 	{
@@ -32,7 +51,7 @@ export class MultiMap<TKey, TVal> extends Map<TKey, TVal[]>
 			}
 			else
 			{
-				this.set(key, [value]);
+				this.map.set(key, [value]);
 			}
 		}
 		
@@ -43,15 +62,15 @@ export class MultiMap<TKey, TVal> extends Map<TKey, TVal[]>
 	delete(key: TKey, value?: TVal)
 	{
 		if (value === undefined)
-			return !!super.delete(key);
+			return !!this.map.delete(key);
 		
-		const storedValues = super.get(key);
+		const storedValues = this.map.get(key);
 		if (storedValues === undefined)
 			return false;
 		
 		if (storedValues.length === 1 && storedValues[0] === value)
 		{
-			super.delete(key);
+			this.map.delete(key);
 			return true;
 		}
 		
@@ -62,4 +81,13 @@ export class MultiMap<TKey, TVal> extends Map<TKey, TVal[]>
 		storedValues.splice(valueIdx, 1);
 		return true;
 	}
+	
+	/** */
+	values()
+	{
+		return this.map.values();
+	}
+	
+	/** */
+	private map = new Map<TKey, TVal[]>();
 }
