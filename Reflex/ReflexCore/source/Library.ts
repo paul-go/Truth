@@ -4,7 +4,7 @@ namespace Reflex.Core
 	/**
 	 * A class that must be implemented by all reflexive libraries.
 	 */
-	export abstract class Library
+	export abstract class Library<TNamespace = any>
 	{
 		constructor(global: any)
 		{
@@ -33,10 +33,12 @@ namespace Reflex.Core
 			
 			if (typeof global.only !== "function")
 				global.only = createGlobal(RecurrentKind.only);
+			
+			RoutingLibrary.addLibrary(this);
 		}
 		
 		/** */
-		private createNamespace()
+		private createNamespace(): TNamespace
 		{
 			const staticMembers = this.getNamespaceStatic();
 			const computedMemberFn = this.getNamespaceComputed();
@@ -48,12 +50,12 @@ namespace Reflex.Core
 			// return the static namespace members, and avoid use of Proxies
 			// all together.
 			if (!computedMemberFn)
-				return staticMembers;
+				return <any>staticMembers;
 			
 			const nsFn = this.createNamespaceFunction();
 			const library = this;
 			
-			return new Proxy(nsFn, {
+			return <any>new Proxy(nsFn, {
 				get(target: Function, key: string)
 				{
 					if (typeof key !== "string")
@@ -72,16 +74,9 @@ namespace Reflex.Core
 						
 						if (member === ComputedMemberType.branch)
 							return (...primitives: Primitive[]) =>
-							{
-								const branch = library.createBranch(key);
-								RoutingLibrary.noteLibrary(branch, library);
-								
 								new BranchMeta(
-									branch,
-									primitives);
-								
-								return branch;
-							}
+									library.createBranch(key),
+									primitives).branch;
 						
 						if (member !== ComputedMemberType.unrecognized)
 							return member;
@@ -150,9 +145,18 @@ namespace Reflex.Core
 		}
 		
 		/**
-		 * 
+		 * Stores the object that the reflexive library uses to access all
+		 * branches. (For example, in Reflex ML, this is the "ml" object).
 		 */
-		readonly namespace: any;
+		readonly namespace: TNamespace;
+		
+		/**
+		 * Reflexive libraries must implement this method, so that the
+		 * Reflex Core can determine the originating library of a given
+		 * object. The library should return a boolean value indicating
+		 * whether the library is able to operate on the object specified.
+		 */
+		abstract isKnownBranch(branch: IBranch): boolean;
 		
 		/**
 		 * Reflexive libraries that have static members in their namespace must

@@ -27,20 +27,14 @@ namespace Reflex.Core
 		private static _this: RoutingLibrary | null = null;
 		
 		/**
-		 * Stores a note that the contructor of the specified Branch
-		 * is the responsibility of the specified Library.
+		 * Adds a reference to a Reflexive library, which may be
+		 * called upon in the future.
 		 */
-		static noteLibrary(referenceBranch: IBranch, fromLibrary: Library)
+		static addLibrary(library: Library)
 		{
-			const ctor = referenceBranch.constructor;
-			if (typeof ctor !== "function")
-				throw new Error("Invalid branch type.");
-			
-			this.libraryLookup.set(ctor, fromLibrary);
+			this.libraries.push(library);
 		}
-		
-		/** */
-		private static readonly libraryLookup = new WeakMap<Function, Library>();
+		private static readonly libraries: Library[] = [];
 		
 		private constructor() { }
 		
@@ -49,15 +43,12 @@ namespace Reflex.Core
 		 */
 		private libraryOf(referenceBranch: IBranch)
 		{
-			const ctor = referenceBranch.constructor;
-			if (typeof ctor !== "function")
-				throw new Error("Invalid branch type.");
+			if (referenceBranch)
+				for (const lib of RoutingLibrary.libraries)
+					if (lib.isKnownBranch(referenceBranch))
+						return lib;
 			
-			const lib = RoutingLibrary.libraryLookup.get(ctor);
-			if (!lib)
-				throw new Error("Invalid branch type.");
-			
-			return lib;
+			throw new Error("Unknown branch type.");
 		}
 		
 		/**

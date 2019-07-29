@@ -2,11 +2,21 @@
 namespace Reflex.ML
 {
 	/** */
-	export class Library extends Core.Library
+	export class Library extends Core.Library<Namespace>
 	{
 		constructor()
 		{
 			super(window);
+		}
+		
+		/** */
+		isKnownBranch(branch: Core.IBranch)
+		{
+			if (branch instanceof Element)
+				return true;
+			
+			const e = <Element>branch;
+			return typeof e.tagName === "string" && e.ELEMENT_NODE === 1;
 		}
 		
 		/** */
@@ -167,10 +177,15 @@ namespace Reflex.ML
 			return e instanceof HTMLInputElement;
 		}
 	}
+	
+	/**
+	 * Stores the global "ml" object used to create HTML elements.
+	 */
+	export const namespace = new Library().namespace;
 }
 
 /**
  * Global library accessor.
  * (This should be conditionally globalized.)
  */
-const ml: Reflex.ML.Namespace = new Reflex.ML.Library().namespace;
+const ml = Reflex.ML.namespace;
