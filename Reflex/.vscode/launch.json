@@ -11,18 +11,6 @@
 		"sourceMaps": true
 	},
 	{
-		"name": "Debug Reflex Renderer (NodeJS)",
-		"type": "node",
-		"request": "launch",
-		"program": "${workspaceFolder}/ReflexMLRenderer/build/test/reflex-mlrenderer-test.js",
-		"timeout": 30000,
-		"smartStep": false,
-		"sourceMaps": true,
-		"args": [
-			
-		]
-	},
-	{
 		"type": "node",
 		"request": "launch",
 		"name": "Debug Makejs Script",
