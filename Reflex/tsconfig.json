@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"noEmit": true,
+		"lib": [
+			"dom",
+			"esnext",
+			"esnext.array",
+			"esnext.asynciterable"
+		]
+	},
+	"files": [],
+	"include": [],
+	"references": [
+		{ "path": "./ReflexML/tsconfig.test.json" },
+		{ "path": "./ReflexMLRenderer/tsconfig.test.json" }
+	]
+}

@@ -1,0 +1,6 @@
+{
+	"scripts": {
+		"start": "http-server . -p 4349",
+		"build": "tsc --build"
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"extends": "../tsconfig.composite.json",
+	"compilerOptions": {
+		"composite": true
+	},
+	"references": [
+		{ "path": "../ReflexCore" }
+	]
+}
