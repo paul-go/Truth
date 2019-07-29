@@ -25,9 +25,33 @@ namespace Reflex.ML
 	 */
 	export async function render(
 		target: Node | Node[],
-		format = true): Promise<IRenderResult>
+		options?: {
+			/**
+			 * Whether or not the generated HTML and JavaScript
+			 * should be formatted with whitespace characters.
+			 * Default is true.
+			 */
+			format?: boolean,
+			/**
+			 * Whether or not the <!DOCTYPE html> directive
+			 * should be emitted at the top of the generated HTML.
+			 * Default is true.
+			 */
+			doctype?: boolean,
+			/**
+			 * Specifies the URL for the inline <script> tag that
+			 * points to the restore script. If empty, the restore
+			 * script is inlined within the generated HTML.
+			 */
+			restoreScriptURL?: string
+		}): Promise<IRenderResult>
 	{
 		nextAnonId = 0;
+		
+		const format = options ? options.format !== false : true;
+		const doctype = options ? options.doctype !== false : true;
+		const restoreScriptURL = options ? options.restoreScriptURL || "" : "";
+		
 		const t = format ? "\t" : "";
 		const n = format ? "\n" : "";
 		
@@ -71,14 +95,15 @@ namespace Reflex.ML
 			 * Converts this Tag, and all it's nested children into
 			 * an HTML string representation.
 			 */
-			toString(indent = 0)
+			toString(indentLevel = 0)
 			{
 				const attributes = Object.entries(this.attributes)
 					.map(([k, v]) => ` ${k}="${v}"`)
 					.join("");
 				
 				const lines: string[] = [];
-				const line = [t.repeat(indent), "<", this.name, attributes, ">"];
+				const indent = t.repeat(indentLevel);
+				const line = [indent, "<", this.name, attributes, ">"];
 				
 				const closer = hasClose(this.name) ? `</${this.name}>` : "";
 				if (closer)
@@ -93,13 +118,13 @@ namespace Reflex.ML
 					// This is a formatting optimization. If the element only contains a
 					// single Text object, and said Text object only contains a small 
 					// amount of text, it's rendered on a single line.
-					else if (typeof chFirst === "string" && ((indent * 4) + chFirst.length) <= 50)
+					else if (typeof chFirst === "string" && ((indentLevel * 4) + chFirst.length) <= 50)
 					{
 						line.push(chFirst, closer);
 					}
 					else
 					{
-						const indentNest = t.repeat(indent + 1);
+						const indentNest = indent + t;
 						
 						for (let i = -1; ++i < this.children.length;)
 						{
@@ -115,11 +140,11 @@ namespace Reflex.ML
 							}
 							else
 							{
-								lines.push(child.toString(indent + 1));
+								lines.push(child.toString(indentLevel + 1));
 							}
 						}
 						
-						lines.push(closer);
+						lines.push(indent + closer);
 					}
 				}
 				
@@ -154,13 +179,17 @@ namespace Reflex.ML
 				if (rootNode instanceof HTMLElement)
 					rootTags.push(createTagsRecursive(rootNode));
 			
-			return {
-				html: [
-					//"<!DOCTYPE html>",
-					...rootTags.map(t => t.toString())
-				].join(n),
-				js: generateRestoreScript(rootTags)
-			};
+			const js = generateRestoreScript(rootTags);
+			const html = rootTags.map(t => t.toString());
+			if (doctype)
+				html.unshift("<!DOCTYPE html>");
+			
+			if (js)
+				restoreScriptURL ?
+					html.push(`<script src="${restoreScriptURL}"></script>`) :
+					html.push("<script>", js, "</script>");
+			
+			return { html: html.join(n), js };
 		}
 		
 		/** */
@@ -230,6 +259,9 @@ namespace Reflex.ML
 			
 			for (const tag of tags)
 				recurseTags(tag);
+			
+			if (commands.length === 0)
+				return "";
 			
 			const lines: string[] = ["Reflex.ML.restore(["];
 			
