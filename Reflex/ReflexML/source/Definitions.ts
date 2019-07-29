@@ -403,393 +403,405 @@ declare namespace Reflex.ML
 		
 		//# HTML Elements
 		
-		/** Returns a <a> element with the arguments applied. */
+		/** Returns a <a> element with the primitives applied. */
 		a(...primitives: Primitives[]): HTMLAnchorElement;
 		
-		/** Returns a <abbr> element with the arguments applied. */
+		/** Returns a <abbr> element with the primitives applied. */
 		abbr(...primitives: Primitives[]): HTMLElement;
 		
-		/** Returns a <address> element with the arguments applied. */
+		/** Returns a <address> element with the primitives applied. */
 		address(...primitives: Primitives[]): HTMLElement;
 		
-		/** Returns a <area> element with the arguments applied. */
+		/** Returns a <area> element with the primitives applied. */
 		area(...primitives: Primitives[]): HTMLAreaElement;
 		
-		/** Returns a <article> element with the arguments applied. */
+		/** Returns a <article> element with the primitives applied. */
 		article(...primitives: Primitives[]): HTMLElement;
 		
-		/** Returns a <aside> element with the arguments applied. */
+		/** Returns a <aside> element with the primitives applied. */
 		aside(...primitives: Primitives[]): HTMLElement;
 		
-		/** Returns a <audio> element with the arguments applied. */
+		/** Returns a <audio> element with the primitives applied. */
 		audio(...primitives: Primitives[]): HTMLAudioElement;
 		
-		/** Returns a <b> element with the arguments applied. */
+		/** Returns a <b> element with the primitives applied. */
 		b(...primitives: Primitives[]): HTMLElement;
 		
-		/** Returns a <base> element with the arguments applied. */
+		/** Returns a <base> element with the primitives applied. */
 		base(...primitives: Primitives[]): HTMLBaseElement;
 		
-		/** Returns a <basefont> element with the arguments applied. */
+		/** Returns a <basefont> element with the primitives applied. */
 		basefont(...primitives: Primitives[]): HTMLBaseFontElement;
 		
-		/** Returns a <bdi> element with the arguments applied. */
+		/** Returns a <bdi> element with the primitives applied. */
 		bdi(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <bdo> element with the arguments applied. */
+		/** Returns a <bdo> element with the primitives applied. */
 		bdo(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <blockquote> element with the arguments applied. */
+		/** Returns a <blockquote> element with the primitives applied. */
 		blockquote(...primitives: Primitives[]): HTMLQuoteElement;
-
-		/** Returns a <br> element with the arguments applied. */
+		
+		/** Returns a <body> element with the primitives applied. */
+		body(...primitives: Primitives[]): HTMLBodyElement;
+		
+		/** Returns a <br> element with the primitives applied. */
 		br(...primitives: Primitives[]): HTMLBRElement;
 
-		/** Returns a <button> element with the arguments applied. */
+		/** Returns a <button> element with the primitives applied. */
 		button(...primitives: Primitives[]): HTMLButtonElement;
 		
-		/** Returns a <canvas> element with the arguments applied. */
+		/** Returns a <canvas> element with the primitives applied. */
 		canvas(...primitives: Primitives[]): HTMLCanvasElement;
 
-		/** Returns a <caption> element with the arguments applied. */
+		/** Returns a <caption> element with the primitives applied. */
 		caption(...primitives: Primitives[]): HTMLTableCaptionElement;
 
-		/** Returns a <cite> element with the arguments applied. */
+		/** Returns a <cite> element with the primitives applied. */
 		cite(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <code> element with the arguments applied. */
+		/** Returns a <code> element with the primitives applied. */
 		code(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <col> element with the arguments applied. */
+		/** Returns a <col> element with the primitives applied. */
 		col(...primitives: Primitives[]): HTMLTableColElement;
 
-		/** Returns a <colgroup> element with the arguments applied. */
+		/** Returns a <colgroup> element with the primitives applied. */
 		colgroup(...primitives: Primitives[]): HTMLTableColElement;
 
-		/** Returns a <data> element with the arguments applied. */
+		/** Returns a <data> element with the primitives applied. */
 		data(...primitives: Primitives[]): HTMLDataElement;
 
-		/** Returns a <datalist> element with the arguments applied. */
+		/** Returns a <datalist> element with the primitives applied. */
 		datalist(...primitives: Primitives[]): HTMLDataListElement;
 
-		/** Returns a <dd> element with the arguments applied. */
+		/** Returns a <dd> element with the primitives applied. */
 		dd(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <del> element with the arguments applied. */
+		/** Returns a <del> element with the primitives applied. */
 		del(...primitives: Primitives[]): HTMLModElement;
 
-		/** Returns a <details> element with the arguments applied. */
+		/** Returns a <details> element with the primitives applied. */
 		details(...primitives: Primitives[]): HTMLDetailsElement;
 
-		/** Returns a <dfn> element with the arguments applied. */
+		/** Returns a <dfn> element with the primitives applied. */
 		dfn(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <dir> element with the arguments applied. */
+		/** Returns a <dir> element with the primitives applied. */
 		dir(...primitives: Primitives[]): HTMLDirectoryElement;
 
-		/** Returns a <div> element with the arguments applied. */
+		/** Returns a <div> element with the primitives applied. */
 		div(...primitives: Primitives[]): HTMLDivElement;
 		
-		/** Returns a <dl> element with the arguments applied. */
+		/** Returns a <dl> element with the primitives applied. */
 		dl(...primitives: Primitives[]): HTMLDListElement;
 
-		/** Returns a <dt> element with the arguments applied. */
+		/** Returns a <dt> element with the primitives applied. */
 		dt(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <em> element with the arguments applied. */
+		/** Returns a <em> element with the primitives applied. */
 		em(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <embed> element with the arguments applied. */
+		/** Returns a <embed> element with the primitives applied. */
 		embed(...primitives: Primitives[]): HTMLEmbedElement;
 
-		/** Returns a <fieldset> element with the arguments applied. */
+		/** Returns a <fieldset> element with the primitives applied. */
 		fieldset(...primitives: Primitives[]): HTMLFieldSetElement;
 
-		/** Returns a <figcaption> element with the arguments applied. */
+		/** Returns a <figcaption> element with the primitives applied. */
 		figcaption(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <figure> element with the arguments applied. */
+		/** Returns a <figure> element with the primitives applied. */
 		figure(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <footer> element with the arguments applied. */
+		/** Returns a <footer> element with the primitives applied. */
 		footer(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <form> element with the arguments applied. */
+		/** Returns a <form> element with the primitives applied. */
 		form(...primitives: Primitives[]): HTMLFormElement;
 
-		/** Returns a <frame> element with the arguments applied. */
+		/** Returns a <frame> element with the primitives applied. */
 		frame(...primitives: Primitives[]): HTMLFrameElement;
 
-		/** Returns a <frameset> element with the arguments applied. */
+		/** Returns a <frameset> element with the primitives applied. */
 		frameset(...primitives: Primitives[]): HTMLFrameSetElement;
 
-		/** Returns a <h1> element with the arguments applied. */
+		/** Returns an <h1> element with the primitives applied. */
 		h1(...primitives: Primitives[]): HTMLHeadingElement;
 
-		/** Returns a <h2> element with the arguments applied. */
+		/** Returns an <h2> element with the primitives applied. */
 		h2(...primitives: Primitives[]): HTMLHeadingElement;
-
-		/** Returns a <h3> element with the arguments applied. */
+		
+		/** Returns an <h3> element with the primitives applied. */
 		h3(...primitives: Primitives[]): HTMLHeadingElement;
 
-		/** Returns a <h4> element with the arguments applied. */
+		/** Returns an <h4> element with the primitives applied. */
 		h4(...primitives: Primitives[]): HTMLHeadingElement;
 
-		/** Returns a <h5> element with the arguments applied. */
+		/** Returns an <h5> element with the primitives applied. */
 		h5(...primitives: Primitives[]): HTMLHeadingElement;
 
-		/** Returns a <h6> element with the arguments applied. */
+		/** Returns an <h6> element with the primitives applied. */
 		h6(...primitives: Primitives[]): HTMLHeadingElement;
-
-		/** Returns a <header> element with the arguments applied. */
+		
+		/** Returns a <head> element with the primitives applied. */
+		head(...primitives: Primitives[]): HTMLHeadElement;
+		
+		/** Returns a <header> element with the primitives applied. */
 		header(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <hgroup> element with the arguments applied. */
+		/** Returns an <hgroup> element with the primitives applied. */
 		hgroup(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <hr> element with the arguments applied. */
+		/** Returns an <hr> element with the primitives applied. */
 		hr(...primitives: Primitives[]): HTMLHRElement;
+		
+		/** Returns an <html> element with the primitives applied. */
+		html(...primitives: Primitives[]): HTMLHRElement;
 
-		/** Returns a <i> element with the arguments applied. */
+		/** Returns a <i> element with the primitives applied. */
 		i(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <iframe> element with the arguments applied. */
+		/** Returns a <iframe> element with the primitives applied. */
 		iframe(...primitives: Primitives[]): HTMLIFrameElement;
 
-		/** Returns a <img> element with the arguments applied. */
+		/** Returns a <img> element with the primitives applied. */
 		img(...primitives: Primitives[]): HTMLImageElement;
 
-		/** Returns a <ins> e**l>ement with the arguments applied. */
+		/** Returns an <ins> e**l>ement with the primitives applied. */
 		ins(...primitives: Primitives[]): HTMLModElement;
 
-		/** Returns a <kbd> element with the arguments applied. */
+		/** Returns a <kbd> element with the primitives applied. */
 		kbd(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <label> element with the arguments applied. */
+		/** Returns a <label> element with the primitives applied. */
 		label(...primitives: Primitives[]): HTMLLabelElement;
 
-		/** Returns a <legend> element with the arguments applied. */
+		/** Returns a <legend> element with the primitives applied. */
 		legend(...primitives: Primitives[]): HTMLLegendElement;
 
-		/** Returns a <li> element with the arguments applied. */
+		/** Returns an <li> element with the primitives applied. */
 		li(...primitives: Primitives[]): HTMLLIElement;
 
-		/** Returns a <main> element with the arguments applied. */
+		/** Returns a <main> element with the primitives applied. */
 		main(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <map> element with the arguments applied. */
+		/** Returns a <map> element with the primitives applied. */
 		map(...primitives: Primitives[]): HTMLMapElement;
 
-		/** Returns a <mark> element with the arguments applied. */
+		/** Returns a <mark> element with the primitives applied. */
 		mark(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <marquee> element with the arguments applied. */
+		/** Returns a <marquee> element with the primitives applied. */
 		marquee(...primitives: Primitives[]): HTMLMarqueeElement;
 
-		/** Returns a <menu> element with the arguments applied. */
+		/** Returns a <menu> element with the primitives applied. */
 		menu(...primitives: Primitives[]): HTMLMenuElement;
 
-		/** Returns a <meter> element with the arguments applied. */
+		/** Returns a <meter> element with the primitives applied. */
 		meter(...primitives: Primitives[]): HTMLMeterElement;
 
-		/** Returns a <nav> element with the arguments applied. */
+		/** Returns a <nav> element with the primitives applied. */
 		nav(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <object> element with the arguments applied. */
+		/** Returns a <object> element with the primitives applied. */
 		object(...primitives: Primitives[]): HTMLObjectElement;
 
-		/** Returns a <ol> element with the arguments applied. */
+		/** Returns a <ol> element with the primitives applied. */
 		ol(...primitives: Primitives[]): HTMLOListElement;
 
-		/** Returns a <optgroup> element with the arguments applied. */
+		/** Returns a <optgroup> element with the primitives applied. */
 		optgroup(...primitives: Primitives[]): HTMLOptGroupElement;
 
-		/** Returns a <option> element with the arguments applied. */
+		/** Returns a <option> element with the primitives applied. */
 		option(...primitives: Primitives[]): HTMLOptionElement;
 
-		/** Returns a <output> element with the arguments applied. */
+		/** Returns a <output> element with the primitives applied. */
 		output(...primitives: Primitives[]): HTMLOutputElement;
 
-		/** Returns a <p> element with the arguments applied. */
+		/** Returns a <p> element with the primitives applied. */
 		p(...primitives: Primitives[]): HTMLParagraphElement;
 
-		/** Returns a <param> element with the arguments applied. */
+		/** Returns a <param> element with the primitives applied. */
 		param(...primitives: Primitives[]): HTMLParamElement;
 
-		/** Returns a <picture> element with the arguments applied. */
+		/** Returns a <picture> element with the primitives applied. */
 		picture(...primitives: Primitives[]): HTMLPictureElement;
 
-		/** Returns a <pre> element with the arguments applied. */
+		/** Returns a <pre> element with the primitives applied. */
 		pre(...primitives: Primitives[]): HTMLPreElement;
 
-		/** Returns a <progress> element with the arguments applied. */
+		/** Returns a <progress> element with the primitives applied. */
 		progress(...primitives: Primitives[]): HTMLProgressElement;
 
-		/** Returns a <q> element with the arguments applied. */
+		/** Returns a <q> element with the primitives applied. */
 		q(...primitives: Primitives[]): HTMLQuoteElement;
 
-		/** Returns a <rp> element with the arguments applied. */
+		/** Returns a <rp> element with the primitives applied. */
 		rp(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <rt> element with the arguments applied. */
+		/** Returns a <rt> element with the primitives applied. */
 		rt(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <ruby> element with the arguments applied. */
+		/** Returns a <ruby> element with the primitives applied. */
 		ruby(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <s> element with the arguments applied. */
+		/** Returns a <s> element with the primitives applied. */
 		s(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <samp> element with the arguments applied. */
+		/** Returns a <samp> element with the primitives applied. */
 		samp(...primitives: Primitives[]): HTMLElement;
-
-		/** Returns a <section> element with the arguments applied. */
+		
+		/** Returns a <section> element with the primitives applied. */
+		script(...primitives: Primitives[]): HTMLScriptElement;
+		
+		/** Returns a <section> element with the primitives applied. */
 		section(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <select> element with the arguments applied. */
+		/** Returns a <select> element with the primitives applied. */
 		select(...primitives: Primitives[]): HTMLSelectElement;
 
-		/** Returns a <slot> element with the arguments applied. */
+		/** Returns a <slot> element with the primitives applied. */
 		slot(...primitives: Primitives[]): HTMLSlotElement;
 
-		/** Returns a <small> element with the arguments applied. */
+		/** Returns a <small> element with the primitives applied. */
 		small(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <source> element with the arguments applied. */
+		/** Returns a <source> element with the primitives applied. */
 		source(...primitives: Primitives[]): HTMLSourceElement;
 
-		/** Returns a <span> element with the arguments applied. */
+		/** Returns a <span> element with the primitives applied. */
 		span(...primitives: Primitives[]): HTMLSpanElement;
 
-		/** Returns a <strong> element with the arguments applied. */
+		/** Returns a <strong> element with the primitives applied. */
 		strong(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <sub> element with the arguments applied. */
+		/** Returns a <sub> element with the primitives applied. */
 		sub(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <summary> element with the arguments applied. */
+		/** Returns a <summary> element with the primitives applied. */
 		summary(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <sup> element with the arguments applied. */
+		/** Returns a <sup> element with the primitives applied. */
 		sup(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <table> element with the arguments applied. */
+		/** Returns a <table> element with the primitives applied. */
 		table(...primitives: Primitives[]): HTMLTableElement;
 
-		/** Returns a <tbody> element with the arguments applied. */
+		/** Returns a <tbody> element with the primitives applied. */
 		tbody(...primitives: Primitives[]): HTMLTableSectionElement;
 
-		/** Returns a <td> element with the arguments applied. */
+		/** Returns a <td> element with the primitives applied. */
 		td(...primitives: Primitives[]): HTMLTableDataCellElement;
 
-		/** Returns a <template> element with the arguments applied. */
+		/** Returns a <template> element with the primitives applied. */
 		template(...primitives: Primitives[]): HTMLTemplateElement;
 
-		/** Returns a <textarea> element with the arguments applied. */
+		/** Returns a <textarea> element with the primitives applied. */
 		textarea(...primitives: Primitives[]): HTMLTextAreaElement;
 
-		/** Returns a <tfoot> element with the arguments applied. */
+		/** Returns a <tfoot> element with the primitives applied. */
 		tfoot(...primitives: Primitives[]): HTMLTableSectionElement;
 
-		/** Returns a <th> element with the arguments applied. */
+		/** Returns a <th> element with the primitives applied. */
 		th(...primitives: Primitives[]): HTMLTableHeaderCellElement;
 
-		/** Returns a <thead> element with the arguments applied. */
+		/** Returns a <thead> element with the primitives applied. */
 		thead(...primitives: Primitives[]): HTMLTableSectionElement;
 
-		/** Returns a <time> element with the arguments applied. */
+		/** Returns a <time> element with the primitives applied. */
 		time(...primitives: Primitives[]): HTMLTimeElement;
 
-		/** Returns a <tr> element with the arguments applied. */
+		/** Returns a <tr> element with the primitives applied. */
 		tr(...primitives: Primitives[]): HTMLTableRowElement;
 
-		/** Returns a <track> element with the arguments applied. */
+		/** Returns a <track> element with the primitives applied. */
 		track(...primitives: Primitives[]): HTMLTrackElement;
 
-		/** Returns a <u> element with the arguments applied. */
+		/** Returns a <u> element with the primitives applied. */
 		u(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <ul> element with the arguments applied. */
+		/** Returns a <ul> element with the primitives applied. */
 		ul(...primitives: Primitives[]): HTMLUListElement;
 
-		/** Returns a <var> element with the arguments applied. */
+		/** Returns a <var> element with the primitives applied. */
 		var(...primitives: Primitives[]): HTMLElement;
 
-		/** Returns a <video> element with the arguments applied. */
+		/** Returns a <video> element with the primitives applied. */
 		video(...primitives: Primitives[]): HTMLVideoElement;
 
-		/** Returns a <wbr> element with the arguments applied. */
+		/** Returns a <wbr> element with the primitives applied. */
 		wbr(...primitives: Primitives[]): HTMLElement;
 		
 		//# <input> Elements
 		
-		/** Returns an <input type="button"> element with the arguments applied. */
+		/** Returns an <input type="button"> element with the primitives applied. */
 		inputButton(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="checkbox"> element with the arguments applied. */
+		/** Returns an <input type="checkbox"> element with the primitives applied. */
 		inputCheckbox(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="color"> element with the arguments applied. */
+		/** Returns an <input type="color"> element with the primitives applied. */
 		inputColor(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="date"> element with the arguments applied. */
+		/** Returns an <input type="date"> element with the primitives applied. */
 		inputDate(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="datetime"> element with the arguments applied. */
+		/** Returns an <input type="datetime"> element with the primitives applied. */
 		inputDatetime(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="datetime-local"> element with the arguments applied. */
+		/** Returns an <input type="datetime-local"> element with the primitives applied. */
 		inputDatetimeLocal(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="email"> element with the arguments applied. */
+		/** Returns an <input type="email"> element with the primitives applied. */
 		inputEmail(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="file"> element with the arguments applied. */
+		/** Returns an <input type="file"> element with the primitives applied. */
 		inputFile(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="hidden"> element with the arguments applied. */
+		/** Returns an <input type="hidden"> element with the primitives applied. */
 		inputHidden(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="image"> element with the arguments applied. */
+		/** Returns an <input type="image"> element with the primitives applied. */
 		inputImage(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="month"> element with the arguments applied. */
+		/** Returns an <input type="month"> element with the primitives applied. */
 		inputMonth(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="number"> element with the arguments applied. */
+		/** Returns an <input type="number"> element with the primitives applied. */
 		inputNumber(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="password"> element with the arguments applied. */
+		/** Returns an <input type="password"> element with the primitives applied. */
 		inputPassword(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="radio"> element with the arguments applied. */
+		/** Returns an <input type="radio"> element with the primitives applied. */
 		inputRadio(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="range"> element with the arguments applied. */
+		/** Returns an <input type="range"> element with the primitives applied. */
 		inputRange(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="reset"> element with the arguments applied. */
+		/** Returns an <input type="reset"> element with the primitives applied. */
 		inputReset(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="search"> element with the arguments applied. */
+		/** Returns an <input type="search"> element with the primitives applied. */
 		inputSearch(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="submit"> element with the arguments applied. */
+		/** Returns an <input type="submit"> element with the primitives applied. */
 		inputSubmit(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="tel"> element with the arguments applied. */
+		/** Returns an <input type="tel"> element with the primitives applied. */
 		inputTel(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="text"> element with the arguments applied. */
+		/** Returns an <input type="text"> element with the primitives applied. */
 		inputText(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="time"> element with the arguments applied. */
+		/** Returns an <input type="time"> element with the primitives applied. */
 		inputTime(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="url"> element with the arguments applied. */
+		/** Returns an <input type="url"> element with the primitives applied. */
 		inputUrl(...primitives: Primitives[]): HTMLInputElement;
 		
-		/** Returns an <input type="week"> element with the arguments applied. */
+		/** Returns an <input type="week"> element with the primitives applied. */
 		inputWeek(...primitives: Primitives[]): HTMLInputElement;
 	}
 }
