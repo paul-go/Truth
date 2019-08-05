@@ -1,0 +1,20 @@
+//
+// This example demonstrates a fault being generated
+// as a result of a forking attempt between a valid subtype,
+// and a random alias. Faults are generated when random
+// aliases are applied to types that don't have any relationship
+// to the base.
+//
+
+Gibberish
+/gibberish : Gibberish
+
+Animal
+Raccoon : Animal
+
+Class
+	MyAnimal : Animal
+
+SubClass
+	MyAnimal : Raccoon, gibberish #209;
+	

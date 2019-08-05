@@ -1,0 +1,10 @@
+//
+// This example demonstrates what appears to be fresh types,
+// but have a type annotation due to a list's type inference rules.
+//
+
+Item
+List : Item...
+	A ~ Item
+	B ~ Item
+	C ~ Item

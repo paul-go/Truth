@@ -1,0 +1,24 @@
+//
+// This example demonstrates an attempt to refer to something
+// that might be a list-intrinsic type, but no such contained type
+// exists on the intrinsic side, and so a fault is reported.
+//
+
+Boolean
+true : Boolean
+false : Boolean
+
+Item
+List : Item...
+	A : Item
+	B : Item
+
+List...
+	Sorted : true
+	
+MyList : List
+	Sorted : true
+	Invalid : true #301;
+	
+	C : Item
+	D : Item

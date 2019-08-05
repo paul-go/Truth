@@ -1,0 +1,14 @@
+//
+// This example demonstrates a similar case as
+// PatternPortabilityInfix.truth, although with multiple 
+// portability infixes (and therefore, data portability
+// across multiple bases).
+// 
+
+Letters
+/\w+/ : Letters
+
+Numbers
+\d+/ : Numbers
+
+/< : Letters>; < : Numbers>/ : Letters, Numbers

@@ -1,0 +1,7 @@
+//
+// This example demonstrates circular references 
+// between 2 types.
+//
+
+Left : Right #203;
+Right : Left #203;

@@ -1,0 +1,9 @@
+//
+// This example demonstrates faults being generated
+// as a result of a forking attempt on an introduction
+// type.
+//
+
+Number
+/\d+ : Number
+Intro : 2, 3 #207;, 4 #207;

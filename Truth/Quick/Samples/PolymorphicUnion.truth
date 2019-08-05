@@ -1,0 +1,19 @@
+// 
+
+Animal
+Mouse : Animal
+Device
+Toy
+Bunny : Toy
+
+Namespace1
+	Mouse : Animal, Device
+	
+	Namespace2
+		Mouse : Device
+		
+		Class
+			Property : Animal, Device
+			
+		SubClass : Class
+			Property : Mouse, Toy

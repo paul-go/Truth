@@ -1,0 +1,47 @@
+// 
+// This example demonstrates that the "unspecified types
+// cannot be used as bases" rule doesn't apply to aliases.
+// Patterns are represented at the type-scope level, not
+// the node-scope level.
+// 
+
+HasFault
+	Number
+	String
+		
+	Value
+		Field : Number
+		
+	ClassL1
+		Value :
+			Field : String
+		
+	ClassL2 : ClassL1
+		/pattern : Value
+
+	ClassL3 : ClassL2
+		ThisIsValueFromHigherScope : pattern
+			Field : String #205;
+
+NoFault
+	Number
+	String
+		
+	Value
+		Field : Number
+		
+	ClassL1
+		Value :
+			Field : String
+		
+	ClassL2 : ClassL1
+		// Bringing this Value into scope causes the following
+		// pattern statement to refer to a different type, which
+		// causes the annotation below to take on a different
+		// meaning, which causes the error to not be thrown
+		Value
+		/pattern : Value
+
+	ClassL3 : ClassL2
+		ThisIsValueFromHigherScope : pattern
+			Field : String

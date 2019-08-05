@@ -1,0 +1,17 @@
+//
+// Although it appears to be pointless, patterns can have lists 
+// defined on their annotation side. There may be a use case
+// around producing a list with pre-filled intrinsics.
+//
+
+Numeric
+Integer : Numeric
+/\d+/ : Integer
+
+/IntegerList/ : Integer...
+
+Class
+	Numerics : Numeric...
+
+SubClass
+	Numerics : IntegerList

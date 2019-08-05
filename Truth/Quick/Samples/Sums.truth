@@ -1,0 +1,26 @@
+// 
+
+Number
+/\\d : Number
+
+Lower
+/[a-z] : Lower
+
+Upper
+/[A-Z] : Upper
+
+EqualNumber : Number
+/=< : Number>/ : EqualNumber
+
+EqualLower : Lower
+/=< : Lower>/ : EqualLower
+
+EqualUpper : Upper
+/=< : Upper>/ : EqualUpper
+
+Class
+	Property : EqualNumber, EqualUpper
+
+SubClass : Class
+	Property : =3
+	Property : =A

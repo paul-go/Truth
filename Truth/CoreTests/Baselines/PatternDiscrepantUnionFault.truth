@@ -1,0 +1,20 @@
+//
+// This example demonstrates a fault being generated as a
+// an attempt to create a "discrepant union". A discrepant
+// union is an erroneous side effect of the result of creating
+// a union of types (either directly, or somewhere in the
+// subtree) that have conflicting regular expressions.
+// 
+
+Foo
+	Pattern
+	/\d+/ : Pattern
+
+Bar
+	Pattern
+	/\w+/ : Pattern
+
+Abc
+	Pattern
+
+Discrepant : Foo, Bar #499;, Abc

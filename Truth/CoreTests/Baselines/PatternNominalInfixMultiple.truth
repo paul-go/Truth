@@ -1,0 +1,19 @@
+//
+// This example demonstrates a pattern 
+// with two nominal infixes.
+//
+
+Number
+/\d+/ : Number
+
+Text
+/\w+/ : Text
+
+Map
+	Key
+	Val
+
+/Map\<<<Key>>; <<Val>>\>/ : Map
+
+Class
+	Table : Map<Number; Text>

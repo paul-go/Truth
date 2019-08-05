@@ -1,0 +1,14 @@
+//
+// Demonstrates the "Width" direction of the covariance verification.
+//
+
+Animal
+
+Base1
+	Property : Animal
+
+Base2 : Base1
+	Property : Animal
+
+Base3 : Base2
+	Property : Lop ~ Animal, Rabbit, Lop

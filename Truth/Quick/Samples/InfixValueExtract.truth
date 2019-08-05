@@ -1,0 +1,34 @@
+// 
+
+Number
+/\\d+ : Number
+
+Decimal : Number
+/< : Number>(\\.\\d+)? : Decimal
+
+Unit : Decimal
+/< : Decimal>[a-z]{2} : Unit
+
+Distance : Unit
+/< : Decimal>(km|mi) : Distance
+
+Range
+	Low : Number
+	High : Number
+
+// This is a bit weird, but technically its valid
+// In normal circumstances you'd just put "unit" right in there
+/<Low : Decimal> - <High : Decimal> : Range
+	Low : Unit
+	High : Unit
+	
+Class
+	Amount : Range
+		Low : Distance
+		High : Distance
+	
+SubClass : Class
+	Amount : Range
+	Amount : 2 - 3
+	Amount : 2.0 - 3.0
+	Amount : 2.5mi - 3.5mi

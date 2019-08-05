@@ -1,0 +1,16 @@
+// Amounts/Low
+
+Number
+/\d : Number
+
+Range
+	Low : Number
+	High : Number
+
+/<Low : Number> - <High : Number> : Range
+	Low : Number
+	High : Number
+
+Amounts : 2 - 3
+	Low : Number
+	High : Number

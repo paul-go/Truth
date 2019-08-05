@@ -1,0 +1,11 @@
+//
+// This example demonstrates a fault being generated as a result
+// of a population infix attempting to refer to a pattern in an
+// invisible location.
+//
+
+Foo
+	Nested
+	/\d+/ : Nested
+
+#422; /<Nested>/ : Foo

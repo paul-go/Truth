@@ -1,0 +1,20 @@
+//
+// This example demonstrates a fault being generated due
+// to a population infix attempting to reference a list. Future 
+// investigation is needed to determine if this should simply 
+// be a parsing fault.
+//
+
+Item
+/item/ : Item
+
+Foo
+
+A
+	#428; /\d<Item...>/ : Foo
+
+B
+	#428; /\d< : Item...>/ : Foo
+
+C
+	#428; /\d</Item.../>/ : Foo

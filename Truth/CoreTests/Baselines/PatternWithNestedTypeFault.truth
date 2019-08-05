@@ -1,0 +1,17 @@
+//
+// This example demonstrates a pattern with a nested type,
+// where that nested type conform's to the contract as specified
+// by the pattern's base.
+//
+
+Number
+/\d+/ : Number
+Text
+
+Range
+	Low : Number
+	High : Number
+	SomeNum : Number
+
+/<Low> - <High>/ : Range
+	SomeNum : Text #205;

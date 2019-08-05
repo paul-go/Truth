@@ -1,0 +1,13 @@
+//
+// This example demonstrates a similar case as
+// PatternPortabilityInfixMultipleInfixes.truth, although
+// with there are multiple bases defined within a single
+// portability infixes.
+// 
+
+/ab : A, B
+/< : A, B>c : A, B, C
+
+Val1 : ab ~ A, B
+Val2 : abc ~ A, B, C
+

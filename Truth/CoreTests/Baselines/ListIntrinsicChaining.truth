@@ -1,0 +1,24 @@
+//
+// This example demonstrates an attempt to use chaining to
+// combine the properties of a list-intrinsic statement with
+// a non-list.
+//
+
+NonList
+	A
+
+Item
+List : Item...
+	: Item
+	
+NonList, List...
+	B
+
+MyNonList : NonList
+	~ A
+	~ B
+
+MyList : List
+	~ A
+	~ B
+	~ : Item

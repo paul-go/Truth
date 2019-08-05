@@ -1,0 +1,11 @@
+//
+// This example demonstrates a fault being generated as
+// a result of attempting to achieve "chaining" within a
+// population infix.
+//
+
+Foo
+	A
+	B
+
+#426; /<A, B>/ : Foo

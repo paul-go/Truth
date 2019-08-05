@@ -1,0 +1,11 @@
+//
+// This example demonstrates a fault being generated
+// as a result of a pattern attempting to match leading
+// or trailing whitespace.
+//
+
+Pattern
+#422; /\s*pattern/ : Pattern
+#424; /\s+pattern/ : Pattern
+#426; /pattern\s*/ : Pattern
+#428; /pattern\s+/ : Pattern

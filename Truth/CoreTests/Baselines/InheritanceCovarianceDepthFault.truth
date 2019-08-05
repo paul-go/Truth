@@ -1,0 +1,17 @@
+//
+// Demonstrates the "Depth" method of covariance verification.
+//
+
+Animal
+Rabbit : Animal
+Lop : Rabbit
+Hamster : Animal
+
+Base1
+	Property : Animal
+
+Base2 : Base1
+	Property : Rabbit ~ Animal, Rabbit
+
+Base3 : Base2
+	Property : Hamster #205;

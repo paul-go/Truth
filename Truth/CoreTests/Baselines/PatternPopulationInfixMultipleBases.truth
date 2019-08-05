@@ -1,0 +1,69 @@
+//
+// This example demonstrates a pattern with population,
+// infixes, but where there are two visually identical patterns 
+// that match different types. Patterns don't ever fragment,
+// so these two patterns are not merged. 
+//
+// The example demonstrates contracts at work, resulting
+// in the same pattern being resolved to two different 
+// sets of types, due to the difference in contracts being
+// applied.
+//
+
+Number
+/\d+/ : Number
+
+Range
+	High : Number
+	Low : Number
+
+Span
+	High : Number
+	Low : Number
+
+// NOT equivalent to /<High> - <Low>/ : Range, Span
+/<High> - <Low>/ : Range
+/<High> - <Low>/ : Span
+
+Class
+	Tolerance : Range
+
+SubClass : Class
+	Tolerance : 2 - 3 ~ Range
+
+Product
+	Tolerance : 2 - 3 ~ Range, Span
+
+
+//
+// Additionally, it should be noted that use of aliases
+// never causes additional types to be applied, even
+// if the alias matches a pattern that would cause
+// this to happen. The resolver looks at the patterns
+// that are available, and uses the pattern that matches
+// the types as specified by the contract. Note that
+// if the pattern below "Spectrum" was deleted, this
+// would cause a fault to be reported on the final line,
+// due to inability for aliases to perform "forking"
+// (see the baselines related to forking for additional
+// information). This behavior may be relaxed in the
+// future.
+//
+
+Left
+/L\d/ : Left
+
+Right
+/R\d/ : Right
+
+Spectrum
+/<Left> - <Right>/ : Spectrum
+
+Random
+/<Left> - <Right>/ : Spectrum, Random
+
+Object
+	MySpectrum : Spectrum
+
+SubObject : Object
+	MySpectrum : L5 - R5 ~ Spectrum, !Random

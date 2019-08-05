@@ -1,0 +1,28 @@
+//
+// This example demonstrates type inference
+// from a complex hierarchy of abstraction,
+// involving a diamond-shaped inheritance pattern.
+//
+
+String
+Number
+TopType, LeftType, RightType, BottomType
+
+BaseTop
+	Top : TopType
+	
+BaseLeft : BaseTop
+	Left : LeftType
+	
+BaseRight : BaseTop
+	Right : RightType
+	
+BaseBottom : BaseLeft, BaseRight
+	Bottom : BottomType
+
+Class : BottomType
+	Top ~ TopType
+	Left ~ LeftType
+	Right ~ RightType
+	Bottom ~ BottomType
+	

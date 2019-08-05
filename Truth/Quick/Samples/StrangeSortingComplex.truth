@@ -1,0 +1,24 @@
+// Container/Bottom
+
+Left
+	A
+	B
+	C
+
+Thing
+	C
+	A
+
+Right : Thing
+	B
+
+BaseContainer
+	Bottom
+		C
+		A
+	
+Container : BaseContainer
+	Bottom : Left, Right
+		B
+		C
+		A

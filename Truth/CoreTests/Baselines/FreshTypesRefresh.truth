@@ -1,0 +1,30 @@
+//
+// This example demonstrates refreshing a fresh type,
+// aka a "Refresh type". Refresh types are used to force
+// a fresh type, in the case when there is undesirable
+// inference coming through the containment hierarchy.
+// 
+// This example also covers a possibly bizarre case,
+// where a type without the refresh syntax is actually 
+// a refresh type, due to an equivalently-named type
+// using the refresh syntax within the same locality.
+//
+// Use of the refresh syntax generates a fault in the
+// case when a base class imposes a contract on the
+// type that is using the syntax. This is because these
+// types cannot be refreshed, as it would make the
+// type incompatible with it's base.
+//
+
+String
+Foo : String
+
+Container
+	Foo : ~
+	Foo ~ 
+
+Class
+	Bar : String
+
+SubClass : Class
+	Bar : #206;

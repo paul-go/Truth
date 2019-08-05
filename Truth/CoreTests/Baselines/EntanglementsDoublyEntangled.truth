@@ -1,0 +1,36 @@
+// 
+// This example demonstrates an set of entanglements
+// where an entangled down-type is happening, but the
+// type causing the down-type itself is another entangled
+// type.
+// 
+
+String
+Email : String
+
+Class
+	AA
+		Box
+			Value : String
+	
+	BB : AA
+	CC : BB
+	
+SubClassA : Class
+	MyAA
+		Box
+			Value : Email
+	AA : MyAA
+	CC
+		Box
+			Value ~ Email
+
+SubClassB : Class
+	MyAA
+		Box
+			Value
+	
+	AA : MyAA
+	CC
+		Box
+			Value ~ String

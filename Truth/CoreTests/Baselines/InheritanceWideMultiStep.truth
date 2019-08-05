@@ -1,0 +1,20 @@
+//
+// This test demonstrates "Wide Inheritance", 
+// but through multiple successive applications.
+//
+
+End
+
+Layer1
+	B : Layer2
+
+Layer2
+	C : Layer3
+
+Layer3
+	D : End
+
+A : Layer1
+	B ~ Layer2
+		C ~ Layer3
+			D ~ End

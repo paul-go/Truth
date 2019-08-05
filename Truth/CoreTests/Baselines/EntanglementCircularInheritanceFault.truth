@@ -1,0 +1,17 @@
+//
+// This example demonstrates a fault being generated
+// as a result of an attempt at circular inheritance, but
+// done in a way that transcends multiple levels of 
+// abstraction through the use of entanglements.
+// 
+
+Thing
+
+Class
+	// How is this not a circular reference right here?
+	Property : Thing
+	Field : Property
+	
+SubClass : Class
+	Field
+	Property : Field #203;

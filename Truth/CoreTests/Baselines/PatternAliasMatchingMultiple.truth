@@ -1,0 +1,43 @@
+// 
+// This example demonstrates an alias resolving through
+// multiple patterns.
+// 
+// Although pattern-type resolution is invariant (meaning
+// that in order for name resolution to occur between two
+// types, the set of types specified as annotations on the
+// pattern must match identical), in the case when there
+// is no contract being imposed on a type, it can resolve
+// to the types associated with multiple applicable patterns.
+// 
+
+Type1
+/\d+ : Type1
+
+Type2A : Type1
+/=< : Type1>=/ : Type2A
+
+Type2B : Type1
+/=< : Type1>=/ : Type2B
+
+TypeX
+/\a+ : TypeX
+
+Type2C : TypeX
+/=< : TypeX>=/ : Type2C
+
+Value : =2= ~ Type2A, Type2B
+
+// 
+// This behavior doesn't necessarily break the invariant
+// nature of pattern-type resolution, because it's the
+// semantic equivalent of the following:
+// 
+
+Type1
+Type2A : Type1
+Type2A-Like : Type2A
+
+Type2B : Type1
+Type2B-Like : Type2B
+
+Value : Type2A-Like, Type2B-Like

@@ -1,0 +1,34 @@
+//
+//
+//
+
+Type1
+Type2
+Type3
+
+Container
+	: Type1 ~ Type1
+	: Type2 ~ Type2
+	: Type3 ~ Type3
+
+// (graph)
+AnonymousTypesNested.truth//Type1
+	spans=1, out=0, in=1
+
+AnonymousTypesNested.truth//Type2
+	spans=1, out=0, in=1
+
+AnonymousTypesNested.truth//Type3
+	spans=1, out=0, in=1
+
+AnonymousTypesNested.truth//Container
+	spans=1, out=0, in=0
+
+AnonymousTypesNested.truth//Container/__ANON#__
+	spans=1, out=1, in=0
+
+AnonymousTypesNested.truth//Container/__ANON#__
+	spans=1, out=1, in=0
+
+AnonymousTypesNested.truth//Container/__ANON#__
+	spans=1, out=1, in=0

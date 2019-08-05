@@ -1,0 +1,22 @@
+//
+// This example demonstrates "Bounded Contravariance", an idea that
+// appears to be unique to the Truth language.
+// 
+// Given the example below, if patterns were to be invariant, you'd get an 
+// error on Value. Because you asked for a MyFavouriteNumber, but "2.5"
+// doesn't match a MyFavouriteNumber. It matches a Number. Full 
+// contravariance would make the error go away, but would cause other
+// problems. And so we have bounded contravariance, which means that
+// patterns are contravariant, but compatibility only flows downward while 
+// we reach types that have no other patterns applied to them.
+//
+
+Number
+/\d+/ : Number
+MyFavouriteNumber : Number
+​
+Class
+	Value : MyFavouriteNumber
+​
+SubClass : Class
+	Value : 8 ~ MyFavouriteNumber

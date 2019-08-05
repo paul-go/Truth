@@ -1,0 +1,23 @@
+//
+// This example demonstrates population infixes, but
+// where additional types are specified on the annotation
+// side, causing a widening of types to be applied when
+// matching occurs.
+//
+
+Number
+/\d+/ : Number
+
+FootNote
+
+Range
+	Low : Number
+	High : Number
+
+/<Low : Number, FootNote>\* to <High : Number, FootNote>*/ : Range
+
+MyRange : 6* to 8*
+	~ Low : Number, FootNote
+	~ Low : 6
+	~ High : Number, FootNote
+	~ High : 8

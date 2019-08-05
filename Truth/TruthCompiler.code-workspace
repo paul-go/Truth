@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"line-counter.excludes": [
+			"**/.vscode/**",
+			"**/node_modules/**",
+			"**/*.txt",
+			"**/package-lock.json",
+			"**/Jest.d.ts",
+			"**/Node.d.ts"
+		],
+		"line-counter.includes": [
+			"**/*"
+		]
+	}
+}

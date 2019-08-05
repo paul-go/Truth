@@ -1,0 +1,24 @@
+
+Number
+1 : Number
+2 : Number
+
+Item
+	Value : Number
+
+List : Item...
+
+List...
+	Has : A
+
+A
+	Lists : List...
+		: List
+			: Item
+				Value : 1
+			: Item
+				Value : 2
+		
+	List...
+		Value : Number...
+			List...

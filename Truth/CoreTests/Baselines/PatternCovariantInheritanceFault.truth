@@ -1,0 +1,18 @@
+// 
+// This example demonstrates a fault being generated
+// as a result of a pattern not following a perfectly
+// covariant pattern all the way down the inheritance
+// hierarchy.
+// 
+
+Number
+/\d{1,} : Number
+
+ClassL1
+	/\d{2,} : Number
+	
+ClassL2 : ClassL1
+	/\d{3,} : Number
+
+ClassL3 : ClassL2
+	/\d{1,} : Number #440;

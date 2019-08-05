@@ -1,0 +1,17 @@
+//
+// This example demonstrates a faulty attempt to achieve
+// a widening of types within a population infix, but where 
+// the necessary types are not specified, and so there is a 
+// contract violation.
+//
+
+Number
+/\d+/ : Number
+
+FootNote
+
+Range
+	Low : Number
+	High : Number
+
+#424; /<Low : FootNote> to <High : FootNote> : Range

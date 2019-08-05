@@ -1,0 +1,14 @@
+// 
+// This example demonstrates a fault being generated
+// as a result of an attempt to create a pattern that
+// resolves to types that are marked as lists. The example
+// demonstrates that it is an error, regardless of whether
+// the list type is defined directly inline, or somewhere
+// in the super tree.
+// 
+
+Item
+List : Item...
+
+/aaa : Item... #407;
+/bbb : List #407;

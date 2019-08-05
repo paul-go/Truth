@@ -1,0 +1,7 @@
+//
+// This example demonstrates a fault being generated
+// due to duplicate identical declarations in the same
+// statement.
+//
+
+#1001; Dup, Dup, Dup

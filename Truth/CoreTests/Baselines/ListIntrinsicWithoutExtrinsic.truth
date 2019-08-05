@@ -1,0 +1,9 @@
+//
+// This example demonstrates that list-instric types can be added
+// to lists for which there is no extrinsic portion. 
+//
+
+Item
+
+List... : Item...
+	Sorted : true

@@ -1,0 +1,21 @@
+//
+// Discrepant unions only affect total patterns. If two partial
+// patterns were to "conflict", the verifier would actually just
+// require both values to be specified as aliases. So it's possible
+// in this case to "dodge" the discrepant union problem.
+//
+
+String
+/"\w+" : String
+
+Number
+/\d+ : Number
+
+Class1
+	Value : String
+
+Class2
+	Value : Number
+
+SubClass : Class1, Class2
+	Value : "text", 21 ~ String, Number

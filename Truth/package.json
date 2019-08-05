@@ -1,0 +1,55 @@
+{
+	"name": "truth",
+	"version": "0.5.11",
+	"description": "Verify and analyze code and data in the Truth format",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/paul-go/Truth"
+	},
+	"bugs": {
+		"url": "https://github.com/paul-go/Truth/issues"
+	},
+	"author": "Paul Go",
+	"license": "MIT",
+	"keywords": [
+		"Truth",
+		"language",
+		"data",
+		"verification",
+		"compiler"
+	],
+	"main": "./Build/Dev/Core/X.js",
+	"scripts": {
+		"test": "jest",
+		"mjs-rename": "for i in `find ./Build/Dev -mindepth 2 -name '*.js'`; do mv $i ${i%.js}.mjs; done",
+		"compile": "npm run compile-core && npm run compile-tests && npm run compile-quick",
+		"compile-core": "tsc -p ./Core/tsconfig.json",
+		"compile-tests": "tsc -p ./CoreTests/tsconfig.json",
+		"compile-quick": "tsc -p ./Quick/tsconfig.json",
+		"compile-types-bundler": "tsc -p ./TypesBundler/tsconfig.json",
+		"compile-release": "node release.js",
+		"release": "node release.js --publish"
+	},
+	"jest": {
+		"testRegex": "Build/Dev/CoreTests/Units/[\\w.]+\\.test\\.js$",
+		"verbose": true,
+		"testURL": "http://localhost/"
+	},
+	"eslintIgnore": [
+		"**/node_modules/**/*.ts",
+		"**/*.d.ts"
+	],
+	"devDependencies": {
+		"@types/jest": "^23.3.12",
+		"@types/node": "^10.12.18",
+		"@typescript-eslint/eslint-plugin": "^1.4.2",
+		"@typescript-eslint/parser": "^1.4.2",
+		"artistry-code-style": "^0.0.1",
+		"jest": "23.6.0",
+		"jsonviz": "git+https://github.com/HaroldRitter/jsonviz.git",
+		"memfs": "^2.10.1",
+		"rollup": "^1.1.0",
+		"terser": "^3.16.0",
+		"typescript": "^3.2.2"
+	}
+}

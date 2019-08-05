@@ -1,0 +1,18 @@
+// 
+// This example demonstrates a fault being generated as
+// a result of the annotations of a pattern attempting to 
+// be matched by another pattern. A fault is generated
+// whether the pattern is total or partial.
+// 
+
+AAA
+/total/ : AAA
+
+BBB
+/partial : BBB
+
+CCC : total ~ AAA
+DDD : partial ~ BBB
+
+/pattern1 : total #201
+/pattern2 : partial #201

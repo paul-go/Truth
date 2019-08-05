@@ -1,0 +1,18 @@
+//
+// A fault is generated when a pattern attempts to match one or more 
+// types that are elements of a recursive structure. Even if this were proven
+// to not result in a plethora of corner cases (which hasn't been fully
+// explored at the time of this writing), the amount of complexity that
+// this would introduce into the compiler would be similar to the
+// complexity of building an entire Parsing Expression Grammar
+// (such as PegJS) or Parsing DSL (such as Chevrotain).
+//
+
+Number
+/\d+/ : Number
+
+Range
+	Low : Range
+	High : Range
+
+#416; /<Low> - <High>/ : Range

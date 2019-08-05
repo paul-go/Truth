@@ -1,0 +1,22 @@
+// 
+// This example demonstrates a total pattern matching the
+// "sum" of another type. A type's "sum" refers to the textual
+// content present on the left side of the last fragment of a
+// type. A type cannot have multiple sums, but the same sum
+// may be shared between different types.
+// 
+
+Summation
+/\w{3},w{3}/ : Summation
+
+Value1, Value2 : aaa,bbb
+Value1, Value2 : ccc,ddd
+
+Value1 ~ Summation
+Value2 ~ Summation
+
+// Value1 and Value2 would have the value cc,ddd
+// Not aaa,bbb
+// 
+// This can't be expressed as a check in this file due
+// to a limitation of the test generator.

@@ -1,0 +1,20 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+	"files.exclude": {
+		"**/.git": true,
+		"**/.DS_Store": true,
+		"**/Build": true,
+		"**/node_modules": true
+	},
+	"search.exclude": {
+		"**/.git": true,
+		"**/.DS_Store": true,
+		"**/Build": true,
+		"**/node_modules": true
+	},
+	
+	// Causes annoyances with the X bundle format
+	"typescript.suggest.autoImports": false,
+	
+	"eslint.run": "onSave"
+}

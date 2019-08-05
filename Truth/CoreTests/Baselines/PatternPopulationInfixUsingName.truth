@@ -1,0 +1,29 @@
+//
+// This example demonstrates a population infixes using
+// the similar angle bracket <syntax>, but the first matching 
+// a pattern, and the second matching the name of a type, 
+// (effectively behaving as a nominal infix) due to no patterns 
+// being defined on it.
+//
+Number
+/\d+/ : Number
+
+CurrencyCode
+CAD, USD : CurrencyCode
+
+Price
+	Amount : Number
+	CurrencyCode
+	
+/$<Amount> <CurrencyCode>/ : Price
+
+Product
+	Price
+
+Widget1 : Product
+	Price : $13 CAD ~ Number
+		~ CurrencyCode : CAD
+
+Widget2 : Product
+	Price : $10 USD ~ Number
+		~ CurrencyCode : USD
