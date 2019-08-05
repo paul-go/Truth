@@ -10,7 +10,8 @@
 		"lib": [
 			"es7",
 			"es2017",
-			"es2017.object"
+			"es2017.object",
+			"esnext"
 		]
 	},
 	"include": [

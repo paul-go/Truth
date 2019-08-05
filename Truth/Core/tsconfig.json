@@ -4,7 +4,10 @@
 		"rootDir": "./",
 		"baseUrl": "./",
 		"declaration": true,
-		"outDir": "../Build/Dev/Core"
+		"outDir": "../Build/Dev/Core",
+		"lib": [
+			"esnext"
+		]
 	},
 	"include": [
 		"**/*.ts"
