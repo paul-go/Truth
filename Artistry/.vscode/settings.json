@@ -1,0 +1,20 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+	"files.exclude": {
+		"**/.git": true,
+		"**/.DS_Store": true,
+		"**/agent": true,
+		"**/node_modules": true
+	},
+	"search.exclude": {
+		"**/.git": true,
+		"**/.DS_Store": true,
+		"**/agent": true,
+		"**/node_modules": true
+	},
+	"less.compile": {
+		"compress": false,
+		"out": false,
+		"main": "style.less"
+	}
+}
