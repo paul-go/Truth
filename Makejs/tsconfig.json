@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"module": "system",
+		"target": "esnext",
+		"moduleResolution": "node",
+		"inlineSourceMap": true,
+		"inlineSources": true,
+		"stripInternal": true,
+		"strict": true,
+		"outDir": "./build/source",
+		"baseUrl": ".",
+		"lib": [
+			"esnext"
+		]
+	},
+	"include": [
+		"./source/*.ts"
+	]
+}
