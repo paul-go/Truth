@@ -1,7 +1,7 @@
 ---
-name: Reflex Issue
-about: An issue relating to the Reflex project
+name: Artistry Issue
+about: An issue relating to the Artistry project
 title: ''
-labels: Reflex
+labels: Artistry
 assignees: ''
 ---
