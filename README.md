@@ -8,7 +8,7 @@ This repository hosts the collection of tools and libraries that compose the Tru
 
 **Truth** - The data modeling language that acts as the foundation for the entire stack.
 
-**Backer** -  A tool that generates an embeddable Typescript data management library from a body of Truth code.
+**Backer** -  A tool that generates an embeddable TypeScript data management library from a body of Truth code.
 
 **Reflex** - A fast, lightweight state management library suitable for building web user interfaces.
 
