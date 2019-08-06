@@ -174,7 +174,9 @@ function classifyLine(viewLine: HTMLElement)
 		m.trimLeft.startsWith("// ") ||
 		m.trimLeft.startsWith("//" + s);
 	
-	const isDeadComment = m.trimLeft.startsWith("///");
+	const isDeadComment =
+		m.trimLeft.startsWith("///") &&
+		!m.trimLeft.startsWith("/// <");
 	
 	const isAttentionComment = 
 		m.trim === "//!" ||
