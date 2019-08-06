@@ -1,3 +1,4 @@
+/// <reference path="../../make.d.ts" />
 
 make.on("build", async () =>
 {
