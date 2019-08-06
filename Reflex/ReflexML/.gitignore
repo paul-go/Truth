@@ -1,6 +1,1 @@
-.DS_Store
-package-lock.json
-build
-bundle
-node_modules
 reflex.d.ts
