@@ -1,0 +1,11 @@
+{
+	"name": "backer",
+	"version": "0.0.1",
+	"author": "Truebase",
+	"description": "Generates a embeddable Typescript data management libraries from Truth code.",
+	"scripts": {
+		"start": "",
+		"build": ""
+	},
+	"license": "ISC"
+}
