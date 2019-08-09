@@ -10,9 +10,10 @@ cd ..
 ln -s ./Makejs/build/source/make.d.ts ./make.d.ts
 ln -s ./Makejs/build/source/make.js ./make.js
 
-echo "This script will globally install the latest versions of: TypeScript, Jest, Terser."
+echo "This script will globally install the latest versions of: TypeScript, Jest, Terser, Puppeteer."
 read -p "Press any key to continue, or CTRL+C to quit."
 
 npm install -g jest
 npm install -g typescript
 npm install -g terser
+npm install -g puppeteer
