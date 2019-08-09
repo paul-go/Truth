@@ -13,8 +13,3 @@ This repository hosts the collection of tools and libraries that compose the Tru
 **Reflex** - A fast, lightweight state management library suitable for building web user interfaces.
 
 **Makejs** - A package of utility for creating and distributing JavaScript bundles.
-
-**Artistry** - A series of tools (Visual Studio Code extensions and ESLint rules) that enforce the code style used throughout this code base.
-
-
-

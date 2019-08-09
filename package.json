@@ -1,0 +1,21 @@
+{
+	"name": "truthstack",
+	"version": "1.0.0",
+	"author": "Truebase",
+	"license": "ISC",
+	"description": "This repository hosts the collection of tools and libraries that compose the Truth technology stack.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Truebase-com/TruthStack.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Truebase-com/TruthStack/issues"
+	},
+	"scripts": {
+		"init": "sh ./Install.sh"
+	},
+	"devDependencies": {
+		"@types/puppeteer": "^1.19.0",
+		"artistry-code-style": "git+https://github.com/Truebase-com/Artistry.git"
+	}
+}
