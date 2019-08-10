@@ -34,7 +34,7 @@ namespace Reflex.ML.Test
 			testArrayReflexes,
 			testStatefulReflexes,
 			testComplexReflexes,
-			testValueBinding,
+			testValueBinding
 			///testProxyObjects,
 			
 			// These don't need to be uncommented for now
@@ -90,7 +90,7 @@ namespace Reflex.ML.Test
 							ml.h3(ml`Flip On Click (true)`) : 
 							ml.h4(ml(`Flip On Click (false)`));
 					}),
-					ml.h5(ml`Added On Double Click (Goes After)`),
+					ml.h5(ml`Added On Double Click (Goes After)`)
 				];
 			}),
 			
@@ -407,7 +407,7 @@ namespace Reflex.ML.Test
 				await wait();
 				yield ml.div("red", ml`RED`);
 				
-				yield async function*(e, children)
+				yield function*(e, children)
 				{
 					yield ml.div("green", ml`GREEN`);
 				};
@@ -429,7 +429,7 @@ namespace Reflex.ML.Test
 				await wait();
 				yield ml.div(`purple`, ml(makeString()));
 				yield ml`(Begin nested stream)`;
-				yield ml.hr(),
+				yield ml.hr();
 				
 				yield async function*(e, children)
 				{
