@@ -16,6 +16,10 @@
 	},
 	"devDependencies": {
 		"@types/puppeteer": "^1.19.0",
-		"artistry-code-style": "git+https://github.com/Truebase-com/Artistry.git"
+		"@typescript-eslint/eslint-plugin": "^1.13.0",
+		"@typescript-eslint/parser": "^1.13.0",
+		"artistry-code-style": "0.0.2",
+		"eslint": "^6.1.0",
+		"typescript": "^3.5.3"
 	}
 }

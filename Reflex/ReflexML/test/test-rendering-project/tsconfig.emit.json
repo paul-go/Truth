@@ -1,0 +1,12 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"composite": true,
+		"declaration": true,
+		"stripInternal": true,
+		"outFile": "./build/source/reflex-ml-test-emit.js"
+	},
+	"references": [
+		{ "path": "../ReflexCore" }
+	]
+}

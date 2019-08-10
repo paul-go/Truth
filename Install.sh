@@ -14,6 +14,5 @@ echo "This script will globally install the latest versions of: TypeScript, Jest
 read -p "Press any key to continue, or CTRL+C to quit."
 
 npm install -g jest
-npm install -g typescript
 npm install -g terser
 npm install -g puppeteer
