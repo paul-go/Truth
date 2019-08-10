@@ -42,14 +42,10 @@
 	"devDependencies": {
 		"@types/jest": "^23.3.12",
 		"@types/node": "^10.12.18",
-		"@typescript-eslint/eslint-plugin": "^1.4.2",
-		"@typescript-eslint/parser": "^1.4.2",
-		"artistry-code-style": "^0.0.1",
 		"jest": "23.6.0",
 		"jsonviz": "git+https://github.com/HaroldRitter/jsonviz.git",
 		"memfs": "^2.10.1",
 		"rollup": "^1.1.0",
-		"terser": "^3.16.0",
-		"typescript": "^3.2.2"
+		"terser": "^3.16.0"
 	}
 }
