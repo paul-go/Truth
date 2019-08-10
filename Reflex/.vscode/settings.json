@@ -6,8 +6,7 @@
 		"**/build": true,
 		"**/bundle": true,
 		"**/node_modules": true,
-		"**/package-lock.json": true,
-		"**/ReflexRendererLegacy/**": true
+		"**/package-lock.json": true
 	},
 	"search.exclude": {
 		"**/.git": true,
