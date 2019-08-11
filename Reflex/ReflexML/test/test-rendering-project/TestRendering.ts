@@ -1,4 +1,4 @@
-
+/*
 namespace Reflex.ML.Test
 {
 	setTimeout(async () =>
@@ -41,3 +41,4 @@ namespace Reflex.ML.Test
 		document.body.append(ml.iframe({ srcdoc }));
 	});
 }
+*/
