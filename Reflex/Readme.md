@@ -261,3 +261,4 @@ Although this document demonstrates ReflexML, the same principles could easily b
 ## Why So Much Global Namespace Pollution?
 
 Because it simplifies the programming model, and also because the problems of "global namespace pollution" are overstated. Global namespace pollution is a problem when it's being done by `leftpad`-type libraries (that probably shouldn't exist in the first place). It's less of a problem when its being done by a library that is dictating an entire method of software architecture. We may consider another option in the future to put these global functions inside a `Reflex` namespace of some sort.
+
