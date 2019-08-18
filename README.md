@@ -15,3 +15,4 @@ This repository hosts the collection of tools and libraries that compose the Tru
 ## Contributing
 
 This repo uses the Artistry code style, and contributions will be vetted for conformance. You can read more about it [here](https://github.com/Truebase-com/Artistry).
+ 
