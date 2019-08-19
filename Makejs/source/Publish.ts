@@ -117,45 +117,4 @@ namespace make
 		 */
 		registries: ("npm" | string)[];
 	}
-	
-	
-	
-	
-	
-	/** * /
-	function getLatestVersion(...versions: [number, number, number][])
-	{
-		if (versions.length === 0)
-			throw new Error("At least one version must be specified.");
-		
-		if (versions.length === 1)
-			return versions[0];
-		
-		for (let segment = -1; ++segment < 3;)
-		{
-			const distinct = versions
-				.map(version => version[segment])
-				.filter((v, i, a) => a.indexOf(v) === i);
-			
-			
-		}
-		
-		const allEqual = (idx: number) =>
-		{
-			versions.slice(1).every((verArray, verItem) => verAr[idx]
-		}
-	}*/
-	
-	/** */
-	function parseVersion(versionText: string)
-	{
-		const values = <[number, number, number]>versionText
-			.split(".")
-			.map(numText => parseInt(numText));
-		
-		if (values.length !== 3 || values.some(v => v !== v))
-			return [0, 0, 0];
-		
-		return values;
-	}
 }

@@ -191,14 +191,12 @@ namespace make
 		latest = "latest",
 	}
 	
-	
-	
 	/**
 	 * Simple object check.
 	 * @param item
 	 * @returns {boolean}
 	 */
-	export function isObject(item: any): item is MapLike
+	function isObject(item: any): item is MapLike
 	{
 		return (item && typeof item === "object" && !Array.isArray(item));
 	}
@@ -208,7 +206,7 @@ namespace make
 	 * @param target
 	 * @param ...sources
 	 */
-	export function mergeDeep(target: MapLike, ...sources: MapLike[]): MapLike
+	function mergeDeep(target: MapLike, ...sources: MapLike[]): MapLike
 	{
 		if (!sources.length)
 			return target;
