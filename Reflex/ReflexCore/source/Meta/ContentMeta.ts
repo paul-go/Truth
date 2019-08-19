@@ -14,7 +14,7 @@ namespace Reflex.Core
 		}
 		
 		/** */
-		private static metas = new WeakMap<IContent, ContentMeta>();
+		private static readonly metas = new WeakMap<IContent, ContentMeta>();
 		
 		/** */
 		constructor(
