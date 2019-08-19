@@ -141,7 +141,7 @@ namespace Reflex.Core
 					new ContentMeta(object);
 				
 				return out;
-			}
+			};
 		}
 		
 		/**
@@ -162,7 +162,7 @@ namespace Reflex.Core
 		 * Reflexive libraries that have static members in their namespace must
 		 * return them as an object in this method.
 		 */
-		abstract getNamespaceStatic(): { [name: string]: any; } | null;
+		abstract getNamespaceStatic(): { [name: string]: any } | null;
 		
 		/**
 		 * Reflexive libraries that have computed members in their namespace must
