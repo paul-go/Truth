@@ -230,7 +230,7 @@ namespace Reflex.Core
 			if ("MODERN")
 			{
 				return proxy = <any>new Proxy(source, {
-					get(source: any[], name: keyof Array<any>)
+					get(source: any[], name: keyof any[])
 					{
 						// Overridden array functions
 						switch (name)
@@ -321,13 +321,9 @@ namespace Reflex.Core
 				return false;
 				
 			if ("MODERN")
-			{
 				return isReflexFunction((<any>object).added);
-			}
-			else
-			{
-				return false;
-			}
+			
+			return false;
 		}
 	}
 }

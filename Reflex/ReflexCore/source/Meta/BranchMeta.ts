@@ -16,7 +16,7 @@ namespace Reflex.Core
 		}
 		
 		/** */
-		private static metas = new WeakMap<IBranch, BranchMeta>();
+		private static readonly metas = new WeakMap<IBranch, BranchMeta>();
 		
 		/** */
 		constructor(
