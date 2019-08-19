@@ -257,9 +257,10 @@ namespace Reflex.Core
 			for (const meta of childMetas)
 			{
 				// ClosureMetas can be safely ignored.
-				if (meta instanceof ClosureMeta) { }
+				if (meta instanceof ClosureMeta)
+					continue;
 				
-				else if (meta instanceof ContentMeta || meta instanceof ValueMeta)
+				if (meta instanceof ContentMeta || meta instanceof ValueMeta)
 					lib.detachPrimitive(meta.value, containingBranch);
 				
 				else if (meta instanceof AttributeMeta)
@@ -285,5 +286,5 @@ namespace Reflex.Core
 					throw new Error("Not implemented.");
 			}
 		}
-	}
+	}();
 }
