@@ -15,5 +15,9 @@
 		"fs-extra": "^8.0.1",
 		"semver": "^6.1.0",
 		"terser": "^4.0.0"
+	},
+	"devDependencies": {
+		"@types/semver": "5.5.0",
+		"@types/fs-extra": "5.0.2"
 	}
 }
