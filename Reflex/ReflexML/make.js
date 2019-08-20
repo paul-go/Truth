@@ -1,3 +1,4 @@
+/* eslint-disable filenames/match-regex */
 /// <reference path="../../make.d.ts" />
 
 make.on(async () =>
@@ -10,8 +11,8 @@ async function bundle()
 	make.copy("./build/source/reflex-ml.js", "./bundle");
 	make.copy("./build/source/reflex-ml.d.ts", "./bundle");
 	await make.compilationConstants("./bundle/reflex-ml.js", {
-		"MODERN": true,
-		"DEBUG": false
+		MODERN: true,
+		DEBUG: false
 	});
 	await make.minify("./bundle/reflex-ml.js");
 }
