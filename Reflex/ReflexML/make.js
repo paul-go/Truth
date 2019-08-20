@@ -1,26 +1,32 @@
 /// <reference path="../../make.d.ts" />
 
-make.on("build", async () =>
+make.on(async () =>
 {
 	await make.typescript("./tsconfig.source.json");
 });
 
-make.on("bundle", async () =>
+async function bundle()
 {
-	await make.typescript("./tsconfig.source.json");
-	
-	make.copy("./build/source/reflex.js", "./bundle");
-	make.modulize("./bundle/reflex.js", "{ Reflex: Reflex, re: re }");
-	
-	make.copy("./build/source/reflex.d.ts", "./bundle");
-	make.minify("./bundle/reflex.js");
-	
+	make.copy("./build/source/reflex-ml.js", "./bundle");
+	make.copy("./build/source/reflex-ml.d.ts", "./bundle");
+	await make.compilationConstants("./bundle/reflex-ml.js", {
+		"MODERN": true,
+		"DEBUG": false
+	});
+	await make.minify("./bundle/reflex-ml.js");
+}
+
+make.on("bundle", bundle);
+
+make.on("publish", async () => 
+{
+	await bundle();
 	await make.publish({
 		directory: "./bundle",
 		packageFile: "./package.json",
 		packageFileChanges: {
-			main: "./reflex.js",
-			types: "./reflex.d.ts"
+			main: "./reflex-ml.min.js",
+			types: "./reflex-ml.d.ts"
 		},
 		registries: ["http://localhost:4873"]
 	});
