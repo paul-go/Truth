@@ -17,7 +17,8 @@
 		"terser": "^4.0.0"
 	},
 	"devDependencies": {
+		"@types/fs-extra": "5.0.2",
 		"@types/semver": "5.5.0",
-		"@types/fs-extra": "5.0.2"
+		"artistry-code-style": "0.0.2"
 	}
 }

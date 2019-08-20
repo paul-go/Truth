@@ -13,17 +13,17 @@ namespace make
 	 * The replaced falsy values are then identified as dead code by terser,
 	 * which subsequently causes the code to be removed.
 	 */
-	export async function compilationConstants(
-		file: string,
+	export function compilationConstants( 
+		file: string, 
 		constants: { [key: string]: boolean }
 	) {
-		let content = await Fs.promises.readFile(file, "utf8");
+		let content = Fs.readFileSync(file, "utf8"); 
 		for (const key in constants) 
-		{
-			if (constants[key]) continue;
-			const k = key.replace(/./g, () => "1");
-			content = content.replace(new RegExp(`\"${key}\"`, "g"), key => `0*${k}`);
-		}
-		await Fs.promises.writeFile(file, content);
+		{ 
+			if (constants[key]) continue; 
+			const k = "1".repeat(key.length); 
+			content = content.replace(new RegExp(`\"${key}\"`, "g"), key => `0*${k}`); 
+		} 
+		Fs.writeFileSync(file, content); 
 	}
 }
