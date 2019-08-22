@@ -11,21 +11,29 @@ namespace make
 		{
 			const cmd = command.replace(/[\r\n]/g, "").trim();
 			const fullEnvVars = Object.assign({}, process.env, envVars || {});
-			const proc = ChildProcess.exec(cmd, fullEnvVars );
-			
-			proc.stdout!.on("data", (data: any) =>
-			{
-				process.stdout.write(data);
-			});
-			
-			proc.stderr!.on("data", (data: any) =>
-			{
-				process.stderr.write(data);
-			});
-			
+			const proc = ChildProcess.exec(cmd, {env: fullEnvVars});
+			proc.stdout!.pipe(process.stdout);
+			proc.stderr!.pipe(process.stderr);
 			proc.on("exit", (code: number) =>
 			{
+				console.log("->", cmd, code);
 				resolve();
+			});
+		});
+	}
+
+	export async function spawn(exe: string, args: string[])
+	{
+		return new Promise((resolve, reject) => 
+		{
+			const proc = ChildProcess.spawn(exe, args, {
+				stdio: "inherit",
+			});
+			proc.on("close", function(code) 
+			{
+				if (code < 0) 
+					return reject("Error detected");
+				return resolve();
 			});
 		});
 	}

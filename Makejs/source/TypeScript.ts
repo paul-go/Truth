@@ -5,14 +5,14 @@ namespace make
 	 * Compiles the typescript at the specified location, 
 	 * and with any additional tsconfig compilerOptions entries.
 	 */
-	export async function typescript(path: string, tsConfigOverrides: TsConfig): Promise<void>;
-	export async function typescript(path: string): Promise<void>;
-	export async function typescript(tsConfigOverrides: TsConfig): Promise<void>;
-	export async function typescript(a: any, b?: any)
+	export async function typescript(path: string, tsConfigOverrides: TsConfig, watch: boolean): Promise<void>;
+	export async function typescript(path: string, watch: boolean): Promise<void>;
+	export async function typescript(tsConfigOverrides: TsConfig, watch: boolean): Promise<void>;
+	export async function typescript(a: any, b?: any, c = false)
 	{
 		console.log("Running TypeScript Compiler");
 		
-		const path = 
+		let path = 
 			typeof a === "string" ? a : 
 				typeof b === "string" ? b : "./tsconfig.json";
 		
@@ -20,6 +20,8 @@ namespace make
 			typeof a === "object" ? a :
 				typeof b === "object" ? b : null;
 		
+		const watch: boolean = 
+			typeof b === "boolean" ? b : c;
 		if (tsConfigOverrides !== null)
 		{
 			const existingConfig = readJson(path);
@@ -28,11 +30,15 @@ namespace make
 			const tempFile = `tsconfig.${random()}.json`;
 			const tempPath = Path.join(Path.parse(path).dir, tempFile);
 			writeJson(tempPath, augmentedConfig);
-			
-			await shell(`tsc -p ${tempPath}`);
-			Fs.unlinkSync(tempPath);
+			make.on("exit", () => 
+			{
+				make.delete(tempPath);
+			});
+			path = tempPath;
 		}
-		else await shell(`tsc -p ${path}`);
+		const args = ["--project", path];
+		if(watch) args.push("--watch");
+		await spawn("tsc", args);
 	}
 	
 	//# Type definitions copied from https://github.com/Microsoft/TypeScript/blob/master/lib/typescript.d.ts

@@ -3,6 +3,18 @@
  * This file is the main entry point of the Makejs tool.
  */
 
+process.on("SIGINT", () => {
+	make.on.stage(process.argv, "kill");
+});
+
+process.on("beforeExit", () => {
+	make.on.stage(process.argv, "idle");
+});
+
+process.on("exit", () => {
+	make.on.stage(process.argv, "exit");
+});
+
 setImmediate(async () =>
 {
 	const tags = process.argv.filter(arg => /^[a-z]+(-[a-z]+)*$/gi.test(arg));
@@ -22,6 +34,8 @@ setImmediate(async () =>
 	FsExtra.mkdirpSync("./build");
 	FsExtra.mkdirpSync("./bundle");
 	
+	await make.on.stageAsync(process.argv, "start");
+	await make.on.stageAsync(process.argv, "init");
 	await make.on.start(process.argv, tags);
 	console.log("Complete.");
 });

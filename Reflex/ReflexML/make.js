@@ -1,9 +1,15 @@
 /* eslint-disable filenames/match-regex */
 /// <reference path="../../make.d.ts" />
 
-make.on(async () =>
+make.on("build", async () =>
 {
 	await make.typescript("./tsconfig.source.json");
+});
+
+make.on("test", () =>
+{
+	make.typescript("../ReflexCore/tsconfig.json", true);
+	make.typescript("./tsconfig.test.json", true);
 });
 
 async function bundle()
