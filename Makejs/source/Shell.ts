@@ -11,7 +11,7 @@ namespace make
 		{
 			const cmd = command.replace(/[\r\n]/g, "").trim();
 			const fullEnvVars = Object.assign({}, process.env, envVars || {});
-			const proc = ChildProcess.exec(cmd, {env: fullEnvVars});
+			const proc = ChildProcess.exec(cmd, { env: fullEnvVars });
 			proc.stdout!.pipe(process.stdout);
 			proc.stderr!.pipe(process.stderr);
 			proc.on("exit", (code: number) =>
@@ -22,21 +22,31 @@ namespace make
 		});
 	}
 
-	export async function spawn(exe: string, args: string[])
+	/**
+	 * Spawns a process with given arguments.
+	 */
+	export function spawn(exe: string, args: string[]): ReturnOfSpawn
 	{
-		return new Promise((resolve, reject) => 
+		const proc = ChildProcess.spawn(exe, args, {
+			stdio: "inherit",
+		});
+		const promise = new Promise<void>((resolve, reject) => 
 		{
-			const proc = ChildProcess.spawn(exe, args, {
-				stdio: "inherit",
-			});
 			proc.on("close", function(code) 
-			{
-				if (code < 0) 
-					return reject("Error detected");
-				return resolve();
+			{ 
+				if(code < 0) reject("Error detected"); else resolve();
 			});
 		});
+		return { proc, promise };
 	}
+
+	/**
+	 * Return type of spawn function
+	 */
+	export type ReturnOfSpawn = {
+    proc: ReturnType<typeof ChildProcess.spawn>;
+    promise: Promise<void>;
+	};
 	
 	/**
 	 * Synchronously runs the specified command on the shell.

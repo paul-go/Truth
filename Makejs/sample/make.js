@@ -1,13 +1,14 @@
+/* eslint-disable filenames/match-regex */
 
 make.on(async () =>
 {
-	make.typescript("./tsconfig.json", true);
+	make.typescriptWatcher("./tsconfig.json");
 	
-	make.typescript("./tsconfig.json", {
+	await make.typescript("./tsconfig.json", {
 		compilerOptions: {
 			outFile: "./build/e-work.js"
 		}
-	}, true);
+	});
 	
 	make.delete("./build/e.js");
 	make.copy("./wedge.js", "./build");

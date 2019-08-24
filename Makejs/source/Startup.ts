@@ -3,15 +3,18 @@
  * This file is the main entry point of the Makejs tool.
  */
 
-process.on("SIGINT", () => {
+process.on("SIGINT", () => 
+{
 	make.on.stage(process.argv, "kill");
 });
 
-process.on("beforeExit", () => {
+process.on("beforeExit", () => 
+{
 	make.on.stage(process.argv, "idle");
 });
 
-process.on("exit", () => {
+process.on("exit", () => 
+{
 	make.on.stage(process.argv, "exit");
 });
 

@@ -10,8 +10,7 @@
 		"outDir": "build",
 		"baseUrl": "./",
 		"lib": [
-			"esnext",
-			"dom"
+			"esnext"
 		]
 	},
 	"files": [

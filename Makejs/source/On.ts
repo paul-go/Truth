@@ -46,6 +46,9 @@ namespace make
 			}
 		}
 
+		/**
+		 * Triggers life cycle events for sync stages (exit, kill)
+		 */
 		export function stage(args: string[], tag: string)
 		{
 			const tasks = makeTasks.filter(task => task.tags.includes(tag));
@@ -55,6 +58,9 @@ namespace make
 			};
 		}
 
+		/**
+		 * Triggers life cycle events for async stages (start, init)
+		 */
 		export async function stageAsync(args: string[], tag: string)
 		{
 			const tasks = makeTasks.filter(task => task.tags.includes(tag));
