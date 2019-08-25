@@ -5,6 +5,7 @@ make.on(async () =>
 			outDir: "./build"
 		}
 	});
+	
 	make.compilationConstants("./build/a.js", {
 		DEBUG: false,
 		MODERN: true

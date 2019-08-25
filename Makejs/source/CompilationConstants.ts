@@ -15,8 +15,8 @@ namespace make
 	 */
 	export function compilationConstants( 
 		file: string, 
-		constants: { [key: string]: boolean }
-	) {
+		constants: { [key: string]: boolean }) 
+	{
 		let content = Fs.readFileSync(file, "utf8"); 
 		for (const key in constants) 
 		{ 
