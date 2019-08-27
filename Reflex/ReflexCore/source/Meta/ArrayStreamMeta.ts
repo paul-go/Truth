@@ -50,7 +50,7 @@ namespace Reflex.Core
 			ReflexUtil.attachReflex(effectArray.added, (item: any, position: number) =>
 			{
 				const primitives = rec.userCallback(item, containingBranch, position);
-				
+
 				const metas = CoreUtil.translatePrimitives(
 					containingBranch,
 					this.containerMeta,
@@ -65,7 +65,17 @@ namespace Reflex.Core
 			
 			ReflexUtil.attachReflex(effectArray.removed, (item: any, position: number) =>
 			{
-				// This one doesn't call the render function, it's only subtractive.
+				const iterator = RoutingLibrary.this.getChildren(containingBranch);
+				for(const item of iterator) 
+				{
+					const Meta = BranchMeta.of(item);
+					if(Meta && 
+						Meta.locator.compare(this.locator) == CompareResult.lower &&
+						--position === -1) 
+					{
+						CoreUtil.unapplyMetas(containingBranch, [ Meta ]);
+					}
+				}
 			});
 			
 			ReflexUtil.attachReflex(effectArray.moved, () =>
@@ -107,7 +117,7 @@ namespace Reflex.Core
 				const childMeta = 
 					BranchMeta.of(<any>child) ||
 					ContentMeta.of(<any>child);
-				
+					
 				if (childMeta && childMeta.key === key)
 				{
 					inRange = true;
