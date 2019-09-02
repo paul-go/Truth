@@ -90,6 +90,14 @@ namespace Reflex.Core
 			return this.libraryOf(branch).detachPrimitive(primitive, branch);
 		}
 		
+		/*
+		 *
+		 */
+		swapElement(branch: IBranch, p1: IBranch, p2: IBranch)
+		{
+			return this.libraryOf(branch).swapElement(p1, p2);
+		}
+
 		/**
 		 * 
 		 */

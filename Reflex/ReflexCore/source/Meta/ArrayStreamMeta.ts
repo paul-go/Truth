@@ -62,9 +62,9 @@ namespace Reflex.Core
 					metas,
 					localTracker);
 			});
-			
-			ReflexUtil.attachReflex(effectArray.removed, (item: any, position: number) =>
-			{
+
+			const findMeta = (position: number) => 
+			{	
 				const iterator = RoutingLibrary.this.getChildren(containingBranch);
 				for(const item of iterator) 
 				{
@@ -73,14 +73,24 @@ namespace Reflex.Core
 						Meta.locator.compare(this.locator) == CompareResult.lower &&
 						--position === -1) 
 					{
-						CoreUtil.unapplyMetas(containingBranch, [ Meta ]);
+						return Meta;
 					}
 				}
+			}
+			
+			ReflexUtil.attachReflex(effectArray.removed, (item: any, position: number) =>
+			{
+				const meta = findMeta(position);
+				if(meta)
+					CoreUtil.unapplyMetas(containingBranch, [ meta ]);
 			});
 			
-			ReflexUtil.attachReflex(effectArray.moved, () =>
+			ReflexUtil.attachReflex(effectArray.swaped, (e1: any, e2: any, i1: number, i2: number) =>
 			{
-				// TODO: Implement moving of items in the array.
+				const source = findMeta(i1)!;
+				const target = findMeta(i2)! || null;
+				if(source) 
+					RoutingLibrary.this.swapElement(containingBranch, source.branch, target.branch);
 			});
 		}
 		

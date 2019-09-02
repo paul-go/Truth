@@ -211,6 +211,11 @@ namespace Reflex.Core
 		 * 
 		 */
 		abstract detachPrimitive(primitive: any, branch: IBranch): void;
+
+		/**
+		 * 
+		 */
+		abstract swapElement(p1: IBranch, p2: IBranch): void;
 		
 		/**
 		 * 
