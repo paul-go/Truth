@@ -8,8 +8,8 @@ make.on("build", async () =>
 
 make.on("test", () =>
 {
-	make.typescript("../ReflexCore/tsconfig.json", true);
-	make.typescript("./tsconfig.test.json", true);
+	make.typescriptWatcher("../ReflexCore/tsconfig.json");
+	make.typescriptWatcher("./tsconfig.test.json");
 });
 
 async function bundle()

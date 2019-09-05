@@ -50,12 +50,12 @@ namespace Reflex.Core
 			ReflexUtil.attachReflex(effectArray.added, (item: any, position: number) =>
 			{
 				const primitives = rec.userCallback(item, containingBranch, position);
-
+				
 				const metas = CoreUtil.translatePrimitives(
 					containingBranch,
 					this.containerMeta,
 					primitives);
-				
+					
 				CoreUtil.applyMetas(
 					containingBranch,
 					this.containerMeta,
@@ -65,32 +65,47 @@ namespace Reflex.Core
 
 			const findMeta = (position: number) => 
 			{	
+				let pos = position;
 				const iterator = RoutingLibrary.this.getChildren(containingBranch);
-				for(const item of iterator) 
+				for (const item of iterator) 
 				{
 					const Meta = BranchMeta.of(item);
-					if(Meta && 
-						Meta.locator.compare(this.locator) == CompareResult.lower &&
-						--position === -1) 
+					if (Meta && 
+						Meta.locator.compare(this.locator) === CompareResult.lower &&
+						--pos === -1) 
 					{
 						return Meta;
 					}
 				}
-			}
+			};
 			
 			ReflexUtil.attachReflex(effectArray.removed, (item: any, position: number) =>
 			{
 				const meta = findMeta(position);
-				if(meta)
-					CoreUtil.unapplyMetas(containingBranch, [ meta ]);
+				if (meta)
+					CoreUtil.unapplyMetas(containingBranch, [meta]);
 			});
 			
-			ReflexUtil.attachReflex(effectArray.swaped, (e1: any, e2: any, i1: number, i2: number) =>
+			ReflexUtil.attachReflex(effectArray.swapped, (e1: any, e2: any, i1: number, i2: number) =>
 			{
-				const source = findMeta(i1)!;
-				const target = findMeta(i2)! || null;
-				if(source) 
+				const source = findMeta(i1);
+				const target = findMeta(i2);
+
+				if (source && target)
+				{
+					const sLV = source.locator.getlastLocatorValue();
+					const tLV = target.locator.getlastLocatorValue();
+					source.locator.updateLastLocatorValue(tLV);
+					target.locator.updateLastLocatorValue(sLV);
+
 					RoutingLibrary.this.swapElement(containingBranch, source.branch, target.branch);
+				}
+			});
+			
+			ReflexUtil.attachReflex(effectArray.tailChange, (item: any, position: number) =>
+			{
+				const source = findMeta(position);
+				if (source) localTracker.update(source.branch);
 			});
 		}
 		
