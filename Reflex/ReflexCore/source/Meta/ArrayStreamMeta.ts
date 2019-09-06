@@ -46,22 +46,6 @@ namespace Reflex.Core
 					metas,
 					localTracker);
 			}
-			
-			ReflexUtil.attachReflex(effectArray.added, (item: any, position: number) =>
-			{
-				const primitives = rec.userCallback(item, containingBranch, position);
-				
-				const metas = CoreUtil.translatePrimitives(
-					containingBranch,
-					this.containerMeta,
-					primitives);
-					
-				CoreUtil.applyMetas(
-					containingBranch,
-					this.containerMeta,
-					metas,
-					localTracker);
-			});
 
 			const findMeta = (position: number) => 
 			{	
@@ -79,11 +63,41 @@ namespace Reflex.Core
 				}
 			};
 			
+			ReflexUtil.attachReflex(effectArray.added, (item: any, position: number) =>
+			{
+				const primitives = rec.userCallback(item, containingBranch, position);
+				
+				const metas = CoreUtil.translatePrimitives(
+					containingBranch,
+					this.containerMeta,
+					primitives);
+					
+				let tracker = localTracker;
+				
+				if (position < effectArray.length)
+				{
+					const meta = findMeta(position - 1);
+					if (meta)
+					{
+						tracker = localTracker.derive();
+						tracker.update(meta.branch);
+					}
+				}
+					
+				CoreUtil.applyMetas(
+					containingBranch,
+					this.containerMeta,
+					metas,
+					tracker);
+			});
+						
 			ReflexUtil.attachReflex(effectArray.removed, (item: any, position: number) =>
 			{
 				const meta = findMeta(position);
 				if (meta)
+				{	
 					CoreUtil.unapplyMetas(containingBranch, [meta]);
+				}
 			});
 			
 			ReflexUtil.attachReflex(effectArray.swapped, (e1: any, e2: any, i1: number, i2: number) =>

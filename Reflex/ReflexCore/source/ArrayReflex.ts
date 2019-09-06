@@ -41,7 +41,6 @@ namespace Reflex.Core
 				ReflexUtil.attachReflex(root.removed, (item: T, index: number, id: number) =>
 				{
 					const loc = this.positions.indexOf(id);
-					console.log(id, loc, root.positions, this.positions);
 					if (loc > -1) this.splice(loc, 1);
 				});
 			}
@@ -62,7 +61,7 @@ namespace Reflex.Core
 		assignFilter(callbackFn: (value: T, index: number, array: ArrayReflex<T>) => boolean)
 		{
 			this.attachedFilter = callbackFn;
-			this.executeFilter;
+			this.executeFilter();
 			return this;
 		}
 		
@@ -70,8 +69,12 @@ namespace Reflex.Core
 		protected executeFilter()
 		{
 			const positions = this.positions.filter((pos, index) =>
-				!this.attachedFilter!(this.get(pos)!, index, this));
-			positions.forEach(x => this.splice(x, 1));
+				!this.attachedFilter!(this.root.get(pos)!, index, this));
+			positions.forEach(x => 
+			{
+				const loc = this.positions.indexOf(x);
+				if (loc > -1) this.splice(loc, 1);
+			});
 		}
 
 		/** */
@@ -88,7 +91,7 @@ namespace Reflex.Core
 					let changed = false;
 					for (let j = 0; j < l - (i + 1); j++)
 					{
-						if (this.get(j)! > this.get(j + 1)!)
+						if (this.attachedSorter(this.get(j)!, this.get(j + 1)!) > 0)
 						{
 							changed = true;
 							[arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
@@ -118,12 +121,11 @@ namespace Reflex.Core
 		/** */
 		insertRef(start: number, ...positions: number[])
 		{
-			const l = this.positions.length;
 			const filtered = this.attachedFilter ?
 				positions.filter((value, index) => this.attachedFilter!(this.root.get(value)!, index, this)) : positions;
-			this.positions.push(...filtered);
-			filtered.forEach((x, i) => this.added(this.root.get(x)!, l + i));
-			this.executeSort();
+			this.positions.splice(start, 0, ...filtered);
+			filtered.forEach((x, i) => this.added(this.root.get(x)!, start + i));
+			this.executeSort(); 
 		}
 		
 		/** */
@@ -227,14 +229,16 @@ namespace Reflex.Core
 		}
 		
 		/** */
-		sort(reflex: StatelessReflex, compareFn?: SortFunction<T>): this
-		sort(compareFn: SortFunction<T>): this
-		sort(a: SortFunction<T> | StatelessReflex, b?: SortFunction<T>)
+		sort(compareFn: SortFunction<T>, ...reflexes: Array<StatelessReflex | StatefulReflex>): this
 		{
 			const arr = new ArrayReflex(this);
-			arr.attachedSorter = b ? b : <SortFunction<T>>a;
-			if (b) 
-				ReflexUtil.attachReflex(<StatelessReflex>a, () => arr.executeSort());
+			arr.attachedSorter = compareFn;
+			for (const reflex of reflexes)
+			{
+				ReflexUtil.attachReflex(reflex instanceof StatefulReflex ? reflex.changed : reflex, () => 
+					arr.executeSort()
+				);
+			}
 			arr.insertRef(0, ...this.positions);
 			return arr.proxy() as this;
 		}
@@ -285,18 +289,15 @@ namespace Reflex.Core
 		}
 		
 		/** */
-		filter<S extends T>(reflex: StatelessReflex, callbackfn: FilterFunction<T>, thisArg?: any): ArrayReflex<S>;
-		filter(reflex: StatelessReflex, callbackfn: FilterFunction<T>, thisArg?: any): ArrayReflex<T>;
-		filter<S extends T>(callbackfn: FilterFunction<T>, thisArg?: any): ArrayReflex<S>;
-		filter(callbackfn: FilterFunction<T>, thisArg?: any): ArrayReflex<T>;
-		filter(a: any, b?: any, c?: any)
+		filter<S extends T>(callbackfn: FilterFunction<T>, ...reflex: Array<StatefulReflex | StatelessReflex>): ArrayReflex<S>;
+		filter(callbackfn: FilterFunction<T>, ...reflex: Array<StatefulReflex | StatelessReflex>): ArrayReflex<T>;
+		filter(callbackfn: FilterFunction<T>, ...reflexes: Array<StatefulReflex | StatelessReflex>)
 		{
 			const arr = new ArrayReflex(this);
-			const isReflex = b && b instanceof Function;
-			arr.attachedFilter = (isReflex ? b : a).bind((isReflex ? c : b) || arr);
-			if (isReflex)
+			arr.attachedFilter = callbackfn;
+			for (const reflex of reflexes)
 			{
-				ReflexUtil.attachReflex(a, () => 
+				ReflexUtil.attachReflex(reflex instanceof StatefulReflex ? reflex.changed : reflex, () => 
 				{
 					arr.executeFilter();
 					this.positions.forEach((x, i) => 

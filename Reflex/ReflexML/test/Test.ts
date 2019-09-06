@@ -1,7 +1,7 @@
 
 namespace Reflex.ML.Test
 {
-	0 && typeof window === "object" && setTimeout(() =>
+	1 && typeof window === "object" && setTimeout(() =>
 	{
 		///testBodyAttach();
 		
@@ -45,7 +45,7 @@ namespace Reflex.ML.Test
 		];
 		
 		functions.length = 0;
-		functions.push(testStatefulReflexes);
+		functions.push(testArrayReflexes);
 		
 		for (const fn of functions)
 		{
@@ -494,17 +494,36 @@ namespace Reflex.ML.Test
 	function testArrayReflexes()
 	{
 		const list = reflex([6, 3, 8]);
+		const sortFlip = reflex(false);
+		const sortSwitch = reflex(false);
+		const full = reflex(true);
 		
 		return ml.div(
 			ml.button(
 				ml`Add`,
-				on("click", () => void list.push(Math.random()))
+				on("click", () => void list.push(Math.round(Math.random() * 9)))
 			),
 			ml.button(
 				ml`Remove`,
 				on("click", () => void list.pop())
 			),
-			on(list, num => ml.div(ml(num)))
+			ml.button(
+				ml`Switch Filter`,
+				on("click", () => full.flip())
+			),
+			ml.button(
+				ml`Switch Sort`,
+				on("click", () => sortSwitch.flip())
+			),
+			ml.button(
+				ml`Flip Sorting`,
+				on("click", () => sortFlip.flip())
+			),
+			on(list
+				.filter((x) => full.value ? true : x > 5, full)
+				.sort((a, b) => sortSwitch.value ? sortFlip.value ? b - a : a - b : 0, sortSwitch, sortFlip)
+				.reverse(), 
+				num => ml.div(ml(num)))
 		);
 	}
 	
