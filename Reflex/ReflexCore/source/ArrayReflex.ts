@@ -137,7 +137,7 @@ namespace Reflex.Core
 		/** */
 		set length(i: number)
 		{
-			this.positions.length = i;
+			this.splice(i, this.positions.length - i);
 		}
 
 		private _proxy?: ArrayReflex<T>;
@@ -234,11 +234,9 @@ namespace Reflex.Core
 			const arr = new ArrayReflex(this);
 			arr.attachedSorter = compareFn;
 			for (const reflex of reflexes)
-			{
 				ReflexUtil.attachReflex(reflex instanceof StatefulReflex ? reflex.changed : reflex, () => 
 					arr.executeSort()
 				);
-			}
 			arr.insertRef(0, ...this.positions);
 			return arr.proxy() as this;
 		}
@@ -254,7 +252,7 @@ namespace Reflex.Core
 		/** */
 		lastIndexOf(searchElement: T, fromIndex?: number | undefined): number
 		{
-			for (let i = this.positions.length; --i > -1;)
+			for (let i = fromIndex || this.positions.length; --i > -1;)
 				if (this.get(i) === searchElement) return i;
 			return -1;
 		}
