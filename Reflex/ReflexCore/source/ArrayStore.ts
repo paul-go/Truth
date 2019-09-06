@@ -3,8 +3,14 @@ namespace Reflex.Core
 {
 	export class ArrayStore<T>
 	{
-		root: Record<number, {value: T | undefined, ref: number}> = {};
+		root: Record<number, {
+			value: T | undefined;
+			ref: number;
+		}> = {};
 		next = 0;
+		
+		changed = reflex<(item: T, index: number) => void>();
+		deleted = reflex<(item: T, index: number) => void>();
 
 		get(index: number)
 		{
@@ -14,8 +20,10 @@ namespace Reflex.Core
 
 		set(index: number, value: T)
 		{
-			if(!this.root.hasOwnProperty(index)) 
-				this.root[index] = {value: undefined, ref: 1};
+			if (!Object.prototype.hasOwnProperty.call(this.root, index)) 
+				this.root[index] = { value: undefined, ref: 1 };
+			else 
+				this.changed(value, index);
 			this.root[index].value = value;
 			return index;
 		}
@@ -32,11 +40,15 @@ namespace Reflex.Core
 
 		delete(index: number)
 		{
-			if(this.root.hasOwnProperty(index)) 
+			if (Object.prototype.hasOwnProperty.call(this.root, index)) 
 			{
 				const item = this.root[index];
-				if(item.ref > 1) item.ref--;
-				if(item.ref === 0) item.value = undefined;
+				if (item.ref > 1) item.ref--;
+				if (item.ref === 0) 
+				{
+					this.deleted(item.value!, index);
+					item.value = undefined;
+				}
 			}
 		}
 	}

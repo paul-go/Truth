@@ -44,6 +44,11 @@ namespace Reflex.Core
 					if (loc > -1) this.splice(loc, 1);
 				});
 			}
+			ReflexUtil.attachReflex(this.root.changed, () => 
+			{
+				this.executeFilter();
+				this.executeSort();
+			});
 		}
 
 		private attachedSorter?: (a: T, b: T) => number;
@@ -68,6 +73,8 @@ namespace Reflex.Core
 		/** */
 		protected executeFilter()
 		{
+			if (!this.attachedFilter) 
+				return;
 			const positions = this.positions.filter((pos, index) =>
 				!this.attachedFilter!(this.root.get(pos)!, index, this));
 			positions.forEach(x => 
@@ -124,7 +131,22 @@ namespace Reflex.Core
 			const filtered = this.attachedFilter ?
 				positions.filter((value, index) => this.attachedFilter!(this.root.get(value)!, index, this)) : positions;
 			this.positions.splice(start, 0, ...filtered);
-			filtered.forEach((x, i) => this.added(this.root.get(x)!, start + i));
+			filtered.forEach((x, i) => 
+			{
+				const loc = start + i;
+				this.added(this.root.get(x)!, loc);
+				if (!Object.prototype.hasOwnProperty.call(this, loc))
+					Object.defineProperty(this, loc, {
+						get()
+						{
+							return this.get(loc);
+						},
+						set(value: any)
+						{
+							return this.set(loc, value);
+						}
+					});
+			});
 			this.executeSort(); 
 		}
 		
@@ -145,6 +167,8 @@ namespace Reflex.Core
 		/** */
 		proxy()
 		{
+			// TODO: Change this if to !"PROXY"
+			if ("PROXY") return this;
 			if (!this._proxy)
 				this._proxy = new Proxy(this, {
 					get(target, prop: Extract<keyof ArrayReflex<T>, string>)
@@ -176,7 +200,6 @@ namespace Reflex.Core
 				if (!this.attachedFilter(value, index, this))
 					this.positions.splice(index, 1);
 			this.root.set(this.positions[index], value);
-			this.executeSort();
 		}
 
 		/** */
@@ -224,7 +247,7 @@ namespace Reflex.Core
 		slice(start?: number | undefined, end?: number | undefined): T[]
 		{
 			const arr = new ArrayReflex(this.root);
-			arr.positions = this.positions.slice(start, end);
+			arr.insertRef(0, ...this.positions.slice(start, end));
 			return arr.proxy();
 		}
 		
@@ -245,7 +268,8 @@ namespace Reflex.Core
 		indexOf(searchElement: T, fromIndex = 0): number
 		{
 			for (let i = fromIndex - 1; ++i < this.positions.length;)
-				if (this.get(i) === searchElement) return i;
+				if (this.get(i) === searchElement) 
+					return i;
 			return -1;
 		}
 		
@@ -253,7 +277,8 @@ namespace Reflex.Core
 		lastIndexOf(searchElement: T, fromIndex?: number | undefined): number
 		{
 			for (let i = fromIndex || this.positions.length; --i > -1;)
-				if (this.get(i) === searchElement) return i;
+				if (this.get(i) === searchElement) 
+					return i;
 			return -1;
 		}
 		
@@ -261,7 +286,8 @@ namespace Reflex.Core
 		every(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean
 		{
 			for (let i = -1; ++i < this.positions.length;)
-				if (!callbackfn.call(thisArg || this, this.get(i)!, i, this)) return false;
+				if (!callbackfn.call(thisArg || this, this.get(i)!, i, this)) 
+					return false;
 			return true;
 		}
 		
@@ -269,7 +295,8 @@ namespace Reflex.Core
 		some(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean
 		{
 			for (let i = -1; ++i < this.positions.length;)
-				if (callbackfn.call(thisArg || this, this.get(i)!, i, this)) return true;
+				if (callbackfn.call(thisArg || this, this.get(i)!, i, this)) 
+					return true;
 			return false;
 		}
 		
@@ -283,7 +310,12 @@ namespace Reflex.Core
 		/** */
 		map<U>(callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[]
 		{
-			return ArrayReflex.create(this.positions.map(x => this.root.get(x)).map((value, index) => callbackfn.call(thisArg || this, value!, index, this)));
+			return ArrayReflex.create(
+				this.positions.map(
+					x => this.root.get(x)
+				).map(
+					(value, index) => callbackfn.call(thisArg || this, value!, index, this)
+				));
 		}
 		
 		/** */
@@ -315,7 +347,7 @@ namespace Reflex.Core
 		reduce<U>(callbackfn: (previousValue: U, currentValue: T, currentIndex: number, array: T[]) => U, initialValue: U): U;
 		reduce(callbackfn: any, initialValue?: any)
 		{
-			return this.positions.reduce((prev, curr, ci) => callbackfn(this.get(prev), this.get(curr), ci, this), initialValue);
+			return this.positions.reduce((prev, curr, ci) => callbackfn(prev, this.get(curr), ci, this), initialValue);
 		}
 		
 		/** */
@@ -324,7 +356,7 @@ namespace Reflex.Core
 		reduceRight<U>(callbackfn: (previousValue: U, currentValue: T, currentIndex: number, array: T[]) => U, initialValue: U): U;
 		reduceRight(callbackfn: any, initialValue?: any)
 		{
-			return this.positions.reduceRight((prev, curr, ci) => callbackfn(this.get(prev), this.get(curr), ci, this), initialValue);
+			return this.positions.reduceRight((prev, curr, ci) => callbackfn(prev, this.get(curr), ci, this), initialValue);
 		}
 		
 		/** */
@@ -333,14 +365,16 @@ namespace Reflex.Core
 		find(predicate: any, thisArg?: any)
 		{
 			for (let i = -1; ++i < this.positions.length;)
-				if (predicate.call(thisArg || this, this.get(i)!, i, this)) return this.get(i)!;
+				if (predicate.call(thisArg || this, this.get(i)!, i, this)) 
+					return this.get(i)!;
 		}
 		
 		/** */
 		findIndex(predicate: (value: T, index: number, obj: T[]) => unknown, thisArg?: any): number
 		{
 			for (let i = -1; ++i < this.positions.length;)
-				if (predicate.call(thisArg || this, this.get(i)!, i, this)) return i;
+				if (predicate.call(thisArg || this, this.get(i)!, i, this)) 
+					return i;
 			return -1;
 		}
 		
@@ -397,7 +431,8 @@ namespace Reflex.Core
 		includes(searchElement: T, fromIndex: number = 0): boolean
 		{
 			for (let i = fromIndex - 1; ++i < this.positions.length;)
-				if (this.get(i) === searchElement) return true;
+				if (this.get(i) === searchElement) 
+					return true;
 			return false;
 		}
 		
@@ -436,7 +471,8 @@ namespace Reflex.Core
 		/** */
 		pop()
 		{
-			if (this.positions.length < 1) return void 0;
+			if (this.positions.length < 1) 
+				return void 0;
 			const pos = this.positions.pop()!;
 			const item = this.root.get(pos);
 			this.removed(item!, this.positions.length, pos);
@@ -454,7 +490,8 @@ namespace Reflex.Core
 		/** */
 		shift()
 		{
-			if (this.positions.length < 1) return void 0;
+			if (this.positions.length < 1) 
+				return void 0;
 			const pos = this.positions.shift()!;
 			const item = this.root.get(pos);
 			this.removed(item!, 0, pos);

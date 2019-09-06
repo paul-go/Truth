@@ -220,6 +220,11 @@ namespace Reflex.Core
 		/**
 		 * 
 		 */
+		abstract replaceElement(p1: IBranch, p2: IBranch): void;
+		
+		/**
+		 * 
+		 */
 		abstract attachAttribute(branch: IBranch, key: string, value: any): void;
 				
 		/**

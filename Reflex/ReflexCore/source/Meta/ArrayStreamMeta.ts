@@ -63,6 +63,25 @@ namespace Reflex.Core
 				}
 			};
 			
+			ReflexUtil.attachReflex(effectArray.root.changed, (item: any, position: number) => 
+			{
+				const internalPos = effectArray.positions.indexOf(position);
+				if (position > -1) 
+				{
+					const meta = findMeta(internalPos);
+					if (meta)
+					{
+						const primitives = rec.userCallback(item, containingBranch, position);
+						const metas = CoreUtil.translatePrimitives(
+							containingBranch,
+							this.containerMeta,
+							primitives)[0] as BranchMeta;
+						metas.locator.setContainer(this.containerMeta.locator);
+						RoutingLibrary.this.replaceElement(containingBranch, meta.branch, metas.branch);
+					}
+				}
+			});
+			
 			ReflexUtil.attachReflex(effectArray.added, (item: any, position: number) =>
 			{
 				const primitives = rec.userCallback(item, containingBranch, position);
@@ -119,7 +138,8 @@ namespace Reflex.Core
 			ReflexUtil.attachReflex(effectArray.tailChange, (item: any, position: number) =>
 			{
 				const source = findMeta(position);
-				if (source) localTracker.update(source.branch);
+				if (source)
+					localTracker.update(source.branch);
 			});
 		}
 		

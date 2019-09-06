@@ -135,6 +135,12 @@ namespace Reflex.ML
 			this.tmpMark.parentElement!.insertBefore(p1, this.tmpMark);
 			this.tmpMark.remove();
 		}
+	
+		/** */
+		replaceElement(p1: Element, p2: Element)
+		{
+			p1.replaceWith(p2);
+		}
 		
 		/** */
 		attachAttribute(branch: Branch, key: string, value: any)
