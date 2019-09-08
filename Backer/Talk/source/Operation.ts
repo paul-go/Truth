@@ -1,11 +1,9 @@
 import * as Truth from "truth-compiler";
 
 /**
- * A operation that transforms collected data in a query.
+ * An operation that transforms collected data in a query.
  */
-export type Operation = TransformManyOperation | FilterOperation;
-
-export abstract class TransformManyOperation
+export abstract class Operation
 {
   /**
    * Returns a new array including a subset of the input data.
@@ -13,7 +11,11 @@ export abstract class TransformManyOperation
   abstract transform(types: Truth.Type[]): Truth.Type[];
 }
 
-export abstract class FilterOperation
+/**
+ * Helper abstract class to implement operations that decide about keeping a
+ * type in the collected data or not. (e.g. `equals`)
+ */
+export abstract class FilterOperation extends Operation
 {
   /**
    * Operation transform function.

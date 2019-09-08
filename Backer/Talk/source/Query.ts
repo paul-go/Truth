@@ -1,4 +1,4 @@
-import { Operation, TransformManyOperation, FilterOperation } from "./Operation";
+import { Operation } from "./Operation";
 import * as Truth from "truth-compiler";
 
 /**
