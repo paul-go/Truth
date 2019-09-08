@@ -1,4 +1,4 @@
-import { Operation } from "./Operation";
+import { Operation, TransformManyOperation, FilterOperation } from "./Operation";
 import * as Truth from "truth-compiler";
 
 /**
@@ -57,13 +57,20 @@ export class Query
 
 
   /**
-   * Execute the query.
+   * Executes the query synchronously.
    */
   run()
   {
     this.throwAfterStart();
     this.started = true;
 
-    // TODO(qti3e);
+    const operations = this.operations.slice();
+    let collected: Truth.Type[] = this.data.slice();
+
+    for (const operation of operations) {
+      collected = operation.transform(collected);
+    }
+
+    return collected;
   }
 }

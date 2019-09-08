@@ -1,0 +1,25 @@
+String
+/".+" : String
+
+Number
+/\d+ : Number
+
+Boolean
+true, false : Boolean
+
+Employee
+    Name : String
+    Salary : Number
+
+E1 : Employee
+    Name : "Bob"
+    Salary : 1000
+
+E2 : Employee
+    Name : "Alice"
+    Salary : 1200
+
+E3 : Employee
+    Name : "Joe"
+    Salary : 1400
+    isX : true

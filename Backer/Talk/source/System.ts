@@ -14,7 +14,7 @@ export class System
   /**
    * Singleton accessor property.
    */
-  static this()
+  static get this()
   {
     if (!System._this)
       throw new Error("You must first initialize a TruthTalk system.");
@@ -57,3 +57,12 @@ export class System
     return new Query(this.doc.types.slice());
   }
 }
+
+async function main()
+{
+  await System.fromFile("./example.truth");
+  const doc = System.this.doc;
+  debugger;
+}
+
+main();

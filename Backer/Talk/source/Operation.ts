@@ -16,6 +16,14 @@ export abstract class TransformManyOperation
 export abstract class FilterOperation
 {
   /**
+   * Operation transform function.
+   */
+  transform(types: Truth.Type[]): Truth.Type[]
+  {
+    return types.filter(type => this.include(type));
+  }
+
+  /**
    * Returns a boolean indicating if this Truth object must stay in the 
    * collected data.
    */
