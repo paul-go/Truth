@@ -1,4 +1,5 @@
 import { Query } from "./Query";
+import * as Operations from "./Operations";
 import * as Truth from "truth-compiler";
 
 /**
@@ -62,6 +63,20 @@ async function main()
 {
   await System.fromFile("./example.truth");
   const doc = System.this.doc;
+  const types = doc.types;
+  const getType = (name: string): Truth.Type => {
+    const type = types.filter(t => t.name === name)[0];
+    if (!type) throw new Error();
+    return type;
+  };
+  const Employee = getType("Employee");
+
+  // #- Query...
+
+  const query = System.this.query();
+  query.addOperation(new Operations.IsOperation(Employee));
+  const ret = query.run();
+
   debugger;
 }
 
