@@ -7,19 +7,33 @@ Number
 Boolean
 true, false : Boolean
 
-Employee
-    Name : String
-    Salary : Number
+Person:
+  Name: String
+  Age: Number
+
+Employee: Person
+  Salary : Number
 
 E1 : Employee
-    Name : "Bob"
-    Salary : 1000
+  Name : "Bob"
+  Age : 21
+  Salary : 1000
 
 E2 : Employee
-    Name : "Alice"
-    Salary : 1200
+  Name : "Alice"
+  Age : 54
+  Salary : 1200
 
 E3 : Employee
-    Name : "Joe"
-    Salary : 1400
-    isX : true
+  Name : "Joe"
+  Age : 27
+  Salary : 1400
+
+P1: Person
+  Name: "Parsa"
+  Age: 18
+
+P2: Person
+  Name: "John"
+  Age: 16
+
