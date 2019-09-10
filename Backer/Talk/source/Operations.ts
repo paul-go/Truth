@@ -91,3 +91,39 @@ export class HasOperation extends FilterOperation
 		return true;
 	}
 }
+
+export class GreaterThanOperation extends FilterOperation 
+{
+	constructor(readonly value: number | string) 
+	{
+		super();
+	}
+
+	include(type: Truth.Type): boolean 
+	{
+		const value = type.value;
+		if (value === null) return false;
+		// TODO(qti3e) This check can be optimized in the constructor.
+		// this.include = ....
+		if (typeof this.value === "number") return Number(value) > this.value;
+		return value > this.value;
+	}
+}
+
+export class LessThanOperation extends FilterOperation 
+{
+	constructor(readonly value: number | string) 
+	{
+		super();
+	}
+
+	include(type: Truth.Type): boolean 
+	{
+		const value = type.value;
+		if (value === null) return false;
+		// TODO(qti3e) This check can be optimized in the constructor.
+		// this.include = ....
+		if (typeof this.value === "number") return Number(value) < this.value;
+		return value < this.value;
+	}
+}

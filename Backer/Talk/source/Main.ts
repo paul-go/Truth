@@ -33,7 +33,7 @@ async function main()
 
 	const doc = System.this.doc;
 
-	const query = tt(tt.has(String));
+	const query = tt(Employee, tt.has(Employee.Salary, tt.greaterThan(1000)));
 
 	debugger;
 }

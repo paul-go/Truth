@@ -46,4 +46,14 @@ export namespace tt {
 		}
 		return new Operations.HasOperation(types, operations);
 	}
+
+	export function greaterThan(value: string | number) 
+	{
+		return new Operations.GreaterThanOperation(value);
+	}
+
+	export function lessThan(value: string | number) 
+	{
+		return new Operations.LessThanOperation(value);
+	}
 }
