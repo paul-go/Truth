@@ -10,14 +10,15 @@ namespace Reflex.Core
 		next = 0;
 		
 		changed = reflex<(item: T, index: number) => void>();
-		deleted = reflex<(item: T, index: number) => void>();
 
+		/** */
 		get(index: number)
 		{
 			const item = this.root[index];
 			return item && item.value;
 		}
 
+		/** */
 		set(index: number, value: T)
 		{
 			if (!Object.prototype.hasOwnProperty.call(this.root, index)) 
@@ -28,25 +29,29 @@ namespace Reflex.Core
 			return index;
 		}
 
+		/** */
 		push(value: T)
 		{
 			return this.set(this.next++, value);
 		}
 
+		/** */
 		mark(index: number)
 		{
 			this.root[index].ref++;
+			return index;
 		}
 
+		/** */
 		delete(index: number)
 		{
 			if (Object.prototype.hasOwnProperty.call(this.root, index)) 
 			{
 				const item = this.root[index];
-				if (item.ref > 1) item.ref--;
+				if (item.ref > 1) 
+					item.ref--;
 				if (item.ref === 0) 
 				{
-					this.deleted(item.value!, index);
 					item.value = undefined;
 				}
 			}

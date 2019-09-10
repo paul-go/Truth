@@ -1,4 +1,3 @@
-/* eslint-disable filenames/match-regex */
 /// <reference path="../../make.d.ts" />
 
 make.on(async () =>

@@ -34,7 +34,7 @@ namespace make
 
 		const args = ["--project", path];
 
-		if(watch) 
+		if (watch) 
 			args.push("--watch");
 
 		return args;
@@ -54,7 +54,7 @@ namespace make
 	}
 
 	/**
-	 * Compiles and watches for changes the typescript at the specified location, 
+	 * Compiles and watches for changes in TypeScript at the specified location, 
 	 * and with any additional tsconfig compilerOptions entries.
 	 */
 	export function typescriptWatcher(path: string, tsConfigOverrides: TsConfig): ReturnOfSpawn;

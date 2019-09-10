@@ -126,20 +126,20 @@ namespace Reflex.ML
 				owner.classList.remove(primitive);
 		}
 		
-		tmpMark = document.createComment("");
+		private tempMark = document.createComment("");
 		/** */
-		swapElement(p1: Element, p2: Element)
+		swapElement(branch1: Branch, branch2: Branch)
 		{
-			p2.parentElement!.insertBefore(this.tmpMark, p2);
-			p1.parentElement!.insertBefore(p2, p1);
-			this.tmpMark.parentElement!.insertBefore(p1, this.tmpMark);
-			this.tmpMark.remove();
+			branch2.parentElement!.insertBefore(this.tempMark, branch2);
+			branch1.parentElement!.insertBefore(branch2, branch1);
+			this.tempMark.parentElement!.insertBefore(branch1, this.tempMark);
+			this.tempMark.remove();
 		}
 	
 		/** */
-		replaceElement(p1: Element, p2: Element)
+		replaceElement(branch1: Branch, branch2: Branch)
 		{
-			p1.replaceWith(p2);
+			branch1.replaceWith(branch2);
 		}
 		
 		/** */

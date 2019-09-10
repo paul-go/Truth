@@ -215,12 +215,12 @@ namespace Reflex.Core
 		/**
 		 * 
 		 */
-		abstract swapElement(p1: IBranch, p2: IBranch): void;
+		abstract swapElement(branch1: IBranch, branch2: IBranch): void;
 		
 		/**
 		 * 
 		 */
-		abstract replaceElement(p1: IBranch, p2: IBranch): void;
+		abstract replaceElement(branch1: IBranch, branch2: IBranch): void;
 		
 		/**
 		 * 

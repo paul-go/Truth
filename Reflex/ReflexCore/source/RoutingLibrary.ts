@@ -93,17 +93,17 @@ namespace Reflex.Core
 		/*
 		 *
 		 */
-		swapElement(branch: IBranch, p1: IBranch, p2: IBranch)
+		swapElement(targetBranch: IBranch, branch1: IBranch, branch2: IBranch)
 		{
-			return this.libraryOf(branch).swapElement(p1, p2);
+			return this.libraryOf(targetBranch).swapElement(branch1, branch2);
 		}
 
 		/*
 		 *
 		 */
-		replaceElement(branch: IBranch, p1: IBranch, p2: IBranch)
+		replaceElement(targetBranch: IBranch, branch1: IBranch, branch2: IBranch)
 		{
-			return this.libraryOf(branch).replaceElement(p1, p2);
+			return this.libraryOf(targetBranch).replaceElement(branch1, branch2);
 		}
 		
 		/**

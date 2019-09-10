@@ -1,7 +1,7 @@
 
 namespace Reflex.ML.Test
 {
-	1 && typeof window === "object" && setTimeout(() =>
+	typeof window === "object" && setTimeout(() =>
 	{
 		///testBodyAttach();
 		
@@ -521,8 +521,13 @@ namespace Reflex.ML.Test
 			),
 			on(list
 				.filter((x) => full.value ? true : x > 5, full)
-				.sort((a, b) => sortSwitch.value ? sortFlip.value ? b - a : a - b : 0, sortSwitch, sortFlip)
-				.reverse(), 
+				.sort((a, b) => 
+					sortSwitch.value ? 
+						sortFlip.value ? 
+							b - a : a - b 
+							: 0, 
+					sortSwitch, 
+					sortFlip), 
 				num => ml.div(ml(num)))
 		);
 	}
@@ -623,7 +628,7 @@ namespace Reflex.ML.Test
 			),
 			ml.div("dark", ml(proxy.num)),
 			
-			ml.div(
+			ml.div( 
 				ml`Click to add more elements`,
 				on("click", ev => void proxy.array.push(new NestedObject()))
 			),

@@ -76,6 +76,7 @@ namespace Reflex.Core
 							containingBranch,
 							this.containerMeta,
 							primitives)[0] as BranchMeta;
+							
 						metas.locator.setContainer(this.containerMeta.locator);
 						RoutingLibrary.this.replaceElement(containingBranch, meta.branch, metas.branch);
 					}
@@ -114,22 +115,20 @@ namespace Reflex.Core
 			{
 				const meta = findMeta(position);
 				if (meta)
-				{	
 					CoreUtil.unapplyMetas(containingBranch, [meta]);
-				}
 			});
 			
-			ReflexUtil.attachReflex(effectArray.swapped, (e1: any, e2: any, i1: number, i2: number) =>
+			ReflexUtil.attachReflex(effectArray.moved, (item1: any, item2: any, index1: number, index2: number) =>
 			{
-				const source = findMeta(i1);
-				const target = findMeta(i2);
+				const source = findMeta(index1);
+				const target = findMeta(index2);
 
 				if (source && target)
 				{
-					const sLV = source.locator.getlastLocatorValue();
-					const tLV = target.locator.getlastLocatorValue();
-					source.locator.updateLastLocatorValue(tLV);
-					target.locator.updateLastLocatorValue(sLV);
+					const srcLocVal = source.locator.getlastLocatorValue();
+					const targetLocVal = target.locator.getlastLocatorValue();
+					source.locator.setLastLocatorValue(targetLocVal);
+					target.locator.setLastLocatorValue(srcLocVal);
 
 					RoutingLibrary.this.swapElement(containingBranch, source.branch, target.branch);
 				}

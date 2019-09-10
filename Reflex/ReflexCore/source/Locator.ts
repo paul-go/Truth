@@ -54,7 +54,7 @@ namespace Reflex.Core
 		/**
 		 * 
 		 */
-		updateLastLocatorValue(value: number)
+		setLastLocatorValue(value: number)
 		{
 			this.values[this.values.length - 1] = value;
 		}
@@ -66,6 +66,7 @@ namespace Reflex.Core
 		{
 			return this.values[this.values.length - 1];
 		}
+		
 		/**
 		 * Timestamps are attached to each meta. They are only used to determine
 		 * whether two metas originated in the same container. When iterating
