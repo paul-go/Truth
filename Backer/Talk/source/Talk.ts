@@ -1,17 +1,14 @@
-import { System } from "./System";
-import { PLABase, TypePrimitive } from "./PLA";
-import { Operation, FilterOperation } from "./Operation";
-import * as Operations from "./Operations";
+import * as X from "./X";
 import * as Truth from "truth-compiler";
 
-export function tt(...primitives: (PLABase | Operation)[]) 
+export function tt(...primitives: (X.PLABase | X.Operation)[]) 
 {
-	const query = System.this.query();
+	const query = X.System.this.query();
 
 	for (const primitive of primitives) 
 	{
 		query.addOperation(
-			primitive instanceof Operation ? primitive : tt.is(primitive)
+			primitive instanceof X.Operation ? primitive : tt.is(primitive)
 		);
 	}
 
@@ -19,23 +16,23 @@ export function tt(...primitives: (PLABase | Operation)[])
 }
 
 export namespace tt {
-	export function is(type: TypePrimitive) 
+	export function is(type: X.TypePrimitive) 
 	{
-		return new Operations.IsOperation(type);
+		return new X.IsOperation(type);
 	}
 
-	export function not(...operations: Operation[]) 
+	export function not(...operations: X.Operation[]) 
 	{
-		return new Operations.NotOperation(operations);
+		return new X.NotOperation(operations);
 	}
 
-	export function has(...primitives: (FilterOperation | TypePrimitive)[]) 
+	export function has(...primitives: (X.FilterOperation | X.TypePrimitive)[]) 
 	{
-		const types: TypePrimitive[] = [];
-		const operations: FilterOperation[] = [];
+		const types: X.TypePrimitive[] = [];
+		const operations: X.FilterOperation[] = [];
 		for (const primitive of primitives) 
 		{
-			if (primitive instanceof FilterOperation) 
+			if (primitive instanceof X.FilterOperation) 
 			{
 				operations.push(primitive);
 			}
@@ -44,16 +41,16 @@ export namespace tt {
 				types.push(primitive);
 			}
 		}
-		return new Operations.HasOperation(types, operations);
+		return new X.HasOperation(types, operations);
 	}
 
 	export function greaterThan(value: string | number) 
 	{
-		return new Operations.GreaterThanOperation(value);
+		return new X.GreaterThanOperation(value);
 	}
 
 	export function lessThan(value: string | number) 
 	{
-		return new Operations.LessThanOperation(value);
+		return new X.LessThanOperation(value);
 	}
 }

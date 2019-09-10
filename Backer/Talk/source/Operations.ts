@@ -1,15 +1,14 @@
-import { FilterOperation, Operation } from "./Operation";
-import { PLABase, toType, TypePrimitive } from "./PLA";
+import * as X from "./X";
 import * as Truth from "truth-compiler";
 
-export class IsOperation extends FilterOperation 
+export class IsOperation extends X.FilterOperation 
 {
 	readonly type: Truth.Type;
 
-	constructor(type: TypePrimitive) 
+	constructor(type: X.TypePrimitive) 
 	{
 		super();
-		this.type = toType(type);
+		this.type = X.toType(type);
 	}
 
 	include(type: Truth.Type): boolean 
@@ -18,9 +17,9 @@ export class IsOperation extends FilterOperation
 	}
 }
 
-export class NotOperation extends Operation 
+export class NotOperation extends X.Operation 
 {
-	constructor(readonly operations: Operation[]) 
+	constructor(readonly operations: X.Operation[]) 
 	{
 		super();
 	}
@@ -31,7 +30,7 @@ export class NotOperation extends Operation
 
 		for (const operation of this.operations) 
 		{
-			if (operation instanceof FilterOperation) 
+			if (operation instanceof X.FilterOperation) 
 			{
 				collected = collected.filter(type => !operation.include(type));
 			}
@@ -46,14 +45,17 @@ export class NotOperation extends Operation
 	}
 }
 
-export class HasOperation extends FilterOperation 
+export class HasOperation extends X.FilterOperation 
 {
 	readonly types: Truth.Type[] = [];
 
-	constructor(types: TypePrimitive[], readonly operations: FilterOperation[]) 
+	constructor(
+		types: X.TypePrimitive[],
+		readonly operations: X.FilterOperation[]
+	) 
 	{
 		super();
-		this.types = types.map(t => toType(t));
+		this.types = types.map(t => X.toType(t));
 	}
 
 	private is(contentType: Truth.Type, type: Truth.Type) 
@@ -92,7 +94,7 @@ export class HasOperation extends FilterOperation
 	}
 }
 
-export class GreaterThanOperation extends FilterOperation 
+export class GreaterThanOperation extends X.FilterOperation 
 {
 	constructor(readonly value: number | string) 
 	{
@@ -110,7 +112,7 @@ export class GreaterThanOperation extends FilterOperation
 	}
 }
 
-export class LessThanOperation extends FilterOperation 
+export class LessThanOperation extends X.FilterOperation 
 {
 	constructor(readonly value: number | string) 
 	{

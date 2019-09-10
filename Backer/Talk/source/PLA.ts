@@ -1,4 +1,4 @@
-import { System } from "./System";
+import * as X from "./X";
 import * as Truth from "truth-compiler";
 
 export type TypePrimitive =
@@ -22,7 +22,7 @@ export function toType(type: TypePrimitive): Truth.Type
 	if (type === Number) return toType({ typePath: ["Number"] });
 	if (type === String) return toType({ typePath: ["String"] });
 	if (!isPLA(type)) throw new Error("Expected PLA.");
-	const result = System.this.doc.query(...type.typePath);
+	const result = X.System.this.doc.query(...type.typePath);
 	if (!result) throw new Error("Cannot resolve PLA.");
 	return result;
 }

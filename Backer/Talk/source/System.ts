@@ -1,4 +1,4 @@
-import { Query } from "./Query";
+import * as X from "./X";
 import * as Truth from "truth-compiler";
 
 /**
@@ -60,6 +60,6 @@ export class System
 	 */
 	query() 
 	{
-		return new Query(this.dataTypes);
+		return new X.Query(this.dataTypes);
 	}
 }

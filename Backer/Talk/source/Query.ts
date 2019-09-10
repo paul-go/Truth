@@ -1,4 +1,4 @@
-import { Operation } from "./Operation";
+import * as X from "./X";
 import * as Truth from "truth-compiler";
 
 /**
@@ -9,7 +9,7 @@ export class Query
 	/**
 	 * List of operations that must be executed on the data.
 	 */
-	private readonly operations: Operation[] = [];
+	private readonly operations: X.Operation[] = [];
 
 	/**
 	 * Indicates whatever `run` method is called or not.
@@ -36,7 +36,7 @@ export class Query
 	/**
 	 * Add the given operation to this query.
 	 */
-	addOperation(op: Operation): void 
+	addOperation(op: X.Operation): void 
 	{
 		this.throwAfterStart();
 		this.operations.push(op);
@@ -46,7 +46,7 @@ export class Query
 	 * Removes the first occurrence of the given operation from the operations
 	 * list.
 	 */
-	removeOperation(op: Operation): boolean 
+	removeOperation(op: X.Operation): boolean 
 	{
 		this.throwAfterStart();
 		const index = this.operations.indexOf(op);

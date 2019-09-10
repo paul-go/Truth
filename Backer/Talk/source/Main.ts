@@ -1,7 +1,5 @@
-import { System } from "./System";
-import { PLABase } from "./PLA";
-import { tt } from "./Talk";
-import * as Operations from "./Operations";
+import * as X from "./X";
+import { tt } from "./X";
 import * as Truth from "truth-compiler";
 
 const Person = {
@@ -29,9 +27,9 @@ const Employee = {
 
 async function main() 
 {
-	await System.fromFile("./example.truth");
+	await X.System.fromFile("./example.truth");
 
-	const doc = System.this.doc;
+	const doc = X.System.this.doc;
 
 	const query = tt(Employee, tt.has(Employee.Salary, tt.greaterThan(1000)));
 
