@@ -1,6 +1,6 @@
 import { System } from "./System";
-import { PLABase } from "./PLA";
-import { Operation } from "./Operation";
+import { PLABase, TypePrimitive } from "./PLA";
+import { Operation, FilterOperation } from "./Operation";
 import * as Operations from "./Operations";
 import * as Truth from "truth-compiler";
 
@@ -19,7 +19,7 @@ export function tt(...primitives: (PLABase | Operation)[])
 }
 
 export namespace tt {
-	export function is(type: Truth.Type | PLABase) 
+	export function is(type: TypePrimitive) 
 	{
 		return new Operations.IsOperation(type);
 	}
@@ -27,5 +27,23 @@ export namespace tt {
 	export function not(...operations: Operation[]) 
 	{
 		return new Operations.NotOperation(operations);
+	}
+
+	export function has(...primitives: (FilterOperation | TypePrimitive)[]) 
+	{
+		const types: TypePrimitive[] = [];
+		const operations: FilterOperation[] = [];
+		for (const primitive of primitives) 
+		{
+			if (primitive instanceof FilterOperation) 
+			{
+				operations.push(primitive);
+			}
+			else 
+			{
+				types.push(primitive);
+			}
+		}
+		return new Operations.HasOperation(types, operations);
 	}
 }

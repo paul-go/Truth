@@ -45,14 +45,15 @@ export class System
 		System._this = new System(doc);
 	}
 
-  private readonly dataTypes: Truth.Type[];
+	private readonly dataTypes: Truth.Type[];
 
-  private constructor(readonly doc: Truth.Document) {
-    // TODO(qti3e) This is just a workaround to split Truth data
-    // from Truth code.
-    const index = doc.types.findIndex(type => type.name === "@data");
-    this.dataTypes = doc.types.slice(index < 0 ? 0 : index + 1)
-  }
+	private constructor(readonly doc: Truth.Document) 
+	{
+		// TODO(qti3e) This is just a workaround to split Truth data
+		// from Truth code.
+		const index = doc.types.findIndex(type => type.name === "@data");
+		this.dataTypes = doc.types.slice(index < 0 ? 0 : index + 1);
+	}
 
 	/**
 	 * Constructs a new query on the default document.

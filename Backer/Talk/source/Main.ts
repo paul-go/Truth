@@ -31,7 +31,9 @@ async function main()
 {
 	await System.fromFile("./example.truth");
 
-	const query = tt(tt.not(tt.is(Employee)));
+	const doc = System.this.doc;
+
+	const query = tt(tt.has(String));
 
 	debugger;
 }
