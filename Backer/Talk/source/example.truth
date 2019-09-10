@@ -14,6 +14,8 @@ Person:
 Employee: Person
   Salary : Number
 
+@data
+
 E1 : Employee
   Name : "Bob"
   Age : 21
