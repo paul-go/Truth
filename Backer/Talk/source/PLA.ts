@@ -1,22 +1,12 @@
 import * as X from "./X";
 import * as Truth from "truth-compiler";
 
-export type TypePrimitive =
-	| Truth.Type
-	| PLABase
-	| typeof Number
-	| typeof String;
-
-export interface PLABase {
-	typePath: string[];
-}
-
-export function isPLA(obj: any): obj is PLABase 
+export function isPLA(obj: any): obj is X.PLABase 
 {
 	return obj && typeof obj === "object" && Array.isArray(obj.typePath);
 }
 
-export function toType(type: TypePrimitive): Truth.Type 
+export function toType(type: X.TypePrimitive): Truth.Type 
 {
 	if (type instanceof Truth.Type) return type;
 	if (type === Number) return toType({ typePath: ["Number"] });

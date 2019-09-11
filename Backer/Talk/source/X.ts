@@ -4,3 +4,4 @@ export * from "./PLA";
 export * from "./Query";
 export * from "./System";
 export * from "./Talk";
+export * from "./Types";

@@ -7,7 +7,7 @@ export function tt(...primitives: (X.PLABase | X.Operation)[])
 
 	for (const primitive of primitives) 
 	{
-		query.addOperation(
+		query.attach(
 			primitive instanceof X.Operation ? primitive : tt.is(primitive)
 		);
 	}
@@ -18,30 +18,23 @@ export function tt(...primitives: (X.PLABase | X.Operation)[])
 export namespace tt {
 	export function is(type: X.TypePrimitive) 
 	{
-		return new X.IsOperation(type);
+		const operation = new X.IsOperation();
+		operation.attach(type);
+		return operation;
 	}
 
 	export function not(...operations: X.Operation[]) 
 	{
-		return new X.NotOperation(operations);
+		const operation = new X.NotOperation();
+		for (const o of operations) operation.attach(o);
+		return operation;
 	}
 
 	export function has(...primitives: (X.FilterOperation | X.TypePrimitive)[]) 
 	{
-		const types: X.TypePrimitive[] = [];
-		const operations: X.FilterOperation[] = [];
-		for (const primitive of primitives) 
-		{
-			if (primitive instanceof X.FilterOperation) 
-			{
-				operations.push(primitive);
-			}
-			else 
-			{
-				types.push(primitive);
-			}
-		}
-		return new X.HasOperation(types, operations);
+		const operation = new X.HasOperation();
+		for (const p of primitives) operation.attach(p);
+		return operation;
 	}
 
 	export function greaterThan(value: string | number) 

@@ -4,7 +4,7 @@ import * as Truth from "truth-compiler";
 /**
  * A Truth Query.
  */
-export class Query 
+export class Query implements X.Branch<X.Operation> 
 {
 	/**
 	 * List of operations that must be executed on the data.
@@ -36,7 +36,7 @@ export class Query
 	/**
 	 * Add the given operation to this query.
 	 */
-	addOperation(op: X.Operation): void 
+	attach(op: X.Operation): void 
 	{
 		this.throwAfterStart();
 		this.operations.push(op);
@@ -46,7 +46,7 @@ export class Query
 	 * Removes the first occurrence of the given operation from the operations
 	 * list.
 	 */
-	removeOperation(op: X.Operation): boolean 
+	detach(op: X.Operation): boolean 
 	{
 		this.throwAfterStart();
 		const index = this.operations.indexOf(op);

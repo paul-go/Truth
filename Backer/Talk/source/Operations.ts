@@ -1,27 +1,47 @@
 import * as X from "./X";
 import * as Truth from "truth-compiler";
 
-export class IsOperation extends X.FilterOperation 
+export class IsOperation extends X.FilterOperation
+	implements X.Branch<X.TypePrimitive> 
 {
-	readonly type: Truth.Type;
+	type: Truth.Type | undefined;
 
-	constructor(type: X.TypePrimitive) 
+	attach(type: X.TypePrimitive) 
 	{
-		super();
 		this.type = X.toType(type);
 	}
 
-	include(type: Truth.Type): boolean 
+	detach(type: X.TypePrimitive) 
 	{
-		return type.is(this.type);
+		if (this.type === type) 
+		{
+			this.type = undefined;
+			return true;
+		}
+		return false;
+	}
+
+	include(type: Truth.Type) 
+	{
+		return type.is(this.type!);
 	}
 }
 
-export class NotOperation extends X.Operation 
+export class NotOperation extends X.Operation implements X.Branch<X.Operation> 
 {
-	constructor(readonly operations: X.Operation[]) 
+	readonly operations: X.Operation[] = [];
+
+	attach(operation: X.Operation) 
 	{
-		super();
+		this.operations.push(operation);
+	}
+
+	detach(operation: X.Operation) 
+	{
+		const index = this.operations.indexOf(operation);
+		if (index < 0) return false;
+		this.operations.splice(index, 1);
+		return true;
 	}
 
 	transform(types: Truth.Type[]) 
@@ -45,17 +65,26 @@ export class NotOperation extends X.Operation
 	}
 }
 
-export class HasOperation extends X.FilterOperation 
+export class HasOperation extends X.FilterOperation
+	implements X.Branch<X.TypePrimitive | X.FilterOperation> 
 {
 	readonly types: Truth.Type[] = [];
+	readonly operations: X.FilterOperation[] = [];
 
-	constructor(
-		types: X.TypePrimitive[],
-		readonly operations: X.FilterOperation[]
-	) 
+	attach(node: X.TypePrimitive | X.FilterOperation) 
 	{
-		super();
-		this.types = types.map(t => X.toType(t));
+		if (node instanceof X.FilterOperation) this.operations.push(node);
+		else this.types.push(X.toType(node));
+	}
+
+	detach(node: X.TypePrimitive | X.FilterOperation) 
+	{
+		const array =
+			node instanceof X.FilterOperation ? this.operations : this.types;
+		const index = array.indexOf(node as any);
+		if (index < 0) return false;
+		array.splice(index, 1);
+		return true;
 	}
 
 	private is(contentType: Truth.Type, type: Truth.Type) 
@@ -94,38 +123,70 @@ export class HasOperation extends X.FilterOperation
 	}
 }
 
-export class GreaterThanOperation extends X.FilterOperation 
+export class GreaterThanOperation extends X.FilterOperation
+	implements X.Branch<number | string> 
 {
-	constructor(readonly value: number | string) 
+	constructor(private value?: number | string) 
 	{
 		super();
+	}
+
+	attach(value: number | string) 
+	{
+		this.value = value;
+	}
+
+	detach(value: number | string) 
+	{
+		if (value === this.value) 
+		{
+			this.value = undefined;
+			return true;
+		}
+		return false;
 	}
 
 	include(type: Truth.Type): boolean 
 	{
 		const value = type.value;
 		if (value === null) return false;
-		// TODO(qti3e) This check can be optimized in the constructor.
+		// TODO(qti3e) This check can be optimized in the attach function.
 		// this.include = ....
 		if (typeof this.value === "number") return Number(value) > this.value;
-		return value > this.value;
+		return value > this.value!;
 	}
 }
 
-export class LessThanOperation extends X.FilterOperation 
+export class LessThanOperation extends X.FilterOperation
+	implements X.Branch<number | string> 
 {
-	constructor(readonly value: number | string) 
+	constructor(private value?: number | string) 
 	{
 		super();
+	}
+
+	attach(value: number | string) 
+	{
+		this.value = value;
+	}
+
+	detach(value: number | string) 
+	{
+		if (value === this.value) 
+		{
+			this.value = undefined;
+			return true;
+		}
+		return false;
 	}
 
 	include(type: Truth.Type): boolean 
 	{
 		const value = type.value;
 		if (value === null) return false;
-		// TODO(qti3e) This check can be optimized in the constructor.
+		// TODO(qti3e) This check can be optimized in the attach function.
 		// this.include = ....
 		if (typeof this.value === "number") return Number(value) < this.value;
-		return value < this.value;
+		return value < this.value!;
 	}
 }
