@@ -648,7 +648,7 @@ export class Type
 		for (const containedType of this.contents)
 			if (type.name === containedType.name)
 				for (const parallel of containedType.iterate(t => t.parallels))
-					if (parallel.type === containedType)
+					if (parallel.type === type)
 						return true;
 		
 		return false;
