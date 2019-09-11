@@ -23,6 +23,13 @@ export namespace tt {
 		return operation;
 	}
 
+	export function or(...operations: X.Operation[]) 
+	{
+		const operation = new X.OrOperation();
+		for (const o of operations) operation.attach(o);
+		return operation;
+	}
+
 	export function not(...operations: X.Operation[]) 
 	{
 		const operation = new X.NotOperation();

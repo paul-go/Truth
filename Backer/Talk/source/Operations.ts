@@ -65,6 +65,39 @@ export class NotOperation extends X.Operation implements X.Branch<X.Operation>
 	}
 }
 
+export class OrOperation extends X.FilterOperation
+	implements X.Branch<X.Operation> 
+{
+	readonly operations: X.Operation[] = [];
+	private numNonFilterOperations = 0;
+
+	attach(operation: X.Operation) 
+	{
+		this.operations.push(operation);
+	}
+
+	detach(operation: X.Operation) 
+	{
+		const index = this.operations.indexOf(operation);
+		if (index < 0) return false;
+		this.operations.splice(index, 1);
+		return true;
+	}
+
+	include(type: Truth.Type) 
+	{
+		for (const operation of this.operations) 
+		{
+			if (operation instanceof X.FilterOperation) 
+			{
+				if (operation.include(type)) return true;
+			}
+			else if (operation.transform([type]).length) return true;
+		}
+		return false;
+	}
+}
+
 export class HasOperation extends X.FilterOperation
 	implements X.Branch<X.TypePrimitive | X.FilterOperation> 
 {
