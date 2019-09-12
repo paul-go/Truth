@@ -8,6 +8,7 @@
     "strict": true,
     "declaration": false,
     "lib": [
+      "DOM",
       "es7",
       "es2017",
       "es2017.object",
