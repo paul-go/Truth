@@ -31,22 +31,41 @@ namespace Reflex.Talk {
 			throw new Error("A TruthQuery is readonly after calling `run`.");
 		}
 
+		private contentMap = new WeakMap<Truth.Type, IsOperation>();
+
+		private prepareContent(type: TypePrimitive) 
+		{
+			const truthType = toType(type);
+
+			if (this.contentMap.has(truthType))
+				return this.contentMap.get(truthType)!;
+
+			const operation = new IsOperation();
+			operation.attach(truthType);
+			this.contentMap.set(truthType, operation);
+			return operation;
+		}
+
 		/**
 		 * Add the given operation to this query.
 		 */
-		attach(op: Operation): void 
+		attach(op: Operation | TypePrimitive): void 
 		{
 			this.throwAfterStart();
-			this.operations.push(op);
+			if (op instanceof Operation) return void this.operations.push(op);
+
+			this.operations.push(this.prepareContent(op));
 		}
 
 		/**
 		 * Removes the first occurrence of the given operation from the operations
 		 * list.
 		 */
-		detach(op: Operation): boolean 
+		detach(op: Operation | TypePrimitive): boolean 
 		{
 			this.throwAfterStart();
+			if (!(op instanceof Operation))
+				return this.detach(this.prepareContent(op));
 			const index = this.operations.indexOf(op);
 			if (index < 0) return false;
 			this.operations.splice(index, 1);

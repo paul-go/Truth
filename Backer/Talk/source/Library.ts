@@ -1,6 +1,5 @@
 namespace Reflex.Talk {
-	type Branch = never;
-	type Node = never;
+	type Node = Branch | string | number | boolean;
 
 	class Library extends Core.Library 
 	{
@@ -11,12 +10,13 @@ namespace Reflex.Talk {
 
 		isKnownBranch(branch: Core.IBranch) 
 		{
+			console.log("isKnownBranch", branch);
 			return true;
 		}
 
 		getNamespaceStatic() 
 		{
-			return {};
+			return null;
 		}
 
 		getNamespaceComputed() 
@@ -26,11 +26,29 @@ namespace Reflex.Talk {
 
 		createBranch(name: string) 
 		{
-			return undefined as any;
+			switch (name) 
+			{
+				case "query":
+					return System.this.query();
+				case "is":
+					return new IsOperation();
+				case "not":
+					return new NotOperation();
+				case "or":
+					return new OrOperation();
+				case "has":
+					return new HasOperation();
+				case "greaterThan":
+					return new GreaterThanOperation();
+				case "lessThan":
+					return new LessThanOperation();
+			}
+			throw new Error(`Unidentified branch "${name}"`);
 		}
 
 		getChildren(target: Branch) 
 		{
+			console.log("getChildren", target);
 			return [];
 		}
 
@@ -41,6 +59,7 @@ namespace Reflex.Talk {
 
 		prepareContent(content: any) 
 		{
+			console.log("prepareContent", content);
 			return null;
 		}
 
@@ -48,7 +67,11 @@ namespace Reflex.Talk {
 			primitive: any,
 			owner: Branch,
 			ref: Node | "prepend" | "append"
-		) {}
+		) 
+		{
+			console.log("attachPrimitive", ...arguments);
+			owner.attach(primitive);
+		}
 
 		detachPrimitive(primitive: any, owner: Branch) {}
 
@@ -63,4 +86,6 @@ namespace Reflex.Talk {
 
 		detachRecurrent() {}
 	}
+
+	export const library = new Library().namespace;
 }
