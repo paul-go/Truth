@@ -1,5 +1,4 @@
 import * as X from "./X";
-import * as Truth from "truth-compiler";
 
 export function isPLA(obj: any): obj is X.PLABase 
 {

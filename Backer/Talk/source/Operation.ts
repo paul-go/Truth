@@ -1,5 +1,3 @@
-import * as Truth from "truth-compiler";
-
 /**
  * An operation that transforms collected data in a query.
  */

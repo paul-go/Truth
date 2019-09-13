@@ -1,5 +1,4 @@
 import * as X from "./X";
-import * as Truth from "truth-compiler";
 
 export function tt(...primitives: (X.PLABase | X.Operation)[]) 
 {

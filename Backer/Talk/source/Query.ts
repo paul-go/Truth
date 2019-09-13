@@ -1,5 +1,4 @@
 import * as X from "./X";
-import * as Truth from "truth-compiler";
 
 /**
  * A Truth Query.

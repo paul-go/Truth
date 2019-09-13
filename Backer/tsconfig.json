@@ -2,11 +2,13 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "esnext",
+    "outDir": "./build",
     "inlineSourceMap": true,
     "inlineSources": true,
     "stripInternal": true,
     "strict": true,
-    "declaration": false,
+    "declaration": true,
+    "allowUmdGlobalAccess": true,
     "lib": [
       "DOM",
       "es7",
@@ -17,5 +19,8 @@
   },
   "include": [
     "**/*.ts"
+  ],
+  "references": [
+    { "path": "../Reflex/ReflexCore" }
   ]
 }

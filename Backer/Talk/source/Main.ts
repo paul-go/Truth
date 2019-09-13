@@ -1,6 +1,5 @@
 import * as X from "./X";
 import { tt } from "./X";
-import * as Truth from "truth-compiler";
 
 const Person = {
 	typePath: ["Person"],
@@ -35,5 +34,16 @@ async function main()
 
 	debugger;
 }
+
+// Set global variables.
+(function() 
+{
+	const e = eval;
+	const global = e("this");
+	if (typeof global.Truth === "undefined") 
+	{
+		global.Truth = require("truth-compiler");
+	}
+}());
 
 main();

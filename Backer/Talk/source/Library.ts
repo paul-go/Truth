@@ -1,5 +1,3 @@
-/// <reference path="../../../Reflex/ReflexCore/build/source/reflex-core.d.ts" />
-
 namespace Reflex.Talk {
 	type Branch = never;
 	type Node = never;
