@@ -1,6 +1,4 @@
 namespace Reflex.Talk {
-	type Node = Branch | string | number | boolean;
-
 	class Library extends Core.Library<Namespace> 
 	{
 		constructor() 
@@ -10,8 +8,7 @@ namespace Reflex.Talk {
 
 		isKnownBranch(branch: Core.IBranch) 
 		{
-			console.log("isKnownBranch", branch);
-			return true;
+			return branch instanceof Operation || branch instanceof Query;
 		}
 
 		getNamespaceStatic() 
@@ -59,31 +56,38 @@ namespace Reflex.Talk {
 		prepareContent(content: any) 
 		{
 			console.log("prepareContent", content);
-			return null;
+			return content;
 		}
 
-		attachPrimitive(
-			primitive: any,
-			owner: Branch,
-			ref: Node | "prepend" | "append"
-		) 
+		attachPrimitive(primitive: any, owner: Branch, ref: AttachRef<any>) 
 		{
-			console.log("attachPrimitive", ...arguments);
-			owner.attach(primitive);
+			owner.attach(primitive, ref);
 		}
 
-		detachPrimitive(primitive: any, owner: Branch) {}
+		detachPrimitive(primitive: any, owner: Branch) 
+		{
+			owner.detach(primitive);
+		}
 
-		attachAttribute(branch: Branch, key: string, value: any) {}
+		attachAttribute(branch: Branch, key: string, value: any) 
+		{
+			throw new Error(`Not implemented.`);
+		}
 
-		detachAttribute(branch: Branch, key: string) {}
+		detachAttribute(branch: Branch, key: string) 
+		{
+			throw new Error(`Not implemented.`);
+		}
 
 		attachRecurrent() 
 		{
 			return false;
 		}
 
-		detachRecurrent() {}
+		detachRecurrent() 
+		{
+			throw new Error(`Not implemented.`);
+		}
 	}
 
 	const query = (...primitives: Core.Primitive[]) => 

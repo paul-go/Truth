@@ -1,4 +1,13 @@
 namespace Reflex.Talk.Operations {
+	function attach<T extends {}>(array: T[], value: T, ref: AttachRef<T>) 
+	{
+		if (!ref || ref === "append") return void array.push(value);
+		if (ref === "prepend") return void array.unshift(value);
+		const index = array.indexOf(ref);
+		if (index < 0) return void array.push(value);
+		array.splice(index + 1, 0, value);
+	}
+
 	export class Is extends FilterOperation implements Branch<TypePrimitive> 
 	{
 		type: Truth.Type | undefined;
@@ -28,9 +37,9 @@ namespace Reflex.Talk.Operations {
 	{
 		readonly operations: Operation[] = [];
 
-		attach(operation: Operation) 
+		attach(operation: Operation, ref: AttachRef<Operation>) 
 		{
-			this.operations.push(operation);
+			attach(this.operations, operation, ref);
 		}
 
 		detach(operation: Operation) 
@@ -67,9 +76,9 @@ namespace Reflex.Talk.Operations {
 		readonly operations: Operation[] = [];
 		private numNonFilterOperations = 0;
 
-		attach(operation: Operation) 
+		attach(operation: Operation, ref: AttachRef<Operation>) 
 		{
-			this.operations.push(operation);
+			attach(this.operations, operation, ref);
 		}
 
 		detach(operation: Operation) 
@@ -100,10 +109,13 @@ namespace Reflex.Talk.Operations {
 		readonly types: Truth.Type[] = [];
 		readonly operations: FilterOperation[] = [];
 
-		attach(node: TypePrimitive | FilterOperation) 
+		attach(
+			node: TypePrimitive | FilterOperation,
+			ref: AttachRef<TypePrimitive | FilterOperation>
+		) 
 		{
-			if (node instanceof FilterOperation) this.operations.push(node);
-			else this.types.push(toType(node));
+			if (node instanceof FilterOperation) attach(this.operations, node, ref);
+			else attach(this.types, toType(node), ref);
 		}
 
 		detach(node: TypePrimitive | FilterOperation) 

@@ -9,8 +9,10 @@ namespace Reflex.Talk {
 		typePath: string[];
 	}
 
+	export type AttachRef<T = unknown> = T | "prepend" | "append";
+
 	export interface Branch<T = TypePrimitive | Operation> {
-		attach(typePrimitive: T): void;
+		attach(typePrimitive: T, ref: AttachRef<T>): void;
 		detach(typePrimitive: T): boolean;
 	}
 }
