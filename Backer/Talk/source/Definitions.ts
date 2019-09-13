@@ -1,11 +1,11 @@
 namespace Reflex.Talk {
 	export interface Namespace {
 		(...primitives: Core.Primitive[]): Query;
-		is(...primitives: Core.Primitive[]): IsOperation;
-		not(...primitives: Core.Primitive[]): NotOperation;
-		or(...primitives: Core.Primitive[]): OrOperation;
-		has(...primitives: Core.Primitive[]): HasOperation;
-		greaterThan(...primitives: Core.Primitive[]): GreaterThanOperation;
-		lessThan(...primitives: Core.Primitive[]): LessThanOperation;
+		is(...primitives: Core.Primitive[]): Operations.Is;
+		not(...primitives: Core.Primitive[]): Operations.Not;
+		or(...primitives: Core.Primitive[]): Operations.Or;
+		has(...primitives: Core.Primitive[]): Operations.Has;
+		greaterThan(...primitives: Core.Primitive[]): Operations.GreaterThan;
+		lessThan(...primitives: Core.Primitive[]): Operations.LessThan;
 	}
 }

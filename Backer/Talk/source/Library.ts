@@ -16,16 +16,22 @@ namespace Reflex.Talk {
 
 		getNamespaceStatic() 
 		{
-			const $ = (branchConstructor: any) => (...primitives: Core.Primitive[]) =>
-				new Core.BranchMeta(new branchConstructor(), primitives) as any.branch;
+			const $ = (branchConstructor: any) => (
+				...primitives: Core.Primitive[]
+			) => 
+			{
+				const branch = new branchConstructor();
+				new Core.BranchMeta(branch, primitives);
+				return branch;
+			};
 
 			return {
-				is: $(IsOperation),
-				not: $(NotOperation),
-				or: $(OrOperation),
-				has: $(HasOperation),
-				greaterThan: $(GreaterThanOperation),
-				lessThan: $(LessThanOperation)
+				is: $(Operations.Is),
+				not: $(Operations.Not),
+				or: $(Operations.Or),
+				has: $(Operations.Has),
+				greaterThan: $(Operations.GreaterThan),
+				lessThan: $(Operations.LessThan)
 			};
 		}
 
@@ -80,8 +86,12 @@ namespace Reflex.Talk {
 		detachRecurrent() {}
 	}
 
-	const query = (...primitives: Core.Primitive[]) =>
-		new Core.BranchMeta(System.this.query(), primitives) as any.branch;
+	const query = (...primitives: Core.Primitive[]) => 
+	{
+		const query = System.this.query();
+		new Core.BranchMeta(query, primitives);
+		return query;
+	};
 	export const tt: Namespace = query as any;
 	Object.assign(tt, new Library().namespace);
 }

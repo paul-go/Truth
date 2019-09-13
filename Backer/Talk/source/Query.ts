@@ -31,7 +31,7 @@ namespace Reflex.Talk {
 			throw new Error("A TruthQuery is readonly after calling `run`.");
 		}
 
-		private contentMap = new WeakMap<Truth.Type, IsOperation>();
+		private contentMap = new WeakMap<Truth.Type, Operations.Is>();
 
 		private prepareContent(type: TypePrimitive) 
 		{
@@ -40,7 +40,7 @@ namespace Reflex.Talk {
 			if (this.contentMap.has(truthType))
 				return this.contentMap.get(truthType)!;
 
-			const operation = new IsOperation();
+			const operation = new Operations.Is();
 			operation.attach(truthType);
 			this.contentMap.set(truthType, operation);
 			return operation;

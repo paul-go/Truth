@@ -1,6 +1,5 @@
-namespace Reflex.Talk {
-	export class IsOperation extends FilterOperation
-		implements Branch<TypePrimitive> 
+namespace Reflex.Talk.Operations {
+	export class Is extends FilterOperation implements Branch<TypePrimitive> 
 	{
 		type: Truth.Type | undefined;
 
@@ -25,7 +24,7 @@ namespace Reflex.Talk {
 		}
 	}
 
-	export class NotOperation extends Operation implements Branch<Operation> 
+	export class Not extends Operation implements Branch<Operation> 
 	{
 		readonly operations: Operation[] = [];
 
@@ -63,8 +62,7 @@ namespace Reflex.Talk {
 		}
 	}
 
-	export class OrOperation extends FilterOperation
-		implements Branch<Operation> 
+	export class Or extends FilterOperation implements Branch<Operation> 
 	{
 		readonly operations: Operation[] = [];
 		private numNonFilterOperations = 0;
@@ -96,7 +94,7 @@ namespace Reflex.Talk {
 		}
 	}
 
-	export class HasOperation extends FilterOperation
+	export class Has extends FilterOperation
 		implements Branch<TypePrimitive | FilterOperation> 
 	{
 		readonly types: Truth.Type[] = [];
@@ -154,7 +152,7 @@ namespace Reflex.Talk {
 		}
 	}
 
-	export class GreaterThanOperation extends FilterOperation
+	export class GreaterThan extends FilterOperation
 		implements Branch<number | string> 
 	{
 		constructor(private value?: number | string) 
@@ -188,7 +186,7 @@ namespace Reflex.Talk {
 		}
 	}
 
-	export class LessThanOperation extends FilterOperation
+	export class LessThan extends FilterOperation
 		implements Branch<number | string> 
 	{
 		constructor(private value?: number | string) 
