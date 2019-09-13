@@ -1,7 +1,7 @@
 namespace Reflex.Talk {
 	type Node = Branch | string | number | boolean;
 
-	class Library extends Core.Library 
+	class Library extends Core.Library<Namespace> 
 	{
 		constructor() 
 		{
@@ -16,34 +16,27 @@ namespace Reflex.Talk {
 
 		getNamespaceStatic() 
 		{
-			return null;
+			const $ = (branchConstructor: any) => (...primitives: Core.Primitive[]) =>
+				new Core.BranchMeta(new branchConstructor(), primitives) as any.branch;
+
+			return {
+				is: $(IsOperation),
+				not: $(NotOperation),
+				or: $(OrOperation),
+				has: $(HasOperation),
+				greaterThan: $(GreaterThanOperation),
+				lessThan: $(LessThanOperation)
+			};
 		}
 
 		getNamespaceComputed() 
 		{
-			return () => Reflex.Core.ComputedMemberType.branch;
+			return null;
 		}
 
-		createBranch(name: string) 
+		createBranch(name: string): Core.IBranch 
 		{
-			switch (name) 
-			{
-				case "query":
-					return System.this.query();
-				case "is":
-					return new IsOperation();
-				case "not":
-					return new NotOperation();
-				case "or":
-					return new OrOperation();
-				case "has":
-					return new HasOperation();
-				case "greaterThan":
-					return new GreaterThanOperation();
-				case "lessThan":
-					return new LessThanOperation();
-			}
-			throw new Error(`Unidentified branch "${name}"`);
+			throw new Error(`Not implemented.`);
 		}
 
 		getChildren(target: Branch) 
@@ -87,5 +80,8 @@ namespace Reflex.Talk {
 		detachRecurrent() {}
 	}
 
-	export const library = new Library().namespace;
+	const query = (...primitives: Core.Primitive[]) =>
+		new Core.BranchMeta(System.this.query(), primitives) as any.branch;
+	export const tt: Namespace = query as any;
+	Object.assign(tt, new Library().namespace);
 }

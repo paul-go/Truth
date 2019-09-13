@@ -12,24 +12,24 @@ Person:
   Age: Number
 
 Employee: Person
-  Salary : Number
+  Salary: Number
 
 @data
 
-E1 : Employee
-  Name : "Bob"
-  Age : 21
-  Salary : 1000
+E1: Employee
+  Name: "Bob"
+  Age: 21
+  Salary: 1000
 
-E2 : Employee
-  Name : "Alice"
-  Age : 54
-  Salary : 1200
+E2: Employee
+  Name: "Alice"
+  Age: 54
+  Salary: 1200
 
-E3 : Employee
-  Name : "Joe"
-  Age : 27
-  Salary : 1400
+E3: Employee
+  Name: "Joe"
+  Age: 27
+  Salary: 1400
 
 P1: Person
   Name: "Parsa"

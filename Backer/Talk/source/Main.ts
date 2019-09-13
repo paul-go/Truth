@@ -76,15 +76,12 @@ P2: Person
 async function main() 
 {
 	const { Talk } = Reflex;
-	const { library: tt } = Talk;
+	const { tt } = Talk;
 
 	await Talk.System.fromText(source.trim());
 	const doc = Talk.System.this.doc;
 
-	const query = tt.query(
-		Employee,
-		tt.has(Employee.Salary, tt.greaterThan(1000))
-	);
+	const query = tt(Employee);
 
 	debugger;
 }
