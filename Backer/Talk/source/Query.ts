@@ -10,6 +10,11 @@ namespace Reflex.Talk {
 		private readonly operations: Operation[] = [];
 
 		/**
+		 * Collected data.
+		 */
+		private result?: Truth.Type[];
+
+		/**
 		 * Indicates whatever `run` method is called or not.
 		 */
 		private started = false;
@@ -31,18 +36,28 @@ namespace Reflex.Talk {
 			throw new Error("A TruthQuery is readonly after calling `run`.");
 		}
 
-		private contentMap = new WeakMap<Truth.Type, Operations.Is>();
+		/**
+		 * When a type primitive is attached to the Query, we wrap it inside an `Is`
+		 * operation.
+		 *
+		 * This Weak Map keeps track of all the `Is` operations we have created for
+		 * this purpose.
+		 */
+		private static contentMap = new WeakMap<Truth.Type, Operations.Is>();
 
-		private prepareContent(type: TypePrimitive) 
+		/**
+		 * Wrap a type primitive in an `Is` operation.
+		 */
+		private static prepareContent(type: TypePrimitive) 
 		{
 			const truthType = toType(type);
 
-			if (this.contentMap.has(truthType))
-				return this.contentMap.get(truthType)!;
+			if (Query.contentMap.has(truthType))
+				return Query.contentMap.get(truthType)!;
 
 			const operation = new Operations.Is();
 			operation.attach(truthType);
-			this.contentMap.set(truthType, operation);
+			Query.contentMap.set(truthType, operation);
 			return operation;
 		}
 
@@ -54,7 +69,7 @@ namespace Reflex.Talk {
 			this.throwAfterStart();
 			if (op instanceof Operation) return void this.operations.push(op);
 
-			this.operations.push(this.prepareContent(op));
+			this.operations.push(Query.prepareContent(op));
 		}
 
 		/**
@@ -65,7 +80,7 @@ namespace Reflex.Talk {
 		{
 			this.throwAfterStart();
 			if (!(op instanceof Operation))
-				return this.detach(this.prepareContent(op));
+				return this.detach(Query.prepareContent(op));
 			const index = this.operations.indexOf(op);
 			if (index < 0) return false;
 			this.operations.splice(index, 1);
@@ -77,6 +92,7 @@ namespace Reflex.Talk {
 		 */
 		run() 
 		{
+			if (this.result) return this.result;
 			this.throwAfterStart();
 			this.started = true;
 
@@ -88,7 +104,7 @@ namespace Reflex.Talk {
 				collected = operation.transform(collected);
 			}
 
-			return collected;
+			return this.result = collected;
 		}
 	}
 }
