@@ -41,7 +41,9 @@ namespace Reflex.Talk {
 		/**
 		 * Constructs a new Query.
 		 */
-		(...primitives: Core.Primitives<Operation, TypePrimitive, never>[]): Query;
+		(
+			...primitives: Core.Primitives<Operation | TypePrimitive, never, never>[]
+		): Promise<Query>;
 
 		/**
 		 * A TruthTalk `is(type)` operation.
@@ -71,7 +73,7 @@ namespace Reflex.Talk {
 		 * single content type.
 		 */
 		has(
-			...primitives: Core.Primitives<Operation, TypePrimitive, never>[]
+			...primitives: Core.Primitives<Operation | TypePrimitive, never, never>[]
 		): Operations.Has;
 
 		/**
@@ -81,7 +83,7 @@ namespace Reflex.Talk {
 		 * call.
 		 */
 		greaterThan(
-			value: Core.Primitives<never, never, string | number>
+			value: Core.Primitives<string | number, never, never>
 		): Operations.GreaterThan;
 
 		/**
@@ -90,7 +92,7 @@ namespace Reflex.Talk {
 		 * than or equal" is achieved by wrapping this function in a tt.not() call.
 		 */
 		lessThan(
-			value: Core.Primitives<never, never, string | number>
+			value: Core.Primitives<string | number, never, never>
 		): Operations.LessThan;
 	}
 }

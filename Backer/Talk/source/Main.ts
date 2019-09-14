@@ -73,6 +73,17 @@ P2: Person
 
 `;
 
+function sleep(time: number): Promise<void> 
+{
+	return new Promise(resolve => setTimeout(resolve, time));
+}
+
+async function delay<T>(time: number, value: T): Promise<T> 
+{
+	await sleep(time);
+	return value;
+}
+
 async function main() 
 {
 	const { Talk } = Reflex;
@@ -81,9 +92,11 @@ async function main()
 	await Talk.System.fromText(source.trim());
 	const doc = Talk.System.this.doc;
 
-	const query = tt(Employee);
+	const query = await tt(delay(1000, Employee));
 
-	debugger;
+	const result = query.run();
+
+	console.log(result.map(t => t.name));
 }
 
 main();

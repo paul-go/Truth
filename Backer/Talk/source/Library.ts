@@ -94,7 +94,10 @@ namespace Reflex.Talk {
 	{
 		const query = System.this.query();
 		new Core.BranchMeta(query, primitives);
-		return query;
+
+		return new Promise(resolve =>
+			Reflex.Core.ReadyState.await(() => resolve(query))
+		);
 	};
 	export const tt: Namespace = query as any;
 	Object.assign(tt, new Library().namespace);
