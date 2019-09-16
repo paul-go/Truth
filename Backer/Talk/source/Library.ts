@@ -1,5 +1,5 @@
 namespace Reflex.Talk {
-	class Library extends Core.Library<Namespace> 
+	export class Library extends Core.Library<Namespace> 
 	{
 		constructor() 
 		{

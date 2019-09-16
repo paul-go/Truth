@@ -1,24 +1,24 @@
 const Person = {
-	typePath: ["Person"],
-	Name: {
-		typePath: ["Person", "Name"]
-	},
-	Age: {
-		typePath: ["Person", "Age"]
-	}
+  typePath: ["Person"],
+  Name: {
+    typePath: ["Person", "Name"]
+  },
+  Age: {
+    typePath: ["Person", "Age"]
+  }
 };
 
 const Employee = {
-	typePath: ["Employee"],
-	Name: {
-		typePath: ["Employee", "Name"]
-	},
-	Age: {
-		typePath: ["Employee", "Age"]
-	},
-	Salary: {
-		typePath: ["Employee", "Salary"]
-	}
+  typePath: ["Employee"],
+  Name: {
+    typePath: ["Employee", "Name"]
+  },
+  Age: {
+    typePath: ["Employee", "Age"]
+  },
+  Salary: {
+    typePath: ["Employee", "Salary"]
+  }
 };
 
 new Reflex.Core.ContentMeta(Employee);
@@ -73,30 +73,31 @@ P2: Person
 
 `;
 
-function sleep(time: number): Promise<void> 
+function sleep(time)
 {
-	return new Promise(resolve => setTimeout(resolve, time));
+  return new Promise(resolve => setTimeout(resolve, time));
 }
 
-async function delay<T>(time: number, value: T): Promise<T> 
+async function delay(time, value)
 {
-	await sleep(time);
-	return value;
+  await sleep(time);
+  return value;
 }
 
 async function main() 
 {
-	const { Talk } = Reflex;
-	const { tt } = Talk;
+  const { Talk } = Reflex;
+  const { tt } = Talk;
 
-	await Talk.System.fromText(source.trim());
-	const doc = Talk.System.this.doc;
+  await Talk.System.fromText(source.trim());
+  const doc = Talk.System.this.doc;
 
-	const query = await tt(delay(1000, Employee));
+  const query = await tt(delay(1000, Employee));
 
-	const result = query.run();
+  const result = query.run();
 
-	console.log(result.map(t => t.name));
+  console.log(result.map(t => t.name));
 }
 
 main();
+
