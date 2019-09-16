@@ -377,7 +377,7 @@ declare function off(e: HTMLElement, callback: (...args: any[]) => any): void;
  * 
  */
 declare function attach(...primitives: Reflex.ML.Primitives[]): { 
-	to: (target: Reflex.ML.Branch) => void
+	to: (target: Reflex.ML.Branch) => void;
 };
 
 declare namespace Reflex.ML

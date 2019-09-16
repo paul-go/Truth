@@ -101,7 +101,7 @@ namespace Reflex.ML
 					return owner.prepend(primitive);
 				
 				if (ref === "append")
-					return owner.append(primitive)
+					return owner.append(primitive);
 				
 				if (ref instanceof Element && primitive instanceof Element)
 					return void ref.insertAdjacentElement("afterend", primitive);

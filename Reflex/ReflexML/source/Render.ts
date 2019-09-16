@@ -15,7 +15,7 @@ namespace Reflex.ML
 		branch = 4,
 		text = 2,
 		stream = 6,
-	};
+	}
 	
 	const selectorSep = "…";
 	let nextAnonId = 0;
@@ -23,7 +23,7 @@ namespace Reflex.ML
 	/**
 	 * 
 	 */
-	export async function render(
+	export function render(
 		target: Node | Node[],
 		options?: {
 			/**
@@ -31,19 +31,19 @@ namespace Reflex.ML
 			 * should be formatted with whitespace characters.
 			 * Default is true.
 			 */
-			format?: boolean,
+			format?: boolean;
 			/**
 			 * Whether or not the <!DOCTYPE html> directive
 			 * should be emitted at the top of the generated HTML.
 			 * Default is true.
 			 */
-			doctype?: boolean,
+			doctype?: boolean;
 			/**
 			 * Specifies the URL for the inline <script> tag that
 			 * points to the restore script. If empty, the restore
 			 * script is inlined within the generated HTML.
 			 */
-			restoreScriptURL?: string
+			restoreScriptURL?: string;
 		}): Promise<IRenderResult>
 	{
 		nextAnonId = 0;
@@ -81,7 +81,7 @@ namespace Reflex.ML
 				if (!this.id && this.hasRecurrents)
 				{
 					this.id = (++nextAnonId).toString();
-					this.attributes["id"] = this.id;
+					this.attributes.id = this.id;
 				}
 				
 				for (let i = -1; ++i < e.attributes.length;)
@@ -118,7 +118,7 @@ namespace Reflex.ML
 					// This is a formatting optimization. If the element only contains a
 					// single Text object, and said Text object only contains a small 
 					// amount of text, it's rendered on a single line.
-					else if (typeof chFirst === "string" && ((indentLevel * 4) + chFirst.length) <= 50)
+					else if (typeof chFirst === "string" && indentLevel * 4 + chFirst.length <= 50)
 					{
 						line.push(chFirst, closer);
 					}
@@ -165,7 +165,7 @@ namespace Reflex.ML
 			readonly metas: readonly Core.Meta[];
 			
 			private readonly name: string;
-			private readonly attributes: { [key: string]: string; } = {};
+			private readonly attributes: { [key: string]: string } = {};
 			private readonly hasRecurrents: boolean;
 		}
 		
@@ -205,9 +205,9 @@ namespace Reflex.ML
 					commands.push(tag.id);
 					commands.push(tag.locatorText);
 					
-					const textCommands = (<any[]>[]).concat(...tag.metas
+					const textCommands = tag.metas
 						.filter((m): m is Core.ContentMeta => m instanceof Core.ContentMeta)
-						.map((meta, index) => [index, meta.locator.toString()]));
+						.map((meta, index) => [index, meta.locator.toString()]);
 					
 					commands.push(textCommands);
 					
@@ -246,7 +246,7 @@ namespace Reflex.ML
 						
 						// Append the callback arguments
 						if (!isSerializable(rec.userRestArgs))
-							throw "Invalid argument passed to closure, which cannot be serialized.";
+							throw new Error("Invalid argument passed to closure, which cannot be serialized.");
 						
 						streamCommands.push(rec.userRestArgs);
 					}
@@ -340,7 +340,7 @@ namespace Reflex.ML
 	/** */
 	function hasClose(tagName: string)
 	{
-		return !([
+		return ![
 			"area",
 			"base",
 			"br",
@@ -355,7 +355,7 @@ namespace Reflex.ML
 			"source",
 			"track",
 			"wbr"
-		].includes(tagName));
+		].includes(tagName);
 	}
 	
 	/**
@@ -392,10 +392,10 @@ namespace Reflex.ML
 		]
 		*/
 		
-		const err = () => new Error("Invalid commands array.");
+		const error = () => new Error("Invalid commands array.");
 		
 		if (commands.length % BlockSize.branch !== 0)
-			throw err();
+			throw error();
 		
 		for (let b = 0; b < commands.length; b += BlockSize.branch)
 		{
@@ -411,10 +411,10 @@ namespace Reflex.ML
 			const streamInfo: any[] = commands[b + 3];
 			
 			if (textInfo.length % BlockSize.text !== 0)
-				throw err();
+				throw error();
 			
 			if (streamInfo.length % BlockSize.stream !== 0)
-				throw err();
+				throw error();
 			
 			// Assign locators to the appropriate Text nodes in the document.
 			for (let textNodeIndex = 0, i = 0; i < textInfo.length; i += BlockSize.text)
@@ -453,7 +453,7 @@ namespace Reflex.ML
 				const kind: Core.RecurrentKind = streamInfo[s + 2];
 				const selectors = ("" + streamInfo[s + 3]).split(selectorSep);
 				const callback = callbacks[streamInfo[s + 4]];
-				const callbackArgs = (<any[]>streamInfo[s + 5]).slice();
+				const callbackArgs = streamInfo[s + 5].slice();
 				const recurrent = new Core.Recurrent(kind, selectors, callback, callbackArgs);
 				
 				// An empty string selector indicates that the callback is a restore function.
