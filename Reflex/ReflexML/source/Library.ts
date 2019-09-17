@@ -126,7 +126,7 @@ namespace Reflex.ML
 				owner.classList.remove(primitive);
 		}
 		
-		private tempMark = document.createComment("");
+		
 		/** */
 		swapElement(branch1: Branch, branch2: Branch)
 		{
@@ -135,6 +135,8 @@ namespace Reflex.ML
 			this.tempMark.parentElement!.insertBefore(branch1, this.tempMark);
 			this.tempMark.remove();
 		}
+		
+		private tempMark = document.createComment("");
 	
 		/** */
 		replaceElement(branch1: Branch, branch2: Branch)
