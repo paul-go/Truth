@@ -49,7 +49,23 @@ namespace Reflex.Core
  		 * not possible for the locator to refer to a meta that has "siblings", 
  		 * which is the entire point of the Locator concept.
 		 */
-		private readonly values: number[] = [];
+		private values: number[] = [];
+		
+		/**
+		 * 
+		 */
+		setLastLocatorValue(value: number)
+		{
+			this.values[this.values.length - 1] = value;
+		}
+		
+		/**
+		 * 
+		 */
+		getlastLocatorValue()
+		{
+			return this.values[this.values.length - 1];
+		}
 		
 		/**
 		 * Timestamps are attached to each meta. They are only used to determine

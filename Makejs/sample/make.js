@@ -1,11 +1,8 @@
+/* eslint-disable filenames/match-regex */
 
 make.on(async () =>
 {
-	await make.typescript("./tsconfig.json", {
-		compilerOptions: {
-			outDir: "./build"
-		}
-	});
+	make.typescriptWatcher("./tsconfig.json");
 	
 	await make.typescript("./tsconfig.json", {
 		compilerOptions: {
@@ -24,4 +21,22 @@ make.on(async () =>
 		"./build/d.js",
 		"./build/e.js"
 	);
+});
+
+make.on("exit", () => 
+{
+	console.log("exit");
+	make.delete("./s");
+});
+
+make.on("start", async () => 
+{
+	console.log("start");
+	await new Promise(r => setTimeout(r, 5));
+});
+
+make.on("init", async () => 
+{
+	console.log("init");
+	await new Promise(r => setTimeout(r, 5));
 });

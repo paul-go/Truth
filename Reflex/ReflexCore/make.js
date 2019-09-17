@@ -2,21 +2,30 @@
 
 make.on(async () =>
 {
-	await make.typescript("./tsconfig.source.json");
+	await make.typescript("./tsconfig.json");
 });
 
-make.on("bundle", async () =>
+async function bundle()
 {
 	make.copy("./build/source/reflex-core.js", "./bundle");
-	//make.modulize("./bundle/reflex-core.js", "{ Reflex: Reflex, re: re }");
 	make.copy("./build/source/reflex-core.d.ts", "./bundle");
-	//make.minify("./bundle/reflex-core.js");
-	
+	await make.compilationConstants("./bundle/reflex-core.js", {
+		MODERN: true,
+		DEBUG: false
+	});
+	await make.minify("./bundle/reflex-core.js");
+}
+
+make.on("bundle", bundle);
+
+make.on("publish", async () => 
+{
+	await bundle();
 	await make.publish({
 		directory: "./bundle",
 		packageFile: "./package.json",
 		packageFileChanges: {
-			main: "./reflex-core.js",
+			main: "./reflex-core.min.js",
 			types: "./reflex-core.d.ts"
 		},
 		registries: ["http://localhost:4873"]

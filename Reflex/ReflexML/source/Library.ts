@@ -126,6 +126,22 @@ namespace Reflex.ML
 				owner.classList.remove(primitive);
 		}
 		
+		private tempMark = document.createComment("");
+		/** */
+		swapElement(branch1: Branch, branch2: Branch)
+		{
+			branch2.parentElement!.insertBefore(this.tempMark, branch2);
+			branch1.parentElement!.insertBefore(branch2, branch1);
+			this.tempMark.parentElement!.insertBefore(branch1, this.tempMark);
+			this.tempMark.remove();
+		}
+	
+		/** */
+		replaceElement(branch1: Branch, branch2: Branch)
+		{
+			branch1.replaceWith(branch2);
+		}
+		
 		/** */
 		attachAttribute(branch: Branch, key: string, value: any)
 		{

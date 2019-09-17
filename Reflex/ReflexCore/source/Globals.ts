@@ -85,7 +85,7 @@ function reflex(initialValue?: any)
 				if (targetVal instanceof Reflex.Core.StatefulReflex)
 					targetVal.value = value;
 				
-				else if (Reflex.Core.ArrayReflex.is(targetVal))
+				else if (targetVal instanceof Reflex.Core.ArrayReflex)
 					throw new Error("Re-assignment of arrays is not implemented.");
 				
 				else throw new Error("Unknown error.");

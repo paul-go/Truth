@@ -46,6 +46,42 @@ namespace Reflex.Core
 					metas,
 					localTracker);
 			}
+
+			const findMeta = (position: number) => 
+			{	
+				let pos = position;
+				const iterator = RoutingLibrary.this.getChildren(containingBranch);
+				for (const item of iterator) 
+				{
+					const Meta = BranchMeta.of(item);
+					if (Meta && 
+						Meta.locator.compare(this.locator) === CompareResult.lower &&
+						--pos === -1) 
+					{
+						return Meta;
+					}
+				}
+			};
+			
+			ReflexUtil.attachReflex(effectArray.root.changed, (item: any, position: number) => 
+			{
+				const internalPos = effectArray.positions.indexOf(position);
+				if (position > -1) 
+				{
+					const meta = findMeta(internalPos);
+					if (meta)
+					{
+						const primitives = rec.userCallback(item, containingBranch, position);
+						const metas = CoreUtil.translatePrimitives(
+							containingBranch,
+							this.containerMeta,
+							primitives)[0] as BranchMeta;
+							
+						metas.locator.setContainer(this.containerMeta.locator);
+						RoutingLibrary.this.replaceElement(containingBranch, meta.branch, metas.branch);
+					}
+				}
+			});
 			
 			ReflexUtil.attachReflex(effectArray.added, (item: any, position: number) =>
 			{
@@ -55,22 +91,54 @@ namespace Reflex.Core
 					containingBranch,
 					this.containerMeta,
 					primitives);
+					
+				let tracker = localTracker;
 				
+				if (position < effectArray.length)
+				{
+					const meta = findMeta(position - 1);
+					if (meta)
+					{
+						tracker = localTracker.derive();
+						tracker.update(meta.branch);
+					}
+				}
+					
 				CoreUtil.applyMetas(
 					containingBranch,
 					this.containerMeta,
 					metas,
-					localTracker);
+					tracker);
 			});
-			
+						
 			ReflexUtil.attachReflex(effectArray.removed, (item: any, position: number) =>
 			{
-				// This one doesn't call the render function, it's only subtractive.
+				const meta = findMeta(position);
+				if (meta)
+					CoreUtil.unapplyMetas(containingBranch, [meta]);
 			});
 			
-			ReflexUtil.attachReflex(effectArray.moved, () =>
+			ReflexUtil.attachReflex(effectArray.moved, (item1: any, item2: any, index1: number, index2: number) =>
 			{
-				// TODO: Implement moving of items in the array.
+				const source = findMeta(index1);
+				const target = findMeta(index2);
+
+				if (source && target)
+				{
+					const srcLocVal = source.locator.getlastLocatorValue();
+					const targetLocVal = target.locator.getlastLocatorValue();
+					source.locator.setLastLocatorValue(targetLocVal);
+					target.locator.setLastLocatorValue(srcLocVal);
+
+					RoutingLibrary.this.swapElement(containingBranch, source.branch, target.branch);
+				}
+			});
+			
+			ReflexUtil.attachReflex(effectArray.tailChange, (item: any, position: number) =>
+			{
+				const source = findMeta(position);
+				if (source)
+					localTracker.update(source.branch);
 			});
 		}
 		
@@ -107,7 +175,7 @@ namespace Reflex.Core
 				const childMeta = 
 					BranchMeta.of(<any>child) ||
 					ContentMeta.of(<any>child);
-				
+					
 				if (childMeta && childMeta.key === key)
 				{
 					inRange = true;

@@ -2,6 +2,45 @@
 namespace make
 {
 	/**
+	 * Parse typescript functions arguemments and generate argument array 
+	 */
+	function parseTypescriptArguments(a: any, b?: any, c = false)
+	{
+		let path = 
+			typeof a === "string" ? a : 
+				typeof b === "string" ? b : "./tsconfig.json";
+	
+		const tsConfigOverrides: TsConfig | null = 
+			typeof a === "object" ? a :
+				typeof b === "object" ? b : null;
+	
+		const watch: boolean = 
+			typeof b === "boolean" ? b : c;
+	
+		if (tsConfigOverrides !== null)
+		{
+			const existingConfig = readJson(path);
+			const augmentedConfig = mergeDeep(existingConfig, tsConfigOverrides);
+			
+			const tempFile = `tsconfig.${random()}.json`;
+			const tempPath = Path.join(Path.parse(path).dir, tempFile);
+			writeJson(tempPath, augmentedConfig);
+			make.on("exit", () => 
+			{
+				make.delete(tempPath);
+			});
+			path = tempPath;
+		}
+
+		const args = ["--project", path];
+
+		if (watch) 
+			args.push("--watch");
+
+		return args;
+	}
+
+	/**
 	 * Compiles the typescript at the specified location, 
 	 * and with any additional tsconfig compilerOptions entries.
 	 */
@@ -11,30 +50,22 @@ namespace make
 	export async function typescript(a: any, b?: any)
 	{
 		console.log("Running TypeScript Compiler");
-		
-		const path = 
-			typeof a === "string" ? a : 
-				typeof b === "string" ? b : "./tsconfig.json";
-		
-		const tsConfigOverrides: TsConfig | null = 
-			typeof a === "object" ? a :
-				typeof b === "object" ? b : null;
-		
-		if (tsConfigOverrides !== null)
-		{
-			const existingConfig = readJson(path);
-			const augmentedConfig = mergeDeep(existingConfig, tsConfigOverrides);
-			
-			const tempFile = `tsconfig.${random()}.json`;
-			const tempPath = Path.join(Path.parse(path).dir, tempFile);
-			writeJson(tempPath, augmentedConfig);
-			
-			await shell(`tsc -p ${tempPath}`);
-			Fs.unlinkSync(tempPath);
-		}
-		else await shell(`tsc -p ${path}`);
+		await spawn("tsc", parseTypescriptArguments(a, b, false));
 	}
-	
+
+	/**
+	 * Compiles and watches for changes in TypeScript at the specified location, 
+	 * and with any additional tsconfig compilerOptions entries.
+	 */
+	export function typescriptWatcher(path: string, tsConfigOverrides: TsConfig): ReturnOfSpawn;
+	export function typescriptWatcher(path: string): ReturnOfSpawn;
+	export function typescriptWatcher(tsConfigOverrides: TsConfig): ReturnOfSpawn;
+	export function typescriptWatcher(a: any, b?: any)
+	{
+		console.log("Running TypeScript Compiler (Watcher)");
+		return spawn("tsc", parseTypescriptArguments(a, b, true));
+	}
+
 	//# Type definitions copied from https://github.com/Microsoft/TypeScript/blob/master/lib/typescript.d.ts
 	
 	export interface MapLike<T = any>
