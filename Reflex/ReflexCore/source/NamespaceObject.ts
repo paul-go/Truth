@@ -150,8 +150,7 @@ namespace Reflex.Core
 				{
 					const branch = library.getDynamicBranch(key);
 					if (branch)
-						return (...primitives: Primitive[]) =>
-							new BranchMeta(branch, primitives);
+						return createBranchFn(() => branch);
 				}
 				
 				if (library.getDynamicNonBranch)
