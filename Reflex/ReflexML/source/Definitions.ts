@@ -396,7 +396,7 @@ declare namespace Reflex.ML
 		 * Causes the connected HTMLElement to be data-bound to the
 		 * specified effect variable.
 		 * 
-		 * Uses the effect variable's .value prorpety when connected to an
+		 * Uses the effect variable's .value property when connected to an
 		 * HTMLInputElement, otherwise, the .textContent property is used.
 		 */
 		bind<T extends string | number | bigint>(effectVariable: Reflex.Core.StatefulReflex<T>): void;

@@ -1,16 +1,14 @@
 
-namespace Reflex.ML
+/**
+ * Global library accessor.
+ * (This should be conditionally globalized.)
+ */
+const ml = (() =>
 {
-	/** */
-	export class Library extends Core.Library<Namespace>
+	class Library implements Reflex.Core.ILibrary
 	{
-		constructor()
-		{
-			super(window);
-		}
-		
 		/** */
-		isKnownBranch(branch: Core.IBranch)
+		isKnownBranch(branch: Reflex.Core.IBranch)
 		{
 			if (branch instanceof Element)
 				return true;
@@ -20,35 +18,64 @@ namespace Reflex.ML
 		}
 		
 		/** */
-		getNamespaceStatic()
+		isBranchDisposed(branch: Reflex.Core.IBranch)
 		{
+			return branch instanceof HTMLElement &&
+				!document.body.contains(branch);
+		}
+		
+		/** */
+		getStaticNonBranches()
+		{
+			const self = this;
+			
 			return {
-				bind: (evar: Reflex.Core.StatefulReflex) => (e: HTMLElement) =>
+				/**
+				 * Causes the connected HTMLElement to be data-bound to the
+				 * specified effect variable.
+				 * 
+				 * Uses the effect variable's .value property when connected to an
+				 * HTMLInputElement, otherwise, the .textContent property is used.
+				 */
+				bind<T extends string | number | bigint>(effectVariable: Reflex.Core.StatefulReflex<T>)
 				{
-					return this.isInput(e) ?
-						[
-							{ value: evar },
-							on("input", () =>
-							{
-								evar.set(e.value);
-							}).run()
-						] :
-						[
-							ml(evar),
-							on("input", () => evar.set(e.textContent || "")).run()
-						];
+					const assign = (value: string | null) =>
+					{
+						value = value || "";
+						
+						switch (typeof effectVariable.value)
+						{
+							case "string":
+								effectVariable.set(<any>value);
+								break;
+							
+							case "number":
+								effectVariable.set(<any>parseInt(value, 10));
+								break;
+							
+							case "bigint":
+								effectVariable.set(<any>BigInt(value));
+						}
+					};
+					
+					return (e: HTMLElement) =>
+					{
+						return self.isInput(e) ?
+							[
+								{ value: effectVariable },
+								on("input", () => assign(e.value)).run()
+							] :
+							[
+								ml(effectVariable),
+								on("input", () => assign(e.textContent)).run()
+							];
+					}
 				}
 			};
 		}
 		
 		/** */
-		getNamespaceComputed()
-		{
-			return () => Reflex.Core.ComputedMemberType.branch;
-		}
-		
-		/** */
-		createBranch(name: string)
+		getDynamicBranch(name: string)
 		{
 			if (!name.startsWith("input"))
 				return document.createElement(name);
@@ -59,15 +86,9 @@ namespace Reflex.ML
 		}
 		
 		/** */
-		getChildren(target: Branch)
+		getChildren(target: Reflex.ML.Branch)
 		{
-			return new NodeArray(target);
-		}
-		
-		/** */
-		isBranchDisposed(branch: Branch)
-		{
-			return !document.body.contains(branch);
+			return new Reflex.ML.NodeArray(target);
 		}
 		
 		/** */
@@ -84,7 +105,7 @@ namespace Reflex.ML
 		/** */
 		attachPrimitive(
 			primitive: any,
-			owner: Branch,
+			owner: Reflex.ML.Branch,
 			ref: Node | "prepend" | "append")
 		{
 			if (typeof primitive === "string")
@@ -117,7 +138,7 @@ namespace Reflex.ML
 		}
 		
 		/** */
-		detachPrimitive(primitive: any, owner: Branch)
+		detachPrimitive(primitive: any, owner: Reflex.ML.Branch)
 		{
 			if (primitive instanceof Element || primitive instanceof Text)
 				primitive.remove();
@@ -126,9 +147,8 @@ namespace Reflex.ML
 				owner.classList.remove(primitive);
 		}
 		
-		
 		/** */
-		swapElement(branch1: Branch, branch2: Branch)
+		swapElement(branch1: Reflex.ML.Branch, branch2: Reflex.ML.Branch)
 		{
 			branch2.parentElement!.insertBefore(this.tempMark, branch2);
 			branch1.parentElement!.insertBefore(branch2, branch1);
@@ -139,13 +159,13 @@ namespace Reflex.ML
 		private tempMark = document.createComment("");
 	
 		/** */
-		replaceElement(branch1: Branch, branch2: Branch)
+		replaceElement(branch1: Reflex.ML.Branch, branch2: Reflex.ML.Branch)
 		{
 			branch1.replaceWith(branch2);
 		}
 		
 		/** */
-		attachAttribute(branch: Branch, key: string, value: any)
+		attachAttribute(branch: Reflex.ML.Branch, key: string, value: any)
 		{
 			if (key in branch)
 				(<any>branch)[key] = value;
@@ -154,7 +174,7 @@ namespace Reflex.ML
 		}
 		
 		/** */
-		detachAttribute(branch: Branch, key: string)
+		detachAttribute(branch: Reflex.ML.Branch, key: string)
 		{
 			branch.removeAttribute(key);
 		}
@@ -162,9 +182,10 @@ namespace Reflex.ML
 		/** */
 		attachRecurrent(
 			kind: Reflex.Core.RecurrentKind,
-			target: Branch,
+			target: Reflex.Core.IBranch,
 			selector: any,
-			callback: Reflex.Core.RecurrentCallback<Reflex.ML.Primitives>)
+			callback: Reflex.Core.RecurrentCallback,
+			rest: any[])
 		{
 			if (typeof selector !== "string")
 				return false;
@@ -181,12 +202,13 @@ namespace Reflex.ML
 		
 		/** */
 		detachRecurrent(
-			target: Branch,
+			target: Reflex.Core.IBranch,
 			selector: any,
-			callback: Reflex.Core.RecurrentCallback<Reflex.ML.Primitives>): void
+			callback: Reflex.Core.RecurrentCallback)
 		{
-			if (typeof selector === "string")
-				target.removeEventListener(selector, callback);
+			if (target instanceof HTMLElement)
+				if (typeof selector === "string")
+					target.removeEventListener(selector, callback);
 		}
 		
 		/** */
@@ -194,16 +216,9 @@ namespace Reflex.ML
 		{
 			return e instanceof HTMLInputElement;
 		}
-	}
+	};
 	
-	/**
-	 * Stores the global "ml" object used to create HTML elements.
-	 */
-	export const namespace = new Library().namespace;
-}
-
-/**
- * Global library accessor.
- * (This should be conditionally globalized.)
- */
-const ml = Reflex.ML.namespace;
+	return Reflex.Core.createNamespaceObject<Reflex.ML.Namespace>(
+		window,
+		new Library());
+})();

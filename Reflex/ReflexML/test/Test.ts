@@ -44,8 +44,8 @@ namespace Reflex.ML.Test
 			///testScrolling
 		];
 		
-		functions.length = 0;
-		functions.push(testArrayReflexes);
+		///functions.length = 0;
+		///functions.push(testArrayReflexes);
 		
 		for (const fn of functions)
 		{

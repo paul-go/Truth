@@ -13,7 +13,7 @@ namespace Reflex.Core
 	 * and then using this to determine what library is responsible
 	 * for objects of this type.
 	 */
-	export class RoutingLibrary
+	export class RoutingLibrary implements ILibrary
 	{
 		/**
 		 * Singleton accessor property.
@@ -30,34 +30,51 @@ namespace Reflex.Core
 		 * Adds a reference to a Reflexive library, which may be
 		 * called upon in the future.
 		 */
-		static addLibrary(library: Library)
+		static addLibrary(library: ILibrary)
 		{
 			this.libraries.push(library);
 		}
-		private static readonly libraries: Library[] = [];
+		private static readonly libraries: ILibrary[] = [];
 		
 		private constructor() { }
 		
 		/**
-		 * Returns the library that corresponds to the specified branch.
+		 * Conditionally executes the specified library function,
+		 * in the case when it's defined.
 		 */
-		private libraryOf(referenceBranch: IBranch)
+		private route<F extends (...args: any[]) => R, R>(
+			referenceBranch: IBranch,
+			getFn: (library: ILibrary) => F | undefined,
+			callFn: (fn: F) => R,
+			defaultValue?: any): R
 		{
 			if (referenceBranch)
+			{
 				for (const lib of RoutingLibrary.libraries)
+				{
 					if (lib.isKnownBranch(referenceBranch))
-						return lib;
+					{
+						const libFn = getFn(lib);
+						return typeof libFn === "function" ?
+							callFn(libFn) :
+							defaultValue;
+					}
+				}
+			}
 			
 			throw new Error("Unknown branch type.");
 		}
 		
 		/**
-		 * Reflexive libraries that support inline target+children closures
-		 * must provide an implementation for this method.
+		 * 
 		 */
-		getChildren(target: IBranch)
+		isKnownBranch(branch: IBranch)
 		{
-			return this.libraryOf(target).getChildren(target);
+			return this.route(
+				branch,
+				lib => lib.isKnownBranch,
+				fn => fn(branch),
+				false);
 		}
 		
 		/**
@@ -68,7 +85,36 @@ namespace Reflex.Core
 		 */
 		isBranchDisposed(branch: IBranch)
 		{
-			return this.libraryOf(branch).isBranchDisposed(branch);
+			return this.route(
+				branch,
+				lib => lib.isBranchDisposed,
+				fn => fn(branch),
+				false);
+		}
+		
+		/**
+		 * Reflexive libraries that support inline target+children closures
+		 * must provide an implementation for this method.
+		 */
+		getChildren(target: IBranch)
+		{
+			return this.route(
+				target,
+				lib => lib.getChildren,
+				fn => fn(target),
+				[]);
+		}
+		
+		/**
+		 * 
+		 */
+		prepareContent(content: any)
+		{
+			return this.route(
+				content,
+				lib => lib.prepareContent,
+				fn => fn(content),
+				null);
 		}
 		
 		/**
@@ -79,7 +125,10 @@ namespace Reflex.Core
 			branch: IBranch,
 			ref: Ref)
 		{
-			return this.libraryOf(branch).attachPrimitive(primitive, branch, ref);
+			this.route(
+				branch,
+				lib => lib.attachPrimitive,
+				fn => fn(primitive, branch, ref));
 		}
 		
 		/**
@@ -87,23 +136,32 @@ namespace Reflex.Core
 		 */
 		detachPrimitive(primitive: any, branch: IBranch)
 		{
-			return this.libraryOf(branch).detachPrimitive(primitive, branch);
+			this.route(
+				branch,
+				lib => lib.detachPrimitive,
+				fn => fn(primitive, branch));
 		}
 		
 		/**
 		 *
 		 */
-		swapElement(targetBranch: IBranch, branch1: IBranch, branch2: IBranch)
+		swapElement(branch1: IBranch, branch2: IBranch)
 		{
-			return this.libraryOf(targetBranch).swapElement(branch1, branch2);
+			this.route(
+				branch1,
+				lib => lib.swapElement,
+				fn => fn(branch1, branch2));
 		}
 		
 		/**
 		 *
 		 */
-		replaceElement(targetBranch: IBranch, branch1: IBranch, branch2: IBranch)
+		replaceElement(branch1: IBranch, branch2: IBranch)
 		{
-			return this.libraryOf(targetBranch).replaceElement(branch1, branch2);
+			this.route(
+				branch1,
+				lib => lib.replaceElement,
+				fn => fn(branch1, branch2));
 		}
 		
 		/**
@@ -111,7 +169,10 @@ namespace Reflex.Core
 		 */
 		attachAttribute(branch: IBranch, key: string, value: any)
 		{
-			return this.libraryOf(branch).attachAttribute(branch, key, value);
+			this.route(
+				branch,
+				lib => lib.attachAttribute,
+				fn => fn(branch, key, value));
 		}
 				
 		/**
@@ -119,7 +180,10 @@ namespace Reflex.Core
 		 */
 		detachAttribute(branch: IBranch, key: string)
 		{
-			return this.libraryOf(branch).detachAttribute(branch, key);
+			this.route(
+				branch,
+				lib => lib.detachAttribute,
+				fn => fn(branch, key));
 		}
 		
 		/**
@@ -138,14 +202,13 @@ namespace Reflex.Core
 			target: IBranch,
 			selector: any,
 			callback: RecurrentCallback<Primitives>,
-			restArguments: any[])
+			rest: any[])
 		{
-			return this.libraryOf(target).attachRecurrent(
-				kind,
+			return this.route(
 				target,
-				selector,
-				callback,
-				restArguments);
+				lib => lib.attachRecurrent,
+				fn => fn(kind, target, selector, callback, rest),
+				false);
 		}
 		
 		/**
@@ -157,10 +220,11 @@ namespace Reflex.Core
 			selector: any,
 			callback: RecurrentCallback<Primitives>)
 		{
-			return this.libraryOf(branch).detachRecurrent(
+			return this.route(
 				branch,
-				selector,
-				callback);
+				lib => lib.detachRecurrent,
+				fn => fn(branch, selector, callback),
+				false);
 		}
 	}
 }

@@ -4,7 +4,7 @@
 		"outFile": "./build/test/reflex-ml-test.js",
 	},
 	"include": [
-		"./test/**/*.ts"
+		"./test/Test.ts"
 	],
 	"references": [
 		{ "path": "../ReflexCore" },
