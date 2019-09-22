@@ -2,7 +2,7 @@ namespace Reflex.Talk {
 	/**
 	 * A Truth Query.
 	 */
-	export class Query implements Branch<Operation> 
+	export class Query implements TalkBranch<Operation> 
 	{
 		/**
 		 * List of operations that must be executed on the data.

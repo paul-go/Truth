@@ -23,7 +23,7 @@ namespace Reflex.Talk {
 	/**
 	 * A branch which can be used in Reflex.
 	 */
-	export interface Branch<T = TypePrimitive | Operation> {
+	export interface TalkBranch<T = TypePrimitive | Operation> {
 		/**
 		 * Attach a new node to the current branch.
 		 */

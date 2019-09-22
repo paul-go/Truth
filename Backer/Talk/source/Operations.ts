@@ -8,8 +8,8 @@ namespace Reflex.Talk.Operations {
 		array.splice(index + 1, 0, value);
 	}
 
-	abstract class FilterOperationBranch<T> extends FilterOperation
-		implements Branch<T> 
+	abstract class FilterOperationTalkBranch<T> extends FilterOperation
+		implements TalkBranch<T> 
 	{
 		protected values: T[] = [];
 
@@ -37,7 +37,7 @@ namespace Reflex.Talk.Operations {
 		}
 	}
 
-	export class Is extends FilterOperationBranch<TypePrimitive> 
+	export class Is extends FilterOperationTalkBranch<TypePrimitive> 
 	{
 		include(type: Truth.Type) 
 		{
@@ -45,7 +45,7 @@ namespace Reflex.Talk.Operations {
 		}
 	}
 
-	export class Not extends FilterOperationBranch<Operation> 
+	export class Not extends FilterOperationTalkBranch<Operation> 
 	{
 		transform(types: Truth.Type[]) 
 		{
@@ -79,7 +79,7 @@ namespace Reflex.Talk.Operations {
 		}
 	}
 
-	export class Or extends FilterOperationBranch<Operation> 
+	export class Or extends FilterOperationTalkBranch<Operation> 
 	{
 		include(type: Truth.Type) 
 		{
@@ -95,7 +95,7 @@ namespace Reflex.Talk.Operations {
 		}
 	}
 
-	export class Has extends FilterOperationBranch<
+	export class Has extends FilterOperationTalkBranch<
 		TypePrimitive | FilterOperation
 	> 
 	{
@@ -157,7 +157,7 @@ namespace Reflex.Talk.Operations {
 		}
 	}
 
-	export class GreaterThan extends FilterOperationBranch<string | number> 
+	export class GreaterThan extends FilterOperationTalkBranch<string | number> 
 	{
 		constructor(value?: number | string) 
 		{
@@ -174,7 +174,7 @@ namespace Reflex.Talk.Operations {
 		}
 	}
 
-	export class LessThan extends FilterOperationBranch<string | number> 
+	export class LessThan extends FilterOperationTalkBranch<string | number> 
 	{
 		constructor(value?: number | string) 
 		{

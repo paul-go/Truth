@@ -13,11 +13,11 @@ namespace Reflex.Talk {
 
 		getNamespaceStatic() 
 		{
-			const $ = (branchConstructor: any) => (
+			const $ = (BranchConstructor: any) => (
 				...primitives: Core.Primitive[]
 			) => 
 			{
-				const branch = new branchConstructor();
+				const branch = new BranchConstructor();
 				new Core.BranchMeta(branch, primitives);
 				return branch;
 			};
@@ -42,13 +42,13 @@ namespace Reflex.Talk {
 			throw new Error(`Not implemented.`);
 		}
 
-		getChildren(target: Branch) 
+		getChildren(target: TalkBranch) 
 		{
 			console.log("getChildren", target);
 			return [];
 		}
 
-		isBranchDisposed(branch: Branch) 
+		isBranchDisposed(branch: TalkBranch) 
 		{
 			return null;
 		}
@@ -59,22 +59,22 @@ namespace Reflex.Talk {
 			return content;
 		}
 
-		attachPrimitive(primitive: any, owner: Branch, ref: AttachRef<any>) 
+		attachPrimitive(primitive: any, owner: TalkBranch, ref: AttachRef<any>) 
 		{
 			owner.attach(primitive, ref);
 		}
 
-		detachPrimitive(primitive: any, owner: Branch) 
+		detachPrimitive(primitive: any, owner: TalkBranch) 
 		{
 			owner.detach(primitive);
 		}
 
-		attachAttribute(branch: Branch, key: string, value: any) 
+		attachAttribute(branch: TalkBranch, key: string, value: any) 
 		{
 			throw new Error(`Not implemented.`);
 		}
 
-		detachAttribute(branch: Branch, key: string) 
+		detachAttribute(branch: TalkBranch, key: string) 
 		{
 			throw new Error(`Not implemented.`);
 		}
