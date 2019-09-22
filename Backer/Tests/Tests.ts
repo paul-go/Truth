@@ -44,4 +44,7 @@ test(async function operationHas() {
 	query = await tt(tt.has(PLA.Employee.Salary, tt.lessThan(1200)));
 	result = query.run();
 	assertEqual(result.map(r => r.name), ["E1"]);
+	query = await tt(tt.has(PLA.Person.Name, tt.equals("Parsa")));
+	result = query.run();
+	assertEqual(result.map(r => r.name), ["P1"]);
 });

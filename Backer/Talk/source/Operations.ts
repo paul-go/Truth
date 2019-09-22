@@ -190,4 +190,15 @@ namespace Reflex.Talk.Operations {
 			return value < this.value!;
 		}
 	}
+
+	export class Equals extends FilterOperationTalkBranch<string | number> 
+	{
+		include(type: Truth.Type): boolean 
+		{
+			const value = type.value;
+			if (value === null) return false;
+			if (typeof this.value === "number") return Number(value) === this.value;
+			return JSON.parse(value) === this.value;
+		}
+	}
 }

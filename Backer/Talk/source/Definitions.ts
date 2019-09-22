@@ -105,5 +105,10 @@ namespace Reflex.Talk {
 		lessThan(
 			value: Core.Primitives<string | number, Operations.LessThan, never>
 		): Operations.LessThan;
+
+		/** */
+		equals(
+			value: Core.Primitives<string | number, Operations.Equals, never>
+		): Operations.Equals;
 	}
 }

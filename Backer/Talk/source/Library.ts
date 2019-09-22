@@ -28,7 +28,8 @@ namespace Reflex.Talk {
 				or: $(Operations.Or),
 				has: $(Operations.Has),
 				greaterThan: $(Operations.GreaterThan),
-				lessThan: $(Operations.LessThan)
+				lessThan: $(Operations.LessThan),
+				equals: $(Operations.Equals)
 			};
 		}
 
@@ -44,8 +45,7 @@ namespace Reflex.Talk {
 
 		getChildren(target: TalkBranch) 
 		{
-			console.log("getChildren", target);
-			return [];
+			return target.getChildren();
 		}
 
 		isBranchDisposed(branch: TalkBranch) 
