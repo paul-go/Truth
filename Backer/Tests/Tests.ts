@@ -11,11 +11,11 @@ test(async function basic() {
 test(async function operationIs() {
 	const { source, PLA } = files.EmployeePerson;
 	await Talk.System.fromText(source);
-	let query = await tt(tt.is(PLA.Employee as any));
+	let query = await tt(tt.is(PLA.Employee));
 	let result = query.run();
 	assertEqual(result.map(r => r.name), ["E1", "E2", "E3"]);
 
-	query = await tt(tt.is(PLA.Person as any));
+	query = await tt(tt.is(PLA.Person));
 	result = query.run();
 	assertEqual(result.map(r => r.name), ["E1", "E2", "E3", "P1", "P2"]);
 });

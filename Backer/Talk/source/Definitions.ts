@@ -56,20 +56,22 @@ namespace Reflex.Talk {
 		 * that exactly match the type specified (without considering covariance or
 		 * contravariance).
 		 */
-		is(type: Core.Primitives<TypePrimitive, never, never>[]): Operations.Is;
+		is(
+			type: Core.Primitives<TypePrimitive, Operations.Is, never>
+		): Operations.Is;
 
 		/**
 		 * Negation.
 		 */
 		not(
-			...primitives: Core.Primitives<Operation, never, never>[]
+			...primitives: Core.Primitives<Operation, Operations.Not, never>[]
 		): Operations.Not;
 
 		/**
 		 * Creates a logical OR operation between all passed operations.
 		 */
 		or(
-			...primitives: Core.Primitives<Operation, never, never>[]
+			...primitives: Core.Primitives<Operation, Operations.Or, never>[]
 		): Operations.Or;
 
 		/**
@@ -78,7 +80,11 @@ namespace Reflex.Talk {
 		 * single content type.
 		 */
 		has(
-			...primitives: Core.Primitives<Operation | TypePrimitive, never, never>[]
+			...primitives: Core.Primitives<
+				Operation | TypePrimitive,
+				Operations.Has,
+				never
+			>[]
 		): Operations.Has;
 
 		/**
@@ -88,7 +94,7 @@ namespace Reflex.Talk {
 		 * call.
 		 */
 		greaterThan(
-			value: Core.Primitives<string | number, never, never>
+			value: Core.Primitives<string | number, Operations.GreaterThan, never>
 		): Operations.GreaterThan;
 
 		/**
@@ -97,7 +103,7 @@ namespace Reflex.Talk {
 		 * than or equal" is achieved by wrapping this function in a tt.not() call.
 		 */
 		lessThan(
-			value: Core.Primitives<string | number, never, never>
+			value: Core.Primitives<string | number, Operations.LessThan, never>
 		): Operations.LessThan;
 	}
 }
