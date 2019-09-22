@@ -28,7 +28,7 @@
     "Talk/source/Definitions.ts",
     "Talk/source/Operation.ts",
     "Talk/source/Operations.ts",
-    "Talk/source/PLA.ts",
+    "Talk/source/Pla.ts",
     "Talk/source/Query.ts",
     "Talk/source/System.ts",
     "Talk/source/Truth.d.ts",
