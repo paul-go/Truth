@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "esnext",
+    "outDir": "../build/tests",
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "stripInternal": true,
+    "strict": true,
+    "declaration": true,
+    "allowUmdGlobalAccess": true,
+    "lib": [
+      "DOM",
+      "es7",
+      "es2017",
+      "es2017.object",
+      "esnext"
+    ],
+    "baseUrl": "..",
+    "paths": {
+      "truth-compiler": ["./node_modules/truth-compiler/truth-compiler.d.ts"],
+      "liltest": ["./node_modules/liltest/dist/index.d.ts"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "../Talk/source/Truth.d.ts"
+  ],
+  "references": [
+    { "path": "../../Reflex/ReflexCore" },
+    { "path": "../Talk" }
+  ]
+}

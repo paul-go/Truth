@@ -20,7 +20,8 @@
     "baseUrl": ".",
     "paths": {
       "truth-compiler": ["./node_modules/truth-compiler/truth-compiler.d.ts"]
-    }
+    },
+    "composite": true
   },
   "include": [
     "Talk/source/Node.ts",

@@ -19,6 +19,7 @@
   "typescript": "^3.5.3"
  },
  "dependencies": {
+  "liltest": "0.0.5",
   "truth-compiler": "^0.5.8"
  }
 }
