@@ -35,6 +35,11 @@ namespace Reflex.Talk {
 		 * @returns {boolean} Returns a boolean indicating if any node was removed.
 		 */
 		detach(node: T): boolean;
+
+		/**
+		 * Returns a list of all the attached values in this branch.
+		 */
+		getChildren(): T[];
 	}
 
 	export interface Namespace {

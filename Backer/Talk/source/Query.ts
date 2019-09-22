@@ -56,13 +56,14 @@ namespace Reflex.Talk {
 				return Query.contentMap.get(truthType)!;
 
 			const operation = new Operations.Is();
-			operation.attach(truthType);
+			operation.attach(truthType, "append");
 			Query.contentMap.set(truthType, operation);
 			return operation;
 		}
 
 		/**
 		 * Add the given operation to this query.
+		 * TODO(qti3e) Ref.
 		 */
 		attach(op: Operation | TypePrimitive): void 
 		{
@@ -85,6 +86,14 @@ namespace Reflex.Talk {
 			if (index < 0) return false;
 			this.operations.splice(index, 1);
 			return true;
+		}
+
+		/**
+		 * Returns the list of all the operations attached to this query.
+		 */
+		getChildren(): Operation[] 
+		{
+			return this.operations.slice();
 		}
 
 		/**

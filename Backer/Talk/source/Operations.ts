@@ -1,5 +1,5 @@
 namespace Reflex.Talk.Operations {
-	function attach<T extends {}>(array: T[], value: T, ref: AttachRef<T>) 
+	function attach<T extends {}>(array: T[], value: T, ref?: AttachRef<T>) 
 	{
 		if (!ref || ref === "append") return void array.push(value);
 		if (ref === "prepend") return void array.unshift(value);
@@ -8,53 +8,50 @@ namespace Reflex.Talk.Operations {
 		array.splice(index + 1, 0, value);
 	}
 
-	export class Is extends FilterOperation implements Branch<TypePrimitive> 
+	abstract class FilterOperationBranch<T> extends FilterOperation
+		implements Branch<T> 
 	{
-		type: Truth.Type | undefined;
+		protected values: T[] = [];
 
-		attach(type: TypePrimitive) 
+		get value(): T | undefined 
 		{
-			this.type = toType(type);
+			return this.values[0];
 		}
 
-		detach(type: TypePrimitive) 
+		attach(value: T, ref: AttachRef<T>) 
 		{
-			if (this.type === type) 
-			{
-				this.type = undefined;
-				return true;
-			}
-			return false;
+			attach(this.values, value, ref);
 		}
 
-		include(type: Truth.Type) 
+		detach(value: T) 
 		{
-			return type.is(this.type!);
-		}
-	}
-
-	export class Not extends Operation implements Branch<Operation> 
-	{
-		readonly operations: Operation[] = [];
-
-		attach(operation: Operation, ref: AttachRef<Operation>) 
-		{
-			attach(this.operations, operation, ref);
-		}
-
-		detach(operation: Operation) 
-		{
-			const index = this.operations.indexOf(operation);
+			const index = this.values.indexOf(value);
 			if (index < 0) return false;
-			this.operations.splice(index, 1);
+			this.values.splice(index, 1);
 			return true;
 		}
 
+		getChildren() 
+		{
+			return this.values.slice();
+		}
+	}
+
+	export class Is extends FilterOperationBranch<TypePrimitive> 
+	{
+		include(type: Truth.Type) 
+		{
+			return type.is(toType(this.value!));
+		}
+	}
+
+	export class Not extends FilterOperationBranch<Operation> 
+	{
 		transform(types: Truth.Type[]) 
 		{
 			let collected: Truth.Type[] = types;
 
-			for (const operation of this.operations) 
+			for (const operation of this.values) 
 			{
 				if (operation instanceof FilterOperation) 
 				{
@@ -69,29 +66,24 @@ namespace Reflex.Talk.Operations {
 
 			return collected;
 		}
-	}
-
-	export class Or extends FilterOperation implements Branch<Operation> 
-	{
-		readonly operations: Operation[] = [];
-		private numNonFilterOperations = 0;
-
-		attach(operation: Operation, ref: AttachRef<Operation>) 
-		{
-			attach(this.operations, operation, ref);
-		}
-
-		detach(operation: Operation) 
-		{
-			const index = this.operations.indexOf(operation);
-			if (index < 0) return false;
-			this.operations.splice(index, 1);
-			return true;
-		}
 
 		include(type: Truth.Type) 
 		{
-			for (const operation of this.operations) 
+			if (this.values.length === 0) return false;
+			if (this.values.length === 1) 
+			{
+				const [first] = this.values;
+				if (first instanceof FilterOperation) return !first.include(type);
+			}
+			return this.transform([type]).length === 1;
+		}
+	}
+
+	export class Or extends FilterOperationBranch<Operation> 
+	{
+		include(type: Truth.Type) 
+		{
+			for (const operation of this.values) 
 			{
 				if (operation instanceof FilterOperation) 
 				{
@@ -103,31 +95,10 @@ namespace Reflex.Talk.Operations {
 		}
 	}
 
-	export class Has extends FilterOperation
-		implements Branch<TypePrimitive | FilterOperation> 
+	export class Has extends FilterOperationBranch<
+		TypePrimitive | FilterOperation
+	> 
 	{
-		readonly types: Truth.Type[] = [];
-		readonly operations: FilterOperation[] = [];
-
-		attach(
-			node: TypePrimitive | FilterOperation,
-			ref: AttachRef<TypePrimitive | FilterOperation>
-		) 
-		{
-			if (node instanceof FilterOperation) attach(this.operations, node, ref);
-			else attach(this.types, toType(node), ref);
-		}
-
-		detach(node: TypePrimitive | FilterOperation) 
-		{
-			const array =
-				node instanceof FilterOperation ? this.operations : this.types;
-			const index = array.indexOf(node as any);
-			if (index < 0) return false;
-			array.splice(index, 1);
-			return true;
-		}
-
 		private is(contentType: Truth.Type, type: Truth.Type) 
 		{
 			if (contentType.is(type)) return true;
@@ -140,11 +111,33 @@ namespace Reflex.Talk.Operations {
 			return false;
 		}
 
+		private splitValues(): [Truth.Type[], FilterOperation[]] 
+		{
+			const types: Truth.Type[] = [];
+			const operations: FilterOperation[] = [];
+
+			for (const value of this.values) 
+			{
+				if (value instanceof FilterOperation) 
+				{
+					operations.push(value);
+				}
+				else 
+				{
+					types.push(toType(value));
+				}
+			}
+
+			return [types, operations];
+		}
+
 		include(type: Truth.Type): boolean 
 		{
+			const [types, operations] = this.splitValues();
+
 			let contentTypes = type.contents;
 
-			for (const type of this.types) 
+			for (const type of types) 
 			{
 				contentTypes = contentTypes.filter(contentType =>
 					this.is(contentType, type)
@@ -152,7 +145,7 @@ namespace Reflex.Talk.Operations {
 				if (contentTypes.length === 0) return false;
 			}
 
-			for (const operation of this.operations) 
+			for (const operation of operations) 
 			{
 				for (const contentType of contentTypes) 
 				{
@@ -164,69 +157,35 @@ namespace Reflex.Talk.Operations {
 		}
 	}
 
-	export class GreaterThan extends FilterOperation
-		implements Branch<number | string> 
+	export class GreaterThan extends FilterOperationBranch<string | number> 
 	{
-		constructor(private value?: number | string) 
+		constructor(value?: number | string) 
 		{
 			super();
-		}
-
-		attach(value: number | string) 
-		{
-			this.value = value;
-		}
-
-		detach(value: number | string) 
-		{
-			if (value === this.value) 
-			{
-				this.value = undefined;
-				return true;
-			}
-			return false;
+			if (value !== undefined) this.values.push(value);
 		}
 
 		include(type: Truth.Type): boolean 
 		{
 			const value = type.value;
 			if (value === null) return false;
-			// TODO(qti3e) This check can be optimized in the attach function.
-			// this.include = ....
 			if (typeof this.value === "number") return Number(value) > this.value;
 			return value > this.value!;
 		}
 	}
 
-	export class LessThan extends FilterOperation
-		implements Branch<number | string> 
+	export class LessThan extends FilterOperationBranch<string | number> 
 	{
-		constructor(private value?: number | string) 
+		constructor(value?: number | string) 
 		{
 			super();
-		}
-
-		attach(value: number | string) 
-		{
-			this.value = value;
-		}
-
-		detach(value: number | string) 
-		{
-			if (value === this.value) 
-			{
-				this.value = undefined;
-				return true;
-			}
-			return false;
+			if (value !== undefined) this.values.push(value);
 		}
 
 		include(type: Truth.Type): boolean 
 		{
 			const value = type.value;
 			if (value === null) return false;
-			// TODO(qti3e) This check can be optimized in the attach function.
-			// this.include = ....
 			if (typeof this.value === "number") return Number(value) < this.value;
 			return value < this.value!;
 		}

@@ -28,6 +28,6 @@
   ],
   "references": [
     { "path": "../../Reflex/ReflexCore" },
-    { "path": "../Talk" }
+    { "path": ".." }
   ]
 }
