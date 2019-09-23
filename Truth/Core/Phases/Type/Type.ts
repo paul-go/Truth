@@ -430,19 +430,66 @@ export class Type
 	 * and any applicable type aliases will be present in the returned
 	 * array.
 	 */
+	get aliases()
+	{
+		if (this.private.aliases !== null)
+			return this.private.aliases;
+		
+		this.private.throwOnDirty();
+		const aliases: string[] = [];
+		
+		const extractAlias = (sp: X.SpecifiedParallel) =>
+		{
+			for (const { edge, aliased } of sp.eachBase())
+				if (aliased)
+					aliases.push(edge.identifier.toString());
+		};
+		
+		if (this.private.seed instanceof X.SpecifiedParallel)
+		{
+			extractAlias(this.private.seed);
+		}
+		else if (this.private.seed instanceof X.UnspecifiedParallel)
+		{
+			const queue: X.UnspecifiedParallel[] = [this.private.seed];
+			
+			for (let i = -1; ++i < queue.length;)
+			{
+				const current = queue[i];
+				
+				for (const parallel of current.getParallels())
+				{
+					if (parallel instanceof X.SpecifiedParallel)
+						extractAlias(parallel);
+					
+					else if (parallel instanceof X.UnspecifiedParallel)
+						queue.push(parallel);
+				}
+			}
+		}
+		
+		return this.private.aliases = aliases;
+	}
+	
+	/**
+	 * 
+	 */
 	get values()
 	{
 		if (this.private.values !== null)
 			return this.private.values;
 		
 		this.private.throwOnDirty();
-		const values: string[] = [];
+		const values: { value: string, base: X.Type | null }[] = [];
 		
 		const extractAlias = (sp: X.SpecifiedParallel) =>
 		{
 			for (const { edge, aliased } of sp.eachBase())
 				if (aliased)
-					values.push(edge.identifier.toString());
+					values.push({
+						value: edge.identifier.toString(),
+						base: Type.construct(edge.predecessor.uri, this.private.program)
+					});
 		};
 		
 		if (this.private.seed instanceof X.SpecifiedParallel)
@@ -477,7 +524,7 @@ export class Type
 	 */
 	get value()
 	{
-		return this.values.length > 0 ? this.values[0] : null;
+		return this.aliases.length > 0 ? this.aliases[0] : null;
 	}
 	
 	/**
@@ -700,7 +747,10 @@ class TypePrivate
 	patterns: ReadonlyArray<X.Type> | null = null;
 	
 	/** */
-	values: ReadonlyArray<string> | null = null;
+	aliases: ReadonlyArray<string> | null = null;
+	
+	/** */
+	values: ReadonlyArray<{ value: string; base: X.Type | null; }> | null = null;
 	
 	/** */
 	superordinates: ReadonlyArray<X.Type> | null = null;

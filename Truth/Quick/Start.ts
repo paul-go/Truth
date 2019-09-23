@@ -54,6 +54,7 @@ setTimeout(async () =>
 	const type = program.query(doc, ...targetTypePath);
 	if (type instanceof X.Type)
 	{
+		const aliases = type.aliases;
 		const values = type.values;
 		const bases = type.bases;
 		const derivations = type.derivations;
