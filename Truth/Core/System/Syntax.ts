@@ -70,7 +70,7 @@ export namespace RegexSyntaxSign
 		if (value.length < 1 || value.length > 2)
 			return null;
 		
-		const vals: string[] = Object.values(RegexSyntaxSign);
+		const vals: string[] = Object.values(RegexSyntaxSign) as string[];
 		const idx = vals.indexOf(value);
 		return idx < 0 ? null : <RegexSyntaxSign>vals[idx];
 	}
@@ -109,7 +109,7 @@ export enum RegexSyntaxKnownSet
 
 export namespace RegexSyntaxKnownSet
 {
-	const vals: string[] = Object.values(RegexSyntaxKnownSet);
+	const vals: string[] = Object.values(RegexSyntaxKnownSet) as string[];
 	
 	export function resolve(value: string): RegexSyntaxKnownSet | null
 	{
