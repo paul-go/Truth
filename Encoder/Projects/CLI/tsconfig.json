@@ -9,7 +9,6 @@
 		"declaration": false,
 		"outDir": "../../Dist/",
 		"lib": [
-			"dom", // Todo: Get rid of this (puppeteer)
 			"es7",
 			"es2017",
 			"es2017.object",

@@ -1,46 +1,49 @@
 import { join, resolve } from "path";
 import Scanner from "./Scanner";
+import CodeJSON from "./Code";
+
+export type RawDataPatternMap = {
+	[x: string]: RegExp[]
+};
 
 /**
  * truthconfig.js file interface
- * 
- * Todo: Solve circular referance problem
  */
-export type EncoderRawConfig =
-	[string, {
-		[x: string]: {
-			Code?: string,
-			Exclude?: Array<string | RegExp>,
-			Include?: Array<string | RegExp>
-		}
-	}];
+export interface EncoderRawConfig 
+{
+	Input: string,
+	Declarations: string,
+	Data: RawDataPatternMap
+} 
 
 export interface EncoderConfig
 {
 	Scanner: Scanner;
-	
+	Code: CodeJSON;
 }
 
 /**
  * Processes and links Raw Config
  */
-export async function NormalizeConfig(raw: EncoderRawConfig): Promise<EncoderConfig>
+export async function normalizeConfig(raw: EncoderRawConfig): Promise<EncoderConfig>
 {
-	const Path = resolve(process.cwd(), raw[0]);
-	const Document = await Scanner.FromFile(Path);
+	const Input = resolve(process.cwd(), raw.Input);
+	const CodeFile = resolve(process.cwd(), raw.Declarations);
+	
+	const Document = await Scanner.fromFile(Input, raw.Data);
+	const Code = await CodeJSON.fromFile(CodeFile);
 	return {
-		Scanner: Document
+		Code,
+		Scanner: Document,
 	};
 }
 
 /**
-* Initialize CLI
-*	Config path's default is "truthconfig.js"
-*/
-export async function InitializeCLI(CLIType: {new (Config: EncoderConfig): any})
+ * Initializes CLI with given consturctor 
+ */
+export async function initializeCLI(CLIType: {new (Config: EncoderConfig): any})
 {
-	console.log(CLIType);
 	const configPath = process.argv[2] || join(process.cwd(), "./truthconfig.js");
 	const config = require(configPath) as EncoderRawConfig;
-	new CLIType(await NormalizeConfig(config));
+	new CLIType(await normalizeConfig(config));
 }

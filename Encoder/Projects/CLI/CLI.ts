@@ -1,4 +1,4 @@
-import { EncoderConfig, InitializeCLI } from "../Core/CLI";
+import { EncoderConfig, initializeCLI } from "../Core/CLI";
 
 /**
  * Public CLI Manager for Unified Truth JSON Generator
@@ -12,4 +12,4 @@ export default class JSONCLI
 }
 
 if(!module.parent) // only if this file is main module
-	InitializeCLI(JSONCLI);
+	initializeCLI(JSONCLI);
