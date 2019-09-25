@@ -20,7 +20,7 @@ export namespace UriProtocol
 	 */
 	export function resolve(value: string): UriProtocol | null
 	{
-		const vals: string[] = Object.values(UriProtocol) as string[];
+		const vals = <string[]>Object.values(UriProtocol);
 		const idx = vals.indexOf(value);
 		return idx < 0 ? null : <UriProtocol>vals[idx];
 	}
