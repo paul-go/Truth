@@ -1,5 +1,5 @@
 import { promises as FS } from "fs";
-import { parse, Document} from "../../Truth/Core/X";
+import { parse, Document} from "../../../Truth/Core/X";
 
 export default class Scanner 
 {

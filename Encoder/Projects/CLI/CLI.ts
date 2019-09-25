@@ -7,9 +7,9 @@ export default class JSONCLI
 {
 	constructor(Config: EncoderConfig)
 	{
-		
 		console.log(Config);	
 	}
 }
 
-InitializeCLI(JSONCLI);
+if(!module.parent) // only if this file is main module
+	InitializeCLI(JSONCLI);

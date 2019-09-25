@@ -1,0 +1,11 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"outDir": "../Dist/Core",
+		"baseUrl": ".",
+		"declaration": false,
+		"paths": {
+			"truth-compiler": ["../../Truth/Core"]
+		}
+	}
+}

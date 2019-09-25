@@ -1,5 +1,5 @@
 import { join, resolve } from "path";
-import Scanner from "../Core/Scanner";
+import Scanner from "./Scanner";
 
 /**
  * truthconfig.js file interface
@@ -39,10 +39,8 @@ export async function NormalizeConfig(raw: EncoderRawConfig): Promise<EncoderCon
 */
 export async function InitializeCLI(CLIType: {new (Config: EncoderConfig): any})
 {
-	if(!module.parent) // only if this file is main module
-	{
-		const configPath = process.argv[2] || join(process.cwd(), "./truthconfig.js");
-		const config = require(configPath) as EncoderRawConfig;
-		new CLIType(await NormalizeConfig(config));
-	}
+	console.log(CLIType);
+	const configPath = process.argv[2] || join(process.cwd(), "./truthconfig.js");
+	const config = require(configPath) as EncoderRawConfig;
+	new CLIType(await NormalizeConfig(config));
 }

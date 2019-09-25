@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "esnext",
+		"inlineSourceMap": true,
+		"inlineSources": true,
+		"stripInternal": true,
+		"strict": true,
+		"declaration": false,
+		"outDir": "../../Dist/",
+		"lib": [
+			"dom", // Todo: Get rid of this (puppeteer)
+			"es7",
+			"es2017",
+			"es2017.object",
+			"esnext"
+		]
+	},
+	"include": [
+		"**/*.ts"
+	]
+}
