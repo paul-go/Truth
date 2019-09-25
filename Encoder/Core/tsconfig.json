@@ -1,0 +1,10 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"outDir": "../Dist/Core",
+		"composite": true
+	}, 
+	"references": [
+		{"path": "../../Truth/Core"}
+	]
+}

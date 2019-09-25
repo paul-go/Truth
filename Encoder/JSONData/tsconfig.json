@@ -1,0 +1,10 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"outDir": "../Dist/JSONData",
+		"composite": true
+	},
+	"references": [
+		{"path": "../Core"}
+	]
+}
