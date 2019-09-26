@@ -5,7 +5,7 @@ namespace Reflex.ML
 	const isNode = (maybeNode: any): maybeNode is HTMLElement | Text =>
 	{
 		return maybeNode instanceof HTMLElement || maybeNode instanceof Text;
-	}
+	};
 	
 	/**
 	 * A class that mimics a JavaScript array interface over the
@@ -87,7 +87,10 @@ namespace Reflex.ML
 			{
 				const item = this.element.childNodes.item(i);
 				if (item instanceof HTMLElement || item instanceof Text)
-					return item.remove(), item;
+				{
+					item.remove();
+					return item;
+				}
 			}
 		}
 		

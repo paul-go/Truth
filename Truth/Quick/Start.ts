@@ -9,8 +9,6 @@ import * as Os from "os";
  */
 setTimeout(async () =>
 {
-	Viz.init();
-	
 	const findArg = (key: string) =>
 	{
 		const val = process.argv.find(arg => arg.startsWith(key)) || "";
@@ -56,11 +54,13 @@ setTimeout(async () =>
 	const type = program.query(doc, ...targetTypePath);
 	if (type instanceof X.Type)
 	{
-		type.derivations;
-		type.container;
-		type.contents;
-		type.adjacents;
-		type.bases;
+		const aliases = type.aliases;
+		const values = type.values;
+		const bases = type.bases;
+		const derivations = type.derivations;
+		const container = type.container;
+		const contents = type.contents;
+		const adjacents = type.adjacents;
 	}
 	
 	const uriMessage = `Using URI: ${filePath}//${targetTypePath}`;

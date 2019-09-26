@@ -110,7 +110,7 @@ namespace make
 	/**
 	 * Deletes the specified file from the file system.
 	 */
-	(<any>make)["delete"] = function(src: string)
+	make["delete"] = function(src: string)
 	{
 		if (Fs.existsSync(src))
 			Fs.unlinkSync(src);
@@ -122,5 +122,5 @@ namespace make
  */
 declare class make
 {
-	delete(src: string): void;
+	static delete(src: string): void;
 }

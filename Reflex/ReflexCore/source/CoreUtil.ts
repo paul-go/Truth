@@ -56,7 +56,7 @@ namespace Reflex.Core
 					
 				else if (primitive instanceof Recurrent)
 				{
-					if (ArrayReflex.is(primitive.selector))
+					if (primitive.selector instanceof ArrayReflex)
 					{
 						metas.push(new ArrayStreamMeta(
 							containerMeta,

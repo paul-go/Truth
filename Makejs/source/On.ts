@@ -3,7 +3,7 @@ namespace make
 {
 	export type Fn = (args: string[]) => Promise<void> | void;
 	type P = string | Fn;
-	
+ 
 	/**
 	 * 
 	 */
@@ -18,13 +18,13 @@ namespace make
 		const args = [p1, p2, p3, p4, p5, p6].filter(v => !!v);
 		const fn = <Fn>args[args.length - 1];
 		const tags = <string[]>args.slice(0, -1);
-		
+
 		if (tags.length === 0)
 			tags.push("");
-		
+
 		makeTasks.push(new MakeTask(tags, fn));
 	}
-	
+
 	/**
 	 * @internal
 	 */
@@ -39,14 +39,40 @@ namespace make
 			{
 				if (!task.tags.some(tag => tag === "" || tags.includes(tag)))
 					continue;
-				
+
 				const result = task.taskFn(args);
 				if (result instanceof Promise)
 					await result;
 			}
 		}
+
+		/**
+		 * Triggers life cycle events for sync stages (exit, kill)
+		 */
+		export function stage(args: string[], tag: string)
+		{
+			const tasks = makeTasks.filter(task => task.tags.includes(tag));
+			for(const task of tasks)
+			{
+				task.taskFn(args);
+			};
+		}
+
+		/**
+		 * Triggers life cycle events for async stages (start, init)
+		 */
+		export async function stageAsync(args: string[], tag: string)
+		{
+			const tasks = makeTasks.filter(task => task.tags.includes(tag));
+			for(const task of tasks)
+			{
+				const result = task.taskFn(args);
+				if (result instanceof Promise)
+					await result;
+			};
+		}
 	}
-	
+
 	/** */
 	class MakeTask
 	{
@@ -55,7 +81,7 @@ namespace make
 			readonly taskFn: Fn)
 		{ }
 	}
-	
+
 	/** */
 	const makeTasks: MakeTask[] = [];
 }

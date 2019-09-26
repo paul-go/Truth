@@ -244,7 +244,7 @@ export class ConstructionWorker
 				// takes place. The algorithm operates by working it's way
 				// up the list of nodes (aka the scope chain), looking for
 				// a possible resolution target where the act of applying the
-				// associated Parallel as a base causes at least one of the 
+				// associated Parallel as a base, causes at least one of the 
 				// conditions on the contract to be satisfied. Or, in the case
 				// when there are no conditions on the contract, the node
 				// that is the closest ancestor is used.
@@ -283,7 +283,7 @@ export class ConstructionWorker
 						throw X.Exception.unknownState();
 					
 					this.handledHyperEdges.add(hyperEdge);
-					break;
+					continue;
 				}
 			}
 			else
@@ -316,7 +316,7 @@ export class ConstructionWorker
 					if (srcParallel.tryAddAliasedBase(candidatePatternPars, hyperEdge, alias))
 					{
 						this.handledHyperEdges.add(hyperEdge);
-						break;
+						continue;
 					}
 				}
 				

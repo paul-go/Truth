@@ -1,0 +1,13 @@
+// Screw/Size
+
+number
+/\d+ : number
+
+Size
+Long : Size
+
+Item
+	Size : number, Size
+	
+Screw : Item
+	Size : 5, Long

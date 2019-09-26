@@ -8,7 +8,7 @@
 		"internalConsoleOptions": "neverOpen",
 		"sourceMaps": true,
 		"args": [
-			"--file=./Quick/Samples/Empty.truth"
+			"--file=./Quick/Samples/BaseWithAlias.truth"
 		]
 	},
 	{
