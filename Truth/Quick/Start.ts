@@ -1,5 +1,4 @@
 import * as X from "../CoreTests/X";
-import * as Viz from "./Viz";
 import * as Fs from "fs";
 import * as Os from "os";
 
