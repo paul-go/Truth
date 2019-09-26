@@ -1,5 +1,6 @@
 import { Type } from "../../../Truth/Core/X";
 import CodeJSON from "./Code";
+import Flags from "./Flags";
 
 //Self explaining types
 export type TypeId = number;
@@ -12,9 +13,28 @@ export type Typeish = TypeId | PrimeType | Type;
  */
 export default class PrimeType 
 {
+	static FlagFields = [
+		"Anonymous", 
+		"Fresh",
+		"List",
+		"ListIntrinsic",
+		"ListExtrinsic",
+		"Pattern",
+		"Uri", 
+		"Specified",
+	];
+	
 	static fromType(code: CodeJSON, type: Type)
 	{
-		return 1;
+		const id = code.types.length - 1;
+		const prime = new PrimeType(code, id);
+		code.types.push(prime);
+		prime.name = type.name;
+		
+		for (const key of PrimeType.FlagFields)
+			prime.flags.setFlag(key, type["is" + key]);
+			
+		return id;
 	}
 	
 	static typeId(code: CodeJSON, item: Typeish)
@@ -31,20 +51,21 @@ export default class PrimeType
 		
 	}
 	
-	addBase(type: Typeish)
+	typeId(item: Typeish)
 	{
-		this.bases.add(PrimeType.typeId(this.code, type));
+		return PrimeType.typeId(this.code, item);
 	}
 	
-	addContent(type: Typeish)
+	toJSON()
 	{
-		this.content.add(PrimeType.typeId(this.code, type));
+		return {
+			name: this.name,
+			flags: this.flags
+		}
 	}
 	
-	addAlias(alias: string)
-	{
-		this.aliases.add(alias);
-	}
+	name: string = "";
+	flags = new Flags(PrimeType.FlagFields);
 	
 	bases = new Set<TypeId>();
 	content = new Set<TypeId>();

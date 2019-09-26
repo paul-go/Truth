@@ -31,7 +31,8 @@ export async function normalizeConfig(raw: EncoderRawConfig): Promise<EncoderCon
 	const CodeFile = resolve(process.cwd(), raw.Declarations);
 	
 	const Document = await Scanner.fromFile(Input, raw.Data);
-	const Code = await CodeJSON.fromFile(CodeFile);
+	const Code = await CodeJSON.fromFile(CodeFile, Document);
+	
 	return {
 		Code,
 		Scanner: Document,

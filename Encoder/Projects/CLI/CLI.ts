@@ -7,7 +7,7 @@ export default class JSONCLI
 {
 	constructor(Config: EncoderConfig)
 	{
-		console.log(Config);	
+		console.log(JSON.stringify(Config.Code, undefined, 2));
 	}
 }
 
