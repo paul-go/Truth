@@ -78,6 +78,19 @@ namespace Reflex.Core
 		}
 		
 		/**
+		 * 
+		 */
+		isKnownLeaf(leaf: object)
+		{
+			if (leaf && typeof leaf === "object")
+				for (const lib of RoutingLibrary.libraries)
+					if (lib.isKnownLeaf && lib.isKnownLeaf(leaf))
+						return true;
+			
+			return false;
+		}
+		
+		/**
 		 * Reflexive libraries may implement this method in order to provide
 		 * the system with knowledge of whether a branch has been disposed,
 		 * which it uses for performance optimizations. If the library has no

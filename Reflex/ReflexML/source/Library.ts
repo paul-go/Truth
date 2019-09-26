@@ -1,11 +1,7 @@
 
-/**
- * Global library accessor.
- * (This should be conditionally globalized.)
- */
-const ml = (() =>
+namespace Reflex.ML
 {
-	class Library implements Reflex.Core.ILibrary
+	export class Library implements Reflex.Core.ILibrary
 	{
 		/** */
 		isKnownBranch(branch: Reflex.Core.IBranch)
@@ -27,7 +23,9 @@ const ml = (() =>
 		/** */
 		getStaticNonBranches()
 		{
-			const self = this;
+			const isInput = (e: HTMLElement): e is HTMLInputElement =>
+				e.ELEMENT_NODE === 1 &&
+					["input", "textarea"].includes(e.tagName);
 			
 			return {
 				/**
@@ -59,8 +57,7 @@ const ml = (() =>
 					};
 					
 					return (e: HTMLElement) =>
-					{
-						return self.isInput(e) ?
+						isInput(e) ?
 							[
 								{ value: effectVariable },
 								on("input", () => assign(e.value)).run()
@@ -69,7 +66,6 @@ const ml = (() =>
 								ml(effectVariable),
 								on("input", () => assign(e.textContent)).run()
 							];
-					}
 				}
 			};
 		}
@@ -86,9 +82,9 @@ const ml = (() =>
 		}
 		
 		/** */
-		getChildren(target: Reflex.ML.Branch)
+		getChildren(target: Branch)
 		{
-			return new Reflex.ML.NodeArray(target);
+			return new NodeArray(target);
 		}
 		
 		/** */
@@ -105,7 +101,7 @@ const ml = (() =>
 		/** */
 		attachPrimitive(
 			primitive: any,
-			owner: Reflex.ML.Branch,
+			owner: Branch,
 			ref: Node | "prepend" | "append")
 		{
 			if (typeof primitive === "string")
@@ -138,7 +134,7 @@ const ml = (() =>
 		}
 		
 		/** */
-		detachPrimitive(primitive: any, owner: Reflex.ML.Branch)
+		detachPrimitive(primitive: any, owner: Branch)
 		{
 			if (primitive instanceof Element || primitive instanceof Text)
 				primitive.remove();
@@ -148,7 +144,7 @@ const ml = (() =>
 		}
 		
 		/** */
-		swapElement(branch1: Reflex.ML.Branch, branch2: Reflex.ML.Branch)
+		swapElement(branch1: Branch, branch2: Branch)
 		{
 			branch2.parentElement!.insertBefore(this.tempMark, branch2);
 			branch1.parentElement!.insertBefore(branch2, branch1);
@@ -159,13 +155,13 @@ const ml = (() =>
 		private tempMark = document.createComment("");
 	
 		/** */
-		replaceElement(branch1: Reflex.ML.Branch, branch2: Reflex.ML.Branch)
+		replaceElement(branch1: Branch, branch2: Branch)
 		{
 			branch1.replaceWith(branch2);
 		}
 		
 		/** */
-		attachAttribute(branch: Reflex.ML.Branch, key: string, value: any)
+		attachAttribute(branch: Branch, key: string, value: any)
 		{
 			if (key in branch)
 				(<any>branch)[key] = value;
@@ -174,7 +170,7 @@ const ml = (() =>
 		}
 		
 		/** */
-		detachAttribute(branch: Reflex.ML.Branch, key: string)
+		detachAttribute(branch: Branch, key: string)
 		{
 			branch.removeAttribute(key);
 		}
@@ -210,15 +206,13 @@ const ml = (() =>
 				if (typeof selector === "string")
 					target.removeEventListener(selector, callback);
 		}
-		
-		/** */
-		private isInput(e: HTMLElement): e is HTMLInputElement
-		{
-			return e instanceof HTMLInputElement;
-		}
-	};
-	
-	return Reflex.Core.createNamespaceObject<Reflex.ML.Namespace>(
-		window,
-		new Library());
-})();
+	}
+}
+
+/**
+ * Global library accessor.
+ * (This should be conditionally globalized.)
+ */
+const ml = Reflex.Core.createNamespaceObject<Reflex.ML.Namespace>(
+	window,
+	new Reflex.ML.Library());

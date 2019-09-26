@@ -108,4 +108,28 @@ declare namespace Reflex.Core
 			T[P] extends Array<infer U> ? ArrayReflex<U> :
 			T[P];
 	}
+	
+	/**
+	 * A mapped type that extracts the names of the methods and
+	 * function-valued fields out of the specified type.
+	 */
+	export type MethodNames<T> = {
+		[K in keyof T]: T[K] extends ((...args: any[]) => any) ? K : never;
+	}[keyof T];
+
+	/**
+	 * Extracts any return type from the specified type, in the case
+	 * when the type specified is a function.
+	 */
+	export type MaybeReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
+	
+	/**
+	 * Extracts the methods out of the type, and returns a mapped object type
+	 * whose members are transformed into branch creation methods.
+	 */
+	export type AsBranchMethods<T> = {
+		[M in Reflex.Core.MethodNames<T>]: 
+			(...primitives: Primitives[]) =>
+				Reflex.Core.MaybeReturnType<T[M]>
+	};
 }

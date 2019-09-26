@@ -55,6 +55,18 @@ namespace Reflex.Core
 		}
 	}
 	
+	/**
+	 * Stores information about an instance of some class
+	 * that is known to a client Reflex library.
+	 */
+	export class InstanceMeta extends LeafMeta
+	{
+		constructor(readonly value: object)
+		{
+			super();
+		}
+	}
+	
 	/** */
 	export abstract class ContainerMeta extends Meta { }
 	

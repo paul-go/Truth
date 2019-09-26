@@ -12,6 +12,11 @@ namespace Reflex.Core
 		isKnownBranch(branch: IBranch): boolean;
 		
 		/**
+		 * 
+		 */
+		isKnownLeaf?: (leaf: object) => boolean;
+		
+		/**
 		 * Reflexive libraries may implement this method in order to provide
 		 * the system with knowledge of whether a branch has been disposed,
 		 * which it uses for performance optimizations. If the library has no

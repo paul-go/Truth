@@ -1,7 +1,7 @@
 {
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
-		"outFile": "./build/test/reflex-ml-test.js",
+		"outFile": "./build/test/reflex-ml-test.js"
 	},
 	"include": [
 		"./test/Test.ts"

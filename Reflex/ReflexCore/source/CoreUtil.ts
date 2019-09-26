@@ -92,8 +92,9 @@ namespace Reflex.Core
 					}
 				}
 				else if (["string", "number", "bigint"].includes(typeof primitive))
+				{
 					metas.push(new ValueMeta(primitive));
-				
+				}
 				else
 				{
 					const existingMeta = 
@@ -103,6 +104,13 @@ namespace Reflex.Core
 					if (existingMeta)
 						metas.push(existingMeta);
 					
+					else if (typeof primitive === "object" &&
+						RoutingLibrary.this.isKnownLeaf(primitive))
+						metas.push(new InstanceMeta(primitive));
+					
+					// This error occurs when something was passed as a primitive 
+					// to a reflexive function, and neither the reflex core, or any of
+					// the connected reflex libraries know what to do with it.
 					else throw new Error("Unidentified flying object.");
 				}
 			}
@@ -213,7 +221,7 @@ namespace Reflex.Core
 					///if ("DEBUG")
 					///	(<any>meta.contentObject).textContent += " " + meta.locator.toString();
 				}
-				else if (meta instanceof ValueMeta)
+				else if (meta instanceof ValueMeta || meta instanceof InstanceMeta)
 				{
 					lib.attachPrimitive(meta.value, containingBranch, "append");
 				}
