@@ -1,0 +1,34 @@
+number
+string
+
+/\d+ : number
+/".+" : string
+
+Size
+Long : Size
+
+Hardness
+Hard : Hardness
+Soft : Hardness
+
+Product
+	Name : string
+	Size : number, Size
+	
+Material
+	Hardness : Hardness
+
+Material-Iron: Material
+	Hardness : Hard	
+	
+Material-Plastic: Material
+	Hardness : Soft
+
+000-000-001 : Product, Material-Iron
+	Name : "Screw"
+	Size : 5, Long	
+
+000-000-002 : Product, Material-Plastic
+	Name : "Toy"
+	Size : 10, Long
+	
