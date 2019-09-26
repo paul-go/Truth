@@ -22,9 +22,6 @@
 		"outFile": "./build/reflex.js"
 	},
 	"exclude": [
-		"./ReflexLegacy/**",
-		"./ReflexWriter/**",
-		"./ReflexRendererLegacy/**",
 		"**/build/**/*.ts",
 		"**/bundle/**/*.ts"
 	]
