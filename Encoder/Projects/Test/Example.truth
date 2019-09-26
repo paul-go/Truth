@@ -1,8 +1,8 @@
 number
 string
+
 /\d+ : number
 /".+" : string
-
 
 Size
 Long : Size

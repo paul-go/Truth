@@ -1,13 +1,14 @@
 
 export default class Flags
 {
-	static fromObject(obj: Record<string, boolean>)
-	{
-		
-	}
-	
+	/**
+	 * 
+	 */
 	constructor(private fields: string[], private flags: number = 0) {}
 	
+	/**
+	 * 
+	 */
 	setFlag(flag: string, value: boolean)
 	{
 		const point = this.fields.indexOf(flag);
@@ -21,6 +22,9 @@ export default class Flags
 		return this;
 	}
 	
+	/**
+	 * 
+	 */
 	getFlag(flag: string)
 	{
 		const point = this.fields.indexOf(flag);
@@ -30,9 +34,11 @@ export default class Flags
 		return this.flags & mask ? true : false; 
 	}
 	
+	/**
+	 * 
+	 */
 	toJSON()
 	{
 		return this.flags;
 	}
-	
 }

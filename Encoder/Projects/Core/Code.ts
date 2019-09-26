@@ -14,7 +14,6 @@ export default class CodeJSON
 	{
 		try 
 		{
-			
 			return new CodeJSON(scanner);
 		} 
 		catch (ex) 
@@ -24,20 +23,30 @@ export default class CodeJSON
 	}
 	
 	types: PrimeType[] = [];
-	
+	map: Map<number, PrimeType> = new Map();	
+
 	/**
 	 * 
 	 */
 	constructor(scanner: Scanner)
 	{
-		scanner.codeList.forEach(x => this.addType(x));
+		scanner.codeList.forEach(x => this.typeId(x));
 	}
 	
-	addType(type: Type)
+	
+	
+	/**
+	 * 
+	 */
+	typeId(type: Type)
 	{
-		return PrimeType.fromType(this, type);
+		const prime = PrimeType.fromType(this, type);
+		return this.types.indexOf(prime);
 	}
 	
+	/**
+	 * 
+	 */
 	toJSON()
 	{
 		return this.types;

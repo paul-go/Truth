@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"module": "commonjs",
+		"target": "esnext",
 		"outDir": "../Dist/JSONData",
 		"composite": true
 	}
