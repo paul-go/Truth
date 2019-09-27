@@ -5,7 +5,7 @@ make.on(async () =>
 	await make.typescript("./tsconfig.composite.json");
 });
 
-async function bundle()
+make.on("bundle", "publish", async () =>
 {
 	make.copy("./build/source/reflex.js", "./bundle");
 	make.copy("./build/source/reflex.d.ts", "./bundle");
@@ -14,13 +14,10 @@ async function bundle()
 		DEBUG: false
 	});
 	await make.minify("./bundle/reflex.js");
-}
-
-make.on("bundle", bundle);
+});
 
 make.on("publish", async () => 
 {
-	await bundle();
 	await make.publish({
 		directory: "./bundle",
 		packageFile: "./package.json",

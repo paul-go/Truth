@@ -1,4 +1,4 @@
-/// <reference path="../../make.d.ts" />
+/// <reference types="makets" />
 
 make.on(async () =>
 {
@@ -20,8 +20,6 @@ make.on("publish", "bundle", async () =>
 
 make.on("publish", async () => 
 {
-	await bundle();
-	
 	make.modulize("./bundle/reflex-core.js", "Reflex");
 	
 	await make.publish({
