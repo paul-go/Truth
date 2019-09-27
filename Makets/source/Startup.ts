@@ -50,4 +50,3 @@ setImmediate(async () =>
 	await make.on.start(process.argv, tags);
 	console.log("Complete.");
 });
-

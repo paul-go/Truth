@@ -1,4 +1,4 @@
-/// <reference path="../make.d.ts" />
+/// <reference types="makets" />
 
 make.on(async () =>
 {
