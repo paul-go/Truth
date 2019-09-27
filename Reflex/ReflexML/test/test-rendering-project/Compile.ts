@@ -1,7 +1,7 @@
 
 namespace Reflex.ML.Test
 {
-	const Puppeteer = <typeof import("puppeteer")>require("puppeteer");
+	//const Puppeteer = <typeof import("puppeteer")>require("puppeteer");
 	
 	(async () =>
 	{
@@ -31,7 +31,7 @@ namespace Reflex.ML.Test
 				ml.script({ src: "../build/source/reflex-ml.js" })
 			);
 		
-		const result = await ML.render(e, {
+		const result = await ML.emit(e, {
 			format: true,
 			doctype: true,
 			restoreScriptURL: ""
