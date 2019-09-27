@@ -18,4 +18,9 @@ make.on("publish", async () =>
 		registries: ["npm"],
 		tag: "latest"
 	});
+	
+	// Copy the package to the monorepo's root node_modules
+	// folder, to avoid having to use npm link.
+	make.directory("../node_modules/makets");
+	make.copy("./bundle", "../node_modules/makets");
 });
