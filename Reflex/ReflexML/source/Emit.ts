@@ -4,7 +4,33 @@ namespace Reflex.ML
 	/**
 	 * 
 	 */
-	export interface IRenderResult
+	export interface IEmitOptions
+	{
+		/**
+		 * Whether or not the generated HTML and JavaScript
+		 * should be formatted with whitespace characters.
+		 * Default is true.
+		 */
+		format?: boolean;
+		/**
+		 * Whether or not the <!DOCTYPE html> directive
+		 * should be emitted at the top of the generated HTML.
+		 * Default is true.
+		 */
+		doctype?: boolean;
+		/**
+		 * Specifies the URL for the inline <script> tag that
+		 * points to the restore script. If empty, the restore
+		 * script is inlined within the generated HTML.
+		 */
+		restoreScriptURL?: string;
+	}
+	
+	/**
+	 * Stores strings that contain the emitted HTML and
+	 * restoration JavaScript used to render the page.
+	 */
+	export interface IEmitResult
 	{
 		readonly html: string;
 		readonly js: string;
@@ -21,30 +47,10 @@ namespace Reflex.ML
 	let nextAnonId = 0;
 	
 	/**
-	 * 
+	 * @internal
+	 * Inner emit function. Accessed externally via `ml.emit(...)`.
 	 */
-	export function render(
-		target: Node | Node[],
-		options?: {
-			/**
-			 * Whether or not the generated HTML and JavaScript
-			 * should be formatted with whitespace characters.
-			 * Default is true.
-			 */
-			format?: boolean;
-			/**
-			 * Whether or not the <!DOCTYPE html> directive
-			 * should be emitted at the top of the generated HTML.
-			 * Default is true.
-			 */
-			doctype?: boolean;
-			/**
-			 * Specifies the URL for the inline <script> tag that
-			 * points to the restore script. If empty, the restore
-			 * script is inlined within the generated HTML.
-			 */
-			restoreScriptURL?: string;
-		}): Promise<IRenderResult>
+	export function emit(target: Node | Node[], options?: IEmitOptions): Promise<IEmitResult>
 	{
 		nextAnonId = 0;
 		
@@ -56,7 +62,7 @@ namespace Reflex.ML
 		const n = format ? "\n" : "";
 		
 		/**
-		 * An intermediate class used to render an HTML document.
+		 * An intermediate class used to emit an HTML document.
 		 */
 		class Tag
 		{
@@ -117,7 +123,7 @@ namespace Reflex.ML
 					}
 					// This is a formatting optimization. If the element only contains a
 					// single Text object, and said Text object only contains a small 
-					// amount of text, it's rendered on a single line.
+					// amount of text, it's emitted on a single line.
 					else if (typeof chFirst === "string" && indentLevel * 4 + chFirst.length <= 50)
 					{
 						line.push(chFirst, closer);
@@ -360,7 +366,7 @@ namespace Reflex.ML
 	
 	/**
 	 * Restores the state of the application to it's state at
-	 * the time of rendering. Called by the restoration script
+	 * the time of emission. Called by the restoration script
 	 * that is generated during the rendering process.
 	 */
 	export function restore(

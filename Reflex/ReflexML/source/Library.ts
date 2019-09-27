@@ -66,6 +66,14 @@ namespace Reflex.ML
 								ml(effectVariable),
 								on("input", () => assign(e.textContent)).run()
 							];
+				},
+				
+				/**
+				 * Serializes the specified DOM Node instance.
+				 */
+				emit(target: Node | Node[], options?: IEmitOptions)
+				{
+					return emit(target, options);
 				}
 			};
 		}

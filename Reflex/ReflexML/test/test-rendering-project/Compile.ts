@@ -31,7 +31,7 @@ namespace Reflex.ML.Test
 				ml.script({ src: "../build/source/reflex-ml.js" })
 			);
 		
-		const result = await ML.emit(e, {
+		const result = await ml.emit(e, {
 			format: true,
 			doctype: true,
 			restoreScriptURL: ""
