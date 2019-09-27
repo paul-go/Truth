@@ -23,12 +23,9 @@ make.on("publish", async () =>
 	make.modulize("./bundle/reflex-core.js", "Reflex");
 	
 	await make.publish({
-		directory: "./bundle",
-		packageFile: "./package.json",
 		packageFileChanges: {
 			main: "./reflex-core.min.js",
 			types: "./index.d.ts"
-		},
-		registries: ["http://localhost:4873"]
+		}
 	});
 });

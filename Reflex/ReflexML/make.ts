@@ -1,4 +1,4 @@
-/// <reference path="../../make.d.ts" />
+/// <reference types="makets" />
 
 make.on("build", async () =>
 {
@@ -28,12 +28,9 @@ make.on("publish", async () =>
 {
 	await bundle();
 	await make.publish({
-		directory: "./bundle",
-		packageFile: "./package.json",
 		packageFileChanges: {
 			main: "./reflex-ml.min.js",
 			types: "./reflex-ml.d.ts"
-		},
-		registries: ["http://localhost:4873"]
+		}
 	});
 });
