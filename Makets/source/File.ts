@@ -9,9 +9,9 @@ namespace make
 	export function copy(src: string, dst: string, filterFn?: (filePath: string) => boolean)
 	{
 		const srcStat = Fs.lstatSync(src);
-		const dstStat = Fs.lstatSync(dst);
+		const dstStat = Fs.existsSync(dst) ? Fs.lstatSync(dst) : null;
 		const srcIsDir = srcStat.isDirectory();
-		const dstIsDir = dstStat.isDirectory();
+		const dstIsDir = dstStat ? dstStat.isDirectory() : false;
 		
 		if (srcIsDir)
 		{
@@ -39,7 +39,9 @@ namespace make
 			}
 			else
 			{
-				FsExtra.removeSync(dst);
+				if (FsExtra.existsSync(dst))
+					FsExtra.removeSync(dst);
+				
 				FsExtra.copyFileSync(src, dst);
 			}
 		}

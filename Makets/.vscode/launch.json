@@ -3,10 +3,10 @@
 	"configurations": [{
 		"type": "node",
 		"request": "launch",
-		"name": "Debug",
+		"name": "Debug Self",
 		"program": "${workspaceRoot}/build/source/make.js",
 		"args": [
-			"build"
+			"publish"
 		],
 		"internalConsoleOptions": "openOnSessionStart"
 	},
@@ -15,17 +15,6 @@
 		"request": "launch",
 		"name": "Debug sample",
 		"program": "${workspaceRoot}/sample/build/e.js",
-		"internalConsoleOptions": "openOnSessionStart"
-	},
-	{
-		"type": "node",
-		"request": "launch",
-		"name": "Debug Sample Makejs Script",
-		"program": "/Users/paul/.npm-packages/bin/makejs",
-		"cwd": "${workspaceFolder}/sample",
-		"args": [
-			"build"
-		],
 		"internalConsoleOptions": "openOnSessionStart"
 	}]
 }

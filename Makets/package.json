@@ -1,15 +1,17 @@
 {
-	"name": "make-js",
-	"version": "1.0.0",
+	"name": "makets",
+	"version": "1.0.6",
 	"description": "Purpose-built JavaScript / TypeScript bundling tool.",
 	"author": "Paul Go",
-	"license": "ISC",
+	"license": "MIT",
 	"main": "./build/source/make.js",
+	"keywords": ["build", "system", "tool", "make", "typescript"],
 	"scripts": {
-		"build": "tsc -p ./tsconfig.source.json"
+		"build": "tsc -p ./tsconfig.source.json",
+		"publish": "node ./build/source/make.js publish"
 	},
 	"bin": {
-		"makejs": "./build/source/make.js"
+		"makets": "./build/source/make.js"
 	},
 	"dependencies": {
 		"fs-extra": "^8.0.1",

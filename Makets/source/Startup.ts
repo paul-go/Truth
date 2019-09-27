@@ -21,10 +21,18 @@ process.on("exit", () =>
 setImmediate(async () =>
 {
 	const tags = process.argv.filter(arg => /^[a-z]+(-[a-z]+)*$/gi.test(arg));
-	const makeFilePath = Path.join(process.cwd(), "make.js");
+	const cwd = process.cwd();
 	
-	if (!Fs.existsSync(makeFilePath))
-		throw new Error("No make.js file found at: " + makeFilePath);
+	const getFile = (file: string) =>
+	{
+		const makeFilePath = Path.join(cwd, file);
+		return Fs.existsSync(makeFilePath) ?
+			makeFilePath : "";
+	};
+	
+	const makeFilePath = getFile("make.ts") || getFile("make.js");
+	if (!makeFilePath)
+		throw new Error("No make.ts or make.js file found at: " + cwd);
 	
 	const makeFileText = Fs.readFileSync(makeFilePath, "utf8");
 	const makeFileFunction = new Function("make", makeFileText).bind(null);
