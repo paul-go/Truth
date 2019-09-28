@@ -11,15 +11,16 @@ export type RawDataPatternMap = {
  */
 export interface EncoderRawConfig 
 {
-	Input: string,
-	Declarations: string,
-	Data: RawDataPatternMap
+	Input: string;
+	Declarations: string;
+	Data: RawDataPatternMap;
 } 
 
 export interface EncoderConfig
 {
 	Scanner: Scanner;
 	Code: CodeJSON;
+	Raw: EncoderRawConfig;
 }
 
 /**
@@ -36,6 +37,7 @@ export async function normalizeConfig(raw: EncoderRawConfig): Promise<EncoderCon
 	return {
 		Code,
 		Scanner: Document,
+		Raw: raw
 	};
 }
 

@@ -32,13 +32,22 @@ export default class Scanner
 	 */
 	constructor(public document: Document, public patterns: RawDataPatternMap)
 	{
-		this.codeList = new Set<Type>(document.types);
+		this.codeList = new Set<Type>();
+		
+		document.types.forEach(x => this.scanContent(x));
+		
 		for (const key in patterns)
 		{
 			this.store[key] = new Set<Type>();
 			this.storeTypes(key, patterns[key]);	
 		}
 	}
+	
+	scanContent(type: Type)
+	{
+		this.codeList.add(type);
+		type.contents.forEach(x => this.scanContent(x));
+	}	
 	
 	/**
 	 * Stores types matching with given patterns according to given key

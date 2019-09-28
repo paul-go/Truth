@@ -1,6 +1,8 @@
 import PrimeType from "./Type";
 import { Type } from "../../../Truth/Core/X";
 import Scanner from "./Scanner";
+import { promises as FS } from "fs";
+import Serializer from "./Serializer";
  
 /**
  * Builds and emits Code JSON file
@@ -12,28 +14,36 @@ export default class CodeJSON
 	 */
 	static async fromFile(path: string, scanner: Scanner)
 	{
+		const code = new CodeJSON(scanner);
 		try 
 		{
-			return new CodeJSON(scanner);
+			const file = await FS.readFile(path, "utf-8");
+			const json = JSON.parse(file);
+			const array = json.map((x: [number] & any[]) => Serializer.decode(x, PrimeType.JSONLength));
+			for (const data of array)
+			{
+				const prime = PrimeType.fromJSON(code, data);
+				code.types.push(prime);
+			}
 		} 
-		catch (ex) 
-		{
-			return new CodeJSON(scanner);
-		}
+		catch (ex) { }
+		code.scan();
+		return code;
 	}
-	
-	types: PrimeType[] = [];
-	map: Map<number, PrimeType> = new Map();	
 
+	types: PrimeType[] = [];
+	
 	/**
 	 * 
 	 */
-	constructor(scanner: Scanner)
+	constructor(protected scanner: Scanner)
 	{
-		scanner.codeList.forEach(x => this.typeId(x));
 	}
 	
-	
+	scan()
+	{
+		this.scanner.codeList.forEach(x => this.typeId(x));
+	}
 	
 	/**
 	 * 
