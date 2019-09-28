@@ -17,29 +17,50 @@ export type ExtractKeys<T, Q> = {
 
 export class FuturePrimeType
 {
-	static Map = new Map<Type, PrimeType>();
+	static typeMap = new Map<Type, PrimeType>();
+	static reverseTypeMap = new Map<PrimeType, Type>();
+	static idMap = new Map<TypeId, PrimeType>();
 	
-	constructor(public prime?: PrimeType, public type?: Type)
+	constructor(public value: PrimeType | Type | TypeId) {}
+	
+	get prime()
 	{
+		if (this.value instanceof PrimeType) 
+			return this.value;
+		else if (this.value instanceof Type)
+			return FuturePrimeType.typeMap.get(this.value);
+		else
+			return FuturePrimeType.idMap.get(this.value);
 	}
 	
-	resolve()
+	get type()
 	{
-		if (this.prime)
-			return this.prime;
-		const prime = FuturePrimeType.Map.get(this.type);
-		this.prime = prime;
-		return prime;
+		if (this.value instanceof Type) 
+			return this.value;
+		else if (this.value instanceof PrimeType)
+			return FuturePrimeType.reverseTypeMap.get(this.value);
+		else
+			return FuturePrimeType.idMap.get(this.value);
+	}
+	
+	get id()
+	{
+		if (this.value instanceof PrimeType) 
+			return this.value.id;
+		else if (this.value instanceof Type)
+			return FuturePrimeType.typeMap.get(this.value).id;
+		else
+			return this.value;
 	}
 	
 	valueOf()
 	{
-		return this.toJSON();
+		return this.id;
 	}
 	
 	toJSON()
 	{
-		return this.resolve().id;
+		return this.id === null ? -1 : this.id;
 	}
 }
 
@@ -67,38 +88,38 @@ export default class PrimeType
 		"contentsIntrinsic",
 	];
 	
-	static JSONLength = 2 + PrimeType.TypeSetFields.length;
+	static JSONLength = 5 + PrimeType.TypeSetFields.length;
 	
 	/**
 	 *
 	 */
 	static fromType(code: CodeJSON, type: Type)
 	{
-		type = code.uniqueType(type);
 		const sign = typeHash(type);
 		
 		if (this.SignatureMap.has(sign))
 			return this.SignatureMap.get(sign);
 	
-		if (code.typeCache.has(type))
-			return code.typeCache.get(type);
-			
 		const prime = new PrimeType(code);
 		
 		code.types.push(prime);
-		code.typeCache.set(type, prime);
 		
 		prime.name = type.name;
 		prime.typeSignature = typeHash(type);
+		prime.container = new FuturePrimeType(type.container);
 		
 		for (const key of PrimeType.FlagFields)
 			prime.flags.setFlag(key, type[key]);
 			
 		for (const key of PrimeType.TypeSetFields)
 			for (const subtype of type[key])
-				(<PrimeTypeSet>prime[key]).add(new FuturePrimeType(undefined, subtype));
+				(<PrimeTypeSet>prime[key]).add(new FuturePrimeType(subtype));
 				
-		FuturePrimeType.Map.set(type, prime);
+		for (const alias of type.aliases)
+			prime.aliases.push(alias);
+				
+		FuturePrimeType.typeMap.set(type, prime);
+		FuturePrimeType.reverseTypeMap.set(prime, type);
 			
 		return prime;
 	}
@@ -108,16 +129,18 @@ export default class PrimeType
 	/**
 	 *
 	 */
-	static fromJSON(code: CodeJSON, data: [number, string, number, TypeId[], TypeId[], TypeId[], TypeId[]])
+	static fromJSON(code: CodeJSON, data: [number, string, number, number, Alias[], TypeId[], TypeId[], TypeId[], TypeId[]])
 	{ 
 		const prime = new PrimeType(code);
 		prime.typeSignature = data[0];
 		prime.name = data[1];	
 		prime.flags.flags = data[2];
-		data[3].forEach(x => prime.bases.add(x));
-		data[4].forEach(x => prime.parallels.add(x));
-		data[5].forEach(x => prime.patterns.add(x));
-		data[6].forEach(x => prime.contentsIntrinsic.add(x));
+		prime.container = new FuturePrimeType(data[3]);
+		data[4].forEach(x => prime.aliases.push(x));
+		data[5].forEach(x => prime.bases.add(new FuturePrimeType(x)));
+		data[6].forEach(x => prime.parallels.add(new FuturePrimeType(x)));
+		data[7].forEach(x => prime.patterns.add(new FuturePrimeType(x)));
+		data[8].forEach(x => prime.contentsIntrinsic.add(new FuturePrimeType(x)));
 		this.SignatureMap.set(data[0], prime);
 		return prime;
 	}
@@ -165,6 +188,8 @@ export default class PrimeType
 	
 	contentsIntrinsic = new PrimeTypeSet(this.code);
 	
+	container: FuturePrimeType;
+	
 	/**
 	 * Gets an array that contains the raw string values representing
 	 * the type aliases with which this type has been annotated.
@@ -173,7 +198,7 @@ export default class PrimeType
 	 * and any applicable type aliases will be present in the returned
 	 * array.
 	 */
-	aliases = new Set<Alias>();
+	aliases = [];
 	
 	/**
 	 * Stores a reference to the type, as it's defined in it's next most applicable type.
@@ -299,7 +324,8 @@ export default class PrimeType
 	toJSON()
 	{	
 		return Serializer.encode([
-			this.typeSignature, this.name, this.flags, ...PrimeType.TypeSetFields.map(x => this[x])
+			this.typeSignature, this.name, this.flags, this.container, this.aliases,
+			...PrimeType.TypeSetFields.map(x => this[x])
 		]);
 	}
 }

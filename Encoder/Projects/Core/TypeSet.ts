@@ -1,7 +1,7 @@
-import { TypeId } from "./Type";
+import { TypeId, FuturePrimeType } from "./Type";
 import CodeJSON from "./Code";
 
-export class PrimeTypeSet extends Set<TypeId>
+export class PrimeTypeSet extends Set<FuturePrimeType>
 {
 	get signature()
 	{
@@ -26,6 +26,6 @@ export class PrimeTypeSet extends Set<TypeId>
 	
 	toJSON()
 	{
-		return Array.from(this.values()).map(x => this.code.resolve(x)).sort();
+		return Array.from(this.values()).sort();
 	}
 }
