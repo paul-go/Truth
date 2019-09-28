@@ -290,7 +290,8 @@ namespace make
 				value >>= 1;
 				result.push(shouldNegate ? -value : value);
 				// reset
-				value = shift = 0;
+				value = 0;
+				shift = 0;
 			}
 		}
 
@@ -316,7 +317,7 @@ namespace make
 		
 		if (typeof value === "number")
 		{
-			result = encodeInteger( value );
+			result = encodeInteger(value);
 		}
 		else
 		{
@@ -332,23 +333,24 @@ namespace make
 	function encodeInteger(num: number): string
 	{
 		let result = "";
+		let n = num;
 		
-		if (num < 0)
-			num = ( -num << 1 ) | 1;
+		if (n < 0)
+			n = -n << 1 | 1;
 		else
-			num <<= 1;
+			n <<= 1;
 		
 		do
 		{
-			let clamped = num & 31;
-			num >>= 5;
+			let clamped = n & 31;
+			n >>= 5;
 
-			if (num > 0)
+			if (n > 0)
 				clamped |= 32;
 			
 			result += integerToChar[clamped];
 		}
-		while (num > 0);
+		while (n > 0);
 		
 		return result;
 	}

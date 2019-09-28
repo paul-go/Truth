@@ -84,7 +84,7 @@ namespace make
 	/** */
 	function getPublishedVersion(packageName: string, registry = "")
 	{
-		let command = `npm show ${packageName} version${getRegistryParam(registry)}`;
+		const command = `npm show ${packageName} version${getRegistryParam(registry)}`;
 		const output = make.shellSync(command);
 		
 		if (output instanceof Error)
@@ -128,7 +128,7 @@ namespace make
 		 * Specifies a JSON object to layer ontop of the package.json loaded
 		 * via the "packagePath" setting.
 		 */
-		packageFileChanges?: { [key: string]: any; };
+		packageFileChanges?: { [key: string]: any };
 		
 		/**
 		 * Specifies the list of npm-compatible registries to publish to.

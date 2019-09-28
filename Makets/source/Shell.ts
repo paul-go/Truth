@@ -5,7 +5,7 @@ namespace make
 	 * Runs the specified command on the shell, optionally with
 	 * the specified environment variables.
 	 */
-	export async function shell(command: string, envVars?: object)
+	export function shell(command: string, envVars?: object)
 	{
 		return new Promise(resolve =>
 		{
@@ -27,16 +27,14 @@ namespace make
 	 */
 	export function spawn(exe: string, args: string[]): ReturnOfSpawn
 	{
-		const process = ChildProcess.spawn(exe, args, {
-			stdio: "inherit",
-		});
+		const process = ChildProcess.spawn(exe, args, { stdio: "inherit" });
 		const promise = new Promise<void>((resolve, reject) => 
 		{
-			process.on("close", function(code) 
+			process.on("close", code =>
 			{ 
 				code < 0 ?
-				reject("Error detected") :
-				resolve();
+					reject(new Error("Error detected")) :
+					resolve();
 			});
 		});
 		return { process, promise };

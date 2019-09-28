@@ -57,10 +57,10 @@ namespace make
 		export function stage(args: string[], tag: string)
 		{
 			const tasks = makeTasks.filter(task => task.tags.includes(tag));
-			for(const task of tasks)
+			for (const task of tasks)
 			{
 				task.taskFn(args);
-			};
+			}
 		}
 
 		/**
@@ -69,12 +69,12 @@ namespace make
 		export async function stageAsync(args: string[], tag: string)
 		{
 			const tasks = makeTasks.filter(task => task.tags.includes(tag));
-			for(const task of tasks)
+			for (const task of tasks)
 			{
 				const result = task.taskFn(args);
 				if (result instanceof Promise)
 					await result;
-			};
+			}
 		}
 	}
 
@@ -102,7 +102,7 @@ namespace make
 	 */
 	export async function transfer(directory: string, tags?: string[])
 	{
-		tags = tags || process.argv.filter(arg => /^[a-z]+(-[a-z]+)*$/gi.test(arg));
+		const t = tags || process.argv.filter(arg => /^[a-z]+(-[a-z]+)*$/gi.test(arg));
 		
 		const getFile = (file: string) =>
 		{
@@ -128,7 +128,7 @@ namespace make
 		
 		await make.on.stageAsync(process.argv, "start");
 		await make.on.stageAsync(process.argv, "init");
-		await make.on.start(process.argv, tags);
+		await make.on.start(process.argv, t);
 	}
 	
 	process.on("SIGINT", () => 
@@ -148,7 +148,7 @@ namespace make
 	
 	//# Entry Point
 
-	setImmediate(async () =>
+	setImmediate(() =>
 	{
 		const directory = process.cwd();
 		transfer(directory);

@@ -7,7 +7,7 @@ namespace make
 		exports?: string | string[];
 		globalize?: true | string[];
 		above?: string;
-		below?: string
+		below?: string;
 	}
 	
 	/**
@@ -48,7 +48,7 @@ namespace make
 			
 			out.push(
 				"(function() {",
-					"var __ = (function() {"
+				"var __ = (function() {"
 			);
 			
 			return out.join("");
@@ -66,7 +66,7 @@ namespace make
 			const out: string[] = [];
 			
 			if (exports.length)
-				out.push(";return [" + exports.join()  + "];");
+				out.push(";return [" + exports.join() + "];");
 			
 			// For the var _
 			out.push("})();");

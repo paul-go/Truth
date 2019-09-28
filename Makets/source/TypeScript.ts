@@ -8,14 +8,13 @@ namespace make
 	{
 		let path = 
 			typeof a === "string" ? a : 
-				typeof b === "string" ? b : "./tsconfig.json";
+			typeof b === "string" ? b : "./tsconfig.json";
 	
 		const tsConfigOverrides: TsConfig | null = 
 			typeof a === "object" ? a :
-				typeof b === "object" ? b : null;
+			typeof b === "object" ? b : null;
 	
-		const watch: boolean = 
-			typeof b === "boolean" ? b : c;
+		const watch: boolean = typeof b === "boolean" ? b : c;
 	
 		if (tsConfigOverrides !== null)
 		{
