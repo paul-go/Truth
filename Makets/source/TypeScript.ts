@@ -20,14 +20,16 @@ namespace make
 		{
 			const existingConfig = readJson(path);
 			const augmentedConfig = mergeDeep(existingConfig, tsConfigOverrides);
-			
 			const tempFile = `tsconfig.${random()}.json`;
 			const tempPath = Path.join(Path.parse(path).dir, tempFile);
+			
 			writeJson(tempPath, augmentedConfig);
+			
 			make.on("exit", () => 
 			{
 				make.delete(tempPath);
 			});
+			
 			path = tempPath;
 		}
 
