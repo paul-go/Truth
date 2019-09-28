@@ -1,7 +1,9 @@
+import { Type } from "../../../Truth/Core/X";
+
 /**
  * taken from https://stackoverflow.com/revisions/52171480/17 
  */
-export const HashHash = function(str, seed = 0) {
+export function HashHash(str: string, seed = 0) {
 	let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
 	for (let i = 0, ch; i < str.length; i++) {
 			ch = str.charCodeAt(i);
@@ -12,3 +14,8 @@ export const HashHash = function(str, seed = 0) {
 	h2 = Math.imul(h2 ^ h2>>>16, 2246822507) ^ Math.imul(h1 ^ h1>>>13, 3266489909);
 	return 4294967296 * (2097151 & h2) + (h1>>>0);
 };
+
+export function typeHash(type: Type): number
+{
+	return HashHash(`${type.name}$${type.bases.map(typeHash)}`);
+}
