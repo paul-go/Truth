@@ -1,7 +1,7 @@
 import { Type } from "../../../Truth/Core/X";
 import CodeJSON from "./Code";
 import Flags from "./Flags";
-import { HashHash } from "./Util";
+import { HashHash, typeHash } from "./Util";
 import { PrimeTypeSet } from "./TypeSet";
 import Serializer from "./Serializer";
 
@@ -11,27 +11,60 @@ export type Alias = string;
 
 export type Typeish = TypeId | PrimeType | Type;
 
+export type ExtractKeys<T, Q> = {
+  [P in keyof T]: T[P] extends Q  ? P : never
+}[keyof T]; 
+
+export class FuturePrimeType
+{
+	static Map = new Map<Type, PrimeType>();
+	
+	constructor(public prime?: PrimeType, public type?: Type)
+	{
+	}
+	
+	resolve()
+	{
+		if (this.prime)
+			return this.prime;
+		const prime = FuturePrimeType.Map.get(this.type);
+		this.prime = prime;
+		return prime;
+	}
+	
+	valueOf()
+	{
+		return this.toJSON();
+	}
+	
+	toJSON()
+	{
+		return this.resolve().id;
+	}
+}
+
 /**
  * Lazy and serializable representation of Type 
  */
 export default class PrimeType 
 {	
-	static FlagFields = [
-		"Anonymous", 
-		"Fresh",
-		"List",
-		"ListIntrinsic",
-		"ListExtrinsic",
-		"Pattern",
-		"Uri", 
-		"Specified",
+	static FlagFields: ExtractKeys<Type, boolean>[] = [
+		"isAnonymous", 
+		"isFresh",
+		"isList",
+		"isListIntrinsic",
+		"isListExtrinsic",
+		"isPattern",
+		"isUri", 
+		"isSpecified",
+		
 	];
 	
-	static TypeSetFields: Extract<keyof Type, keyof PrimeType>[] = [
+	static TypeSetFields: ExtractKeys<Type, readonly Type[]>[] = [
 		"bases",
 		"parallels",
 		"patterns",
-		"contentsIntrinsic"
+		"contentsIntrinsic",
 	];
 	
 	static JSONLength = 2 + PrimeType.TypeSetFields.length;
@@ -42,7 +75,11 @@ export default class PrimeType
 	static fromType(code: CodeJSON, type: Type)
 	{
 		type = code.uniqueType(type);
+		const sign = typeHash(type);
 		
+		if (this.SignatureMap.has(sign))
+			return this.SignatureMap.get(sign);
+	
 		if (code.typeCache.has(type))
 			return code.typeCache.get(type);
 			
@@ -52,29 +89,36 @@ export default class PrimeType
 		code.typeCache.set(type, prime);
 		
 		prime.name = type.name;
+		prime.typeSignature = typeHash(type);
 		
 		for (const key of PrimeType.FlagFields)
-			prime.flags.setFlag(key, type["is" + key]);
+			prime.flags.setFlag(key, type[key]);
 			
 		for (const key of PrimeType.TypeSetFields)
-			for (const subtype of (<Type[]>type[key]))
-				(<PrimeTypeSet>prime[key]).add(PrimeType.fromType(code, subtype).id);
+			for (const subtype of type[key])
+				(<PrimeTypeSet>prime[key]).add(new FuturePrimeType(undefined, subtype));
+				
+		FuturePrimeType.Map.set(type, prime);
 			
 		return prime;
 	}
 	
+	static SignatureMap = new Map<number, PrimeType>();
+	
 	/**
 	 *
 	 */
-	static fromJSON(code: CodeJSON, data: [string, number, TypeId[], TypeId[], TypeId[], TypeId[]])
-	{
+	static fromJSON(code: CodeJSON, data: [number, string, number, TypeId[], TypeId[], TypeId[], TypeId[]])
+	{ 
 		const prime = new PrimeType(code);
-		prime.name = data[0];	
-		prime.flags.flags = data[1];
-		data[2].forEach(x => prime.bases.add(x));
-		data[3].forEach(x => prime.parallels.add(x));
-		data[4].forEach(x => prime.patterns.add(x));
-		data[5].forEach(x => prime.contentsIntrinsic.add(x));
+		prime.typeSignature = data[0];
+		prime.name = data[1];	
+		prime.flags.flags = data[2];
+		data[3].forEach(x => prime.bases.add(x));
+		data[4].forEach(x => prime.parallels.add(x));
+		data[5].forEach(x => prime.patterns.add(x));
+		data[6].forEach(x => prime.contentsIntrinsic.add(x));
+		this.SignatureMap.set(data[0], prime);
 		return prime;
 	}
 	
@@ -99,6 +143,7 @@ export default class PrimeType
 	 */
 	name: string = "";
 	
+	typeSignature = 0;
 	
 	/**
 	 * Stores the array of types from which this type extends.
@@ -148,7 +193,7 @@ export default class PrimeType
 	 */
 	get isAnonymous()
 	{
-		return this.flags.getFlag("Anonymous");
+		return this.flags.getFlag("isAnonymous");
 	}
 	
 	/**
@@ -156,7 +201,7 @@ export default class PrimeType
 	 */
 	get isFresh()
 	{
-		return this.flags.getFlag("Fresh");
+		return this.flags.getFlag("isFresh");
 	}
 	
 	/**
@@ -164,7 +209,7 @@ export default class PrimeType
 	 */
 	get isList()
 	{
-		return this.flags.getFlag("List");
+		return this.flags.getFlag("isList");
 	}
 	
 	/**
@@ -172,7 +217,7 @@ export default class PrimeType
 	 */
 	get isListIntrinsic()
 	{
-		return this.flags.getFlag("ListIntrinsic");
+		return this.flags.getFlag("isListIntrinsic");
 	}
 	
 	/**
@@ -180,7 +225,7 @@ export default class PrimeType
 	 */
 	get isListExtrinsic()
 	{
-		return this.flags.getFlag("ListExtrinsic");
+		return this.flags.getFlag("isListExtrinsic");
 	}
 	
 	/**
@@ -188,7 +233,7 @@ export default class PrimeType
 	 */
 	get isPattern()
 	{
-		return this.flags.getFlag("Pattern");
+		return this.flags.getFlag("isPattern");
 	}
 	
 	/**
@@ -196,7 +241,7 @@ export default class PrimeType
 	 */
 	get isUri()
 	{
-		return this.flags.getFlag("Uri");
+		return this.flags.getFlag("isUri");
 	}
 	
 	/**
@@ -204,7 +249,7 @@ export default class PrimeType
 	 */
 	get isSpecified()
 	{
-		return this.flags.getFlag("Specified");
+		return this.flags.getFlag("isSpecified");
 	}
 	
 	/**
@@ -254,7 +299,7 @@ export default class PrimeType
 	toJSON()
 	{	
 		return Serializer.encode([
-			this.name, this.flags, ...PrimeType.TypeSetFields.map(x => this[x])
+			this.typeSignature, this.name, this.flags, ...PrimeType.TypeSetFields.map(x => this[x])
 		]);
 	}
 }

@@ -39,7 +39,6 @@ export default class CodeJSON
 		{
 			const type = this.types[i];
 			const hash = type.hash;
-			console.log(type.name, hash);
 			if (this.hashMap.has(hash))
 			{
 				const t1 = this.hashMap.get(hash).id;
