@@ -11,26 +11,41 @@ make.on("test", () =>
 	make.typescriptWatcher("./tsconfig.test.json");
 });
 
-async function bundle()
+make.on("bundle", "publish", async () =>
 {
 	make.copy("./build/source/reflex-ml.js", "./bundle");
-	make.copy("./build/source/reflex-ml.d.ts", "./bundle");
-	await make.compilationConstants("./bundle/reflex-ml.js", {
+	make.copy("./build/source/reflex-ml.d.ts", "./bundle/index.d.ts");
+	
+	make.compilationConstants("./bundle/reflex-ml.js", {
 		MODERN: true,
 		DEBUG: false
 	});
-	await make.minify("./bundle/reflex-ml.js");
-}
-
-make.on("bundle", bundle);
+	make.minify("./bundle/reflex-ml.js");
+});
 
 make.on("publish", async () => 
 {
-	await bundle();
+	make.modulize("./bundle/reflex-ml.js", {
+		exports: "Reflex",
+		above: 
+			`var Reflex;` +
+			`if (typeof Reflex + typeof window === "undefinedundefined")` +
+				`Reflex = require("reflex-core");`
+	});
+	
+	make.concat(
+		"../ReflexCore/bundle/reflex-core.js",
+		"./bundle/reflex-ml.js",
+		"./bundle/reflex.js",
+	);
+	
+	make.minify("./bundle/reflex.js");
+	
 	await make.publish({
 		packageFileChanges: {
-			main: "./reflex-ml.min.js",
-			types: "./reflex-ml.d.ts"
+			main: "./reflex-ml.js",
+			types: "./reflex-ml.d.ts",
+			eslintIgnore: null
 		}
 	});
 });

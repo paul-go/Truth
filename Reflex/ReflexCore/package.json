@@ -1,16 +1,16 @@
 {
 	"name": "reflex-core",
+	"description": "An abstract toolkit for implementing reflexive libraries.",
+	"author": "Truebase",
+	"license": "MIT",
 	"version": "2.0.0",
-	"description": "An abstract toolkit for implementing reflexive libraries",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/paul-go/ReflexCore"
+		"url": "https://github.com/Truebase-com/TruthStack"
 	},
 	"bugs": {
-		"url": "https://github.com/paul-go/ReflexCore/issues"
+		"url": "https://github.com/Truebase-com/TruthStack/issues"
 	},
-	"author": "Paul Go",
-	"license": "MIT",
 	"scripts": {
 		"start": "http-server . -p 4349",
 		"build": "makejs build",
