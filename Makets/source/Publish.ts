@@ -38,6 +38,11 @@ namespace make
 			publishSpecificJson,
 			options.packageFileChanges || {});
 		
+		// Remove any entries that are set to null or undefined
+		for (const [key, value] of Object.entries(packageJsonFinal))
+			if (value === null || value === void 0)
+				delete packageJsonFinal[key];
+		
 		// Bump the version if necessary
 		const sourceVersion = SemVer.parse(packageJsonFinal.version);
 		if (sourceVersion === null)

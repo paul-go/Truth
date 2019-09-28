@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 
-// Built-In
-const Fs: typeof import("fs") = require("fs");
-const Path: typeof import("path") = require("path");
-const ChildProcess: typeof import("child_process") = require("child_process");
-const Url: typeof import("url") = require("url");
-const ZLib: typeof import("zlib") = require("zlib");
+/** @internal */
+namespace make
+{
+	// Built-In
+	export const Fs: typeof import("fs") = require("fs");
+	export const Path: typeof import("path") = require("path");
+	export const ChildProcess: typeof import("child_process") = require("child_process");
+	export const Url: typeof import("url") = require("url");
+	export const ZLib: typeof import("zlib") = require("zlib");
 
-// Installed
-const FsExtra: typeof import("fs-extra") = require("fs-extra");
-const Terser: typeof import("terser") = require("terser");
-const SemVer: typeof import("semver") = require("semver");
-type SemVer = typeof SemVer;
+	// Installed
+	export const FsExtra: typeof import("fs-extra") = require("fs-extra");
+	export const Terser: typeof import("terser") = require("terser");
+	export const SemVer: typeof import("semver") = require("semver");
+	export type SemVer = typeof SemVer;
+}

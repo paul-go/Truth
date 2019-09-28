@@ -5,8 +5,15 @@
 	"author": "Paul Go",
 	"license": "MIT",
 	"main": "./build/source/make.js",
-	"keywords": ["build", "system", "tool", "make", "typescript"],
+	"keywords": [
+		"build",
+		"system",
+		"tool",
+		"make",
+		"typescript"
+	],
 	"scripts": {
+		"init": "npm run build && npm link",
 		"build": "tsc -p ./tsconfig.source.json",
 		"publish": "node ./build/source/make.js publish"
 	},

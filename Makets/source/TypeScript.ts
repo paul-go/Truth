@@ -65,7 +65,7 @@ namespace make
 		console.log("Running TypeScript Compiler (Watcher)");
 		return spawn("tsc", parseTypescriptArguments(a, b, true));
 	}
-
+	
 	//# Type definitions copied from https://github.com/Microsoft/TypeScript/blob/master/lib/typescript.d.ts
 	
 	export interface MapLike<T = any>

@@ -1,4 +1,9 @@
 
+// 
+// This file contains the code that runs make.ts scripts
+// It always acts as the main entry point.
+// 
+
 namespace make
 {
 	export type Fn = (args: string[]) => Promise<void> | void;
@@ -84,4 +89,69 @@ namespace make
 
 	/** */
 	const makeTasks: MakeTask[] = [];
+	
+	/**
+	 * Transfer execution of the make process to another make process,
+	 * using the make.ts file found at the specified relative directory path.
+	 * This function is also used to initiate the starting makets process.
+	 * 
+	 * @param directory The directory that contains the make.ts file
+	 * @param tags An optional array containing the tags that control
+	 * the functions to be executed in the make.ts script. If omitted,
+	 * the tags specified at the command line are used.
+	 */
+	export async function transfer(directory: string, tags?: string[])
+	{
+		tags = tags || process.argv.filter(arg => /^[a-z]+(-[a-z]+)*$/gi.test(arg));
+		
+		const getFile = (file: string) =>
+		{
+			const makeFilePath = Path.join(directory, file);
+			return Fs.existsSync(makeFilePath) ?
+				makeFilePath : "";
+		};
+		
+		const makeFilePath = getFile("make.ts") || getFile("make.js");
+		if (!makeFilePath)
+			throw new Error("No make.ts or make.js file found at: " + directory);
+		
+		const makeFileText = Fs.readFileSync(makeFilePath, "utf8");
+		const makeFileFunction = new Function("make", makeFileText).bind(null);
+		
+		// Running this function causes all the make.on() calls
+		// to be collected, which are run in the next step.
+		makeFileFunction(make);
+		
+		// Create the build and bundle folders
+		FsExtra.mkdirpSync("./build");
+		FsExtra.mkdirpSync("./bundle");
+		
+		await make.on.stageAsync(process.argv, "start");
+		await make.on.stageAsync(process.argv, "init");
+		await make.on.start(process.argv, tags);
+	}
+	
+	process.on("SIGINT", () => 
+	{
+		make.on.stage(process.argv, "kill");
+	});
+
+	process.on("beforeExit", () => 
+	{
+		make.on.stage(process.argv, "idle");
+	});
+
+	process.on("exit", () => 
+	{
+		make.on.stage(process.argv, "exit");
+	});
+	
+	//# Entry Point
+
+	setImmediate(async () =>
+	{
+		const directory = process.cwd();
+		transfer(directory);
+		console.log("Complete.");
+	});
 }

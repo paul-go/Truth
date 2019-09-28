@@ -5,10 +5,16 @@ namespace make
 	const sourceMapContentSep = ";base64,";
 	
 	/**
-	 * Merges JavaScript files into a single file. Source maps are omitted.
+	 * Concatenates JavaScript files into a single file. Source maps are omitted.
+	 * The last file specified is the save target. If the file already exists, it's overritten.
 	 */
-	export function mergeUnmapped(...filePaths: string[])
+	export function concatUnmapped(...filePaths: string[])
 	{
+		// Concatenation doesn't make any sense if less
+		// than 2 files have been specified.
+		if (filePaths.length < 2)
+			return;
+		
 		const output: string[] = [];
 		const outPath = filePaths[filePaths.length - 1];
 		
@@ -27,13 +33,15 @@ namespace make
 	}
 	
 	/**
-	 * Merges JavaScript files into a single file. If any of the input JavaScript
+	 * Concat JavaScript files into a single file. If any of the input JavaScript
 	 * files have inline source maps, the source maps are also concatenated
 	 * into a single inline source map comment.
+	 * 
+	 * The last file specified is the save target. If the file already exists, it's overritten.
 	 */
-	export function merge(filePaths: string[])
+	export function concat(...filePaths: string[])
 	{
-		// A merge operation doesn't make any sense if less
+		// Concatenation doesn't make any sense if less
 		// than 2 files have been specified.
 		if (filePaths.length < 2)
 			return;
