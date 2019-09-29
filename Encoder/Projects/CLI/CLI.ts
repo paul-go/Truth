@@ -2,6 +2,7 @@ import { EncoderConfig, initializeCLI } from "../Core/CLI";
 import { writeFileSync } from "fs";
 import Serializer from "../Core/Serializer";
 import PrimeType from "../Core/Type";
+import { inspect } from "util";
 
 /**
  * Public CLI Manager for Unified Truth JSON Generator
@@ -23,10 +24,20 @@ export default class JSONCLI
 		}
 	}
 	
+	formattedJSON(Obj: any)
+	{
+		const data = JSON.parse(JSON.stringify(Obj));
+		const json = inspect(data, {
+			compact: true,
+			breakLength: 100,
+			maxArrayLength: null
+		});
+		return json.replace(/"/g, "\\\"").replace(/'/g, '"');
+	}
+	
 	save()
 	{
-		const json = JSON.stringify(this.Config.Code);
-		writeFileSync(this.Config.Raw.Declarations, json);
+		writeFileSync(this.Config.Raw.Declarations, this.formattedJSON(this.Config.Code));
 		console.info(`Truth Code File: ${this.Config.Raw.Declarations} saved!`);
 	}
 }

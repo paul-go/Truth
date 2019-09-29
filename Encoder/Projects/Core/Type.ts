@@ -78,7 +78,6 @@ export default class PrimeType
 		"isPattern",
 		"isUri", 
 		"isSpecified",
-		
 	];
 	
 	static TypeSetFields: ExtractKeys<Type, readonly Type[]>[] = [
