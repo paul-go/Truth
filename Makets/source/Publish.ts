@@ -38,6 +38,11 @@ namespace make
 			publishSpecificJson,
 			options.packageFileChanges || {});
 		
+		// Remove any entries that are set to null or undefined
+		for (const [key, value] of Object.entries(packageJsonFinal))
+			if (value === null || value === void 0)
+				delete packageJsonFinal[key];
+		
 		// Bump the version if necessary
 		const sourceVersion = SemVer.parse(packageJsonFinal.version);
 		if (sourceVersion === null)
@@ -79,7 +84,7 @@ namespace make
 	/** */
 	function getPublishedVersion(packageName: string, registry = "")
 	{
-		let command = `npm show ${packageName} version${getRegistryParam(registry)}`;
+		const command = `npm show ${packageName} version${getRegistryParam(registry)}`;
 		const output = make.shellSync(command);
 		
 		if (output instanceof Error)
@@ -123,7 +128,7 @@ namespace make
 		 * Specifies a JSON object to layer ontop of the package.json loaded
 		 * via the "packagePath" setting.
 		 */
-		packageFileChanges?: { [key: string]: any; };
+		packageFileChanges?: { [key: string]: any };
 		
 		/**
 		 * Specifies the list of npm-compatible registries to publish to.

@@ -28,22 +28,19 @@ namespace make
 				throw new Error("Cannot copy a directory to a file.");
 			}
 		}
+		else if (dstIsDir)
+		{
+			const parsed = Path.parse(src);
+			const dstPath = Path.join(dst, parsed.base);
+			FsExtra.removeSync(dstPath);
+			FsExtra.copyFileSync(src, dstPath);
+		}
 		else
 		{
-			if (dstIsDir)
-			{
-				const parsed = Path.parse(src);
-				const dstPath = Path.join(dst, parsed.base);
-				FsExtra.removeSync(dstPath);
-				FsExtra.copyFileSync(src, dstPath);
-			}
-			else
-			{
-				if (FsExtra.existsSync(dst))
-					FsExtra.removeSync(dst);
-				
-				FsExtra.copyFileSync(src, dst);
-			}
+			if (FsExtra.existsSync(dst))
+				FsExtra.removeSync(dst);
+			
+			FsExtra.copyFileSync(src, dst);
 		}
 	}
 	
@@ -56,7 +53,7 @@ namespace make
 	 */
 	export function directory(path?: string)
 	{
-		const pathValue = path || ("./temp-" + Math.random().toString().slice(-10));
+		const pathValue = path || "./temp-" + Math.random().toString().slice(-10);
 		make.shellSync("mkdir -p " + pathValue);
 		return Path.resolve(pathValue);
 	}
@@ -67,10 +64,10 @@ namespace make
 	 * as source map comments.
 	 */
 	export function wrap(options: {
-		in: string, 
-		out?: string,
-		prefix?: string,
-		suffix?: string
+		in: string;
+		out?: string;
+		prefix?: string;
+		suffix?: string;
 	})
 	{
 		const outPath = options.out || options.in;
@@ -92,7 +89,8 @@ namespace make
 					prefixInsertPosition = fileContent.length;
 			}
 			
-			let suffixInsertPosition = fileContent.lastIndexOf("\n//# " + "sourceMappingURL=");
+			const smu = ["\n//# ", "sourceMappingURL="].join("");
+			let suffixInsertPosition = fileContent.lastIndexOf(smu);
 			if (suffixInsertPosition < 0)
 				suffixInsertPosition = fileContent.length;
 			
@@ -112,11 +110,11 @@ namespace make
 	/**
 	 * Deletes the specified file from the file system.
 	 */
-	make["delete"] = function(src: string)
+	(<any>make).delete = function(src: string)
 	{
 		if (Fs.existsSync(src))
 			Fs.unlinkSync(src);
-	}
+	};
 }
 
 /**

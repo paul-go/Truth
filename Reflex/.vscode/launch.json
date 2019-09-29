@@ -13,11 +13,21 @@
 	{
 		"type": "node",
 		"request": "launch",
-		"name": "Debug Makejs Script",
-		"program": "/Users/paul/.npm-packages/bin/makejs",
-		"cwd": "${workspaceFolder}",
+		"name": "Debug Reflex Core Makets Script",
+		"program": "${env:HOME}/.npm-packages/bin/makets",
+		"cwd": "${workspaceFolder}/ReflexCore",
 		"args": [
-			"bundle"
+			"publish"
+		]
+	},
+	{
+		"type": "node",
+		"request": "launch",
+		"name": "Debug Reflex ML Makets Script",
+		"program": "${env:HOME}/.npm-packages/bin/makets",
+		"cwd": "${workspaceFolder}/ReflexML",
+		"args": [
+			"publish"
 		]
 	}]
 }

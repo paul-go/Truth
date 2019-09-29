@@ -5,10 +5,16 @@ namespace make
 	const sourceMapContentSep = ";base64,";
 	
 	/**
-	 * Merges JavaScript files into a single file. Source maps are omitted.
+	 * Concatenates JavaScript files into a single file. Source maps are omitted.
+	 * The last file specified is the save target. If the file already exists, it's overritten.
 	 */
-	export function mergeUnmapped(...filePaths: string[])
+	export function concatUnmapped(...filePaths: string[])
 	{
+		// Concatenation doesn't make any sense if less
+		// than 2 files have been specified.
+		if (filePaths.length < 2)
+			return;
+		
 		const output: string[] = [];
 		const outPath = filePaths[filePaths.length - 1];
 		
@@ -27,13 +33,15 @@ namespace make
 	}
 	
 	/**
-	 * Merges JavaScript files into a single file. If any of the input JavaScript
+	 * Concat JavaScript files into a single file. If any of the input JavaScript
 	 * files have inline source maps, the source maps are also concatenated
 	 * into a single inline source map comment.
+	 * 
+	 * The last file specified is the save target. If the file already exists, it's overritten.
 	 */
-	export function merge(filePaths: string[])
+	export function concat(...filePaths: string[])
 	{
-		// A merge operation doesn't make any sense if less
+		// Concatenation doesn't make any sense if less
 		// than 2 files have been specified.
 		if (filePaths.length < 2)
 			return;
@@ -282,7 +290,8 @@ namespace make
 				value >>= 1;
 				result.push(shouldNegate ? -value : value);
 				// reset
-				value = shift = 0;
+				value = 0;
+				shift = 0;
 			}
 		}
 
@@ -308,7 +317,7 @@ namespace make
 		
 		if (typeof value === "number")
 		{
-			result = encodeInteger( value );
+			result = encodeInteger(value);
 		}
 		else
 		{
@@ -324,23 +333,24 @@ namespace make
 	function encodeInteger(num: number): string
 	{
 		let result = "";
+		let n = num;
 		
-		if (num < 0)
-			num = ( -num << 1 ) | 1;
+		if (n < 0)
+			n = -n << 1 | 1;
 		else
-			num <<= 1;
+			n <<= 1;
 		
 		do
 		{
-			let clamped = num & 31;
-			num >>= 5;
+			let clamped = n & 31;
+			n >>= 5;
 
-			if (num > 0)
+			if (n > 0)
 				clamped |= 32;
 			
 			result += integerToChar[clamped];
 		}
-		while (num > 0);
+		while (n > 0);
 		
 		return result;
 	}

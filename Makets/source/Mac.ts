@@ -1,7 +1,4 @@
 
-
-
-
 namespace make
 {
 	export const mac = Object.freeze({

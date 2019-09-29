@@ -8,14 +8,13 @@ namespace make
 	{
 		let path = 
 			typeof a === "string" ? a : 
-				typeof b === "string" ? b : "./tsconfig.json";
+			typeof b === "string" ? b : "./tsconfig.json";
 	
 		const tsConfigOverrides: TsConfig | null = 
 			typeof a === "object" ? a :
-				typeof b === "object" ? b : null;
+			typeof b === "object" ? b : null;
 	
-		const watch: boolean = 
-			typeof b === "boolean" ? b : c;
+		const watch: boolean = typeof b === "boolean" ? b : c;
 	
 		if (tsConfigOverrides !== null)
 		{
@@ -65,7 +64,7 @@ namespace make
 		console.log("Running TypeScript Compiler (Watcher)");
 		return spawn("tsc", parseTypescriptArguments(a, b, true));
 	}
-
+	
 	//# Type definitions copied from https://github.com/Microsoft/TypeScript/blob/master/lib/typescript.d.ts
 	
 	export interface MapLike<T = any>

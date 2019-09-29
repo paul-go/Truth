@@ -15,7 +15,7 @@ make.on("publish", async () =>
 				makets: "./main.js"
 			}
 		},
-		registries: ["npm"],
+		registries: [],
 		tag: "latest"
 	});
 	

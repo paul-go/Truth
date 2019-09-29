@@ -2,13 +2,13 @@
 
 # Run this script after cloning this repository to get the project into a running state.
 
-cd Makejs
+cd Makets
 npm install
 npm run build
 cd ..
 
-ln -s ./Makejs/build/source/make.d.ts ./make.d.ts
-ln -s ./Makejs/build/source/make.js ./make.js
+ln -s ./Makets/build/source/make.d.ts ./make.d.ts
+ln -s ./Makets/build/source/make.ts ./make.ts
 
 echo "This script will globally install the latest versions of: Jest, Terser, Puppeteer."
 read -p "Press any key to continue, or CTRL+C to quit."
