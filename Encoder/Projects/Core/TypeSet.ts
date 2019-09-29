@@ -1,5 +1,4 @@
-import { TypeId, FuturePrimeType } from "./Type";
-import CodeJSON from "./Code";
+import { FuturePrimeType } from "./Type";
 
 export class PrimeTypeSet extends Set<FuturePrimeType>
 {
@@ -12,11 +11,6 @@ export class PrimeTypeSet extends Set<FuturePrimeType>
 	get length()
 	{
 		return this.size;
-	}
-	
-	constructor(private code: CodeJSON) 
-	{
-		super();
 	}
 	
 	toString()

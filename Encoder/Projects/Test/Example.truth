@@ -23,6 +23,9 @@ Material-Iron: Material
 	
 Material-Plastic: Material
 	Hardness : Soft
+	
+Material-Wood: Material
+	Hardness : Hard
 
 000-000-001 : Product, Material-Iron
 	Name : "Screw"

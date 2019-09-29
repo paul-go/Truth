@@ -98,14 +98,23 @@ export default class PrimeType
 		const sign = typeHash(type);
 		
 		if (this.SignatureMap.has(sign))
-			return this.SignatureMap.get(sign);
+		{
+			const p = this.SignatureMap.get(sign);
+			FuturePrimeType.typeMap.set(type, p);
+			FuturePrimeType.reverseTypeMap.set(p, type);
+			return p;
+		}
 	
 		const prime = new PrimeType(code);
 		
 		code.types.push(prime);
+		FuturePrimeType.typeMap.set(type, prime);
+		FuturePrimeType.reverseTypeMap.set(prime, type);
 		
 		prime.name = type.name;
 		prime.typeSignature = typeHash(type);
+		
+		PrimeType.SignatureMap.set(prime.typeSignature, prime);
 		prime.container = new FuturePrimeType(type.container);
 		
 		for (const key of PrimeType.FlagFields)
@@ -117,9 +126,6 @@ export default class PrimeType
 				
 		for (const alias of type.aliases)
 			prime.aliases.push(alias);
-				
-		FuturePrimeType.typeMap.set(type, prime);
-		FuturePrimeType.reverseTypeMap.set(prime, type);
 			
 		return prime;
 	}
@@ -173,20 +179,20 @@ export default class PrimeType
 	 * If this Type extends from a pattern, it is included in this
 	 * array.
 	 */
-	bases = new PrimeTypeSet(this.code);
+	bases = new PrimeTypeSet();
 	
 	/**
 	 * Stores the array of types that are contained directly by this
 	 * one. In the case when this type is a list type, this array does
 	 * not include the list's intrinsic types.
 	 */
-	contents = new PrimeTypeSet(this.code);
+	contents = new PrimeTypeSet();
 	
-	patterns = new PrimeTypeSet(this.code);
+	patterns = new PrimeTypeSet();
 	
-	derivations = new PrimeTypeSet(this.code);
+	derivations = new PrimeTypeSet();
 	
-	contentsIntrinsic = new PrimeTypeSet(this.code);
+	contentsIntrinsic = new PrimeTypeSet();
 	
 	container: FuturePrimeType;
 	
@@ -203,7 +209,7 @@ export default class PrimeType
 	/**
 	 * Stores a reference to the type, as it's defined in it's next most applicable type.
 	 */
-	parallels = new PrimeTypeSet(this.code);
+	parallels = new PrimeTypeSet();
 	
 	/**
 	 *

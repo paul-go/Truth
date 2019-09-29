@@ -58,7 +58,7 @@ export default class Scanner
 		
 		for (const pattern of patterns) 
 			for (const type of this.scanPattern(pattern))
-				store.add(type)
+				store.add(type);
 	}
 	
 	/**
