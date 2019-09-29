@@ -35,3 +35,7 @@ Material-Wood: Material
 	Name : "Toy"
 	Size : 10, Long
 	
+000-000-003 : Product, Material-Wood
+	Name : "Chair"
+	Size : 10, Short
+	
