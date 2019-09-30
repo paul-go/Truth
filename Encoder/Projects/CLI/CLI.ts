@@ -1,7 +1,5 @@
 import { EncoderConfig, initializeCLI } from "../Core/CLI";
 import { writeFileSync } from "fs";
-import Serializer from "../Core/Serializer";
-import PrimeType from "../Core/Type";
 import { inspect } from "util";
 
 /**
@@ -32,7 +30,7 @@ export default class JSONCLI
 			breakLength: 100,
 			maxArrayLength: null
 		});
-		return json.replace(/"/g, "\\\"").replace(/'/g, '"');
+		return json.replace(/"/g, "\\\"").replace(/'/g, '"').replace(/  /g, "\t");
 	}
 	
 	save()

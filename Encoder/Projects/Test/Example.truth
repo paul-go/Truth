@@ -4,39 +4,19 @@ string
 /\d+ : number
 /".+" : string
 
-Size
-Long : Size
-Short: Size
-
-Hardness
-Hard : Hardness
-Soft : Hardness
-
 Product
 	Name : string
-	Size : number, Size
-	
-Material
-	Hardness : Hardness
+	Size : number
 
-Material-Iron: Material
-	Hardness : Hard	
-	
-Material-Plastic: Material
-	Hardness : Soft
-	
-Material-Wood: Material
-	Hardness : Hard
-
-000-000-001 : Product, Material-Iron
+000-000-001 : Product
 	Name : "Screw"
-	Size : 5, Long	
+	Size : 5	
 
-000-000-002 : Product, Material-Plastic
+000-000-002 : Product
 	Name : "Toy"
-	Size : 10, Long
+	Size : 10
 	
-000-000-003 : Product, Material-Wood
+000-000-003 : Product
 	Name : "Chair"
-	Size : 10, Short
+	Size : 10
 	

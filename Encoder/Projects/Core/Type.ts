@@ -60,7 +60,8 @@ export class FuturePrimeType
 	
 	toJSON()
 	{
-		return this.id === null ? -1 : this.id;
+		const id = this.id;
+		return id === null ? -1 : id;
 	}
 }
 
@@ -115,6 +116,8 @@ export default class PrimeType
 		
 		PrimeType.SignatureMap.set(prime.typeSignature, prime);
 		prime.container = new FuturePrimeType(type.container);
+		
+		console.log(type.name, type.values);
 		
 		for (const key of PrimeType.FlagFields)
 			prime.flags.setFlag(key, type[key]);
