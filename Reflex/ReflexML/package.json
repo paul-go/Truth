@@ -1,19 +1,19 @@
 {
-	"name": "reflex",
+	"name": "reflex-ml",
 	"version": "1.3.1",
 	"description": "Lightweight reactive HTML element rendering library",
+	"author": "Truebase",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/paul-go/Reflex"
+		"url": "https://github.com/paul-go/Truebase-com/TruthStack"
 	},
 	"bugs": {
-		"url": "https://github.com/paul-go/Reflex/issues"
+		"url": "https://github.com/paul-go/Truebase-com/TruthStack/issues"
 	},
-	"author": "Paul Go",
-	"license": "MIT",
 	"scripts": {
-		"build": "makejs build",
-		"bundle": "makejs bundle"
+		"build": "makets build",
+		"bundle": "makets bundle"
 	},
 	"eslintIgnore": [
 		"**/node_modules/**/*.ts",
@@ -23,8 +23,5 @@
 		"@typescript-eslint/eslint-plugin": "^1.4.2",
 		"@typescript-eslint/parser": "^1.4.2",
 		"artistry-code-style": "^0.0.1"
-	},
-	"dependencies": {
-		"reflex-core": "^2.0.0"
 	}
 }
