@@ -19,8 +19,11 @@ make.on("publish", "bundle", async () =>
 
 make.on("publish", async () => 
 {
-	make.modulize("./bundle/reflex-core.js", {
-		exports: "Reflex"
+	make.augment("./bundle/reflex-core.js", {
+		exports: "Reflex",
+		globals: "Reflex",
+		encapsulate: true,
+		encapsulatedReturns: "Reflex"
 	});
 	
 	await make.publish({
@@ -29,6 +32,6 @@ make.on("publish", async () =>
 			types: "./index.d.ts",
 			eslintIgnore: null
 		},
-		registries: []
+		registries: ["http://localhost:4873/"]
 	});
 });

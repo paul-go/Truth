@@ -59,55 +59,6 @@ namespace make
 	}
 	
 	/**
-	 * Adds the specified prefix and suffix strings to the contents of the specified 
-	 * JavaScript file. The algorithm takes into account hashbang prefixes, as well
-	 * as source map comments.
-	 */
-	export function wrap(options: {
-		in: string;
-		out?: string;
-		prefix?: string;
-		suffix?: string;
-	})
-	{
-		const outPath = options.out || options.in;
-		const fileContent = Fs.readFileSync(options.in).toString("utf8");
-		const prefix = options.prefix || "";
-		const suffix = options.suffix ? "\n" + options.suffix : "";
-		
-		let section1 = "";
-		let section2 = "";
-		let section3 = "";
-		
-		(() =>
-		{
-			let prefixInsertPosition = 0;
-			if (fileContent.startsWith("#!/"))
-			{
-				prefixInsertPosition = fileContent.indexOf("\n") + 1;
-				if (prefixInsertPosition === 0)
-					prefixInsertPosition = fileContent.length;
-			}
-			
-			const smu = ["\n//# ", "sourceMappingURL="].join("");
-			let suffixInsertPosition = fileContent.lastIndexOf(smu);
-			if (suffixInsertPosition < 0)
-				suffixInsertPosition = fileContent.length;
-			
-			section1 = fileContent.slice(0, prefixInsertPosition);
-			section2 = fileContent.slice(prefixInsertPosition, suffixInsertPosition);
-			section3 = fileContent.slice(suffixInsertPosition);
-		})();
-		
-		Fs.writeFileSync(outPath,
-			section1 +
-			prefix + 
-			section2 + 
-			suffix +
-			section3);
-	}
-	
-	/**
 	 * Deletes the specified file from the file system.
 	 */
 	(<any>make).delete = function(src: string)

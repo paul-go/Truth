@@ -208,7 +208,11 @@ namespace make
 			sourceMapEncoded;
 		
 		const fileContent = source + sourceMapComment;
-		FsExtra.writeFileSync(outPath, fileContent);
+		
+		if (Fs.existsSync(outPath))
+			Fs.unlinkSync(outPath);
+		
+		Fs.writeFileSync(outPath, fileContent);
 	}
 	
 	/** */

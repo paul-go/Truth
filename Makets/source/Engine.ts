@@ -102,7 +102,9 @@ namespace make
 	 */
 	export async function transfer(directory: string, tags?: string[])
 	{
-		const t = tags || process.argv.filter(arg => /^[a-z]+(-[a-z]+)*$/gi.test(arg));
+		console.log(directory);
+		
+		const runTags = tags || process.argv.filter(arg => /^[a-z]+(-[a-z]+)*$/gi.test(arg));
 		
 		const getFile = (file: string) =>
 		{
@@ -126,9 +128,9 @@ namespace make
 		FsExtra.mkdirpSync("./build");
 		FsExtra.mkdirpSync("./bundle");
 		
-		await make.on.stageAsync(process.argv, "start");
-		await make.on.stageAsync(process.argv, "init");
-		await make.on.start(process.argv, t);
+		await make.on.stageAsync(runTags, "start");
+		await make.on.stageAsync(runTags, "init");
+		await make.on.start(runTags, runTags);
 	}
 	
 	process.on("SIGINT", () => 
