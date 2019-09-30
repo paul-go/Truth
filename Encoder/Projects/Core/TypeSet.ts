@@ -1,4 +1,4 @@
-import { FuturePrimeType } from "./Type";
+import { FuturePrimeType } from "./FutureType";
 
 export class PrimeTypeSet extends Set<FuturePrimeType>
 {

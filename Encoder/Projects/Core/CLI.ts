@@ -1,9 +1,8 @@
 import { join, resolve } from "path";
-import Scanner from "./Scanner";
 import CodeJSON from "./Code";
 
 export type RawDataPatternMap = {
-	[x: string]: RegExp[]
+	[x: string]: RegExp
 };
 
 /**
@@ -18,7 +17,6 @@ export interface EncoderRawConfig
 
 export interface EncoderConfig
 {
-	Scanner: Scanner;
 	Code: CodeJSON;
 	Raw: EncoderRawConfig;
 }
@@ -31,12 +29,12 @@ export async function normalizeConfig(raw: EncoderRawConfig): Promise<EncoderCon
 	const Input = resolve(process.cwd(), raw.Input);
 	const CodeFile = resolve(process.cwd(), raw.Declarations);
 	
-	const Document = await Scanner.fromFile(Input, raw.Data);
-	const Code = await CodeJSON.fromFile(CodeFile, Document);
+	const Code = new CodeJSON();
+	await Code.loadFile(CodeFile);
+	await Code.loadTruth(Input);
 	
 	return {
 		Code,
-		Scanner: Document,
 		Raw: raw
 	};
 }

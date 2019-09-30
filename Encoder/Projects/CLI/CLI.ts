@@ -9,20 +9,10 @@ export default class JSONCLI
 {
 	constructor(public Config: EncoderConfig)
 	{
-		Config.Scanner.document.program.verify();
-		const faults = Config.Scanner.document.program.faults;
-		if (faults.count)
-		{
-			for (const fault of faults.each())
-				console.error(fault.toString());
-		}
-		else
-		{	
-			this.save();
-		}
+		this.save();
 	}
 	
-	formattedJSON(Obj: any)
+	formattJSON(Obj: any)
 	{
 		const data = JSON.parse(JSON.stringify(Obj));
 		const json = inspect(data, {
@@ -35,7 +25,7 @@ export default class JSONCLI
 	
 	save()
 	{
-		writeFileSync(this.Config.Raw.Declarations, this.formattedJSON(this.Config.Code));
+		writeFileSync(this.Config.Raw.Declarations, this.formattJSON(this.Config.Code));
 		console.info(`Truth Code File: ${this.Config.Raw.Declarations} saved!`);
 	}
 }

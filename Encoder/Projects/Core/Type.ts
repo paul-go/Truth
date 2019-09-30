@@ -4,6 +4,7 @@ import Flags from "./Flags";
 import { HashHash, typeHash } from "./Util";
 import { PrimeTypeSet } from "./TypeSet";
 import Serializer from "./Serializer";
+import { FuturePrimeType } from "./FutureType";
 
 //Self explaining types
 export type TypeId = number;
@@ -14,56 +15,6 @@ export type Typeish = TypeId | PrimeType | Type;
 export type ExtractKeys<T, Q> = {
   [P in keyof T]: T[P] extends Q  ? P : never
 }[keyof T]; 
-
-export class FuturePrimeType
-{
-	static typeMap = new Map<Type, PrimeType>();
-	static reverseTypeMap = new Map<PrimeType, Type>();
-	static idMap = new Map<TypeId, PrimeType>();
-	
-	constructor(public value: PrimeType | Type | TypeId) {}
-	
-	get prime()
-	{
-		if (this.value instanceof PrimeType) 
-			return this.value;
-		else if (this.value instanceof Type)
-			return FuturePrimeType.typeMap.get(this.value);
-		else
-			return FuturePrimeType.idMap.get(this.value);
-	}
-	
-	get type()
-	{
-		if (this.value instanceof Type) 
-			return this.value;
-		else if (this.value instanceof PrimeType)
-			return FuturePrimeType.reverseTypeMap.get(this.value);
-		else
-			return FuturePrimeType.idMap.get(this.value);
-	}
-	
-	get id()
-	{
-		if (this.value instanceof PrimeType) 
-			return this.value.id;
-		else if (this.value instanceof Type)
-			return FuturePrimeType.typeMap.get(this.value).id;
-		else
-			return this.value;
-	}
-	
-	valueOf()
-	{
-		return this.id;
-	}
-	
-	toJSON()
-	{
-		const id = this.id;
-		return id === null ? -1 : id;
-	}
-}
 
 /**
  * Lazy and serializable representation of Type 
@@ -89,6 +40,7 @@ export default class PrimeType
 	];
 	
 	static JSONLength = 5 + PrimeType.TypeSetFields.length;
+	static SignatureMap = new Map<number, PrimeType>();
 	
 	/**
 	 *
@@ -107,7 +59,6 @@ export default class PrimeType
 	
 		const prime = new PrimeType(code);
 		
-		code.types.push(prime);
 		FuturePrimeType.typeMap.set(type, prime);
 		FuturePrimeType.reverseTypeMap.set(prime, type);
 		
@@ -116,8 +67,6 @@ export default class PrimeType
 		
 		PrimeType.SignatureMap.set(prime.typeSignature, prime);
 		prime.container = new FuturePrimeType(type.container);
-		
-		console.log(type.name, type.values);
 		
 		for (const key of PrimeType.FlagFields)
 			prime.flags.setFlag(key, type[key]);
@@ -131,8 +80,6 @@ export default class PrimeType
 			
 		return prime;
 	}
-	
-	static SignatureMap = new Map<number, PrimeType>();
 	
 	/**
 	 *
@@ -153,153 +100,26 @@ export default class PrimeType
 		return prime;
 	}
 	
-	/**
-	 *
-	 */
-	static typeId(code: CodeJSON, item: Typeish)
-	{
-		return item instanceof Type 
-			? PrimeType.fromType(code, item) 
-			: item instanceof PrimeType
-			? item.id
-			: item; 
-	}
+	flags = new Flags(PrimeType.FlagFields);
 	
-	protected flags = new Flags(PrimeType.FlagFields);
-	
-	/**
-	 * Stores a text representation of the name of the type,
-	 * or a serialized version of the pattern content in the
-	 * case when the type is actually a pattern.
-	 */
 	name: string = "";
 	
 	typeSignature = 0;
 	
-	/**
-	 * Stores the array of types from which this type extends.
-	 * If this Type extends from a pattern, it is included in this
-	 * array.
-	 */
+	aliases: string[] = [];
+	container: FuturePrimeType;
 	bases = new PrimeTypeSet();
-	
-	/**
-	 * Stores the array of types that are contained directly by this
-	 * one. In the case when this type is a list type, this array does
-	 * not include the list's intrinsic types.
-	 */
 	contents = new PrimeTypeSet();
-	
 	patterns = new PrimeTypeSet();
-	
+	parallels = new PrimeTypeSet();
 	derivations = new PrimeTypeSet();
-	
 	contentsIntrinsic = new PrimeTypeSet();
 	
-	container: FuturePrimeType;
-	
-	/**
-	 * Gets an array that contains the raw string values representing
-	 * the type aliases with which this type has been annotated.
-	 * 
-	 * If this type is unspecified, the parallel graph is searched,
-	 * and any applicable type aliases will be present in the returned
-	 * array.
-	 */
-	aliases = [];
-	
-	/**
-	 * Stores a reference to the type, as it's defined in it's next most applicable type.
-	 */
-	parallels = new PrimeTypeSet();
-	
 	/**
 	 *
 	 */
-	constructor(protected code: CodeJSON)
-	{
-		
-	}
+	constructor(protected code: CodeJSON) {	}
 	
-	/**
-	 *
-	 */
-	get isAnonymous()
-	{
-		return this.flags.getFlag("isAnonymous");
-	}
-	
-	/**
-	 *
-	 */
-	get isFresh()
-	{
-		return this.flags.getFlag("isFresh");
-	}
-	
-	/**
-	 *
-	 */
-	get isList()
-	{
-		return this.flags.getFlag("isList");
-	}
-	
-	/**
-	 *
-	 */
-	get isListIntrinsic()
-	{
-		return this.flags.getFlag("isListIntrinsic");
-	}
-	
-	/**
-	 *
-	 */
-	get isListExtrinsic()
-	{
-		return this.flags.getFlag("isListExtrinsic");
-	}
-	
-	/**
-	 *
-	 */
-	get isPattern()
-	{
-		return this.flags.getFlag("isPattern");
-	}
-	
-	/**
-	 *
-	 */
-	get isUri()
-	{
-		return this.flags.getFlag("isUri");
-	}
-	
-	/**
-	 *
-	 */
-	get isSpecified()
-	{
-		return this.flags.getFlag("isSpecified");
-	}
-	
-	/**
-	 *
-	 */
-	get isOverride() 
-	{ 
-		return this.parallels.length > 0; 
-	}
-	
-	/**
-	 *
-	 */
-	get isIntroduction() 
-	{ 
-		return this.parallels.length === 0; 
-	}
 	
 	/**
 	 * Summary of this type object
@@ -323,7 +143,7 @@ export default class PrimeType
 	 */
 	get id()
 	{
-		return this.code.types.indexOf(this);
+		return this.code.primeId(this);
 	}
 	
 	/**
