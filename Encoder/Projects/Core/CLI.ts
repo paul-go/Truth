@@ -1,5 +1,6 @@
 import { join, resolve } from "path";
 import CodeJSON from "./Code";
+import DataJSON from "./Data";
 
 export type RawDataPatternMap = {
 	[x: string]: RegExp
@@ -18,7 +19,8 @@ export interface EncoderRawConfig
 export interface EncoderConfig
 {
 	Code: CodeJSON;
-	Raw: EncoderRawConfig;
+	Data: Record<string, DataJSON>;
+	CodeFile: string;
 }
 
 /**
@@ -33,9 +35,14 @@ export async function normalizeConfig(raw: EncoderRawConfig): Promise<EncoderCon
 	await Code.loadFile(CodeFile);
 	await Code.loadTruth(Input);
 	
+	const Data = {};
+	for (const key in raw.Data)
+		Data[key] = new DataJSON(Code, raw.Data[key]);
+	
 	return {
 		Code,
-		Raw: raw
+		Data,
+		CodeFile
 	};
 }
 

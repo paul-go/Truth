@@ -1,13 +1,37 @@
 import { Type } from "../../../Truth/Core/X";
-import PrimeType, { TypeId } from "./Type";
+import PrimeType, { TypeId, Typeish } from "./Type";
 
 export class FuturePrimeType
 {
 	static typeMap = new Map<Type, PrimeType>();
 	static reverseTypeMap = new Map<PrimeType, Type>();
 	static idMap = new Map<TypeId, PrimeType>();
+	static futureMap = new Map<Typeish, FuturePrimeType>();
 	
-	constructor(public value: PrimeType | Type | TypeId) {}
+	static $(value: Typeish)
+	{
+		if (this.futureMap.has(value))
+			return this.futureMap.get(value);
+		
+		const future = new FuturePrimeType(value);
+		this.futureMap.set(value, future);
+		return future;
+	}
+	
+	constructor(public value: Typeish) {}
+	
+	static set(value: Type | TypeId, prime: PrimeType)
+	{
+		if (value instanceof Type)
+		{
+			this.typeMap.set(value, prime);
+			this.reverseTypeMap.set(prime, value);
+		}
+		else 
+		{
+			this.idMap.set(value, prime);
+		}
+	}
 	
 	get prime()
 	{

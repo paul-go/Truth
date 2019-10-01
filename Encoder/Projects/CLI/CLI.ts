@@ -25,8 +25,8 @@ export default class JSONCLI
 	
 	save()
 	{
-		writeFileSync(this.Config.Raw.Declarations, this.formattJSON(this.Config.Code));
-		console.info(`Truth Code File: ${this.Config.Raw.Declarations} saved!`);
+		writeFileSync(this.Config.CodeFile, this.formattJSON(this.Config.Code));
+		console.info(`Truth Code JSON file ${this.Config.CodeFile} saved!`);
 	}
 }
 

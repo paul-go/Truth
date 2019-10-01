@@ -3,9 +3,7 @@ import PrimeType from "./Type";
 
 export default class TypeView
 {
-	constructor(private prime: PrimeType) {
-		this.container = new TypeView(prime.container.prime);
-	}
+	constructor(private prime: PrimeType) { }
 	
 	/**
 	 * Stores a text representation of the name of the type,
@@ -30,17 +28,21 @@ export default class TypeView
 		throw new Error("Method not implemented.");
 	}
 	
-	container: TypeView;
+	get container()
+	{
+		return this.prime.container.prime.view;	
+	}
 	
 	/**
 	 * Stores the array of types that are contained directly by this
 	 * one. In the case when this type is a list type, this array does
 	 * not include the list's intrinsic types.
 	 */
-	get contents(): readonly Type[]
+	get contents(): PrimeType[]
 	{
-		throw new Error("Method not implemented.");
+		return Array.from(this.prime.contents.values()).map(x => x.prime);
 	}
+	
 	get contentsIntrinsic(): readonly any[]
 	{
 		throw new Error("Method not implemented.");

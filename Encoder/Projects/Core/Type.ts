@@ -1,10 +1,11 @@
 import { Type } from "../../../Truth/Core/X";
 import CodeJSON from "./Code";
 import Flags from "./Flags";
-import { HashHash, typeHash } from "./Util";
+import { typeHash } from "./Util";
 import { PrimeTypeSet } from "./TypeSet";
 import Serializer from "./Serializer";
 import { FuturePrimeType } from "./FutureType";
+import PrimeTypeView from "./TypeView";
 
 //Self explaining types
 export type TypeId = number;
@@ -41,6 +42,17 @@ export default class PrimeType
 	
 	static JSONLength = 5 + PrimeType.TypeSetFields.length;
 	static SignatureMap = new Map<number, PrimeType>();
+	static Views = new Map<PrimeType, PrimeTypeView>();
+	
+	static View(prime: PrimeType)
+	{
+		if (this.Views.has(prime))
+			return this.Views.get(prime);
+		
+		const view = new PrimeTypeView(prime);
+		this.Views.set(prime, view);
+		return view;
+	}
 	
 	/**
 	 *
@@ -52,28 +64,25 @@ export default class PrimeType
 		if (this.SignatureMap.has(sign))
 		{
 			const p = this.SignatureMap.get(sign);
-			FuturePrimeType.typeMap.set(type, p);
-			FuturePrimeType.reverseTypeMap.set(p, type);
+			FuturePrimeType.set(type, p);
 			return p;
 		}
 	
 		const prime = new PrimeType(code);
-		
-		FuturePrimeType.typeMap.set(type, prime);
-		FuturePrimeType.reverseTypeMap.set(prime, type);
+		FuturePrimeType.set(type, prime);
 		
 		prime.name = type.name;
 		prime.typeSignature = typeHash(type);
 		
 		PrimeType.SignatureMap.set(prime.typeSignature, prime);
-		prime.container = new FuturePrimeType(type.container);
+		prime.container = FuturePrimeType.$(type.container);
 		
 		for (const key of PrimeType.FlagFields)
 			prime.flags.setFlag(key, type[key]);
 			
 		for (const key of PrimeType.TypeSetFields)
 			for (const subtype of type[key])
-				(<PrimeTypeSet>prime[key]).add(new FuturePrimeType(subtype));
+				(<PrimeTypeSet>prime[key]).add(FuturePrimeType.$(subtype));
 				
 		for (const alias of type.aliases)
 			prime.aliases.push(alias);
@@ -90,12 +99,12 @@ export default class PrimeType
 		prime.typeSignature = data[0];
 		prime.name = data[1];	
 		prime.flags.flags = data[2];
-		prime.container = new FuturePrimeType(data[3]);
+		prime.container =  FuturePrimeType.$(data[3]);
 		data[4].forEach(x => prime.aliases.push(x));
-		data[5].forEach(x => prime.bases.add(new FuturePrimeType(x)));
-		data[6].forEach(x => prime.parallels.add(new FuturePrimeType(x)));
-		data[7].forEach(x => prime.patterns.add(new FuturePrimeType(x)));
-		data[8].forEach(x => prime.contentsIntrinsic.add(new FuturePrimeType(x)));
+		data[5].forEach(x => prime.bases.add( FuturePrimeType.$(x)));
+		data[6].forEach(x => prime.parallels.add( FuturePrimeType.$(x)));
+		data[7].forEach(x => prime.patterns.add( FuturePrimeType.$(x)));
+		data[8].forEach(x => prime.contentsIntrinsic.add( FuturePrimeType.$(x)));
 		this.SignatureMap.set(data[0], prime);
 		return prime;
 	}
@@ -115,28 +124,12 @@ export default class PrimeType
 	derivations = new PrimeTypeSet();
 	contentsIntrinsic = new PrimeTypeSet();
 	
+	visible = true;
+	
 	/**
 	 *
 	 */
 	constructor(protected code: CodeJSON) {	}
-	
-	
-	/**
-	 * Summary of this type object
-	 */
-	get signature()
-	{
-		return `${this.name}
-			${this.flags.toJSON()}%${PrimeType.TypeSetFields.map(x => this[x].toString()).join("%")}`;
-	}
-	
-	/**
-	 * Hash of type signature
-	 */
-	get hash()
-	{
-		return HashHash(this.signature);
-	}
 	
 	/**
 	 * Index of prime type in Code JSON
@@ -144,6 +137,18 @@ export default class PrimeType
 	get id()
 	{
 		return this.code.primeId(this);
+	}
+	
+	get view()
+	{
+		return PrimeType.View(this);
+	}
+	
+	link()
+	{
+		const container = this.container.prime;
+		if(container)
+			container.contents.add(FuturePrimeType.$(this));
 	}
 	
 	/**
