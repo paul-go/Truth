@@ -361,7 +361,6 @@ declare function only(
 	callback: (text: Text) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent;
 
-
 /**
  * Removes all event handlers from the specified element.
  */
@@ -371,7 +370,6 @@ declare function off(e: HTMLElement): void;
  * Removes the specified event handler from the specified element.
  */
 declare function off(e: HTMLElement, callback: (...args: any[]) => any): void;
-
 
 /**
  * 

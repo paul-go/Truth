@@ -19,21 +19,21 @@ namespace Reflex.ML.Test
 			testCustomEvents,
 			testInterpolation,
 			///testOnly,
-			testStatelessReflexes,
+			testStatelessForces,
 			testElementChildren,
 			testBasicValueStreaming,
 			testImmediateValueStreaming,
-			testImmediateValueStreamingOnReflex,
-			testChangingContentsOnReflex,
+			testImmediateValueStreamingOnForce,
+			testChangingContentsOnForce,
 			testPromises,
 			testTransitions,
 			testIterators,
 			testAsyncIteratorsSimple,
 			testAsyncIteratorsComplex,
-			testRefreshMultipleReflexes,
-			testArrayReflexes,
-			testStatefulReflexes,
-			testComplexReflexes,
+			testRefreshMultipleForces,
+			testArrayForces,
+			testStatefulForces,
+			testComplexForces,
 			testValueBinding
 			///testProxyObjects,
 			
@@ -45,7 +45,7 @@ namespace Reflex.ML.Test
 		];
 		
 		///functions.length = 0;
-		///functions.push(testArrayReflexes);
+		///functions.push(testArrayForces);
 		
 		for (const fn of functions)
 		{
@@ -199,9 +199,9 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testStatelessReflexes()
+	function testStatelessForces()
 	{
-		const greet = reflex<(name: string) => void>();
+		const greet = force<(name: string) => void>();
 		
 		return ml.div(
 			ml.button(
@@ -219,9 +219,9 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testStatefulReflexes()
+	function testStatefulForces()
 	{
-		const flag = reflex(false);
+		const flag = force(false);
 
 		return ml.div(
 			// Effects that store a boolean value are given an additional 
@@ -235,7 +235,7 @@ namespace Reflex.ML.Test
 	/** */
 	function testCustomEvents()
 	{
-		const fx = reflex<(str: string, num: number) => void>();
+		const fx = force<(str: string, num: number) => void>();
 		
 		return ml.div(
 			on("click", () =>
@@ -305,10 +305,10 @@ namespace Reflex.ML.Test
 	}
 
 	/** */
-	function testImmediateValueStreamingOnReflex()
+	function testImmediateValueStreamingOnForce()
 	{
-		const randomForClick = reflex(makeString());
-		const randomForHover = reflex(makeString());
+		const randomForClick = force(makeString());
+		const randomForHover = force(makeString());
 		
 		return ml.div(
 			ml`Click or hover to change the random number below.`,
@@ -328,9 +328,9 @@ namespace Reflex.ML.Test
 	}
 
 	/** */
-	function testChangingContentsOnReflex()
+	function testChangingContentsOnForce()
 	{
-		const value = reflex(false);
+		const value = force(false);
 		
 		return ml.div(
 			ml`Click to toggle the rendering between red and blue.`,
@@ -467,10 +467,10 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testRefreshMultipleReflexes()
+	function testRefreshMultipleForces()
 	{
-		const fx1 = reflex();
-		const fx2 = reflex();
+		const fx1 = force();
+		const fx2 = force();
 		
 		setTimeout(() =>
 		{
@@ -491,12 +491,12 @@ namespace Reflex.ML.Test
 	}
 
 	/** */
-	function testArrayReflexes()
+	function testArrayForces()
 	{
-		const list = reflex([6, 3, 8]);
-		const sortFlip = reflex(false);
-		const sortSwitch = reflex(false);
-		const full = reflex(true);
+		const list = force([6, 3, 8]);
+		const sortFlip = force(false);
+		const sortSwitch = force(false);
+		const full = force(true);
 		
 		return ml.div(
 			ml.button(
@@ -533,7 +533,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testComplexReflexes()
+	function testComplexForces()
 	{
 		class Person
 		{
@@ -546,7 +546,7 @@ namespace Reflex.ML.Test
 			numbers = [Math.random()];
 		}
 
-		const person = reflex(new Person());
+		const person = force(new Person());
 
 		return ml.div(
 			on(person.greet, () =>
@@ -571,7 +571,7 @@ namespace Reflex.ML.Test
 	/** */
 	function testValueBinding()
 	{
-		const backing = reflex("Change this text");
+		const backing = force("Change this text");
 		
 		const array = [
 			ml`Type in the text box below and it should sync with the div below. `,
@@ -613,7 +613,7 @@ namespace Reflex.ML.Test
 			array = [new NestedObject()];
 		}
 		
-		const proxy = reflex(new DataObject());
+		const proxy = force(new DataObject());
 		
 		return ml.div(
 			ml.div(
@@ -644,8 +644,8 @@ namespace Reflex.ML.Test
 	/** * /
 	function testMutationWatcher()
 	{
-		const elementVisible = reflex(false);
-		const contentVisible = reflex(false);
+		const elementVisible = force(false);
+		const contentVisible = force(false);
 		const invoked: string[] = [];
 		
 		function invoke(message: string)

@@ -10,6 +10,9 @@
 	"files": [],
 	"include": [],
 	"references": [
+		{ "path": "./ReflexCore" },
+		{ "path": "./ReflexML" },
+		{ "path": "./ReflexML-Tests" },
 		{ "path": "./ReflexMLNode" }
 	]
 }
