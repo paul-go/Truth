@@ -1,7 +1,13 @@
 {
 	"extends": "../tsconfig.composite.json",
 	"compilerOptions": {
-		"outFile": "./build/source/reflex-ml.js"
+		"module": "commonjs",
+		"target": "es5",
+		"outFile": null,
+		"outDir": "build",
+		"rootDir": ".",
+		"alwaysStrict": false,
+		"noImplicitUseStrict": true,
 	},
 	"include": [
 		"./source/**/*.ts"

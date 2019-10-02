@@ -66,14 +66,6 @@ namespace Reflex.ML
 								ml(effectVariable),
 								on("input", () => assign(e.textContent)).run()
 							];
-				},
-				
-				/**
-				 * Serializes the specified DOM Node instance.
-				 */
-				emit(target: Node | Node[], options?: IEmitOptions)
-				{
-					return emit(target, options);
 				}
 			};
 		}
@@ -154,13 +146,17 @@ namespace Reflex.ML
 		/** */
 		swapElement(branch1: Branch, branch2: Branch)
 		{
-			branch2.parentElement!.insertBefore(this.tempMark, branch2);
+			branch2.parentElement!.insertBefore(this.transientMarker, branch2);
 			branch1.parentElement!.insertBefore(branch2, branch1);
-			this.tempMark.parentElement!.insertBefore(branch1, this.tempMark);
-			this.tempMark.remove();
+			this.transientMarker.parentElement!.insertBefore(branch1, this.transientMarker);
+			this.transientMarker.remove();
 		}
 		
-		private tempMark = document.createComment("");
+		/**
+		 * This comment object is inserted into the DOM as a placeholder,
+		 * and removed.
+		 */
+		private readonly transientMarker = document.createComment("");
 	
 		/** */
 		replaceElement(branch1: Branch, branch2: Branch)
@@ -218,9 +214,8 @@ namespace Reflex.ML
 }
 
 /**
- * Global library accessor.
- * (This should be conditionally globalized.)
+ * Global library object.
  */
 const ml = Reflex.Core.createNamespaceObject<Reflex.ML.Namespace>(
-	window,
-	new Reflex.ML.Library());
+	new Reflex.ML.Library(),
+	true);

@@ -1,13 +1,15 @@
 {
-	"extends": "./tsconfig.json",
+	"extends": "../tsconfig.composite.json",
 	"compilerOptions": {
+		"composite": true,
+		"declaration": true,
+		"stripInternal": true,
 		"outFile": "./build/test/reflex-ml-test.js"
 	},
 	"include": [
 		"./test/Test.ts"
 	],
 	"references": [
-		{ "path": "../ReflexCore" },
-		{ "path": "./tsconfig.source.json" }
+		{ "path": "./tsconfig.json" }
 	]
 }

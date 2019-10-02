@@ -3,15 +3,38 @@ namespace Reflex.Core
 {
 	export type ConstructBranchFn = (...args: any[]) => IBranch;
 	
+	/** @internal */
+	declare const Deno: any;
+	
 	/**
+	 * Creates a namespace object, which is the object that should contain
+	 * all functions in the reflexive library.
 	 * 
+	 * @param library An object that implements the ILibrary interface,
+	 * from which the namespace object will be generated.
+	 * 
+	 * @param globalize Indicates whether the on/once/only globals should
+	 * be appended to the global object (which is auto-detected from the
+	 * current environment. If the ILibrary interface provided doesn't support
+	 * the creation of recurrent functions, this parameter has no effect.
 	 */
-	export function createNamespaceObject<TNamespace>(global: any, library: ILibrary): TNamespace
+	export function createNamespaceObject<TNamespace>(
+		library: ILibrary,
+		globalize?: boolean): TNamespace
 	{
 		RoutingLibrary.addLibrary(library);
 		
-		/** */
-		(function maybeAssignGlobals()
+		const glob: any =
+			!globalize ? null :
+			// Node.js
+			(typeof global === "object" && typeof global.setTimeout === "function") ? global :
+			// Browser / Deno
+			(typeof navigator === "object" || typeof Deno === "object") ? window :
+			null;
+		
+		// We create the on, once, and only globals in the case when we're creating
+		// a namespace object for a library that supports recurrent functions.
+		if (glob && library.attachRecurrent)
 		{
 			const createGlobal = (kind: RecurrentKind) => (
 				selector: any,
@@ -31,15 +54,15 @@ namespace Reflex.Core
 				return new Recurrent(kind, selector, callback, rest);
 			};
 			
-			if (typeof global.on !== "function")
-				global.on = createGlobal(RecurrentKind.on);
+			if (typeof glob.on !== "function")
+				glob.on = createGlobal(RecurrentKind.on);
 			
-			if (typeof global.once !== "function")
-				global.once = createGlobal(RecurrentKind.once);
+			if (typeof glob.once !== "function")
+				glob.once = createGlobal(RecurrentKind.once);
 			
-			if (typeof global.only !== "function")
-				global.only = createGlobal(RecurrentKind.only);
-		})();
+			if (typeof glob.only !== "function")
+				glob.only = createGlobal(RecurrentKind.only);
+		}
 		
 		/**
 		 * Creates the function that exists at the top of the library,
@@ -134,6 +157,12 @@ namespace Reflex.Core
 		if (!library.getDynamicBranch && !library.getDynamicNonBranch)
 			return <any>Object.assign(namespaceFn, staticMembers);
 		
+		// This variable stores an object that contains the members
+		// that were attached to the proxy object after it's creation.
+		// Currently this is only being used by ReflexML to attach
+		// the "emit" function, but others may use it aswell.
+		let attachedMembers: { [key: string]: any; } | null = null;
+		
 		return <any>new Proxy(namespaceFn, {
 			get(target: Function, key: string)
 			{
@@ -146,6 +175,9 @@ namespace Reflex.Core
 				if (key in staticMembers)
 					return staticMembers[key];
 				
+				if (attachedMembers && key in attachedMembers)
+					return attachedMembers[key];
+				
 				if (library.getDynamicBranch)
 				{
 					const branch = library.getDynamicBranch(key);
@@ -155,6 +187,11 @@ namespace Reflex.Core
 				
 				if (library.getDynamicNonBranch)
 					return library.getDynamicNonBranch(key);
+			},
+			set(target: Function, p: any, value: any)
+			{
+				(attachedMembers || (attachedMembers = {}))[p] = value;
+				return true;
 			}
 		});
 	}

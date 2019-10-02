@@ -401,11 +401,6 @@ declare namespace Reflex.ML
 		 */
 		bind<T extends string | number | bigint>(effectVariable: Reflex.Core.StatefulReflex<T>): void;
 		
-		/**
-		 * Serializes the specified DOM Node instance.
-		 */
-		emit(target: Node | Node[], options?: IEmitOptions): Promise<IEmitResult>;
-		
 		//# HTML Elements
 		
 		/** Returns a <a> element with the primitives applied. */

@@ -1,6 +1,5 @@
 {
 	"compilerOptions": {
-		"noEmit": true,
 		"lib": [
 			"dom",
 			"esnext",
@@ -11,6 +10,6 @@
 	"files": [],
 	"include": [],
 	"references": [
-		{ "path": "./ReflexML/tsconfig.test.json" }
+		{ "path": "./ReflexMLNode" }
 	]
 }

@@ -19,11 +19,12 @@ namespace Reflex.ML
 		/** */
 		*[Symbol.iterator]()
 		{
-			const len = this.element.childNodes.length;
+			const cn = this.element.childNodes;
+			const len = cn.length;
 			
 			for (let i = -1; ++i < len;)
 			{
-				const node = this.element.childNodes.item(i);
+				const node = cn[i];
 				if (isNode(node))
 					yield node;
 			}
@@ -57,7 +58,7 @@ namespace Reflex.ML
 			let len = 0;
 			
 			for (let i = this.element.childNodes.length; i-- > 0;)
-				if (isNode(this.element.childNodes.item(i)))
+				if (isNode(this.element.childNodes[i]))
 					len++;
 			
 			return len;
@@ -65,7 +66,7 @@ namespace Reflex.ML
 		set length(value: number)
 		{
 			for (let i = this.element.childNodes.length; --i > value;)
-				this.element.childNodes.item(i)!.remove();
+				this.element.childNodes[i]!.remove();
 		}
 		
 		/**
@@ -85,7 +86,7 @@ namespace Reflex.ML
 		{
 			for (let i = this.length; i-- > 0;)
 			{
-				const item = this.element.childNodes.item(i);
+				const item = this.element.childNodes[i];
 				if (item instanceof HTMLElement || item instanceof Text)
 				{
 					item.remove();
@@ -102,7 +103,7 @@ namespace Reflex.ML
 			const len = this.length;
 			for (let i = -1; ++i < len;)
 			{
-				const item = this.element.childNodes.item(i);
+				const item = this.element.childNodes[i];
 				if (item instanceof HTMLElement || item instanceof Text)
 					return item.remove(), item;
 			}
@@ -133,9 +134,9 @@ namespace Reflex.ML
 			
 			for (let i = 0; ++i < len;)
 			{
-				const node = this.element.childNodes.item(nodeIdx);
+				const node = this.element.childNodes[nodeIdx];
 				if (isNode(node))
-					e.insertBefore(node, this.element.childNodes.item(len - i));
+					e.insertBefore(node, this.element.childNodes[len - i]);
 				else
 					nodeIdx++;
 			}
@@ -160,7 +161,7 @@ namespace Reflex.ML
 			const nodes: Node[] = [];
 			for (let i = startVal; i < endVal; i++)
 			{
-				const e = this.element.childNodes.item(i);
+				const e = this.element.childNodes[i];
 				if (isNode(e))
 					nodes.push(e);
 			}
@@ -199,7 +200,7 @@ namespace Reflex.ML
 			{
 				for (let i = -1; ++i < deleteCount;)
 				{
-					const child = this.element.childNodes.item(startIdx);
+					const child = this.element.childNodes[startIdx];
 					if (!isNode(child))
 						continue;
 					
@@ -218,7 +219,7 @@ namespace Reflex.ML
 			}
 			else
 			{
-				const ref = this.element.childNodes.item(startIdx + 1);
+				const ref = this.element.childNodes[startIdx + 1];
 				if (ref)
 					for (const item of items)
 						this.element.insertBefore(item, ref);
@@ -256,7 +257,7 @@ namespace Reflex.ML
 				for (let i = -1; ++i < len;)
 				{
 					const sortedChild = elementsSorted[i];
-					const unsortedChild = e.children.item(i)!;
+					const unsortedChild = e.children[i]!;
 					e.insertBefore(unsortedChild, sortedChild);
 				}
 			}
@@ -274,7 +275,7 @@ namespace Reflex.ML
 					const currentData = reference[idx];
 					const unsortedDataIdx = unsortedDatas.indexOf(currentData);
 					const currentDataElement = unsortedElements[unsortedDataIdx];
-					const currentElement = e.children.item(idx)!;
+					const currentElement = e.children[idx]!;
 					
 					if (currentDataElement === currentElement)
 						continue;
@@ -308,7 +309,7 @@ namespace Reflex.ML
 			
 			for (let i = this.normalizeIndex(fromIndex); i < len; i++)
 			{
-				const node = this.element.childNodes.item(i);
+				const node = this.element.childNodes[i];
 				
 				if (isNode(node))
 				{
@@ -339,7 +340,7 @@ namespace Reflex.ML
 			
 			for (let pos = this.normalizeIndex(fromIndex) + 1; --pos >= 0;)
 			{
-				const node = this.element.childNodes.item(pos);
+				const node = this.element.childNodes[pos];
 				
 				if (isNode(node))
 				{

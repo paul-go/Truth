@@ -18,11 +18,11 @@
 			"esnext.array",
 			"esnext.asynciterable"
 		],
-		"noEmit": false,
 		"outFile": "./build/reflex.js"
 	},
 	"exclude": [
 		"**/build/**/*.ts",
-		"**/bundle/**/*.ts"
+		"**/bundle/**/*.ts",
+		"**/make.ts"
 	]
 }
