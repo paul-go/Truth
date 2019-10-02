@@ -13,9 +13,9 @@
 		"typescript"
 	],
 	"scripts": {
-		"init": "npm run build && npm link",
+		"init": "tsc && npm link",
 		"build": "tsc",
-		"publish": "npm run build && node ./build/make.js publish"
+		"publish": "tsc && node ./build/make.js publish"
 	},
 	"bin": {
 		"makets": "./build/make.js"
