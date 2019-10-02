@@ -5,13 +5,15 @@
 		"moduleResolution": "node",
 		"inlineSourceMap": true,
 		"inlineSources": true,
+		"declaration": true,
 		"stripInternal": true,
 		"strict": true,
 		"outDir": "./build",
 		"baseUrl": ".",
 		"lib": [
 			"esnext"
-		]
+		],
+		"outFile": "./build/make.js",
 	},
 	"include": [
 		"./source/*.ts"

@@ -14,7 +14,7 @@
 	],
 	"scripts": {
 		"init": "npm run build && npm link",
-		"build": "tsc -p ./tsconfig.source.json",
+		"build": "tsc",
 		"publish": "npm run build && node ./build/make.js publish"
 	},
 	"bin": {
