@@ -26,12 +26,11 @@ make.on("publish", async () =>
 		encapsulatedReturns: "Reflex"
 	});
 	
-	await make.publish({
+	make.publish({
 		packageFileChanges: {
 			main: "./reflex-core.js",
 			types: "./index.d.ts",
 			eslintIgnore: null
-		},
-		registries: ["http://localhost:4873/"]
+		}
 	});
 });

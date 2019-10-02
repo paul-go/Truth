@@ -7,7 +7,7 @@ make.on(() =>
 
 make.on("build", async () =>
 {
-	await make.typescript("./tsconfig.source.json");
+	await make.typescript("./tsconfig.json");
 });
 
 make.on("test", () =>
@@ -18,7 +18,7 @@ make.on("test", () =>
 
 make.on("bundle", "publish", async () =>
 {
-	const exports = ["Reflex", "on", "once", "only", "off"];
+	const exports = ["Reflex", "on", "once", "only", "ml"];
 	
 	//# Create reflex.js (which contains Core + ML)
 	
@@ -44,7 +44,7 @@ make.on("bundle", "publish", async () =>
 		globals: exports,
 		above: 
 			`var Reflex;` +
-			`if (typeof window === "undefined" && typeof require === "function")` +
+			`if (typeof navigator !== "object" && typeof require === "function")` +
 				`Reflex = require("reflex-core").Reflex;`,
 	});
 	
@@ -65,7 +65,7 @@ make.on("bundle", "publish", async () =>
 
 make.on("publish", async () => 
 {
-	await make.publish({
+	make.publish({
 		packageFileChanges: {
 			main: "./reflex-ml.js",
 			eslintIgnore: null,
@@ -73,10 +73,7 @@ make.on("publish", async () =>
 			// when it's used from the npm module. When it's
 			// drawn in via a script tag, this reflex.js file will have
 			// the core built into it.
-			dependencies: {
-				"reflex-core": "^2.0.0"
-			}
-		},
-		registries: ["http://localhost:4873/"]
+			dependencies: make.npm.latestOf(["reflex-core"])
+		}
 	});
 });

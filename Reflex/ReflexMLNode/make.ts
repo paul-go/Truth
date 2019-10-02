@@ -35,8 +35,6 @@ make.on("bundle", "publish", async () =>
 
 make.on("publish", async () => 
 {
-	const registries = "http://localhost:4873/";
-	
 	make.publish({
 		packageFileChanges: {
 			eslintIgnore: null,
@@ -44,10 +42,7 @@ make.on("publish", async () =>
 			// when it's used from the npm module. When it's
 			// drawn in via a script tag, this reflex.js file will have
 			// the core built into it.
-			dependencies: make.npm.latestOf(
-				["reflex-core", "reflex-ml"],
-				registries)
-		},
-		registries
+			dependencies: make.npm.latestOf(["reflex-core", "reflex-ml"])
+		}
 	});
 });
