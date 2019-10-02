@@ -4,7 +4,7 @@
 		"type": "node",
 		"request": "launch",
 		"name": "Debug Self",
-		"program": "${workspaceRoot}/build/source/make.js",
+		"program": "${workspaceRoot}/build/make.js",
 		"args": [
 			"publish"
 		],

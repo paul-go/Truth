@@ -7,7 +7,7 @@
 		"inlineSources": true,
 		"stripInternal": true,
 		"strict": true,
-		"outDir": "./build/source",
+		"outDir": "./build",
 		"baseUrl": ".",
 		"lib": [
 			"esnext"

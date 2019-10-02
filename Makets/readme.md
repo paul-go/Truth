@@ -23,8 +23,8 @@ Build scripts are very simple and easy to write. Everything you need will be in 
 make.on("publish", async () =>
 {
 	make.directory("./bundle");
-	make.copy("./build/source/make.js", "./bundle/main.js");
-	make.copy("./build/source/make.d.ts", "./bundle/index.d.ts");
+	make.copy("./build/make.js", "./bundle/main.js");
+	make.copy("./build/make.d.ts", "./bundle/index.d.ts");
 	
 	make.publish({
 		packageFileChanges: {

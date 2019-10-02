@@ -4,7 +4,7 @@
 	"description": "Purpose-built JavaScript / TypeScript bundling tool.",
 	"author": "Paul Go",
 	"license": "MIT",
-	"main": "./build/source/make.js",
+	"main": "./build/make.js",
 	"keywords": [
 		"build",
 		"system",
@@ -15,10 +15,10 @@
 	"scripts": {
 		"init": "npm run build && npm link",
 		"build": "tsc -p ./tsconfig.source.json",
-		"publish": "npm run build && node ./build/source/make.js publish"
+		"publish": "npm run build && node ./build/make.js publish"
 	},
 	"bin": {
-		"makets": "./build/source/make.js"
+		"makets": "./build/make.js"
 	},
 	"dependencies": {
 		"fs-extra": "^8.1.0",

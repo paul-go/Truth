@@ -50,7 +50,7 @@ namespace make.npm
 	 */
 	export function latestOf(packageNames: string[], registry = "")
 	{
-		const out: { [packageName: string]: string }  = {};
+		const out: { [packageName: string]: string } = {};
 		
 		for (const pkg of packageNames)
 		{

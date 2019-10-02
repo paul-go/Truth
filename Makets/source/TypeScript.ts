@@ -230,7 +230,7 @@ namespace make
 	 */
 	function isObject(item: any): item is MapLike
 	{
-		return (item && typeof item === "object" && !Array.isArray(item));
+		return item && typeof item === "object" && !Array.isArray(item);
 	}
 
 	/**

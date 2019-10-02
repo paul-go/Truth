@@ -48,13 +48,10 @@ namespace make
 		if (sourceVersion === null)
 			throw new Error("package.json includes an invalid version:" + packageJsonFinal.version);
 		
-		const rawRegistries = 
+		const registries = 
 			Array.isArray(options.registries) ? options.registries :
 			typeof options.registries === "string" ? [options.registries] :
-			["npm"];
-		
-		const registries = rawRegistries
-			.map(r => r === "npm" ? "https://registry.npmjs.org" : r);
+			[getDefaultRegistry()];
 		
 		const publishedVersions = registries
 			.map(registry => npm.getPublishedVersion(packageJsonFinal.name, registry))
@@ -73,6 +70,16 @@ namespace make
 		
 		for (const registry of registries)
 			make.npm.publish(directory, registry, options.tag);
+	}
+	
+	/** */
+	function getDefaultRegistry()
+	{
+		const reg = make.shellSync("npm get registry");
+		if (reg instanceof Error)
+			throw reg;
+		
+		return reg;
 	}
 	
 	/**
@@ -101,11 +108,13 @@ namespace make
 		
 		/**
 		 * Specifies the list of npm-compatible registries to publish to.
+		 * If omitted, the user's default registry will be used.
+		 * 
 		 * An empty array can be used for debugging to see what files will
 		 * be published, but won't actually send any files to any public
 		 * registry.
 		 */
-		registries?: string | ("npm" | string)[];
+		registries?: string[];
 		
 		/**
 		 * Adds tags to the package
