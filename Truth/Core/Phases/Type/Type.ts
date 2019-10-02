@@ -31,7 +31,7 @@ export class Type
 			// If the cached type exists, but hasn't been compiled yet,
 			// we can't return it, we need to compile it first.
 			if (cached === null || cached instanceof X.Type)
-				return cached;
+				return cached as Type;
 		}
 		
 		const worker = (() =>

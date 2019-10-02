@@ -1,20 +1,35 @@
 import { EncoderConfig, initializeCLI } from "../Core/CLI";
 import { writeFileSync } from "fs";
-import Serializer from "../Core/Serializer";
-import PrimeType from "../Core/Type";
+import { inspect } from "util";
 
 /**
  * Public CLI Manager for Unified Truth JSON Generator
  */
 export default class JSONCLI 
 {
-	constructor(Config: EncoderConfig)
+	constructor(public Config: EncoderConfig)
 	{
-		const json = JSON.stringify(Config.Code, null, 2);
-		writeFileSync(Config.Raw.Declarations, json);
-		const array = JSON.parse(json);
-		console.log(array); // first output
-		console.log(array.map((x: [number] & any[]) => Serializer.decode(x, PrimeType.JSONLength))); // second output
+		this.save();
+	}
+	
+	formattJSON(Obj: any)
+	{
+		const data = JSON.parse(JSON.stringify(Obj));
+		const json = inspect(data, {
+			compact: true,
+			breakLength: 100,
+			maxArrayLength: null,
+			depth: null
+		});
+		return json.replace(/"/g, "\\\"").replace(/'/g, '"').replace(/  /g, "\t");
+	}
+	
+	save()
+	{
+		writeFileSync(this.Config.CodeFile, this.formattJSON(this.Config.Code));
+		for (const key in this.Config.Data)
+			writeFileSync(`${key}.data.json`, this.formattJSON(this.Config.Data[key]));
+		console.info(`Truth Code JSON file ${this.Config.CodeFile} saved!`);
 	}
 }
 

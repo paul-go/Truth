@@ -2,9 +2,6 @@ import { Bitfield } from "./Flags";
 
 export default class Serializer 
 {
-	constructor()
-	{	
-	}
 	
 	static encode(data: any[])
 	{

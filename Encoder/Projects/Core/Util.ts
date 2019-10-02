@@ -17,5 +17,5 @@ export function HashHash(str: string, seed = 0) {
 
 export function typeHash(type: Type): number
 {
-	return HashHash(`${type.name}$${type.bases.map(typeHash)}`);
+	return HashHash(`${type.name}$${type.container ? type.container.name : ""}$${type.bases.map(typeHash)}`);
 }
