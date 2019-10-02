@@ -31,7 +31,7 @@ export class Type
 			// If the cached type exists, but hasn't been compiled yet,
 			// we can't return it, we need to compile it first.
 			if (cached === null || cached instanceof X.Type)
-				return cached;
+				return cached as Type;
 		}
 		
 		const worker = (() =>
@@ -482,19 +482,18 @@ export class Type
 		this.private.throwOnDirty();
 		const values: { value: string, base: X.Type | null }[] = [];
 		
-		const extractAlias = (sp: X.SpecifiedParallel) =>
+		const extractType = (sp: X.SpecifiedParallel) =>
 		{
-			for (const { edge, aliased } of sp.eachBase())
-				if (aliased)
-					values.push({
-						value: edge.identifier.toString(),
-						base: Type.construct(edge.predecessor.uri, this.private.program)
-					});
+			for (const { edge } of sp.eachBase())
+				values.push({
+					value: edge.identifier.toString(),
+					base: Type.construct(edge.predecessor.uri, this.private.program)
+				});
 		};
 		
 		if (this.private.seed instanceof X.SpecifiedParallel)
 		{
-			extractAlias(this.private.seed);
+			extractType(this.private.seed);
 		}
 		else if (this.private.seed instanceof X.UnspecifiedParallel)
 		{
@@ -507,7 +506,7 @@ export class Type
 				for (const parallel of current.getParallels())
 				{
 					if (parallel instanceof X.SpecifiedParallel)
-						extractAlias(parallel);
+						extractType(parallel);
 					
 					else if (parallel instanceof X.UnspecifiedParallel)
 						queue.push(parallel);
