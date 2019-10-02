@@ -484,7 +484,7 @@ export class Type
 		
 		const extractType = (sp: X.SpecifiedParallel) =>
 		{
-			for (const { edge, aliased } of sp.eachBase())
+			for (const { edge } of sp.eachBase())
 				values.push({
 					value: edge.identifier.toString(),
 					base: Type.construct(edge.predecessor.uri, this.private.program)
