@@ -29,5 +29,15 @@
 		"args": [
 			"publish"
 		]
+	},
+	{
+		"type": "node",
+		"request": "launch",
+		"name": "Debug Reflex ML Node Makets Script",
+		"program": "${env:HOME}/.npm-packages/bin/makets",
+		"cwd": "${workspaceFolder}/ReflexMLNode",
+		"args": [
+			"publish"
+		]
 	}]
 }
