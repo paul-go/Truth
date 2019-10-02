@@ -6,10 +6,10 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/paul-go/Truebase-com/TruthStack"
+		"url": "https://github.com/Truebase-com/TruthStack"
 	},
 	"bugs": {
-		"url": "https://github.com/paul-go/Truebase-com/TruthStack/issues"
+		"url": "https://github.com/Truebase-com/TruthStack/issues"
 	},
 	"scripts": {
 		"build": "makets build",
