@@ -18,7 +18,8 @@ export default class JSONCLI
 		const json = inspect(data, {
 			compact: true,
 			breakLength: 100,
-			maxArrayLength: null
+			maxArrayLength: null,
+			depth: null
 		});
 		return json.replace(/"/g, "\\\"").replace(/'/g, '"').replace(/  /g, "\t");
 	}
@@ -26,6 +27,8 @@ export default class JSONCLI
 	save()
 	{
 		writeFileSync(this.Config.CodeFile, this.formattJSON(this.Config.Code));
+		for (const key in this.Config.Data)
+			writeFileSync(`${key}.data.json`, this.formattJSON(this.Config.Data[key]));
 		console.info(`Truth Code JSON file ${this.Config.CodeFile} saved!`);
 	}
 }

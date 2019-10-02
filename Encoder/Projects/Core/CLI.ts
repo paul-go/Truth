@@ -37,7 +37,7 @@ export async function normalizeConfig(raw: EncoderRawConfig): Promise<EncoderCon
 	
 	const Data = {};
 	for (const key in raw.Data)
-		Data[key] = new DataJSON(Code, raw.Data[key]);
+		Data[key] = Code.extractData(key, raw.Data[key]);
 	
 	return {
 		Code,

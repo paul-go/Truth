@@ -4,16 +4,15 @@ import { promises as FS } from "fs";
 import Serializer from "./Serializer";
 import { typeHash } from "./Util";
 import { FuturePrimeType } from "./FutureType";
+import DataJSON from "./Data";
  
 /**
  * Builds and emits Code JSON file
  */
 export default class CodeJSON 
 {
-	/**
-	 * 
-	 */
-	constructor(protected types: PrimeType[] = []) {	}
+	protected types: PrimeType[] = [];
+	protected dataPatterns: number[][] = [];
 	
 	primeId(type: PrimeType)
 	{
@@ -35,7 +34,8 @@ export default class CodeJSON
 		try 
 		{
 			const file = await FS.readFile(path, "utf-8");
-			if (file.trim().length === 0) return;
+			if (file.trim().length === 0) 
+				return;
 			const json = JSON.parse(file);
 			const array = json.map((x: [number] & any[]) => Serializer.decode(x, PrimeType.JSONLength));
 			const primes: PrimeType[] = [];
@@ -85,9 +85,10 @@ export default class CodeJSON
 			prime.link();
 	}	
 	
-	filter(pattern: RegExp)
+	extractData(key: string, pattern: RegExp)
 	{
-		return this.types.filter(x => x.container.id === -1 && pattern.test(x.name));
+		const roots = this.types.filter(x => x.container.id === -1 && pattern.test(x.name));
+		return roots.map(x => x.data);
 	}
 	
 	/**
@@ -95,6 +96,6 @@ export default class CodeJSON
 	 */
 	toJSON()
 	{
-		return this.types.filter(x => x.visible);
+		return this.types;
 	}
 }

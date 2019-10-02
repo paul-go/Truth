@@ -99,12 +99,12 @@ export default class PrimeType
 		prime.typeSignature = data[0];
 		prime.name = data[1];	
 		prime.flags.flags = data[2];
-		prime.container =  FuturePrimeType.$(data[3]);
+		prime.container = FuturePrimeType.$(data[3]);
 		data[4].forEach(x => prime.aliases.push(x));
-		data[5].forEach(x => prime.bases.add( FuturePrimeType.$(x)));
-		data[6].forEach(x => prime.parallels.add( FuturePrimeType.$(x)));
-		data[7].forEach(x => prime.patterns.add( FuturePrimeType.$(x)));
-		data[8].forEach(x => prime.contentsIntrinsic.add( FuturePrimeType.$(x)));
+		data[5].forEach(x => prime.bases.add(FuturePrimeType.$(x)));
+		data[6].forEach(x => prime.parallels.add(FuturePrimeType.$(x)));
+		data[7].forEach(x => prime.patterns.add(FuturePrimeType.$(x)));
+		data[8].forEach(x => prime.contentsIntrinsic.add(FuturePrimeType.$(x)));
 		this.SignatureMap.set(data[0], prime);
 		return prime;
 	}
@@ -124,8 +124,6 @@ export default class PrimeType
 	derivations = new PrimeTypeSet();
 	contentsIntrinsic = new PrimeTypeSet();
 	
-	visible = true;
-	
 	/**
 	 *
 	 */
@@ -142,6 +140,20 @@ export default class PrimeType
 	get view()
 	{
 		return PrimeType.View(this);
+	}
+	
+	get data()
+	{
+		const array: Array<string | TypeId[]> = [this.name];
+		array.push(this.bases.toJSON().map(x => x.id));
+		
+		const scan = (prime: PrimeType) => {
+			prime.aliases.forEach(x => array.push(x));
+			prime.contents.forEach(x => scan(x.prime));
+		}
+		
+		scan(this);
+		return array;
 	}
 	
 	link()
