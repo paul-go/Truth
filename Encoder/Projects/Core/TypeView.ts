@@ -1,8 +1,14 @@
 import { Type } from "../../../Truth/Core/X"
 import PrimeType from "./Type";
+import { PrimeTypeSet } from "./TypeSet";
 
 export default class TypeView
 {
+	static typeSetToArray(primes: PrimeTypeSet)
+	{
+		return Array.from(primes.values()).map(x => x.prime).filter(x => !!x) as PrimeType[];
+	}
+	
 	constructor(private prime: PrimeType) { }
 	
 	/**
@@ -39,9 +45,9 @@ export default class TypeView
 	 * one. In the case when this type is a list type, this array does
 	 * not include the list's intrinsic types.
 	 */
-	get contents(): PrimeType[]
+	get contents()
 	{
-		return Array.from(this.prime.contents.values()).map(x => x.prime).filter(x => !!x) as PrimeType[];
+		return TypeView.typeSetToArray(this.prime.contents);
 	}
 	
 	get contentsIntrinsic(): readonly any[]
@@ -54,9 +60,9 @@ export default class TypeView
 	 * If this Type extends from a pattern, it is included in this
 	 * array.
 	 */
-	get bases(): readonly Type[]
+	get bases()
 	{
-		throw new Error("Method not implemented.");
+		return TypeView.typeSetToArray(this.prime.bases);
 	}
 	get superordinates(): readonly any[]
 	{
@@ -66,17 +72,17 @@ export default class TypeView
 	{
 		throw new Error("Method not implemented.");
 	}
-	get derivations(): readonly any[]
+	get derivations()
 	{
-		throw new Error("Method not implemented.");
+		return TypeView.typeSetToArray(this.prime.derivations);
 	}
 	get adjacents(): readonly Type[]
 	{
 		throw new Error("Method not implemented.");
 	}
-	get patterns(): readonly Type[]
+	get patterns()
 	{
-		throw new Error("Method not implemented.");
+		return TypeView.typeSetToArray(this.prime.patterns);
 	}
 	
 	/**
@@ -89,7 +95,7 @@ export default class TypeView
 	 */
 	get aliases(): readonly string[]
 	{
-		throw new Error("Method not implemented.");
+		return this.prime.aliases;
 	}
 	get values(): readonly { value: string; base: Type; }[]
 	{
@@ -185,23 +191,23 @@ export default class TypeView
 		return false;
 	}
 	
-	visit(nextFn: (type: Type) => Type | Iterable<Type>, reverse?: boolean): Type[]
+	visit(nextFn: (type: PrimeType) => PrimeType | Iterable<PrimeType>, reverse?: boolean): PrimeType[]
 	{
 		throw new Error("Method not implemented.");
 	}
-	iterate(nextFn: (type: Type) => Type | Iterable<Type>, reverse?: boolean): Generator<{ type: Type; via: Type; }, void, undefined>
+	iterate(nextFn: (type: PrimeType) => PrimeType | Iterable<PrimeType>, reverse?: boolean): Generator<{ type: PrimeType; via: PrimeType; }, void, undefined>
 	{
 		throw new Error("Method not implemented.");
 	}
-	query(...typePath: string[]): Type
+	query(...typePath: string[]): PrimeType
 	{
 		throw new Error("Method not implemented.");
 	}
-	is(baseType: Type): boolean
+	is(baseType: PrimeType): boolean
 	{
 		throw new Error("Method not implemented.");
 	}
-	has(type: Type): boolean
+	has(type: PrimeType): boolean
 	{
 		throw new Error("Method not implemented.");
 	}
