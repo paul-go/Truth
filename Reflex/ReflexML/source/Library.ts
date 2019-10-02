@@ -30,40 +30,40 @@ namespace Reflex.ML
 			return {
 				/**
 				 * Causes the connected HTMLElement to be data-bound to the
-				 * specified effect variable.
+				 * specified Force.
 				 * 
-				 * Uses the effect variable's .value property when connected to an
+				 * Uses the Force's .value property when connected to an
 				 * HTMLInputElement, otherwise, the .textContent property is used.
 				 */
-				bind<T extends string | number | bigint>(effectVariable: Reflex.Core.StatefulReflex<T>)
+				bind<T extends string | number | bigint>(statefulForce: Reflex.Core.StatefulForce<T>)
 				{
 					const assign = (value: string | null) =>
 					{
 						value = value || "";
 						
-						switch (typeof effectVariable.value)
+						switch (typeof statefulForce.value)
 						{
 							case "string":
-								effectVariable.set(<any>value);
+								statefulForce.set(<any>value);
 								break;
 							
 							case "number":
-								effectVariable.set(<any>parseInt(value, 10));
+								statefulForce.set(<any>parseInt(value, 10));
 								break;
 							
 							case "bigint":
-								effectVariable.set(<any>BigInt(value));
+								statefulForce.set(<any>BigInt(value));
 						}
 					};
 					
 					return (e: HTMLElement) =>
 						isInput(e) ?
 							[
-								{ value: effectVariable },
+								{ value: statefulForce },
 								on("input", () => assign(e.value)).run()
 							] :
 							[
-								ml(effectVariable),
+								ml(statefulForce),
 								on("input", () => assign(e.textContent)).run()
 							];
 				}

@@ -64,7 +64,7 @@ declare namespace Reflex.Core
 	/** */
 	export interface IAttributes<T = string | number | bigint | boolean>
 	{
-		[attributeName: string]: Voidable<T> | StatefulReflex<Voidable<T>>;
+		[attributeName: string]: Voidable<T> | StatefulForce<Voidable<T>>;
 	}
 	
 	/**
@@ -78,12 +78,12 @@ declare namespace Reflex.Core
 			template:
 				TemplateStringsArray | 
 				Voidable<TContent> | 
-				StatefulReflex<Voidable<TContent>>,
+				StatefulForce<Voidable<TContent>>,
 			
 			...values: (
 				IBranch | 
 				Voidable<TContent> | 
-				StatefulReflex<Voidable<TContent>>)[]
+				StatefulForce<Voidable<TContent>>)[]
 		): TPreparedContent;
 	}
 	
@@ -102,10 +102,10 @@ declare namespace Reflex.Core
 	/**
 	 * 
 	 */
-	export type EffectObject<T> = {
+	export type ObjectForce<T> = {
 		[P in keyof T]:
-			T[P] extends (string | number | bigint | boolean | null) ? StatefulReflex<T[P]> :
-			T[P] extends Array<infer U> ? ArrayReflex<U> :
+			T[P] extends (string | number | bigint | boolean | null) ? StatefulForce<T[P]> :
+			T[P] extends Array<infer U> ? ArrayForce<U> :
 			T[P];
 	}
 	

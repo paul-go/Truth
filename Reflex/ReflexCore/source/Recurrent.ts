@@ -19,7 +19,7 @@ namespace Reflex.Core
 			// recurrent function isn't a valid selector, the parameters
 			// are shifted backwards. This is to handle the on() calls
 			// that are used to support restorations.
-			if (typeof selector === "function" && !isReflex(selector))
+			if (typeof selector === "function" && !isForce(selector))
 			{
 				userRestArgs.unshift(userCallback);
 				this.userCallback = selector;
@@ -42,19 +42,19 @@ namespace Reflex.Core
 	
 	/**
 	 * @internal
-	 * A class that deals with the special case of a Reflex that
+	 * A class that deals with the special case of a Force that
 	 * was plugged into an attribute.
 	 */
 	export class AttributeRecurrent extends Recurrent
 	{
 		constructor(
-			private readonly attributeKey: string,
-			private readonly reflex: StatefulReflex)
+			attributeKey: string,
+			force: StatefulForce)
 		{
 			super(
 				RecurrentKind.on, 	
-				reflex,
-				((now: any) => new AttributeMeta(this.attributeKey, now)));
+				force,
+				((now: any) => new AttributeMeta(attributeKey, now)));
 			
 			autorunCache.set(this, []);
 		}

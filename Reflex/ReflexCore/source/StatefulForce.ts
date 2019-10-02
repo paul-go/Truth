@@ -4,7 +4,7 @@ namespace Reflex.Core
 	/**
 	 * A class that wraps a value whose changes can be observed.
 	 */
-	export class StatefulReflex<T = any>
+	export class StatefulForce<T = any>
 	{
 		constructor(value: T)
 		{
@@ -12,7 +12,7 @@ namespace Reflex.Core
 		}
 		
 		/** 
-		 * Gets or sets the value of the effect variable.
+		 * Gets or sets the value of the force.
 		 */
 		get value()
 		{
@@ -31,8 +31,8 @@ namespace Reflex.Core
 		private _value: any;
 		
 		/**
-		 * Sets the value of the effect variable and returns void.
-		 * (Useful for effect variable arguments in arrow functions to cancel the return value.)
+		 * Sets the value of the force and returns void.
+		 * (Useful for force arguments in arrow functions to cancel the return value.)
 		 */
 		set(value: T)
 		{
@@ -45,9 +45,9 @@ namespace Reflex.Core
 		 * because the event needs to be on the instance rather than in the
 		 * prototype so that it's caught by the event system.
 		 */
-		changed = reflex<(now: T, was: T) => void>();
+		changed = force<(now: T, was: T) => void>();
 		
-		/** Returns a string representation of the value of this effect variable. */
+		/** Returns a string representation of the value of this force. */
 		toString()
 		{
 			return "" + this._value;
@@ -57,11 +57,11 @@ namespace Reflex.Core
 	/**
 	 * 
 	 */
-	export class BooleanReflex extends StatefulReflex<boolean>
+	export class BooleanForce extends StatefulForce<boolean>
 	{
 		/**
-		 * Flips the value of the effect variable from true to false or false to true.
-		 * (Useful for effect variable arguments in arrow functions to cancel the return value.)
+		 * Flips the value of the force from true to false or false to true.
+		 * (Useful for force arguments in arrow functions to cancel the return value.)
 		 */
 		flip()
 		{

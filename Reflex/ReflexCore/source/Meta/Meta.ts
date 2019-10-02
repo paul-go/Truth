@@ -43,7 +43,7 @@ namespace Reflex.Core
 	 * that specifies many attributes together, the primitive
 	 * translator function splits them up into smaller metas,
 	 * which is done because some values may be static,
-	 * and others may be behind a reflex.
+	 * and others may be behind a force.
 	 */
 	export class AttributeMeta extends LeafMeta
 	{

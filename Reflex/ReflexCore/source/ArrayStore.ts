@@ -9,7 +9,7 @@ namespace Reflex.Core
 		}> = {};
 		next = 0;
 		
-		changed = reflex<(item: T, index: number) => void>();
+		changed = force<(item: T, index: number) => void>();
 
 		/** */
 		get(index: number)

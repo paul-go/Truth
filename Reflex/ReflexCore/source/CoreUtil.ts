@@ -56,7 +56,7 @@ namespace Reflex.Core
 					
 				else if (primitive instanceof Recurrent)
 				{
-					if (primitive.selector instanceof ArrayReflex)
+					if (primitive.selector instanceof ArrayForce)
 					{
 						metas.push(new ArrayStreamMeta(
 							containerMeta,
@@ -82,7 +82,7 @@ namespace Reflex.Core
 				{
 					for (const [k, v] of Object.entries(primitive))
 					{
-						if (v instanceof StatefulReflex)
+						if (v instanceof StatefulForce)
 						{
 							metas.push(new RecurrentStreamMeta(
 								containerMeta,
@@ -109,8 +109,8 @@ namespace Reflex.Core
 						metas.push(new InstanceMeta(primitive));
 					
 					// This error occurs when something was passed as a primitive 
-					// to a reflexive function, and neither the reflex core, or any of
-					// the connected reflex libraries know what to do with it.
+					// to a branch function, and neither the Reflex core, or any of
+					// the connected Reflexive libraries know what to do with it.
 					else throw new Error("Unidentified flying object.");
 				}
 			}
@@ -130,7 +130,7 @@ namespace Reflex.Core
 			{
 				const t = typeof value;
 				if (t !== "string" && t !== "number" && t !== "bigint" && t !== "boolean")
-					if (!(value instanceof StatefulReflex))
+					if (!(value instanceof StatefulForce))
 						return false;
 			}
 			

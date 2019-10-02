@@ -22,7 +22,7 @@ A **recurrent function** is simply a function that may be attached to some branc
 
 A **primitive** is a parameter that is passed to a branch function. The types of allowable primitives for a given branch function is defined at the library level, but some are usable across any reflexive library, such as arrays and functions.
 
-A **reflexive variables** (or just "reflexes" for short) are primitive or object variables that causes this reflexive kick-back behavior to occur when mutated.
+A **forces** are primitive or object variables that causes this reflexive kick-back behavior to occur when mutated.
 
 ## Unbounded Objects
 
@@ -64,7 +64,7 @@ ml.img(
 
 ### Complex Primitives
 
-When a reflexive library has been configured to accept a certain data type, it's automatically able to accept infinitely nested iterables of that type. Below is an example of why you might want to do this:
+When a Reflexive library has been configured to accept a certain data type, it's automatically able to accept infinitely nested iterables of that type. Below is an example of why you might want to do this:
 
 ```typescript
 function getTopElements()
@@ -181,7 +181,7 @@ The Reflex Core creates a global `on()` function that takes two parameters, a *s
 function on(selector, callback);
 ```
 
-A *selector* is something that a reflexive library needs to be programmed to be able to accept. Remember, it's possible to have multiple reflexive libraries operating within the same JavaScript execution environment.
+A *selector* is something that a Reflexive library needs to be programmed to be able to accept. Remember, it's possible to have multiple reflexive libraries operating within the same JavaScript execution environment.
 
 The purpose of the selector is so that the Reflex Core can route wiring of an event to a particular library. So for example, ReflexML declares that it understands all the DOM event names such as `"click"` and `"focus"` as selectors. And so the following code would be routed to ReflexML:
 

@@ -140,11 +140,11 @@ namespace Reflex.Core
 			
 			for (const selectorItem of selector)
 			{
-				if (selectorItem instanceof StatefulReflex)
-					ReflexUtil.attachReflex(selectorItem.changed, this.systemCallback);
+				if (selectorItem instanceof StatefulForce)
+					ForceUtil.attachForce(selectorItem.changed, this.systemCallback);
 				
-				else if (isReflexFunction(selectorItem))
-					ReflexUtil.attachReflex(selectorItem, this.systemCallback);
+				else if (isForceFunction(selectorItem))
+					ForceUtil.attachForce(selectorItem, this.systemCallback);
 				
 				else switch (selectorItem)
 				{
@@ -169,10 +169,10 @@ namespace Reflex.Core
 			{
 				const item = selector[0];
 				
-				if (item instanceof StatefulReflex)
+				if (item instanceof StatefulForce)
 					this.invokeAutorunCallback([item.value, item.value], containingBranch);
 				
-				else if (isReflexFunction(item))
+				else if (isForceFunction(item))
 					this.invokeAutorunCallback(autorunArguments, containingBranch);
 				
 				else if (typeof item === "string" && item in Reflex.mutation)

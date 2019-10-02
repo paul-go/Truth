@@ -1,33 +1,35 @@
 
 namespace Reflex.Core
 {
-
 	type SortFunction<T = any> = (a: T, b: T) => number;
 	type FilterFunction<T = any> = (value: T, index: number, array: T[]) => boolean;
 	
-	export class ArrayReflex<T> implements Array<T>
+	export class ArrayForce<T> implements Array<T>
 	{
 		/** */
 		static create<T>(items: T[])
 		{
 			const store = new ArrayStore<T>();
-			const view = new ArrayReflex(store);
+			const view = new ArrayForce(store);
 			view.push(...items);
 			return view.proxy();
 		}
-
+		
 		[n: number]: T;
-
-		added = reflex<(item: T, position: number) => void>();
-		removed = reflex<(item: T, position: number, id: number) => void>();
-		moved = reflex<(e1: T, e2: T, i1: number, i2: number) => void>();
-		tailChange = reflex<(item: T, position: number) => void>();
-
-		positions: number[] = [];
-
-		root: ArrayStore<T>;
-
-		constructor(root: ArrayStore<T> | ArrayReflex<T>) 
+		
+		readonly added = force<(item: T, position: number) => void>();
+		readonly removed = force<(item: T, position: number, id: number) => void>();
+		readonly moved = force<(e1: T, e2: T, i1: number, i2: number) => void>();
+		readonly tailChange = force<(item: T, position: number) => void>();
+		
+		/** */
+		readonly positions: number[] = [];
+		
+		/** */
+		readonly root: ArrayStore<T>;
+		
+		/** */
+		constructor(root: ArrayStore<T> | ArrayForce<T>) 
 		{
 			if (root instanceof ArrayStore)
 			{	
@@ -36,18 +38,18 @@ namespace Reflex.Core
 			else 
 			{
 				this.root = root.root;
-				ReflexUtil.attachReflex(root.added, (item: T, index: number) =>
+				ForceUtil.attachForce(root.added, (item: T, index: number) =>
 				{
 					this.insertRef(index, root.positions[index]);
 				});
-				ReflexUtil.attachReflex(root.removed, (item: T, index: number, id: number) =>
+				ForceUtil.attachForce(root.removed, (item: T, index: number, id: number) =>
 				{
 					const loc = this.positions.indexOf(id);
 					if (loc > -1) 
 						this.splice(loc, 1);
 				});
 			}
-			ReflexUtil.attachReflex(this.root.changed, () => 
+			ForceUtil.attachForce(this.root.changed, () => 
 			{
 				this.executeFilter();
 				this.executeSort();
@@ -55,11 +57,11 @@ namespace Reflex.Core
 		}
 
 		private sortFn?: (a: T, b: T) => number;
-		private filterFn?: (value: T, index: number, array: ArrayReflex<T>) => boolean;
+		private filterFn?: (value: T, index: number, array: ArrayForce<T>) => boolean;
 
 		/** 
 		 * @internal
-		*/
+		 */
 		assignSorter(sortFn: (a: T, b: T) => number)
 		{
 			this.sortFn = sortFn;
@@ -69,8 +71,8 @@ namespace Reflex.Core
 
 		/** 
 		 * @internal
-		*/
-		assignFilter(filterFn: (value: T, index: number, array: ArrayReflex<T>) => boolean)
+		 */
+		assignFilter(filterFn: (value: T, index: number, array: ArrayForce<T>) => boolean)
 		{
 			this.filterFn = filterFn;
 			this.executeFilter();
@@ -80,7 +82,8 @@ namespace Reflex.Core
 		/** */
 		protected executeFilter()
 		{
-			if (this.filterFn) 
+			if (this.filterFn)
+			{
 				for (let i = -1; ++i < this.positions.length;)
 				{
 					const position = this.positions[i];
@@ -91,6 +94,7 @@ namespace Reflex.Core
 							this.splice(loc, 1);
 					}
 				}
+			}
 		}
 
 		/** */
@@ -143,6 +147,7 @@ namespace Reflex.Core
 		{
 			if (!"NOPROXY")
 				return;
+			
 			if (!Object.prototype.hasOwnProperty.call(this, index))
 			{	
 				Object.defineProperty(this, index, {
@@ -162,16 +167,18 @@ namespace Reflex.Core
 		 * @internal
 		 * Inserts positions from parameters into positions array of this
 		 * All positions are filtered if there is a filter function assigned to this
-		 * Triggers added reflex 
+		 * Triggers the added Force
 		 * Defines index for processed locations
-		*/
+		 */
 		protected insertRef(start: number, ...positions: number[])
 		{
 			const filtered = this.filterFn ?
-				positions
-					.filter((value, index) => 
-						this.filterFn!(this.getRoot(value), index, this)) : positions;
+				positions.filter((value, index) => 
+					this.filterFn!(this.getRoot(value), index, this)) :
+				positions;
+			
 			this.positions.splice(start, 0, ...filtered);
+			
 			for (let i = -1; ++i < filtered.length;)
 			{
 				const item = filtered[i];
@@ -179,6 +186,7 @@ namespace Reflex.Core
 				this.added(this.getRoot(item), loc);
 				this.defineIndex(loc);
 			}
+			
 			this.executeSort(); 
 		}
 		
@@ -194,24 +202,24 @@ namespace Reflex.Core
 			this.splice(i, this.positions.length - i);
 			this.positions.length = i;
 		}
-
-		private _proxy?: ArrayReflex<T>;
 		
 		/** 
 		 * @internal
-		*/
+		 */
 		proxy()
 		{
 			if ("NOPROXY") 
 				return this;
+			
 			if (!this._proxy)
+			{
 				this._proxy = new Proxy(this, {
-					get(target, prop: Extract<keyof ArrayReflex<T>, string>)
+					get(target, prop: Extract<keyof ArrayForce<T>, string>)
 					{
 						const index = parseInt(prop, 10);
 						return index !== index ? target[prop] : target.get(index);
 					},
-					set(target, prop: Extract<keyof ArrayReflex<T>, string>, value: T)
+					set(target, prop: Extract<keyof ArrayForce<T>, string>, value: T)
 					{
 						const index = parseInt(prop, 10);
 						if (index !== index)
@@ -219,10 +227,14 @@ namespace Reflex.Core
 							
 						return true;
 					}
-				}) as ArrayReflex<T>;
+				}) as ArrayForce<T>;
+			}
 				
 			return this._proxy;
 		}
+		
+		/** */
+		private _proxy?: ArrayForce<T>;
 
 		/** */
 		get(index: number)
@@ -248,7 +260,7 @@ namespace Reflex.Core
 
 		/** 
 		 * Returns snapshot of this as a js array 
-		*/
+		 */
 		snapshot()
 		{
 			return this.positions.map(x => this.getRoot(x));
@@ -271,7 +283,7 @@ namespace Reflex.Core
 		concat(...items: (T | ConcatArray<T>)[]): T[];
 		concat(...items: any[])
 		{
-			const array = ArrayReflex.create<T>(this.snapshot() as T[]);
+			const array = ArrayForce.create<T>(this.snapshot() as T[]);
 			array.push(...items);
 			return array.proxy();
 		}
@@ -292,25 +304,25 @@ namespace Reflex.Core
 		/** */
 		slice(start?: number | undefined, end?: number | undefined): T[]
 		{
-			const arr = new ArrayReflex(this.root);
-			arr.insertRef(0, ...this.positions.slice(start, end));
-			return arr.proxy();
+			const array = new ArrayForce(this.root);
+			array.insertRef(0, ...this.positions.slice(start, end));
+			return array.proxy();
 		}
 		
 		/** */
-		sort(compareFn: SortFunction<T>, ...reflexes: Array<StatelessReflex | StatefulReflex>): this
+		sort(compareFn: SortFunction<T>, ...forces: Array<StatelessForce | StatefulForce>): this
 		{
-			const arr = new ArrayReflex(this);
-			arr.sortFn = compareFn;
+			const array = new ArrayForce(this);
+			array.sortFn = compareFn;
 			
-			for (const reflex of reflexes)
-				ReflexUtil.attachReflex(
-					reflex instanceof StatefulReflex ?
-						reflex.changed : reflex, arr.executeSort
+			for (const fo of forces)
+				ForceUtil.attachForce(
+					fo instanceof StatefulForce ?
+						fo.changed : fo, array.executeSort
 				);
 				
-			arr.insertRef(0, ...this.positions);
-			return arr.proxy() as this;
+			array.insertRef(0, ...this.positions);
+			return array.proxy() as this;
 		}
 		
 		/** */
@@ -334,83 +346,85 @@ namespace Reflex.Core
 		}
 		
 		/** */
-		every(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean
+		every(callbackFn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean
 		{
 			for (let i = -1; ++i < this.positions.length;)
-				if (!callbackfn.call(thisArg || this, this.get(i), i, this)) 
+				if (!callbackFn.call(thisArg || this, this.get(i), i, this)) 
 					return false;
 					
 			return true;
 		}
 		
 		/** */
-		some(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean
+		some(callbackFn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean
 		{
 			for (let i = -1; ++i < this.positions.length;)
-				if (callbackfn.call(thisArg || this, this.get(i)!, i, this)) 
+				if (callbackFn.call(thisArg || this, this.get(i)!, i, this)) 
 					return true;
 					
 			return false;
 		}
 		
 		/** */
-		forEach(callbackfn: (value: T, index: number, array: T[]) => void, thisArg?: any): void
+		forEach(callbackFn: (value: T, index: number, array: T[]) => void, thisArg?: any): void
 		{
 			for (let i = -1; ++i < this.positions.length;)
-				callbackfn.call(thisArg || this, this.get(i), i, this);
+				callbackFn.call(thisArg || this, this.get(i), i, this);
 		}
 		
 		/** */
-		map<U>(callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[]
+		map<U>(callbackFn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[]
 		{
-			return ArrayReflex.create(
+			return ArrayForce.create(
 				this.positions
 					.map(x => this.getRoot(x))
-					.map((value, index) => callbackfn.call(thisArg || this, value, index, this))
+					.map((value, index) => callbackFn.call(thisArg || this, value, index, this))
 			);
 		}
 		
 		/** */
-		filter<S extends T>(callbackfn: FilterFunction<T>, ...reflex: Array<StatefulReflex | StatelessReflex>): ArrayReflex<S>;
-		filter(callbackfn: FilterFunction<T>, ...reflex: Array<StatefulReflex | StatelessReflex>): ArrayReflex<T>;
-		filter(callbackfn: FilterFunction<T>, ...reflexes: Array<StatefulReflex | StatelessReflex>)
+		filter<S extends T>(callbackFn: FilterFunction<T>, ...force: Array<StatefulForce | StatelessForce>): ArrayForce<S>;
+		filter(callbackFn: FilterFunction<T>, ...force: Array<StatefulForce | StatelessForce>): ArrayForce<T>;
+		filter(callbackFn: FilterFunction<T>, ...forces: Array<StatefulForce | StatelessForce>)
 		{
-			const arr = new ArrayReflex(this);
-			arr.filterFn = callbackfn;
-			for (const reflex of reflexes)
+			const array = new ArrayForce(this);
+			array.filterFn = callbackFn;
+			
+			for (const fo of forces)
 			{
-				ReflexUtil.attachReflex(reflex instanceof StatefulReflex ? reflex.changed : reflex, () => 
+				ForceUtil.attachForce(fo instanceof StatefulForce ? fo.changed : fo, () => 
 				{
-					arr.executeFilter();
+					array.executeFilter();
 					this.positions.forEach((x, i) => 
 					{
-						if (arr.filterFn!(this.getRoot(x), i, this) && !arr.positions.includes(x)) 
-							arr.insertRef(i, x);
+						if (array.filterFn!(this.getRoot(x), i, this) && !array.positions.includes(x)) 
+							array.insertRef(i, x);
 					});
 				});
 			}
-			arr.insertRef(0, ...this.positions);
-			return arr.proxy();
+			
+			array.insertRef(0, ...this.positions);
+			return array.proxy();
 		}
 		
 		/** */
-		reduce(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T): T;
-		reduce(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T, initialValue: T): T;
-		reduce<U>(callbackfn: (previousValue: U, currentValue: T, currentIndex: number, array: T[]) => U, initialValue: U): U;
-		reduce(callbackfn: any, initialValue?: any)
+		reduce(callbackFn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T): T;
+		reduce(callbackFn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T, initialValue: T): T;
+		reduce<U>(callbackFn: (previousValue: U, currentValue: T, currentIndex: number, array: T[]) => U, initialValue: U): U;
+		reduce(callbackFn: any, initialValue?: any)
 		{
 			return this.positions
-				.reduce((prev, curr, ci) => callbackfn(prev, this.get(curr), ci, this), initialValue);
+				.reduce((prev, curr, ci) => callbackFn(prev, this.get(curr), ci, this), initialValue);
 		}
 		
 		/** */
-		reduceRight(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T): T;
-		reduceRight(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T, initialValue: T): T;
-		reduceRight<U>(callbackfn: (previousValue: U, currentValue: T, currentIndex: number, array: T[]) => U, initialValue: U): U;
-		reduceRight(callbackfn: any, initialValue?: any)
+		reduceRight(callbackFn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T): T;
+		reduceRight(callbackFn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T, initialValue: T): T;
+		reduceRight<U>(callbackFn: (previousValue: U, currentValue: T, currentIndex: number, array: T[]) => U, initialValue: U): U;
+		reduceRight(callbackFn: any, initialValue?: any)
 		{
 			return this.positions
-				.reduceRight((prev, curr, ci) => callbackfn(prev, this.get(curr), ci, this), initialValue);
+				.reduceRight((prev, curr, ci) => callbackFn(prev, this.get(curr), ci, this), initialValue);
 		}
 		
 		/** */
@@ -494,7 +508,9 @@ namespace Reflex.Core
 		}
 		
 		/** */
-		flatMap<U, This = undefined>(callback: (this: This, value: T, index: number, array: T[]) => U | readonly U[], thisArg?: This | undefined): U[]
+		flatMap<U, This = undefined>(
+			callback: (this: This, value: T, index: number, array: T[]) => U | readonly U[], 
+			thisArg?: This | undefined): U[]
 		{
 			return this.snapshot().flatMap(callback, thisArg); 
 		}

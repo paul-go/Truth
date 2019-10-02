@@ -13,7 +13,7 @@ declare function on<K extends keyof HTMLElementEventMap>(
  * 
  */
 declare function on(
-	reflexes: (() => void) | (() => void)[],
+	forces: (() => void) | (() => void)[],
 	callback: (e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent;
 
@@ -21,7 +21,7 @@ declare function on(
  * 
  */
 declare function on<A1>(
-	reflexes: ((a1: A1) => void) | ((a1: A1) => void)[],
+	forces: ((a1: A1) => void) | ((a1: A1) => void)[],
 	callback: (a1: A1, e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent<[A1]>;
 
@@ -29,7 +29,7 @@ declare function on<A1>(
  * 
  */
 declare function on<A1, A2>(
-	reflexes: ((a1: A1, a2: A2) => void) | ((a1: A1, a2: A2) => void)[],
+	forces: ((a1: A1, a2: A2) => void) | ((a1: A1, a2: A2) => void)[],
 	callback: (a1: A1, a2: A2, e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent<[A1, A2]>;
 
@@ -37,7 +37,7 @@ declare function on<A1, A2>(
  * 
  */
 declare function on<A1, A2, A3>(
-	reflexes: ((a1: A1, a2: A2, a3: A3) => void) | ((a1: A1, a2: A2, a3: A3) => void)[],
+	forces: ((a1: A1, a2: A2, a3: A3) => void) | ((a1: A1, a2: A2, a3: A3) => void)[],
 	callback: (a1: A1, a2: A2, a3: A3, e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent<[A1, A2, A3]>;
 
@@ -45,7 +45,7 @@ declare function on<A1, A2, A3>(
  * 
  */
 declare function on<A1, A2, A3, A4>(
-	reflexes: ((a1: A1, a2: A2, a3: A3, a4: A4) => void) | ((a1: A1, a2: A2, a3: A3, a4: A4) => void)[],
+	forces: ((a1: A1, a2: A2, a3: A3, a4: A4) => void) | ((a1: A1, a2: A2, a3: A3, a4: A4) => void)[],
 	callback: (a1: A1, a2: A2, a3: A3, a4: A4, e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent<[A1, A2, A3, A4]>;
 
@@ -53,7 +53,7 @@ declare function on<A1, A2, A3, A4>(
  * 
  */
 declare function on<A1, A2, A3, A4, A5>(
-	reflexes: ((a1: A1, a2: A2, a3: A3, a4: A4, a5: A5) => void) | ((a1: A1, a2: A2, a3: A3, a4: A4, a5: A5) => void)[],
+	forces: ((a1: A1, a2: A2, a3: A3, a4: A4, a5: A5) => void) | ((a1: A1, a2: A2, a3: A3, a4: A4, a5: A5) => void)[],
 	callback: (a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent<[A1, A2, A3, A4, A5]>;
 
@@ -61,7 +61,7 @@ declare function on<A1, A2, A3, A4, A5>(
  * 
  */
 declare function on<T>(
-	reflexes: Reflex.Core.StatefulReflex<T> | Reflex.Core.StatefulReflex<T>[],
+	forces: Reflex.Core.StatefulForce<T> | Reflex.Core.StatefulForce<T>[],
 	callback: (now: T, was: T, e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent;
 
@@ -69,7 +69,7 @@ declare function on<T>(
  * 
  */
 declare function on<T>(
-	effectArray: Reflex.Core.ArrayReflex<T>,
+	array: Reflex.Core.ArrayForce<T>,
 	renderFn: (item: T, e: HTMLElement, index: number) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent;
 
@@ -155,7 +155,7 @@ declare function once<K extends keyof HTMLElementEventMap>(
  * 
  */
 declare function once(
-	reflexes: (() => void) | (() => void)[],
+	forces: (() => void) | (() => void)[],
 	callback: (e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent;
 
@@ -163,7 +163,7 @@ declare function once(
  * 
  */
 declare function once<A1>(
-	reflexes: ((a1: A1) => void) | ((a1: A1) => void)[],
+	forces: ((a1: A1) => void) | ((a1: A1) => void)[],
 	callback: (a1: A1, e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent<[A1]>;
 
@@ -171,7 +171,7 @@ declare function once<A1>(
  * 
  */
 declare function once<A1, A2>(
-	reflexes: ((a1: A1, a2: A2) => void) | ((a1: A1, a2: A2) => void)[],
+	forces: ((a1: A1, a2: A2) => void) | ((a1: A1, a2: A2) => void)[],
 	callback: (a1: A1, a2: A2, e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent<[A1, A2]>;
 
@@ -179,7 +179,7 @@ declare function once<A1, A2>(
  * 
  */
 declare function once<A1, A2, A3>(
-	reflexes: ((a1: A1, a2: A2, a3: A3) => void) | ((a1: A1, a2: A2, a3: A3) => void)[],
+	forces: ((a1: A1, a2: A2, a3: A3) => void) | ((a1: A1, a2: A2, a3: A3) => void)[],
 	callback: (a1: A1, a2: A2, a3: A3, e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent<[A1, A2, A3]>;
 
@@ -187,7 +187,7 @@ declare function once<A1, A2, A3>(
  * 
  */
 declare function once<A1, A2, A3, A4>(
-	reflexes: ((a1: A1, a2: A2, a3: A3, a4: A4) => void) | ((a1: A1, a2: A2, a3: A3, a4: A4) => void)[],
+	forces: ((a1: A1, a2: A2, a3: A3, a4: A4) => void) | ((a1: A1, a2: A2, a3: A3, a4: A4) => void)[],
 	callback: (a1: A1, a2: A2, a3: A3, a4: A4, e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent<[A1, A2, A3, A4]>;
 
@@ -195,7 +195,7 @@ declare function once<A1, A2, A3, A4>(
  * 
  */
 declare function once<A1, A2, A3, A4, A5>(
-	reflexes: ((a1: A1, a2: A2, a3: A3, a4: A4, a5: A5) => void) | ((a1: A1, a2: A2, a3: A3, a4: A4, a5: A5) => void)[],
+	forces: ((a1: A1, a2: A2, a3: A3, a4: A4, a5: A5) => void) | ((a1: A1, a2: A2, a3: A3, a4: A4, a5: A5) => void)[],
 	callback: (a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent<[A1, A2, A3, A4, A5]>;
 
@@ -203,7 +203,7 @@ declare function once<A1, A2, A3, A4, A5>(
  * 
  */
 declare function once<T>(
-	reflexes: Reflex.Core.StatefulReflex<T> | Reflex.Core.StatefulReflex<T>[],
+	forces: Reflex.Core.StatefulForce<T> | Reflex.Core.StatefulForce<T>[],
 	callback: (now: T, was: T, e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent;
 
@@ -211,7 +211,7 @@ declare function once<T>(
  * 
  */
 declare function once<T>(
-	reflexes: Reflex.Core.ArrayReflex<T>,
+	forces: Reflex.Core.ArrayForce<T>,
 	renderFn: (item: T) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent;
 
@@ -289,7 +289,7 @@ declare function only<K extends keyof HTMLElementEventMap>(
  * 
  */
 declare function only<A extends any[]>(
-	reflexes: (...args: A) => void,
+	forces: (...args: A) => void,
 	callback: (...args: A) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent<A>;
 
@@ -297,7 +297,7 @@ declare function only<A extends any[]>(
  * 
  */
 declare function only<T>(
-	reflexes: Reflex.Core.StatefulReflex<T> | Reflex.Core.StatefulReflex<T>[],
+	forces: Reflex.Core.StatefulForce<T> | Reflex.Core.StatefulForce<T>[],
 	callback: (now: T, was: T, e: HTMLElement) => Reflex.ML.Primitives
 ): Reflex.Core.Recurrent;
 
@@ -394,12 +394,12 @@ declare namespace Reflex.ML
 		
 		/**
 		 * Causes the connected HTMLElement to be data-bound to the
-		 * specified effect variable.
+		 * specified Force.
 		 * 
-		 * Uses the effect variable's .value property when connected to an
+		 * Uses the Force's .value property when connected to an
 		 * HTMLInputElement, otherwise, the .textContent property is used.
 		 */
-		bind<T extends string | number | bigint>(effectVariable: Reflex.Core.StatefulReflex<T>): void;
+		bind<T extends string | number | bigint>(statefulForce: Reflex.Core.StatefulForce<T>): void;
 		
 		//# HTML Elements
 		

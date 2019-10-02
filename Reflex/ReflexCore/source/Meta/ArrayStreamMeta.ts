@@ -22,15 +22,15 @@ namespace Reflex.Core
 			localTracker.update(this.locator);
 			
 			const rec = this.recurrent;
-			const effectArray: ArrayReflex<any> = rec.selector;
+			const forceArray: ArrayForce<any> = rec.selector;
 			const restArgs = rec.userRestArgs.slice();
 			
-			for (let i = -1; ++i < effectArray.length;)
+			for (let i = -1; ++i < forceArray.length;)
 			{
-				const item = effectArray[i];
+				const fo = forceArray[i];
 				
 				const primitives = rec.userCallback(
-					item,
+					fo,
 					containingBranch,
 					i,
 					...restArgs);
@@ -63,9 +63,9 @@ namespace Reflex.Core
 				}
 			};
 			
-			ReflexUtil.attachReflex(effectArray.root.changed, (item: any, position: number) => 
+			ForceUtil.attachForce(forceArray.root.changed, (item: any, position: number) => 
 			{
-				const internalPos = effectArray.positions.indexOf(position);
+				const internalPos = forceArray.positions.indexOf(position);
 				if (position > -1) 
 				{
 					const meta = findMeta(internalPos);
@@ -83,7 +83,7 @@ namespace Reflex.Core
 				}
 			});
 			
-			ReflexUtil.attachReflex(effectArray.added, (item: any, position: number) =>
+			ForceUtil.attachForce(forceArray.added, (item: any, position: number) =>
 			{
 				const primitives = rec.userCallback(item, containingBranch, position);
 				
@@ -94,7 +94,7 @@ namespace Reflex.Core
 					
 				let tracker = localTracker;
 				
-				if (position < effectArray.length)
+				if (position < forceArray.length)
 				{
 					const meta = findMeta(position - 1);
 					if (meta)
@@ -111,14 +111,14 @@ namespace Reflex.Core
 					tracker);
 			});
 						
-			ReflexUtil.attachReflex(effectArray.removed, (item: any, position: number) =>
+			ForceUtil.attachForce(forceArray.removed, (item: any, position: number) =>
 			{
 				const meta = findMeta(position);
 				if (meta)
 					CoreUtil.unapplyMetas(containingBranch, [meta]);
 			});
 			
-			ReflexUtil.attachReflex(effectArray.moved, (item1: any, item2: any, index1: number, index2: number) =>
+			ForceUtil.attachForce(forceArray.moved, (item1: any, item2: any, index1: number, index2: number) =>
 			{
 				const source = findMeta(index1);
 				const target = findMeta(index2);
@@ -134,7 +134,7 @@ namespace Reflex.Core
 				}
 			});
 			
-			ReflexUtil.attachReflex(effectArray.tailChange, (item: any, position: number) =>
+			ForceUtil.attachForce(forceArray.tailChange, (item: any, position: number) =>
 			{
 				const source = findMeta(position);
 				if (source)

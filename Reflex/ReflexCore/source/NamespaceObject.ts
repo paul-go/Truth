@@ -48,9 +48,9 @@ namespace Reflex.Core
 						return customRecurrent;
 				}
 				
-				// Could parse the selector here, see if you have any on-on's,
+				// We could parse the selector here, see if you have any on-on's,
 				// if you do, call the functions to augment the return value.
-				// Alternatively, we could inline the support for effect arrays.
+				// Alternatively, we could inline the support for force arrays.
 				return new Recurrent(kind, selector, callback, rest);
 			};
 			
@@ -69,8 +69,8 @@ namespace Reflex.Core
 		 * which is used for inserting textual content into the tree.
 		 */
 		const namespaceFn = (
-			template: TemplateStringsArray | StatefulReflex,
-			...values: (IBranch | StatefulReflex)[]): any =>
+			template: TemplateStringsArray | StatefulForce,
+			...values: (IBranch | StatefulForce)[]): any =>
 		{
 			const array = Array.isArray(template) ?
 				template :
@@ -92,7 +92,7 @@ namespace Reflex.Core
 				if (val === null || val === undefined)
 					continue;
 				
-				if (val instanceof StatefulReflex)
+				if (val instanceof StatefulForce)
 				{
 					out.push(new Recurrent(
 						RecurrentKind.on,

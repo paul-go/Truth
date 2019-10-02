@@ -51,8 +51,8 @@ namespace Reflex.Core
 		readonly branch: IBranch;
 		
 		/**
-		 * An arbitrary unique value used to identify an index in an effect array
-		 * that was responsible for rendering this BranchMeta.
+		 * An arbitrary unique value used to identify an index in a force
+		 * array that was responsible for rendering this BranchMeta.
 		 */
 		key = 0;
 	}

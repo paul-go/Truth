@@ -2,45 +2,45 @@
 /**
  * 
  */
-function reflex(): () => void;
+function force(): () => void;
 /**
  * 
  */
-function reflex<F extends Reflex.Core.StatelessReflex = () => void>(): F;
+function force<F extends Reflex.Core.StatelessForce = () => void>(): F;
 /**
  * 
  */
-function reflex(initialValue: boolean): Reflex.Core.BooleanReflex;
+function force(initialValue: boolean): Reflex.Core.BooleanForce;
 /**
  * 
  */
-function reflex(initialValue: string | number | bigint): Reflex.Core.StatefulReflex;
+function force(initialValue: string | number | bigint): Reflex.Core.StatefulForce;
 /**
  * 
  */
-function reflex<T>(backingArray: T[]): Reflex.Core.ArrayReflex<T>;
+function force<T>(backingArray: T[]): Reflex.Core.ArrayForce<T>;
 /**
  * Returns an observable proxy of the specified source object.
  */
-function reflex<T>(backingObject: T): Reflex.Core.EffectObject<T>;
-function reflex(initialValue?: any)
+function force<T>(backingObject: T): Reflex.Core.ObjectForce<T>;
+function force(initialValue?: any)
 {
 	const tryCreateSingle = (val: any) =>
 	{
 		if (val === undefined || val === null)
-			return Reflex.Core.ReflexUtil.createFunction();
+			return Reflex.Core.ForceUtil.createFunction();
 		
 		if (typeof val === "boolean")
-			return new Reflex.Core.BooleanReflex(val);
+			return new Reflex.Core.BooleanForce(val);
 		
 		if (typeof val === "string" || typeof val === "bigint")
-			return new Reflex.Core.StatefulReflex(val);
+			return new Reflex.Core.StatefulForce(val);
 		
 		if (typeof val === "number")
-			return new Reflex.Core.StatefulReflex(val || 0);
+			return new Reflex.Core.StatefulForce(val || 0);
 		
 		if (Array.isArray(val))
-			return Reflex.Core.ArrayReflex.create(val);
+			return Reflex.Core.ArrayForce.create(val);
 		
 		return null;
 	};
@@ -82,10 +82,10 @@ function reflex(initialValue?: any)
 			{
 				const targetVal = backing[property];
 				
-				if (targetVal instanceof Reflex.Core.StatefulReflex)
+				if (targetVal instanceof Reflex.Core.StatefulForce)
 					targetVal.value = value;
 				
-				else if (targetVal instanceof Reflex.Core.ArrayReflex)
+				else if (targetVal instanceof Reflex.Core.ArrayForce)
 					throw new Error("Re-assignment of arrays is not implemented.");
 				
 				else throw new Error("Unknown error.");
