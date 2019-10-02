@@ -4,7 +4,6 @@ import { promises as FS } from "fs";
 import Serializer from "./Serializer";
 import { typeHash } from "./Util";
 import { FuturePrimeType } from "./FutureType";
-import DataJSON from "./Data";
  
 /**
  * Builds and emits Code JSON file

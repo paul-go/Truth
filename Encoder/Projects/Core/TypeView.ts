@@ -30,7 +30,8 @@ export default class TypeView
 	
 	get container()
 	{
-		return this.prime.container.prime.view;	
+		const prime = this.prime.container.prime;
+		return prime ? prime.view : prime;	
 	}
 	
 	/**
@@ -40,7 +41,7 @@ export default class TypeView
 	 */
 	get contents(): PrimeType[]
 	{
-		return Array.from(this.prime.contents.values()).map(x => x.prime);
+		return Array.from(this.prime.contents.values()).map(x => x.prime).filter(x => !!x) as PrimeType[];
 	}
 	
 	get contentsIntrinsic(): readonly any[]

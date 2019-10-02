@@ -1,6 +1,5 @@
 import { join, resolve } from "path";
 import CodeJSON from "./Code";
-import DataJSON from "./Data";
 
 export type RawDataPatternMap = {
 	[x: string]: RegExp
@@ -19,7 +18,7 @@ export interface EncoderRawConfig
 export interface EncoderConfig
 {
 	Code: CodeJSON;
-	Data: Record<string, DataJSON>;
+	Data: Record<string, any[]>;
 	CodeFile: string;
 }
 
