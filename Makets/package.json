@@ -15,15 +15,15 @@
 	"scripts": {
 		"init": "npm run build && npm link",
 		"build": "tsc -p ./tsconfig.source.json",
-		"publish": "node ./build/source/make.js publish"
+		"publish": "npm run build && node ./build/source/make.js publish"
 	},
 	"bin": {
 		"makets": "./build/source/make.js"
 	},
 	"dependencies": {
-		"fs-extra": "^8.0.1",
-		"semver": "^6.1.0",
-		"terser": "^4.0.0"
+		"fs-extra": "^8.1.0",
+		"semver": "^6.3.0",
+		"terser": "^4.3.4"
 	},
 	"devDependencies": {
 		"@types/fs-extra": "5.0.2",

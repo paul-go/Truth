@@ -142,8 +142,8 @@ namespace make
 				out.push(
 					`(function() {` +
 					`var g = ` +
-					`typeof window !== "undefined" ? window : ` +
-					`typeof global !== "undefined" ? global : null; ` +
+					`typeof navigator === "object" ? window : ` +
+					`typeof global === "object" ? global : null; ` +
 					`if (g) ${globals.map(g => `g.${g} = ${g}`).join(",")} ` +
 					`})();`
 				);

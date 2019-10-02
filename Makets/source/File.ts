@@ -45,6 +45,14 @@ namespace make
 	}
 	
 	/**
+	 * Creates a file at the specified location, with the specified contents.
+	 */
+	export function file(path: string, contents: string = "")
+	{
+		Fs.writeFileSync(path, contents);
+	}
+	
+	/**
 	 * Creates the directory structure at the specified location, if it doesn't exist
 	 * already. If the path is omitted, a temporary directory is created in the 
 	 * working directory.
@@ -61,17 +69,19 @@ namespace make
 	/**
 	 * Deletes the specified file from the file system.
 	 */
-	(<any>make).delete = function(src: string)
+	const makeAny: any = make;
+	makeAny.delete = function(src: string)
 	{
 		if (Fs.existsSync(src))
 			Fs.unlinkSync(src);
 	};
 }
 
-/**
- * Deletes the specified file from the file system.
- */
+/* eslint-disable */
 declare class make
 {
+	/**
+	 * Deletes the specified file from the file system.
+	 */
 	static delete(src: string): void;
 }

@@ -4,7 +4,7 @@ namespace make
 	/**
 	 * 
 	 */
-	export async function publish(options: IPublishOptions)
+	export function publish(options: IPublishOptions)
 	{
 		const directory = options.directory || "./bundle";
 		const packageFile = options.packageFile || "./package.json";
@@ -48,15 +48,16 @@ namespace make
 		if (sourceVersion === null)
 			throw new Error("package.json includes an invalid version:" + packageJsonFinal.version);
 		
-		const rawRegistries = Array.isArray(options.registries) ?
-			options.registries :
+		const rawRegistries = 
+			Array.isArray(options.registries) ? options.registries :
+			typeof options.registries === "string" ? [options.registries] :
 			["npm"];
 		
 		const registries = rawRegistries
 			.map(r => r === "npm" ? "https://registry.npmjs.org" : r);
 		
 		const publishedVersions = registries
-			.map(registry => getPublishedVersion(packageJsonFinal.name, registry))
+			.map(registry => npm.getPublishedVersion(packageJsonFinal.name, registry))
 			.filter((ver): ver is InstanceType<SemVer["SemVer"]> => ver !== null);
 		
 		if (publishedVersions.length > 0)
@@ -71,39 +72,7 @@ namespace make
 		writeJson(packageJsonPath, packageJsonFinal);
 		
 		for (const registry of registries)
-		{
-			const registryParam = getRegistryParam(registry);
-			const tag = options.tag ?
-				" --tag " + options.tag :
-				"";
-			
-			await make.shell(`npm publish ${directory}` + registryParam + tag);
-		}
-	}
-	
-	/** */
-	function getPublishedVersion(packageName: string, registry = "")
-	{
-		const command = `npm show ${packageName} version${getRegistryParam(registry)}`;
-		const output = make.shellSync(command);
-		
-		if (output instanceof Error)
-		{
-			if (output.message.includes("is not in the npm registry."))
-				return null;
-			
-			throw output;
-		}
-		
-		return SemVer.parse(output);
-	}
-	
-	/** */
-	function getRegistryParam(registry: string | undefined)
-	{
-		return registry && registry.trim() ?
-			" --registry " + registry.trim() :
-			"";
+			make.npm.publish(directory, registry, options.tag);
 	}
 	
 	/**
@@ -136,7 +105,7 @@ namespace make
 		 * be published, but won't actually send any files to any public
 		 * registry.
 		 */
-		registries?: ("npm" | string)[];
+		registries?: string | ("npm" | string)[];
 		
 		/**
 		 * Adds tags to the package
