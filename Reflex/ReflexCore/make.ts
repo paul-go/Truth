@@ -7,8 +7,8 @@ make.on(async () =>
 
 make.on("publish", "bundle", async () =>
 {
-	make.copy("./build/source/reflex-core.js", "./bundle");
-	make.copy("./build/source/reflex-core.d.ts", "./bundle/index.d.ts");
+	make.copy("./build/reflex-core.js", "./bundle");
+	make.copy("./build/reflex-core.d.ts", "./bundle/index.d.ts");
 	make.copy("./readme.md", "./bundle");
 	
 	make.compilationConstants("./bundle/reflex-core.js", {

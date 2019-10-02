@@ -1,7 +1,7 @@
 {
 	"extends": "../tsconfig.composite.json",
 	"compilerOptions": {
-		"outFile": "./build/source/reflex-ml.js"
+		"outFile": "./build/reflex-ml.js"
 	},
 	"include": [
 		"./source/**/*.ts"

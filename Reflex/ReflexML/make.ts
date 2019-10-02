@@ -24,7 +24,7 @@ make.on("bundle", "publish", async () =>
 	
 	make.concat(
 		"../ReflexCore/bundle/reflex-core.js",
-		"./build/source/reflex-ml.js",
+		"./build/reflex-ml.js",
 		"./bundle/reflex.js",
 	);
 	
@@ -38,7 +38,7 @@ make.on("bundle", "publish", async () =>
 	
 	//# Create reflex-ml.js (which require()'s Core if necessary)
 	
-	make.copy("./build/source/reflex-ml.js", "./bundle");
+	make.copy("./build/reflex-ml.js", "./bundle");
 	make.augment("./bundle/reflex-ml.js", {
 		exports,
 		globals: exports,
@@ -57,7 +57,7 @@ make.on("bundle", "publish", async () =>
 	
 	//# Handle the d.ts processing
 	
-	make.copy("./build/source/reflex-ml.d.ts", "./bundle/index.d.ts");
+	make.copy("./build/reflex-ml.d.ts", "./bundle/index.d.ts");
 	make.augment("./bundle/index.d.ts", {
 		above: `/// <reference types="reflex-core" />\n\n`
 	});

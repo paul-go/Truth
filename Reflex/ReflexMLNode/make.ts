@@ -9,7 +9,7 @@ make.on(async () =>
 
 make.on("bundle", "publish", async () =>
 {
-	const src = "./build/source/";
+	const src = "./build/";
 	const dst = "./bundle/";
 	
 	make.copy(src + "Dom.js", dst);

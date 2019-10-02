@@ -5,9 +5,10 @@
 		"target": "es5",
 		"outFile": null,
 		"outDir": "build",
-		"rootDir": ".",
+		"rootDir": "source",
 		"alwaysStrict": false,
 		"noImplicitUseStrict": true,
+		"tsBuildInfoFile": "build/tsconfig.tsbuildinfo"
 	},
 	"include": [
 		"./source/**/*.ts"

@@ -3,7 +3,7 @@
 	"compilerOptions": {
 		"declaration": true,
 		"stripInternal": true,
-		"outFile": "build/source/reflex-core.js"
+		"outFile": "build/reflex-core.js"
 	},
 	"include": [
 		"./source/**/*.ts"
