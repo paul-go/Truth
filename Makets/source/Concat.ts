@@ -43,10 +43,11 @@ namespace make
 	{
 		// Concatenation doesn't make any sense if less
 		// than 2 files have been specified.
-		if (filePaths.length < 2)
+		if (filePaths.length < 3)
 			return;
 		
-		const outPath = filePaths[filePaths.length - 1];
+		const paths = filePaths.slice();
+		const outPath = paths.pop()!;
 		const outPathParsed = Path.parse(outPath);
 		const outPathDir = Path.resolve(outPathParsed.dir);
 		
@@ -74,9 +75,9 @@ namespace make
 			sourceTextBlocks.push(sourceText);
 		}
 		
-		for (let inFilePathIdx = -1; ++inFilePathIdx < filePaths.length;)
+		for (let inFilePathIdx = -1; ++inFilePathIdx < paths.length;)
 		{
-			const inFilePath = filePaths[inFilePathIdx];
+			const inFilePath = paths[inFilePathIdx];
 			
 			if (!inFilePath.endsWith(".js"))
 				continue;
