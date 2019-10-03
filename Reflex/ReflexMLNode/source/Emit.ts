@@ -168,7 +168,8 @@ export function emit(target: Node | Node[], options?: Reflex.ML.IEmitOptions)
 				
 				const textCommands = tag.metas
 					.filter((m): m is Reflex.Core.ContentMeta => m instanceof Reflex.Core.ContentMeta)
-					.map((meta, index) => [index, meta.locator.toString()]);
+					.map((meta, index) => [index, meta.locator.toString()])
+					.reduce((a, b) => a.concat(b));
 				
 				commands.push(textCommands);
 				
