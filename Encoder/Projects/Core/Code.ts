@@ -1,5 +1,5 @@
 import PrimeType from "./Type";
-import { Type, read, RegexCharRange } from "../../../Truth/Core/X";
+import { Type, read } from "../../../Truth/Core/X";
 import { promises as FS } from "fs";
 import Serializer from "./Serializer";
 import { typeHash } from "./Util";
@@ -11,16 +11,20 @@ import { FuturePrimeType } from "./FutureType";
 export default class CodeJSON 
 {
 	protected types: PrimeType[] = [];
-	protected dataPatterns: number[][] = [];
+	protected data: PrimeType[] = [];
 	
 	primeId(type: PrimeType)
 	{
 		return this.types.indexOf(type);
 	}	
 	
-	add(prime: PrimeType)
+	add(prime: PrimeType, data = false)
 	{
-		const id = this.types.push(prime) - 1;
+		if (data)
+		{
+			prime = prime.compile(`DataPattern:${prime.name}`);
+		}
+		const id = (data ? this.data.push(prime) : this.types.push(prime)) - 1;
 		FuturePrimeType.set(id, prime);
 		return prime;
 	}
@@ -52,6 +56,8 @@ export default class CodeJSON
 			console.error(`Couldn't load ${path}! Reason: ${ex}`);	
 		}
 	}
+	
+	constructor(private patterns: RegExp[]) {}
 
 	async loadTruth(path: string)
 	{	
@@ -62,15 +68,18 @@ export default class CodeJSON
 			
 		const primes: PrimeType[] = [];
 			
-		const scanContent = (type: Type) =>
+		const scanContent = (type: Type, isdata = false) =>
 		{
+			const isData = isdata || type.container === null && this.patterns.some(x => x.test(type.name));
+			
 			if (!PrimeType.SignatureMap.has(typeHash(type)))
 			{
 				const prime = PrimeType.fromType(this, type);
-				this.add(prime);
+				this.add(prime, isData);
 				primes.push(prime);
 			}
-			type.contents.forEach(x => scanContent(x));
+			
+			type.contents.forEach(x => scanContent(x, isData));
 		}	
 		
 		Doc.program.verify();
@@ -82,12 +91,11 @@ export default class CodeJSON
 		
 		for (const prime of primes)
 			prime.link();
-	}	
+	}	 
 	
-	extractData(key: string, pattern: RegExp)
+	compileData()
 	{
-		const roots = this.types.filter(x => x.container.id === -1 && pattern.test(x.name));
-		return roots.map(x => x.data);
+		
 	}
 	
 	/**

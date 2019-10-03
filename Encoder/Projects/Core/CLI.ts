@@ -18,7 +18,7 @@ export interface EncoderRawConfig
 export interface EncoderConfig
 {
 	Code: CodeJSON;
-	Data: Record<string, any[]>;
+	//Data: Record<string, any[]>;
 	CodeFile: string;
 }
 
@@ -30,17 +30,17 @@ export async function normalizeConfig(raw: EncoderRawConfig): Promise<EncoderCon
 	const Input = resolve(process.cwd(), raw.Input);
 	const CodeFile = resolve(process.cwd(), raw.Declarations);
 	
-	const Code = new CodeJSON();
+	const Code = new CodeJSON(Object.values(raw.Data));
 	await Code.loadFile(CodeFile);
 	await Code.loadTruth(Input);
-	
+	/*
 	const Data = {};
 	for (const key in raw.Data)
 		Data[key] = Code.extractData(key, raw.Data[key]);
-	
+	*/
 	return {
 		Code,
-		Data,
+		//Data,
 		CodeFile
 	};
 }

@@ -19,3 +19,8 @@ export function typeHash(type: Type): number
 {
 	return HashHash(`${type.name}$${type.container ? type.container.name : ""}$${type.bases.map(typeHash)}`);
 }
+
+export function JSONHash(...objs: any[])
+{
+	return HashHash(JSON.stringify(objs));
+}

@@ -4,19 +4,30 @@ string
 /\d+ : number
 /".+" : string
 
+Sizes 
+Long : Sizes
+
 Product
 	Name : string
-	Size : number
+	Size : number, Sizes
+	Nested
+		Test2: string
 
 000-000-001 : Product
 	Name : "Screw"
-	Size : 5	
+	Size : 5, Long
+	Nested
+		Test2: "123"
 
 000-000-002 : Product
 	Name : "Toy"
-	Size : 10
+	Size : 10, Long
 	
-000-000-003 : Product
+Something
+	Test : string
+	
+000-000-003 : Product, Something
 	Name : "Chair"
-	Size : 10
+	Size : 10, Long
+	Test : "test"
 	
