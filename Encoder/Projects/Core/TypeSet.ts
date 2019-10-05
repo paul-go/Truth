@@ -1,4 +1,5 @@
 import { FuturePrimeType } from "./FutureType";
+import { HashHash } from "./Util";
 
 export class PrimeTypeSet extends Set<FuturePrimeType>
 {
@@ -21,5 +22,10 @@ export class PrimeTypeSet extends Set<FuturePrimeType>
 	toJSON()
 	{
 		return Array.from(this.values()).sort();
+	}
+	
+	get hash()
+	{
+		return HashHash(this.toJSON().map(x => x.prime.name).join(','));
 	}
 }

@@ -12,7 +12,7 @@ export interface EncoderRawConfig
 {
 	Input: string;
 	Declarations: string;
-	Data: RawDataPatternMap;
+	DataPattern: RegExp;
 } 
 
 export interface EncoderConfig
@@ -30,7 +30,7 @@ export async function normalizeConfig(raw: EncoderRawConfig): Promise<EncoderCon
 	const Input = resolve(process.cwd(), raw.Input);
 	const CodeFile = resolve(process.cwd(), raw.Declarations);
 	
-	const Code = new CodeJSON(Object.values(raw.Data));
+	const Code = new CodeJSON(raw.DataPattern);
 	await Code.loadFile(CodeFile);
 	await Code.loadTruth(Input);
 	/*

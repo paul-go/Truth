@@ -20,10 +20,6 @@ export default class CodeJSON
 	
 	add(prime: PrimeType, data = false)
 	{
-		if (data)
-		{
-			prime = prime.compile(`DataPattern:${prime.name}`);
-		}
 		const id = (data ? this.data.push(prime) : this.types.push(prime)) - 1;
 		FuturePrimeType.set(id, prime);
 		return prime;
@@ -57,7 +53,7 @@ export default class CodeJSON
 		}
 	}
 	
-	constructor(private patterns: RegExp[]) {}
+	constructor(private pattern: RegExp) {}
 
 	async loadTruth(path: string)
 	{	
@@ -70,12 +66,12 @@ export default class CodeJSON
 			
 		const scanContent = (type: Type, isdata = false) =>
 		{
-			const isData = isdata || type.container === null && this.patterns.some(x => x.test(type.name));
-			
+			const isData = isdata || type.container === null && this.pattern.test(type.name);
+		
 			if (!PrimeType.SignatureMap.has(typeHash(type)))
 			{
 				const prime = PrimeType.fromType(this, type);
-				this.add(prime, isData);
+				this.add(prime);
 				primes.push(prime);
 			}
 			
@@ -89,13 +85,9 @@ export default class CodeJSON
 		
 		Doc.types.forEach(x => scanContent(x));
 		
+		
 		for (const prime of primes)
 			prime.link();
-	}	 
-	
-	compileData()
-	{
-		
 	}
 	
 	/**

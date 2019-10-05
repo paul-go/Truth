@@ -1,7 +1,7 @@
 import { Type } from "../../../Truth/Core/X";
 import CodeJSON from "./Code";
 import Flags from "./Flags";
-import { typeHash, HashHash, JSONHash } from "./Util";
+import { typeHash, HashHash, JSONHash, primePatternHash } from "./Util";
 import { PrimeTypeSet } from "./TypeSet";
 import Serializer from "./Serializer";
 import { FuturePrimeType } from "./FutureType";
@@ -16,6 +16,14 @@ export type Typeish = TypeId | PrimeType | Type;
 export type ExtractKeys<T, Q> = {
   [P in keyof T]: T[P] extends Q  ? P : never
 }[keyof T]; 
+
+export enum PrimeClassification 
+{
+	CodeRoot,
+	DataRoot,
+	CodeSub,
+	DataSub
+}
 
 /**
  * Lazy and serializable representation of Type 
@@ -42,6 +50,7 @@ export default class PrimeType
 	
 	static JSONLength = 5 + PrimeType.TypeSetFields.length;
 	static SignatureMap = new Map<number, PrimeType>();
+	static DataPatternMap = new Map<number, PrimeType>();
 	static Views = new Map<PrimeType, PrimeTypeView>();
 	
 	static View(prime: PrimeType)
@@ -120,6 +129,7 @@ export default class PrimeType
 	}
 	
 	flags = new Flags(PrimeType.FlagFields);
+	classification: PrimeClassification;
 	
 	name: string = "";
 	
@@ -176,11 +186,10 @@ export default class PrimeType
 	compile(name: string)
 	{
 		const prime = new PrimeType(this.code);
-		prime.typeSignature = JSONHash(this.parallels, this.bases);
-		prime.name = name;	
+		prime.typeSignature = primePatternHash(this);
+		prime.name = this.name;
 		prime.flags.flags = this.flags.flags;
 		prime.container = this.container;
-		this.aliases.forEach(x => prime.aliases.push(x));
 		this.bases.forEach(x => prime.bases.add(x));
 		this.parallels.forEach(x => prime.parallels.add(x));
 		this.patterns.forEach(x => prime.patterns.add(x));
