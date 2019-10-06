@@ -30,3 +30,16 @@ export function JSONHash(...objs: any[])
 {
 	return HashHash(JSON.stringify(objs));
 }
+
+export function JSONRec(obj: any)
+{
+	const res = Array.isArray(obj) ? [] : {};
+	for (const key in obj)
+	{
+		let value = obj[key];
+		value = typeof value === "object" && "toJSON" in value ? value.toJSON() : value;
+		if (typeof value === "object") value = JSONRec(value);
+		if (value !== null || value !== undefined) res[key] = value;
+	}
+	return res;
+}
