@@ -1,32 +1,35 @@
-import * as NodeFs from "fs";
-import * as X from "../X";
 
-/**
- * @internal
- * Exposes the "fs" module used by the compiler, 
- * as well as the ability to change the module used
- * with a custom implementation.
- */
-export class Fs
+namespace Truth
 {
+	declare const NodeFs: typeof import("fs");
+	
 	/**
-	 * Assigns a new implementation of the node "fs" module.
+	 * @internal
+	 * Exposes the "fs" module used by the compiler, 
+	 * as well as the ability to change the module used
+	 * with a custom implementation.
 	 */
-	static override(module: typeof NodeFs)
+	export class Fs
 	{
-		this._module = module;
-	}
-	
-	/** */
-	static get module()
-	{
-		if (this._module)
-			return this._module;
+		/**
+		 * Assigns a new implementation of the node "fs" module.
+		 */
+		static override(module: typeof NodeFs)
+		{
+			this._module = module;
+		}
 		
-		this._module = require("fs");
-		return X.Not.null(this._module);
+		/** */
+		static get module()
+		{
+			if (this._module)
+				return this._module;
+			
+			this._module = require("fs");
+			return Not.null(this._module);
+		}
+		
+		/** */
+		private static _module: typeof NodeFs | null = null;
 	}
-	
-	/** */
-	private static _module: typeof NodeFs | null = null;
 }

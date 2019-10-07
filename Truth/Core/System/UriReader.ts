@@ -1,55 +1,56 @@
-import * as X from "../X";
 
-/** */
-export const UriReader = new class UriReader
+namespace Truth
 {
-	/**
-	 * Attempts to read the contents of the given URI.
-	 * If an error is generated while trying to read a file 
-	 * at the specified location, the errors is returned.
-	 */
-	async tryRead(uri: X.Uri)
+	/** */
+	export const UriReader = new class UriReader
 	{
-		if (uri.protocol === X.UriProtocol.file)
-			return await readFile(uri.toStoreString());
-		
-		else if (uri.protocol === X.UriProtocol.http ||
-			uri.protocol === X.UriProtocol.https)
-			return await X.Fetch.exec(uri.toStoreString());
-		
-		throw X.Exception.notImplemented();
-	}
-}();
-
-
-/** */
-const fileExists = (path: string) =>
-	new Promise<boolean>((resolve, reject) =>
-	{
-		X.Fs.module.exists(path, resolve);
-	});
-
-
-/** */
-const readFile = (path: string, opts = "utf8") =>
-	new Promise<string | Error>(resolve =>
-	{
-		X.Fs.module.readFile(path, opts, (error, data) =>
+		/**
+		 * Attempts to read the contents of the given URI.
+		 * If an error is generated while trying to read a file 
+		 * at the specified location, the errors is returned.
+		 */
+		async tryRead(uri: Uri)
 		{
-			resolve(error && error.errno ?
-				error :
-				data || "");
-		});
-	});
+			if (uri.protocol === UriProtocol.file)
+				return await readFile(uri.toStoreString());
+			
+			else if (uri.protocol === UriProtocol.http ||
+				uri.protocol === UriProtocol.https)
+				return await Fetch.exec(uri.toStoreString());
+			
+			throw Exception.notImplemented();
+		}
+	}();
 
 
-/** */
-const writeFile = (path: string, data: string, opts = "utf8") =>
-	new Promise<null | Error>(resolve =>
-	{
-		X.Fs.module.writeFile(path, data, opts, error =>
+	/** */
+	const fileExists = (path: string) =>
+		new Promise<boolean>((resolve, reject) =>
 		{
-			resolve(error || null);
+			Fs.module.exists(path, resolve);
 		});
-	});
 
+
+	/** */
+	const readFile = (path: string, opts = "utf8") =>
+		new Promise<string | Error>(resolve =>
+		{
+			Fs.module.readFile(path, opts, (error, data) =>
+			{
+				resolve(error && error.errno ?
+					error :
+					data || "");
+			});
+		});
+
+
+	/** */
+	const writeFile = (path: string, data: string, opts = "utf8") =>
+		new Promise<null | Error>(resolve =>
+		{
+			Fs.module.writeFile(path, data, opts, error =>
+			{
+				resolve(error || null);
+			});
+		});
+}

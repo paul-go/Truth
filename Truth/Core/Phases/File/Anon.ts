@@ -1,23 +1,26 @@
 
-/**
- * Placeholder object to mark the position of
- * an anonymous type within a statement.
- */
-export class Anon
+namespace Truth
 {
 	/**
-	 * @internal
-	 * No-op property used for debugging
-	 * purposes, and also to dodge structural
-	 * type compatibility bugs in TypeScript.
+	 * Placeholder object to mark the position of
+	 * an anonymous type within a statement.
 	 */
-	readonly id = ++nextId;
-	
-	/** */
-	toString()
+	export class Anon
 	{
-		return `__ANON${this.id}__`;
+		/**
+		 * @internal
+		 * No-op property used for debugging
+		 * purposes, and also to dodge structural
+		 * type compatibility bugs in TypeScript.
+		 */
+		readonly id = ++nextId;
+		
+		/** */
+		toString()
+		{
+			return `__ANON${this.id}__`;
+		}
 	}
-}
 
-let nextId = 0;
+	let nextId = 0;
+}

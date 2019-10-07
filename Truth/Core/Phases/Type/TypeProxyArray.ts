@@ -1,30 +1,31 @@
-import * as X from "../../X";
 
-
-/**
- * @internal
- */
-export class TypeProxyArray
+namespace Truth
 {
 	/**
-	 * 
+	 * @internal
 	 */
-	constructor(private readonly array: ReadonlyArray<X.TypeProxy>) { }
-	
-	/**
-	 * 
-	 */
-	maybeCompile()
+	export class TypeProxyArray
 	{
-		if (this.compiledArray !== undefined)
-			return this.compiledArray;
+		/**
+		 * 
+		 */
+		constructor(private readonly array: ReadonlyArray<TypeProxy>) { }
 		
-		const out = this.array
-			.map(lazy => lazy.maybeCompile())
-			.filter((type): type is X.Type => type !== null);
+		/**
+		 * 
+		 */
+		maybeCompile()
+		{
+			if (this.compiledArray !== undefined)
+				return this.compiledArray;
+			
+			const out = this.array
+				.map(lazy => lazy.maybeCompile())
+				.filter((type): type is Type => type !== null);
+			
+			return this.compiledArray = Object.freeze(out);
+		}
 		
-		return this.compiledArray = Object.freeze(out);
+		private compiledArray: ReadonlyArray<Type> | undefined = undefined;
 	}
-	
-	private compiledArray: ReadonlyArray<X.Type> | undefined = undefined;
 }

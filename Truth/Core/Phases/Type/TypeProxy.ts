@@ -1,26 +1,27 @@
-import * as X from "../../X";
 
-
-/**
- * @internal
- */
-export class TypeProxy
+namespace Truth
 {
-	/** */
-	constructor(
-		private readonly uri: X.Uri,
-		private readonly program: X.Program)
-	{ }
-	
-	/** */
-	maybeCompile()
+	/**
+	 * @internal
+	 */
+	export class TypeProxy
 	{
-		if (this.compiledType !== undefined)
-			return this.compiledType;
+		/** */
+		constructor(
+			private readonly uri: Uri,
+			private readonly program: Program)
+		{ }
 		
-		return this.compiledType = X.Type.construct(this.uri, this.program);
+		/** */
+		maybeCompile()
+		{
+			if (this.compiledType !== undefined)
+				return this.compiledType;
+			
+			return this.compiledType = Type.construct(this.uri, this.program);
+		}
+		
+		/** */
+		private compiledType: Type | null | undefined = undefined;
 	}
-	
-	/** */
-	private compiledType: X.Type | null | undefined = undefined;
 }

@@ -1,24 +1,25 @@
-import * as X from "../../X";
 
-
-/**
- * 
- */
-export class UnspecifiedParallel extends X.Parallel
+namespace Truth
 {
 	/**
-	 * @internal
-	 * Invoked by ParallelCache. Do not call.
+	 * 
 	 */
-	constructor(
-		uri: X.Uri,
-		container: X.Parallel | null)
+	export class UnspecifiedParallel extends Parallel
 	{
-		super(uri, container);
+		/**
+		 * @internal
+		 * Invoked by ParallelCache. Do not call.
+		 */
+		constructor(
+			uri: Uri,
+			container: Parallel | null)
+		{
+			super(uri, container);
+		}
+		
+		/**
+		 * Avoids erroneous structural type compatibility with Parallel.
+		 */
+		private readonly unique: undefined;
 	}
-	
-	/**
-	 * Avoids erroneous structural type compatibility with Parallel.
-	 */
-	private readonly unique: undefined;
 }

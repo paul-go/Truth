@@ -1,80 +1,81 @@
-import * as X from "../X";
 
-
-/**
- * @internal
- * Translates Pattern instances into a corresponding Fsm.
- */
-export class FsmTranslator
+namespace Truth
 {
-	/** */
-	static exec(units: Iterable<X.RegexUnit>)
+	/**
+	 * @internal
+	 * Translates Pattern instances into a corresponding Fsm.
+	 */
+	export class FsmTranslator
 	{
-		for (const unit of units)
+		/** */
+		static exec(units: Iterable<RegexUnit>)
 		{
-			if (unit instanceof X.RegexSet)
+			for (const unit of units)
 			{
-				throw X.Exception.notImplemented();
+				if (unit instanceof RegexSet)
+				{
+					throw Exception.notImplemented();
+				}
+				else if (unit instanceof RegexGroup)
+				{
+					throw Exception.notImplemented();
+				}
+				else if (unit instanceof RegexGrapheme)
+				{
+					throw Exception.notImplemented();
+				}
+				else if (unit instanceof RegexSign)
+				{
+					throw Exception.notImplemented();
+				}
+				else throw Exception.unknownState();
 			}
-			else if (unit instanceof X.RegexGroup)
-			{
-				throw X.Exception.notImplemented();
-			}
-			else if (unit instanceof X.RegexGrapheme)
-			{
-				throw X.Exception.notImplemented();
-			}
-			else if (unit instanceof X.RegexSign)
-			{
-				throw X.Exception.notImplemented();
-			}
-			else throw X.Exception.unknownState();
+			
+			return <Fsm>null!;
 		}
 		
-		return <X.Fsm>null!;
-	}
-	
-	/** */
-	private static translateSet(
-		set: X.RegexSet,
-		alpha: X.AlphabetBuilder | null = null)
-	{
-		
-	}
-	
-	/** */
-	private static translateGroup(
-		group: X.RegexGroup,
-		alpha: X.AlphabetBuilder | null = null)
-	{
-		const builder = alpha || new X.AlphabetBuilder().addWild();
-	}
-	
-	/** */
-	private static createGroupAlphabet(group: X.RegexGroup)
-	{
-		const builder = new X.AlphabetBuilder();
-		builder.addWild();
-		
-		for (const element of group.cases)
+		/** */
+		private static translateSet(
+			set: RegexSet,
+			alpha: AlphabetBuilder | null = null)
 		{
-			throw X.Exception.notImplemented();
+			
 		}
-	}
-	
-	/** */
-	private static translateGrapheme(
-		grapheme: X.RegexGrapheme,
-		alpha: X.AlphabetBuilder | null = null)
-	{
 		
-	}
-	
-	/** */
-	private static translateSign(
-		sign: X.RegexSign,
-		alpha: X.AlphabetBuilder | null = null)
-	{
+		/** */
+		private static translateGroup(
+			group: RegexGroup,
+			alpha: AlphabetBuilder | null = null)
+		{
+			const builder = alpha || new AlphabetBuilder().addWild();
+		}
 		
+		/** */
+		private static createGroupAlphabet(group: RegexGroup)
+		{
+			const builder = new AlphabetBuilder();
+			builder.addWild();
+			
+			for (const element of group.cases)
+			{
+				throw Exception.notImplemented();
+			}
+		}
+		
+		/** */
+		private static translateGrapheme(
+			grapheme: RegexGrapheme,
+			alpha: AlphabetBuilder | null = null)
+		{
+			
+		}
+		
+		/** */
+		private static translateSign(
+			sign: RegexSign,
+			alpha: AlphabetBuilder | null = null)
+		{
+			
+		}
 	}
 }
