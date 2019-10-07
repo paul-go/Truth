@@ -13,7 +13,7 @@
 		"compile": "tsc"
 	},
 	"jest": {
-		"testRegex": "Build/Dev/CoreTests/Units/[\\w.]+\\.test\\.js$",
+		"testRegex": "Build/Dev/test/Units/[\\w.]+\\.test\\.js$",
 		"verbose": true,
 		"testURL": "http://localhost/"
 	},

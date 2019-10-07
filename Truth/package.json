@@ -4,12 +4,12 @@
 	"description": "Verify and analyze code and data in the Truth format",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/paul-go/Truth"
+		"url": "https://github.com/Truebase-com/TruthStack"
 	},
 	"bugs": {
-		"url": "https://github.com/paul-go/Truth/issues"
+		"url": "https://github.com/Truebase-com/TruthStack/issues"
 	},
-	"author": "Paul Go",
+	"author": "Truebase",
 	"license": "MIT",
 	"keywords": [
 		"Truth",
@@ -18,20 +18,14 @@
 		"verification",
 		"compiler"
 	],
-	"main": "./Build/Dev/Core/X.js",
 	"scripts": {
 		"test": "jest",
-		"mjs-rename": "for i in `find ./Build/Dev -mindepth 2 -name '*.js'`; do mv $i ${i%.js}.mjs; done",
-		"compile": "npm run compile-core && npm run compile-tests && npm run compile-quick",
-		"compile-core": "tsc -p ./Core/tsconfig.json",
-		"compile-tests": "tsc -p ./CoreTests/tsconfig.json",
-		"compile-quick": "tsc -p ./Quick/tsconfig.json",
-		"compile-types-bundler": "tsc -p ./TypesBundler/tsconfig.json",
-		"compile-release": "node release.js",
-		"release": "node release.js --publish"
+		"build": "makets build",
+		"bundle": "makets bundle",
+		"publish": "makets publish"
 	},
 	"jest": {
-		"testRegex": "Build/Dev/CoreTests/Units/[\\w.]+\\.test\\.js$",
+		"testRegex": "build/tests/Units/[\\w.]+\\.test\\.js$",
 		"verbose": true,
 		"testURL": "http://localhost/"
 	},
@@ -45,7 +39,6 @@
 		"jest": "23.6.0",
 		"jsonviz": "git+https://github.com/HaroldRitter/jsonviz.git",
 		"memfs": "^2.10.1",
-		"rollup": "^1.1.0",
 		"terser": "^3.16.0"
 	}
 }

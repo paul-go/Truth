@@ -3,18 +3,16 @@
 	"files.exclude": {
 		"**/.git": true,
 		"**/.DS_Store": true,
-		"**/Build": true,
+		"**/build": true,
+		"**/bundle": true,
 		"**/node_modules": true
 	},
 	"search.exclude": {
 		"**/.git": true,
 		"**/.DS_Store": true,
-		"**/Build": true,
+		"**/build": true,
+		"**/bundle": true,
 		"**/node_modules": true
 	},
-	
-	// Causes annoyances with the X bundle format
-	"typescript.suggest.autoImports": false,
-	
 	"eslint.run": "onSave"
 }

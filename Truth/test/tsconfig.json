@@ -1,0 +1,9 @@
+{
+	"extends": "../tsconfig.composite.json",
+	"compilerOptions": {
+		"outFile": "../build/truth-test.js"
+	},
+	"references": [
+		{ "path": "../source" }
+	]
+}
