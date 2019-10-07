@@ -1,5 +1,5 @@
 import PrimeType from "./Type";
-import { Type, read } from "../../../Truth/Core/X";
+import { Type, read, ConstructionWorker } from "../../../Truth/Core/X";
 import { promises as FS } from "fs";
 import Serializer from "./Serializer";
 import { typeHash, JSONRec } from "./Util";
@@ -107,13 +107,24 @@ export default class CodeJSON
 			
 		const dataPatterns: PrimeType[] = [];
 		dataQuery.map(x => x.compile("")).forEach(x => {
-			if (!dataPatterns.some(x => x.typeSignature)) 
+			if (!dataPatterns.some(w => w.typeSignature === x.typeSignature)) 
 				dataPatterns.push(x);
 		});
 	
-		for (const prime of codeRoots)
+		for (const prime of dataPatterns)
 			code.add(prime);
 		
+		console.log(dataSchema.map(x => x.map(x => x.name)));
+		const data = dataSchema.map(x => {
+			const rootType = x.shift().compile("");
+			const index = code.types.findIndex(x => x.typeSignature === rootType.typeSignature);
+			return [index, ...x.map(x => x.aliases)];
+		});
+		
+		return {
+			code,
+			data
+		}
 	}
 	
 	/**
@@ -121,7 +132,6 @@ export default class CodeJSON
 	 */
 	toJSON()
 	{
-		this.extractData();
 		return this.types;
 	}
 }

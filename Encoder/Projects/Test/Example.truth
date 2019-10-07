@@ -10,14 +10,10 @@ Long : Sizes
 Product
 	Name : string
 	Size : number, Sizes
-	Nested
-		Test2: string
 
 000-000-001 : Product
 	Name : "Screw"
 	Size : 5, Long
-	Nested
-		Test2: "123"
 
 000-000-002 : Product
 	Name : "Toy"

@@ -1,6 +1,6 @@
 import { EncoderConfig, initializeCLI } from "../Core/CLI";
 import { writeFileSync } from "fs";
-import { open } from "inspector";
+//import { open } from "inspector";
 import { inspect } from "util";
 
 /**
@@ -27,7 +27,9 @@ export default class JSONCLI
 	
 	save()
 	{
-		writeFileSync(this.Config.CodeFile, this.formattJSON(this.Config.Code));
+		const { code, data } = this.Config.Code.extractData();
+		writeFileSync(this.Config.CodeFile, this.formattJSON(code));
+		writeFileSync("Products.data.json", this.formattJSON(data));
 		/*for (const key in this.Config.Data)
 			writeFileSync(`${key}.data.json`, this.formattJSON(this.Config.Data[key]));*/
 		console.info(`Truth Code JSON file ${this.Config.CodeFile} saved!`);
@@ -35,7 +37,7 @@ export default class JSONCLI
 }
 
 
-open(9229, "0.0.0.0", true);
+//open(9229, "0.0.0.0", true);
 
 if(!module.parent) // only if this file is main module
 	initializeCLI(JSONCLI);
