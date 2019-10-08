@@ -165,12 +165,12 @@ namespace Truth
 		 * Stores the store-side components of this URI.
 		 * Excludes the file name.
 		 */
-		readonly stores: ReadonlyArray<UriComponent> = [];
+		readonly stores: readonly UriComponent[] = [];
 		
 		/**
 		 * Stores the type-side components of this URI.
 		 */
-		readonly types: ReadonlyArray<UriComponent> = [];
+		readonly types: readonly UriComponent[] = [];
 		
 		/**
 		 * Stores the number of retractions that are defined in this
@@ -230,7 +230,7 @@ namespace Truth
 		/**
 		 * 
 		 */
-		extendType(additionalTypeNames: string | ReadonlyArray<string>): Uri
+		extendType(additionalTypeNames: string | readonly string[]): Uri
 		{
 			if (!additionalTypeNames)
 				return new Uri(this);
@@ -245,7 +245,7 @@ namespace Truth
 		/**
 		 * 
 		 */
-		extendStore(additionalStores: string | ReadonlyArray<string>): Uri
+		extendStore(additionalStores: string | readonly string[]): Uri
 		{
 			if (!additionalStores)
 				return new Uri(this);

@@ -100,8 +100,8 @@ namespace Truth
 		 * from the second set that exist in the first set.
 		 */
 		static computeSubsetFactor(
-			a: ReadonlyArray<unknown>,
-			b: ReadonlyArray<unknown>)
+			a: readonly unknown[],
+			b: readonly unknown[])
 		{
 			let count = 0;
 			
@@ -120,7 +120,7 @@ namespace Truth
 		static reduceRecursive<TRet, T>(
 			initialObject: T,
 			followFn: (from: T) => Iterable<T>,
-			reduceFn: (current: T, nestedResults: ReadonlyArray<TRet>) => TRet
+			reduceFn: (current: T, nestedResults: readonly TRet[]) => TRet
 		): TRet
 		{
 			const visited = new Set<T>();
@@ -146,7 +146,7 @@ namespace Truth
 		 */
 		static patch<T extends object>(source: T, patch: Partial<T>)
 		{
-			type K = ReadonlyArray<(keyof T)>;
+			type K = readonly (keyof T)[];
 			const patchKeys = <K>Object.freeze(Object.keys(patch));
 			
 			return new Proxy(source, {

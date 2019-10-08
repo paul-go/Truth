@@ -9,7 +9,7 @@ namespace Truth
 		/**
 		 * 
 		 */
-		constructor(private readonly array: ReadonlyArray<TypeProxy>) { }
+		constructor(private readonly array: readonly TypeProxy[]) { }
 		
 		/**
 		 * 
@@ -26,6 +26,6 @@ namespace Truth
 			return this.compiledArray = Object.freeze(out);
 		}
 		
-		private compiledArray: ReadonlyArray<Type> | undefined = undefined;
+		private compiledArray: readonly Type[] | undefined = undefined;
 	}
 }

@@ -25,7 +25,7 @@ namespace Truth
 			 */
 			readonly predecessor: Node,
 			source: Span | InfixSpan,
-			successors: ReadonlyArray<Successor>)
+			successors: readonly Successor[])
 		{
 			if (!(source.boundary.subject instanceof Identifier))
 				throw Exception.unknownState();
@@ -91,7 +91,7 @@ namespace Truth
 		 * the location of those Spans are potentially scattered across many
 		 * statements.
 		 */
-		get fragments(): ReadonlyArray<Span | InfixSpan>
+		get fragments(): readonly (Span | InfixSpan)[]
 		{
 			return this.fragmentsMutable;
 		}
@@ -124,7 +124,7 @@ namespace Truth
 		 * connection is said to be preemptive, because the connection
 		 * might be ignored during polymorphic name resolution.
 		 */
-		get successors(): ReadonlyArray<Successor>
+		get successors(): readonly Successor[]
 		{
 			return this.successorsMutable;
 		}

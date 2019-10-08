@@ -11,7 +11,7 @@ namespace Truth
 			/**
 			 * 
 			 */
-			readonly units: ReadonlyArray<RegexUnit | Infix>,
+			readonly units: readonly (RegexUnit | Infix)[],
 			/**
 			 * Stores whether the pattern is considered to be "Total"
 			 * or "Partial". Total patterns must match an entire annotation
@@ -41,7 +41,7 @@ namespace Truth
 		 */
 		*eachUnit()
 		{
-			function *recurse(units: ReadonlyArray<RegexUnit | Infix>)
+			function *recurse(units: readonly (RegexUnit | Infix)[])
 			{
 				for (const unit of units)
 				{
@@ -136,7 +136,7 @@ namespace Truth
 				}
 				
 				///Make sure the above produces the same behavior before deleting
-				///const recurseUnits = (units: ReadonlyArray<RegexUnit | Infix>) =>
+				///const recurseUnits = (units: readonly (RegexUnit | Infix>)[]) =>
 				///{
 				///	for (const unit of units)
 				///	{

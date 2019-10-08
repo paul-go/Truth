@@ -181,7 +181,7 @@ namespace Truth
 		}
 		
 		private lastUri: Uri | null = null;
-		private readonly typePath: ReadonlyArray<string>;
+		private readonly typePath: readonly string[];
 		
 		/** Stores the document that contains this Node. */
 		readonly document: Document;
@@ -368,7 +368,7 @@ namespace Truth
 			
 			return this._portabilityTargets = Object.freeze(identifierArrays);
 		}
-		private _portabilityTargets: ReadonlyArray<ReadonlyArray<string>> | null = null;
+		private _portabilityTargets: readonly (readonly string[])[] | null = null;
 		
 		/**
 		 * @returns A set of nodes that are matched by
@@ -431,7 +431,7 @@ namespace Truth
 		 * others, being either adjacents, or Nodes that
 		 * exists somewhere in the containment hierarchy.
 		 */
-		get outbounds(): ReadonlyArray<HyperEdge>
+		get outbounds(): readonly HyperEdge[]
 		{
 			return this._outbounds;
 		}
@@ -746,7 +746,7 @@ namespace Truth
 			
 			return this._containment = Object.freeze(nodes);
 		}
-		private _containment: ReadonlyArray<Node> | null = null;
+		private _containment: readonly Node[] | null = null;
 		
 		/** */
 		removeEdgeSource(src: Span | InfixSpan)

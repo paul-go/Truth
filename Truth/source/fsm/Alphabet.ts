@@ -91,7 +91,7 @@ namespace Truth
 		}
 		
 		/** */
-		private readonly ranges: ReadonlyArray<AlphabetRange> = [];
+		private readonly ranges: readonly AlphabetRange[] = [];
 		
 		/**
 		 * Stores a special token that the system understands to be the

@@ -28,7 +28,7 @@ namespace Truth
 	 */
 	export type TCauseData<T> = {
 		[P in keyof T]: P extends "returns" ?
-			ReadonlyArray<T[P]> : 
+			readonly T[P][] : 
 			T[P];
 	};
 
@@ -129,12 +129,12 @@ namespace Truth
 			 * An array of statements whose descendants should be invalidated.
 			 * If the array is empty, the entire document should be invalidated.
 			 */
-			readonly parents: ReadonlyArray<Statement>,
+			readonly parents: readonly Statement[],
 			/**
 			 * An array of indexes whose length is the same as the parents field,
 			 * that represents the index of each parent within the document.
 			 */
-			readonly indexes: ReadonlyArray<number>)
+			readonly indexes: readonly number[])
 		{ super(); }
 	}
 
@@ -149,12 +149,12 @@ namespace Truth
 			/**
 			 * An array of statements whose descendants should be revalidated.
 			 */
-			readonly parents: ReadonlyArray<Statement>,
+			readonly parents: readonly Statement[],
 			/**
 			 * An array of indexes whose length is the same as the parents field,
 			 * that represents the index of each parent within the document.
 			 */
-			readonly indexes: ReadonlyArray<number>)
+			readonly indexes: readonly number[])
 		{ super(); }
 	}
 

@@ -56,7 +56,7 @@ namespace Truth
 		}
 		
 		/** */
-		private readonly entries: ReadonlyArray<Boundary<TSubject>>;
+		private readonly entries: readonly Boundary<TSubject>[];
 	}
 
 

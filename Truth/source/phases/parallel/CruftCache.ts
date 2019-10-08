@@ -16,7 +16,7 @@ namespace Truth
 		 */
 		add(cruft: TCruft, relevantFaultType: FaultType)
 		{
-			const faultSources: ReadonlyArray<TFaultSource> =
+			const faultSources: readonly TFaultSource[] =
 				cruft instanceof Node ? cruft.statements : 
 				cruft instanceof HyperEdge ? cruft.fragments :
 				[cruft];

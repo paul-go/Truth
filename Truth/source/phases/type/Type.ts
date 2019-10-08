@@ -292,7 +292,7 @@ namespace Truth
 		 * If this Type extends from a pattern, it is included in this
 		 * array.
 		 */
-		get bases(): ReadonlyArray<Type>
+		get bases(): readonly Type[]
 		{
 			this.private.throwOnDirty();
 			
@@ -729,10 +729,10 @@ namespace Truth
 		readonly stamp: VersionStamp;
 		
 		/** */
-		contents: ReadonlyArray<Type> | null = null;
+		contents: readonly Type[] | null = null;
 		
 		/** */
-		contentsIntrinsic: ReadonlyArray<Type> | null = null;
+		contentsIntrinsic: readonly Type[] | null = null;
 		
 		/** */
 		bases: TypeProxyArray | null = null;
@@ -741,28 +741,28 @@ namespace Truth
 		parallels: TypeProxyArray | null = null;
 		
 		/** */
-		parallelRoots: ReadonlyArray<Type> | null = null;
+		parallelRoots: readonly Type[] | null = null;
 		
 		/** */
-		patterns: ReadonlyArray<Type> | null = null;
+		patterns: readonly Type[] | null = null;
 		
 		/** */
-		aliases: ReadonlyArray<string> | null = null;
+		aliases: readonly string[] | null = null;
 		
 		/** */
-		values: ReadonlyArray<{ value: string; base: Type | null; }> | null = null;
+		values: readonly { value: string; base: Type | null; }[] | null = null;
 		
 		/** */
-		superordinates: ReadonlyArray<Type> | null = null;
+		superordinates: readonly Type[] | null = null;
 		
 		/** */
-		subordinates: ReadonlyArray<Type> | null = null;
+		subordinates: readonly Type[] | null = null;
 		
 		/** */
-		derivations: ReadonlyArray<Type> | null = null;
+		derivations: readonly Type[] | null = null;
 		
 		/** */
-		adjacents: ReadonlyArray<Type> | null = null;
+		adjacents: readonly Type[] | null = null;
 		
 		/** */
 		throwOnDirty()

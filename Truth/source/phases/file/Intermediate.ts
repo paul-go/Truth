@@ -21,7 +21,7 @@ namespace Truth.Dead
 	export class Strand
 	{
 		/** */
-		constructor(readonly molecules: ReadonlyArray<Molecule>)
+		constructor(readonly molecules: readonly Molecule[])
 		{
 			if (molecules.length === 0)
 				throw Exception.invalidArgument();
@@ -87,7 +87,7 @@ namespace Truth.Dead
 	{
 		constructor(
 			readonly localAtom: Atom,
-			readonly referencedAtoms: ReadonlyArray<Atom>)
+			readonly referencedAtoms: readonly Atom[])
 		{ }
 	}
 
@@ -110,7 +110,7 @@ namespace Truth.Dead
 	{
 		constructor(
 			readonly subject: Subject,
-			readonly spans: ReadonlyArray<Span>)
+			readonly spans: readonly Span[])
 		{
 			if (spans.length === 0)
 				throw Exception.invalidArgument();

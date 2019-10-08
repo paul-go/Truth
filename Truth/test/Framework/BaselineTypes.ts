@@ -21,7 +21,7 @@ namespace Truth.Test
 		constructor(
 			readonly fakeUri: string,
 			readonly sourceText: string,
-			readonly baselineLines: ReadonlyArray<BaselineLine>)
+			readonly baselineLines: readonly BaselineLine[])
 		{ }
 	}
 

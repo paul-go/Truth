@@ -10,7 +10,7 @@ namespace Truth
 		/**
 		 * @returns A readonly copy of the specified array, set, or list.
 		 */
-		static copy<T>(array: ReadonlyArray<T>): ReadonlyArray<T>;
+		static copy<T>(array: readonly T[]): readonly T[];
 		static copy<T>(set: ReadonlySet<T>): ReadonlySet<T>;
 		static copy<K, V>(map: ReadonlyMap<K, V>): ReadonlyMap<K, V>;
 		static copy(param: object): object

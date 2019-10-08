@@ -626,7 +626,7 @@ namespace Truth
 			const hasSpecifiedContents = Misc.reduceRecursive(
 				zenith,
 				pruneParallelsFollowFn,
-				(current, results: ReadonlyArray<boolean>) =>
+				(current, results: readonly boolean[]) =>
 				{
 					const prune = 
 						results.every(result => !result) &&
@@ -665,7 +665,7 @@ namespace Truth
 			const seed = Misc.reduceRecursive(
 				zenith,
 				descendParallelsFollowFn,
-				(current, nested: ReadonlyArray<Parallel>) =>
+				(current, nested: readonly Parallel[]) =>
 				{
 					const nextPar = descendOne(current);
 					

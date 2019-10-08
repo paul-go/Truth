@@ -736,7 +736,7 @@ namespace Truth
 				if (!parser.read(RegexSyntaxDelimiter.groupStart))
 					return null;
 				
-				const cases: ReadonlyArray<RegexUnit>[] = [];
+				const cases: (readonly RegexUnit[])[] = [];
 				let closed = false;
 				
 				while (parser.more())

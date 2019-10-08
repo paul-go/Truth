@@ -51,7 +51,7 @@ namespace Truth
 					[];
 			})()));
 		}
-		private _infixes: ReadonlyArray<Infix> | null = null;
+		private _infixes: readonly Infix[] | null = null;
 		
 		/** */
 		*eachDeclarationForInfix(infix: Infix)
@@ -115,7 +115,7 @@ namespace Truth
 			
 			return this._ancestry;
 		}
-		private _ancestry: ReadonlyArray<Statement> | null = null;
+		private _ancestry: readonly Statement[] | null = null;
 		
 		/**
 		 * Splits apart the groups subjects specified in the containing
@@ -128,7 +128,7 @@ namespace Truth
 		 * method on the same Span object always returns the same
 		 * Spine instance.
 		 */
-		factor(): ReadonlyArray<Spine>
+		factor(): readonly Spine[]
 		{
 			if (this.factoredSpines)
 				return this.factoredSpines;
@@ -220,7 +220,7 @@ namespace Truth
 		}
 		
 		/**  */
-		private factoredSpines: ReadonlyArray<Spine> | null = null;
+		private factoredSpines: readonly Spine[] | null = null;
 		
 		/**
 		 * Gets a boolean value that indicates whether this Span is considered

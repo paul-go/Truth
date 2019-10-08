@@ -46,7 +46,7 @@ namespace Truth
 		get document() { return this.statement.document; }
 		
 		/** Stores an array of the Spans that compose the Spine. */
-		readonly vertebrae: ReadonlyArray<Span | CruftMarker> = [];
+		readonly vertebrae: readonly (Span | CruftMarker)[] = [];
 	}
 
 

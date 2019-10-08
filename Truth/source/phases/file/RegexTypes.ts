@@ -20,10 +20,10 @@ namespace Truth
 	{
 		/** */
 		constructor(
-			readonly knowns: ReadonlyArray<RegexSyntaxKnownSet>,
-			readonly ranges: ReadonlyArray<RegexCharRange>,
-			readonly unicodeBlocks: ReadonlyArray<string>,
-			readonly singles: ReadonlyArray<string>,
+			readonly knowns: readonly RegexSyntaxKnownSet[],
+			readonly ranges: readonly RegexCharRange[],
+			readonly unicodeBlocks: readonly string[],
+			readonly singles: readonly string[],
 			readonly isNegated: boolean,
 			readonly quantifier: RegexQuantifier | null)
 		{
@@ -167,7 +167,7 @@ namespace Truth
 			/**
 			 * 
 			 */
-			readonly cases: ReadonlyArray<ReadonlyArray<RegexUnit>>,
+			readonly cases: readonly (readonly RegexUnit[])[],
 			readonly quantifier: RegexQuantifier | null)
 		{
 			super(quantifier);
@@ -339,7 +339,7 @@ namespace Truth
 	/**
 	 * 
 	 */
-	function escMany(array: ReadonlyArray<string | number>)
+	function escMany(array: readonly (string | number)[])
 	{
 		return array.map(esc).join("");
 	}

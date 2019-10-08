@@ -108,7 +108,7 @@ namespace Truth
 				// This performs an expedient check for "ListIntrinsicExtendingList",
 				// however, full type analysis is required to cover all cases where
 				// this fault may be reported.
-				const getListSpans = (spans: ReadonlyArray<Span>) => spans.filter(span =>
+				const getListSpans = (spans: readonly Span[]) => spans.filter(span =>
 				{
 					const sub = span.boundary.subject;
 					return sub instanceof Identifier && sub.isList;
@@ -297,7 +297,7 @@ namespace Truth
 		private flags = LineFlags.none;
 		
 		/** */
-		readonly faults: ReadonlyArray<Fault>;
+		readonly faults: readonly Fault[];
 		
 		/** Stores a reference to the document that contains this statement. */
 		readonly document: Document;
@@ -351,7 +351,7 @@ namespace Truth
 		 * of this statement, including those that have been marked
 		 * as object-level cruft.
 		 */
-		readonly allDeclarations: ReadonlyArray<Span>;
+		readonly allDeclarations: readonly Span[];
 		
 		/**
 		 * Gets a list of all infixes defined in the pattern of this statement.
@@ -360,7 +360,7 @@ namespace Truth
 		{
 			return this._infixSpans;
 		}
-		private _infixSpans: ReadonlyArray<InfixSpan> = Object.freeze([]);
+		private _infixSpans: readonly InfixSpan[] = Object.freeze([]);
 		
 		/**
 		 * Gets an array of spans in that represent the annotations
@@ -386,7 +386,7 @@ namespace Truth
 		 * of this statement, including those that have been marked
 		 * as object-level cruft.
 		 */
-		readonly allAnnotations: ReadonlyArray<Span>;
+		readonly allAnnotations: readonly Span[];
 		
 		/**
 		 * Gets an array of spans in that represent both the declarations
@@ -547,7 +547,7 @@ namespace Truth
 		toString(includeIndent = false)
 		{
 			const serializeSpans = (
-				spans: ReadonlyArray<Span>,
+				spans: readonly Span[],
 				escStyle: IdentifierEscapeKind) =>
 			{
 				return spans

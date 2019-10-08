@@ -80,5 +80,5 @@ namespace Truth
 		}
 	}
 
-	type TStampNumber = bigint | ReadonlyArray<bigint> | number | ReadonlyArray<number>;
+	type TStampNumber = bigint | readonly bigint[] | number | readonly number[];
 }

@@ -84,6 +84,6 @@ namespace Truth
 		 * parallel must have in it's base graph in order to be deemed
 		 * compliant.
 		 */
-		private readonly allConditions: ReadonlyArray<SpecifiedParallel>;
+		private readonly allConditions: readonly SpecifiedParallel[];
 	}
 }

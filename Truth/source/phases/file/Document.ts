@@ -67,7 +67,7 @@ namespace Truth
 			
 			return this._types = Object.freeze(this.program.query(this));
 		}
-		private _types: ReadonlyArray<Type> | null = null;
+		private _types: readonly Type[] | null = null;
 		
 		/**
 		 * @returns An array of Statement objects that represent

@@ -285,7 +285,7 @@ namespace Truth
 		 */
 		query(uri: string, ...typePath: string[]): Type | null;
 		query(root: Document | Uri | string, ...typePath: string[]): 
-			ReadonlyArray<Type> | Type | null
+			readonly Type[] | Type | null
 		{
 			if (arguments.length > 1 && typePath.length === 0)
 				throw Exception.passedArrayCannotBeEmpty("typePath");
