@@ -1,4 +1,5 @@
 {
+	"extends": "./tsconfig.composite.json",
 	"files": [],
 	"include": [],
 	"references": [
