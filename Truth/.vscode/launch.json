@@ -37,11 +37,10 @@
 	{
 		"type": "node",
 		"request": "launch",
-		"name": "Debug Release Script",
-		"program": "${workspaceRoot}/release.js",
+		"name": "Debug Makets Script",
+		"program": "${env:HOME}/.npm-packages/bin/makets",
 		"args": [
-			"--debug-brk"
-		],
-		"internalConsoleOptions": "openOnSessionStart"
+			"bundle"
+		]
 	}]
 }
