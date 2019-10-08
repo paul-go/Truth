@@ -1,10 +1,16 @@
 namespace Reflex.Talk.Operations {
 	function attach<T extends {}>(array: T[], value: T, ref?: AttachRef<T>) 
 	{
-		if (!ref || ref === "append") return void array.push(value);
-		if (ref === "prepend") return void array.unshift(value);
+		if (!ref || ref === "append")
+			return void array.push(value);
+		
+		if (ref === "prepend")
+			return void array.unshift(value);
+		
 		const index = array.indexOf(ref);
-		if (index < 0) return void array.push(value);
+		if (index < 0)
+			return void array.push(value);
+		
 		array.splice(index + 1, 0, value);
 	}
 
@@ -26,7 +32,9 @@ namespace Reflex.Talk.Operations {
 		detach(value: T) 
 		{
 			const index = this.values.indexOf(value);
-			if (index < 0) return false;
+			if (index < 0)
+				return false;
+			
 			this.values.splice(index, 1);
 			return true;
 		}
@@ -69,11 +77,15 @@ namespace Reflex.Talk.Operations {
 
 		include(type: Truth.Type) 
 		{
-			if (this.values.length === 0) return false;
+			if (this.values.length === 0)
+				return false;
+			
 			if (this.values.length === 1) 
 			{
 				const [first] = this.values;
-				if (first instanceof FilterOperation) return !first.include(type);
+				if (first instanceof FilterOperation)
+					return !first.include(type);
+				
 			}
 			return this.transform([type]).length === 1;
 		}
@@ -87,9 +99,13 @@ namespace Reflex.Talk.Operations {
 			{
 				if (operation instanceof FilterOperation) 
 				{
-					if (operation.include(type)) return true;
+					if (operation.include(type))
+						return true;
+					
 				}
-				else if (operation.transform([type]).length) return true;
+				else if (operation.transform([type]).length)
+					return true;
+				
 			}
 			return false;
 		}
@@ -101,11 +117,15 @@ namespace Reflex.Talk.Operations {
 	{
 		private is(contentType: Truth.Type, type: Truth.Type) 
 		{
-			if (contentType.is(type)) return true;
+			if (contentType.is(type))
+				return true;
+			
 
 			for (const parallel of contentType.iterate(t => t.parallels)) 
 			{
-				if (parallel.type === type) return true;
+				if (parallel.type === type)
+					return true;
+				
 			}
 
 			return false;
@@ -142,14 +162,18 @@ namespace Reflex.Talk.Operations {
 				contentTypes = contentTypes.filter(contentType =>
 					this.is(contentType, type)
 				);
-				if (contentTypes.length === 0) return false;
+				
+				if (contentTypes.length === 0)
+					return false;
 			}
 
 			for (const operation of operations) 
 			{
 				for (const contentType of contentTypes) 
 				{
-					if (!operation.include(contentType)) return false;
+					if (!operation.include(contentType))
+						return false;
+					
 				}
 			}
 
@@ -162,14 +186,19 @@ namespace Reflex.Talk.Operations {
 		constructor(value?: number | string) 
 		{
 			super();
-			if (value !== undefined) this.values.push(value);
+			if (value !== undefined)
+				this.values.push(value);
 		}
 
 		include(type: Truth.Type): boolean 
 		{
 			const value = type.value;
-			if (value === null) return false;
-			if (typeof this.value === "number") return Number(value) > this.value;
+			if (value === null)
+				return false;
+			
+			if (typeof this.value === "number")
+				return value > this.value;
+			
 			return value > this.value!;
 		}
 	}
@@ -179,14 +208,19 @@ namespace Reflex.Talk.Operations {
 		constructor(value?: number | string) 
 		{
 			super();
-			if (value !== undefined) this.values.push(value);
+			if (value !== undefined)
+				this.values.push(value);
 		}
 
 		include(type: Truth.Type): boolean 
 		{
 			const value = type.value;
-			if (value === null) return false;
-			if (typeof this.value === "number") return Number(value) < this.value;
+			if (value === null)
+				return false;
+			
+			if (typeof this.value === "number")
+				return Number(value) < this.value;
+			
 			return value < this.value!;
 		}
 	}
@@ -196,8 +230,12 @@ namespace Reflex.Talk.Operations {
 		include(type: Truth.Type): boolean 
 		{
 			const value = type.value;
-			if (value === null) return false;
-			if (typeof this.value === "number") return Number(value) === this.value;
+			if (value === null)
+				return false;
+			
+			if (typeof this.value === "number")
+				return Number(value) === this.value;
+			
 			return JSON.parse(value) === this.value;
 		}
 	}

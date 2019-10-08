@@ -1,4 +1,5 @@
-namespace Reflex.Talk {
+namespace Reflex.Talk
+{
 	/**
 	 * A Truth Query.
 	 */
@@ -32,7 +33,9 @@ namespace Reflex.Talk {
 		 */
 		private throwAfterStart() 
 		{
-			if (!this.started) return;
+			if (!this.started)
+				return;
+			
 			throw new Error("A TruthQuery is readonly after calling `run`.");
 		}
 
@@ -68,11 +71,13 @@ namespace Reflex.Talk {
 		attach(op: Operation | TypePrimitive): void 
 		{
 			this.throwAfterStart();
-			if (op instanceof Operation) return void this.operations.push(op);
-
+			
+			if (op instanceof Operation)
+				return void this.operations.push(op);
+			
 			this.operations.push(Query.prepareContent(op));
 		}
-
+		
 		/**
 		 * Removes the first occurrence of the given operation from the operations
 		 * list.
@@ -82,12 +87,15 @@ namespace Reflex.Talk {
 			this.throwAfterStart();
 			if (!(op instanceof Operation))
 				return this.detach(Query.prepareContent(op));
+			
 			const index = this.operations.indexOf(op);
-			if (index < 0) return false;
+			if (index < 0)
+				return false;
+			
 			this.operations.splice(index, 1);
 			return true;
 		}
-
+		
 		/**
 		 * Returns the list of all the operations attached to this query.
 		 */
@@ -95,24 +103,24 @@ namespace Reflex.Talk {
 		{
 			return this.operations.slice();
 		}
-
+		
 		/**
 		 * Executes the query synchronously.
 		 */
 		run() 
 		{
-			if (this.result) return this.result;
+			if (this.result)
+				return this.result;
+			
 			this.throwAfterStart();
 			this.started = true;
-
+			
 			const operations = this.operations.slice();
 			let collected: Truth.Type[] = this.data.slice();
-
+			
 			for (const operation of operations) 
-			{
 				collected = operation.transform(collected);
-			}
-
+			
 			return this.result = collected;
 		}
 	}

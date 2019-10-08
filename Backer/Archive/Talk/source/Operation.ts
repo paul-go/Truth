@@ -1,8 +1,10 @@
-namespace Reflex.Talk {
+
+namespace Reflex.Talk
+{
 	/**
 	 * An operation that transforms collected data in a query.
 	 */
-	export abstract class Operation 
+	export abstract class Operation
 	{
 		/**
 		 * Returns a new array including a subset of the input data.

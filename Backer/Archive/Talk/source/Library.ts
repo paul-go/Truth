@@ -1,4 +1,5 @@
-namespace Reflex.Talk {
+namespace Reflex.Talk
+{
 	export class Library extends Core.Library<Namespace> 
 	{
 		constructor() 
@@ -13,9 +14,7 @@ namespace Reflex.Talk {
 
 		getNamespaceStatic() 
 		{
-			const $ = (BranchConstructor: any) => (
-				...primitives: Core.Primitive[]
-			) => 
+			const $ = (BranchConstructor: any) => (...primitives: Core.Primitive[]) => 
 			{
 				const branch = new BranchConstructor();
 				new Core.BranchMeta(branch, primitives);
@@ -99,6 +98,7 @@ namespace Reflex.Talk {
 			Reflex.Core.ReadyState.await(() => resolve(query))
 		);
 	};
-	export const tt: Namespace = query as any;
+	
+	export const tt: Namespace = <any>query;
 	Object.assign(tt, new Library().namespace);
 }

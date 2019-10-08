@@ -1,0 +1,12 @@
+{
+	"extends": "../tsconfig.composite.json",
+	"compilerOptions": {
+		"outFile": "./build/encoder.js"
+	},
+	"include": [
+		"./source/**/*.ts"
+	],
+	"references": [
+		{ "path": "../../Truth" }
+	]
+}

@@ -1,4 +1,5 @@
-namespace Reflex.Talk {
+namespace Reflex.Talk
+{
 	/**
 	 * JS values that can be used to reference Truth types.
 	 */
@@ -7,7 +8,7 @@ namespace Reflex.Talk {
 		| PLABase
 		| typeof Number
 		| typeof String;
-
+	
 	/**
 	 * Base types for PLAs emitted by the Backer.
 	 */

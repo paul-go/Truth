@@ -1,4 +1,5 @@
-namespace Reflex.Talk {
+namespace Reflex.Talk
+{
 	/**
 	 * Checks whatever an Object is a Truth PLA or not.
 	 */
@@ -12,9 +13,15 @@ namespace Reflex.Talk {
 	 */
 	export function toType(type: TypePrimitive): Truth.Type 
 	{
-		if (type instanceof Truth.Type) return type;
-		if (type === Number) return toType({ typePath: ["Number"] });
-		if (type === String) return toType({ typePath: ["String"] });
+		if (type instanceof Truth.Type)
+			return type;
+		
+		if (type === Number)
+			return toType({ typePath: ["Number"] });
+		
+		if (type === String)
+			return toType({ typePath: ["String"] });
+		
 		// TODO(qti3e) Support Boolean.
 		if (!isPLA(type)) throw new Error("Expected PLA.");
 		const result = System.this.doc.query(...type.typePath);

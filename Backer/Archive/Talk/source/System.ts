@@ -1,4 +1,6 @@
-namespace Reflex.Talk {
+
+namespace Reflex.Talk
+{
 	/**
 	 * Manages the global Truth document and context.
 	 */
@@ -16,6 +18,7 @@ namespace Reflex.Talk {
 		{
 			if (!System._this)
 				throw new Error("You must first initialize a TruthTalk system.");
+			
 			return System._this;
 		}
 
@@ -26,8 +29,9 @@ namespace Reflex.Talk {
 		{
 			await new Promise(r => r());
 			const doc = await Truth.read(truthFilePath);
-			if (doc instanceof Error) return doc;
-
+			if (doc instanceof Error)
+				return doc;
+			
 			System._this = new System(doc);
 		}
 
@@ -38,8 +42,9 @@ namespace Reflex.Talk {
 		{
 			await new Promise(r => r());
 			const doc = await Truth.parse(truthFileText);
-			if (doc instanceof Error) return doc;
-
+			if (doc instanceof Error)
+				return doc;
+			
 			System._this = new System(doc);
 		}
 

@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "module": "system",
+    "target": "esnext",
+    "outFile": "./build/talk.js",
+    "outDir": "./build",
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "stripInternal": true,
+    "strict": true,
+    "declaration": true,
+    "allowUmdGlobalAccess": true,
+    "lib": [
+      "DOM",
+      "es7",
+      "es2017",
+      "es2017.object",
+      "esnext"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "truth-compiler": ["./node_modules/truth-compiler/truth-compiler.d.ts"]
+    },
+    "composite": true
+  },
+  "include": [
+    "Talk/source/Node.ts",
+    "Talk/source/Definitions.ts",
+    "Talk/source/Operation.ts",
+    "Talk/source/Operations.ts",
+    "Talk/source/Pla.ts",
+    "Talk/source/Query.ts",
+    "Talk/source/System.ts",
+    "Talk/source/Truth.d.ts",
+    "Talk/source/Library.ts"
+  ],
+  "references": [
+    { "path": "../Reflex/ReflexCore" }
+  ]
+}
