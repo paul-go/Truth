@@ -18,20 +18,20 @@ make.on("test", () =>
 
 make.on("bundle", "publish", async () =>
 {
-	const exports = ["Reflex", "on", "once", "only", "ml"];
+	const returns = ["Reflex", "ml"];
 	
 	//# Create reflex.js (which contains Core + ML)
 	
 	make.concat(
-		"../ReflexCore/bundle/reflex-core.js",
+		"../ReflexCore/build/reflex-core.js",
 		"./build/reflex-ml.js",
 		"./bundle/reflex.js",
 	);
 	
 	make.augment("./bundle/reflex.js", {
-		exports,
-		globals: exports,
-		encapsulate: true
+		returns,
+		globals: true,
+		exports: returns.concat("on", "once")
 	});
 	
 	make.minify("./bundle/reflex.js");
@@ -40,12 +40,12 @@ make.on("bundle", "publish", async () =>
 	
 	make.copy("./build/reflex-ml.js", "./bundle");
 	make.augment("./bundle/reflex-ml.js", {
-		exports,
-		globals: exports,
-		above: 
+		returns,
+		globals: true,
+		encapsulatedAbove: 
 			`var Reflex;` +
 			`if (typeof navigator !== "object" && typeof require === "function")` +
-				`Reflex = require("reflex-core").Reflex;`,
+				`Reflex = require("reflex-core");`,
 	});
 	
 	make.compilationConstants("./bundle/reflex-ml.js", {

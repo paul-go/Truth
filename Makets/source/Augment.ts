@@ -5,17 +5,38 @@ namespace make
 	export interface IAugmentOptions
 	{
 		/**
-		 * Specifies the identifier or identifiers defined within the
-		 * code file should be added to the `module.exports` object.
+		 * Specifies the JavaScript identifiers that are declared within the code file
+		 * that should be "returned". If an idenfier is "returned", it means that it's
+		 * added to any available `module.exports` value, declared in a top-level
+		 * `var` statement, and potentially added to the globalThis object, in the
+		 * case when the `globals` option is set to a truthy value.
 		 */
-		exports?: string | string[];
+		returns?: string | string[];
 		
 		/**
-		 * Specifies the identifier or identifiers defined within the
-		 * code file should be added to the global object (`window`
-		 * in browser-compatible environments, or `global` in NodeJS).
+		 * Specifies whether identifiers are added to the environment's globalThis
+		 * object. 
+		 * 
+		 * When the provided value is `true`, the identifiers from the `returns` field
+		 * are assigned as globals.
+		 * 
+		 * When the provided value is a string or string array, these are assumed to
+		 * be names that are defined in the provided code file, which are assigned
+		 * as globals.
 		 */
-		globals?: string | string[];
+		globals?: true | string | string[];
+		
+		/**
+		 * Specifies whether identifiers are added to the `module.exports` value.
+		 * If omitted, the the identifiers from the `returns` fields are assigned.
+		 * 
+		 * When the provided value is false, no module.exports value is assigned.
+		 * 
+		 * When the provided value is a string or string array, these are assumed to
+		 * be names that are defined in the provided code file, which are assigned
+		 * to the `module.exports` value.
+		 */
+		exports?: false | string | string[];
 		
 		/**
 		 * Specifies the code, if any, to be added at the beginning of the file.
@@ -30,19 +51,6 @@ namespace make
 		below?: string;
 		
 		/**
-		 * Specifies whether the code file should be encapsulated in an IIFE.
-		 */
-		encapsulate?: boolean;
-		
-		/**
-		 * Specifies the JavaScript identifier (or set of identifiers) defined within
-		 * the code block that should be cherry picked and declared as top-level
-		 * variables,outside of the encapsulation function block. Has no effect
-		 * when the `encapsulate` option is set to `false`.
-		 */
-		encapsulatedReturns?: string | string[];
-		
-		/**
 		 * Specifies the code, if any, to be added at the beginning of the encapsulation
 		 * IIFE. Has no effect when the `encapsulate` option is set to `false`.
 		 */
@@ -53,6 +61,13 @@ namespace make
 		 * IIFE. Has no effect when the `encapsulate` option is set to `false`.
 		 */
 		encapsulatedBelow?: string;
+		
+		/**
+		 * Specifies whether the code file should be encapsulated in an IIFE.
+		 * Automatically inferred as true if any of the `encapsulatedAbove`,
+		 * `encapsulatedBelow`, or `returns` fields are set to non-falsey values.
+		 */
+		encapsulate?: true;
 	}
 	
 	/**
@@ -68,17 +83,35 @@ namespace make
 	 * @param path The path to the file to overwrite.
 	 * @param options See documentation for `IAugmentOptions`.
 	 */
-	export function augment(path: string, options?: IAugmentOptions)
+	export function augment(path: string, options: IAugmentOptions)
 	{
 		const originalCode = Fs.readFileSync(path).toString("utf8");
-		const exports: string[] = [options && options.exports || []].flat();
-		const globals: string[] = [options && options.exports || []].flat();
-		const above = options && options.above || "";
-		const below = options && options.below || "";
-		const encapsulate = !!(options && options.encapsulate);
-		const encapsulatedAbove = encapsulate && options!.encapsulatedAbove || "";
-		const encapsulatedBelow = encapsulate && options!.encapsulatedBelow || "";
-		const encapsulatedReturns: string[] = [options && options.encapsulatedReturns || []].flat();
+		const above = options.above || "";
+		const below = options.below || "";
+		const encapsulatedAbove = options.encapsulatedAbove || "";
+		const encapsulatedBelow = options.encapsulatedBelow || "";
+		const returns: string[] = [options.returns || []].flat();
+		
+		const globals =
+			options.globals === true ? returns :
+			typeof options.globals === "string" ? [options.globals] :
+			Array.isArray(options.globals) ? options.globals :
+			[];
+		
+		const exports = 
+			options.exports === false ? [] :
+			typeof options.exports === "string" ? [options.exports] :
+			Array.isArray(options.exports) ? options.exports :
+			returns;
+		
+		const retVar = "__ret";
+		
+		const encapsulate = 
+			options.encapsulate ||
+			!!(encapsulatedAbove || encapsulatedBelow || returns.length);
+		
+		const toObject = (names: string[]) =>
+			"{ " + names.map(n => n + ": " + n).join() + " }";
 		
 		const headerInsertPos = (() =>
 		{
@@ -105,11 +138,11 @@ namespace make
 			
 			if (encapsulate)
 			{
-				if (encapsulatedReturns.length === 1)
-					out.push(`var ${encapsulatedReturns[0]} = `);
+				if (returns.length === 1)
+					out.push(`var ${returns[0]} = `);
 				
-				else if (encapsulatedReturns.length > 1)
-					out.push(`var __eret = `);
+				else if (returns.length > 1)
+					out.push(`var ${retVar} = `);
 				
 				out.push("(function(){");
 			
@@ -133,20 +166,20 @@ namespace make
 			
 			if (exports.length)
 			{
-				const objText = exports.map(s => s + ": " + s).join();
-				out.push(`if (typeof module === "object") module.exports = { ${objText} };`);
+				out.push(exports.length > 1 ?
+					`if (typeof module === "object") module.exports = ${toObject(exports)};` :
+					`module.exports = ${exports[0]};`);
 			}
 			
 			if (globals.length)
 			{
-				out.push(
-					`(function() {` +
-					`var g = ` +
+				const globalCode = 
 					`typeof navigator === "object" ? window : ` +
-					`typeof global === "object" ? global : null; ` +
-					`if (g) ${globals.map(g => `g.${g} = ${g}`).join(",")} ` +
-					`})();`
-				);
+					`typeof global === "object" ? global : {}`;
+				
+				out.push(returns.length > 1 ?
+					`Object.assign(${globalCode}, ${toObject(globals)});` :
+					`(${globalCode}).${globals[0]} = ${globals[0]};`);
 			}
 			
 			if (encapsulate)
@@ -154,16 +187,16 @@ namespace make
 				if (encapsulatedBelow)
 					out.push(encapsulatedBelow);
 				
-				if (encapsulatedReturns.length === 1)
-					out.push(`return ` + encapsulatedReturns[0]);
+				if (returns.length === 1)
+					out.push(`return ${returns[0]};`);
 				
-				else if (encapsulatedReturns.length > 1)
-					out.push(`return [${encapsulatedReturns.join()}]`);
+				else if (returns.length > 1)
+					out.push(`return [${returns.join()}];`);
 				
 				out.push("})()");
 				
-				if (encapsulatedReturns.length > 1)
-					out.push(...encapsulatedReturns.map((v, i) => `, ${v} = __evar[${i}]`));
+				if (returns.length > 1)
+					out.push(...returns.map((r, i) => `, ${r} = ${retVar}[${i}]`));
 				
 				out.push(";");
 			}

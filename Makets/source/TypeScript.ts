@@ -2,7 +2,33 @@
 namespace make
 {
 	/**
-	 * Parse typescript functions arguemments and generate argument array 
+	 * Compiles the typescript at the specified location, 
+	 * and with any additional tsconfig compilerOptions entries.
+	 */
+	export async function typescript(path: string, tsConfigOverrides: TsConfig): Promise<void>;
+	export async function typescript(path: string): Promise<void>;
+	export async function typescript(tsConfigOverrides: TsConfig): Promise<void>;
+	export async function typescript(a: any, b?: any)
+	{
+		console.log("Running TypeScript Compiler");
+		await spawn("tsc", parseTypescriptArguments(a, b, false));
+	}
+
+	/**
+	 * Compiles and watches for changes in TypeScript at the specified location, 
+	 * and with any additional tsconfig compilerOptions entries.
+	 */
+	export function typescriptWatcher(path: string, tsConfigOverrides: TsConfig): ReturnOfSpawn;
+	export function typescriptWatcher(path: string): ReturnOfSpawn;
+	export function typescriptWatcher(tsConfigOverrides: TsConfig): ReturnOfSpawn;
+	export function typescriptWatcher(a: any, b?: any)
+	{
+		console.log("Running TypeScript Compiler (Watcher)");
+		return spawn("tsc", parseTypescriptArguments(a, b, true));
+	}
+	
+	/**
+	 * Parse typescript functions arguments and generate argument array.
 	 */
 	function parseTypescriptArguments(a: any, b?: any, c = false)
 	{
@@ -40,32 +66,6 @@ namespace make
 
 		return args;
 	}
-
-	/**
-	 * Compiles the typescript at the specified location, 
-	 * and with any additional tsconfig compilerOptions entries.
-	 */
-	export async function typescript(path: string, tsConfigOverrides: TsConfig): Promise<void>;
-	export async function typescript(path: string): Promise<void>;
-	export async function typescript(tsConfigOverrides: TsConfig): Promise<void>;
-	export async function typescript(a: any, b?: any)
-	{
-		console.log("Running TypeScript Compiler");
-		await spawn("tsc", parseTypescriptArguments(a, b, false));
-	}
-
-	/**
-	 * Compiles and watches for changes in TypeScript at the specified location, 
-	 * and with any additional tsconfig compilerOptions entries.
-	 */
-	export function typescriptWatcher(path: string, tsConfigOverrides: TsConfig): ReturnOfSpawn;
-	export function typescriptWatcher(path: string): ReturnOfSpawn;
-	export function typescriptWatcher(tsConfigOverrides: TsConfig): ReturnOfSpawn;
-	export function typescriptWatcher(a: any, b?: any)
-	{
-		console.log("Running TypeScript Compiler (Watcher)");
-		return spawn("tsc", parseTypescriptArguments(a, b, true));
-	}
 	
 	//# Type definitions copied from https://github.com/Microsoft/TypeScript/blob/master/lib/typescript.d.ts
 	
@@ -74,11 +74,7 @@ namespace make
 		[index: string]: T;
 	}
 	
-	export const enum ModuleResolutionKind
-	{
-		"classic" = "classic",
-		"node" = "node"
-	}
+	export type ModuleResolutionKind = "classic" | "node";
 	
 	export interface PluginImport
 	{
@@ -190,38 +186,32 @@ namespace make
 		esModuleInterop?: boolean;
 	}
 	
-	enum ModuleKind
-	{
-		none = "none",
-		commonjs = "commonjs",
-		amd = "amd",
-		umd = "umd",
-		system = "system",
-		es2015 = "es2015",
-		esnext = "esnext"
-	}
+	type ModuleKind =
+		"none" |
+		"commonjs" |
+		"amd" |
+		"umd" |
+		"system" |
+		"es2015" |
+		"esnext";
 	
-	export const enum JsxEmit
-	{
-		none = "none",
-		preserve = "preserve",
-		react = "react",
-		reactnative = "reactnative"
-	}
+	type JsxEmit =
+		"none" |
+		"preserve" |
+		"react" |
+		"reactnative";
 	
-	export const enum ScriptTarget
-	{
-		es3 = "es3",
-		es5 = "es5",
-		es2015 = "es2015",
-		es2016 = "es2016",
-		es2017 = "es2017",
-		es2018 = "es2018",
-		es2019 = "es2019",
-		esnext = "esnext",
-		json = "json",
-		latest = "latest",
-	}
+	type ScriptTarget =
+		"es3" |
+		"es5" |
+		"es2015" |
+		"es2016" |
+		"es2017" |
+		"es2018" |
+		"es2019" |
+		"esnext" |
+		"json" |
+		"latest";
 	
 	/**
 	 * Simple object check.

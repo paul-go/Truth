@@ -20,10 +20,7 @@ make.on("publish", "bundle", async () =>
 make.on("publish", async () => 
 {
 	make.augment("./bundle/reflex-core.js", {
-		exports: "Reflex",
-		globals: "Reflex",
-		encapsulate: true,
-		encapsulatedReturns: "Reflex"
+		returns: "Reflex",
 	});
 	
 	make.publish({

@@ -13,8 +13,8 @@
 	},
 	"scripts": {
 		"start": "http-server . -p 4349",
-		"build": "makejs build",
-		"bundle": "makejs bundle"
+		"build": "makets build",
+		"bundle": "makets bundle"
 	},
 	"eslintIgnore": [
 		"**/node_modules/**/*.ts",
