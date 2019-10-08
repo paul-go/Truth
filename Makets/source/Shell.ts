@@ -10,7 +10,7 @@ namespace make
 		return new Promise(resolve =>
 		{
 			const cmd = command.replace(/[\r\n]/g, "").trim();
-			const fullEnvVars = Object.assign({}, process.env, envVars || {});
+			const fullEnvVars = { ...process.env, ...envVars || {} };
 			const proc = ChildProcess.exec(cmd, { env: fullEnvVars });
 			proc.stdout!.pipe(process.stdout);
 			proc.stderr!.pipe(process.stderr);
@@ -58,7 +58,7 @@ namespace make
 		try
 		{
 			const cmd = command.replace(/[\r\n]/g, "").trim();
-			const fullEnvVars = Object.assign({}, process.env, envVars || {});
+			const fullEnvVars = { ...process.env, ...envVars || {} };
 			const result = ChildProcess.execSync(cmd, { env: fullEnvVars });
 			return result.toString("utf8").trim();
 		}
