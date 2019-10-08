@@ -50,7 +50,7 @@ namespace make
 					await result;
 			}
 		}
-
+		
 		/**
 		 * Triggers life cycle events for sync stages (exit, kill)
 		 */
@@ -58,9 +58,7 @@ namespace make
 		{
 			const tasks = makeTasks.filter(task => task.tags.includes(tag));
 			for (const task of tasks)
-			{
 				task.taskFn(args);
-			}
 		}
 
 		/**
