@@ -54,13 +54,16 @@ export class FuturePrimeType
 	}
 	
 	get id()
-	{
+	{ 
+		let id;
 		if (this.value instanceof PrimeType) 
-			return this.value.id;
+			id = this.value.id;
 		else if (this.value instanceof Type)
-			return FuturePrimeType.typeMap.get(this.value).id;
+			id = FuturePrimeType.typeMap.get(this.value).id;
 		else
-			return this.value;
+			id = this.value;
+			
+		return id ? id : -1;
 	}
 	
 	valueOf()
@@ -70,7 +73,6 @@ export class FuturePrimeType
 	
 	toJSON()
 	{
-		const id = this.id;
-		return id === null ? -1 : id;
+		return this.id;
 	}
 }

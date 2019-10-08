@@ -1,7 +1,7 @@
 import { Type } from "../../../Truth/Core/X";
 import CodeJSON from "./Code";
 import Flags from "./Flags";
-import { typeHash } from "./Util";
+import { typeHash, HashHash, JSONHash, primePatternHash } from "./Util";
 import { PrimeTypeSet } from "./TypeSet";
 import Serializer from "./Serializer";
 import { FuturePrimeType } from "./FutureType";
@@ -16,6 +16,14 @@ export type Typeish = TypeId | PrimeType | Type;
 export type ExtractKeys<T, Q> = {
   [P in keyof T]: T[P] extends Q  ? P : never
 }[keyof T]; 
+
+export enum PrimeClassification 
+{
+	CodeRoot,
+	DataRoot,
+	CodeSub,
+	DataSub
+}
 
 /**
  * Lazy and serializable representation of Type 
@@ -42,6 +50,7 @@ export default class PrimeType
 	
 	static JSONLength = 5 + PrimeType.TypeSetFields.length;
 	static SignatureMap = new Map<number, PrimeType>();
+	static DataPatternMap = new Map<number, PrimeType>();
 	static Views = new Map<PrimeType, PrimeTypeView>();
 	
 	static View(prime: PrimeType)
@@ -63,9 +72,9 @@ export default class PrimeType
 		
 		if (this.SignatureMap.has(sign))
 		{
-			const p = this.SignatureMap.get(sign);
-			FuturePrimeType.set(type, p);
-			return p;
+			const prime = this.SignatureMap.get(sign);
+			FuturePrimeType.set(type, prime);
+			return prime;
 		}
 	
 		const prime = new PrimeType(code);
@@ -83,17 +92,20 @@ export default class PrimeType
 		for (const key of PrimeType.TypeSetFields)
 			for (const subtype of type[key])
 				(<PrimeTypeSet>prime[key]).add(FuturePrimeType.$(subtype));
-				
+				 
 		for (const alias of type.aliases)
 			prime.aliases.push(alias);
-			
+			 
 		return prime;
 	}
 	
 	/**
 	 *
 	 */
-	static fromJSON(code: CodeJSON, data: [number, string, number, number, Alias[], TypeId[], TypeId[], TypeId[], TypeId[]])
+	static fromJSON(code: CodeJSON, data: [
+		number, string, number, number, 
+		Alias[], TypeId[], TypeId[], TypeId[], TypeId[]
+	])
 	{ 
 		const prime = new PrimeType(code);
 		prime.typeSignature = data[0];
@@ -109,7 +121,15 @@ export default class PrimeType
 		return prime;
 	}
 	
+	static fromData(code: CodeJSON, data: string[])
+	{
+		const name = data.shift();
+		const bases = data.shift();
+		console.log(name);
+	}
+	
 	flags = new Flags(PrimeType.FlagFields);
+	classification: PrimeClassification;
 	
 	name: string = "";
 	
@@ -161,6 +181,20 @@ export default class PrimeType
 		const container = this.container.prime;
 		if(container)
 			container.contents.add(FuturePrimeType.$(this));
+	}
+	
+	compile(name: string)
+	{
+		const prime = new PrimeType(this.code);
+		prime.typeSignature = primePatternHash(this);
+		prime.name = this.name;
+		prime.flags.flags = this.flags.flags;
+		prime.container = this.container;
+		this.bases.forEach(x => prime.bases.add(x));
+		this.parallels.forEach(x => prime.parallels.add(x));
+		this.patterns.forEach(x => prime.patterns.add(x));
+		this.contentsIntrinsic.forEach(x => prime.contentsIntrinsic.add(x));
+		return prime;
 	}
 	
 	/**

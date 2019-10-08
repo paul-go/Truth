@@ -1,8 +1,8 @@
 import PrimeType from "./Type";
-import { Type, read, RegexCharRange } from "../../../Truth/Core/X";
+import { Type, read, ConstructionWorker } from "../../../Truth/Core/X";
 import { promises as FS } from "fs";
 import Serializer from "./Serializer";
-import { typeHash } from "./Util";
+import { typeHash, JSONRec } from "./Util";
 import { FuturePrimeType } from "./FutureType";
  
 /**
@@ -11,7 +11,6 @@ import { FuturePrimeType } from "./FutureType";
 export default class CodeJSON 
 {
 	protected types: PrimeType[] = [];
-	protected dataPatterns: number[][] = [];
 	
 	primeId(type: PrimeType)
 	{
@@ -52,6 +51,8 @@ export default class CodeJSON
 			console.error(`Couldn't load ${path}! Reason: ${ex}`);	
 		}
 	}
+	
+	constructor(private pattern: RegExp) {}
 
 	async loadTruth(path: string)
 	{	
@@ -64,12 +65,14 @@ export default class CodeJSON
 			
 		const scanContent = (type: Type) =>
 		{
+		
 			if (!PrimeType.SignatureMap.has(typeHash(type)))
 			{
 				const prime = PrimeType.fromType(this, type);
 				this.add(prime);
 				primes.push(prime);
 			}
+			 
 			type.contents.forEach(x => scanContent(x));
 		}	
 		
@@ -80,14 +83,48 @@ export default class CodeJSON
 		
 		Doc.types.forEach(x => scanContent(x));
 		
+		
 		for (const prime of primes)
 			prime.link();
-	}	
+	}
 	
-	extractData(key: string, pattern: RegExp)
+	extractData()
 	{
-		const roots = this.types.filter(x => x.container.id === -1 && pattern.test(x.name));
-		return roots.map(x => x.data);
+		const dataRoots = this.types.filter(x => x.container.id === -1 && this.pattern.test(x.name));
+		const drill = (x: PrimeType) => {
+			const array = [x];
+			const children = Array.from(x.contents.values()).map(x => x.prime).flatMap(drill);
+			if (children.length) array.push(...children);
+			return array;
+		};
+		const dataSchema = dataRoots.map(drill).filter(x => Array.isArray(x) ? x.length : true);
+		const dataQuery = dataSchema.flat();
+		const codeRoots = this.types.filter(x => !dataQuery.includes(x));
+		
+		const code = new CodeJSON(this.pattern);
+		for (const prime of codeRoots)
+			code.add(prime);
+			
+		const dataPatterns: PrimeType[] = [];
+		dataQuery.map(x => x.compile("")).forEach(x => {
+			if (!dataPatterns.some(w => w.typeSignature === x.typeSignature)) 
+				dataPatterns.push(x);
+		});
+	
+		for (const prime of dataPatterns)
+			code.add(prime);
+		
+		console.log(dataSchema.map(x => x.map(x => x.name)));
+		const data = dataSchema.map(x => {
+			const rootType = x.shift().compile("");
+			const index = code.types.findIndex(x => x.typeSignature === rootType.typeSignature);
+			return [index, ...x.map(x => x.aliases)];
+		});
+		
+		return {
+			code,
+			data
+		}
 	}
 	
 	/**

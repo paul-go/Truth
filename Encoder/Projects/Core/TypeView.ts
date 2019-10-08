@@ -24,9 +24,9 @@ export default class TypeView
 	/**
 	 * Stores a reference to the type, as it's defined in it's next most applicable type.
 	 */
-	get parallels(): readonly Type[]
+	get parallels()
 	{
-		throw new Error("Method not implemented.");
+		return TypeView.typeSetToArray(this.prime.parallels);
 	}
 	
 	get parallelRoots(): readonly Type[]

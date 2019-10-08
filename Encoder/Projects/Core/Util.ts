@@ -1,4 +1,5 @@
 import { Type } from "../../../Truth/Core/X";
+import PrimeType from "./Type";
 
 /**
  * taken from https://stackoverflow.com/revisions/52171480/17 
@@ -18,4 +19,27 @@ export function HashHash(str: string, seed = 0) {
 export function typeHash(type: Type): number
 {
 	return HashHash(`${type.name}$${type.container ? type.container.name : ""}$${type.bases.map(typeHash)}`);
+}
+
+export function primePatternHash(type: PrimeType): number
+{
+	return HashHash(`${type.bases.hash}${type.parallels.hash}${type.patterns.hash}${type.contents.hash}`);
+}
+
+export function JSONHash(...objs: any[])
+{
+	return HashHash(JSON.stringify(objs));
+}
+
+export function JSONRec(obj: any)
+{
+	const res = Array.isArray(obj) ? [] : {};
+	for (const key in obj)
+	{
+		let value = obj[key];
+		value = typeof value === "object" && "toJSON" in value ? value.toJSON() : value;
+		if (typeof value === "object") value = JSONRec(value);
+		if (value !== null || value !== undefined) res[key] = value;
+	}
+	return res;
 }
