@@ -2,6 +2,8 @@
 namespace Truth
 {
 	/** 
+	 * @internal
+	 * (Not implemented)
 	 * A class that specifies behavior around the recognition 
 	 * of patterns found within documents.
 	 */
@@ -22,7 +24,7 @@ namespace Truth
 		/** Whether comments should be recognized in statements. */
 		comments = RecognitionState.on;
 	}
-
+	
 	export const enum RecognitionState
 	{
 		/** Indicates that a pattern is recognized by the system. */
