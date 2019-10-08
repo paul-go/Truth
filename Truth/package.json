@@ -37,8 +37,6 @@
 		"@types/jest": "^23.3.12",
 		"@types/node": "^10.12.18",
 		"jest": "23.6.0",
-		"jsonviz": "git+https://github.com/HaroldRitter/jsonviz.git",
-		"memfs": "^2.10.1",
-		"terser": "^3.16.0"
+		"memfs": "^2.10.1"
 	}
 }
