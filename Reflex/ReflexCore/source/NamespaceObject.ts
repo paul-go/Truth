@@ -191,7 +191,7 @@ namespace Reflex.Core
 	/**
 	 * 
 	 */
-	export function createBranchFn(constructBranchFn: () => IBranch)
+	function createBranchFn(constructBranchFn: () => IBranch)
 	{
 		return (...primitives: Primitive[]) =>
 		{
@@ -204,7 +204,7 @@ namespace Reflex.Core
 	/**
 	 * 
 	 */
-	export function createParameticBranchFn(branchFn: (...args: any[]) => IBranch)
+	function createParameticBranchFn(branchFn: (...args: any[]) => IBranch)
 	{
 		return (...constructBranchArgs: any[]) =>
 		{
