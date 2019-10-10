@@ -1,7 +1,8 @@
 {
 	"extends": "../tsconfig.composite.json",
 	"compilerOptions": {
-		"outFile": "./build/encoder.js"
+		"outFile": "./build/encoder.js",
+		"watch": true
 	},
 	"include": [
 		"./source/**/*.ts"
