@@ -81,7 +81,7 @@ declare namespace Reflex.Core
 		 */
 		sort<T>(reference: T[], compareFn: (a: T, b: T) => number): this;
 		sort<T>(reference: T[]): this;
-		sort<T>(compareFn: (a: HTMLElement, b: HTMLElement) => number): this;
+		sort<T>(compareFn: (a: Meta, b: Meta) => number): this;
 		
 		/**
 	       * Returns the index of the first occurrence of a value in an array.
