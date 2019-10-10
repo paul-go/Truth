@@ -90,7 +90,10 @@ namespace Reflex.Talk.Operations {
 			return this.transform([type]).length === 1;
 		}
 	}
-
+	
+	/**
+	 * 
+	 */
 	export class Or extends FilterOperationTalkBranch<Operation> 
 	{
 		include(type: Truth.Type) 

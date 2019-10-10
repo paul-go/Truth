@@ -17,8 +17,6 @@
 		"**/package-lock.json": true
 	},
 	
-	// Causes annoyances with the X bundle format
-	"typescript.suggest.autoImports": false,
-	
-	"eslint.run": "onSave"
+	// This project does not use imports
+	"typescript.suggest.autoImports": false
 }

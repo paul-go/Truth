@@ -15,13 +15,7 @@
 		"init": "sh ./Install.sh"
 	},
 	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^2.1.0",
-		"@typescript-eslint/parser": "^2.1.0",
-		"artistry-code-style": "0.0.6",
-		"eslint": "^6.1.0",
-		"typescript": "^3.5.3"
-	},
-	"dependencies": {
-		"@types/node": "^12.7.11"
+		"@types/node": "^12.7.11",
+		"typescript": "^3.6.4"
 	}
 }
