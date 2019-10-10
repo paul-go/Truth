@@ -88,7 +88,7 @@ namespace Reflex.ML
 		}
 		
 		/** */
-		prepareContent(content: any)
+		createContent(content: any)
 		{
 			if (typeof content === "string" || 
 				typeof content === "number" ||
@@ -216,6 +216,6 @@ namespace Reflex.ML
 /**
  * Global library object.
  */
-const ml = Reflex.Core.createNamespaceObject<Reflex.ML.Namespace>(
+const ml = Reflex.Core.createContentNamespace<Reflex.ML.Namespace>(
 	new Reflex.ML.Library(),
 	true);

@@ -68,11 +68,10 @@ declare namespace Reflex.Core
 	}
 	
 	/**
-	 * Abstract definition of the top-level namespace function.
-	 * (TODO: The return value of this function should be typed to
-	 * the thing that is returned by the function in a client
+	 * Abstract definition of the content variant of the top-level
+	 * namespace function.
 	 */
-	export interface INamespace<TPreparedContent, TContent>
+	export interface IContentNamespace<TPreparedContent, TContent>
 	{
 		(
 			template:
@@ -85,6 +84,15 @@ declare namespace Reflex.Core
 				Voidable<TContent> | 
 				StatefulForce<Voidable<TContent>>)[]
 		): TPreparedContent;
+	}
+	
+	/**
+	 * Abstract definition of the container variant of the top-level
+	 * namespace function.
+	 */
+	export interface IContainerNamespace<P extends Primitives, TBranch = object>
+	{
+		(...primitives: P[]): TBranch;
 	}
 	
 	/**

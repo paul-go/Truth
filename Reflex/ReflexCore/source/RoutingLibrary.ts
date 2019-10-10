@@ -121,11 +121,11 @@ namespace Reflex.Core
 		/**
 		 * 
 		 */
-		prepareContent(content: any)
+		createContent(content: any)
 		{
 			return this.route(
 				content,
-				lib => lib.prepareContent,
+				lib => lib.createContent,
 				fn => fn(content),
 				null);
 		}

@@ -385,7 +385,7 @@ declare namespace Reflex.ML
 	export type Primitive = Core.Primitive<Node, Branch, string>;
 	export type Primitives = Core.Primitives<Node, Branch, string>;
 	
-	export interface Namespace extends Core.INamespace
+	export interface Namespace extends Core.IContentNamespace
 		<Text, Text | string | number | bigint>
 	{
 		//# Static Members

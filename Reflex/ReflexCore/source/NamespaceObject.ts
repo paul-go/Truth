@@ -7,8 +7,14 @@ namespace Reflex.Core
 	declare const Deno: any;
 	
 	/**
-	 * Creates a namespace object, which is the object that should contain
-	 * all functions in the reflexive library.
+	 * Creates a Reflex namespace, which is the top-level function object that
+	 * holds all functions in the reflexive library.
+	 * 
+	 * This function creates the "content" variant of a Reflex namespace, which
+	 * is the style where the namespace, when called as a function, produces
+	 * visual content to display. Reflexive libraries that use this variant may
+	 * use the namespace as a tagged template function, for example:
+	 * ml`Literal text content`;
 	 * 
 	 * @param library An object that implements the ILibrary interface,
 	 * from which the namespace object will be generated.
@@ -18,7 +24,45 @@ namespace Reflex.Core
 	 * current environment. If the ILibrary interface provided doesn't support
 	 * the creation of recurrent functions, this parameter has no effect.
 	 */
-	export function createNamespaceObject<TNamespace>(
+	export function createContentNamespace<T extends IContentNamespace<any, any>>(
+		library: ILibrary,
+		globalize?: boolean): T
+	{
+		if ("DEBUG" && !library.createContent)
+			throw new Error("The .createContent function must be implemented in this library.");
+		
+		return createNamespace(true, library, globalize);
+	}
+	
+	/**
+	 * Creates a Reflex namespace, which is the top-level function object that
+	 * holds all functions in the reflexive library.
+	 * 
+	 * This function creates the "container" variant of a Reflex namespace, which
+	 * is the style where the namespace, when called as a function, produces
+	 * an abstract top-level container object.
+	 * 
+	 * @param library An object that implements the ILibrary interface,
+	 * from which the namespace object will be generated.
+	 * 
+	 * @param globalize Indicates whether the on/once/only globals should
+	 * be appended to the global object (which is auto-detected from the
+	 * current environment. If the ILibrary interface provided doesn't support
+	 * the creation of recurrent functions, this parameter has no effect.
+	 */
+	export function createContainerNamespace<T extends IContainerNamespace<any, any>>(
+		library: ILibrary,
+		globalize?: boolean): T
+	{
+		if ("DEBUG" && !library.createContainer)
+			throw new Error("The .createContainer function must be implemented in this library.");
+		
+		return createNamespace(false, library, globalize);
+	}
+	
+	/** */
+	function createNamespace<TNamespace>(
+		isContent: boolean,
 		library: ILibrary,
 		globalize?: boolean): TNamespace
 	{
@@ -64,62 +108,6 @@ namespace Reflex.Core
 				glob.only = createGlobal(RecurrentKind.only);
 		}
 		
-		/**
-		 * Creates the function that exists at the top of the library,
-		 * which is used for inserting textual content into the tree.
-		 */
-		const namespaceFn = (
-			template: TemplateStringsArray | StatefulForce,
-			...values: (IBranch | StatefulForce)[]): any =>
-		{
-			const array = Array.isArray(template) ?
-				template :
-				[template];
-			
-			const out: object[] = [];
-			const len = array.length + values.length;
-			
-			// TODO: This should be optimized so that multiple repeating
-			// string values don't result in the creation of many ContentMeta
-			// objects.
-			
-			for (let i = -1; ++i < len;)
-			{
-				const val = i % 2 === 0 ?
-					array[i / 2] :
-					values[(i - 1) / 2];
-				
-				if (val === null || val === undefined)
-					continue;
-				
-				if (val instanceof StatefulForce)
-				{
-					out.push(new Recurrent(
-						RecurrentKind.on,
-						val,
-						now =>
-						{
-							const result = library.prepareContent(now);
-							if (result)
-								new ContentMeta(result);
-							
-							return result;
-						}).run());
-				}
-				else
-				{
-					const prepared = library.prepareContent(val);
-					if (prepared)
-						out.push(prepared);
-				}
-			}
-			
-			for (const object of out)
-				new ContentMeta(object);
-			
-			return out;
-		};
-		
 		/** */
 		const staticMembers = (() =>
 		{
@@ -151,11 +139,15 @@ namespace Reflex.Core
 			return Object.assign({}, staticBranches, staticNonBranches);
 		})();
 		
+		const nsFn = isContent ?
+			createContentNamespaceFn(library) :
+			createContainerNamespaceFn(library);
+		
 		// In the case when there are no dynamic members, we can just
 		// return the static namespace members, and avoid use of Proxies
 		// all together.
 		if (!library.getDynamicBranch && !library.getDynamicNonBranch)
-			return <any>Object.assign(namespaceFn, staticMembers);
+			return <any>Object.assign(nsFn, staticMembers);
 		
 		// This variable stores an object that contains the members
 		// that were attached to the proxy object after it's creation.
@@ -163,7 +155,7 @@ namespace Reflex.Core
 		// the "emit" function, but others may use it aswell.
 		let attachedMembers: { [key: string]: any; } | null = null;
 		
-		return <any>new Proxy(namespaceFn, {
+		return <any>new Proxy(nsFn, {
 			get(target: Function, key: string)
 			{
 				if (typeof key !== "string")
@@ -224,4 +216,79 @@ namespace Reflex.Core
 			};
 		};
 	};
+	
+	/**
+	 * Creates the function that exists at the top of the library,
+	 * which is used for inserting textual content into the tree.
+	 */
+	function createContentNamespaceFn(library: ILibrary)
+	{
+		return (
+			template: TemplateStringsArray | StatefulForce,
+			...values: (IBranch | StatefulForce)[]): any =>
+		{
+			const array = Array.isArray(template) ?
+				template :
+				[template];
+			
+			const out: object[] = [];
+			const len = array.length + values.length;
+			
+			const createContent = library.createContent;
+			if (!createContent)
+				return;
+			
+			// TODO: This should be optimized so that multiple repeating
+			// string values don't result in the creation of many ContentMeta
+			// objects.
+			
+			for (let i = -1; ++i < len;)
+			{
+				const val = i % 2 === 0 ?
+					array[i / 2] :
+					values[(i - 1) / 2];
+				
+				if (val === null || val === undefined)
+					continue;
+				
+				if (val instanceof StatefulForce)
+				{
+					out.push(new Recurrent(
+						RecurrentKind.on,
+						val,
+						now =>
+						{
+							const result = createContent(now);
+							if (result)
+								new ContentMeta(result);
+							
+							return result;
+						}).run());
+				}
+				else
+				{
+					const prepared = createContent(val);
+					if (prepared)
+						out.push(prepared);
+				}
+			}
+			
+			for (const object of out)
+				new ContentMeta(object);
+			
+			return out;
+		};
+	}
+	
+	/**
+	 * Creates the function that exists at the top of the library,
+	 * which is used for creating an abstract container object.
+	 */
+	function createContainerNamespaceFn(library: ILibrary)
+	{
+		const createContainer = library.createContainer;
+		return createContainer ?
+			createBranchFn(() => createContainer()) :
+			() => {};
+	}
 }

@@ -56,10 +56,19 @@ namespace Reflex.Core
 		 * being processed by the top-level namespace function into other
 		 * values that will eventually be applied as primitives.
 		 * 
-		 * If the provided value is not recognizable as content, the method
-		 * should return null.
+		 * This function should be implemented by libraries that use the
+		 * content namespace variant.
 		 */
-		prepareContent(content: any): object | null;
+		createContent?: (content: any) => object | null;
+		
+		/**
+		 * Reflexive libraries must implement this function to create abstract
+		 * top-level container branches.
+		 * 
+		 * This function should be implemented by libraries that use the
+		 * container namespace variant.
+		 */
+		createContainer?: () => IBranch;
 		
 		/**
 		 * 
