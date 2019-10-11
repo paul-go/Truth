@@ -9,6 +9,6 @@
 	],
 	"references": [
 		{ "path": "../../Truth" },
-		{ "path": "../../Backer/Encoder" }
+		{ "path": "../Backer/Encoder" }
 	]
 }
