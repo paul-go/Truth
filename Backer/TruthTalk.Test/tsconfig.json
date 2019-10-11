@@ -1,12 +1,12 @@
 {
 	"extends": "../tsconfig.composite.json",
 	"compilerOptions": {
-		"outFile": "./build/truthtalk.js"
+		"outFile": "./build/truthtalk-test.js"
 	},
 	"include": [
 		"./source/**/*.ts"
 	],
 	"references": [
-		
+		{ "path": "../TruthTalk" }
 	]
 }
