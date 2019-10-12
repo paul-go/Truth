@@ -23,12 +23,12 @@ namespace Backer
 		
 		constructor(private value: Typeish) {}
 		
-		get prime()
+		get type()
 		{
 			if (this.value instanceof Type)
 				return this.value;
 			
-			return FutureType.IdMap.get(this.value);
+			return FutureType.IdMap.get(this.value) || null;
 		}
 		
 		get id()

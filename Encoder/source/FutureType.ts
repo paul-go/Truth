@@ -1,7 +1,67 @@
 
 namespace Encoder 
 {
-	export class FutureType extends Backer.FutureType
+	export type Typeish = Truth.Type | Type | number;
+	
+	export class FutureType
 	{
+		static Cache = new Map<Typeish, FutureType>();
+		static TypeMap = new Map<Truth.Type, Type>();
+		static IdMap = new Map<number, Type>();
+		
+		static $(value: Typeish)
+		{
+			const cached = this.Cache.get(value);
+			
+			if (cached)
+				return cached;
+				
+			const instance = new this(value);
+			this.Cache.set(value, instance);
+			
+			return instance;
+		} 
+		
+		constructor(private value: Typeish) { }
+		
+		set(key: Truth.Type, value: Type)
+		{
+			FutureType.TypeMap.set(key, value);
+		}
+		
+		get type()
+		{
+			if (this.value instanceof Truth.Type)
+			{
+				const type = FutureType.TypeMap.get(this.value);
+				if (!type) return null;
+				return type;
+			}
+			
+			if (this.value instanceof Type)
+				return this.value;
+				
+			return FutureType.IdMap.get(this.value) || null;
+		}
+		
+		get id()
+		{
+			if (this.value instanceof Truth.Type)
+			{
+				const type = FutureType.TypeMap.get(this.value);
+				if (!type) return -1;
+				return type.id;
+			}
+			
+			if (this.value instanceof Type)
+				return this.value.id;
+				
+			return this.value;
+		}
+		
+		toJSON() { return this.id; }
+		valueOf() { return this.id; }
+		[Symbol.toPrimitive]() { return this.id; }
+		get [Symbol.toStringTag]() { return "FutureType"; }
 	}
 }
