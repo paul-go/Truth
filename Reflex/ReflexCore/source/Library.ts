@@ -142,5 +142,16 @@ namespace Reflex.Core
 			branch: IBranch,
 			selector: any,
 			callback: RecurrentCallback<Primitives>) => void;
+		
+		/**
+		 * Reflexive libraries can implement this function in order to process
+		 * a branch before it's returned from a branch function. When this
+		 * function is implemented, the return value of the branch functions
+		 * are replaced with the return value of this function. Reflexive libraries
+		 * that require the standard behavior of returning branches from the
+		 * branch functions should return the `branch` argument to this function
+		 * verbatim.
+		 */
+		returnBranch?: (branch: IBranch) => string | number | bigint | object;
 	}
 }

@@ -191,31 +191,29 @@ namespace Reflex.Core
 	/**
 	 * 
 	 */
-	function createBranchFn(constructBranchFn: () => IBranch)
-	{
-		return (...primitives: Primitive[]) =>
-		{
-			return new BranchMeta(
-				constructBranchFn(),
-				primitives).branch;
-		};
-	};
+	const createBranchFn = (constructBranchFn: () => IBranch) =>
+		(...primitives: Primitive[]) =>
+			returnBranch(constructBranchFn(), primitives);
 	
 	/**
 	 * 
 	 */
-	function createParameticBranchFn(branchFn: (...args: any[]) => IBranch)
+	const createParameticBranchFn = (branchFn: (...args: any[]) => IBranch) =>
+		(...constructBranchArgs: any[]) =>
+			(...primitives: Primitive[]) =>
+				returnBranch(branchFn(constructBranchArgs), primitives);
+	
+	/**
+	 * 
+	 */
+	function returnBranch(branch: IBranch, primitives: any[])
 	{
-		return (...constructBranchArgs: any[]) =>
-		{
-			return (...primitives: Primitive[]) =>
-			{
-				return new BranchMeta(
-					branchFn(constructBranchArgs),
-					primitives).branch;
-			};
-		};
-	};
+		new BranchMeta(branch, primitives);
+		const lib = RoutingLibrary.this;
+		return lib.returnBranch ?
+			lib.returnBranch(branch) :
+			branch;
+	}
 	
 	/**
 	 * Creates the function that exists at the top of the library,
@@ -238,9 +236,9 @@ namespace Reflex.Core
 			if (!createContent)
 				return;
 			
-			// TODO: This should be optimized so that multiple repeating
-			// string values don't result in the creation of many ContentMeta
-			// objects.
+			// TODO: This should be optimized so that multiple
+			// repeating string values don't result in the creation
+			// of many ContentMeta objects.
 			
 			for (let i = -1; ++i < len;)
 			{
@@ -290,5 +288,5 @@ namespace Reflex.Core
 		return createContainer ?
 			createBranchFn(() => createContainer()) :
 			() => {};
-	}
+	};
 }

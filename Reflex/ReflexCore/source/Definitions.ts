@@ -90,9 +90,9 @@ declare namespace Reflex.Core
 	 * Abstract definition of the container variant of the top-level
 	 * namespace function.
 	 */
-	export interface IContainerNamespace<P extends Primitives, TBranch = object>
+	export interface IContainerNamespace<P extends Primitives, TResult = object>
 	{
-		(...primitives: P[]): TBranch;
+		(...primitives: P[]): TResult;
 	}
 	
 	/**

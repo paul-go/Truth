@@ -3,7 +3,6 @@ namespace Reflex.Core
 {
 	/**
 	 * @internal
-	 * 
 	 * A class that sits between the specific Reflexive library, 
 	 * and the Library class as defined in the Reflex Core. The
 	 * purpose of this class is to override all the methods, and
@@ -238,6 +237,24 @@ namespace Reflex.Core
 				lib => lib.detachRecurrent,
 				fn => fn(branch, selector, callback),
 				false);
+		}
+		
+		/**
+		 * Reflexive libraries can implement this function in order to process
+		 * a branch before it's returned from a branch function. When this
+		 * function is implemented, the return value of the branch functions
+		 * are replaced with the return value of this function. Reflexive libraries
+		 * that require the standard behavior of returning branches from the
+		 * branch functions should return the `branch` argument to this function
+		 * verbatim.
+		 */
+		returnBranch(branch: IBranch)
+		{
+			return this.route(
+				branch,
+				lib => lib.returnBranch,
+				fn => fn(branch),
+				branch)
 		}
 	}
 }
