@@ -6,8 +6,5 @@
 	},
 	"include": [
 		"./source/**/*.ts"
-	],
-	"references": [
-		{ "path": "../../Truth" }
 	]
 }

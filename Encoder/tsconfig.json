@@ -28,7 +28,7 @@
 		"**/make.ts"
 	],
 	"references": [
-		{ "path": "../Truth" },
+		{ "path": "../Truth/source" },
 		{ "path": "../Backer/Encoder" }
 	]
 }

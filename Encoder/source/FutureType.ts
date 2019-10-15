@@ -11,13 +11,13 @@ namespace Encoder
 		
 		static $(value: Typeish)
 		{
-			const cached = this.Cache.get(value);
+			const cached = FutureType.Cache.get(value);
 			
 			if (cached)
 				return cached;
 				
-			const instance = new this(value);
-			this.Cache.set(value, instance);
+			const instance = new FutureType(value);
+			FutureType.Cache.set(value, instance);
 			
 			return instance;
 		} 
@@ -57,6 +57,13 @@ namespace Encoder
 				return this.value.id;
 				
 			return this.value;
+		}
+		
+		is(type: Type)
+		{
+			const valueType = this.value;
+			if (!valueType) return false;
+			return valueType === type;	
 		}
 		
 		toJSON() { return this.id; }

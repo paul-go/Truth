@@ -10,12 +10,12 @@ namespace Backer
 		
 		static $(value: Typeish)
 		{
-			const cached = this.Cache.get(value);
+			const cached = FutureType.Cache.get(value);
 			
 			if (cached)
 				return cached;
 				
-			const instance = new this(value);
+			const instance = new FutureType(value);
 			this.Cache.set(value, instance);
 			
 			return instance;

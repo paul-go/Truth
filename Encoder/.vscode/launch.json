@@ -8,7 +8,8 @@
 			"type": "node",
 			"request": "launch",
 			"name": "Launch Program",
-			"program": "${workspaceFolder}/build/encoder.js",
+			"program": "${workspaceFolder}/run.js",
+			"cwd": "${workspaceFolder}/Test",
 			"outFiles": [
 				"${workspaceFolder}/**/*.js"
 			]

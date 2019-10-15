@@ -8,7 +8,8 @@ namespace Backer.Serializer
 		
 		for (let i = -1; ++i < data.length;)
 		{
-			const value = typeof data[i] === "object" && "toJSON" in data[i] ? data[i].toJSON() : data[i];	
+			const vp = data[i];
+			const value = vp && typeof vp === "object" && "toJSON" in vp ? vp.toJSON() : vp;	
 			const bit = Array.isArray(value) && value.length === 0;
 			bf.set(i, bit ? false : true);
 			 
@@ -16,7 +17,7 @@ namespace Backer.Serializer
 				result.push(value);
 		}
 		
-		result.unshift(Bitfields);
+		result.unshift(bf);
 		return result;
 	}
 	
