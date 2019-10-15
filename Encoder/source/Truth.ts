@@ -48,6 +48,8 @@ boolean : any
 		for (const type of document.types)
 			drill(type);
 			
+		code.link();
+			
 		for (const key in config.DataPatterns)
 		{
 			let temp = code.extractData(config.DataPatterns[key]);

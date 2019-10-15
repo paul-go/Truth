@@ -9,7 +9,7 @@ namespace Encoder
 				code, 
 				type.isPattern ? type.name.substr(9) : type.name, 
 				Prototype.fromTruth(code, type),
-				type.container ? FutureType.$(type) : null,
+				type.container ? FutureType.$(type.container) : null,
 				type.aliases as string[]
 			);
 			

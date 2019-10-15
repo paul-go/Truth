@@ -41,7 +41,8 @@ namespace Encoder
 					if (type)
 					{
 						const child = drill(type).flat();
-						if(child.length) array.push(...child);
+						if (child.length)
+							array.push(...child);
 					}
 				} 
 				return array;
