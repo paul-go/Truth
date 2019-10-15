@@ -10,7 +10,7 @@ namespace Encoder
 			if (!this.prototypes.some(x => x.hash === type.prototype.hash))
 				this.prototypes.push(type.prototype);
 				
-			const id = this.types.push(type) - 1;
+			const id = this.types.push(type.clone(this)) - 1;
 			return id;
 		}
 		

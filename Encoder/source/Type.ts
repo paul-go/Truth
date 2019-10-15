@@ -32,6 +32,17 @@ namespace Encoder
 			return this.code.types.indexOf(this);
 		}
 		
+		clone(code: Code)
+		{
+			return new Type(
+				code, 
+				this.name,
+				this.prototype,
+				this.container,
+				this.aliases
+			);
+		}
+		
 		toJSON()
 		{	
 			return [this.prototype.id, this.container, this.name, this.aliases];
