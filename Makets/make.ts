@@ -15,7 +15,7 @@ make.on("publish", async () =>
 				makets: "./main.js"
 			}
 		},
-		registries: [],
+		registries: ["https://registry.npmjs.org"],
 		tag: "latest"
 	});
 	
