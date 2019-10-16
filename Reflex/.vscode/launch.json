@@ -1,43 +1,55 @@
 {
 	"version": "0.2.0",
-	"configurations": [{
-		"name": "Debug Reflex ML From Browser",
-		"type": "chrome",
-		"request": "launch",
-		"url": "http://127.0.0.1:4349/ReflexML/test/index.html",
-		"webRoot": "${workspaceRoot}",
-		"timeout": 30000,
-		"smartStep": true,
-		"sourceMaps": true
-	},
-	{
-		"type": "node",
-		"request": "launch",
-		"name": "Debug Reflex Core Makets Script",
-		"program": "${env:HOME}/.npm-packages/bin/makets",
-		"cwd": "${workspaceFolder}/ReflexCore",
-		"args": [
-			"publish"
-		]
-	},
-	{
-		"type": "node",
-		"request": "launch",
-		"name": "Debug Reflex ML Makets Script",
-		"program": "${env:HOME}/.npm-packages/bin/makets",
-		"cwd": "${workspaceFolder}/ReflexML",
-		"args": [
-			"publish"
-		]
-	},
-	{
-		"type": "node",
-		"request": "launch",
-		"name": "Debug Reflex ML Node Makets Script",
-		"program": "${env:HOME}/.npm-packages/bin/makets",
-		"cwd": "${workspaceFolder}/ReflexMLNode",
-		"args": [
-			"publish"
-		]
-	}]
+	"configurations": [
+		{
+			"name": "Debug Reflex ML From Browser",
+			"type": "chrome",
+			"request": "launch",
+			"url": "http://127.0.0.1:4349/ReflexML.Test/index.html",
+			"webRoot": "${workspaceRoot}",
+			"timeout": 30000,
+			"smartStep": true,
+			"sourceMaps": true
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Debug Reflex Core Makets Script",
+			"program": "${env:HOME}/.npm-packages/bin/makets",
+			"cwd": "${workspaceFolder}/ReflexCore",
+			"args": [
+				"publish"
+			]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Debug Reflex ML Makets Script",
+			"program": "${env:HOME}/.npm-packages/bin/makets",
+			"cwd": "${workspaceFolder}/ReflexML",
+			"args": [
+				"publish"
+			]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Debug Reflex ML Node Makets Script",
+			"program": "${env:HOME}/.npm-packages/bin/makets",
+			"cwd": "${workspaceFolder}/ReflexMLNode",
+			"args": [
+				"publish"
+			]
+		},
+		{
+			"name": "Debug Reflex SS From Browser",
+			"type": "chrome",
+			"request": "launch",
+			"url": "http://127.0.0.1:4349/ReflexSS.Test/index.html",
+			"webRoot": "${workspaceRoot}",
+			"timeout": 30000,
+			"smartStep": true,
+			"sourceMaps": true
+		}
+	]
 }

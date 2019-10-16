@@ -1,0 +1,13 @@
+{
+	"extends": "../tsconfig.composite.json",
+	"compilerOptions": {
+		"outFile": "./build/reflex-ss-test.js"
+	},
+	"include": [
+		"./source/**/*.ts"
+	],
+	"references": [
+		{ "path": "../ReflexCore" },
+		{ "path": "../ReflexSS" }
+	]
+}

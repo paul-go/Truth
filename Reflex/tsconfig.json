@@ -6,6 +6,7 @@
 		{ "path": "./ReflexML" },
 		{ "path": "./ReflexML.Test" },
 		{ "path": "./ReflexMLNode" },
-		{ "path": "./ReflexSS" }
+		{ "path": "./ReflexSS" },
+		{ "path": "./ReflexSS.Test" }
 	]
 }
