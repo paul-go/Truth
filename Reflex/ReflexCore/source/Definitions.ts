@@ -29,6 +29,13 @@ declare namespace Reflex.Core
 	 */
 	export interface IBranch extends Object { }
 	
+	/** */
+	export class BranchFunction<TName extends string = string>
+	{
+		readonly name: TName;
+		private readonly nominal: undefined; 
+	}
+	
 	/**
 	 * Marker interface that defines an object that represents
 	 * a block of visible content in the tree.
@@ -46,20 +53,21 @@ declare namespace Reflex.Core
 		AsyncIterable<TMeta | TAdditionals> |
 		Promise<TMeta | TAdditionals> |
 		((branch: TBranch, children: TMeta[]) => Primitives<TMeta, TBranch, TAdditionals>) |
+		BranchFunction |
 		Recurrent | 
 		IAttributes;
 	
 	/**
 	 * 
 	 */
-	export type Primitives<N = object, B = object, A = unknown> =
-		N |
+	export type Primitives<M = object, B = object, A = unknown> =
+		M |
 		B |
 		A |
-		Primitive<N, B, A> |
-		Primitive<N, B, Primitive<N, B, A>> |
-		Primitive<N, B, Primitive<N, B, Primitive<N, B, A>>> |
-		Primitive<N, B, Primitive<N, B, Primitive<N, B, Primitive<N, B, A>>>>;
+		Primitive<M, B, A> |
+		Primitive<M, B, Primitive<M, B, A>> |
+		Primitive<M, B, Primitive<M, B, Primitive<M, B, A>>> |
+		Primitive<M, B, Primitive<M, B, Primitive<M, B, Primitive<M, B, A>>>>;
 	
 	/** */
 	export interface IAttributes<T = string | number | bigint | boolean>

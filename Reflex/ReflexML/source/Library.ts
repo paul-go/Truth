@@ -144,7 +144,7 @@ namespace Reflex.ML
 		}
 		
 		/** */
-		swapElement(branch1: Branch, branch2: Branch)
+		swapBranches(branch1: Branch, branch2: Branch)
 		{
 			branch2.parentElement!.insertBefore(this.transientMarker, branch2);
 			branch1.parentElement!.insertBefore(branch2, branch1);
@@ -159,7 +159,7 @@ namespace Reflex.ML
 		private readonly transientMarker = document.createComment("");
 	
 		/** */
-		replaceElement(branch1: Branch, branch2: Branch)
+		replaceBranch(branch1: Branch, branch2: Branch)
 		{
 			branch1.replaceWith(branch2);
 		}

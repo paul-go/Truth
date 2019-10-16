@@ -401,422 +401,556 @@ declare namespace Reflex.ML
 		
 		//# HTML Elements
 		
-		/** Returns a <a> element with the primitives applied. */
-		a(...primitives: Primitives[]): HTMLAnchorElement;
-		
-		/** Returns a <abbr> element with the primitives applied. */
-		abbr(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <address> element with the primitives applied. */
-		address(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <area> element with the primitives applied. */
-		area(...primitives: Primitives[]): HTMLAreaElement;
-		
-		/** Returns a <article> element with the primitives applied. */
-		article(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <aside> element with the primitives applied. */
-		aside(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <audio> element with the primitives applied. */
-		audio(...primitives: Primitives[]): HTMLAudioElement;
-		
-		/** Returns a <b> element with the primitives applied. */
-		b(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <bdi> element with the primitives applied. */
-		bdi(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <bdo> element with the primitives applied. */
-		bdo(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <blockquote> element with the primitives applied. */
-		blockquote(...primitives: Primitives[]): HTMLQuoteElement;
-		
-		/** Returns a <br> element with the primitives applied. */
-		br(...primitives: Primitives[]): HTMLBRElement;
-		
-		/** Returns a <button> element with the primitives applied. */
-		button(...primitives: Primitives[]): HTMLButtonElement;
-		
-		/** Returns a <canvas> element with the primitives applied. */
-		canvas(...primitives: Primitives[]): HTMLCanvasElement;
-		
-		/** Returns a <caption> element with the primitives applied. */
-		caption(...primitives: Primitives[]): HTMLTableCaptionElement;
-		
-		/** Returns a <cite> element with the primitives applied. */
-		cite(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <code> element with the primitives applied. */
-		code(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <col> element with the primitives applied. */
-		col(...primitives: Primitives[]): HTMLTableColElement;
-		
-		/** Returns a <colgroup> element with the primitives applied. */
-		colgroup(...primitives: Primitives[]): HTMLTableColElement;
-		
-		/** Returns a <data> element with the primitives applied. */
-		data(...primitives: Primitives[]): HTMLDataElement;
-		
-		/** Returns a <datalist> element with the primitives applied. */
-		datalist(...primitives: Primitives[]): HTMLDataListElement;
-		
-		/** Returns a <dd> element with the primitives applied. */
-		dd(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <del> element with the primitives applied. */
-		del(...primitives: Primitives[]): HTMLModElement;
-		
-		/** Returns a <details> element with the primitives applied. */
-		details(...primitives: Primitives[]): HTMLDetailsElement;
-		
-		/** Returns a <dfn> element with the primitives applied. */
-		dfn(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <dir> element with the primitives applied. */
-		dir(...primitives: Primitives[]): HTMLDirectoryElement;
-		
-		/** Returns a <div> element with the primitives applied. */
-		div(...primitives: Primitives[]): HTMLDivElement;
-		
-		/** Returns a <dl> element with the primitives applied. */
-		dl(...primitives: Primitives[]): HTMLDListElement;
-		
-		/** Returns a <dt> element with the primitives applied. */
-		dt(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <em> element with the primitives applied. */
-		em(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <embed> element with the primitives applied. */
-		embed(...primitives: Primitives[]): HTMLEmbedElement;
-		
-		/** Returns a <fieldset> element with the primitives applied. */
-		fieldset(...primitives: Primitives[]): HTMLFieldSetElement;
-		
-		/** Returns a <figcaption> element with the primitives applied. */
-		figcaption(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <figure> element with the primitives applied. */
-		figure(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <footer> element with the primitives applied. */
-		footer(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <form> element with the primitives applied. */
-		form(...primitives: Primitives[]): HTMLFormElement;
-		
-		/** Returns a <frame> element with the primitives applied. */
-		frame(...primitives: Primitives[]): HTMLFrameElement;
-		
-		/** Returns a <frameset> element with the primitives applied. */
-		frameset(...primitives: Primitives[]): HTMLFrameSetElement;
-		
-		/** Returns an <h1> element with the primitives applied. */
-		h1(...primitives: Primitives[]): HTMLHeadingElement;
-		
-		/** Returns an <h2> element with the primitives applied. */
-		h2(...primitives: Primitives[]): HTMLHeadingElement;
-		
-		/** Returns an <h3> element with the primitives applied. */
-		h3(...primitives: Primitives[]): HTMLHeadingElement;
-		
-		/** Returns an <h4> element with the primitives applied. */
-		h4(...primitives: Primitives[]): HTMLHeadingElement;
-		
-		/** Returns an <h5> element with the primitives applied. */
-		h5(...primitives: Primitives[]): HTMLHeadingElement;
-		
-		/** Returns an <h6> element with the primitives applied. */
-		h6(...primitives: Primitives[]): HTMLHeadingElement;
-		
-		/** Returns a <head> element with the primitives applied. */
-		head(...primitives: Primitives[]): HTMLHeadElement;
-		
-		/** Returns a <header> element with the primitives applied. */
-		header(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns an <hgroup> element with the primitives applied. */
-		hgroup(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns an <hr> element with the primitives applied. */
-		hr(...primitives: Primitives[]): HTMLHRElement;
-		
-		/** Returns a <i> element with the primitives applied. */
-		i(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <iframe> element with the primitives applied. */
-		iframe(...primitives: Primitives[]): HTMLIFrameElement;
-		
-		/** Returns a <img> element with the primitives applied. */
-		img(...primitives: Primitives[]): HTMLImageElement;
-		
-		/** Returns an <ins> e**l>ement with the primitives applied. */
-		ins(...primitives: Primitives[]): HTMLModElement;
-		
-		/** Returns a <kbd> element with the primitives applied. */
-		kbd(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <label> element with the primitives applied. */
-		label(...primitives: Primitives[]): HTMLLabelElement;
-		
-		/** Returns a <legend> element with the primitives applied. */
-		legend(...primitives: Primitives[]): HTMLLegendElement;
-		
-		/** Returns an <li> element with the primitives applied. */
-		li(...primitives: Primitives[]): HTMLLIElement;
-		
-		/** Returns a <main> element with the primitives applied. */
-		main(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <map> element with the primitives applied. */
-		map(...primitives: Primitives[]): HTMLMapElement;
-		
-		/** Returns a <mark> element with the primitives applied. */
-		mark(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <marquee> element with the primitives applied. */
-		marquee(...primitives: Primitives[]): HTMLMarqueeElement;
-		
-		/** Returns a <menu> element with the primitives applied. */
-		menu(...primitives: Primitives[]): HTMLMenuElement;
-		
-		/** Returns a <meter> element with the primitives applied. */
-		meter(...primitives: Primitives[]): HTMLMeterElement;
-		
-		/** Returns a <nav> element with the primitives applied. */
-		nav(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <object> element with the primitives applied. */
-		object(...primitives: Primitives[]): HTMLObjectElement;
-		
-		/** Returns a <ol> element with the primitives applied. */
-		ol(...primitives: Primitives[]): HTMLOListElement;
-		
-		/** Returns a <optgroup> element with the primitives applied. */
-		optgroup(...primitives: Primitives[]): HTMLOptGroupElement;
-		
-		/** Returns a <option> element with the primitives applied. */
-		option(...primitives: Primitives[]): HTMLOptionElement;
-		
-		/** Returns a <output> element with the primitives applied. */
-		output(...primitives: Primitives[]): HTMLOutputElement;
-		
-		/** Returns a <p> element with the primitives applied. */
-		p(...primitives: Primitives[]): HTMLParagraphElement;
-		
-		/** Returns a <param> element with the primitives applied. */
-		param(...primitives: Primitives[]): HTMLParamElement;
-		
-		/** Returns a <picture> element with the primitives applied. */
-		picture(...primitives: Primitives[]): HTMLPictureElement;
-		
-		/** Returns a <pre> element with the primitives applied. */
-		pre(...primitives: Primitives[]): HTMLPreElement;
-		
-		/** Returns a <progress> element with the primitives applied. */
-		progress(...primitives: Primitives[]): HTMLProgressElement;
-		
-		/** Returns a <q> element with the primitives applied. */
-		q(...primitives: Primitives[]): HTMLQuoteElement;
-		
-		/** Returns a <rp> element with the primitives applied. */
-		rp(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <rt> element with the primitives applied. */
-		rt(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <ruby> element with the primitives applied. */
-		ruby(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <s> element with the primitives applied. */
-		s(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <samp> element with the primitives applied. */
-		samp(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <section> element with the primitives applied. */
-		section(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <select> element with the primitives applied. */
-		select(...primitives: Primitives[]): HTMLSelectElement;
-		
-		/** Returns a <slot> element with the primitives applied. */
-		slot(...primitives: Primitives[]): HTMLSlotElement;
-		
-		/** Returns a <small> element with the primitives applied. */
-		small(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <source> element with the primitives applied. */
-		source(...primitives: Primitives[]): HTMLSourceElement;
-		
-		/** Returns a <span> element with the primitives applied. */
-		span(...primitives: Primitives[]): HTMLSpanElement;
-		
-		/** Returns a <strong> element with the primitives applied. */
-		strong(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <sub> element with the primitives applied. */
-		sub(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <summary> element with the primitives applied. */
-		summary(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <sup> element with the primitives applied. */
-		sup(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <table> element with the primitives applied. */
-		table(...primitives: Primitives[]): HTMLTableElement;
-		
-		/** Returns a <tbody> element with the primitives applied. */
-		tbody(...primitives: Primitives[]): HTMLTableSectionElement;
-		
-		/** Returns a <td> element with the primitives applied. */
-		td(...primitives: Primitives[]): HTMLTableDataCellElement;
-		
-		/** Returns a <template> element with the primitives applied. */
-		template(...primitives: Primitives[]): HTMLTemplateElement;
-		
-		/** Returns a <textarea> element with the primitives applied. */
-		textarea(...primitives: Primitives[]): HTMLTextAreaElement;
-		
-		/** Returns a <tfoot> element with the primitives applied. */
-		tfoot(...primitives: Primitives[]): HTMLTableSectionElement;
-		
-		/** Returns a <th> element with the primitives applied. */
-		th(...primitives: Primitives[]): HTMLTableHeaderCellElement;
-		
-		/** Returns a <thead> element with the primitives applied. */
-		thead(...primitives: Primitives[]): HTMLTableSectionElement;
-		
-		/** Returns a <time> element with the primitives applied. */
-		time(...primitives: Primitives[]): HTMLTimeElement;
-		
-		/** Returns a <tr> element with the primitives applied. */
-		tr(...primitives: Primitives[]): HTMLTableRowElement;
-		
-		/** Returns a <track> element with the primitives applied. */
-		track(...primitives: Primitives[]): HTMLTrackElement;
-		
-		/** Returns a <u> element with the primitives applied. */
-		u(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <ul> element with the primitives applied. */
-		ul(...primitives: Primitives[]): HTMLUListElement;
-		
-		/** Returns a <var> element with the primitives applied. */
-		var(...primitives: Primitives[]): HTMLElement;
-		
-		/** Returns a <video> element with the primitives applied. */
-		video(...primitives: Primitives[]): HTMLVideoElement;
-		
-		/** Returns a <wbr> element with the primitives applied. */
-		wbr(...primitives: Primitives[]): HTMLElement;
+		/** Callable property that returns an <a> element with the primitives applied. */
+		readonly a: ((...primitives: Primitives[]) => HTMLAnchorElement) &
+			Reflex.Core.BranchFunction<"a">;
+		
+		/** Callable property that returns an <abbr> element with the primitives applied. */
+		readonly abbr: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"abbr">;
+		
+		/** Callable property that returns an <address> element with the primitives applied. */
+		readonly address: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"address">;
+		
+		/** Callable property that returns an <area> element with the primitives applied. */
+		readonly area: ((...primitives: Primitives[]) => HTMLAreaElement) &
+			Reflex.Core.BranchFunction<"area">;
+		
+		/** Callable property that returns an <article> element with the primitives applied. */
+		readonly article: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"article">;
+		
+		/** Callable property that returns an <aside> element with the primitives applied. */
+		readonly aside: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"aside">;
+		
+		/** Callable property that returns an <audio> element with the primitives applied. */
+		readonly audio: ((...primitives: Primitives[]) => HTMLAudioElement) &
+			Reflex.Core.BranchFunction<"audio">;
+		
+		/** Callable property that returns a <b> element with the primitives applied. */
+		readonly b: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"b">;
+		
+		/** Callable property that returns a <bdi> element with the primitives applied. */
+		readonly bdi: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"bdi">;
+		
+		/** Callable property that returns a <bdo> element with the primitives applied. */
+		readonly bdo: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"bdo">;
+		
+		/** Callable property that returns a <blockquote> element with the primitives applied. */
+		readonly blockquote: ((...primitives: Primitives[]) => HTMLQuoteElement) &
+			Reflex.Core.BranchFunction<"blockquote">;
+		
+		/** Callable property that returns a <br> element with the primitives applied. */
+		readonly br: ((...primitives: Primitives[]) => HTMLBRElement) &
+			Reflex.Core.BranchFunction<"br">;
+		
+		/** Callable property that returns a <button> element with the primitives applied. */
+		readonly button: ((...primitives: Primitives[]) => HTMLButtonElement) &
+			Reflex.Core.BranchFunction<"button">;
+		
+		/** Callable property that returns a <canvas> element with the primitives applied. */
+		readonly canvas: ((...primitives: Primitives[]) => HTMLCanvasElement) &
+			Reflex.Core.BranchFunction<"canvas">;
+		
+		/** Callable property that returns a <caption> element with the primitives applied. */
+		readonly caption: ((...primitives: Primitives[]) => HTMLTableCaptionElement) &
+			Reflex.Core.BranchFunction<"caption">;
+		
+		/** Callable property that returns a <cite> element with the primitives applied. */
+		readonly cite: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"cite">;
+		
+		/** Callable property that returns a <code> element with the primitives applied. */
+		readonly code: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"code">;
+		
+		/** Callable property that returns a <col> element with the primitives applied. */
+		readonly col: ((...primitives: Primitives[]) => HTMLTableColElement) &
+			Reflex.Core.BranchFunction<"col">;
+		
+		/** Callable property that returns a <colgroup> element with the primitives applied. */
+		readonly colgroup: ((...primitives: Primitives[]) => HTMLTableColElement) &
+			Reflex.Core.BranchFunction<"colgroup">;
+		
+		/** Callable property that returns a <data> element with the primitives applied. */
+		readonly data: ((...primitives: Primitives[]) => HTMLDataElement) &
+			Reflex.Core.BranchFunction<"data">;
+		
+		/** Callable property that returns a <datalist> element with the primitives applied. */
+		readonly datalist: ((...primitives: Primitives[]) => HTMLDataListElement) &
+			Reflex.Core.BranchFunction<"datalist">;
+		
+		/** Callable property that returns a <dd> element with the primitives applied. */
+		readonly dd: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"dd">;
+		
+		/** Callable property that returns a <del> element with the primitives applied. */
+		readonly del: ((...primitives: Primitives[]) => HTMLModElement) &
+			Reflex.Core.BranchFunction<"del">;
+		
+		/** Callable property that returns a <details> element with the primitives applied. */
+		readonly details: ((...primitives: Primitives[]) => HTMLDetailsElement) &
+			Reflex.Core.BranchFunction<"details">;
+		
+		/** Callable property that returns a <dfn> element with the primitives applied. */
+		readonly dfn: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"dfn">;
+		
+		/** Callable property that returns a <dir> element with the primitives applied. */
+		readonly dir: ((...primitives: Primitives[]) => HTMLDirectoryElement) &
+			Reflex.Core.BranchFunction<"dir">;
+		
+		/** Callable property that returns a <div> element with the primitives applied. */
+		readonly div: ((...primitives: Primitives[]) => HTMLDivElement) &
+			Reflex.Core.BranchFunction<"div">;
+		
+		/** Callable property that returns a <dl> element with the primitives applied. */
+		readonly dl: ((...primitives: Primitives[]) => HTMLDListElement) &
+			Reflex.Core.BranchFunction<"dl">;
+		
+		/** Callable property that returns a <dt> element with the primitives applied. */
+		readonly dt: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"dt">;
+		
+		/** Callable property that returns a <em> element with the primitives applied. */
+		readonly em: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"em">;
+		
+		/** Callable property that returns a <embed> element with the primitives applied. */
+		readonly embed: ((...primitives: Primitives[]) => HTMLEmbedElement) &
+			Reflex.Core.BranchFunction<"embed">;
+		
+		/** Callable property that returns a <fieldset> element with the primitives applied. */
+		readonly fieldset: ((...primitives: Primitives[]) => HTMLFieldSetElement) &
+			Reflex.Core.BranchFunction<"fieldset">;
+		
+		/** Callable property that returns a <figcaption> element with the primitives applied. */
+		readonly figcaption: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"figcaption">;
+		
+		/** Callable property that returns a <figure> element with the primitives applied. */
+		readonly figure: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"figure">;
+		
+		/** Callable property that returns a <footer> element with the primitives applied. */
+		readonly footer: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"footer">;
+		
+		/** Callable property that returns a <form> element with the primitives applied. */
+		readonly form: ((...primitives: Primitives[]) => HTMLFormElement) &
+			Reflex.Core.BranchFunction<"form">;
+		
+		/** Callable property that returns a <frame> element with the primitives applied. */
+		readonly frame: ((...primitives: Primitives[]) => HTMLFrameElement) &
+			Reflex.Core.BranchFunction<"frame">;
+		
+		/** Callable property that returns a <frameset> element with the primitives applied. */
+		readonly frameset: ((...primitives: Primitives[]) => HTMLFrameSetElement) &
+			Reflex.Core.BranchFunction<"frameset">;
+		
+		/** Callable property that returns an <h1> element with the primitives applied. */
+		readonly h1: ((...primitives: Primitives[]) => HTMLHeadingElement) &
+			Reflex.Core.BranchFunction<"h1">;
+		
+		/** Callable property that returns an <h2> element with the primitives applied. */
+		readonly h2: ((...primitives: Primitives[]) => HTMLHeadingElement) &
+			Reflex.Core.BranchFunction<"h2">;
+		
+		/** Callable property that returns an <h3> element with the primitives applied. */
+		readonly h3: ((...primitives: Primitives[]) => HTMLHeadingElement) &
+			Reflex.Core.BranchFunction<"h3">;
+		
+		/** Callable property that returns an <h4> element with the primitives applied. */
+		readonly h4: ((...primitives: Primitives[]) => HTMLHeadingElement) &
+			Reflex.Core.BranchFunction<"h4">;
+		
+		/** Callable property that returns an <h5> element with the primitives applied. */
+		readonly h5: ((...primitives: Primitives[]) => HTMLHeadingElement) &
+			Reflex.Core.BranchFunction<"h5">;
+		
+		/** Callable property that returns an <h6> element with the primitives applied. */
+		readonly h6: ((...primitives: Primitives[]) => HTMLHeadingElement) &
+			Reflex.Core.BranchFunction<"h6">;
+		
+		/** Callable property that returns a <header> element with the primitives applied. */
+		readonly header: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"header">;
+		
+		/** Callable property that returns an <hgroup> element with the primitives applied. */
+		readonly hgroup: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"hgroup">;
+		
+		/** Callable property that returns an <hr> element with the primitives applied. */
+		readonly hr: ((...primitives: Primitives[]) => HTMLHRElement) &
+			Reflex.Core.BranchFunction<"hr">;
+		
+		/** Callable property that returns an <i> element with the primitives applied. */
+		readonly i: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"i">;
+		
+		/** Callable property that returns an <iframe> element with the primitives applied. */
+		readonly iframe: ((...primitives: Primitives[]) => HTMLIFrameElement) &
+			Reflex.Core.BranchFunction<"iframe">;
+		
+		/** Callable property that returns an <img> element with the primitives applied. */
+		readonly img: ((...primitives: Primitives[]) => HTMLImageElement) &
+			Reflex.Core.BranchFunction<"img">;
+		
+		/** Callable property that returns an <ins> e**l>ement with the primitives applied. */
+		readonly ins: ((...primitives: Primitives[]) => HTMLModElement) &
+			Reflex.Core.BranchFunction<"ins">;
+		
+		/** Callable property that returns a <kbd> element with the primitives applied. */
+		readonly kbd: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"kbd">;
+		
+		/** Callable property that returns a <label> element with the primitives applied. */
+		readonly label: ((...primitives: Primitives[]) => HTMLLabelElement) &
+			Reflex.Core.BranchFunction<"label">;
+		
+		/** Callable property that returns a <legend> element with the primitives applied. */
+		readonly legend: ((...primitives: Primitives[]) => HTMLLegendElement) &
+			Reflex.Core.BranchFunction<"legend">;
+		
+		/** Callable property that returns an <li> element with the primitives applied. */
+		readonly li: ((...primitives: Primitives[]) => HTMLLIElement) &
+			Reflex.Core.BranchFunction<"li">;
+		
+		/** Callable property that returns a <main> element with the primitives applied. */
+		readonly main: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"main">;
+		
+		/** Callable property that returns a <map> element with the primitives applied. */
+		readonly map: ((...primitives: Primitives[]) => HTMLMapElement) &
+			Reflex.Core.BranchFunction<"map">;
+		
+		/** Callable property that returns a <mark> element with the primitives applied. */
+		readonly mark: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"mark">;
+		
+		/** Callable property that returns a <marquee> element with the primitives applied. */
+		readonly marquee: ((...primitives: Primitives[]) => HTMLMarqueeElement) &
+			Reflex.Core.BranchFunction<"marquee">;
+		
+		/** Callable property that returns a <menu> element with the primitives applied. */
+		readonly menu: ((...primitives: Primitives[]) => HTMLMenuElement) &
+			Reflex.Core.BranchFunction<"menu">;
+		
+		/** Callable property that returns a <meter> element with the primitives applied. */
+		readonly meter: ((...primitives: Primitives[]) => HTMLMeterElement) &
+			Reflex.Core.BranchFunction<"meter">;
+		
+		/** Callable property that returns a <nav> element with the primitives applied. */
+		readonly nav: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"nav">;
+		
+		/** Callable property that returns a <object> element with the primitives applied. */
+		readonly object: ((...primitives: Primitives[]) => HTMLObjectElement) &
+			Reflex.Core.BranchFunction<"object">;
+		
+		/** Callable property that returns a <ol> element with the primitives applied. */
+		readonly ol: ((...primitives: Primitives[]) => HTMLOListElement) &
+			Reflex.Core.BranchFunction<"ol">;
+		
+		/** Callable property that returns a <optgroup> element with the primitives applied. */
+		readonly optgroup: ((...primitives: Primitives[]) => HTMLOptGroupElement) &
+			Reflex.Core.BranchFunction<"optgroup">;
+		
+		/** Callable property that returns a <option> element with the primitives applied. */
+		readonly option: ((...primitives: Primitives[]) => HTMLOptionElement) &
+			Reflex.Core.BranchFunction<"option">;
+		
+		/** Callable property that returns a <output> element with the primitives applied. */
+		readonly output: ((...primitives: Primitives[]) => HTMLOutputElement) &
+			Reflex.Core.BranchFunction<"output">;
+		
+		/** Callable property that returns a <p> element with the primitives applied. */
+		readonly p: ((...primitives: Primitives[]) => HTMLParagraphElement) &
+			Reflex.Core.BranchFunction<"p">;
+		
+		/** Callable property that returns a <param> element with the primitives applied. */
+		readonly param: ((...primitives: Primitives[]) => HTMLParamElement) &
+			Reflex.Core.BranchFunction<"param">;
+		
+		/** Callable property that returns a <picture> element with the primitives applied. */
+		readonly picture: ((...primitives: Primitives[]) => HTMLPictureElement) &
+			Reflex.Core.BranchFunction<"picture">;
+		
+		/** Callable property that returns a <pre> element with the primitives applied. */
+		readonly pre: ((...primitives: Primitives[]) => HTMLPreElement) &
+			Reflex.Core.BranchFunction<"pre">;
+		
+		/** Callable property that returns a <progress> element with the primitives applied. */
+		readonly progress: ((...primitives: Primitives[]) => HTMLProgressElement) &
+			Reflex.Core.BranchFunction<"progress">;
+		
+		/** Callable property that returns a <q> element with the primitives applied. */
+		readonly q: ((...primitives: Primitives[]) => HTMLQuoteElement) &
+			Reflex.Core.BranchFunction<"q">;
+		
+		/** Callable property that returns a <rp> element with the primitives applied. */
+		readonly rp: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"rp">;
+		
+		/** Callable property that returns a <rt> element with the primitives applied. */
+		readonly rt: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"rt">;
+		
+		/** Callable property that returns a <ruby> element with the primitives applied. */
+		readonly ruby: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"ruby">;
+		
+		/** Callable property that returns a <s> element with the primitives applied. */
+		readonly s: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"s">;
+		
+		/** Callable property that returns a <samp> element with the primitives applied. */
+		readonly samp: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"samp">;
+		
+		/** Callable property that returns a <section> element with the primitives applied. */
+		readonly section: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"section">;
+		
+		/** Callable property that returns a <select> element with the primitives applied. */
+		readonly select: ((...primitives: Primitives[]) => HTMLSelectElement) &
+			Reflex.Core.BranchFunction<"select">;
+		
+		/** Callable property that returns a <slot> element with the primitives applied. */
+		readonly slot: ((...primitives: Primitives[]) => HTMLSlotElement) &
+			Reflex.Core.BranchFunction<"slot">;
+		
+		/** Callable property that returns a <small> element with the primitives applied. */
+		readonly small: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"small">;
+		
+		/** Callable property that returns a <source> element with the primitives applied. */
+		readonly source: ((...primitives: Primitives[]) => HTMLSourceElement) &
+			Reflex.Core.BranchFunction<"source">;
+		
+		/** Callable property that returns a <span> element with the primitives applied. */
+		readonly span: ((...primitives: Primitives[]) => HTMLSpanElement) &
+			Reflex.Core.BranchFunction<"span">;
+		
+		/** Callable property that returns a <strong> element with the primitives applied. */
+		readonly strong: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"strong">;
+		
+		/** Callable property that returns a <sub> element with the primitives applied. */
+		readonly sub: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"sub">;
+		
+		/** Callable property that returns a <summary> element with the primitives applied. */
+		readonly summary: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"summary">;
+		
+		/** Callable property that returns a <sup> element with the primitives applied. */
+		readonly sup: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"sup">;
+		
+		/** Callable property that returns a <table> element with the primitives applied. */
+		readonly table: ((...primitives: Primitives[]) => HTMLTableElement) &
+			Reflex.Core.BranchFunction<"table">;
+		
+		/** Callable property that returns a <tbody> element with the primitives applied. */
+		readonly tbody: ((...primitives: Primitives[]) => HTMLTableSectionElement) &
+			Reflex.Core.BranchFunction<"tbody">;
+		
+		/** Callable property that returns a <td> element with the primitives applied. */
+		readonly td: ((...primitives: Primitives[]) => HTMLTableDataCellElement) &
+			Reflex.Core.BranchFunction<"td">;
+		
+		/** Callable property that returns a <template> element with the primitives applied. */
+		readonly template: ((...primitives: Primitives[]) => HTMLTemplateElement) &
+			Reflex.Core.BranchFunction<"template">;
+		
+		/** Callable property that returns a <textarea> element with the primitives applied. */
+		readonly textarea: ((...primitives: Primitives[]) => HTMLTextAreaElement) &
+			Reflex.Core.BranchFunction<"textarea">;
+		
+		/** Callable property that returns a <tfoot> element with the primitives applied. */
+		readonly tfoot: ((...primitives: Primitives[]) => HTMLTableSectionElement) &
+			Reflex.Core.BranchFunction<"tfoot">;
+		
+		/** Callable property that returns a <th> element with the primitives applied. */
+		readonly th: ((...primitives: Primitives[]) => HTMLTableHeaderCellElement) &
+			Reflex.Core.BranchFunction<"th">;
+		
+		/** Callable property that returns a <thead> element with the primitives applied. */
+		readonly thead: ((...primitives: Primitives[]) => HTMLTableSectionElement) &
+			Reflex.Core.BranchFunction<"thead">;
+		
+		/** Callable property that returns a <time> element with the primitives applied. */
+		readonly time: ((...primitives: Primitives[]) => HTMLTimeElement) &
+			Reflex.Core.BranchFunction<"time">;
+		
+		/** Callable property that returns a <tr> element with the primitives applied. */
+		readonly tr: ((...primitives: Primitives[]) => HTMLTableRowElement) &
+			Reflex.Core.BranchFunction<"tr">;
+		
+		/** Callable property that returns a <track> element with the primitives applied. */
+		readonly track: ((...primitives: Primitives[]) => HTMLTrackElement) &
+			Reflex.Core.BranchFunction<"track">;
+		
+		/** Callable property that returns a <u> element with the primitives applied. */
+		readonly u: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"u">;
+		
+		/** Callable property that returns a <ul> element with the primitives applied. */
+		readonly ul: ((...primitives: Primitives[]) => HTMLUListElement) &
+			Reflex.Core.BranchFunction<"ul">;
+		
+		/** Callable property that returns a <var> element with the primitives applied. */
+		readonly var: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"var">;
+		
+		/** Callable property that returns a <video> element with the primitives applied. */
+		readonly video: ((...primitives: Primitives[]) => HTMLVideoElement) &
+			Reflex.Core.BranchFunction<"video">;
+		
+		/** Callable property that returns a <wbr> element with the primitives applied. */
+		readonly wbr: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"wbr">;
 		
 		//# <input> Elements
 		
-		/** Returns an <input type="button"> element with the primitives applied. */
-		inputButton(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="button"> element with the primitives applied. */
+		readonly inputButton: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="checkbox"> element with the primitives applied. */
-		inputCheckbox(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="checkbox"> element with the primitives applied. */
+		readonly inputCheckbox: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="color"> element with the primitives applied. */
-		inputColor(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="color"> element with the primitives applied. */
+		readonly inputColor: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="date"> element with the primitives applied. */
-		inputDate(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="date"> element with the primitives applied. */
+		readonly inputDate: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="datetime"> element with the primitives applied. */
-		inputDatetime(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="datetime"> element with the primitives applied. */
+		readonly inputDatetime: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="datetime-local"> element with the primitives applied. */
-		inputDatetimeLocal(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="datetime-local"> element with the primitives applied. */
+		readonly inputDatetimeLocal: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="email"> element with the primitives applied. */
-		inputEmail(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="email"> element with the primitives applied. */
+		readonly inputEmail: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="file"> element with the primitives applied. */
-		inputFile(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="file"> element with the primitives applied. */
+		readonly inputFile: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="hidden"> element with the primitives applied. */
-		inputHidden(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="hidden"> element with the primitives applied. */
+		readonly inputHidden: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="image"> element with the primitives applied. */
-		inputImage(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="image"> element with the primitives applied. */
+		readonly inputImage: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="month"> element with the primitives applied. */
-		inputMonth(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="month"> element with the primitives applied. */
+		readonly inputMonth: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="number"> element with the primitives applied. */
-		inputNumber(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="number"> element with the primitives applied. */
+		readonly inputNumber: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="password"> element with the primitives applied. */
-		inputPassword(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="password"> element with the primitives applied. */
+		readonly inputPassword: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="radio"> element with the primitives applied. */
-		inputRadio(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="radio"> element with the primitives applied. */
+		readonly inputRadio: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="range"> element with the primitives applied. */
-		inputRange(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="range"> element with the primitives applied. */
+		readonly inputRange: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="reset"> element with the primitives applied. */
-		inputReset(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="reset"> element with the primitives applied. */
+		readonly inputReset: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="search"> element with the primitives applied. */
-		inputSearch(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="search"> element with the primitives applied. */
+		readonly inputSearch: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="submit"> element with the primitives applied. */
-		inputSubmit(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="submit"> element with the primitives applied. */
+		readonly inputSubmit: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="tel"> element with the primitives applied. */
-		inputTel(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="tel"> element with the primitives applied. */
+		readonly inputTel: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="text"> element with the primitives applied. */
-		inputText(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="text"> element with the primitives applied. */
+		readonly inputText: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="time"> element with the primitives applied. */
-		inputTime(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="time"> element with the primitives applied. */
+		readonly inputTime: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="url"> element with the primitives applied. */
-		inputUrl(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="url"> element with the primitives applied. */
+		readonly inputUrl: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
-		/** Returns an <input type="week"> element with the primitives applied. */
-		inputWeek(...primitives: Primitives[]): HTMLInputElement;
+		/** Callable property that returns an <input type="week"> element with the primitives applied. */
+		readonly inputWeek: ((...primitives: Primitives[]) => HTMLInputElement) &
+			Reflex.Core.BranchFunction<"input">;
 		
 		//# Non-Visual Elements
 		
-		/** Returns an <html> element with the primitives applied. */
-		html(...primitives: Primitives[]): HTMLHtmlElement;
+		/** Callable property that returns an <html> element with the primitives applied. */
+		readonly html: ((...primitives: Primitives[]) => HTMLHtmlElement) &
+			Reflex.Core.BranchFunction<"html">;
 		
-		/** Returns an <head> element with the primitives applied. */
-		head(...primitives: Primitives[]): HTMLHeadElement;
+		/** Callable property that returns an <head> element with the primitives applied. */
+		readonly head: ((...primitives: Primitives[]) => HTMLHeadElement) &
+			Reflex.Core.BranchFunction<"head">;
 		
-		/** Returns a <body> element with the primitives applied. */
-		body(...primitives: Primitives[]): HTMLBodyElement;
+		/** Callable property that returns a <body> element with the primitives applied. */
+		readonly body: ((...primitives: Primitives[]) => HTMLBodyElement) &
+			Reflex.Core.BranchFunction<"body">;
 		
-		/** Returns a <meta> element with the primitives applied. */
-		meta(...primitives: Primitives[]): HTMLMetaElement;
+		/** Callable property that returns a <meta> element with the primitives applied. */
+		readonly meta: ((...primitives: Primitives[]) => HTMLMetaElement) &
+			Reflex.Core.BranchFunction<"meta">;
 		
-		/** Returns an <link> element with the primitives applied. */
-		link(...primitives: Primitives[]): HTMLLinkElement;
+		/** Callable property that returns an <link> element with the primitives applied. */
+		readonly link: ((...primitives: Primitives[]) => HTMLLinkElement) &
+			Reflex.Core.BranchFunction<"link">;
 		
-		/** Returns a <style> element with the primitives applied. */
-		style(...primitives: Primitives[]): HTMLStyleElement;
+		/** Callable property that returns a <style> element with the primitives applied. */
+		readonly style: ((...primitives: Primitives[]) => HTMLStyleElement) &
+			Reflex.Core.BranchFunction<"style">;
 		
-		/** Returns a <script> element with the primitives applied. */
-		script(...primitives: Primitives[]): HTMLScriptElement;
+		/** Callable property that returns a <script> element with the primitives applied. */
+		readonly script: ((...primitives: Primitives[]) => HTMLScriptElement) &
+			Reflex.Core.BranchFunction<"script">;
 		
-		/** Returns a <noscript> element with the primitives applied. */
-		noscript(...primitives: Primitives[]): HTMLElement;
+		/** Callable property that returns a <noscript> element with the primitives applied. */
+		readonly noscript: ((...primitives: Primitives[]) => HTMLElement) &
+			Reflex.Core.BranchFunction<"noscript">;
 		
-		/** Returns a <base> element with the primitives applied. */
-		base(...primitives: Primitives[]): HTMLBaseElement;
+		/** Callable property that returns a <base> element with the primitives applied. */
+		readonly base: ((...primitives: Primitives[]) => HTMLBaseElement) &
+			Reflex.Core.BranchFunction<"base">;
 		
-		/** Returns a <basefont> element with the primitives applied. */
-		basefont(...primitives: Primitives[]): HTMLBaseFontElement;
+		/** Callable property that returns a <basefont> element with the primitives applied. */
+		readonly basefont: ((...primitives: Primitives[]) => HTMLBaseFontElement) &
+			Reflex.Core.BranchFunction<"basefont">;
 	}
 }

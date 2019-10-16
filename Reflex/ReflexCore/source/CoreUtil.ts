@@ -183,17 +183,25 @@ namespace Reflex.Core
 			for (let i = -1; ++i < childMetas.length;)
 			{
 				const meta = childMetas[i];
-				
 				if (meta instanceof ClosureMeta)
 				{
-					const children = lib.getChildren(containingBranch);
-					const closureReturn = meta.closure(containingBranch, children);
-					const metasReturned = this.translatePrimitives(
-						containingBranch,
-						containingBranchMeta,
-						closureReturn);
-					
-					childMetas.splice(i--, 1, ...metasReturned);
+					if (lib.handleBranchFunction && isBranchFunction(meta.closure))
+					{
+						lib.handleBranchFunction(
+							containingBranch, 
+							<(...primitives: any[]) => IBranch>meta.closure);
+					}	
+					else
+					{
+						const children = lib.getChildren(containingBranch);
+						const closureReturn = meta.closure(containingBranch, children);
+						const metasReturned = this.translatePrimitives(
+							containingBranch,
+							containingBranchMeta,
+							closureReturn);
+						
+						childMetas.splice(i--, 1, ...metasReturned);
+					}
 				}
 			}
 			

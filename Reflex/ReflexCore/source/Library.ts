@@ -73,10 +73,7 @@ namespace Reflex.Core
 		/**
 		 * 
 		 */
-		attachPrimitive(
-			primitive: any,
-			branch: IBranch,
-			ref: Ref): void;
+		attachPrimitive(primitive: any, branch: IBranch, ref: Ref): void;
 		
 		/**
 		 * 
@@ -86,12 +83,12 @@ namespace Reflex.Core
 		/**
 		 * 
 		 */
-		swapElement(branch1: IBranch, branch2: IBranch): void;
+		swapBranches(branch1: IBranch, branch2: IBranch): void;
 		
 		/**
 		 * 
 		 */
-		replaceElement(branch1: IBranch, branch2: IBranch): void;
+		replaceBranch(branch1: IBranch, branch2: IBranch): void;
 		
 		/**
 		 * 
@@ -142,6 +139,13 @@ namespace Reflex.Core
 			branch: IBranch,
 			selector: any,
 			callback: RecurrentCallback<Primitives>) => void;
+		
+		/**
+		 * 
+		 */
+		handleBranchFunction?: (
+			branch: IBranch,
+			branchFn: (...primitives: any[]) => IBranch) => void;
 		
 		/**
 		 * Reflexive libraries can implement this function in order to process
