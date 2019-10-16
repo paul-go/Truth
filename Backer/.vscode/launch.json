@@ -1,0 +1,13 @@
+{
+	"version": "0.2.0",
+	"configurations": [{
+		"type": "node",
+		"request": "launch",
+		"name": "Debug TruthTalk Tests",
+		"program": "${workspaceFolder}/TruthTalk.Test/build/truthtalk-test.js",
+		"cwd": "${workspaceFolder}/TruthTalk.Test",
+		"args": [
+			
+		]
+	}]
+}
