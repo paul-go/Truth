@@ -1,36 +1,33 @@
 
 namespace Backer
 {
+	export type DataJSON = [[number, string, string[]], ...string[][]]
+	export type TypeJSON = [number, number | null, string, string[]];
+	
 	export class Type 
 	{
-		flags: Bitfields;
+		static fromJSON(code: Code, data: TypeJSON)
+		{
+			return new Type(
+				code, 
+				data[2],
+				code.prototypes[data[0]],
+				data[1] ? FutureType.$(data[1]) : null,
+				data[3]
+			);
+		}
 		
 		constructor(
 			private code: Code,
 			public name: string,
-			flags = 0,
+			public prototype: Prototype,
 			public container: FutureType | null = null,
 			
-			public aliases: string[] = [],
-			public bases = new TypeSet(),
-			public patterns = new TypeSet(),
-			public parallels = new TypeSet(),
-			public derivations = new TypeSet(),
-			public contentsIntrinsic = new TypeSet(),
-		) {
-			this.flags = new Bitfields(flags);
-		}
-		
+			public aliases: string[] = []) {}
+			
 		get id()
 		{
 			return this.code.types.indexOf(this);
-		}
-		
-		toJSON()
-		{	
-			return Serializer.encode([
-				this.name, this.flags, this.container, this.aliases
-			]);
 		}
 	}
 }

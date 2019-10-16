@@ -10,7 +10,8 @@ namespace Encoder
 			if (!this.prototypes.some(x => x.hash === type.prototype.hash))
 				this.prototypes.push(type.prototype);
 				
-			const id = this.types.push(type.clone(this)) - 1;
+			const id = this.types.push(type) - 1;
+			type.transfer(this);
 			return id;
 		}
 		
@@ -53,10 +54,12 @@ namespace Encoder
 			const codeRoots = this.types.filter(x => !dataQuery.includes(x));
 			
 			const code = new Code();
-			for (const prime of codeRoots)
-				code.add(prime);
+			for (const type of codeRoots)
+				code.add(type);
+				
+			const dataRoot = (x: Type) => [x.prototype.id, x.name, x.aliases];
 		
-			const data = dataSchema.map(x => [x.shift(), ...x.map(x => x.aliases)]);
+			const data = dataSchema.map(x => [dataRoot(x.shift()!), ...x.map(x => x.aliases)]);
 				
 			return {
 				code,

@@ -23,18 +23,14 @@ namespace Encoder
 		} 
 		
 		constructor(private value: Typeish) { }
-		
-		set(key: Truth.Type, value: Type)
-		{
-			FutureType.TypeMap.set(key, value);
-		}
-		
+		 
 		get type()
 		{
 			if (this.value instanceof Truth.Type)
 			{
 				const type = FutureType.TypeMap.get(this.value);
-				if (!type) return null;
+				if (!type) 
+					return null;
 				return type;
 			}
 			
@@ -49,7 +45,8 @@ namespace Encoder
 			if (this.value instanceof Truth.Type)
 			{
 				const type = FutureType.TypeMap.get(this.value);
-				if (!type) return -1;
+				if (!type) 
+					return -1;
 				return type.id;
 			}
 			

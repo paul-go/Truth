@@ -32,8 +32,16 @@ boolean : any
 				DataPatterns: Record<string, RegExp>
 		};
 		
-		const truthfiles = safe(() => Truth.Fs.module.readdirSync(join(process.cwd(), config.SourceDir)), "Couldn't read source folder!", true).filter(x => x.endsWith(".truth"));
-		const content = [config.Headers ? Header : "", ...truthfiles.map(x => safe(() => Truth.Fs.module.readFileSync(join(process.cwd(), x), "utf-8"), "Couldn't read truth file!"))].join("\n");
+		const truthfiles = safe(() => 
+			Truth.Fs.module.readdirSync(join(process.cwd(), config.SourceDir)), 
+			"Couldn't read source folder!", true
+		).filter(x => x.endsWith(".truth"));
+		const content = [
+			config.Headers ? Header : "", 
+			...truthfiles.map(x => safe(
+				() => Truth.Fs.module.readFileSync(join(process.cwd(), x), "utf-8"),
+				"Couldn't read truth file!"
+			))].join("\n");
 		const document = await Truth.parse(content);
 		
 		let code = new Code();
@@ -54,10 +62,16 @@ boolean : any
 		{
 			let temp = code.extractData(config.DataPatterns[key]);
 			code = temp.code;
-			safe(() => Truth.Fs.module.writeFileSync(join(process.cwd(), config.TargetDir, key + ".data.json"), stringify(temp.data)), "Couldn't read source folder!", true);
+			safe(() => Truth.Fs.module.writeFileSync(
+				join(process.cwd(), config.TargetDir, key + ".data.json"), 
+				stringify(temp.data)
+			), "Couldn't read source folder!", true);
 		}
 	
-		safe(() => Truth.Fs.module.writeFileSync(join(process.cwd(), config.TargetDir, "code.json"), stringify(code)), "Couldn't read source folder!", true);
+		safe(() => Truth.Fs.module.writeFileSync(
+			join(process.cwd(), config.TargetDir, "code.json"),
+			stringify(code)
+		), "Couldn't read source folder!", true);
 			 
 	}
 }  
