@@ -34,9 +34,11 @@ export default class CodeJSON
 			const file = await FS.readFile(path, "utf-8");
 			if (file.trim().length === 0) 
 				return;
+			
 			const json = JSON.parse(file);
 			const array = json.map((x: [number] & any[]) => Serializer.decode(x, PrimeType.JSONLength));
 			const primes: PrimeType[] = [];
+			
 			for (const data of array)
 			{
 				const prime = PrimeType.fromJSON(this, data);
@@ -47,13 +49,16 @@ export default class CodeJSON
 			for (const prime of primes)
 				prime.link();
 		} 
-		catch (ex) {
+		catch (ex)
+		{
 			console.error(`Couldn't load ${path}! Reason: ${ex}`);	
 		}
 	}
 	
+	/** */
 	constructor(private pattern: RegExp) {}
-
+	
+	/** */
 	async loadTruth(path: string)
 	{	
 		const Doc = await read(path);
@@ -62,10 +67,9 @@ export default class CodeJSON
 			return console.error(`Couldn't load truth file ${path}! Reason: ${Doc.message}`);
 			
 		const primes: PrimeType[] = [];
-			
+		
 		const scanContent = (type: Type) =>
 		{
-		
 			if (!PrimeType.SignatureMap.has(typeHash(type)))
 			{
 				const prime = PrimeType.fromType(this, type);
@@ -88,15 +92,18 @@ export default class CodeJSON
 			prime.link();
 	}
 	
+	/** */
 	extractData()
 	{
 		const dataRoots = this.types.filter(x => x.container.id === -1 && this.pattern.test(x.name));
-		const drill = (x: PrimeType) => {
+		const drill = (x: PrimeType) =>
+		{
 			const array = [x];
 			const children = Array.from(x.contents.values()).map(x => x.prime).flatMap(drill);
 			if (children.length) array.push(...children);
 			return array;
 		};
+		
 		const dataSchema = dataRoots.map(drill).filter(x => Array.isArray(x) ? x.length : true);
 		const dataQuery = dataSchema.flat();
 		const codeRoots = this.types.filter(x => !dataQuery.includes(x));
@@ -104,9 +111,10 @@ export default class CodeJSON
 		const code = new CodeJSON(this.pattern);
 		for (const prime of codeRoots)
 			code.add(prime);
-			
+		
 		const dataPatterns: PrimeType[] = [];
-		dataQuery.map(x => x.compile("")).forEach(x => {
+		dataQuery.map(x => x.compile("")).forEach(x =>
+		{
 			if (!dataPatterns.some(w => w.typeSignature === x.typeSignature)) 
 				dataPatterns.push(x);
 		});
@@ -115,7 +123,9 @@ export default class CodeJSON
 			code.add(prime);
 		
 		console.log(dataSchema.map(x => x.map(x => x.name)));
-		const data = dataSchema.map(x => {
+		
+		const data = dataSchema.map(x =>
+		{
 			const rootType = x.shift().compile("");
 			const index = code.types.findIndex(x => x.typeSignature === rootType.typeSignature);
 			return [index, ...x.map(x => x.aliases)];

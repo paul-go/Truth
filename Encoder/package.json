@@ -1,0 +1,26 @@
+{
+	"name": "truth-encoder",
+	"version": "0.0.10",
+	"description": "Serialize and deserialize code and data in the Truth format CLI",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Truebase-com/TruthStack"
+	},
+	"bugs": {
+		"url": "https://github.com/Truebase-com/TruthStack/issues"
+	},
+	"author": "Truebase",
+	"license": "MIT",
+	"keywords": [],
+	"scripts": {
+		"build": "tsc"
+	},
+	"eslintIgnore": [
+		"**/node_modules/**/*.ts",
+		"**/*.d.ts"
+	],
+	"devDependencies": {
+		"@types/node": "^10.12.18"
+	},
+	"dependencies": {}
+}
