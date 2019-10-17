@@ -4,6 +4,7 @@ namespace Backer
 	{
 		types: Type[] = [];
 		prototypes: Prototype[] = [];
+		dataRoots: Type[] = [];
 		
 		static load(data: [PrototypeJSON[], TypeJSON[]])
 		{
@@ -49,18 +50,19 @@ namespace Backer
 					);
 					this.types.push(clone);
 					
-					for (const contentType of content.content)
+					for (const contentType of content.contents)
 						generate(contentType);
 				};
 				
 				this.types.push(type);
+				this.dataRoots.push(type);
 				
 				const bases = prototype.bases.toArray().map(x => x.type);
 				for (const base of bases)
 					if (base)
 					{
 						type.aliases.push(...base.aliases);
-						for (const content of base.content)
+						for (const content of base.contents)
 							generate(content);
 					}
 				
