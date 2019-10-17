@@ -29,7 +29,6 @@ namespace Encoder
 			
 		get id()
 		{
-			console.log(this.code.types.indexOf(this), this.code.types.length, this.name);
 			return this.code.types.indexOf(this);
 		}
 		
