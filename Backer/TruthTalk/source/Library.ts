@@ -76,7 +76,7 @@ namespace Backer.TruthTalk
 		}
 		
 		/** */
-		swapElement(branch1: Branch, branch2: Branch)
+		swapBranches(branch1: Branch, branch2: Branch)
 		{
 			if (branch1.container === null || branch2.container === null)
 				throw new Error("Cannot swap top-level branches.");
@@ -100,7 +100,7 @@ namespace Backer.TruthTalk
 		}
 		
 		/** */
-		replaceElement(branch1: Branch, branch2: Branch)
+		replaceBranch(branch1: Branch, branch2: Branch)
 		{
 			if (branch1.container === null)
 				throw new Error("Cannot replace top-level branches.");
