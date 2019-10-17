@@ -124,8 +124,8 @@ namespace Reflex.Core
 						
 						const constructBranchFn: ConstructBranchFn = value;
 						branchFns[key] = constructBranchFn.length === 0 ?
-							createBranchFn(constructBranchFn) :
-							createParameticBranchFn(constructBranchFn);
+							createBranchFn(constructBranchFn, key) :
+							createParameticBranchFn(constructBranchFn, key);
 					}
 				}
 				
@@ -174,7 +174,7 @@ namespace Reflex.Core
 				{
 					const branch = library.getDynamicBranch(key);
 					if (branch)
-						return createBranchFn(() => branch);
+						return createBranchFn(() => branch, key);
 				}
 				
 				if (library.getDynamicNonBranch)
@@ -189,33 +189,60 @@ namespace Reflex.Core
 	}
 	
 	/**
-	 * 
+	 * Returns whether the specified function or method
+	 * refers to a branch function that was created by a
+	 * reflexive library.
 	 */
-	function createBranchFn(constructBranchFn: () => IBranch)
+	export function isBranchFunction(fn: Function)
 	{
-		return (...primitives: Primitive[]) =>
+		return branchFns.has(fn);
+	}
+	
+	/** */
+	const toBranchFunction = <T extends Function>(name: string, fn: T) =>
+	{
+		if (name)
 		{
-			return new BranchMeta(
-				constructBranchFn(),
-				primitives).branch;
-		};
-	};
+			Object.defineProperty(fn, "name", {
+				value: name,
+				writable: false,
+				configurable: false
+			});
+		}
+		
+		branchFns.add(fn);
+		return fn;
+	}
+	
+	/** Stores the set of all branch functions created by all reflexive libraries. */
+	const branchFns = new WeakSet<Function>();
 	
 	/**
 	 * 
 	 */
-	function createParameticBranchFn(branchFn: (...args: any[]) => IBranch)
+	const createBranchFn = (constructBranchFn: () => IBranch, name: string) =>
+		toBranchFunction(name, (...primitives: Primitive[]) =>
+			returnBranch(constructBranchFn(), primitives));
+	
+	/**
+	 * 
+	 */
+	const createParameticBranchFn = (branchFn: (...args: any[]) => IBranch, name: string) =>
+		(...constructBranchArgs: any[]) =>
+			toBranchFunction(name, (...primitives: Primitive[]) =>
+				returnBranch(branchFn(constructBranchArgs), primitives));
+	
+	/**
+	 * 
+	 */
+	function returnBranch(branch: IBranch, primitives: any[])
 	{
-		return (...constructBranchArgs: any[]) =>
-		{
-			return (...primitives: Primitive[]) =>
-			{
-				return new BranchMeta(
-					branchFn(constructBranchArgs),
-					primitives).branch;
-			};
-		};
-	};
+		new BranchMeta(branch, primitives);
+		const lib = RoutingLibrary.this;
+		return lib.returnBranch ?
+			lib.returnBranch(branch) :
+			branch;
+	}
 	
 	/**
 	 * Creates the function that exists at the top of the library,
@@ -238,9 +265,9 @@ namespace Reflex.Core
 			if (!createContent)
 				return;
 			
-			// TODO: This should be optimized so that multiple repeating
-			// string values don't result in the creation of many ContentMeta
-			// objects.
+			// TODO: This should be optimized so that multiple
+			// repeating string values don't result in the creation
+			// of many ContentMeta objects.
 			
 			for (let i = -1; ++i < len;)
 			{
@@ -288,7 +315,7 @@ namespace Reflex.Core
 	{
 		const createContainer = library.createContainer;
 		return createContainer ?
-			createBranchFn(() => createContainer()) :
+			createBranchFn(() => createContainer(), "") :
 			() => {};
-	}
+	};
 }

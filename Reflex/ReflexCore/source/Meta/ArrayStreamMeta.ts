@@ -78,7 +78,7 @@ namespace Reflex.Core
 							primitives)[0] as BranchMeta;
 							
 						metas.locator.setContainer(this.containerMeta.locator);
-						RoutingLibrary.this.replaceElement(meta.branch, metas.branch);
+						RoutingLibrary.this.replaceBranch(meta.branch, metas.branch);
 					}
 				}
 			});
@@ -130,7 +130,7 @@ namespace Reflex.Core
 					source.locator.setLastLocatorValue(targetLocVal);
 					target.locator.setLastLocatorValue(srcLocVal);
 
-					RoutingLibrary.this.swapElement(source.branch, target.branch);
+					RoutingLibrary.this.swapBranches(source.branch, target.branch);
 				}
 			});
 			

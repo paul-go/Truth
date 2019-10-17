@@ -1,4 +1,9 @@
 
+//
+// This is a debug-only tool that provides a way
+// to identify the children of each parent.
+//
+
 namespace Reflex.Core
 {
 	/** */
@@ -10,7 +15,7 @@ namespace Reflex.Core
 	/**
 	 * 
 	 */
-	export const Buffer = new class Buffer
+	export const Buffer = "DEBUG" && new class Buffer
 	{
 		/** */
 		enable()
@@ -30,8 +35,8 @@ namespace Reflex.Core
 		
 		/**
 		 * @internal
-		 * Populates the internal weak map that allows branches
-		 * to store their child meta objects. 
+		 * Populates the internal weak map that allows
+		 * branches to store their child meta objects. 
 		 * Do not call from application code.
 		 */
 		add(branch: IBranch, meta: Meta)

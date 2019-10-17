@@ -1,12 +1,12 @@
 {
 	"extends": "../tsconfig.composite.json",
 	"compilerOptions": {
-		"outFile": "./build/truthtalk-test.js"
+		"outFile": "./build/reflex-ss.js"
 	},
 	"include": [
 		"./source/**/*.ts"
 	],
 	"references": [
-		{ "path": "../TruthTalk" }
+		{ "path": "../ReflexCore" }
 	]
 }

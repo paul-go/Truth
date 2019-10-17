@@ -17,6 +17,7 @@ namespace Reflex.Core
 			containerMeta: ContainerMeta,
 			rawPrimitives: unknown)
 		{
+			const lib = RoutingLibrary.this;
 			const primitives = Array.isArray(rawPrimitives) ?
 				rawPrimitives.slice() :
 				[rawPrimitives];
@@ -37,7 +38,7 @@ namespace Reflex.Core
 				// strings, numbers, and bigints are passed through verbatim in this phase.
 				else if (typeof primitive !== "object")
 					continue;
-					
+				
 				else if (Array.isArray(primitive))
 					primitives.splice(i--, 1, ...primitive);
 				
@@ -105,7 +106,7 @@ namespace Reflex.Core
 						metas.push(existingMeta);
 					
 					else if (typeof primitive === "object" &&
-						RoutingLibrary.this.isKnownLeaf(primitive))
+						lib.isKnownLeaf(primitive))
 						metas.push(new InstanceMeta(primitive));
 					
 					// This error occurs when something was passed as a primitive 
@@ -182,17 +183,25 @@ namespace Reflex.Core
 			for (let i = -1; ++i < childMetas.length;)
 			{
 				const meta = childMetas[i];
-				
 				if (meta instanceof ClosureMeta)
 				{
-					const children = lib.getChildren(containingBranch);
-					const closureReturn = meta.closure(containingBranch, children);
-					const metasReturned = this.translatePrimitives(
-						containingBranch,
-						containingBranchMeta,
-						closureReturn);
-					
-					childMetas.splice(i--, 1, ...metasReturned);
+					if (lib.handleBranchFunction && isBranchFunction(meta.closure))
+					{
+						lib.handleBranchFunction(
+							containingBranch, 
+							<(...primitives: any[]) => IBranch>meta.closure);
+					}	
+					else
+					{
+						const children = lib.getChildren(containingBranch);
+						const closureReturn = meta.closure(containingBranch, children);
+						const metasReturned = this.translatePrimitives(
+							containingBranch,
+							containingBranchMeta,
+							closureReturn);
+						
+						childMetas.splice(i--, 1, ...metasReturned);
+					}
 				}
 			}
 			
@@ -248,7 +257,9 @@ namespace Reflex.Core
 					lib.attachAttribute(containingBranch, meta.key, meta.value);
 				}
 				
-				Buffer.add(containingBranch, meta);
+				if ("DEBUG")
+					Buffer.add(containingBranch, meta);
+				
 				tracker.update(meta.locator);
 			}
 		}

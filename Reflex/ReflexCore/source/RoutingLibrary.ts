@@ -3,7 +3,6 @@ namespace Reflex.Core
 {
 	/**
 	 * @internal
-	 * 
 	 * A class that sits between the specific Reflexive library, 
 	 * and the Library class as defined in the Reflex Core. The
 	 * purpose of this class is to override all the methods, and
@@ -45,7 +44,7 @@ namespace Reflex.Core
 		private route<F extends (...args: any[]) => R, R>(
 			referenceBranch: IBranch,
 			getFn: (library: ILibrary) => F | undefined,
-			callFn: (fn: F) => R,
+			callFn: (fn: F, thisArg: ILibrary) => R,
 			defaultValue?: any): R
 		{
 			if (referenceBranch)
@@ -56,7 +55,7 @@ namespace Reflex.Core
 					{
 						const libFn = getFn(lib);
 						return typeof libFn === "function" ?
-							callFn(libFn) :
+							callFn(libFn, lib) :
 							defaultValue;
 					}
 				}
@@ -73,7 +72,7 @@ namespace Reflex.Core
 			return this.route(
 				branch,
 				lib => lib.isKnownBranch,
-				fn => fn(branch),
+				(fn, lib) => fn.call(lib, branch),
 				false);
 		}
 		
@@ -101,7 +100,7 @@ namespace Reflex.Core
 			return this.route(
 				branch,
 				lib => lib.isBranchDisposed,
-				fn => fn(branch),
+				(fn, lib) => fn.call(lib, branch),
 				false);
 		}
 		
@@ -114,7 +113,7 @@ namespace Reflex.Core
 			return this.route(
 				target,
 				lib => lib.getChildren,
-				fn => fn(target),
+				(fn, lib) => fn.call(lib, target),
 				[]);
 		}
 		
@@ -126,7 +125,7 @@ namespace Reflex.Core
 			return this.route(
 				content,
 				lib => lib.createContent,
-				fn => fn(content),
+				(fn, lib) => fn.call(lib, content),
 				null);
 		}
 		
@@ -141,7 +140,7 @@ namespace Reflex.Core
 			this.route(
 				branch,
 				lib => lib.attachPrimitive,
-				fn => fn(primitive, branch, ref));
+				(fn, lib) => fn.call(lib, primitive, branch, ref));
 		}
 		
 		/**
@@ -152,29 +151,29 @@ namespace Reflex.Core
 			this.route(
 				branch,
 				lib => lib.detachPrimitive,
-				fn => fn(primitive, branch));
+				(fn, lib) => fn.call(lib, primitive, branch));
 		}
 		
 		/**
 		 *
 		 */
-		swapElement(branch1: IBranch, branch2: IBranch)
+		swapBranches(branch1: IBranch, branch2: IBranch)
 		{
 			this.route(
 				branch1,
-				lib => lib.swapElement,
-				fn => fn(branch1, branch2));
+				lib => lib.swapBranches,
+				(fn, lib) => fn.call(lib, branch1, branch2));
 		}
 		
 		/**
 		 *
 		 */
-		replaceElement(branch1: IBranch, branch2: IBranch)
+		replaceBranch(branch1: IBranch, branch2: IBranch)
 		{
 			this.route(
 				branch1,
-				lib => lib.replaceElement,
-				fn => fn(branch1, branch2));
+				lib => lib.replaceBranch,
+				(fn, lib) => fn.call(lib, branch1, branch2));
 		}
 		
 		/**
@@ -185,7 +184,7 @@ namespace Reflex.Core
 			this.route(
 				branch,
 				lib => lib.attachAttribute,
-				fn => fn(branch, key, value));
+				(fn, lib) => fn.call(lib, branch, key, value));
 		}
 				
 		/**
@@ -196,7 +195,7 @@ namespace Reflex.Core
 			this.route(
 				branch,
 				lib => lib.detachAttribute,
-				fn => fn(branch, key));
+				(fn, lib) => fn.call(lib, branch, key));
 		}
 		
 		/**
@@ -220,7 +219,7 @@ namespace Reflex.Core
 			return this.route(
 				target,
 				lib => lib.attachRecurrent,
-				fn => fn(kind, target, selector, callback, rest),
+				(fn, lib) => fn.call(lib, kind, target, selector, callback, rest),
 				false);
 		}
 		
@@ -236,8 +235,41 @@ namespace Reflex.Core
 			return this.route(
 				branch,
 				lib => lib.detachRecurrent,
-				fn => fn(branch, selector, callback),
+				(fn, lib) => fn.call(lib, branch, selector, callback),
 				false);
+		}
+		
+		/**
+		 * Reflexive libraries can implement this function in order
+		 * to handle the case when a branch function is passed as
+		 * a primitive to another branch function.
+		 */
+		handleBranchFunction(
+			branch: IBranch,
+			branchFn: (...primitives: any[]) => IBranch)
+		{
+			this.route(
+				branch,
+				lib => lib.handleBranchFunction,
+				(fn, lib) => fn.call(lib, branch, branchFn));
+		}
+		
+		/**
+		 * Reflexive libraries can implement this function in order to process
+		 * a branch before it's returned from a branch function. When this
+		 * function is implemented, the return value of the branch functions
+		 * are replaced with the return value of this function. Reflexive libraries
+		 * that require the standard behavior of returning branches from the
+		 * branch functions should return the `branch` argument to this function
+		 * verbatim.
+		 */
+		returnBranch(branch: IBranch)
+		{
+			return this.route(
+				branch,
+				lib => lib.returnBranch,
+				(fn, lib) => fn.call(lib, branch),
+				branch)
 		}
 	}
 }
