@@ -21,9 +21,14 @@ namespace Backer
 			private code: Code,
 			public name: string,
 			public prototype: Prototype,
-			public container: FutureType | null = null,
+			private _container: FutureType | null = null,
 			
 			public aliases: string[] = []) {}
+			
+		get container()
+		{
+			return this._container && this._container.type;
+		}
 			
 		/**
 		 * Stores the array of types that are contained directly by this
@@ -32,7 +37,7 @@ namespace Backer
 		 */
 		get contents()
 		{
-			return this.code.types.filter(x => x.container && x.container.type === this);
+			return this.code.types.filter(x => x.container === this);
 		}
 		
 		/**
@@ -69,7 +74,7 @@ namespace Backer
 		 */
 		get adjacents()
 		{
-			return this.code.types.filter(x => x.container === this.container && x !== this);
+			return this.code.types.filter(x => x.container !== this.container && x !== this);
 		}
 		
 		
