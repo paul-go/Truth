@@ -1,7 +1,7 @@
 
 namespace Backer
 {
-	export type DataJSON = [[number, string, string[]], ...string[][]]
+	export type DataJSON = [[number, string, string[]], ...string[][]];
 	export type TypeJSON = [number, number | null, string, string[]];
 	
 	export class Type 

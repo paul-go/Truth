@@ -5,7 +5,7 @@ namespace Backer
 		types: Type[] = [];
 		prototypes: Prototype[] = [];
 		
-		static Load(data: [PrototypeJSON[], TypeJSON[]])
+		static load(data: [PrototypeJSON[], TypeJSON[]])
 		{
 			const code = new Code();
 			
@@ -21,17 +21,24 @@ namespace Backer
 		}
 		
 		loadData(data: DataJSON[])
-		{
-			const dataType = data.map(x => {
+		{	
+			for (const info of data)
+			{
+				const typeData = info.shift() as [number, string, string[]];
+				const prototype = this.prototypes[typeData[0]];
 				const type = new Type(
 					this, 
-					x[0][1], 
-					this.prototypes[x[0][0]], 
+					typeData[1], 
+					prototype, 
 					null,
-					x[0][2]
+					typeData[2]
 				);
 				
-			});	
+				
+				
+				this.types.push(type);
+			}
+			
 		}
 		
 		toJSON() { return this.types; }

@@ -14,7 +14,15 @@
 		{
 			const req = await fetch("code.json");
 			const json = await req.json();
-			console.log(Backer.Code.Load(json));
+			
+			const reqd = await fetch("Product.data.json");
+			const jsond = await reqd.json();
+			
+			const code = Backer.Code.load(json);
+			code.loadData(jsond);
+			
+			console.log(code);
+			
 		}
 		
 		main();
