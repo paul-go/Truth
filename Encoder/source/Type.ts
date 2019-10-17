@@ -29,12 +29,14 @@ namespace Encoder
 			
 		get id()
 		{
+			console.log(this.code.types.indexOf(this), this.code.types.length, this.name);
 			return this.code.types.indexOf(this);
 		}
 		
 		transfer(code: Code)
 		{
 			this.code = code;
+			this.prototype.transfer(code);
 		}
 		
 		toJSON()

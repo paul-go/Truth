@@ -52,15 +52,21 @@ namespace Encoder
 			const dataSchema = dataRoots.map(drill).filter(x => Array.isArray(x) ? x.length : true);
 			const dataQuery = dataSchema.flat();
 			const codeRoots = this.types.filter(x => !dataQuery.includes(x));
-			
 			const code = new Code();
 			for (const type of codeRoots)
 				code.add(type);
 				
+			for (const type of dataQuery)
+			{			
+				if (!code.prototypes.some(x => x.hash === type.prototype.hash))
+					code.prototypes.push(type.prototype);	
+				type.transfer(code);
+			}
+				
 			const dataRoot = (x: Type) => [x.prototype.id, x.name, x.aliases];
 		
 			const data = dataSchema.map(x => [dataRoot(x.shift()!), ...x.map(x => x.aliases)]);
-				
+							
 			return {
 				code,
 				data
