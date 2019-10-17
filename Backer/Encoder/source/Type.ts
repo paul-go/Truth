@@ -25,6 +25,11 @@ namespace Backer
 			
 			public aliases: string[] = []) {}
 			
+		get content()
+		{
+			return this.code.types.filter(x => x.container && x.container.type === this);
+		}
+		
 		get id()
 		{
 			return this.code.types.indexOf(this);

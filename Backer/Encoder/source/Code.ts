@@ -12,10 +12,14 @@ namespace Backer
 			const prototypes = data[0].map(x => Prototype.fromJSON(code, x));
 			for (const proto of prototypes)
 				code.prototypes.push(proto);
-				
+			
+			
 			const types = data[1].map(x => Type.fromJSON(code, x));
 			for (const type of types)
-				code.types.push(type);
+			{
+				const id = code.types.push(type) - 1;
+				FutureType.IdMap.set(id, type);
+			}
 			
 			return code;
 		}
@@ -34,9 +38,32 @@ namespace Backer
 					typeData[2]
 				);
 				
-				
+				const generate = (content: Type) => 
+				{
+					const clone = new Type(
+						this,
+						content.name,
+						content.prototype,
+						FutureType.$(type),
+						content.aliases.concat(<string[]>info.shift())
+					);
+					this.types.push(clone);
+					
+					for (const contentType of content.content)
+						generate(contentType);
+				};
 				
 				this.types.push(type);
+				
+				const bases = prototype.bases.toArray().map(x => x.type);
+				for (const base of bases)
+					if (base)
+					{
+						type.aliases.push(...base.aliases);
+						for (const content of base.content)
+							generate(content);
+					}
+				
 			}
 			
 		}
