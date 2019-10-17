@@ -7,6 +7,6 @@
 		"./source/**/*.ts"
 	],
 	"references": [
-		{ "path": "../../Reflex/ReflexCore", "prepend": true }
+		{ "path": "../../Reflex/ReflexCore" }
 	]
 }
