@@ -35,6 +35,7 @@ namespace Encoder
 		transfer(code: Code)
 		{
 			this.code = code;
+			this.prototype.transfer(code);
 		}
 		
 		toJSON()

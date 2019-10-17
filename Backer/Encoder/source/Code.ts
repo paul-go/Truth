@@ -4,34 +4,70 @@ namespace Backer
 	{
 		types: Type[] = [];
 		prototypes: Prototype[] = [];
+		dataRoots: Type[] = [];
 		
-		static Load(data: [PrototypeJSON[], TypeJSON[]])
+		static load(data: [PrototypeJSON[], TypeJSON[]])
 		{
 			const code = new Code();
 			
 			const prototypes = data[0].map(x => Prototype.fromJSON(code, x));
 			for (const proto of prototypes)
 				code.prototypes.push(proto);
-				
+			
+			
 			const types = data[1].map(x => Type.fromJSON(code, x));
 			for (const type of types)
-				code.types.push(type);
+			{
+				const id = code.types.push(type) - 1;
+				FutureType.IdMap.set(id, type);
+			}
 			
 			return code;
 		}
 		
 		loadData(data: DataJSON[])
-		{
-			const dataType = data.map(x => {
+		{	
+			for (const info of data)
+			{
+				const typeData = info.shift() as [number, string, string[]];
+				const prototype = this.prototypes[typeData[0]];
 				const type = new Type(
 					this, 
-					x[0][1], 
-					this.prototypes[x[0][0]], 
+					typeData[1], 
+					prototype, 
 					null,
-					x[0][2]
+					typeData[2]
 				);
 				
-			});	
+				const generate = (content: Type) => 
+				{
+					const clone = new Type(
+						this,
+						content.name,
+						content.prototype,
+						FutureType.$(type),
+						content.aliases.concat(<string[]>info.shift())
+					);
+					this.types.push(clone);
+					
+					for (const contentType of content.contents)
+						generate(contentType);
+				};
+				
+				this.types.push(type);
+				this.dataRoots.push(type);
+				
+				const bases = prototype.bases.toArray().map(x => x.type);
+				for (const base of bases)
+					if (base)
+					{
+						type.aliases.push(...base.aliases);
+						for (const content of base.contents)
+							generate(content);
+					}
+				
+			}
+			
 		}
 		
 		toJSON() { return this.types; }

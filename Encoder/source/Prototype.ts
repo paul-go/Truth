@@ -22,7 +22,6 @@ namespace Encoder
 				new TypeSet(type.bases.map(FutureType.$)),
 				new TypeSet(type.patterns.map(FutureType.$)),
 				new TypeSet(type.parallels.map(FutureType.$)),
-				new TypeSet(type.derivations.map(FutureType.$)),
 				new TypeSet(type.contentsIntrinsic.map(FutureType.$))
 			);
 			
@@ -41,7 +40,6 @@ namespace Encoder
 			public bases = new TypeSet(),
 			public patterns = new TypeSet(),
 			public parallels = new TypeSet(),
-			public derivations = new TypeSet(),
 			public contentsIntrinsic = new TypeSet()) {}
 			
 		get id()
@@ -54,10 +52,15 @@ namespace Encoder
 			return Backer.Util.hash(JSON.stringify(this));
 		}
 		
+		transfer(code: Code)
+		{
+			this.code = code;
+		}
+		
 		toJSON()
 		{	
 			return Backer.Serializer.encode([
-				this.flags, this.bases, this.patterns, this.parallels, this.derivations, this.contentsIntrinsic
+				this.flags, this.bases, this.patterns, this.parallels, this.contentsIntrinsic
 			]);
 		}		
 	}
