@@ -12,9 +12,9 @@
 			"sourceMaps": true
 		},
 		{
+			"name": "Debug Reflex Core Makets Script",
 			"type": "node",
 			"request": "launch",
-			"name": "Debug Reflex Core Makets Script",
 			"program": "${env:HOME}/.npm-packages/bin/makets",
 			"cwd": "${workspaceFolder}/ReflexCore",
 			"args": [
@@ -22,9 +22,9 @@
 			]
 		},
 		{
+			"name": "Debug Reflex ML Makets Script",
 			"type": "node",
 			"request": "launch",
-			"name": "Debug Reflex ML Makets Script",
 			"program": "${env:HOME}/.npm-packages/bin/makets",
 			"cwd": "${workspaceFolder}/ReflexML",
 			"args": [
@@ -32,9 +32,9 @@
 			]
 		},
 		{
+			"name": "Debug Reflex ML Node Makets Script",
 			"type": "node",
 			"request": "launch",
-			"name": "Debug Reflex ML Node Makets Script",
 			"program": "${env:HOME}/.npm-packages/bin/makets",
 			"cwd": "${workspaceFolder}/ReflexMLNode",
 			"args": [
@@ -42,7 +42,7 @@
 			]
 		},
 		{
-			"name": "Debug Reflex SS From Browser",
+			"name": "Debug Reflex SS",
 			"type": "chrome",
 			"request": "launch",
 			"url": "http://127.0.0.1:4349/ReflexSS.Test/index.html",

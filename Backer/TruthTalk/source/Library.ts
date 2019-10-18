@@ -20,8 +20,11 @@ namespace Backer.TruthTalk
 		{
 			const branches: any = {};
 			
-			for (const [key, value] of Object.entries(Branches))
-				branches[key.toLowerCase()] = value;
+			Object.entries(Branches).forEach(([branchName, branchCtor]) =>
+			{
+				const name = branchName.toLowerCase();
+				branches[name] = () => new branchCtor();
+			});
 			
 			return branches;
 		}
@@ -153,6 +156,3 @@ namespace Backer.TruthTalk
 const tt = Reflex.Core.createContainerNamespace<Backer.TruthTalk.Namespace>(
 	new Backer.TruthTalk.Library(),
 	true);
-
-const is = tt.is();
-tt(is);

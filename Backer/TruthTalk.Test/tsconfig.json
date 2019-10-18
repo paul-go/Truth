@@ -8,5 +8,8 @@
 	],
 	"references": [
 		{ "path": "../TruthTalk" }
-	]
+	],
+	"moduless": {
+		"verbose": true
+	}
 }

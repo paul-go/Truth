@@ -1,13 +1,17 @@
 {
 	"version": "0.2.0",
 	"configurations": [{
-		"type": "node",
+		"type": "chrome",
 		"request": "launch",
 		"name": "Debug TruthTalk Tests",
-		"program": "${workspaceFolder}/TruthTalk.Test/build/truthtalk-test.js",
-		"cwd": "${workspaceFolder}/TruthTalk.Test",
-		"args": [
-			
+		"url": "http://localhost:7007",
+		"port": 9222,
+		"webRoot": "${workspaceFolder}/../",
+		"timeout": 1000,
+		"sourceMaps": true,
+		"smartStep": true,
+		"runtimeArgs": [
+			"--headless"
 		]
 	}]
 }

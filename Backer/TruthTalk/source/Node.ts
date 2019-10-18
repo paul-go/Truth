@@ -2,7 +2,7 @@
 namespace Backer.TruthTalk
 {
 	/** */
-	export enum BranchCode
+	export enum BranchOp
 	{
 		query = 1,
 		is = 2,
@@ -12,7 +12,7 @@ namespace Backer.TruthTalk
 	}
 	
 	/** */
-	export enum PredicateCode
+	export enum PredicateOp
 	{
 		equals = 30,
 		greaterThan = 31,
@@ -27,7 +27,7 @@ namespace Backer.TruthTalk
 	}
 	
 	/** */
-	export enum LeafCode
+	export enum LeafOp
 	{
 		predicate = 60,
 		slice = 61,
@@ -39,17 +39,17 @@ namespace Backer.TruthTalk
 	}
 	
 	/** */
-	export type NodeCode =
-		BranchCode | 
-		LeafCode |
-		PredicateCode;
+	export type NodeOp =
+		BranchOp | 
+		LeafOp |
+		PredicateOp;
 	
 	//# Abstract Classes
 	
 	/** */
 	export abstract class Node
 	{
-		abstract readonly code: NodeCode;
+		abstract readonly op: NodeOp;
 		
 		/** */
 		get container(): Branch | null
@@ -113,31 +113,31 @@ namespace Backer.TruthTalk
 		/** */
 		export class Query extends Branch
 		{
-			readonly code = BranchCode.query;
+			readonly op = BranchOp.query;
 		}
 		
 		/** */
 		export class Is extends Branch
 		{
-			readonly code = BranchCode.is;
+			readonly op = BranchOp.is;
 		}
 		
 		/** */
 		export class Has extends Branch
 		{
-			readonly code = BranchCode.has;
+			readonly op = BranchOp.has;
 		}
 		
 		/** */
 		export class Not extends Branch
 		{
-			readonly code = BranchCode.not;
+			readonly op = BranchOp.not;
 		}
 		
 		/** */
 		export class Or extends Branch
 		{
-			readonly code = BranchCode.or;
+			readonly op = BranchOp.or;
 		}
 	}
 	
@@ -148,7 +148,7 @@ namespace Backer.TruthTalk
 		export class Predicate extends Leaf
 		{
 			constructor(
-				readonly code: PredicateCode,
+				readonly op: PredicateOp,
 				readonly operand: string | number | boolean)
 			{
 				super();
@@ -165,7 +165,7 @@ namespace Backer.TruthTalk
 				super();
 			}
 			
-			readonly code = LeafCode.slice;
+			readonly op = LeafOp.slice;
 		}
 		
 		/** */
@@ -178,31 +178,31 @@ namespace Backer.TruthTalk
 				super();
 			}
 			
-			readonly code = LeafCode.occurences;
+			readonly op = LeafOp.occurences;
 		}
 		
 		/** */
 		export class Aliased extends Leaf
 		{
-			readonly code = LeafCode.aliased;
+			readonly op = LeafOp.aliased;
 		}
 		
 		/** */
 		export class Terminals extends Leaf
 		{
-			readonly code = LeafCode.terminals;
+			readonly op = LeafOp.terminals;
 		}
 		
 		/** */
 		export class Sort extends Leaf
 		{
-			readonly code = LeafCode.sort;
+			readonly op = LeafOp.sort;
 		}
 		
 		/** */
 		export class Reverse extends Leaf
 		{
-			readonly code = LeafCode.reverse;
+			readonly op = LeafOp.reverse;
 		}
 	}
 }
