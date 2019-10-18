@@ -1,5 +1,5 @@
 module.exports = {
-	Headers: false,
+	Backer: true,
 	SourceDir: ".",
 	TargetDir: ".",
 	DataPatterns: {
