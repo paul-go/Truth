@@ -25,6 +25,17 @@ namespace Backer
 			
 			public aliases: string[] = []) {}
 			
+		get PLAConstructor()
+		{
+			return (
+				this.is(this.code.types[5]) ? Backer.Boolean :
+				this.is(this.code.types[4]) ? Backer.BigInt  :
+				this.is(this.code.types[3]) ? Backer.Number  :
+				this.is(this.code.types[2]) ? Backer.String  :
+				this.is(this.code.types[1]) || this.value == null ? Backer.Object  : Backer.Any);
+				
+		}
+			
 		get container()
 		{
 			return this._container && this._container.type;

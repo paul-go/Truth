@@ -1,7 +1,19 @@
+const JSBigInt = BigInt;
+const JSString = String;
+const JSObject = Object;
+type Constructor<T = any> = { new (...args: any[]): T };
+
 namespace Backer
 {
-	const typeOf = Symbol("typeOf");
-	const value = Symbol("value");
+	export const DataGraph: Record<string, Boolean | BigInt | Number | String | Object | Any> = {};
+	
+	export const typeOf = Symbol("typeOf");
+	export const value = Symbol("value");
+	
+	export function PLA(type: Type)
+	{
+		return new type.PLAConstructor(type);
+	}
 	
 	export class Any<T = string>
 	{ 
@@ -13,15 +25,66 @@ namespace Backer
 			return value as any;
 		}
 		
-		constructor(type: Type)
+		instanceof(base: any)
 		{
-			this[typeOf] = type;
-			this[value] = this.valueParse(type.value);
+			return this[value] instanceof base || this[typeOf].is(base); 
+		};
+		
+		constructor(type: Type)
+		{	
+			JSObject.defineProperty(this, value, {
+				value: this.valueParse(type.value),
+				enumerable: false,
+				configurable: false,
+				writable: false
+			});
+			
+			JSObject.defineProperty(this, typeOf, {
+				value: type,
+				enumerable: false,
+				configurable: false,
+				writable: false
+			});
+			
+			for (const child of type.contents)
+				(<any>this)[child.name] = PLA(child);
+				
+			JSObject.freeze(this);
 		}
+		
+		*[Symbol.iterator]()
+		{
+			for (const key in this)
+				yield this[key];
+		}
+		
+		[Symbol.hasInstance](value: any)
+		{
+			return this.instanceof(value);
+		}
+		
+		toJSON() { return this[value]; }
+		valueOf() { return this[value]; }
+		toString() 
+		{
+			const val = this[value];
+			if (val === null)
+				return val;
+			
+			return JSString(val);
+		}
+		[Symbol.toPrimitive]() { return this[value]; }
+		get [Symbol.toStringTag]() { return "PLA"; }
+	}
+	
+	export class Object extends Any<string>
+	{ 
+		
 	}
 	
 	export class String extends Any<string>
 	{ 
+		
 		protected valueParse(value: string | null)
 		{
 			if (value === null)
@@ -42,14 +105,18 @@ namespace Backer
 	
 	export class BigInt extends Any<bigint>
 	{ 
+		
 		protected valueParse(value: string | null)
 		{
-			return value as any;
+			if (value === null)
+				return null;
+			return JSBigInt(value.substring(1, -1));
 		}
 	}
 	
 	export class Boolean extends Any<boolean>
 	{
+		
 		protected valueParse(value: string | null)
 		{
 			if (value === null)
