@@ -4,7 +4,6 @@ namespace Backer
 	{
 		types: Type[] = [];
 		prototypes: Prototype[] = [];
-		dataRoots: Type[] = [];
 		
 		static load(data: [PrototypeJSON[], TypeJSON[]])
 		{
@@ -55,7 +54,6 @@ namespace Backer
 				};
 				
 				this.types.push(type);
-				this.dataRoots.push(type);
 				
 				const bases = prototype.bases.toArray().map(x => x.type);
 				for (const base of bases)
@@ -66,8 +64,8 @@ namespace Backer
 							generate(content);
 					}
 				
+				DataGraph[type.name] = PLA(type);
 			}
-			
 		}
 		
 		toJSON() { return this.types; }

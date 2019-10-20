@@ -4,17 +4,14 @@ namespace Encoder
 	export const Header = `
 any
 object : any
-
 string : any
-/".+" : string
-
 number : any
-/(\+|-)?(([1-9]\d{0,17})|([1-8]\d{18})|(9[01]\d{17})) : number
-
 bigint : any
-/(0|([1-9][0-9]*)) : bigint
-
 boolean : any
+
+/".+" : string
+/(\+|-)?(([1-9]\d{0,17})|([1-8]\d{18})|(9[01]\d{17})) : number
+/(0|([1-9][0-9]*)) : bigint
 /(true|false) : boolean
 
 `;
@@ -26,7 +23,7 @@ boolean : any
 		if (!configPath.endsWith("truthconfig.js")) configPath = join(configPath, "/truthconfig.js");
 		
 		const config = safe(() => require(configPath), "Couldn't read config file!") as {
-				Headers: boolean;
+				Backer: boolean;
 				SourceDir: string;
 				TargetDir: string;
 				DataPatterns: Record<string, RegExp>
@@ -37,7 +34,7 @@ boolean : any
 			"Couldn't read source folder!", true
 		).filter(x => x.endsWith(".truth"));
 		const content = [
-			config.Headers ? Header : "", 
+			config.Backer ? Header : "", 
 			...truthfiles.map(x => safe(
 				() => Truth.Fs.module.readFileSync(join(process.cwd(), x), "utf-8"),
 				"Couldn't read truth file!"

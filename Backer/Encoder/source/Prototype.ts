@@ -16,7 +16,7 @@ namespace Backer
 				TypeSet.fromJSON(data[2]),
 				TypeSet.fromJSON(data[3]),
 				TypeSet.fromJSON(data[4])
-				);
+			);
 		}
 		
 		constructor(
