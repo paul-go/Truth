@@ -168,5 +168,3 @@ namespace Reflex.SS
 const ss = Reflex.Core.createContainerNamespace<Reflex.SS.Namespace>(
 	new Reflex.SS.Library(),
 	true);
-
-
