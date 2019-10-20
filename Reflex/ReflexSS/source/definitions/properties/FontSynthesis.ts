@@ -1,0 +1,55 @@
+
+declare namespace Reflex.SS
+{
+	export interface Namespace
+	{
+		/**
+		 * The **`font-synthesis`** CSS property controls which missing typefaces, bold or italic, may be synthesized by the browser.
+		 * 
+		 * **Initial value**: `weight style`
+		 * 
+		 * | Chrome | Firefox | Safari | Edge | IE  |
+		 * | :----: | :-----: | :----: | :--: | :-: |
+		 * |   No   | **34**  | **9**  |  No  | No  |
+		 * 
+		 * @see https://developer.mozilla.org/docs/Web/CSS/font-synthesis
+		 */
+		fontSynthesis(value: CssValue, ...values: CssValue[]): Call;
+		/**
+		 * The **`font-synthesis`** CSS property controls which missing typefaces, bold or italic, may be synthesized by the browser.
+		 * 
+		 * **Initial value**: `weight style`
+		 * 
+		 * | Chrome | Firefox | Safari | Edge | IE  |
+		 * | :----: | :-----: | :----: | :--: | :-: |
+		 * |   No   | **34**  | **9**  |  No  | No  |
+		 * 
+		 * @see https://developer.mozilla.org/docs/Web/CSS/font-synthesis
+		 */
+		fontSynthesis(values: CssValue[][]): Call;
+		/**
+		 * The **`font-synthesis`** CSS property controls which missing typefaces, bold or italic, may be synthesized by the browser.
+		 * 
+		 * **Initial value**: `weight style`
+		 * 
+		 * | Chrome | Firefox | Safari | Edge | IE  |
+		 * | :----: | :-----: | :----: | :--: | :-: |
+		 * |   No   | **34**  | **9**  |  No  | No  |
+		 * 
+		 * @see https://developer.mozilla.org/docs/Web/CSS/font-synthesis
+		 */
+		"font-synthesis"(value: CssValue, ...values: CssValue[]): Call;
+		/**
+		 * The **`font-synthesis`** CSS property controls which missing typefaces, bold or italic, may be synthesized by the browser.
+		 * 
+		 * **Initial value**: `weight style`
+		 * 
+		 * | Chrome | Firefox | Safari | Edge | IE  |
+		 * | :----: | :-----: | :----: | :--: | :-: |
+		 * |   No   | **34**  | **9**  |  No  | No  |
+		 * 
+		 * @see https://developer.mozilla.org/docs/Web/CSS/font-synthesis
+		 */
+		"font-synthesis"(values: CssValue[][]): Call;
+	}
+}

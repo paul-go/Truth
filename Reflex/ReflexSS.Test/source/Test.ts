@@ -21,6 +21,7 @@ namespace Reflex.SS.Test
 	ss(
 		ml.a,
 		ss.textAlign("left"),
+		ss.textDecoration("none"),
 		ss(
 			" .left, .right",
 			ss.textAlign("center"),
