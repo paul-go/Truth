@@ -8,6 +8,11 @@
 	],
 	"references": [
 		{ "path": "../ReflexCore" },
+		{ "path": "../ReflexML" },
 		{ "path": "../ReflexSS" }
-	]
+	],
+	"moduless": {
+		"port": 7070,
+		"verbose": true
+	}
 }

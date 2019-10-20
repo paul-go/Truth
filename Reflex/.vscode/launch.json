@@ -42,12 +42,32 @@
 			]
 		},
 		{
-			"name": "Debug Reflex SS",
+			"name": "Debug Reflex SS Tests",
 			"type": "chrome",
 			"request": "launch",
-			"url": "http://127.0.0.1:4349/ReflexSS.Test/index.html",
+			"url": "http://127.0.0.1:7070",
 			"webRoot": "${workspaceRoot}",
 			"timeout": 30000,
+			"smartStep": true,
+			"sourceMaps": true
+		},
+		{
+			"name": "Debug Reflex SS Emitter",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/ReflexSS.Emitter/build/reflex-ss-emitter.js",
+			"args": [
+				"./ReflexSS/source"
+			],
+			"smartStep": true,
+			"sourceMaps": true
+		},
+		{
+			"name": "Debug Reflex SS Emitter (Browser)",
+			"type": "chrome",
+			"request": "launch",
+			"url": "http://localhost:7077",
+			"webRoot": "${workspaceFolder}/ReflexSS.Emitter",
 			"smartStep": true,
 			"sourceMaps": true
 		}

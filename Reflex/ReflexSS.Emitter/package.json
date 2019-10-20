@@ -1,0 +1,7 @@
+{
+	"name": "reflex-ss-emitter",
+	"description": "A build-time tool that generates ReflexSS type definitions from MDN data",
+	"dependencies": {
+		"node-fetch": "^2.6.0"
+	}
+}
