@@ -1,5 +1,7 @@
 namespace Backer
 {
+	export const Schema: Record<string, any> = {};
+	
 	export class Code
 	{
 		types: Type[] = [];
@@ -13,13 +15,16 @@ namespace Backer
 			for (const proto of prototypes)
 				code.prototypes.push(proto);
 			
-			
 			const types = data[1].map(x => Type.fromJSON(code, x));
 			for (const type of types)
 			{
 				const id = code.types.push(type) - 1;
 				FutureType.IdMap.set(id, type);
 			}
+			
+			for (const type of types)
+				if (!type.container)
+					Schema[type.name] = PLA(type);
 			
 			return code;
 		}
