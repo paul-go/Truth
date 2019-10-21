@@ -7,6 +7,21 @@ namespace Backer
 		types: Type[] = [];
 		prototypes: Prototype[] = [];
 		
+		static async link(code: string, ...data: string[])
+		{
+			const fetchJSON = async (url: string) => 
+			{
+				return await (await fetch(url)).json();
+			}
+			
+			const instance = Code.load(await fetchJSON(code));
+			
+			for (const url of data)
+				instance.loadData(await fetchJSON(url));
+			
+			return instance;
+		}
+		
 		static load(data: [PrototypeJSON[], TypeJSON[]])
 		{
 			const code = new Code();
