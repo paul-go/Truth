@@ -1,6 +1,6 @@
  {
 	"name": "makets",
-	"version": "1.0.11",
+	"version": "1.0.12",
 	"description": "Purpose-built JavaScript / TypeScript bundling tool.",
 	"author": "Paul Go",
 	"license": "MIT",
