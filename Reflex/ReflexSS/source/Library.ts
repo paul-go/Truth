@@ -202,31 +202,31 @@ namespace Reflex.SS
 		}
 		
 		/** */
-		detachPrimitive(primitive: Node, owner: Branch)
+		detachPrimitive()
 		{
 			throw new Error("Not implemented.");
 		}
 		
 		/** */
-		swapBranches(branch1: Branch, branch2: Branch)
+		swapBranches()
 		{
 			throw new Error("Not supported.");
 		}
 		
 		/** */
-		replaceBranch(branch1: Branch, branch2: Branch)
+		replaceBranch()
 		{
 			throw new Error("Not supported.");
 		}
 		
 		/** */
-		attachAttribute(branch: Branch, key: string, value: any)
+		attachAttribute()
 		{
 			throw new Error("Not supported.");
 		}
 		
 		/** */
-		detachAttribute(branch: Branch, key: string)
+		detachAttribute()
 		{
 			throw new Error("Not supported.");
 		}
