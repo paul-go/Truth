@@ -14,14 +14,5 @@
 	"scripts": {
 		"build": "makets build",
 		"bundle": "makets bundle"
-	},
-	"eslintIgnore": [
-		"**/node_modules/**/*.ts",
-		"**/*.d.ts"
-	],
-	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^1.4.2",
-		"@typescript-eslint/parser": "^1.4.2",
-		"artistry-code-style": "^0.0.1"
 	}
 }

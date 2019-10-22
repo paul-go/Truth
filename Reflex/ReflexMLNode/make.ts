@@ -37,7 +37,6 @@ make.on("publish", async () =>
 {
 	make.publish({
 		packageFileChanges: {
-			eslintIgnore: null,
 			// Reflex ML only has a dependency on Reflex Core
 			// when it's used from the npm module. When it's
 			// drawn in via a script tag, this reflex.js file will have

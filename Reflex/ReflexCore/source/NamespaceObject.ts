@@ -132,9 +132,9 @@ namespace Reflex.Core
 				return branchFns;
 			})();
 			
-			const staticNonBranches = library.getStaticNonBranches ?
-				library.getStaticNonBranches() || {}:
-				{};
+			const staticNonBranches = 
+				library.getStaticNonBranches ?
+					library.getStaticNonBranches() || {} : {};
 			
 			return Object.assign({}, staticBranches, staticNonBranches);
 		})();

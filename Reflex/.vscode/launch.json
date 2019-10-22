@@ -61,15 +61,6 @@
 			],
 			"smartStep": true,
 			"sourceMaps": true
-		},
-		{
-			"name": "Debug Reflex SS Emitter (Browser)",
-			"type": "chrome",
-			"request": "launch",
-			"url": "http://localhost:7077",
-			"webRoot": "${workspaceFolder}/ReflexSS.Emitter",
-			"smartStep": true,
-			"sourceMaps": true
 		}
 	]
 }
