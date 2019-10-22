@@ -26,7 +26,7 @@ export function emit(target: Node | Node[], options?: Reflex.ML.IEmitOptions)
 		 */
 		constructor(e: HTMLElement)
 		{
-			const childMetas = Reflex.Core.Buffer.childrenOf(e);
+			const childMetas = Reflex.Core.childrenOf(e);
 			
 			this.hasRecurrents = childMetas.some(m =>
 				m instanceof Reflex.Core.RecurrentStreamMeta);

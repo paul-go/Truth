@@ -217,18 +217,12 @@ namespace Reflex.Core
 					const hardRef = tracker.getLastHardRef();
 					lib.attachPrimitive(meta.branch, containingBranch, hardRef);
 					tracker.update(meta.branch);
-					
-					///if ("DEBUG")
-					///	(<any>meta.branch).setAttribute("locator", meta.locator);
 				}
 				else if (meta instanceof ContentMeta)
 				{
 					const hardRef = tracker.getLastHardRef();
 					lib.attachPrimitive(meta.value, containingBranch, hardRef);
 					tracker.update(meta.value);
-					
-					///if ("DEBUG")
-					///	(<any>meta.contentObject).textContent += " " + meta.locator.toString();
 				}
 				else if (meta instanceof ValueMeta || meta instanceof InstanceMeta)
 				{
@@ -257,8 +251,8 @@ namespace Reflex.Core
 					lib.attachAttribute(containingBranch, meta.key, meta.value);
 				}
 				
-				if ("DEBUG")
-					Buffer.add(containingBranch, meta);
+				if (Const.debug || Const.node)
+					childrenOf.store(containingBranch, meta);
 				
 				tracker.update(meta.locator);
 			}

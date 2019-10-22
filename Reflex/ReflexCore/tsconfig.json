@@ -6,6 +6,7 @@
 		"outFile": "build/reflex-core.js"
 	},
 	"include": [
+		"../tsconst.ts",
 		"./source/**/*.ts"
 	]
 }
