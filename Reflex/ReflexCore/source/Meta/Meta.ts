@@ -4,10 +4,7 @@ namespace Reflex.Core
 	/** */
 	export abstract class Meta
 	{
-		constructor(readonly locator: Locator)
-		{
-			
-		}
+		constructor(readonly locator: Locator) { }
 	}
 	
 	/** */

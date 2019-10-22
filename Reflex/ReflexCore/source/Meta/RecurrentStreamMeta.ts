@@ -255,7 +255,7 @@ namespace Reflex.Core
 	}
 	
 	/**
-	 * Retutrns a new array that is the copy of the specified return array,
+	 * Returns a new array that is the copy of the specified return array,
 	 * except with any instances of Locator replaced with the actual meta.
 	 */
 	function resolveReturned(returned: (Meta | Locator)[], containingBranch: IBranch)
