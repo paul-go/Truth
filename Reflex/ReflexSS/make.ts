@@ -20,22 +20,6 @@ make.on("bundle", "publish", async () =>
 {
 	const returns = ["Reflex", "ss"];
 	
-	//# Create reflex.js (which contains Core + ML)
-	
-	make.concat(
-		"../ReflexCore/build/reflex-core.js",
-		"./build/reflex-ss.js",
-		"./bundle/reflex.js",
-	);
-	
-	make.augment("./bundle/reflex.js", {
-		returns,
-		globals: true,
-		exports: returns.concat("on", "once")
-	});
-	
-	make.minify("./bundle/reflex.js");
-	
 	//# Create reflex-ss.js (which require()'s Core if necessary)
 	
 	make.copy("./build/reflex-ss.js", "./bundle");
@@ -68,8 +52,7 @@ make.on("publish", async () =>
 	make.publish({
 		packageFileChanges: {
 			main: "./reflex-ss.js",
-			eslintIgnore: null,
-			// Reflex ML only has a dependency on Reflex Core
+			// Reflex SS only has a dependency on Reflex Core
 			// when it's used from the npm module. When it's
 			// drawn in via a script tag, this reflex.js file will have
 			// the core built into it.

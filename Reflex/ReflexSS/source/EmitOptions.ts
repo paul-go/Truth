@@ -22,14 +22,33 @@ namespace Reflex.SS
 		 * format. If unspecified, the value is assumed to be true.
 		 */
 		format?: boolean;
+		
+		/**
+		 * @internal
+		 * Stores the string to use for indents.
+		 */
+		indent?: string;
+		
+		/**
+		 * @internal
+		 * Stores the string to use for newlines.
+		 */
+		line?: string;
 	}
 	
 	/**
 	 * @internal
-	 * (See the explanation in Definitions.ts)
 	 */
-	export function emit(options: IEmitOptions)
+	export function fillOptions(options?: IEmitOptions)
 	{
-		return "";
+		const opt = <Defined<IEmitOptions>>options || {};
+		opt.inline = !!opt.inline;
+		opt.format = opt.format === undefined ? true : !!opt.format;
+		opt.indent = opt.indent || (opt.format ? "\t" : "");
+		opt.line = opt.line || (opt.format ? "\n" : "");
+		return opt;
 	}
+	
+	/** */
+	type Defined<T> = { [P in keyof T]-?: T[P] };
 }

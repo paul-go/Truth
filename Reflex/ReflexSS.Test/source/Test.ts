@@ -19,6 +19,11 @@ namespace Reflex.SS.Test
 	console.log("------------");
 	
 	ss(
+		ml.body,
+		ss.backgroundColor("red")
+	);
+	
+	ss(
 		ml.a,
 		ss.textAlign("left"),
 		ss.textDecoration("none"),
@@ -72,5 +77,5 @@ namespace Reflex.SS.Test
 	);
 	*/
 	
-	console.log(ss.debug());
+	console.log(ss.emit());
 }

@@ -1,8 +1,51 @@
 
 namespace Reflex.SS
 {
+	export type Node = HTMLElement | Text;
+	export type Branch = Rule | Call;
+	export type Primitive = Core.Primitive<Node, Branch, string>;
+	export type Primitives = Core.Primitives<Node, Branch, string>;
+	
+	/**
+	 * Top-level value for all possible inputs
+	 * to the CSS property creation functions.
+	 */
+	export type CssValue = string | number | Call | Unit;
+	
+	/**
+	 * Creates a namespace.
+	 */
+	export interface Namespace extends Core.IContainerNamespace<Primitives, string>
+	{
+		/**
+		 * Serializes all generated CSS content into a string.
+		 */
+		emit(options?: IEmitOptions): string;
+		
+		/**
+		 * Toggles whether generated CSS is streamed directly into
+		 * a CSS style sheet, embedded directly in the web page. 
+		 * 
+		 * Has no effect in the case when this library is not operating
+		 * in the context of a web browser.
+		 * 
+		 * @param enable Whether to enable streaming.
+		 * If unspecified, the value is assumed to be `true`.
+		 */
+		stream(enable?: boolean): void;
+	}
+	
+	/**
+	 * @internal
+	 */
 	export class Library implements Reflex.Core.ILibrary
 	{
+		/** */
+		constructor()
+		{
+			this.stream(true);
+		}
+		
 		/** */
 		isKnownBranch(branch: Branch)
 		{
@@ -16,7 +59,7 @@ namespace Reflex.SS
 		}
 		
 		/** */
-		isBranchDisposed(branch: Reflex.Core.IBranch)
+		isBranchDisposed()
 		{
 			return false;
 		}
@@ -25,16 +68,77 @@ namespace Reflex.SS
 		getStaticNonBranches()
 		{
 			return {
-				emit: (options: IEmitOptions) => emit(options),
-				debug: () =>
-				{
-					return Array.from(this.styleSheet.values())
-						.filter(rule => rule.containers.length === 0)
-						.map(rule => rule.toRulesString())
-						.join("\n");
-				}
-			};
+				emit: (options?: IEmitOptions) => this.emit(options || {}),
+				stream: (enable?: boolean) => this.stream(!!enable)
+			}
 		}
+		
+		/** */
+		private emit(options: IEmitOptions)
+		{
+			const opt = fillOptions(options);
+			
+			const rules = Array.from(this.fauxSheet.values())
+				.filter(rule => rule.containers.length === 0)
+				.map(rule => rule.toStringArray(opt))
+				.reduce((a, b) => a.concat(b), []);
+			
+			return rules.join(opt.line + opt.line);
+		}
+		
+		/**
+		 * Enables or disables streaming of CSS content to a generated style sheet.
+		 */
+		private stream(enable: boolean)
+		{
+			if (typeof window === "undefined" ||
+				typeof document === "undefined")
+				return;
+			
+			if (!(this.streamingEnabled = enable))
+				return;
+			
+			if (!this.nativeSheet)
+			{
+				const link = document.createElement("style");
+				document.head.appendChild(link);
+				this.nativeSheet = <CSSStyleSheet>link.sheet;
+			}
+		}
+		
+		/**
+		 * @internal
+		 * An internal map that stores all of the generated CSS rules,
+		 * as well as the internally generated identifiers (which may 
+		 * become class names) that refer to them.
+		 */
+		private readonly fauxSheet = new Map<string, Rule>();
+		
+		/**
+		 * @internal
+		 * Stores a table of hashes of all serialized rules.
+		 * Used to determine if an identical rule has already been
+		 * generated. Note that this only deals with rules that are
+		 * generated on the client side. Rules that were brought
+		 * into the system by another means are not considered.
+		 */
+		private readonly ruleHashes = new Set<string>();
+		
+		/**
+		 * @internal
+		 * Stores a value that indicates whether a native CSSStyleSheet
+		 * object has been created, which will be used as the storage
+		 * location for CSS information generated at runtime. The member
+		 * is unused outside of the browser.
+		 */
+		private nativeSheet?: CSSStyleSheet;
+		
+		/**
+		 * @internal
+		 * Stores whether the streaming to a CSSStyleSheet is enabled.
+		 * The member is unused outside of the browser.
+		 */
+		private streamingEnabled?: boolean;
 		
 		/** */
 		getDynamicNonBranch(name: string)
@@ -79,7 +183,7 @@ namespace Reflex.SS
 				}
 				else if (typeof primitive === "string")
 				{
-					const existingRule = this.styleSheet.get(primitive);
+					const existingRule = this.fauxSheet.get(primitive);
 					if (existingRule)
 					{
 						existingRule.containers.push(owner);
@@ -141,24 +245,28 @@ namespace Reflex.SS
 		/** */
 		returnBranch(branch: Reflex.Core.IBranch)
 		{
-			if (branch instanceof Rule)
-			{
-				const cls = branch.class;
-				if (!this.styleSheet.has(cls))
-					this.styleSheet.set(cls, branch);
-				
-				return cls;
-			}
+			if (!(branch instanceof Rule))
+				return branch;
 			
-			return branch;
+			const cls = branch.class;
+			if (!this.fauxSheet.has(cls))
+				this.fauxSheet.set(cls, branch);
+			
+			if (this.streamingEnabled && this.nativeSheet)
+			{
+				for (const cssText of branch.toStringArray())
+				{
+					const ruleHash = Util.calculateHash(cssText).toString(36);
+					if (!this.ruleHashes.has(ruleHash))
+					{
+						const len = this.nativeSheet.cssRules.length;
+						this.nativeSheet.insertRule(cssText, len);
+						this.ruleHashes.add(ruleHash);
+					}
+				}
+			}
+			return cls;
 		}
-		
-		/**
-		 * An internal map that stores all of the generated CSS rules,
-		 * as well as the internally generated identifiers (which may 
-		 * become class names) that refer to them.
-		 */
-		private readonly styleSheet = new Map<string, Rule>();
 	}
 }
 

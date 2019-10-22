@@ -1,7 +1,10 @@
 
 namespace Reflex.SS
 {
-	/** */
+	/**
+	 * A class that stores the information about a CSS rule
+	 * relevant to the library.
+	 */
 	export class Rule
 	{
 		readonly selectorFragments: string[] = [];
@@ -13,14 +16,13 @@ namespace Reflex.SS
 		 * Returns a serialized CSS representation of this Rule instance,
 		 * and all rules nested inside of it.
 		 */
-		toRulesString()
+		toStringArray(options?: IEmitOptions)
 		{
 			if (this.declarations.length + this.children.length === 0)
-				return "";
+				return [];
 			
-			const indentChar = "\t";
-			const lineChar = "\n";
-			const ruleTexts: string[] = [];
+			const { indent, line } = fillOptions(options);
+			const rules: string[] = [];
 			
 			for (const rule of eachDecendentRule(this))
 			{
@@ -33,18 +35,26 @@ namespace Reflex.SS
 						.filter(sel => sel);
 					
 					const selector = spaceAwareJoin(selectors, ", ");
-					
-					ruleTexts.push(
-						selector + lineChar +
+					rules.push(
+						selector + line +
 						"{" +
 							rule.declarations
-								.map(d => lineChar + indentChar + d.toDeclarationString())
-								.join("") + lineChar + 
+								.sort((a, b) =>
+								{
+									// The declarations need to be sorted so that rules
+									// that are otherwise identical, other than the ordering
+									// of two unrelated properties still generate the same hash.
+									const an = a.callingName;
+									const bn = b.callingName;
+									return (an === bn || an < bn) ? -1 : 1;
+								})
+								.map(d => line + indent + d.toDeclarationString())
+								.join("") + line + 
 						"}");
 				}
 			}
 			
-			return ruleTexts.join(lineChar);
+			return rules;
 		}
 		
 		/**
