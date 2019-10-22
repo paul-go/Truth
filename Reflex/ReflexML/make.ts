@@ -48,9 +48,9 @@ make.on("bundle", "publish", async () =>
 				`Reflex = require("reflex-core");`,
 	});
 	
-	make.compilationConstants("./bundle/reflex-ml.js", {
-		MODERN: true,
-		DEBUG: false
+	make.constants("./bundle/reflex-ml.js", {
+		modern: true,
+		debug: false
 	});
 	
 	make.minify("./bundle/reflex-ml.js");
