@@ -5,7 +5,8 @@ type Constructor<T = any> = { new (...args: any[]): T };
 
 namespace Backer
 {
-	export const DataGraph: Record<string, Boolean | BigInt | Number | String | Object | Any> = {};
+	export type PLATypes = PLABoolean | PLABigInt | PLANumber | PLAString | PLAObject | PLAAny;
+	export const DataGraph: Record<string, PLATypes> = {};
 	
 	export const typeOf = Symbol("typeOf");
 	export const value = Symbol("value");
@@ -15,7 +16,7 @@ namespace Backer
 		return new type.PLAConstructor(type);
 	}
 	
-	export class Any<T = string>
+	export class PLAAny<T = string> extends TruthTalk.Leaves.Surrogate
 	{ 
 		readonly [typeOf]: Type;
 		readonly [value]: T | null;
@@ -30,8 +31,16 @@ namespace Backer
 			return this[value] instanceof base || this[typeOf].is(base); 
 		};
 		
+		is(base: Type | PLATypes)
+		{
+			if (base instanceof Type)
+				return this[typeOf].is(base);
+			return this[typeOf].is(base[typeOf]);
+		}
+		
 		constructor(type: Type)
 		{	
+			super();
 			JSObject.defineProperty(this, value, {
 				value: this.valueParse(type.value),
 				enumerable: false,
@@ -49,13 +58,6 @@ namespace Backer
 			for (const child of type.contents)
 				(<any>this)[child.name] = PLA(child);
 				
-			JSObject.freeze(this);
-		}
-		
-		*[Symbol.iterator]()
-		{
-			for (const key in this)
-				yield this[key];
 		}
 		
 		[Symbol.hasInstance](value: any)
@@ -77,12 +79,16 @@ namespace Backer
 		get [Symbol.toStringTag]() { return "PLA"; }
 	}
 	
-	export class Object extends Any<string>
+	export class PLAObject<T = String> extends PLAAny<T>
 	{ 
-		
+		*[Symbol.iterator](): Iterator<PLATypes>
+		{
+			for (const key in this)
+				yield this[key] as any;
+		}
 	}
 	
-	export class String extends Any<string>
+	export class PLAString extends PLAObject
 	{ 
 		
 		protected valueParse(value: string | null)
@@ -93,7 +99,7 @@ namespace Backer
 		}
 	}
 	
-	export class Number extends Any<number>
+	export class PLANumber extends PLAObject<number>
 	{
 		protected valueParse(value: string | null)
 		{
@@ -103,9 +109,8 @@ namespace Backer
 		}
 	}
 	
-	export class BigInt extends Any<bigint>
+	export class PLABigInt extends PLAObject<bigint>
 	{ 
-		
 		protected valueParse(value: string | null)
 		{
 			if (value === null)
@@ -114,7 +119,7 @@ namespace Backer
 		}
 	}
 	
-	export class Boolean extends Any<boolean>
+	export class PLABoolean extends PLAObject<boolean>
 	{
 		
 		protected valueParse(value: string | null)
@@ -126,8 +131,8 @@ namespace Backer
 	}
 }
 
-declare const any: typeof Backer.Any;
-declare const string: typeof Backer.String;
-declare const number: typeof Backer.Number;
-declare const bigint: typeof Backer.Number;
-declare const boolean: typeof Backer.Number;
+declare const any: typeof Backer.PLAAny;
+declare const string: typeof Backer.PLAString;
+declare const number: typeof Backer.PLANumber;
+declare const bigint: typeof Backer.PLANumber;
+declare const boolean: typeof Backer.PLANumber;

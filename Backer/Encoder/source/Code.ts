@@ -39,7 +39,7 @@ namespace Backer
 			
 			for (const type of types)
 				if (!type.container)
-					Schema[type.name] = PLA(type);
+					Schema[type.name] = new PLAAny(type);
 			
 			return code;
 		}

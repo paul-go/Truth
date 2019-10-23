@@ -28,11 +28,11 @@ namespace Backer
 		get PLAConstructor()
 		{
 			return (
-				this.is(this.code.types[5]) ? Backer.Boolean :
-				this.is(this.code.types[4]) ? Backer.BigInt  :
-				this.is(this.code.types[3]) ? Backer.Number  :
-				this.is(this.code.types[2]) ? Backer.String  :
-				this.is(this.code.types[1]) || this.value == null ? Backer.Object  : Backer.Any);
+				this.is(this.code.types[5]) ? Backer.PLABoolean :
+				this.is(this.code.types[4]) ? Backer.PLABigInt  :
+				this.is(this.code.types[3]) ? Backer.PLANumber  :
+				this.is(this.code.types[2]) ? Backer.PLAString  :
+				this.is(this.code.types[1]) || this.value == null ? Backer.PLAObject  : Backer.PLAAny);
 				
 		}
 			
