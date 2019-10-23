@@ -28,7 +28,7 @@ namespace Reflex.Core
 		library: ILibrary,
 		globalize?: boolean): T
 	{
-		if ("DEBUG" && !library.createContent)
+		if (Const.debug && !library.createContent)
 			throw new Error("The .createContent function must be implemented in this library.");
 		
 		return createNamespace(true, library, globalize);
@@ -54,7 +54,7 @@ namespace Reflex.Core
 		library: ILibrary,
 		globalize?: boolean): T
 	{
-		if ("DEBUG" && !library.createContainer)
+		if (Const.debug && !library.createContainer)
 			throw new Error("The .createContainer function must be implemented in this library.");
 		
 		return createNamespace(false, library, globalize);

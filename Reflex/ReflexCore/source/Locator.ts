@@ -90,7 +90,7 @@ namespace Reflex.Core
 			if (this.homeTimestamp !== 0)
 				return;
 			
-			if ("DEBUG" && this.values.length > 0)
+			if (Const.debug && this.values.length > 0)
 				throw new Error("?");
 			
 			const val = ++nextVal;
@@ -105,7 +105,7 @@ namespace Reflex.Core
 				this.homeTimestamp = containerLoc.timestamp;
 				this.values.push(val);
 			}
-			else if ("DEBUG" && containerLoc.type === LocatorType.leaf)
+			else if (Const.debug && containerLoc.type === LocatorType.leaf)
 				throw new Error("?");
 		}
 		

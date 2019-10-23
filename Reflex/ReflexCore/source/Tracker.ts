@@ -47,7 +47,7 @@ namespace Reflex.Core
 			const out = new Tracker(this.branch);
 			out.last = this.last;
 			
-			if ("DEBUG")
+			if (Const.debug)
 				out.trackerContainer = this;
 			
 			return out;
