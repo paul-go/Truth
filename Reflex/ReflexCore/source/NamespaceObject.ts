@@ -143,50 +143,86 @@ namespace Reflex.Core
 			createContentNamespaceFn(library) :
 			createContainerNamespaceFn(library);
 		
-		// In the case when there are no dynamic members, we can just
-		// return the static namespace members, and avoid use of Proxies
-		// all together.
-		if (!library.getDynamicBranch && !library.getDynamicNonBranch)
-			return <any>Object.assign(nsFn, staticMembers);
-		
-		// This variable stores an object that contains the members
-		// that were attached to the proxy object after it's creation.
-		// Currently this is only being used by ReflexML to attach
-		// the "emit" function, but others may use it aswell.
-		let attachedMembers: { [key: string]: any; } | null = null;
-		
-		return <any>new Proxy(nsFn, {
-			get(target: Function, key: string)
-			{
-				if (typeof key !== "string")
-					throw new Error("Unknown property.");
-				
-				if (key === "call" || key === "apply")
-					throw new Error("call() and apply() are not supported.");
-				
-				if (key in staticMembers)
-					return staticMembers[key];
-				
-				if (attachedMembers && key in attachedMembers)
-					return attachedMembers[key];
-				
-				if (library.getDynamicBranch)
+		const nsObj = (() =>
+		{
+			// In the case when there are no dynamic members, we can just
+			// return the static namespace members, and avoid use of Proxies
+			// all together.
+			if (!library.getDynamicBranch && !library.getDynamicNonBranch)
+				return <any>Object.assign(nsFn, staticMembers);
+			
+			// This variable stores an object that contains the members
+			// that were attached to the proxy object after it's creation.
+			// Currently this is only being used by ReflexML to attach
+			// the "emit" function, but others may use it aswell.
+			let attachedMembers: { [key: string]: any; } | null = null;
+			
+			return <any>new Proxy(nsFn, {
+				get(target: Function, key: string)
 				{
-					const branch = library.getDynamicBranch(key);
-					if (branch)
-						return createBranchFn(() => branch, key);
+					if (typeof key !== "string")
+						throw new Error("Unknown property.");
+					
+					if (key === "call" || key === "apply")
+						throw new Error("call() and apply() are not supported.");
+					
+					if (key in staticMembers)
+						return staticMembers[key];
+					
+					if (attachedMembers && key in attachedMembers)
+						return attachedMembers[key];
+					
+					if (library.getDynamicBranch)
+					{
+						const branch = library.getDynamicBranch(key);
+						if (branch)
+							return createBranchFn(() => branch, key);
+					}
+					
+					if (library.getDynamicNonBranch)
+						return library.getDynamicNonBranch(key);
+				},
+				set(target: Function, p: any, value: any)
+				{
+					(attachedMembers || (attachedMembers = {}))[p] = value;
+					return true;
 				}
-				
-				if (library.getDynamicNonBranch)
-					return library.getDynamicNonBranch(key);
-			},
-			set(target: Function, p: any, value: any)
-			{
-				(attachedMembers || (attachedMembers = {}))[p] = value;
-				return true;
-			}
-		});
+			});
+		})();
+		
+		namespaceObjects.set(nsObj, library);
+		return nsObj;
 	}
+	
+	/**
+	 * Returns the ILibrary instance that corresponds
+	 * to the specified namespace object. This function
+	 * is used for layering Reflexive libraries on top of
+	 * each other, i.e., to defer the implementation of
+	 * one of the ILibrary functions to another ILibrary
+	 * at a lower-level.
+	 * 
+	 * The typings of the returned ILibrary assume that
+	 * all ILibrary functions are implemented in order to
+	 * avoid excessive "possibly undefined" checks.
+	 */
+	export function libraryOf(namespaceObject: object): Defined<ILibrary>
+	{
+		const lib: any = namespaceObjects.get(namespaceObject);
+		
+		if (Const.debug && !lib)
+			throw new Error("This object does not have an associated Reflex library.");
+		
+		return lib;
+	}
+	
+	/** */
+	type Defined<T> = { [P in keyof T]-?: T[P] };
+	
+	/**
+	 * Stores all created namespace objects, used to power the .libraryOf() function.
+	 */
+	const namespaceObjects = new WeakMap<object, ILibrary>();
 	
 	/**
 	 * Returns whether the specified function or method
