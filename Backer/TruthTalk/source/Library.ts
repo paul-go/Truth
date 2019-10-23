@@ -4,6 +4,12 @@ namespace Backer.TruthTalk
 	export class Library implements Reflex.Core.ILibrary
 	{
 		/** */
+		isKnownLeaf(leaf: any)
+		{
+			return leaf instanceof Node
+		}
+		
+		/** */
 		isKnownBranch(branch: Branch)
 		{
 			return branch instanceof Node;

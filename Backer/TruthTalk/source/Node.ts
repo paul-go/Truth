@@ -35,7 +35,8 @@ namespace Backer.TruthTalk
 		aliased = 63,
 		terminals = 64,
 		sort = 65,
-		reverse = 66
+		reverse = 66,
+		surrogate = 67
 	}
 	
 	/** */
@@ -203,6 +204,12 @@ namespace Backer.TruthTalk
 		export class Reverse extends Leaf
 		{
 			readonly op = LeafOp.reverse;
+		}
+		
+		/** */
+		export class Surrogate extends Leaf
+		{
+			readonly op = LeafOp.surrogate;
 		}
 	}
 }
