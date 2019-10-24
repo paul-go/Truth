@@ -141,7 +141,9 @@ namespace Reflex.Core
 			callback: RecurrentCallback<Primitives>) => void;
 		
 		/**
-		 * 
+		 * Reflexive libraries can implement this function in order
+		 * to capture the flow of branches being passed as
+		 * primitives to other branch functions.
 		 */
 		handleBranchFunction?: (
 			branch: IBranch,

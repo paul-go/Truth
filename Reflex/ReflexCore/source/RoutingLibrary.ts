@@ -241,14 +241,14 @@ namespace Reflex.Core
 		
 		/**
 		 * Reflexive libraries can implement this function in order
-		 * to handle the case when a branch function is passed as
-		 * a primitive to another branch function.
+		 * to capture the flow of branches being passed as
+		 * primitives to other branch functions.
 		 */
 		handleBranchFunction(
 			branch: IBranch,
 			branchFn: (...primitives: any[]) => IBranch)
 		{
-			this.route(
+			return this.route(
 				branch,
 				lib => lib.handleBranchFunction,
 				(fn, lib) => fn.call(lib, branch, branchFn));

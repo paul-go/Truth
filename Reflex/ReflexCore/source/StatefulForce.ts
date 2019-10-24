@@ -52,8 +52,16 @@ namespace Reflex.Core
 		{
 			return "" + this._value;
 		}
+		
+		/**
+		 * 
+		 */
+		valueOf()
+		{
+			return this._value;
+		}
 	}
-
+	
 	/**
 	 * 
 	 */
