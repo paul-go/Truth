@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-left
 		 */
-		marginLeft(value: CssValue, ...values: CssValue[]): Call;
+		marginLeft(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`margin-left`** CSS property sets the margin area on the left side of an element. A positive value places it farther from its neighbors, while a negative value places it closer.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-left
 		 */
-		marginLeft(values: CssValue[][]): Call;
+		marginLeft(values: CssValue[][]): Command;
 		/**
 		 * The **`margin-left`** CSS property sets the margin area on the left side of an element. A positive value places it farther from its neighbors, while a negative value places it closer.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-left
 		 */
-		"margin-left"(value: CssValue, ...values: CssValue[]): Call;
+		"margin-left"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`margin-left`** CSS property sets the margin area on the left side of an element. A positive value places it farther from its neighbors, while a negative value places it closer.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-left
 		 */
-		"margin-left"(values: CssValue[][]): Call;
+		"margin-left"(values: CssValue[][]): Command;
 	}
 }

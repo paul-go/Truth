@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-image-source
 		 */
-		borderImageSource(value: CssValue, ...values: CssValue[]): Call;
+		borderImageSource(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-image-source`** CSS property sets the source image used to create an element's border image.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-image-source
 		 */
-		borderImageSource(values: CssValue[][]): Call;
+		borderImageSource(values: CssValue[][]): Command;
 		/**
 		 * The **`border-image-source`** CSS property sets the source image used to create an element's border image.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-image-source
 		 */
-		"border-image-source"(value: CssValue, ...values: CssValue[]): Call;
+		"border-image-source"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-image-source`** CSS property sets the source image used to create an element's border image.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-image-source
 		 */
-		"border-image-source"(values: CssValue[][]): Call;
+		"border-image-source"(values: CssValue[][]): Command;
 	}
 }

@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-timing-function
 		 */
-		transitionTimingFunction(value: CssValue, ...values: CssValue[]): Call;
+		transitionTimingFunction(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`transition-timing-function`** CSS property sets how intermediate values are calculated for CSS properties being affected by a transition effect.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-timing-function
 		 */
-		transitionTimingFunction(values: CssValue[][]): Call;
+		transitionTimingFunction(values: CssValue[][]): Command;
 		/**
 		 * The **`transition-timing-function`** CSS property sets how intermediate values are calculated for CSS properties being affected by a transition effect.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-timing-function
 		 */
-		"transition-timing-function"(value: CssValue, ...values: CssValue[]): Call;
+		"transition-timing-function"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`transition-timing-function`** CSS property sets how intermediate values are calculated for CSS properties being affected by a transition effect.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-timing-function
 		 */
-		"transition-timing-function"(values: CssValue[][]): Call;
+		"transition-timing-function"(values: CssValue[][]): Command;
 	}
 }

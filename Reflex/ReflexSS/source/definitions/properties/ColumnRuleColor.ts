@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-color
 		 */
-		columnRuleColor(value: CssValue, ...values: CssValue[]): Call;
+		columnRuleColor(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`column-rule-color`** CSS property sets the color of the rule (line) drawn between columns in a multi-column layout.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-color
 		 */
-		columnRuleColor(values: CssValue[][]): Call;
+		columnRuleColor(values: CssValue[][]): Command;
 		/**
 		 * The **`column-rule-color`** CSS property sets the color of the rule (line) drawn between columns in a multi-column layout.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-color
 		 */
-		"column-rule-color"(value: CssValue, ...values: CssValue[]): Call;
+		"column-rule-color"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`column-rule-color`** CSS property sets the color of the rule (line) drawn between columns in a multi-column layout.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-color
 		 */
-		"column-rule-color"(values: CssValue[][]): Call;
+		"column-rule-color"(values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/orphans
 		 */
-		orphans(value: CssValue, ...values: CssValue[]): Call;
+		orphans(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`orphans`** CSS property sets the minimum number of lines in a block container that must be shown at the _bottom_ of a page, region, or column.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/orphans
 		 */
-		orphans(values: CssValue[][]): Call;
+		orphans(values: CssValue[][]): Command;
 	}
 }

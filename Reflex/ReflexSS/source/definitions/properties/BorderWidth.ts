@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-width
 		 */
-		borderWidth(value: CssValue, ...values: CssValue[]): Call;
+		borderWidth(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-width`** shorthand CSS property sets the widths of all four sides of an element's border.
 		 * 
@@ -22,7 +22,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-width
 		 */
-		borderWidth(values: CssValue[][]): Call;
+		borderWidth(values: CssValue[][]): Command;
 		/**
 		 * The **`border-width`** shorthand CSS property sets the widths of all four sides of an element's border.
 		 * 
@@ -32,7 +32,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-width
 		 */
-		"border-width"(value: CssValue, ...values: CssValue[]): Call;
+		"border-width"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-width`** shorthand CSS property sets the widths of all four sides of an element's border.
 		 * 
@@ -42,6 +42,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-width
 		 */
-		"border-width"(values: CssValue[][]): Call;
+		"border-width"(values: CssValue[][]): Command;
 	}
 }

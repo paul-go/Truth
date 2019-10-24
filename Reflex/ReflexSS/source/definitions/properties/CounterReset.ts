@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/counter-reset
 		 */
-		counterReset(value: CssValue, ...values: CssValue[]): Call;
+		counterReset(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`counter-reset`** CSS property resets a CSS counter to a given value.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/counter-reset
 		 */
-		counterReset(values: CssValue[][]): Call;
+		counterReset(values: CssValue[][]): Command;
 		/**
 		 * The **`counter-reset`** CSS property resets a CSS counter to a given value.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/counter-reset
 		 */
-		"counter-reset"(value: CssValue, ...values: CssValue[]): Call;
+		"counter-reset"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`counter-reset`** CSS property resets a CSS counter to a given value.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/counter-reset
 		 */
-		"counter-reset"(values: CssValue[][]): Call;
+		"counter-reset"(values: CssValue[][]): Command;
 	}
 }

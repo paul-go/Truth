@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-style
 		 */
-		borderTopStyle(value: CssValue, ...values: CssValue[]): Call;
+		borderTopStyle(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-top-style`** CSS property sets the line style of an element's top `border`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-style
 		 */
-		borderTopStyle(values: CssValue[][]): Call;
+		borderTopStyle(values: CssValue[][]): Command;
 		/**
 		 * The **`border-top-style`** CSS property sets the line style of an element's top `border`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-style
 		 */
-		"border-top-style"(value: CssValue, ...values: CssValue[]): Call;
+		"border-top-style"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-top-style`** CSS property sets the line style of an element's top `border`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-style
 		 */
-		"border-top-style"(values: CssValue[][]): Call;
+		"border-top-style"(values: CssValue[][]): Command;
 	}
 }

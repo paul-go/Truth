@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style-type
 		 */
-		listStyleType(value: CssValue, ...values: CssValue[]): Call;
+		listStyleType(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`list-style-type`** CSS property sets the marker (such as a disc, character, or custom counter style) of a list item element.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style-type
 		 */
-		listStyleType(values: CssValue[][]): Call;
+		listStyleType(values: CssValue[][]): Command;
 		/**
 		 * The **`list-style-type`** CSS property sets the marker (such as a disc, character, or custom counter style) of a list item element.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style-type
 		 */
-		"list-style-type"(value: CssValue, ...values: CssValue[]): Call;
+		"list-style-type"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`list-style-type`** CSS property sets the marker (such as a disc, character, or custom counter style) of a list item element.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style-type
 		 */
-		"list-style-type"(values: CssValue[][]): Call;
+		"list-style-type"(values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overscroll-behavior
 		 */
-		overscrollBehavior(value: CssValue, ...values: CssValue[]): Call;
+		overscrollBehavior(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`overscroll-behavior`** CSS property sets what a browser does when reaching the boundary of a scrolling area. It's a shorthand for `overscroll-behavior-x` and `overscroll-behavior-y`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overscroll-behavior
 		 */
-		overscrollBehavior(values: CssValue[][]): Call;
+		overscrollBehavior(values: CssValue[][]): Command;
 		/**
 		 * The **`overscroll-behavior`** CSS property sets what a browser does when reaching the boundary of a scrolling area. It's a shorthand for `overscroll-behavior-x` and `overscroll-behavior-y`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overscroll-behavior
 		 */
-		"overscroll-behavior"(value: CssValue, ...values: CssValue[]): Call;
+		"overscroll-behavior"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`overscroll-behavior`** CSS property sets what a browser does when reaching the boundary of a scrolling area. It's a shorthand for `overscroll-behavior-x` and `overscroll-behavior-y`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overscroll-behavior
 		 */
-		"overscroll-behavior"(values: CssValue[][]): Call;
+		"overscroll-behavior"(values: CssValue[][]): Command;
 	}
 }

@@ -8,7 +8,7 @@ namespace Reflex.SS
 	export class Rule
 	{
 		readonly selectorFragments: string[] = [];
-		readonly declarations: Call[] = [];
+		readonly declarations: Command[] = [];
 		readonly children: Rule[] = [];
 		readonly containers: Rule[] = [];
 		

@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transform
 		 */
-		transform(value: CssValue, ...values: CssValue[]): Call;
+		transform(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`transform`** CSS property lets you rotate, scale, skew, or translate an element. It modifies the coordinate space of the CSS visual formatting model.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transform
 		 */
-		transform(values: CssValue[][]): Call;
+		transform(values: CssValue[][]): Command;
 	}
 }

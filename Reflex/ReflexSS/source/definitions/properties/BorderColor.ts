@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-color
 		 */
-		borderColor(value: CssValue, ...values: CssValue[]): Call;
+		borderColor(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-color`** shorthand CSS property sets the color of all sides of an element's border.
 		 * 
@@ -22,7 +22,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-color
 		 */
-		borderColor(values: CssValue[][]): Call;
+		borderColor(values: CssValue[][]): Command;
 		/**
 		 * The **`border-color`** shorthand CSS property sets the color of all sides of an element's border.
 		 * 
@@ -32,7 +32,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-color
 		 */
-		"border-color"(value: CssValue, ...values: CssValue[]): Call;
+		"border-color"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-color`** shorthand CSS property sets the color of all sides of an element's border.
 		 * 
@@ -42,6 +42,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-color
 		 */
-		"border-color"(values: CssValue[][]): Call;
+		"border-color"(values: CssValue[][]): Command;
 	}
 }

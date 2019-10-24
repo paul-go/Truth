@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/writing-mode
 		 */
-		writingMode(value: CssValue, ...values: CssValue[]): Call;
+		writingMode(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`writing-mode`** CSS property sets whether lines of text are laid out horizontally or vertically, as well as the direction in which blocks progress.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/writing-mode
 		 */
-		writingMode(values: CssValue[][]): Call;
+		writingMode(values: CssValue[][]): Command;
 		/**
 		 * The **`writing-mode`** CSS property sets whether lines of text are laid out horizontally or vertically, as well as the direction in which blocks progress.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/writing-mode
 		 */
-		"writing-mode"(value: CssValue, ...values: CssValue[]): Call;
+		"writing-mode"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`writing-mode`** CSS property sets whether lines of text are laid out horizontally or vertically, as well as the direction in which blocks progress.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/writing-mode
 		 */
-		"writing-mode"(values: CssValue[][]): Call;
+		"writing-mode"(values: CssValue[][]): Command;
 	}
 }

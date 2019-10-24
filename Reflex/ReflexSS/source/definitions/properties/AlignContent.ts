@@ -29,7 +29,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/align-content
 		 */
-		alignContent(value: CssValue, ...values: CssValue[]): Call;
+		alignContent(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The CSS **`align-content`** property sets how the browser distributes space between and around content items along the cross-axis of a flexbox container, and the main-axis of a grid container.
 		 * 
@@ -56,7 +56,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/align-content
 		 */
-		alignContent(values: CssValue[][]): Call;
+		alignContent(values: CssValue[][]): Command;
 		/**
 		 * The CSS **`align-content`** property sets how the browser distributes space between and around content items along the cross-axis of a flexbox container, and the main-axis of a grid container.
 		 * 
@@ -83,7 +83,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/align-content
 		 */
-		"align-content"(value: CssValue, ...values: CssValue[]): Call;
+		"align-content"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The CSS **`align-content`** property sets how the browser distributes space between and around content items along the cross-axis of a flexbox container, and the main-axis of a grid container.
 		 * 
@@ -110,6 +110,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/align-content
 		 */
-		"align-content"(values: CssValue[][]): Call;
+		"align-content"(values: CssValue[][]): Command;
 	}
 }

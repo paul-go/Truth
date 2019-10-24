@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/clear
 		 */
-		clear(value: CssValue, ...values: CssValue[]): Call;
+		clear(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`clear`** CSS property sets whether an element must be moved below (cleared) floating elements that precede it. The `clear` property applies to floating and non-floating elements.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/clear
 		 */
-		clear(values: CssValue[][]): Call;
+		clear(values: CssValue[][]): Command;
 	}
 }

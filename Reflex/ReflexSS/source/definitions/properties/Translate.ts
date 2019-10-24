@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/translate
 		 */
-		translate(value: CssValue, ...values: CssValue[]): Call;
+		translate(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`translate`** CSS property allows you to specify translation transforms individually and independantly of the `transform` property. This maps better to typical user interface usage, and saves having to remember the exact order of transform functions to specify in the `transform` value.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/translate
 		 */
-		translate(values: CssValue[][]): Call;
+		translate(values: CssValue[][]): Command;
 	}
 }

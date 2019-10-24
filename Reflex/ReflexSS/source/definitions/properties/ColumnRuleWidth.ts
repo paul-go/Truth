@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-width
 		 */
-		columnRuleWidth(value: CssValue, ...values: CssValue[]): Call;
+		columnRuleWidth(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`column-rule-width`** CSS property sets the width of the rule (line) drawn between columns in a multi-column layout.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-width
 		 */
-		columnRuleWidth(values: CssValue[][]): Call;
+		columnRuleWidth(values: CssValue[][]): Command;
 		/**
 		 * The **`column-rule-width`** CSS property sets the width of the rule (line) drawn between columns in a multi-column layout.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-width
 		 */
-		"column-rule-width"(value: CssValue, ...values: CssValue[]): Call;
+		"column-rule-width"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`column-rule-width`** CSS property sets the width of the rule (line) drawn between columns in a multi-column layout.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-width
 		 */
-		"column-rule-width"(values: CssValue[][]): Call;
+		"column-rule-width"(values: CssValue[][]): Command;
 	}
 }

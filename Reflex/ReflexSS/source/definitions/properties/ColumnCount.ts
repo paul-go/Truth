@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-count
 		 */
-		columnCount(value: CssValue, ...values: CssValue[]): Call;
+		columnCount(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`column-count`** CSS property breaks an element's content into the specified number of columns.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-count
 		 */
-		columnCount(values: CssValue[][]): Call;
+		columnCount(values: CssValue[][]): Command;
 		/**
 		 * The **`column-count`** CSS property breaks an element's content into the specified number of columns.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-count
 		 */
-		"column-count"(value: CssValue, ...values: CssValue[]): Call;
+		"column-count"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`column-count`** CSS property breaks an element's content into the specified number of columns.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-count
 		 */
-		"column-count"(values: CssValue[][]): Call;
+		"column-count"(values: CssValue[][]): Command;
 	}
 }

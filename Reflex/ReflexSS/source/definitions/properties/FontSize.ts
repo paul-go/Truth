@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-size
 		 */
-		fontSize(value: CssValue, ...values: CssValue[]): Call;
+		fontSize(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-size`** CSS property sets the size of the font. This property is also used to compute the size of `em`, `ex`, and other relative `<length>` units.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-size
 		 */
-		fontSize(values: CssValue[][]): Call;
+		fontSize(values: CssValue[][]): Command;
 		/**
 		 * The **`font-size`** CSS property sets the size of the font. This property is also used to compute the size of `em`, `ex`, and other relative `<length>` units.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-size
 		 */
-		"font-size"(value: CssValue, ...values: CssValue[]): Call;
+		"font-size"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-size`** CSS property sets the size of the font. This property is also used to compute the size of `em`, `ex`, and other relative `<length>` units.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-size
 		 */
-		"font-size"(values: CssValue[][]): Call;
+		"font-size"(values: CssValue[][]): Command;
 	}
 }

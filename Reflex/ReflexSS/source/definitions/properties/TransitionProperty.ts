@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-property
 		 */
-		transitionProperty(value: CssValue, ...values: CssValue[]): Call;
+		transitionProperty(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`transition-property`** CSS property sets the CSS properties to which a transition effect should be applied.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-property
 		 */
-		transitionProperty(values: CssValue[][]): Call;
+		transitionProperty(values: CssValue[][]): Command;
 		/**
 		 * The **`transition-property`** CSS property sets the CSS properties to which a transition effect should be applied.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-property
 		 */
-		"transition-property"(value: CssValue, ...values: CssValue[]): Call;
+		"transition-property"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`transition-property`** CSS property sets the CSS properties to which a transition effect should be applied.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-property
 		 */
-		"transition-property"(values: CssValue[][]): Call;
+		"transition-property"(values: CssValue[][]): Command;
 	}
 }

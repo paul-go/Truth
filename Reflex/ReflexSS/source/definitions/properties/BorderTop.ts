@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top
 		 */
-		borderTop(value: CssValue, ...values: CssValue[]): Call;
+		borderTop(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-top`** CSS property is a shorthand that sets the values of `border-top-width`, `border-top-style` and `border-top-color`. These properties set an element's top border.
 		 * 
@@ -22,7 +22,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top
 		 */
-		borderTop(values: CssValue[][]): Call;
+		borderTop(values: CssValue[][]): Command;
 		/**
 		 * The **`border-top`** CSS property is a shorthand that sets the values of `border-top-width`, `border-top-style` and `border-top-color`. These properties set an element's top border.
 		 * 
@@ -32,7 +32,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top
 		 */
-		"border-top"(value: CssValue, ...values: CssValue[]): Call;
+		"border-top"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-top`** CSS property is a shorthand that sets the values of `border-top-width`, `border-top-style` and `border-top-color`. These properties set an element's top border.
 		 * 
@@ -42,6 +42,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top
 		 */
-		"border-top"(values: CssValue[][]): Call;
+		"border-top"(values: CssValue[][]): Command;
 	}
 }

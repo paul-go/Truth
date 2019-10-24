@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-indent
 		 */
-		textIndent(value: CssValue, ...values: CssValue[]): Call;
+		textIndent(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-indent`** CSS property sets the length of empty space (indentation) that is put before lines of text in a block.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-indent
 		 */
-		textIndent(values: CssValue[][]): Call;
+		textIndent(values: CssValue[][]): Command;
 		/**
 		 * The **`text-indent`** CSS property sets the length of empty space (indentation) that is put before lines of text in a block.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-indent
 		 */
-		"text-indent"(value: CssValue, ...values: CssValue[]): Call;
+		"text-indent"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-indent`** CSS property sets the length of empty space (indentation) that is put before lines of text in a block.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-indent
 		 */
-		"text-indent"(values: CssValue[][]): Call;
+		"text-indent"(values: CssValue[][]): Command;
 	}
 }

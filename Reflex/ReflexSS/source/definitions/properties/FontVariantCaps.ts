@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-caps
 		 */
-		fontVariantCaps(value: CssValue, ...values: CssValue[]): Call;
+		fontVariantCaps(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-variant-caps`** CSS property controls the use of alternate glyphs for capital letters.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-caps
 		 */
-		fontVariantCaps(values: CssValue[][]): Call;
+		fontVariantCaps(values: CssValue[][]): Command;
 		/**
 		 * The **`font-variant-caps`** CSS property controls the use of alternate glyphs for capital letters.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-caps
 		 */
-		"font-variant-caps"(value: CssValue, ...values: CssValue[]): Call;
+		"font-variant-caps"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-variant-caps`** CSS property controls the use of alternate glyphs for capital letters.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-caps
 		 */
-		"font-variant-caps"(values: CssValue[][]): Call;
+		"font-variant-caps"(values: CssValue[][]): Command;
 	}
 }

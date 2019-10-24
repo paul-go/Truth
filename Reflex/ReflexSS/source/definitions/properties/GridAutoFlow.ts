@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-auto-flow
 		 */
-		gridAutoFlow(value: CssValue, ...values: CssValue[]): Call;
+		gridAutoFlow(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`grid-auto-flow`** CSS property controls how the auto-placement algorithm works, specifying exactly how auto-placed items get flowed into the grid.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-auto-flow
 		 */
-		gridAutoFlow(values: CssValue[][]): Call;
+		gridAutoFlow(values: CssValue[][]): Command;
 		/**
 		 * The **`grid-auto-flow`** CSS property controls how the auto-placement algorithm works, specifying exactly how auto-placed items get flowed into the grid.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-auto-flow
 		 */
-		"grid-auto-flow"(value: CssValue, ...values: CssValue[]): Call;
+		"grid-auto-flow"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`grid-auto-flow`** CSS property controls how the auto-placement algorithm works, specifying exactly how auto-placed items get flowed into the grid.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-auto-flow
 		 */
-		"grid-auto-flow"(values: CssValue[][]): Call;
+		"grid-auto-flow"(values: CssValue[][]): Command;
 	}
 }

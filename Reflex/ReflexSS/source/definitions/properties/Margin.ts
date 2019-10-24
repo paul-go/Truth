@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin
 		 */
-		margin(value: CssValue, ...values: CssValue[]): Call;
+		margin(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`margin`** CSS property sets the margin area on all four sides of an element. It is a shorthand for `margin-top`, `margin-right`, `margin-bottom`, and `margin-left`.
 		 * 
@@ -22,6 +22,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin
 		 */
-		margin(values: CssValue[][]): Call;
+		margin(values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-stop
 		 */
-		scrollSnapStop(value: CssValue, ...values: CssValue[]): Call;
+		scrollSnapStop(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`scroll-snap-stop`** CSS property defines whether the scroll container is allowed to "pass over" possible snap positions.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-stop
 		 */
-		scrollSnapStop(values: CssValue[][]): Call;
+		scrollSnapStop(values: CssValue[][]): Command;
 		/**
 		 * The **`scroll-snap-stop`** CSS property defines whether the scroll container is allowed to "pass over" possible snap positions.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-stop
 		 */
-		"scroll-snap-stop"(value: CssValue, ...values: CssValue[]): Call;
+		"scroll-snap-stop"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`scroll-snap-stop`** CSS property defines whether the scroll container is allowed to "pass over" possible snap positions.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-stop
 		 */
-		"scroll-snap-stop"(values: CssValue[][]): Call;
+		"scroll-snap-stop"(values: CssValue[][]): Command;
 	}
 }

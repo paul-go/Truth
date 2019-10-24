@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-auto-rows
 		 */
-		gridAutoRows(value: CssValue, ...values: CssValue[]): Call;
+		gridAutoRows(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`grid-auto-rows`** CSS property specifies the size of an implicitly-created grid row track.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-auto-rows
 		 */
-		gridAutoRows(values: CssValue[][]): Call;
+		gridAutoRows(values: CssValue[][]): Command;
 		/**
 		 * The **`grid-auto-rows`** CSS property specifies the size of an implicitly-created grid row track.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-auto-rows
 		 */
-		"grid-auto-rows"(value: CssValue, ...values: CssValue[]): Call;
+		"grid-auto-rows"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`grid-auto-rows`** CSS property specifies the size of an implicitly-created grid row track.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-auto-rows
 		 */
-		"grid-auto-rows"(values: CssValue[][]): Call;
+		"grid-auto-rows"(values: CssValue[][]): Command;
 	}
 }

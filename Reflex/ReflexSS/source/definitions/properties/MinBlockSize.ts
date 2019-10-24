@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/min-block-size
 		 */
-		minBlockSize(value: CssValue, ...values: CssValue[]): Call;
+		minBlockSize(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`min-block-size`** CSS property defines the minimum horizontal or vertical size of an element's block, depending on its writing mode. It corresponds to either the `min-width` or the `min-height` property, depending on the value of `writing-mode`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/min-block-size
 		 */
-		minBlockSize(values: CssValue[][]): Call;
+		minBlockSize(values: CssValue[][]): Command;
 		/**
 		 * The **`min-block-size`** CSS property defines the minimum horizontal or vertical size of an element's block, depending on its writing mode. It corresponds to either the `min-width` or the `min-height` property, depending on the value of `writing-mode`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/min-block-size
 		 */
-		"min-block-size"(value: CssValue, ...values: CssValue[]): Call;
+		"min-block-size"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`min-block-size`** CSS property defines the minimum horizontal or vertical size of an element's block, depending on its writing mode. It corresponds to either the `min-width` or the `min-height` property, depending on the value of `writing-mode`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/min-block-size
 		 */
-		"min-block-size"(values: CssValue[][]): Call;
+		"min-block-size"(values: CssValue[][]): Command;
 	}
 }

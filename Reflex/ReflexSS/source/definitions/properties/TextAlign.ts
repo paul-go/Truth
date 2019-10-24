@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-align
 		 */
-		textAlign(value: CssValue, ...values: CssValue[]): Call;
+		textAlign(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-align`** CSS property sets the horizontal alignment of an inline or table-cell box. This means it works like `vertical-align` but in the horizontal direction.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-align
 		 */
-		textAlign(values: CssValue[][]): Call;
+		textAlign(values: CssValue[][]): Command;
 		/**
 		 * The **`text-align`** CSS property sets the horizontal alignment of an inline or table-cell box. This means it works like `vertical-align` but in the horizontal direction.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-align
 		 */
-		"text-align"(value: CssValue, ...values: CssValue[]): Call;
+		"text-align"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-align`** CSS property sets the horizontal alignment of an inline or table-cell box. This means it works like `vertical-align` but in the horizontal direction.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-align
 		 */
-		"text-align"(values: CssValue[][]): Call;
+		"text-align"(values: CssValue[][]): Command;
 	}
 }

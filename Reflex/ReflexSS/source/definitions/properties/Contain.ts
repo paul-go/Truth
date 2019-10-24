@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/contain
 		 */
-		contain(value: CssValue, ...values: CssValue[]): Call;
+		contain(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`contain`** CSS property allows an author to indicate that an element and its contents are, as much as possible, _independent_ of the rest of the document tree. This allows the browser to recalculate layout, style, paint, size, or any combination of them for a limited area of the DOM and not the entire page.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/contain
 		 */
-		contain(values: CssValue[][]): Call;
+		contain(values: CssValue[][]): Command;
 	}
 }

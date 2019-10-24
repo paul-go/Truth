@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-color
 		 */
-		textDecorationColor(value: CssValue, ...values: CssValue[]): Call;
+		textDecorationColor(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-decoration-color`** CSS property sets the color of decorations added to text by `text-decoration-line`.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-color
 		 */
-		textDecorationColor(values: CssValue[][]): Call;
+		textDecorationColor(values: CssValue[][]): Command;
 		/**
 		 * The **`text-decoration-color`** CSS property sets the color of decorations added to text by `text-decoration-line`.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-color
 		 */
-		"text-decoration-color"(value: CssValue, ...values: CssValue[]): Call;
+		"text-decoration-color"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-decoration-color`** CSS property sets the color of decorations added to text by `text-decoration-line`.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-color
 		 */
-		"text-decoration-color"(values: CssValue[][]): Call;
+		"text-decoration-color"(values: CssValue[][]): Command;
 	}
 }

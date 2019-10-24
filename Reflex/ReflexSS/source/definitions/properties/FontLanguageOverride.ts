@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-language-override
 		 */
-		fontLanguageOverride(value: CssValue, ...values: CssValue[]): Call;
+		fontLanguageOverride(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-language-override`** CSS property controls the use of language-specific glyphs in a typeface.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-language-override
 		 */
-		fontLanguageOverride(values: CssValue[][]): Call;
+		fontLanguageOverride(values: CssValue[][]): Command;
 		/**
 		 * The **`font-language-override`** CSS property controls the use of language-specific glyphs in a typeface.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-language-override
 		 */
-		"font-language-override"(value: CssValue, ...values: CssValue[]): Call;
+		"font-language-override"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-language-override`** CSS property controls the use of language-specific glyphs in a typeface.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-language-override
 		 */
-		"font-language-override"(values: CssValue[][]): Call;
+		"font-language-override"(values: CssValue[][]): Command;
 	}
 }

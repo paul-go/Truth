@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-duration
 		 */
-		transitionDuration(value: CssValue, ...values: CssValue[]): Call;
+		transitionDuration(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`transition-duration`** CSS property sets the length of time a transition animation should take to complete. By default, the value is `0s`, meaning that no animation will occur.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-duration
 		 */
-		transitionDuration(values: CssValue[][]): Call;
+		transitionDuration(values: CssValue[][]): Command;
 		/**
 		 * The **`transition-duration`** CSS property sets the length of time a transition animation should take to complete. By default, the value is `0s`, meaning that no animation will occur.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-duration
 		 */
-		"transition-duration"(value: CssValue, ...values: CssValue[]): Call;
+		"transition-duration"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`transition-duration`** CSS property sets the length of time a transition animation should take to complete. By default, the value is `0s`, meaning that no animation will occur.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-duration
 		 */
-		"transition-duration"(values: CssValue[][]): Call;
+		"transition-duration"(values: CssValue[][]): Command;
 	}
 }

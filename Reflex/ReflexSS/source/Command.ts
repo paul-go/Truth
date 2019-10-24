@@ -2,18 +2,18 @@
 namespace Reflex.SS
 {
 	/** */
-	export type CallValue =
+	export type CommandValue =
 		string |
 		number | 
-		Call | 
+		Command | 
 		Unit | 
-		(string | number | Call | Unit)[];
+		(string | number | Command | Unit)[];
 	
 	/**
 	 * A class that represents either a CSS declaration, such as "color: red",
 	 * or a CSS function call, such as "rgb(1, 2, 3)".
 	 */
-	export class Call
+	export class Command
 	{
 		constructor(
 			/**
@@ -25,7 +25,7 @@ namespace Reflex.SS
 			 * Stores the values that were passed in the call to the function,
 			 * for example "center" in the case of ss.textAlign("center").
 			 */
-			readonly values: CallValue[] = [])
+			readonly values: CommandValue[] = [])
 		{
 			const chars = callingName.split("");
 			for (let i = chars.length; i-- > 0;)
@@ -75,7 +75,7 @@ namespace Reflex.SS
 				else if (val instanceof Unit)
 					return val.toString();
 				
-				else if (val instanceof Call)
+				else if (val instanceof Command)
 					return val.toFunctionString();
 				
 				return "";

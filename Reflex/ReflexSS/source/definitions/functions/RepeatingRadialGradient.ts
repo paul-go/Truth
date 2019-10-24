@@ -4,12 +4,12 @@ declare namespace Reflex.SS
 	export interface Namespace
 	{
 		/** */
-		repeatingRadialGradient(value: CssValue, ...values: CssValue[]): Call;
+		repeatingRadialGradient(value: CssValue, ...values: CssValue[]): Command;
 		/** */
-		repeatingRadialGradient(values: CssValue[][]): Call;
+		repeatingRadialGradient(values: CssValue[][]): Command;
 		/** */
-		"repeating-radial-gradient"(value: CssValue, ...values: CssValue[]): Call;
+		"repeating-radial-gradient"(value: CssValue, ...values: CssValue[]): Command;
 		/** */
-		"repeating-radial-gradient"(values: CssValue[][]): Call;
+		"repeating-radial-gradient"(values: CssValue[][]): Command;
 	}
 }

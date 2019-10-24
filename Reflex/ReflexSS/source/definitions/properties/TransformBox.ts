@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transform-box
 		 */
-		transformBox(value: CssValue, ...values: CssValue[]): Call;
+		transformBox(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`transform-box`** CSS property defines the layout box to which the `transform` and `transform-origin` properties relate.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transform-box
 		 */
-		transformBox(values: CssValue[][]): Call;
+		transformBox(values: CssValue[][]): Command;
 		/**
 		 * The **`transform-box`** CSS property defines the layout box to which the `transform` and `transform-origin` properties relate.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transform-box
 		 */
-		"transform-box"(value: CssValue, ...values: CssValue[]): Call;
+		"transform-box"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`transform-box`** CSS property defines the layout box to which the `transform` and `transform-origin` properties relate.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transform-box
 		 */
-		"transform-box"(values: CssValue[][]): Call;
+		"transform-box"(values: CssValue[][]): Command;
 	}
 }

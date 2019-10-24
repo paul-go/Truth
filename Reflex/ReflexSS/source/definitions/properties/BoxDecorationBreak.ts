@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/box-decoration-break
 		 */
-		boxDecorationBreak(value: CssValue, ...values: CssValue[]): Call;
+		boxDecorationBreak(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`box-decoration-break`** CSS property specifies how an element's fragments should be rendered when broken across multiple lines, columns, or pages.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/box-decoration-break
 		 */
-		boxDecorationBreak(values: CssValue[][]): Call;
+		boxDecorationBreak(values: CssValue[][]): Command;
 		/**
 		 * The **`box-decoration-break`** CSS property specifies how an element's fragments should be rendered when broken across multiple lines, columns, or pages.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/box-decoration-break
 		 */
-		"box-decoration-break"(value: CssValue, ...values: CssValue[]): Call;
+		"box-decoration-break"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`box-decoration-break`** CSS property specifies how an element's fragments should be rendered when broken across multiple lines, columns, or pages.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/box-decoration-break
 		 */
-		"box-decoration-break"(values: CssValue[][]): Call;
+		"box-decoration-break"(values: CssValue[][]): Command;
 	}
 }

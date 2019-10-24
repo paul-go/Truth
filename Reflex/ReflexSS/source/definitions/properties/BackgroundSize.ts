@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-size
 		 */
-		backgroundSize(value: CssValue, ...values: CssValue[]): Call;
+		backgroundSize(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`background-size`** CSS property sets the size of the element's background image. The image can be left to its natural size, stretched, or constrained to fit the available space.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-size
 		 */
-		backgroundSize(values: CssValue[][]): Call;
+		backgroundSize(values: CssValue[][]): Command;
 		/**
 		 * The **`background-size`** CSS property sets the size of the element's background image. The image can be left to its natural size, stretched, or constrained to fit the available space.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-size
 		 */
-		"background-size"(value: CssValue, ...values: CssValue[]): Call;
+		"background-size"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`background-size`** CSS property sets the size of the element's background image. The image can be left to its natural size, stretched, or constrained to fit the available space.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-size
 		 */
-		"background-size"(values: CssValue[][]): Call;
+		"background-size"(values: CssValue[][]): Command;
 	}
 }

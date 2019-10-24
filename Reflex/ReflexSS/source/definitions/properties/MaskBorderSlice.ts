@@ -8,24 +8,24 @@ declare namespace Reflex.SS
 		 * 
 		 * **Initial value**: `0`
 		 */
-		maskBorderSlice(value: CssValue, ...values: CssValue[]): Call;
+		maskBorderSlice(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-border-slice`** CSS property divides the image set by `mask-border-source` into regions. These regions are used to form the components of an element's mask border.
 		 * 
 		 * **Initial value**: `0`
 		 */
-		maskBorderSlice(values: CssValue[][]): Call;
+		maskBorderSlice(values: CssValue[][]): Command;
 		/**
 		 * The **`mask-border-slice`** CSS property divides the image set by `mask-border-source` into regions. These regions are used to form the components of an element's mask border.
 		 * 
 		 * **Initial value**: `0`
 		 */
-		"mask-border-slice"(value: CssValue, ...values: CssValue[]): Call;
+		"mask-border-slice"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-border-slice`** CSS property divides the image set by `mask-border-source` into regions. These regions are used to form the components of an element's mask border.
 		 * 
 		 * **Initial value**: `0`
 		 */
-		"mask-border-slice"(values: CssValue[][]): Call;
+		"mask-border-slice"(values: CssValue[][]): Command;
 	}
 }

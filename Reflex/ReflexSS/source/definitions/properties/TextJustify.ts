@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-justify
 		 */
-		textJustify(value: CssValue, ...values: CssValue[]): Call;
+		textJustify(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-justify`** CSS property sets what type of justification should be applied to text when `text-align``: justify;` is set on an element.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-justify
 		 */
-		textJustify(values: CssValue[][]): Call;
+		textJustify(values: CssValue[][]): Command;
 		/**
 		 * The **`text-justify`** CSS property sets what type of justification should be applied to text when `text-align``: justify;` is set on an element.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-justify
 		 */
-		"text-justify"(value: CssValue, ...values: CssValue[]): Call;
+		"text-justify"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-justify`** CSS property sets what type of justification should be applied to text when `text-align``: justify;` is set on an element.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-justify
 		 */
-		"text-justify"(values: CssValue[][]): Call;
+		"text-justify"(values: CssValue[][]): Command;
 	}
 }

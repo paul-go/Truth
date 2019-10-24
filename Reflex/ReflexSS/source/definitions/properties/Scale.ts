@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scale
 		 */
-		scale(value: CssValue, ...values: CssValue[]): Call;
+		scale(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`scale`** CSS property allows you to specify scale transforms individually and independantly of the `transform` property. This maps better to typical user interface usage, and saves having to remember the exact order of transform functions to specify in the `transform` value.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scale
 		 */
-		scale(values: CssValue[][]): Call;
+		scale(values: CssValue[][]): Command;
 	}
 }

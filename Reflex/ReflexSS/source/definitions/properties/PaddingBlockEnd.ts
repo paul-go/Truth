@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-block-end
 		 */
-		paddingBlockEnd(value: CssValue, ...values: CssValue[]): Call;
+		paddingBlockEnd(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`padding-block-end`** CSS property defines the logical block end padding of an element, which maps to a physical padding depending on the element's writing mode, directionality, and text orientation. It corresponds to the `padding-top`, `padding-right`, `padding-bottom`, or `padding-left` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-block-end
 		 */
-		paddingBlockEnd(values: CssValue[][]): Call;
+		paddingBlockEnd(values: CssValue[][]): Command;
 		/**
 		 * The **`padding-block-end`** CSS property defines the logical block end padding of an element, which maps to a physical padding depending on the element's writing mode, directionality, and text orientation. It corresponds to the `padding-top`, `padding-right`, `padding-bottom`, or `padding-left` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-block-end
 		 */
-		"padding-block-end"(value: CssValue, ...values: CssValue[]): Call;
+		"padding-block-end"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`padding-block-end`** CSS property defines the logical block end padding of an element, which maps to a physical padding depending on the element's writing mode, directionality, and text orientation. It corresponds to the `padding-top`, `padding-right`, `padding-bottom`, or `padding-left` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-block-end
 		 */
-		"padding-block-end"(values: CssValue[][]): Call;
+		"padding-block-end"(values: CssValue[][]): Command;
 	}
 }

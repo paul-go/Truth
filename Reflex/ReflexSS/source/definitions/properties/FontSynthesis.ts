@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-synthesis
 		 */
-		fontSynthesis(value: CssValue, ...values: CssValue[]): Call;
+		fontSynthesis(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-synthesis`** CSS property controls which missing typefaces, bold or italic, may be synthesized by the browser.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-synthesis
 		 */
-		fontSynthesis(values: CssValue[][]): Call;
+		fontSynthesis(values: CssValue[][]): Command;
 		/**
 		 * The **`font-synthesis`** CSS property controls which missing typefaces, bold or italic, may be synthesized by the browser.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-synthesis
 		 */
-		"font-synthesis"(value: CssValue, ...values: CssValue[]): Call;
+		"font-synthesis"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-synthesis`** CSS property controls which missing typefaces, bold or italic, may be synthesized by the browser.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-synthesis
 		 */
-		"font-synthesis"(values: CssValue[][]): Call;
+		"font-synthesis"(values: CssValue[][]): Command;
 	}
 }

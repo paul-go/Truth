@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-style
 		 */
-		columnRuleStyle(value: CssValue, ...values: CssValue[]): Call;
+		columnRuleStyle(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`column-rule-style`** CSS property sets the style of the line drawn between columns in a multi-column layout.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-style
 		 */
-		columnRuleStyle(values: CssValue[][]): Call;
+		columnRuleStyle(values: CssValue[][]): Command;
 		/**
 		 * The **`column-rule-style`** CSS property sets the style of the line drawn between columns in a multi-column layout.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-style
 		 */
-		"column-rule-style"(value: CssValue, ...values: CssValue[]): Call;
+		"column-rule-style"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`column-rule-style`** CSS property sets the style of the line drawn between columns in a multi-column layout.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-style
 		 */
-		"column-rule-style"(values: CssValue[][]): Call;
+		"column-rule-style"(values: CssValue[][]): Command;
 	}
 }

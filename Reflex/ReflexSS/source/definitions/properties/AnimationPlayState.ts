@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-play-state
 		 */
-		animationPlayState(value: CssValue, ...values: CssValue[]): Call;
+		animationPlayState(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`animation-play-state`** CSS property sets whether an animation is running or paused.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-play-state
 		 */
-		animationPlayState(values: CssValue[][]): Call;
+		animationPlayState(values: CssValue[][]): Command;
 		/**
 		 * The **`animation-play-state`** CSS property sets whether an animation is running or paused.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-play-state
 		 */
-		"animation-play-state"(value: CssValue, ...values: CssValue[]): Call;
+		"animation-play-state"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`animation-play-state`** CSS property sets whether an animation is running or paused.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-play-state
 		 */
-		"animation-play-state"(values: CssValue[][]): Call;
+		"animation-play-state"(values: CssValue[][]): Command;
 	}
 }

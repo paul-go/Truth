@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-size-adjust
 		 */
-		textSizeAdjust(value: CssValue, ...values: CssValue[]): Call;
+		textSizeAdjust(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-size-adjust`** CSS property controls the text inflation algorithm used on some smartphones and tablets. Other browsers will ignore this property.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-size-adjust
 		 */
-		textSizeAdjust(values: CssValue[][]): Call;
+		textSizeAdjust(values: CssValue[][]): Command;
 		/**
 		 * The **`text-size-adjust`** CSS property controls the text inflation algorithm used on some smartphones and tablets. Other browsers will ignore this property.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-size-adjust
 		 */
-		"text-size-adjust"(value: CssValue, ...values: CssValue[]): Call;
+		"text-size-adjust"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-size-adjust`** CSS property controls the text inflation algorithm used on some smartphones and tablets. Other browsers will ignore this property.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-size-adjust
 		 */
-		"text-size-adjust"(values: CssValue[][]): Call;
+		"text-size-adjust"(values: CssValue[][]): Command;
 	}
 }

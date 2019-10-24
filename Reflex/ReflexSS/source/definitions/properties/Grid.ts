@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid
 		 */
-		grid(value: CssValue, ...values: CssValue[]): Call;
+		grid(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`grid`** CSS property is a shorthand property that sets all of the explicit grid properties (`grid-template-rows`, `grid-template-columns`, and `grid-template-areas`), and all the implicit grid properties (`grid-auto-rows`, `grid-auto-columns`, and `grid-auto-flow`), in a single declaration.
 		 * 
@@ -22,6 +22,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid
 		 */
-		grid(values: CssValue[][]): Call;
+		grid(values: CssValue[][]): Command;
 	}
 }

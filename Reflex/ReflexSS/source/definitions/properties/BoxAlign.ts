@@ -10,7 +10,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		boxAlign(value: CssValue, ...values: CssValue[]): Call;
+		boxAlign(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`box-align`** CSS property specifies how an element aligns its contents across its layout in a perpendicular direction. The effect of the property is only visible if there is extra space in the box.
 		 * 
@@ -18,7 +18,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		boxAlign(values: CssValue[][]): Call;
+		boxAlign(values: CssValue[][]): Command;
 		/**
 		 * The **`box-align`** CSS property specifies how an element aligns its contents across its layout in a perpendicular direction. The effect of the property is only visible if there is extra space in the box.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		"box-align"(value: CssValue, ...values: CssValue[]): Call;
+		"box-align"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`box-align`** CSS property specifies how an element aligns its contents across its layout in a perpendicular direction. The effect of the property is only visible if there is extra space in the box.
 		 * 
@@ -34,6 +34,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		"box-align"(values: CssValue[][]): Call;
+		"box-align"(values: CssValue[][]): Command;
 	}
 }

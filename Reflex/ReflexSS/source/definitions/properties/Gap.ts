@@ -35,7 +35,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/gap
 		 */
-		gap(value: CssValue, ...values: CssValue[]): Call;
+		gap(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`gap`** CSS property sets the gaps (gutters) between rows and columns. It is a shorthand for `row-gap` and `column-gap`.
 		 * 
@@ -68,6 +68,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/gap
 		 */
-		gap(values: CssValue[][]): Call;
+		gap(values: CssValue[][]): Command;
 	}
 }

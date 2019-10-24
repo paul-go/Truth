@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-delay
 		 */
-		animationDelay(value: CssValue, ...values: CssValue[]): Call;
+		animationDelay(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`animation-delay`** CSS property sets when an animation starts. The animation can start later, immediately from its beginning, or immediately and partway through the animation.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-delay
 		 */
-		animationDelay(values: CssValue[][]): Call;
+		animationDelay(values: CssValue[][]): Command;
 		/**
 		 * The **`animation-delay`** CSS property sets when an animation starts. The animation can start later, immediately from its beginning, or immediately and partway through the animation.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-delay
 		 */
-		"animation-delay"(value: CssValue, ...values: CssValue[]): Call;
+		"animation-delay"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`animation-delay`** CSS property sets when an animation starts. The animation can start later, immediately from its beginning, or immediately and partway through the animation.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-delay
 		 */
-		"animation-delay"(values: CssValue[][]): Call;
+		"animation-delay"(values: CssValue[][]): Command;
 	}
 }

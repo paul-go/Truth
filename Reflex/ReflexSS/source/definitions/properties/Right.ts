@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/right
 		 */
-		right(value: CssValue, ...values: CssValue[]): Call;
+		right(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`right`** CSS property participates in specifying the horizontal position of a _positioned element_. It has no effect on non-positioned elements.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/right
 		 */
-		right(values: CssValue[][]): Call;
+		right(values: CssValue[][]): Command;
 	}
 }

@@ -13,7 +13,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex
 		 */
-		flex(value: CssValue, ...values: CssValue[]): Call;
+		flex(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`flex`** CSS property sets how a flex item will grow or shrink to fit the space available in its flex container. It is a shorthand for `flex-grow`, `flex-shrink`, and `flex-basis`.
 		 * 
@@ -24,6 +24,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex
 		 */
-		flex(values: CssValue[][]): Call;
+		flex(values: CssValue[][]): Command;
 	}
 }

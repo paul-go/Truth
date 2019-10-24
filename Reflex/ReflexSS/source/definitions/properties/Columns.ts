@@ -13,7 +13,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/columns
 		 */
-		columns(value: CssValue, ...values: CssValue[]): Call;
+		columns(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`columns`** CSS property sets the column width and column count of an element.
 		 * 
@@ -24,6 +24,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/columns
 		 */
-		columns(values: CssValue[][]): Call;
+		columns(values: CssValue[][]): Command;
 	}
 }

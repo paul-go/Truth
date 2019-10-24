@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/hanging-punctuation
 		 */
-		hangingPunctuation(value: CssValue, ...values: CssValue[]): Call;
+		hangingPunctuation(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`hanging-punctuation`** CSS property specifies whether a punctuation mark should hang at the start or end of a line of text. Hanging punctuation may be placed outside the line box.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/hanging-punctuation
 		 */
-		hangingPunctuation(values: CssValue[][]): Call;
+		hangingPunctuation(values: CssValue[][]): Command;
 		/**
 		 * The **`hanging-punctuation`** CSS property specifies whether a punctuation mark should hang at the start or end of a line of text. Hanging punctuation may be placed outside the line box.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/hanging-punctuation
 		 */
-		"hanging-punctuation"(value: CssValue, ...values: CssValue[]): Call;
+		"hanging-punctuation"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`hanging-punctuation`** CSS property specifies whether a punctuation mark should hang at the start or end of a line of text. Hanging punctuation may be placed outside the line box.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/hanging-punctuation
 		 */
-		"hanging-punctuation"(values: CssValue[][]): Call;
+		"hanging-punctuation"(values: CssValue[][]): Command;
 	}
 }

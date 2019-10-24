@@ -13,7 +13,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-radius
 		 */
-		borderRadius(value: CssValue, ...values: CssValue[]): Call;
+		borderRadius(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-radius`** CSS property rounds the corners of an element's outer border edge. You can set a single radius to make circular corners, or two radii to make elliptical corners.
 		 * 
@@ -24,7 +24,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-radius
 		 */
-		borderRadius(values: CssValue[][]): Call;
+		borderRadius(values: CssValue[][]): Command;
 		/**
 		 * The **`border-radius`** CSS property rounds the corners of an element's outer border edge. You can set a single radius to make circular corners, or two radii to make elliptical corners.
 		 * 
@@ -35,7 +35,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-radius
 		 */
-		"border-radius"(value: CssValue, ...values: CssValue[]): Call;
+		"border-radius"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-radius`** CSS property rounds the corners of an element's outer border edge. You can set a single radius to make circular corners, or two radii to make elliptical corners.
 		 * 
@@ -46,6 +46,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-radius
 		 */
-		"border-radius"(values: CssValue[][]): Call;
+		"border-radius"(values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/counter-set
 		 */
-		counterSet(value: CssValue, ...values: CssValue[]): Call;
+		counterSet(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`counter-set`** CSS property sets a CSS counter to a given value. It manipulates the value of existing counters, and will only create new counters if there isn't already a counter of the given name on the element.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/counter-set
 		 */
-		counterSet(values: CssValue[][]): Call;
+		counterSet(values: CssValue[][]): Command;
 		/**
 		 * The **`counter-set`** CSS property sets a CSS counter to a given value. It manipulates the value of existing counters, and will only create new counters if there isn't already a counter of the given name on the element.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/counter-set
 		 */
-		"counter-set"(value: CssValue, ...values: CssValue[]): Call;
+		"counter-set"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`counter-set`** CSS property sets a CSS counter to a given value. It manipulates the value of existing counters, and will only create new counters if there isn't already a counter of the given name on the element.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/counter-set
 		 */
-		"counter-set"(values: CssValue[][]): Call;
+		"counter-set"(values: CssValue[][]): Command;
 	}
 }

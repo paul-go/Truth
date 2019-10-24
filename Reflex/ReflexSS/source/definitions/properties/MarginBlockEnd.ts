@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-block-end
 		 */
-		marginBlockEnd(value: CssValue, ...values: CssValue[]): Call;
+		marginBlockEnd(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`margin-block-end`** CSS property defines the logical block end margin of an element, which maps to a physical margin depending on the element's writing mode, directionality, and text orientation.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-block-end
 		 */
-		marginBlockEnd(values: CssValue[][]): Call;
+		marginBlockEnd(values: CssValue[][]): Command;
 		/**
 		 * The **`margin-block-end`** CSS property defines the logical block end margin of an element, which maps to a physical margin depending on the element's writing mode, directionality, and text orientation.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-block-end
 		 */
-		"margin-block-end"(value: CssValue, ...values: CssValue[]): Call;
+		"margin-block-end"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`margin-block-end`** CSS property defines the logical block end margin of an element, which maps to a physical margin depending on the element's writing mode, directionality, and text orientation.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-block-end
 		 */
-		"margin-block-end"(values: CssValue[][]): Call;
+		"margin-block-end"(values: CssValue[][]): Command;
 	}
 }

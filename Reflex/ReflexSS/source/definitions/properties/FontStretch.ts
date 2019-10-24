@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-stretch
 		 */
-		fontStretch(value: CssValue, ...values: CssValue[]): Call;
+		fontStretch(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-stretch`** CSS property selects a normal, condensed, or expanded face from a font.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-stretch
 		 */
-		fontStretch(values: CssValue[][]): Call;
+		fontStretch(values: CssValue[][]): Command;
 		/**
 		 * The **`font-stretch`** CSS property selects a normal, condensed, or expanded face from a font.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-stretch
 		 */
-		"font-stretch"(value: CssValue, ...values: CssValue[]): Call;
+		"font-stretch"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-stretch`** CSS property selects a normal, condensed, or expanded face from a font.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-stretch
 		 */
-		"font-stretch"(values: CssValue[][]): Call;
+		"font-stretch"(values: CssValue[][]): Command;
 	}
 }

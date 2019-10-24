@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-iteration-count
 		 */
-		animationIterationCount(value: CssValue, ...values: CssValue[]): Call;
+		animationIterationCount(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`animation-iteration-count`** CSS property sets the number of times an animation cycle should be played before stopping.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-iteration-count
 		 */
-		animationIterationCount(values: CssValue[][]): Call;
+		animationIterationCount(values: CssValue[][]): Command;
 		/**
 		 * The **`animation-iteration-count`** CSS property sets the number of times an animation cycle should be played before stopping.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-iteration-count
 		 */
-		"animation-iteration-count"(value: CssValue, ...values: CssValue[]): Call;
+		"animation-iteration-count"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`animation-iteration-count`** CSS property sets the number of times an animation cycle should be played before stopping.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-iteration-count
 		 */
-		"animation-iteration-count"(values: CssValue[][]): Call;
+		"animation-iteration-count"(values: CssValue[][]): Command;
 	}
 }

@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-direction
 		 */
-		flexDirection(value: CssValue, ...values: CssValue[]): Call;
+		flexDirection(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`flex-direction`** CSS property sets how flex items are placed in the flex container defining the main axis and the direction (normal or reversed).
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-direction
 		 */
-		flexDirection(values: CssValue[][]): Call;
+		flexDirection(values: CssValue[][]): Command;
 		/**
 		 * The **`flex-direction`** CSS property sets how flex items are placed in the flex container defining the main axis and the direction (normal or reversed).
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-direction
 		 */
-		"flex-direction"(value: CssValue, ...values: CssValue[]): Call;
+		"flex-direction"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`flex-direction`** CSS property sets how flex items are placed in the flex container defining the main axis and the direction (normal or reversed).
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-direction
 		 */
-		"flex-direction"(values: CssValue[][]): Call;
+		"flex-direction"(values: CssValue[][]): Command;
 	}
 }

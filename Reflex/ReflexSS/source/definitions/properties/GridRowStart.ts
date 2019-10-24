@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-row-start
 		 */
-		gridRowStart(value: CssValue, ...values: CssValue[]): Call;
+		gridRowStart(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`grid-row-start`** CSS property specifies a grid item’s start position within the grid row by contributing a line, a span, or nothing (automatic) to its grid placement, thereby specifying the inline-start edge of its grid area.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-row-start
 		 */
-		gridRowStart(values: CssValue[][]): Call;
+		gridRowStart(values: CssValue[][]): Command;
 		/**
 		 * The **`grid-row-start`** CSS property specifies a grid item’s start position within the grid row by contributing a line, a span, or nothing (automatic) to its grid placement, thereby specifying the inline-start edge of its grid area.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-row-start
 		 */
-		"grid-row-start"(value: CssValue, ...values: CssValue[]): Call;
+		"grid-row-start"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`grid-row-start`** CSS property specifies a grid item’s start position within the grid row by contributing a line, a span, or nothing (automatic) to its grid placement, thereby specifying the inline-start edge of its grid area.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-row-start
 		 */
-		"grid-row-start"(values: CssValue[][]): Call;
+		"grid-row-start"(values: CssValue[][]): Command;
 	}
 }

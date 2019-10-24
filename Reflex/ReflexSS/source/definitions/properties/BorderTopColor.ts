@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-color
 		 */
-		borderTopColor(value: CssValue, ...values: CssValue[]): Call;
+		borderTopColor(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-top-color`** CSS property sets the color of an element's top border. It can also be set with the shorthand CSS properties `border-color` or `border-top`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-color
 		 */
-		borderTopColor(values: CssValue[][]): Call;
+		borderTopColor(values: CssValue[][]): Command;
 		/**
 		 * The **`border-top-color`** CSS property sets the color of an element's top border. It can also be set with the shorthand CSS properties `border-color` or `border-top`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-color
 		 */
-		"border-top-color"(value: CssValue, ...values: CssValue[]): Call;
+		"border-top-color"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-top-color`** CSS property sets the color of an element's top border. It can also be set with the shorthand CSS properties `border-color` or `border-top`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-color
 		 */
-		"border-top-color"(values: CssValue[][]): Call;
+		"border-top-color"(values: CssValue[][]): Command;
 	}
 }

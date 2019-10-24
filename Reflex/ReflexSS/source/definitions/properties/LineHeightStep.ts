@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/line-height-step
 		 */
-		lineHeightStep(value: CssValue, ...values: CssValue[]): Call;
+		lineHeightStep(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`line-height-step`** CSS property sets the step unit for line box heights. When the property is set, line box heights are rounded up to the closest multiple of the unit.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/line-height-step
 		 */
-		lineHeightStep(values: CssValue[][]): Call;
+		lineHeightStep(values: CssValue[][]): Command;
 		/**
 		 * The **`line-height-step`** CSS property sets the step unit for line box heights. When the property is set, line box heights are rounded up to the closest multiple of the unit.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/line-height-step
 		 */
-		"line-height-step"(value: CssValue, ...values: CssValue[]): Call;
+		"line-height-step"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`line-height-step`** CSS property sets the step unit for line box heights. When the property is set, line box heights are rounded up to the closest multiple of the unit.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/line-height-step
 		 */
-		"line-height-step"(values: CssValue[][]): Call;
+		"line-height-step"(values: CssValue[][]): Command;
 	}
 }

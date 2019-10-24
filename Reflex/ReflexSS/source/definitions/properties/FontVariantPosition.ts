@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-position
 		 */
-		fontVariantPosition(value: CssValue, ...values: CssValue[]): Call;
+		fontVariantPosition(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-variant-position`** CSS property controls the use of alternate, smaller glyphs that are positioned as superscript or subscript.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-position
 		 */
-		fontVariantPosition(values: CssValue[][]): Call;
+		fontVariantPosition(values: CssValue[][]): Command;
 		/**
 		 * The **`font-variant-position`** CSS property controls the use of alternate, smaller glyphs that are positioned as superscript or subscript.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-position
 		 */
-		"font-variant-position"(value: CssValue, ...values: CssValue[]): Call;
+		"font-variant-position"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-variant-position`** CSS property controls the use of alternate, smaller glyphs that are positioned as superscript or subscript.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-position
 		 */
-		"font-variant-position"(values: CssValue[][]): Call;
+		"font-variant-position"(values: CssValue[][]): Command;
 	}
 }

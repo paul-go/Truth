@@ -4,12 +4,12 @@ declare namespace Reflex.SS
 	export interface Namespace
 	{
 		/** */
-		targetCounters(value: CssValue, ...values: CssValue[]): Call;
+		targetCounters(value: CssValue, ...values: CssValue[]): Command;
 		/** */
-		targetCounters(values: CssValue[][]): Call;
+		targetCounters(values: CssValue[][]): Command;
 		/** */
-		"target-counters"(value: CssValue, ...values: CssValue[]): Call;
+		"target-counters"(value: CssValue, ...values: CssValue[]): Command;
 		/** */
-		"target-counters"(values: CssValue[][]): Call;
+		"target-counters"(values: CssValue[][]): Command;
 	}
 }

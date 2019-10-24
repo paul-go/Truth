@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/place-items
 		 */
-		placeItems(value: CssValue, ...values: CssValue[]): Call;
+		placeItems(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The CSS **`place-items`** shorthand property sets the `align-items` and `justify-items` properties, respectively. If the second value is not set, the first value is also used for it.
 		 * 
@@ -50,7 +50,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/place-items
 		 */
-		placeItems(values: CssValue[][]): Call;
+		placeItems(values: CssValue[][]): Command;
 		/**
 		 * The CSS **`place-items`** shorthand property sets the `align-items` and `justify-items` properties, respectively. If the second value is not set, the first value is also used for it.
 		 * 
@@ -74,7 +74,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/place-items
 		 */
-		"place-items"(value: CssValue, ...values: CssValue[]): Call;
+		"place-items"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The CSS **`place-items`** shorthand property sets the `align-items` and `justify-items` properties, respectively. If the second value is not set, the first value is also used for it.
 		 * 
@@ -98,6 +98,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/place-items
 		 */
-		"place-items"(values: CssValue[][]): Call;
+		"place-items"(values: CssValue[][]): Command;
 	}
 }

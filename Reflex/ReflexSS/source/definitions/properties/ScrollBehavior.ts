@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scroll-behavior
 		 */
-		scrollBehavior(value: CssValue, ...values: CssValue[]): Call;
+		scrollBehavior(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`scroll-behavior`** CSS property sets the behavior for a scrolling box when scrolling is triggered by the navigation or CSSOM scrolling APIs.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scroll-behavior
 		 */
-		scrollBehavior(values: CssValue[][]): Call;
+		scrollBehavior(values: CssValue[][]): Command;
 		/**
 		 * The **`scroll-behavior`** CSS property sets the behavior for a scrolling box when scrolling is triggered by the navigation or CSSOM scrolling APIs.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scroll-behavior
 		 */
-		"scroll-behavior"(value: CssValue, ...values: CssValue[]): Call;
+		"scroll-behavior"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`scroll-behavior`** CSS property sets the behavior for a scrolling box when scrolling is triggered by the navigation or CSSOM scrolling APIs.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scroll-behavior
 		 */
-		"scroll-behavior"(values: CssValue[][]): Call;
+		"scroll-behavior"(values: CssValue[][]): Command;
 	}
 }

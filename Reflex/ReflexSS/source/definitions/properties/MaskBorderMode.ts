@@ -8,24 +8,24 @@ declare namespace Reflex.SS
 		 * 
 		 * **Initial value**: `alpha`
 		 */
-		maskBorderMode(value: CssValue, ...values: CssValue[]): Call;
+		maskBorderMode(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-border-mode`** CSS property specifies the blending mode used in a mask border.
 		 * 
 		 * **Initial value**: `alpha`
 		 */
-		maskBorderMode(values: CssValue[][]): Call;
+		maskBorderMode(values: CssValue[][]): Command;
 		/**
 		 * The **`mask-border-mode`** CSS property specifies the blending mode used in a mask border.
 		 * 
 		 * **Initial value**: `alpha`
 		 */
-		"mask-border-mode"(value: CssValue, ...values: CssValue[]): Call;
+		"mask-border-mode"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-border-mode`** CSS property specifies the blending mode used in a mask border.
 		 * 
 		 * **Initial value**: `alpha`
 		 */
-		"mask-border-mode"(values: CssValue[][]): Call;
+		"mask-border-mode"(values: CssValue[][]): Command;
 	}
 }

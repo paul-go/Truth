@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-template-columns
 		 */
-		gridTemplateColumns(value: CssValue, ...values: CssValue[]): Call;
+		gridTemplateColumns(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`grid-template-columns`** CSS property defines the line names and track sizing functions of the grid columns.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-template-columns
 		 */
-		gridTemplateColumns(values: CssValue[][]): Call;
+		gridTemplateColumns(values: CssValue[][]): Command;
 		/**
 		 * The **`grid-template-columns`** CSS property defines the line names and track sizing functions of the grid columns.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-template-columns
 		 */
-		"grid-template-columns"(value: CssValue, ...values: CssValue[]): Call;
+		"grid-template-columns"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`grid-template-columns`** CSS property defines the line names and track sizing functions of the grid columns.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-template-columns
 		 */
-		"grid-template-columns"(values: CssValue[][]): Call;
+		"grid-template-columns"(values: CssValue[][]): Command;
 	}
 }

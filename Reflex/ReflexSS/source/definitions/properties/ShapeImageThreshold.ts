@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/shape-image-threshold
 		 */
-		shapeImageThreshold(value: CssValue, ...values: CssValue[]): Call;
+		shapeImageThreshold(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`shape-image-threshold`** CSS property sets the alpha channel threshold used to extract the shape using an image as the value for `shape-outside`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/shape-image-threshold
 		 */
-		shapeImageThreshold(values: CssValue[][]): Call;
+		shapeImageThreshold(values: CssValue[][]): Command;
 		/**
 		 * The **`shape-image-threshold`** CSS property sets the alpha channel threshold used to extract the shape using an image as the value for `shape-outside`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/shape-image-threshold
 		 */
-		"shape-image-threshold"(value: CssValue, ...values: CssValue[]): Call;
+		"shape-image-threshold"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`shape-image-threshold`** CSS property sets the alpha channel threshold used to extract the shape using an image as the value for `shape-outside`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/shape-image-threshold
 		 */
-		"shape-image-threshold"(values: CssValue[][]): Call;
+		"shape-image-threshold"(values: CssValue[][]): Command;
 	}
 }

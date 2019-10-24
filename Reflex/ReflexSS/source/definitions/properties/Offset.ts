@@ -13,7 +13,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/offset
 		 */
-		offset(value: CssValue, ...values: CssValue[]): Call;
+		offset(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`offset`** CSS property is a shorthand property for animating an element along a defined path.
 		 * 
@@ -24,6 +24,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/offset
 		 */
-		offset(values: CssValue[][]): Call;
+		offset(values: CssValue[][]): Command;
 	}
 }

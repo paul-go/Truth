@@ -2,7 +2,7 @@
 namespace Reflex.SS
 {
 	export type Node = HTMLElement | Text;
-	export type Branch = Rule | Call;
+	export type Branch = Rule | Command;
 	export type Primitive = Core.Primitive<Node, Branch, string>;
 	export type Primitives = Core.Primitives<Node, Branch, string>;
 	
@@ -10,7 +10,7 @@ namespace Reflex.SS
 	 * Top-level value for all possible inputs
 	 * to the CSS property creation functions.
 	 */
-	export type CssValue = string | number | Call | Unit;
+	export type CssValue = string | number | Command | Unit;
 	
 	/**
 	 * Creates a namespace.
@@ -36,7 +36,7 @@ namespace Reflex.SS
 	}
 	
 	/**
-	 * @internal
+	 * 
 	 */
 	export class Library implements Reflex.Core.ILibrary
 	{
@@ -49,13 +49,13 @@ namespace Reflex.SS
 		/** */
 		isKnownBranch(branch: Branch)
 		{
-			return branch instanceof Rule || branch instanceof Call;
+			return branch instanceof Rule || branch instanceof Command;
 		}
 		
 		/** */
 		isKnownLeaf(leaf: object)
 		{
-			return leaf instanceof Call;
+			return leaf instanceof Command;
 		}
 		
 		/** */
@@ -145,7 +145,7 @@ namespace Reflex.SS
 		{
 			return (...values: any[]) =>
 			{
-				return new Call(name, values);
+				return new Command(name, values);
 			}
 		}
 		
@@ -177,7 +177,7 @@ namespace Reflex.SS
 					// Nested rule
 					debugger;
 				}
-				else if (primitive instanceof Call)
+				else if (primitive instanceof Command)
 				{
 					owner.declarations.push(primitive);
 				}
@@ -273,6 +273,6 @@ namespace Reflex.SS
 /**
  * Global library object.
  */
-const ss = Reflex.Core.createContainerNamespace<Reflex.SS.Namespace>(
+const ss = Reflex.Core.createContainerNamespace<Reflex.SS.Namespace, Reflex.SS.Library>(
 	new Reflex.SS.Library(),
 	true);

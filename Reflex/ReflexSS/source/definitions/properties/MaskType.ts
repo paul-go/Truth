@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-type
 		 */
-		maskType(value: CssValue, ...values: CssValue[]): Call;
+		maskType(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-type`** CSS property sets whether an SVG `<mask>` element is used as a _luminance_ or an _alpha_ mask. It applies to the `<mask>` element itself.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-type
 		 */
-		maskType(values: CssValue[][]): Call;
+		maskType(values: CssValue[][]): Command;
 		/**
 		 * The **`mask-type`** CSS property sets whether an SVG `<mask>` element is used as a _luminance_ or an _alpha_ mask. It applies to the `<mask>` element itself.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-type
 		 */
-		"mask-type"(value: CssValue, ...values: CssValue[]): Call;
+		"mask-type"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-type`** CSS property sets whether an SVG `<mask>` element is used as a _luminance_ or an _alpha_ mask. It applies to the `<mask>` element itself.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-type
 		 */
-		"mask-type"(values: CssValue[][]): Call;
+		"mask-type"(values: CssValue[][]): Command;
 	}
 }

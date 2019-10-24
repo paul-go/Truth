@@ -13,7 +13,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition
 		 */
-		transition(value: CssValue, ...values: CssValue[]): Call;
+		transition(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`transition`** CSS property is a shorthand property for `transition-property`, `transition-duration`, `transition-timing-function`, and `transition-delay`.
 		 * 
@@ -24,6 +24,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition
 		 */
-		transition(values: CssValue[][]): Call;
+		transition(values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-overflow
 		 */
-		textOverflow(value: CssValue, ...values: CssValue[]): Call;
+		textOverflow(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-overflow`** CSS property sets how hidden overflow content is signaled to users. It can be clipped, display an ellipsis ('`…`'), or display a custom string.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-overflow
 		 */
-		textOverflow(values: CssValue[][]): Call;
+		textOverflow(values: CssValue[][]): Command;
 		/**
 		 * The **`text-overflow`** CSS property sets how hidden overflow content is signaled to users. It can be clipped, display an ellipsis ('`…`'), or display a custom string.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-overflow
 		 */
-		"text-overflow"(value: CssValue, ...values: CssValue[]): Call;
+		"text-overflow"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-overflow`** CSS property sets how hidden overflow content is signaled to users. It can be clipped, display an ellipsis ('`…`'), or display a custom string.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-overflow
 		 */
-		"text-overflow"(values: CssValue[][]): Call;
+		"text-overflow"(values: CssValue[][]): Command;
 	}
 }

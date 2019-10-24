@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-left-style
 		 */
-		borderLeftStyle(value: CssValue, ...values: CssValue[]): Call;
+		borderLeftStyle(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-left-style`** CSS property sets the line style of an element's left `border`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-left-style
 		 */
-		borderLeftStyle(values: CssValue[][]): Call;
+		borderLeftStyle(values: CssValue[][]): Command;
 		/**
 		 * The **`border-left-style`** CSS property sets the line style of an element's left `border`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-left-style
 		 */
-		"border-left-style"(value: CssValue, ...values: CssValue[]): Call;
+		"border-left-style"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-left-style`** CSS property sets the line style of an element's left `border`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-left-style
 		 */
-		"border-left-style"(values: CssValue[][]): Call;
+		"border-left-style"(values: CssValue[][]): Command;
 	}
 }

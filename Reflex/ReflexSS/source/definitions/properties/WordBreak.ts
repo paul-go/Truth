@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/word-break
 		 */
-		wordBreak(value: CssValue, ...values: CssValue[]): Call;
+		wordBreak(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`word-break`** CSS property sets whether line breaks appear wherever the text would otherwise overflow its content box.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/word-break
 		 */
-		wordBreak(values: CssValue[][]): Call;
+		wordBreak(values: CssValue[][]): Command;
 		/**
 		 * The **`word-break`** CSS property sets whether line breaks appear wherever the text would otherwise overflow its content box.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/word-break
 		 */
-		"word-break"(value: CssValue, ...values: CssValue[]): Call;
+		"word-break"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`word-break`** CSS property sets whether line breaks appear wherever the text would otherwise overflow its content box.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/word-break
 		 */
-		"word-break"(values: CssValue[][]): Call;
+		"word-break"(values: CssValue[][]): Command;
 	}
 }

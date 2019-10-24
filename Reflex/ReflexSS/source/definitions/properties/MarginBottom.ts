@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-bottom
 		 */
-		marginBottom(value: CssValue, ...values: CssValue[]): Call;
+		marginBottom(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`margin-bottom`** CSS property sets the margin area on the bottom of an element. A positive value places it farther from its neighbors, while a negative value places it closer.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-bottom
 		 */
-		marginBottom(values: CssValue[][]): Call;
+		marginBottom(values: CssValue[][]): Command;
 		/**
 		 * The **`margin-bottom`** CSS property sets the margin area on the bottom of an element. A positive value places it farther from its neighbors, while a negative value places it closer.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-bottom
 		 */
-		"margin-bottom"(value: CssValue, ...values: CssValue[]): Call;
+		"margin-bottom"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`margin-bottom`** CSS property sets the margin area on the bottom of an element. A positive value places it farther from its neighbors, while a negative value places it closer.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-bottom
 		 */
-		"margin-bottom"(values: CssValue[][]): Call;
+		"margin-bottom"(values: CssValue[][]): Command;
 	}
 }

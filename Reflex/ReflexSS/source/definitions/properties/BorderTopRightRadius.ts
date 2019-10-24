@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-right-radius
 		 */
-		borderTopRightRadius(value: CssValue, ...values: CssValue[]): Call;
+		borderTopRightRadius(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-top-right-radius`** CSS property rounds the top-right corner of an element.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-right-radius
 		 */
-		borderTopRightRadius(values: CssValue[][]): Call;
+		borderTopRightRadius(values: CssValue[][]): Command;
 		/**
 		 * The **`border-top-right-radius`** CSS property rounds the top-right corner of an element.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-right-radius
 		 */
-		"border-top-right-radius"(value: CssValue, ...values: CssValue[]): Call;
+		"border-top-right-radius"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-top-right-radius`** CSS property rounds the top-right corner of an element.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-right-radius
 		 */
-		"border-top-right-radius"(values: CssValue[][]): Call;
+		"border-top-right-radius"(values: CssValue[][]): Command;
 	}
 }

@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-fill-mode
 		 */
-		animationFillMode(value: CssValue, ...values: CssValue[]): Call;
+		animationFillMode(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`animation-fill-mode`** CSS property sets how a CSS animation applies styles to its target before and after its execution.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-fill-mode
 		 */
-		animationFillMode(values: CssValue[][]): Call;
+		animationFillMode(values: CssValue[][]): Command;
 		/**
 		 * The **`animation-fill-mode`** CSS property sets how a CSS animation applies styles to its target before and after its execution.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-fill-mode
 		 */
-		"animation-fill-mode"(value: CssValue, ...values: CssValue[]): Call;
+		"animation-fill-mode"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`animation-fill-mode`** CSS property sets how a CSS animation applies styles to its target before and after its execution.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-fill-mode
 		 */
-		"animation-fill-mode"(values: CssValue[][]): Call;
+		"animation-fill-mode"(values: CssValue[][]): Command;
 	}
 }

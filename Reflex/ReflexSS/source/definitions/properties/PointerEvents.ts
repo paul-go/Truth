@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/pointer-events
 		 */
-		pointerEvents(value: CssValue, ...values: CssValue[]): Call;
+		pointerEvents(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`pointer-events`** CSS property sets under what circumstances (if any) a particular graphic element can become the target of mouse events.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/pointer-events
 		 */
-		pointerEvents(values: CssValue[][]): Call;
+		pointerEvents(values: CssValue[][]): Command;
 		/**
 		 * The **`pointer-events`** CSS property sets under what circumstances (if any) a particular graphic element can become the target of mouse events.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/pointer-events
 		 */
-		"pointer-events"(value: CssValue, ...values: CssValue[]): Call;
+		"pointer-events"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`pointer-events`** CSS property sets under what circumstances (if any) a particular graphic element can become the target of mouse events.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/pointer-events
 		 */
-		"pointer-events"(values: CssValue[][]): Call;
+		"pointer-events"(values: CssValue[][]): Command;
 	}
 }

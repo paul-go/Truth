@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right
 		 */
-		borderRight(value: CssValue, ...values: CssValue[]): Call;
+		borderRight(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-right`** CSS property is a shorthand that sets the values of `border-right-width`, `border-right-style` and `border-right-color`. These properties set an element's right border.
 		 * 
@@ -22,7 +22,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right
 		 */
-		borderRight(values: CssValue[][]): Call;
+		borderRight(values: CssValue[][]): Command;
 		/**
 		 * The **`border-right`** CSS property is a shorthand that sets the values of `border-right-width`, `border-right-style` and `border-right-color`. These properties set an element's right border.
 		 * 
@@ -32,7 +32,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right
 		 */
-		"border-right"(value: CssValue, ...values: CssValue[]): Call;
+		"border-right"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-right`** CSS property is a shorthand that sets the values of `border-right-width`, `border-right-style` and `border-right-color`. These properties set an element's right border.
 		 * 
@@ -42,6 +42,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right
 		 */
-		"border-right"(values: CssValue[][]): Call;
+		"border-right"(values: CssValue[][]): Command;
 	}
 }

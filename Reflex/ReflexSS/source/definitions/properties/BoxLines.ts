@@ -10,7 +10,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		boxLines(value: CssValue, ...values: CssValue[]): Call;
+		boxLines(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`box-lines`** CSS property determines whether the box may have a single or multiple lines (rows for horizontally oriented boxes, columns for vertically oriented boxes).
 		 * 
@@ -18,7 +18,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		boxLines(values: CssValue[][]): Call;
+		boxLines(values: CssValue[][]): Command;
 		/**
 		 * The **`box-lines`** CSS property determines whether the box may have a single or multiple lines (rows for horizontally oriented boxes, columns for vertically oriented boxes).
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		"box-lines"(value: CssValue, ...values: CssValue[]): Call;
+		"box-lines"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`box-lines`** CSS property determines whether the box may have a single or multiple lines (rows for horizontally oriented boxes, columns for vertically oriented boxes).
 		 * 
@@ -34,6 +34,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		"box-lines"(values: CssValue[][]): Call;
+		"box-lines"(values: CssValue[][]): Command;
 	}
 }

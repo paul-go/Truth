@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-position
 		 */
-		maskPosition(value: CssValue, ...values: CssValue[]): Call;
+		maskPosition(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-position`** CSS property sets the initial position, relative to the mask position layer set by `mask-origin`, for each defined mask image.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-position
 		 */
-		maskPosition(values: CssValue[][]): Call;
+		maskPosition(values: CssValue[][]): Command;
 		/**
 		 * The **`mask-position`** CSS property sets the initial position, relative to the mask position layer set by `mask-origin`, for each defined mask image.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-position
 		 */
-		"mask-position"(value: CssValue, ...values: CssValue[]): Call;
+		"mask-position"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-position`** CSS property sets the initial position, relative to the mask position layer set by `mask-origin`, for each defined mask image.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-position
 		 */
-		"mask-position"(values: CssValue[][]): Call;
+		"mask-position"(values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-shadow
 		 */
-		textShadow(value: CssValue, ...values: CssValue[]): Call;
+		textShadow(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-shadow`** CSS property adds shadows to text. It accepts a comma-separated list of shadows to be applied to the text and any of its `decorations`. Each shadow is described by some combination of X and Y offsets from the element, blur radius, and color.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-shadow
 		 */
-		textShadow(values: CssValue[][]): Call;
+		textShadow(values: CssValue[][]): Command;
 		/**
 		 * The **`text-shadow`** CSS property adds shadows to text. It accepts a comma-separated list of shadows to be applied to the text and any of its `decorations`. Each shadow is described by some combination of X and Y offsets from the element, blur radius, and color.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-shadow
 		 */
-		"text-shadow"(value: CssValue, ...values: CssValue[]): Call;
+		"text-shadow"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-shadow`** CSS property adds shadows to text. It accepts a comma-separated list of shadows to be applied to the text and any of its `decorations`. Each shadow is described by some combination of X and Y offsets from the element, blur radius, and color.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-shadow
 		 */
-		"text-shadow"(values: CssValue[][]): Call;
+		"text-shadow"(values: CssValue[][]): Command;
 	}
 }

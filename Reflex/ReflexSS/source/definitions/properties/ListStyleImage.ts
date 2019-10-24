@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style-image
 		 */
-		listStyleImage(value: CssValue, ...values: CssValue[]): Call;
+		listStyleImage(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`list-style-image`** CSS property sets an image to be used as the list item marker.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style-image
 		 */
-		listStyleImage(values: CssValue[][]): Call;
+		listStyleImage(values: CssValue[][]): Command;
 		/**
 		 * The **`list-style-image`** CSS property sets an image to be used as the list item marker.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style-image
 		 */
-		"list-style-image"(value: CssValue, ...values: CssValue[]): Call;
+		"list-style-image"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`list-style-image`** CSS property sets an image to be used as the list item marker.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style-image
 		 */
-		"list-style-image"(values: CssValue[][]): Call;
+		"list-style-image"(values: CssValue[][]): Command;
 	}
 }

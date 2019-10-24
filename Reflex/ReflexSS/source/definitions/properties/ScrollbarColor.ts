@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scrollbar-color
 		 */
-		scrollbarColor(value: CssValue, ...values: CssValue[]): Call;
+		scrollbarColor(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`scrollbar-color`** CSS property sets the color of the scrollbar track and thumb.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scrollbar-color
 		 */
-		scrollbarColor(values: CssValue[][]): Call;
+		scrollbarColor(values: CssValue[][]): Command;
 		/**
 		 * The **`scrollbar-color`** CSS property sets the color of the scrollbar track and thumb.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scrollbar-color
 		 */
-		"scrollbar-color"(value: CssValue, ...values: CssValue[]): Call;
+		"scrollbar-color"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`scrollbar-color`** CSS property sets the color of the scrollbar track and thumb.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scrollbar-color
 		 */
-		"scrollbar-color"(values: CssValue[][]): Call;
+		"scrollbar-color"(values: CssValue[][]): Command;
 	}
 }

@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transform-style
 		 */
-		transformStyle(value: CssValue, ...values: CssValue[]): Call;
+		transformStyle(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`transform-style`** CSS property sets whether children of an element are positioned in the 3D space or are flattened in the plane of the element.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transform-style
 		 */
-		transformStyle(values: CssValue[][]): Call;
+		transformStyle(values: CssValue[][]): Command;
 		/**
 		 * The **`transform-style`** CSS property sets whether children of an element are positioned in the 3D space or are flattened in the plane of the element.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transform-style
 		 */
-		"transform-style"(value: CssValue, ...values: CssValue[]): Call;
+		"transform-style"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`transform-style`** CSS property sets whether children of an element are positioned in the 3D space or are flattened in the plane of the element.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transform-style
 		 */
-		"transform-style"(values: CssValue[][]): Call;
+		"transform-style"(values: CssValue[][]): Command;
 	}
 }

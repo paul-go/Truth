@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/offset-path
 		 */
-		offsetPath(value: CssValue, ...values: CssValue[]): Call;
+		offsetPath(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`offset-path`** CSS property specifies a motion path for an element to follow and defines the element's positioning within the parent container or SVG coordinate system.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/offset-path
 		 */
-		offsetPath(values: CssValue[][]): Call;
+		offsetPath(values: CssValue[][]): Command;
 		/**
 		 * The **`offset-path`** CSS property specifies a motion path for an element to follow and defines the element's positioning within the parent container or SVG coordinate system.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/offset-path
 		 */
-		"offset-path"(value: CssValue, ...values: CssValue[]): Call;
+		"offset-path"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`offset-path`** CSS property specifies a motion path for an element to follow and defines the element's positioning within the parent container or SVG coordinate system.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/offset-path
 		 */
-		"offset-path"(values: CssValue[][]): Call;
+		"offset-path"(values: CssValue[][]): Command;
 	}
 }

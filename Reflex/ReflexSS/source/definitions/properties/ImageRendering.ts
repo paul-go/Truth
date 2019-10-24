@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/image-rendering
 		 */
-		imageRendering(value: CssValue, ...values: CssValue[]): Call;
+		imageRendering(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`image-rendering`** CSS property sets an image scaling algorithm. The property applies to an element itself, to any images set in its other properties, and to its descendants.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/image-rendering
 		 */
-		imageRendering(values: CssValue[][]): Call;
+		imageRendering(values: CssValue[][]): Command;
 		/**
 		 * The **`image-rendering`** CSS property sets an image scaling algorithm. The property applies to an element itself, to any images set in its other properties, and to its descendants.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/image-rendering
 		 */
-		"image-rendering"(value: CssValue, ...values: CssValue[]): Call;
+		"image-rendering"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`image-rendering`** CSS property sets an image scaling algorithm. The property applies to an element itself, to any images set in its other properties, and to its descendants.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/image-rendering
 		 */
-		"image-rendering"(values: CssValue[][]): Call;
+		"image-rendering"(values: CssValue[][]): Command;
 	}
 }

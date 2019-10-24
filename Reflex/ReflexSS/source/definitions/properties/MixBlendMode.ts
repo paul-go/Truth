@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mix-blend-mode
 		 */
-		mixBlendMode(value: CssValue, ...values: CssValue[]): Call;
+		mixBlendMode(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mix-blend-mode`** CSS property sets how an element's content should blend with the content of the element's parent and the element's background.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mix-blend-mode
 		 */
-		mixBlendMode(values: CssValue[][]): Call;
+		mixBlendMode(values: CssValue[][]): Command;
 		/**
 		 * The **`mix-blend-mode`** CSS property sets how an element's content should blend with the content of the element's parent and the element's background.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mix-blend-mode
 		 */
-		"mix-blend-mode"(value: CssValue, ...values: CssValue[]): Call;
+		"mix-blend-mode"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mix-blend-mode`** CSS property sets how an element's content should blend with the content of the element's parent and the element's background.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mix-blend-mode
 		 */
-		"mix-blend-mode"(values: CssValue[][]): Call;
+		"mix-blend-mode"(values: CssValue[][]): Command;
 	}
 }

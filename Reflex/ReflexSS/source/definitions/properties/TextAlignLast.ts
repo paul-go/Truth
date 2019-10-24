@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-align-last
 		 */
-		textAlignLast(value: CssValue, ...values: CssValue[]): Call;
+		textAlignLast(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-align-last`** CSS property sets how the last line of a block or a line, right before a forced line break, is aligned.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-align-last
 		 */
-		textAlignLast(values: CssValue[][]): Call;
+		textAlignLast(values: CssValue[][]): Command;
 		/**
 		 * The **`text-align-last`** CSS property sets how the last line of a block or a line, right before a forced line break, is aligned.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-align-last
 		 */
-		"text-align-last"(value: CssValue, ...values: CssValue[]): Call;
+		"text-align-last"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-align-last`** CSS property sets how the last line of a block or a line, right before a forced line break, is aligned.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-align-last
 		 */
-		"text-align-last"(values: CssValue[][]): Call;
+		"text-align-last"(values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style-position
 		 */
-		listStylePosition(value: CssValue, ...values: CssValue[]): Call;
+		listStylePosition(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`list-style-position`** CSS property sets the position of the `::marker` relative to a list item.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style-position
 		 */
-		listStylePosition(values: CssValue[][]): Call;
+		listStylePosition(values: CssValue[][]): Command;
 		/**
 		 * The **`list-style-position`** CSS property sets the position of the `::marker` relative to a list item.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style-position
 		 */
-		"list-style-position"(value: CssValue, ...values: CssValue[]): Call;
+		"list-style-position"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`list-style-position`** CSS property sets the position of the `::marker` relative to a list item.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style-position
 		 */
-		"list-style-position"(values: CssValue[][]): Call;
+		"list-style-position"(values: CssValue[][]): Command;
 	}
 }

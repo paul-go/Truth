@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-position
 		 */
-		backgroundPosition(value: CssValue, ...values: CssValue[]): Call;
+		backgroundPosition(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`background-position`** CSS property sets the initial position for each background image. The position is relative to the position layer set by `background-origin`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-position
 		 */
-		backgroundPosition(values: CssValue[][]): Call;
+		backgroundPosition(values: CssValue[][]): Command;
 		/**
 		 * The **`background-position`** CSS property sets the initial position for each background image. The position is relative to the position layer set by `background-origin`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-position
 		 */
-		"background-position"(value: CssValue, ...values: CssValue[]): Call;
+		"background-position"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`background-position`** CSS property sets the initial position for each background image. The position is relative to the position layer set by `background-origin`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-position
 		 */
-		"background-position"(values: CssValue[][]): Call;
+		"background-position"(values: CssValue[][]): Command;
 	}
 }

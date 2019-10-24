@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-fill
 		 */
-		columnFill(value: CssValue, ...values: CssValue[]): Call;
+		columnFill(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`column-fill`** CSS property controls how an element's contents are balanced when broken into columns.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-fill
 		 */
-		columnFill(values: CssValue[][]): Call;
+		columnFill(values: CssValue[][]): Command;
 		/**
 		 * The **`column-fill`** CSS property controls how an element's contents are balanced when broken into columns.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-fill
 		 */
-		"column-fill"(value: CssValue, ...values: CssValue[]): Call;
+		"column-fill"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`column-fill`** CSS property controls how an element's contents are balanced when broken into columns.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-fill
 		 */
-		"column-fill"(values: CssValue[][]): Call;
+		"column-fill"(values: CssValue[][]): Command;
 	}
 }

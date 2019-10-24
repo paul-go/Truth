@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right-width
 		 */
-		borderRightWidth(value: CssValue, ...values: CssValue[]): Call;
+		borderRightWidth(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-right-width`** CSS property sets the width of the right border of an element.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right-width
 		 */
-		borderRightWidth(values: CssValue[][]): Call;
+		borderRightWidth(values: CssValue[][]): Command;
 		/**
 		 * The **`border-right-width`** CSS property sets the width of the right border of an element.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right-width
 		 */
-		"border-right-width"(value: CssValue, ...values: CssValue[]): Call;
+		"border-right-width"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-right-width`** CSS property sets the width of the right border of an element.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right-width
 		 */
-		"border-right-width"(values: CssValue[][]): Call;
+		"border-right-width"(values: CssValue[][]): Command;
 	}
 }

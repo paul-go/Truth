@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overflow-y
 		 */
-		overflowY(value: CssValue, ...values: CssValue[]): Call;
+		overflowY(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`overflow-y`** CSS property sets what shows when content overflows a block-level element's top and bottom edges. This may be nothing, a scroll bar, or the overflow content.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overflow-y
 		 */
-		overflowY(values: CssValue[][]): Call;
+		overflowY(values: CssValue[][]): Command;
 		/**
 		 * The **`overflow-y`** CSS property sets what shows when content overflows a block-level element's top and bottom edges. This may be nothing, a scroll bar, or the overflow content.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overflow-y
 		 */
-		"overflow-y"(value: CssValue, ...values: CssValue[]): Call;
+		"overflow-y"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`overflow-y`** CSS property sets what shows when content overflows a block-level element's top and bottom edges. This may be nothing, a scroll bar, or the overflow content.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overflow-y
 		 */
-		"overflow-y"(values: CssValue[][]): Call;
+		"overflow-y"(values: CssValue[][]): Command;
 	}
 }

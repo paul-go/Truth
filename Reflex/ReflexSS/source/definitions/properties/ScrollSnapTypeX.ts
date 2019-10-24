@@ -10,7 +10,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		scrollSnapTypeX(value: CssValue, ...values: CssValue[]): Call;
+		scrollSnapTypeX(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`scroll-snap-type-x`** CSS property defines how strictly snap points are enforced on the horizontal axis of the scroll container in case there is one.
 		 * 
@@ -18,7 +18,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		scrollSnapTypeX(values: CssValue[][]): Call;
+		scrollSnapTypeX(values: CssValue[][]): Command;
 		/**
 		 * The **`scroll-snap-type-x`** CSS property defines how strictly snap points are enforced on the horizontal axis of the scroll container in case there is one.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		"scroll-snap-type-x"(value: CssValue, ...values: CssValue[]): Call;
+		"scroll-snap-type-x"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`scroll-snap-type-x`** CSS property defines how strictly snap points are enforced on the horizontal axis of the scroll container in case there is one.
 		 * 
@@ -34,6 +34,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		"scroll-snap-type-x"(values: CssValue[][]): Call;
+		"scroll-snap-type-x"(values: CssValue[][]): Command;
 	}
 }

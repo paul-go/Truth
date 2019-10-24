@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin
 		 */
-		scrollMargin(value: CssValue, ...values: CssValue[]): Call;
+		scrollMargin(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`scroll-margin`** property is a shorthand property which sets all of the `scroll-margin` longhands, assigning values much like the `margin` property does for the `margin-*` longhands.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin
 		 */
-		scrollMargin(values: CssValue[][]): Call;
+		scrollMargin(values: CssValue[][]): Command;
 		/**
 		 * The **`scroll-margin`** property is a shorthand property which sets all of the `scroll-margin` longhands, assigning values much like the `margin` property does for the `margin-*` longhands.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin
 		 */
-		"scroll-margin"(value: CssValue, ...values: CssValue[]): Call;
+		"scroll-margin"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`scroll-margin`** property is a shorthand property which sets all of the `scroll-margin` longhands, assigning values much like the `margin` property does for the `margin-*` longhands.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin
 		 */
-		"scroll-margin"(values: CssValue[][]): Call;
+		"scroll-margin"(values: CssValue[][]): Command;
 	}
 }

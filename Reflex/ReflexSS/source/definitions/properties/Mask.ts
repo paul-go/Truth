@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask
 		 */
-		mask(value: CssValue, ...values: CssValue[]): Call;
+		mask(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask`** CSS property hides an element (partially or fully) by masking or clipping the image at specific points.
 		 * 
@@ -22,6 +22,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask
 		 */
-		mask(values: CssValue[][]): Call;
+		mask(values: CssValue[][]): Command;
 	}
 }

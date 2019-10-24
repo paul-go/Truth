@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration
 		 */
-		textDecoration(value: CssValue, ...values: CssValue[]): Call;
+		textDecoration(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-decoration`** CSS property sets the appearance of decorative lines on text. It is a shorthand for `text-decoration-line`, `text-decoration-color`, and `text-decoration-style`.
 		 * 
@@ -22,7 +22,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration
 		 */
-		textDecoration(values: CssValue[][]): Call;
+		textDecoration(values: CssValue[][]): Command;
 		/**
 		 * The **`text-decoration`** CSS property sets the appearance of decorative lines on text. It is a shorthand for `text-decoration-line`, `text-decoration-color`, and `text-decoration-style`.
 		 * 
@@ -32,7 +32,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration
 		 */
-		"text-decoration"(value: CssValue, ...values: CssValue[]): Call;
+		"text-decoration"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`text-decoration`** CSS property sets the appearance of decorative lines on text. It is a shorthand for `text-decoration-line`, `text-decoration-color`, and `text-decoration-style`.
 		 * 
@@ -42,6 +42,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration
 		 */
-		"text-decoration"(values: CssValue[][]): Call;
+		"text-decoration"(values: CssValue[][]): Command;
 	}
 }

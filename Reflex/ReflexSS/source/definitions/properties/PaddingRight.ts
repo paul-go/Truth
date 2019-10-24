@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-right
 		 */
-		paddingRight(value: CssValue, ...values: CssValue[]): Call;
+		paddingRight(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`padding-right`** CSS property sets the width of the padding area on the right side of an element.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-right
 		 */
-		paddingRight(values: CssValue[][]): Call;
+		paddingRight(values: CssValue[][]): Command;
 		/**
 		 * The **`padding-right`** CSS property sets the width of the padding area on the right side of an element.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-right
 		 */
-		"padding-right"(value: CssValue, ...values: CssValue[]): Call;
+		"padding-right"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`padding-right`** CSS property sets the width of the padding area on the right side of an element.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-right
 		 */
-		"padding-right"(values: CssValue[][]): Call;
+		"padding-right"(values: CssValue[][]): Command;
 	}
 }

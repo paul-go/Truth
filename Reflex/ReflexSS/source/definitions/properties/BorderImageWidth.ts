@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-image-width
 		 */
-		borderImageWidth(value: CssValue, ...values: CssValue[]): Call;
+		borderImageWidth(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-image-width`** CSS property sets the width of an element's border image.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-image-width
 		 */
-		borderImageWidth(values: CssValue[][]): Call;
+		borderImageWidth(values: CssValue[][]): Command;
 		/**
 		 * The **`border-image-width`** CSS property sets the width of an element's border image.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-image-width
 		 */
-		"border-image-width"(value: CssValue, ...values: CssValue[]): Call;
+		"border-image-width"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-image-width`** CSS property sets the width of an element's border image.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-image-width
 		 */
-		"border-image-width"(values: CssValue[][]): Call;
+		"border-image-width"(values: CssValue[][]): Command;
 	}
 }

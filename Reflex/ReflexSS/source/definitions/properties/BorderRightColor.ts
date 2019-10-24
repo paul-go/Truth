@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right-color
 		 */
-		borderRightColor(value: CssValue, ...values: CssValue[]): Call;
+		borderRightColor(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-right-color`** CSS property sets the color of an element's right border. It can also be set with the shorthand CSS properties `border-color` or `border-right`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right-color
 		 */
-		borderRightColor(values: CssValue[][]): Call;
+		borderRightColor(values: CssValue[][]): Command;
 		/**
 		 * The **`border-right-color`** CSS property sets the color of an element's right border. It can also be set with the shorthand CSS properties `border-color` or `border-right`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right-color
 		 */
-		"border-right-color"(value: CssValue, ...values: CssValue[]): Call;
+		"border-right-color"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-right-color`** CSS property sets the color of an element's right border. It can also be set with the shorthand CSS properties `border-color` or `border-right`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right-color
 		 */
-		"border-right-color"(values: CssValue[][]): Call;
+		"border-right-color"(values: CssValue[][]): Command;
 	}
 }

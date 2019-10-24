@@ -29,7 +29,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/align-self
 		 */
-		alignSelf(value: CssValue, ...values: CssValue[]): Call;
+		alignSelf(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`align-self`** CSS property aligns flex items of the current flex line overriding the `align-items` value. If any of the item's cross-axis margin is set to `auto`, then `align-self` is ignored. In Grid layout `align-self` aligns the item inside the grid area.
 		 * 
@@ -56,7 +56,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/align-self
 		 */
-		alignSelf(values: CssValue[][]): Call;
+		alignSelf(values: CssValue[][]): Command;
 		/**
 		 * The **`align-self`** CSS property aligns flex items of the current flex line overriding the `align-items` value. If any of the item's cross-axis margin is set to `auto`, then `align-self` is ignored. In Grid layout `align-self` aligns the item inside the grid area.
 		 * 
@@ -83,7 +83,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/align-self
 		 */
-		"align-self"(value: CssValue, ...values: CssValue[]): Call;
+		"align-self"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`align-self`** CSS property aligns flex items of the current flex line overriding the `align-items` value. If any of the item's cross-axis margin is set to `auto`, then `align-self` is ignored. In Grid layout `align-self` aligns the item inside the grid area.
 		 * 
@@ -110,6 +110,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/align-self
 		 */
-		"align-self"(values: CssValue[][]): Call;
+		"align-self"(values: CssValue[][]): Command;
 	}
 }

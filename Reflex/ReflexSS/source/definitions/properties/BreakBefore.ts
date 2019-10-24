@@ -36,7 +36,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/break-before
 		 */
-		breakBefore(value: CssValue, ...values: CssValue[]): Call;
+		breakBefore(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`break-before`** CSS property sets how page, column, or region breaks should behave before a generated box. If there is no generated box, the property is ignored.
 		 * 
@@ -70,7 +70,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/break-before
 		 */
-		breakBefore(values: CssValue[][]): Call;
+		breakBefore(values: CssValue[][]): Command;
 		/**
 		 * The **`break-before`** CSS property sets how page, column, or region breaks should behave before a generated box. If there is no generated box, the property is ignored.
 		 * 
@@ -104,7 +104,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/break-before
 		 */
-		"break-before"(value: CssValue, ...values: CssValue[]): Call;
+		"break-before"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`break-before`** CSS property sets how page, column, or region breaks should behave before a generated box. If there is no generated box, the property is ignored.
 		 * 
@@ -138,6 +138,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/break-before
 		 */
-		"break-before"(values: CssValue[][]): Call;
+		"break-before"(values: CssValue[][]): Command;
 	}
 }

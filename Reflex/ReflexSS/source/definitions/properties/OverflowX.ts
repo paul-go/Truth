@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overflow-x
 		 */
-		overflowX(value: CssValue, ...values: CssValue[]): Call;
+		overflowX(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`overflow-x`** CSS property sets what shows when content overflows a block-level element's left and right edges. This may be nothing, a scroll bar, or the overflow content.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overflow-x
 		 */
-		overflowX(values: CssValue[][]): Call;
+		overflowX(values: CssValue[][]): Command;
 		/**
 		 * The **`overflow-x`** CSS property sets what shows when content overflows a block-level element's left and right edges. This may be nothing, a scroll bar, or the overflow content.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overflow-x
 		 */
-		"overflow-x"(value: CssValue, ...values: CssValue[]): Call;
+		"overflow-x"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`overflow-x`** CSS property sets what shows when content overflows a block-level element's left and right edges. This may be nothing, a scroll bar, or the overflow content.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overflow-x
 		 */
-		"overflow-x"(values: CssValue[][]): Call;
+		"overflow-x"(values: CssValue[][]): Command;
 	}
 }

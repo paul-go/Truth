@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-end-width
 		 */
-		borderInlineEndWidth(value: CssValue, ...values: CssValue[]): Call;
+		borderInlineEndWidth(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-inline-end-width`** CSS property defines the width of the logical inline-end border of an element, which maps to a physical border width depending on the element's writing mode, directionality, and text orientation. It corresponds to the `border-top-width`, `border-right-width`, `border-bottom-width`, or `border-left-width` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-end-width
 		 */
-		borderInlineEndWidth(values: CssValue[][]): Call;
+		borderInlineEndWidth(values: CssValue[][]): Command;
 		/**
 		 * The **`border-inline-end-width`** CSS property defines the width of the logical inline-end border of an element, which maps to a physical border width depending on the element's writing mode, directionality, and text orientation. It corresponds to the `border-top-width`, `border-right-width`, `border-bottom-width`, or `border-left-width` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-end-width
 		 */
-		"border-inline-end-width"(value: CssValue, ...values: CssValue[]): Call;
+		"border-inline-end-width"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-inline-end-width`** CSS property defines the width of the logical inline-end border of an element, which maps to a physical border width depending on the element's writing mode, directionality, and text orientation. It corresponds to the `border-top-width`, `border-right-width`, `border-bottom-width`, or `border-left-width` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-end-width
 		 */
-		"border-inline-end-width"(values: CssValue[][]): Call;
+		"border-inline-end-width"(values: CssValue[][]): Command;
 	}
 }

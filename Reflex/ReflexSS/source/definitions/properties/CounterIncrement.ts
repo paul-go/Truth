@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/counter-increment
 		 */
-		counterIncrement(value: CssValue, ...values: CssValue[]): Call;
+		counterIncrement(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`counter-increment`** CSS property increases or decreases the value of a CSS counter by a given value.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/counter-increment
 		 */
-		counterIncrement(values: CssValue[][]): Call;
+		counterIncrement(values: CssValue[][]): Command;
 		/**
 		 * The **`counter-increment`** CSS property increases or decreases the value of a CSS counter by a given value.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/counter-increment
 		 */
-		"counter-increment"(value: CssValue, ...values: CssValue[]): Call;
+		"counter-increment"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`counter-increment`** CSS property increases or decreases the value of a CSS counter by a given value.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/counter-increment
 		 */
-		"counter-increment"(values: CssValue[][]): Call;
+		"counter-increment"(values: CssValue[][]): Command;
 	}
 }

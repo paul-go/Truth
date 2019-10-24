@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/quotes
 		 */
-		quotes(value: CssValue, ...values: CssValue[]): Call;
+		quotes(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`quotes`** CSS property sets how quotation marks appear.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/quotes
 		 */
-		quotes(values: CssValue[][]): Call;
+		quotes(values: CssValue[][]): Command;
 	}
 }

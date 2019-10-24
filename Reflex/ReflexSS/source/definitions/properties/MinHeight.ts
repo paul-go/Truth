@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/min-height
 		 */
-		minHeight(value: CssValue, ...values: CssValue[]): Call;
+		minHeight(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`min-height`** CSS property sets the minimum height of an element. It prevents the used value of the `height` property from becoming smaller than the value specified for `min-height`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/min-height
 		 */
-		minHeight(values: CssValue[][]): Call;
+		minHeight(values: CssValue[][]): Command;
 		/**
 		 * The **`min-height`** CSS property sets the minimum height of an element. It prevents the used value of the `height` property from becoming smaller than the value specified for `min-height`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/min-height
 		 */
-		"min-height"(value: CssValue, ...values: CssValue[]): Call;
+		"min-height"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`min-height`** CSS property sets the minimum height of an element. It prevents the used value of the `height` property from becoming smaller than the value specified for `min-height`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/min-height
 		 */
-		"min-height"(values: CssValue[][]): Call;
+		"min-height"(values: CssValue[][]): Command;
 	}
 }

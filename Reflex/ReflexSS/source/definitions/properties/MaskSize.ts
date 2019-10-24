@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-size
 		 */
-		maskSize(value: CssValue, ...values: CssValue[]): Call;
+		maskSize(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-size`** CSS property specifies the sizes of the mask images. The size of the image can be fully or partially constrained in order to preserve its intrinsic ratio.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-size
 		 */
-		maskSize(values: CssValue[][]): Call;
+		maskSize(values: CssValue[][]): Command;
 		/**
 		 * The **`mask-size`** CSS property specifies the sizes of the mask images. The size of the image can be fully or partially constrained in order to preserve its intrinsic ratio.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-size
 		 */
-		"mask-size"(value: CssValue, ...values: CssValue[]): Call;
+		"mask-size"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-size`** CSS property specifies the sizes of the mask images. The size of the image can be fully or partially constrained in order to preserve its intrinsic ratio.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-size
 		 */
-		"mask-size"(values: CssValue[][]): Call;
+		"mask-size"(values: CssValue[][]): Command;
 	}
 }

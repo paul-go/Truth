@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/shape-margin
 		 */
-		shapeMargin(value: CssValue, ...values: CssValue[]): Call;
+		shapeMargin(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`shape-margin`** CSS property sets a margin for a CSS shape created using `shape-outside`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/shape-margin
 		 */
-		shapeMargin(values: CssValue[][]): Call;
+		shapeMargin(values: CssValue[][]): Command;
 		/**
 		 * The **`shape-margin`** CSS property sets a margin for a CSS shape created using `shape-outside`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/shape-margin
 		 */
-		"shape-margin"(value: CssValue, ...values: CssValue[]): Call;
+		"shape-margin"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`shape-margin`** CSS property sets a margin for a CSS shape created using `shape-outside`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/shape-margin
 		 */
-		"shape-margin"(values: CssValue[][]): Call;
+		"shape-margin"(values: CssValue[][]): Command;
 	}
 }

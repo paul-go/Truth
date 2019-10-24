@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/top
 		 */
-		top(value: CssValue, ...values: CssValue[]): Call;
+		top(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`top`** CSS property participates in specifying the vertical position of a _positioned element_. It has no effect on non-positioned elements.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/top
 		 */
-		top(values: CssValue[][]): Call;
+		top(values: CssValue[][]): Command;
 	}
 }

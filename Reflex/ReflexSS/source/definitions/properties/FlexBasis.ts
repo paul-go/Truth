@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-basis
 		 */
-		flexBasis(value: CssValue, ...values: CssValue[]): Call;
+		flexBasis(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`flex-basis`** CSS property sets the initial main size of a flex item. It sets the size of the content box unless otherwise set with `box-sizing`.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-basis
 		 */
-		flexBasis(values: CssValue[][]): Call;
+		flexBasis(values: CssValue[][]): Command;
 		/**
 		 * The **`flex-basis`** CSS property sets the initial main size of a flex item. It sets the size of the content box unless otherwise set with `box-sizing`.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-basis
 		 */
-		"flex-basis"(value: CssValue, ...values: CssValue[]): Call;
+		"flex-basis"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`flex-basis`** CSS property sets the initial main size of a flex item. It sets the size of the content box unless otherwise set with `box-sizing`.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-basis
 		 */
-		"flex-basis"(values: CssValue[][]): Call;
+		"flex-basis"(values: CssValue[][]): Command;
 	}
 }

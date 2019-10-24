@@ -10,7 +10,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		clip(value: CssValue, ...values: CssValue[]): Call;
+		clip(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`clip`** CSS property defines what portion of an element is visible. The `clip` property applies only to absolutely positioned elements, that is elements with `position:absolute` or `position:fixed`.
 		 * 
@@ -18,6 +18,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		clip(values: CssValue[][]): Call;
+		clip(values: CssValue[][]): Command;
 	}
 }

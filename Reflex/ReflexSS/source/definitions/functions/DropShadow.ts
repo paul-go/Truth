@@ -4,12 +4,12 @@ declare namespace Reflex.SS
 	export interface Namespace
 	{
 		/** */
-		dropShadow(value: CssValue, ...values: CssValue[]): Call;
+		dropShadow(value: CssValue, ...values: CssValue[]): Command;
 		/** */
-		dropShadow(values: CssValue[][]): Call;
+		dropShadow(values: CssValue[][]): Command;
 		/** */
-		"drop-shadow"(value: CssValue, ...values: CssValue[]): Call;
+		"drop-shadow"(value: CssValue, ...values: CssValue[]): Command;
 		/** */
-		"drop-shadow"(values: CssValue[][]): Call;
+		"drop-shadow"(values: CssValue[][]): Command;
 	}
 }

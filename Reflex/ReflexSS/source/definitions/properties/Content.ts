@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/content
 		 */
-		content(value: CssValue, ...values: CssValue[]): Call;
+		content(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`content`** CSS property replaces an element with a generated value. Objects inserted using the `content` property are _anonymous replaced elements._
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/content
 		 */
-		content(values: CssValue[][]): Call;
+		content(values: CssValue[][]): Command;
 	}
 }

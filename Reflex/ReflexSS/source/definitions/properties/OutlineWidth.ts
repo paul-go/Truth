@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-width
 		 */
-		outlineWidth(value: CssValue, ...values: CssValue[]): Call;
+		outlineWidth(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`outline-width`** CSS property sets the thickness of an element's outline. An outline is a line that is drawn around an element, outside the `border`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-width
 		 */
-		outlineWidth(values: CssValue[][]): Call;
+		outlineWidth(values: CssValue[][]): Command;
 		/**
 		 * The **`outline-width`** CSS property sets the thickness of an element's outline. An outline is a line that is drawn around an element, outside the `border`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-width
 		 */
-		"outline-width"(value: CssValue, ...values: CssValue[]): Call;
+		"outline-width"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`outline-width`** CSS property sets the thickness of an element's outline. An outline is a line that is drawn around an element, outside the `border`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-width
 		 */
-		"outline-width"(values: CssValue[][]): Call;
+		"outline-width"(values: CssValue[][]): Command;
 	}
 }

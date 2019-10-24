@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-name
 		 */
-		animationName(value: CssValue, ...values: CssValue[]): Call;
+		animationName(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`animation-name`** CSS property sets one or more animations to apply to an element. Each name is an `@keyframes` at-rule that sets the property values for the animation sequence.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-name
 		 */
-		animationName(values: CssValue[][]): Call;
+		animationName(values: CssValue[][]): Command;
 		/**
 		 * The **`animation-name`** CSS property sets one or more animations to apply to an element. Each name is an `@keyframes` at-rule that sets the property values for the animation sequence.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-name
 		 */
-		"animation-name"(value: CssValue, ...values: CssValue[]): Call;
+		"animation-name"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`animation-name`** CSS property sets one or more animations to apply to an element. Each name is an `@keyframes` at-rule that sets the property values for the animation sequence.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-name
 		 */
-		"animation-name"(values: CssValue[][]): Call;
+		"animation-name"(values: CssValue[][]): Command;
 	}
 }

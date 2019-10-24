@@ -4,8 +4,8 @@ declare namespace Reflex.SS
 	export interface Namespace
 	{
 		/** */
-		translateZ(value: CssValue, ...values: CssValue[]): Call;
+		translateZ(value: CssValue, ...values: CssValue[]): Command;
 		/** */
-		translateZ(values: CssValue[][]): Call;
+		translateZ(values: CssValue[][]): Command;
 	}
 }

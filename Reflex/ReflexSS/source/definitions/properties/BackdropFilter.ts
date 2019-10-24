@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/backdrop-filter
 		 */
-		backdropFilter(value: CssValue, ...values: CssValue[]): Call;
+		backdropFilter(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`backdrop-filter`** CSS property lets you apply graphical effects such as blurring or color shifting to the area behind an element. Because it applies to everything _behind_ the element, to see the effect you must make the element or its background at least partially transparent.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/backdrop-filter
 		 */
-		backdropFilter(values: CssValue[][]): Call;
+		backdropFilter(values: CssValue[][]): Command;
 		/**
 		 * The **`backdrop-filter`** CSS property lets you apply graphical effects such as blurring or color shifting to the area behind an element. Because it applies to everything _behind_ the element, to see the effect you must make the element or its background at least partially transparent.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/backdrop-filter
 		 */
-		"backdrop-filter"(value: CssValue, ...values: CssValue[]): Call;
+		"backdrop-filter"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`backdrop-filter`** CSS property lets you apply graphical effects such as blurring or color shifting to the area behind an element. Because it applies to everything _behind_ the element, to see the effect you must make the element or its background at least partially transparent.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/backdrop-filter
 		 */
-		"backdrop-filter"(values: CssValue[][]): Call;
+		"backdrop-filter"(values: CssValue[][]): Command;
 	}
 }

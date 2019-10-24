@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/table-layout
 		 */
-		tableLayout(value: CssValue, ...values: CssValue[]): Call;
+		tableLayout(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`table-layout`** CSS property sets the algorithm used to lay out `<table>` cells, rows, and columns.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/table-layout
 		 */
-		tableLayout(values: CssValue[][]): Call;
+		tableLayout(values: CssValue[][]): Command;
 		/**
 		 * The **`table-layout`** CSS property sets the algorithm used to lay out `<table>` cells, rows, and columns.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/table-layout
 		 */
-		"table-layout"(value: CssValue, ...values: CssValue[]): Call;
+		"table-layout"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`table-layout`** CSS property sets the algorithm used to lay out `<table>` cells, rows, and columns.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/table-layout
 		 */
-		"table-layout"(values: CssValue[][]): Call;
+		"table-layout"(values: CssValue[][]): Command;
 	}
 }

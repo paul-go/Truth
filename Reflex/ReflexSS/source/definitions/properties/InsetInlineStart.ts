@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/inset-inline-start
 		 */
-		insetInlineStart(value: CssValue, ...values: CssValue[]): Call;
+		insetInlineStart(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`inset-inline-start`** CSS property defines the logical inline start inset of an element, which maps to a physical offset depending on the element's writing mode, directionality, and text orientation. It corresponds to the `top`, `right`, `bottom`, or `left` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/inset-inline-start
 		 */
-		insetInlineStart(values: CssValue[][]): Call;
+		insetInlineStart(values: CssValue[][]): Command;
 		/**
 		 * The **`inset-inline-start`** CSS property defines the logical inline start inset of an element, which maps to a physical offset depending on the element's writing mode, directionality, and text orientation. It corresponds to the `top`, `right`, `bottom`, or `left` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/inset-inline-start
 		 */
-		"inset-inline-start"(value: CssValue, ...values: CssValue[]): Call;
+		"inset-inline-start"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`inset-inline-start`** CSS property defines the logical inline start inset of an element, which maps to a physical offset depending on the element's writing mode, directionality, and text orientation. It corresponds to the `top`, `right`, `bottom`, or `left` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/inset-inline-start
 		 */
-		"inset-inline-start"(values: CssValue[][]): Call;
+		"inset-inline-start"(values: CssValue[][]): Command;
 	}
 }

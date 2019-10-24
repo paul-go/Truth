@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-template
 		 */
-		gridTemplate(value: CssValue, ...values: CssValue[]): Call;
+		gridTemplate(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`grid-template`** CSS property is a shorthand property for defining grid columns, rows, and areas.
 		 * 
@@ -22,7 +22,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-template
 		 */
-		gridTemplate(values: CssValue[][]): Call;
+		gridTemplate(values: CssValue[][]): Command;
 		/**
 		 * The **`grid-template`** CSS property is a shorthand property for defining grid columns, rows, and areas.
 		 * 
@@ -32,7 +32,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-template
 		 */
-		"grid-template"(value: CssValue, ...values: CssValue[]): Call;
+		"grid-template"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`grid-template`** CSS property is a shorthand property for defining grid columns, rows, and areas.
 		 * 
@@ -42,6 +42,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-template
 		 */
-		"grid-template"(values: CssValue[][]): Call;
+		"grid-template"(values: CssValue[][]): Command;
 	}
 }

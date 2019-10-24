@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/cursor
 		 */
-		cursor(value: CssValue, ...values: CssValue[]): Call;
+		cursor(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`cursor`** CSS property sets mouse cursor to display when the mouse pointer is over an element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/cursor
 		 */
-		cursor(values: CssValue[][]): Call;
+		cursor(values: CssValue[][]): Command;
 	}
 }

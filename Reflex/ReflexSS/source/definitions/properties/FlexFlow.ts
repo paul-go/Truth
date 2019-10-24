@@ -13,7 +13,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-flow
 		 */
-		flexFlow(value: CssValue, ...values: CssValue[]): Call;
+		flexFlow(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`flex-flow`** CSS property is a shorthand property for `flex-direction` and `flex-wrap` properties.
 		 * 
@@ -24,7 +24,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-flow
 		 */
-		flexFlow(values: CssValue[][]): Call;
+		flexFlow(values: CssValue[][]): Command;
 		/**
 		 * The **`flex-flow`** CSS property is a shorthand property for `flex-direction` and `flex-wrap` properties.
 		 * 
@@ -35,7 +35,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-flow
 		 */
-		"flex-flow"(value: CssValue, ...values: CssValue[]): Call;
+		"flex-flow"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`flex-flow`** CSS property is a shorthand property for `flex-direction` and `flex-wrap` properties.
 		 * 
@@ -46,6 +46,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-flow
 		 */
-		"flex-flow"(values: CssValue[][]): Call;
+		"flex-flow"(values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-style
 		 */
-		outlineStyle(value: CssValue, ...values: CssValue[]): Call;
+		outlineStyle(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`outline-style`** CSS property sets the style of an element's outline. An outline is a line that is drawn around an element, outside the `border`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-style
 		 */
-		outlineStyle(values: CssValue[][]): Call;
+		outlineStyle(values: CssValue[][]): Command;
 		/**
 		 * The **`outline-style`** CSS property sets the style of an element's outline. An outline is a line that is drawn around an element, outside the `border`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-style
 		 */
-		"outline-style"(value: CssValue, ...values: CssValue[]): Call;
+		"outline-style"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`outline-style`** CSS property sets the style of an element's outline. An outline is a line that is drawn around an element, outside the `border`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-style
 		 */
-		"outline-style"(values: CssValue[][]): Call;
+		"outline-style"(values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/inset-block-start
 		 */
-		insetBlockStart(value: CssValue, ...values: CssValue[]): Call;
+		insetBlockStart(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`inset-block-start`** CSS property defines the logical block start offset of an element, which maps to a physical inset depending on the element's writing mode, directionality, and text orientation. It corresponds to the `top`, `right`, `bottom`, or `left` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/inset-block-start
 		 */
-		insetBlockStart(values: CssValue[][]): Call;
+		insetBlockStart(values: CssValue[][]): Command;
 		/**
 		 * The **`inset-block-start`** CSS property defines the logical block start offset of an element, which maps to a physical inset depending on the element's writing mode, directionality, and text orientation. It corresponds to the `top`, `right`, `bottom`, or `left` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/inset-block-start
 		 */
-		"inset-block-start"(value: CssValue, ...values: CssValue[]): Call;
+		"inset-block-start"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`inset-block-start`** CSS property defines the logical block start offset of an element, which maps to a physical inset depending on the element's writing mode, directionality, and text orientation. It corresponds to the `top`, `right`, `bottom`, or `left` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/inset-block-start
 		 */
-		"inset-block-start"(values: CssValue[][]): Call;
+		"inset-block-start"(values: CssValue[][]): Command;
 	}
 }

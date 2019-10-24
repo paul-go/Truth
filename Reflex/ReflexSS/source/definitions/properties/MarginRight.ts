@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-right
 		 */
-		marginRight(value: CssValue, ...values: CssValue[]): Call;
+		marginRight(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`margin-right`** CSS property sets the margin area on the right side of an element. A positive value places it farther from its neighbors, while a negative value places it closer.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-right
 		 */
-		marginRight(values: CssValue[][]): Call;
+		marginRight(values: CssValue[][]): Command;
 		/**
 		 * The **`margin-right`** CSS property sets the margin area on the right side of an element. A positive value places it farther from its neighbors, while a negative value places it closer.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-right
 		 */
-		"margin-right"(value: CssValue, ...values: CssValue[]): Call;
+		"margin-right"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`margin-right`** CSS property sets the margin area on the right side of an element. A positive value places it farther from its neighbors, while a negative value places it closer.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-right
 		 */
-		"margin-right"(values: CssValue[][]): Call;
+		"margin-right"(values: CssValue[][]): Command;
 	}
 }

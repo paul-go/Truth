@@ -8,24 +8,24 @@ declare namespace Reflex.SS
 		 * 
 		 * **Initial value**: `auto`
 		 */
-		maskBorderWidth(value: CssValue, ...values: CssValue[]): Call;
+		maskBorderWidth(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-border-width`** CSS property sets the width of an element's mask border.
 		 * 
 		 * **Initial value**: `auto`
 		 */
-		maskBorderWidth(values: CssValue[][]): Call;
+		maskBorderWidth(values: CssValue[][]): Command;
 		/**
 		 * The **`mask-border-width`** CSS property sets the width of an element's mask border.
 		 * 
 		 * **Initial value**: `auto`
 		 */
-		"mask-border-width"(value: CssValue, ...values: CssValue[]): Call;
+		"mask-border-width"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-border-width`** CSS property sets the width of an element's mask border.
 		 * 
 		 * **Initial value**: `auto`
 		 */
-		"mask-border-width"(values: CssValue[][]): Call;
+		"mask-border-width"(values: CssValue[][]): Command;
 	}
 }

@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background
 		 */
-		background(value: CssValue, ...values: CssValue[]): Call;
+		background(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`background`** shorthand CSS property sets all background style properties at once, such as color, image, origin and size, or repeat method.
 		 * 
@@ -22,6 +22,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background
 		 */
-		background(values: CssValue[][]): Call;
+		background(values: CssValue[][]): Command;
 	}
 }

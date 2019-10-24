@@ -52,17 +52,17 @@ namespace Reflex.SS.Emitter
 		
 		const allLines = [
 			...commentPrefix,
-			codeName + "(value: CssValue, ...values: CssValue[]): Call;",
+			codeName + "(value: CssValue, ...values: CssValue[]): Command;",
 			...commentPrefix,
-			codeName + "(values: CssValue[][]): Call;",
+			codeName + "(values: CssValue[][]): Command;",
 		];
 		
 		if (cssName.includes("-"))
 			allLines.push(
 				...commentPrefix,
-				`"${cssName}"(value: CssValue, ...values: CssValue[]): Call;`,
+				`"${cssName}"(value: CssValue, ...values: CssValue[]): Command;`,
 				...commentPrefix,
-				`"${cssName}"(values: CssValue[][]): Call;`);
+				`"${cssName}"(values: CssValue[][]): Command;`);
 		
 		writeCodeFile(dir, fileName, allLines);
 	}

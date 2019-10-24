@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-start-end-radius
 		 */
-		borderStartEndRadius(value: CssValue, ...values: CssValue[]): Call;
+		borderStartEndRadius(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-start-end-radius`** CSS property defines a logical border radius on an element, which maps to a physical border radius depending on the element's `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-start-end-radius
 		 */
-		borderStartEndRadius(values: CssValue[][]): Call;
+		borderStartEndRadius(values: CssValue[][]): Command;
 		/**
 		 * The **`border-start-end-radius`** CSS property defines a logical border radius on an element, which maps to a physical border radius depending on the element's `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-start-end-radius
 		 */
-		"border-start-end-radius"(value: CssValue, ...values: CssValue[]): Call;
+		"border-start-end-radius"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-start-end-radius`** CSS property defines a logical border radius on an element, which maps to a physical border radius depending on the element's `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-start-end-radius
 		 */
-		"border-start-end-radius"(values: CssValue[][]): Call;
+		"border-start-end-radius"(values: CssValue[][]): Command;
 	}
 }

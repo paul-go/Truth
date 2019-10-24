@@ -8,24 +8,24 @@ declare namespace Reflex.SS
 		 * 
 		 * **Initial value**: `stretch`
 		 */
-		maskBorderRepeat(value: CssValue, ...values: CssValue[]): Call;
+		maskBorderRepeat(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-border-repeat`** CSS property sets how the edge regions of a source image are adjusted to fit the dimensions of an element's mask border.
 		 * 
 		 * **Initial value**: `stretch`
 		 */
-		maskBorderRepeat(values: CssValue[][]): Call;
+		maskBorderRepeat(values: CssValue[][]): Command;
 		/**
 		 * The **`mask-border-repeat`** CSS property sets how the edge regions of a source image are adjusted to fit the dimensions of an element's mask border.
 		 * 
 		 * **Initial value**: `stretch`
 		 */
-		"mask-border-repeat"(value: CssValue, ...values: CssValue[]): Call;
+		"mask-border-repeat"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`mask-border-repeat`** CSS property sets how the edge regions of a source image are adjusted to fit the dimensions of an element's mask border.
 		 * 
 		 * **Initial value**: `stretch`
 		 */
-		"mask-border-repeat"(values: CssValue[][]): Call;
+		"mask-border-repeat"(values: CssValue[][]): Command;
 	}
 }

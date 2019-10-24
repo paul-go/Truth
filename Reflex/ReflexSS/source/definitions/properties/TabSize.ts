@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/tab-size
 		 */
-		tabSize(value: CssValue, ...values: CssValue[]): Call;
+		tabSize(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`tab-size`** CSS property is used to customize the width of a tab (`U+0009`) character.
 		 * 
@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/tab-size
 		 */
-		tabSize(values: CssValue[][]): Call;
+		tabSize(values: CssValue[][]): Command;
 		/**
 		 * The **`tab-size`** CSS property is used to customize the width of a tab (`U+0009`) character.
 		 * 
@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/tab-size
 		 */
-		"tab-size"(value: CssValue, ...values: CssValue[]): Call;
+		"tab-size"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`tab-size`** CSS property is used to customize the width of a tab (`U+0009`) character.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/tab-size
 		 */
-		"tab-size"(values: CssValue[][]): Call;
+		"tab-size"(values: CssValue[][]): Command;
 	}
 }

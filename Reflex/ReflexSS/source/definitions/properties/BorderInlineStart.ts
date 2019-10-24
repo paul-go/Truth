@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-start
 		 */
-		borderInlineStart(value: CssValue, ...values: CssValue[]): Call;
+		borderInlineStart(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-inline-start`** CSS property is a shorthand property for setting the individual logical inline-start border property values in a single place in the style sheet.
 		 * 
@@ -22,7 +22,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-start
 		 */
-		borderInlineStart(values: CssValue[][]): Call;
+		borderInlineStart(values: CssValue[][]): Command;
 		/**
 		 * The **`border-inline-start`** CSS property is a shorthand property for setting the individual logical inline-start border property values in a single place in the style sheet.
 		 * 
@@ -32,7 +32,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-start
 		 */
-		"border-inline-start"(value: CssValue, ...values: CssValue[]): Call;
+		"border-inline-start"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`border-inline-start`** CSS property is a shorthand property for setting the individual logical inline-start border property values in a single place in the style sheet.
 		 * 
@@ -42,6 +42,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-start
 		 */
-		"border-inline-start"(values: CssValue[][]): Call;
+		"border-inline-start"(values: CssValue[][]): Command;
 	}
 }

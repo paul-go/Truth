@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-ligatures
 		 */
-		fontVariantLigatures(value: CssValue, ...values: CssValue[]): Call;
+		fontVariantLigatures(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-variant-ligatures`** CSS property controls which ligatures and contextual forms are used in textual content of the elements it applies to. This leads to more harmonized forms in the resulting text.
 		 * 
@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-ligatures
 		 */
-		fontVariantLigatures(values: CssValue[][]): Call;
+		fontVariantLigatures(values: CssValue[][]): Command;
 		/**
 		 * The **`font-variant-ligatures`** CSS property controls which ligatures and contextual forms are used in textual content of the elements it applies to. This leads to more harmonized forms in the resulting text.
 		 * 
@@ -41,7 +41,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-ligatures
 		 */
-		"font-variant-ligatures"(value: CssValue, ...values: CssValue[]): Call;
+		"font-variant-ligatures"(value: CssValue, ...values: CssValue[]): Command;
 		/**
 		 * The **`font-variant-ligatures`** CSS property controls which ligatures and contextual forms are used in textual content of the elements it applies to. This leads to more harmonized forms in the resulting text.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-ligatures
 		 */
-		"font-variant-ligatures"(values: CssValue[][]): Call;
+		"font-variant-ligatures"(values: CssValue[][]): Command;
 	}
 }
