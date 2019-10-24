@@ -7,6 +7,14 @@ namespace Reflex.Core
 	declare const Deno: any;
 	
 	/**
+	 * 
+	 */
+	export type AsLibrary<T, L extends ILibrary> = 
+		T &
+		StaticBranchesOf<L> &
+		StaticNonBranchesOf<L>;
+	
+	/**
 	 * Creates a Reflex namespace, which is the top-level function object that
 	 * holds all functions in the reflexive library.
 	 * 
@@ -24,9 +32,10 @@ namespace Reflex.Core
 	 * current environment. If the ILibrary interface provided doesn't support
 	 * the creation of recurrent functions, this parameter has no effect.
 	 */
-	export function createContentNamespace<T extends IContentNamespace<any, any>>(
-		library: ILibrary,
-		globalize?: boolean): T
+	export function createContentNamespace
+		<T extends IContentNamespace<any, any>, L extends ILibrary>(
+		library: L,
+		globalize?: boolean): AsLibrary<T, L>
 	{
 		if (Const.debug && !library.createContent)
 			throw new Error("The .createContent function must be implemented in this library.");
@@ -50,9 +59,10 @@ namespace Reflex.Core
 	 * current environment. If the ILibrary interface provided doesn't support
 	 * the creation of recurrent functions, this parameter has no effect.
 	 */
-	export function createContainerNamespace<T extends IContainerNamespace<any, any>>(
-		library: ILibrary,
-		globalize?: boolean): T
+	export function createContainerNamespace
+		<T extends IContainerNamespace<any, any>, L extends ILibrary>(
+		library: L,
+		globalize?: boolean): AsLibrary<T, L>
 	{
 		if (Const.debug && !library.createContainer)
 			throw new Error("The .createContainer function must be implemented in this library.");
@@ -60,11 +70,13 @@ namespace Reflex.Core
 		return createNamespace(false, library, globalize);
 	}
 	
-	/** */
-	function createNamespace<TNamespace>(
+	/**
+	 * Internal namespace object creation function.
+	 */
+	function createNamespace<TNamespace, TLibrary extends ILibrary>(
 		isContent: boolean,
-		library: ILibrary,
-		globalize?: boolean): TNamespace
+		library: TLibrary,
+		globalize?: boolean): AsLibrary<TNamespace, TLibrary>
 	{
 		RoutingLibrary.addLibrary(library);
 		

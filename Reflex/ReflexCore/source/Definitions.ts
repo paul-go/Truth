@@ -140,12 +140,48 @@ declare namespace Reflex.Core
 	export type MaybeReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
 	
 	/**
+	 * Maps the specified type to a version of itself,
+	 * but without any possibly undefined values.
+	 */
+	export type Defined<T> = { [K in keyof T]-?: T[K] };
+	
+	/**
+	 * Extracts the return type of the specified function type.
+	 */
+	export type ReturnOf<original extends Function> = 
+		original extends (...x: any[]) => infer returnType ?
+			returnType : 
+			never;
+	
+	/**
 	 * Extracts the methods out of the type, and returns a mapped object type
 	 * whose members are transformed into branch creation methods.
 	 */
-	export type AsBranchMethods<T> = {
-		[M in Reflex.Core.MethodNames<T>]: 
-			(...primitives: Primitives[]) =>
-				Reflex.Core.MaybeReturnType<T[M]>
+	export type AsBranches<T> = {
+		[K in keyof T]: AsBranch<T[K]>
 	};
+	
+	/**
+	 * Extracts 
+	 */
+	export type AsBranch<F> = 
+		F extends () => infer R ? (...primitives: Primitives[]) => R :
+		F extends (...args: infer A) => infer R ? (...args: A) => (...primitives: Primitives[]) => R :
+		F;
+	
+	/**
+	 * 
+	 */
+	export type StaticBranchesOf<L extends Reflex.Core.ILibrary> =
+		L["getStaticBranches"] extends Function ?
+			AsBranches<ReturnOf<L["getStaticBranches"]>> :
+			{};
+	
+	/**
+	 * 
+	 */
+	export type StaticNonBranchesOf<L extends Reflex.Core.ILibrary> =
+		L["getStaticNonBranches"] extends Function ?
+			AsBranches<ReturnOf<L["getStaticNonBranches"]>> :
+			{};
 }
