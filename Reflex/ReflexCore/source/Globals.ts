@@ -14,7 +14,15 @@ function force(initialValue: boolean): Reflex.Core.BooleanForce;
 /**
  * 
  */
-function force(initialValue: string | number | bigint): Reflex.Core.StatefulForce;
+function force(initialValue: string): Reflex.Core.StatefulForce<string>;
+/**
+ * 
+ */
+function force(initialValue: number): Reflex.Core.StatefulForce<number>;
+/**
+ * 
+ */
+function force(initialValue: bigint): Reflex.Core.StatefulForce<bigint>;
 /**
  * 
  */
