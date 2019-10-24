@@ -49,8 +49,22 @@ namespace Reflex.Core
 		{
 			if (referenceBranch)
 			{
-				for (const lib of RoutingLibrary.libraries)
+				const libs = RoutingLibrary.libraries;
+				
+				// It's important that test for associativity between a
+				// branch and a library is done in reverse order, in order
+				// to support the case of Reflexive libraries being layered
+				// on top of each other. If Reflexive library A is layered on
+				// Reflexive library B, A will be added to the libraries array
+				// before B. The libraries array therefore has an implicit
+				// topological sort. Iterating backwards ensures that the
+				// higher-level libraries are tested before the lower-level ones.
+				// This is critical, because a higher-level library may operate
+				// on the same branch types as the lower-level libraries that
+				// it's abstracting.
+				for (let i = libs.length; --i > 0;)
 				{
+					const lib = libs[i];
 					if (lib.isKnownBranch(referenceBranch))
 					{
 						const libFn = getFn(lib);
