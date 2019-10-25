@@ -44,5 +44,26 @@ namespace Backer.TruthTalk
 		/** */
 		endsWith(value: string | number): Leaves.Predicate;
 		
+		/** */
+		aliased(): Leaves.Aliased;
+		
+		/** */
+		leaves(): Leaves.Leaves;
+		
+		/** */
+		fresh(): Leaves.Fresh;
+		
+		/** */
+		slice(start: number, end?: number): Leaves.Slice;
+		
+		/** */
+		occurences(min: number, max?: number): Leaves.Occurences;
+		
+		/** */
+		sort(...contentTypes: Object[]): Leaves.Sort;
+		
+		/** */
+		reverse(): Leaves.Reverse;
+		
 	}
 }
