@@ -29,7 +29,7 @@ namespace Reflex.Core
 				
 				for await (const iterableResult of this.iterator)
 				{
-					const resultMetas = CoreUtil.translatePrimitives(
+					const resultMetas = CoreUtil.translateAtomics(
 						containingBranch,
 						branchMeta,
 						iterableResult);

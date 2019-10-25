@@ -3,8 +3,8 @@ namespace Reflex.SS
 {
 	export type Node = HTMLElement | Text;
 	export type Branch = Rule | Command;
-	export type Primitive = Core.Primitive<Node, Branch, string>;
-	export type Primitives = Core.Primitives<Node, Branch, string>;
+	export type Atomic = Core.Atomic<Node, Branch, string>;
+	export type Atomics = Core.Atomics<Node, Branch, string>;
 	
 	/**
 	 * Top-level value for all possible inputs
@@ -15,7 +15,7 @@ namespace Reflex.SS
 	/**
 	 * Creates a namespace.
 	 */
-	export interface Namespace extends Core.IContainerNamespace<Primitives, string>
+	export interface Namespace extends Core.IContainerNamespace<Atomics, string>
 	{
 		/**
 		 * Serializes all generated CSS content into a string.
@@ -165,35 +165,35 @@ namespace Reflex.SS
 		}
 		
 		/** */
-		attachPrimitive(
-			primitive: any,
+		attachAtomic(
+			atomic: any,
 			owner: Branch,
 			ref: Node | "prepend" | "append")
 		{
 			if (owner instanceof Rule)
 			{
-				if (typeof primitive === "number")
+				if (typeof atomic === "number")
 				{
-					const nth = Math.floor(primitive);
+					const nth = Math.floor(atomic);
 					owner.selectorFragments.push(nth < 0 ?
 						`:nth-last-child(${nth * -1})` :
 						`:nth-child(${nth - 1})`);
 				}
-				else if (typeof primitive === "string")
+				else if (typeof atomic === "string")
 				{
-					const existingRule = this.fauxSheet.get(primitive);
+					const existingRule = this.fauxSheet.get(atomic);
 					if (existingRule)
 					{
 						existingRule.containers.push(owner);
 						owner.children.push(existingRule);
 					}
-					else owner.selectorFragments.push(primitive);
+					else owner.selectorFragments.push(atomic);
 				}
-				else if (primitive instanceof Command)
+				else if (atomic instanceof Command)
 				{
-					owner.declarations.push(primitive);
+					owner.declarations.push(atomic);
 				}
-				else if (primitive instanceof Rule)
+				else if (atomic instanceof Rule)
 				{
 					// Nested rule
 					// This wouldn't actually happen, because 
@@ -204,7 +204,7 @@ namespace Reflex.SS
 		}
 		
 		/** */
-		detachPrimitive()
+		detachAtomic()
 		{
 			throw new Error("Not implemented.");
 		}
@@ -236,9 +236,9 @@ namespace Reflex.SS
 		/** */
 		handleBranchFunction(
 			branch: Reflex.Core.IBranch, 
-			branchFn: (...primitives: any[]) => Reflex.Core.IBranch)
+			branchFn: (...atomics: any[]) => Reflex.Core.IBranch)
 		{
-			this.attachPrimitive(
+			this.attachAtomic(
 				" " + branchFn.name.toUpperCase(),
 				<Branch>branch,
 				"append");

@@ -20,9 +20,9 @@ A **leaf** is a region of content. Leafs are created by using the template liter
 
 A **recurrent function** is simply a function that may be attached to some branch (and not a leaf), that may be called multiple times while connected.
 
-A **primitive** is a parameter that is passed to a branch function. The types of allowable primitives for a given branch function is defined at the library level, but some are usable across any reflexive library, such as arrays and functions.
+An **atomic** is a parameter that is passed to a branch function. The types of allowable atomics for a given branch function is defined at the library level, but some are usable across any reflexive library, such as arrays and functions.
 
-A **forces** are primitive or object variables that causes this reflexive kick-back behavior to occur when mutated.
+A **force** is similar to an observable, but they're connected to some branch via a recurrent function. They're either stateful (observable variable), or stateless (observable call). When stateful forces are mutated, or stateless forces are invoked, it causes an invokation of the recurrent function that is "hosting" the force.
 
 ## Unbounded Objects
 
@@ -50,11 +50,11 @@ const div = ml.div(
 );
 ```
 
-**Explanation**: This code ultimately generates a native [HTMLDivElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement). It takes 3 primitives as parameters: an H1 and two P elements. This is a simple example, and the power of the pattern isn't obvious until we start getting into more complex examples.
+**Explanation**: This code ultimately generates a native [HTMLDivElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement). It takes 3 atomics as parameters: an H1 and two P elements. This is a simple example, and the power of the pattern isn't obvious until we start getting into more complex examples.
 
 ### Attributes
 
-Reflexive libraries typically require some way to easily make type-safe assignments to a branch. In ReflexML, the concrete requirement is to assign HTML attributes to elements. This is done by passing an object literal with the desired values as a primitive. Again, we're able to use the fantastic type inference features of TypeScript to make this type-safe:
+Reflexive libraries typically require some way to easily make type-safe assignments to a branch. In ReflexML, the concrete requirement is to assign HTML attributes to elements. This is done by passing an object literal with the desired values as a atomic. Again, we're able to use the fantastic type inference features of TypeScript to make this type-safe:
 
 ```typescript
 ml.img(
@@ -62,7 +62,7 @@ ml.img(
 );
 ```
 
-### Complex Primitives
+### Complex Atomics
 
 When a Reflexive library has been configured to accept a certain data type, it's automatically able to accept infinitely nested iterables of that type. Below is an example of why you might want to do this:
 
@@ -156,7 +156,7 @@ This works because the Reflex Core uses an internal tracking algorithm to figure
 
 ### Closures
 
-When use-cases start getting more complex, it becomes necessary to gain programmatic access to the branches (or the HTML elements) being created, *while they're being created*. React for example, has an awkward feature known as `refs` that address this issue. The Reflex solution is far cleaner. Any closure passed as a primitive to a branch function is passed 2 parameters: a reference to current branch, and a live-updated array that references the current children of the branch. For example:
+When use-cases start getting more complex, it becomes necessary to gain programmatic access to the branches (or the HTML elements) being created, *while they're being created*. React for example, has an awkward feature known as `refs` that address this issue. The Reflex solution is far cleaner. Any closure passed as a atomic to a branch function is passed 2 parameters: a reference to current branch, and a live-updated array that references the current children of the branch. For example:
 
 ```typescript
 ml.div(
@@ -196,7 +196,7 @@ ml.div(
 // click event handler now attached to the containing div
 ```
 
-As stated earlier, ReflexML understands strings passed as primitives to be CSS class names:
+As stated earlier, ReflexML understands strings passed as atomics to be CSS class names:
 
 ```typescript
 ml.div("red");
@@ -215,7 +215,7 @@ ml.div(
 // based on some random number.
 ```
 
-Recurrent functions can kick back any valid primitive understood by the reflexive library. And when this is combined with the fact that the global `on()` function itself returns a primitive, the options for creating expressive, reusable code become essentially limitless:
+Recurrent functions can kick back any valid atomic understood by the reflexive library. And when this is combined with the fact that the global `on()` function itself returns a atomic, the options for creating expressive, reusable code become essentially limitless:
 
 ```typescript
 function getEvents()

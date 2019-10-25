@@ -94,7 +94,7 @@ namespace Reflex.Core
 		{
 			const createGlobal = (kind: RecurrentKind) => (
 				selector: any,
-				callback: RecurrentCallback<Primitives<any>>,
+				callback: RecurrentCallback<Atomics<any>>,
 				...rest: any[]) =>
 			{
 				if (library.createRecurrent)
@@ -269,23 +269,23 @@ namespace Reflex.Core
 	 * 
 	 */
 	const createBranchFn = (constructBranchFn: () => IBranch, name: string) =>
-		toBranchFunction(name, (...primitives: Primitive[]) =>
-			returnBranch(constructBranchFn(), primitives));
+		toBranchFunction(name, (...atomics: Atomic[]) =>
+			returnBranch(constructBranchFn(), atomics));
 	
 	/**
 	 * 
 	 */
 	const createParameticBranchFn = (branchFn: (...args: any[]) => IBranch, name: string) =>
 		(...constructBranchArgs: any[]) =>
-			toBranchFunction(name, (...primitives: Primitive[]) =>
-				returnBranch(branchFn(constructBranchArgs), primitives));
+			toBranchFunction(name, (...atomics: Atomic[]) =>
+				returnBranch(branchFn(constructBranchArgs), atomics));
 	
 	/**
 	 * 
 	 */
-	function returnBranch(branch: IBranch, primitives: any[])
+	function returnBranch(branch: IBranch, atomics: any[])
 	{
-		new BranchMeta(branch, primitives);
+		new BranchMeta(branch, atomics);
 		const lib = RoutingLibrary.this;
 		return lib.returnBranch ?
 			lib.returnBranch(branch) :

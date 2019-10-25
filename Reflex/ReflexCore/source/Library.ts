@@ -54,7 +54,7 @@ namespace Reflex.Core
 		/**
 		 * Reflexive libraries must implement this function to convert values
 		 * being processed by the top-level namespace function into other
-		 * values that will eventually be applied as primitives.
+		 * values that will eventually be applied as atomics.
 		 * 
 		 * This function should be implemented by libraries that use the
 		 * content namespace variant.
@@ -73,12 +73,12 @@ namespace Reflex.Core
 		/**
 		 * 
 		 */
-		attachPrimitive(primitive: any, branch: IBranch, ref: Ref): void;
+		attachAtomic(atomic: any, branch: IBranch, ref: Ref): void;
 		
 		/**
 		 * 
 		 */
-		detachPrimitive(primitive: any, branch: IBranch): void;
+		detachAtomic(atomic: any, branch: IBranch): void;
 
 		/**
 		 * 
@@ -110,7 +110,7 @@ namespace Reflex.Core
 		createRecurrent?: (
 			kind: RecurrentKind,
 			selector: any,
-			callback: RecurrentCallback<Primitives>,
+			callback: RecurrentCallback<Atomics>,
 			rest: any[]) => any
 		
 		/**
@@ -128,7 +128,7 @@ namespace Reflex.Core
 			kind: RecurrentKind,
 			target: IBranch,
 			selector: any,
-			callback: RecurrentCallback<Primitives>,
+			callback: RecurrentCallback<Atomics>,
 			rest: any[]) => boolean;
 		
 		/**
@@ -138,16 +138,16 @@ namespace Reflex.Core
 		detachRecurrent?: (
 			branch: IBranch,
 			selector: any,
-			callback: RecurrentCallback<Primitives>) => void;
+			callback: RecurrentCallback<Atomics>) => void;
 		
 		/**
 		 * Reflexive libraries can implement this function in order
 		 * to capture the flow of branches being passed as
-		 * primitives to other branch functions.
+		 * atomics to other branch functions.
 		 */
 		handleBranchFunction?: (
 			branch: IBranch,
-			branchFn: (...primitives: any[]) => IBranch) => void;
+			branchFn: (...atomics: any[]) => IBranch) => void;
 		
 		/**
 		 * Reflexive libraries can implement this function in order to process

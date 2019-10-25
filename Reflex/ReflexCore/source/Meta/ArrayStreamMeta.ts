@@ -29,16 +29,16 @@ namespace Reflex.Core
 			{
 				const fo = forceArray[i];
 				
-				const primitives = rec.userCallback(
+				const atomics = rec.userCallback(
 					fo,
 					containingBranch,
 					i,
 					...restArgs);
 				
-				const metas = CoreUtil.translatePrimitives(
+				const metas = CoreUtil.translateAtomics(
 					containingBranch,
 					this.containerMeta,
-					primitives);
+					atomics);
 				
 				CoreUtil.applyMetas(
 					containingBranch,
@@ -71,11 +71,11 @@ namespace Reflex.Core
 					const meta = findMeta(internalPos);
 					if (meta)
 					{
-						const primitives = rec.userCallback(item, containingBranch, position);
-						const metas = CoreUtil.translatePrimitives(
+						const atomics = rec.userCallback(item, containingBranch, position);
+						const metas = CoreUtil.translateAtomics(
 							containingBranch,
 							this.containerMeta,
-							primitives)[0] as BranchMeta;
+							atomics)[0] as BranchMeta;
 							
 						metas.locator.setContainer(this.containerMeta.locator);
 						RoutingLibrary.this.replaceBranch(meta.branch, metas.branch);
@@ -85,12 +85,12 @@ namespace Reflex.Core
 			
 			ForceUtil.attachForce(forceArray.added, (item: any, position: number) =>
 			{
-				const primitives = rec.userCallback(item, containingBranch, position);
+				const atomics = rec.userCallback(item, containingBranch, position);
 				
-				const metas = CoreUtil.translatePrimitives(
+				const metas = CoreUtil.translateAtomics(
 					containingBranch,
 					this.containerMeta,
-					primitives);
+					atomics);
 					
 				let tracker = localTracker;
 				

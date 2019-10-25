@@ -100,48 +100,48 @@ namespace Reflex.ML
 		}
 		
 		/** */
-		attachPrimitive(
-			primitive: any,
+		attachAtomic(
+			atomic: any,
 			owner: Branch,
 			ref: Node | "prepend" | "append")
 		{
-			if (typeof primitive === "string")
-				return owner.classList.add(primitive);
+			if (typeof atomic === "string")
+				return owner.classList.add(atomic);
 			
-			if (typeof primitive === "number" ||
-				typeof primitive === "bigint" ||
-				typeof primitive === "boolean")
-				primitive = new Text("" + primitive);
+			if (typeof atomic === "number" ||
+				typeof atomic === "bigint" ||
+				typeof atomic === "boolean")
+				atomic = new Text("" + atomic);
 			
-			if (primitive instanceof Element || primitive instanceof Text)
+			if (atomic instanceof Element || atomic instanceof Text)
 			{
 				if (ref === "prepend")
-					return owner.prepend(primitive);
+					return owner.prepend(atomic);
 				
 				if (ref === "append")
-					return owner.append(primitive);
+					return owner.append(atomic);
 				
-				if (ref instanceof Element && primitive instanceof Element)
-					return void ref.insertAdjacentElement("afterend", primitive);
+				if (ref instanceof Element && atomic instanceof Element)
+					return void ref.insertAdjacentElement("afterend", atomic);
 				
 				if (ref === owner.lastChild)
-					return void owner.append(primitive);
+					return void owner.append(atomic);
 				
 				const nodes = owner.childNodes;
 				for (let i = nodes.length - 1; i-- > 0;)
 					if (nodes[i] === ref)
-						return void owner.insertBefore(primitive, nodes[i + 1]);
+						return void owner.insertBefore(atomic, nodes[i + 1]);
 			}
 		}
 		
 		/** */
-		detachPrimitive(primitive: any, owner: Branch)
+		detachAtomic(atomic: any, owner: Branch)
 		{
-			if (primitive instanceof Element || primitive instanceof Text)
-				primitive.remove();
+			if (atomic instanceof Element || atomic instanceof Text)
+				atomic.remove();
 			
-			else if (typeof primitive === "string")
-				owner.classList.remove(primitive);
+			else if (typeof atomic === "string")
+				owner.classList.remove(atomic);
 		}
 		
 		/** */

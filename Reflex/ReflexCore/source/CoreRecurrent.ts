@@ -10,24 +10,24 @@ namespace Reflex.Core
 	{
 		/** */
 		static readonly selectors = Object.freeze([
-			"reflex:attach-primitive",
-			"reflex:detach-primitive"
+			"reflex:attach-atomic",
+			"reflex:detach-atomic"
 		] as const);
 		
 		/**
 		 * 
 		 */
-		static attachPrimitive(branch: IBranch, primitive: any)
+		static attachAtomic(branch: IBranch, atomic: any)
 		{
-			this.run("reflex:attach-primitive", branch, [primitive, branch]);
+			this.run("reflex:attach-atomic", branch, [atomic, branch]);
 		}
 		
 		/**
 		 * 
 		 */
-		static detachPrimitive(branch: IBranch, primitive: any)
+		static detachAtomic(branch: IBranch, atomic: any)
 		{
-			this.run("reflex:detach-primitive", branch, [primitive, branch]);
+			this.run("reflex:detach-atomic", branch, [atomic, branch]);
 		}
 		
 		/**
@@ -63,14 +63,14 @@ namespace Reflex.Core
  * 
  */
 declare function on(
-	events: "reflex:attach-primitive",
-	callback: (primitive: any, branch: Reflex.Core.IBranch) => true | void,
+	events: "reflex:attach-atomic",
+	callback: (atomic: any, branch: Reflex.Core.IBranch) => true | void,
 ): Reflex.Core.Recurrent;
 
 /**
  * 
  */
 declare function on(
-	events: "reflex:detach-primitive",
-	callback: (primitive: any, branch: Reflex.Core.IBranch) => true | void,
+	events: "reflex:detach-atomic",
+	callback: (atomic: any, branch: Reflex.Core.IBranch) => true | void,
 ): Reflex.Core.Recurrent;

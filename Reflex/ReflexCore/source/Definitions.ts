@@ -44,15 +44,15 @@ declare namespace Reflex.Core
 	export interface IContent extends Object { }
 	
 	/**
-	 * A type that identifies the primitive types that can exist
+	 * A type that identifies the atomic types that can exist
 	 * in any reflexive arguments list.
 	 */
-	export type Primitive<TMeta = object, TBranch = object, TAdditionals = unknown> =
+	export type Atomic<TMeta = object, TBranch = object, TAdditionals = unknown> =
 		Voidable<TMeta | TAdditionals> |
 		Iterable<TMeta | TAdditionals> |
 		AsyncIterable<TMeta | TAdditionals> |
 		Promise<TMeta | TAdditionals> |
-		((branch: TBranch, children: TMeta[]) => Primitives<TMeta, TBranch, TAdditionals>) |
+		((branch: TBranch, children: TMeta[]) => Atomics<TMeta, TBranch, TAdditionals>) |
 		BranchFunction |
 		Recurrent | 
 		IAttributes;
@@ -60,14 +60,14 @@ declare namespace Reflex.Core
 	/**
 	 * 
 	 */
-	export type Primitives<M = object, B = object, A = unknown> =
+	export type Atomics<M = object, B = object, A = unknown> =
 		M |
 		B |
 		A |
-		Primitive<M, B, A> |
-		Primitive<M, B, Primitive<M, B, A>> |
-		Primitive<M, B, Primitive<M, B, Primitive<M, B, A>>> |
-		Primitive<M, B, Primitive<M, B, Primitive<M, B, Primitive<M, B, A>>>>;
+		Atomic<M, B, A> |
+		Atomic<M, B, Atomic<M, B, A>> |
+		Atomic<M, B, Atomic<M, B, Atomic<M, B, A>>> |
+		Atomic<M, B, Atomic<M, B, Atomic<M, B, Atomic<M, B, A>>>>;
 	
 	/** */
 	export interface IAttributes<T = string | number | bigint | boolean>
@@ -98,9 +98,9 @@ declare namespace Reflex.Core
 	 * Abstract definition of the container variant of the top-level
 	 * namespace function.
 	 */
-	export interface IContainerNamespace<P extends Primitives, TResult = object>
+	export interface IContainerNamespace<P extends Atomics, TResult = object>
 	{
-		(...primitives: P[]): TResult;
+		(...atomics: P[]): TResult;
 	}
 	
 	/**
@@ -113,7 +113,7 @@ declare namespace Reflex.Core
 	 * Generic function definition for callback functions provided to
 	 * the global on() function.
 	 */
-	export type RecurrentCallback<T extends Primitives = Primitives> = (...args: any[]) => T;
+	export type RecurrentCallback<T extends Atomics = Atomics> = (...args: any[]) => T;
 	
 	/**
 	 * 
@@ -165,8 +165,8 @@ declare namespace Reflex.Core
 	 * Extracts 
 	 */
 	export type AsBranch<F> = 
-		F extends () => infer R ? (...primitives: Primitives[]) => R :
-		F extends (...args: infer A) => infer R ? (...args: A) => (...primitives: Primitives[]) => R :
+		F extends () => infer R ? (...atomics: Atomics[]) => R :
+		F extends (...args: infer A) => infer R ? (...args: A) => (...atomics: Atomics[]) => R :
 		F;
 	
 	/**

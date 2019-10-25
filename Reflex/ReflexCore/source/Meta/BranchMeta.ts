@@ -21,19 +21,19 @@ namespace Reflex.Core
 		/** */
 		constructor(
 			branch: IBranch,
-			initialPrimitives: Primitive[],
+			initialAtomics: Atomic[],
 			locator?: Locator)
 		{
 			super(locator || new Locator(LocatorType.branch));
 			this.branch = branch;
 			BranchMeta.metas.set(branch, this);
 			
-			if (initialPrimitives.length)
+			if (initialAtomics.length)
 			{
-				const metas = CoreUtil.translatePrimitives(
+				const metas = CoreUtil.translateAtomics(
 					branch,
 					this,
-					initialPrimitives);
+					initialAtomics);
 				
 				CoreUtil.applyMetas(branch, this, metas);
 			}

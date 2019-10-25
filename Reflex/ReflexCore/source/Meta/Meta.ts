@@ -37,7 +37,7 @@ namespace Reflex.Core
 	/**
 	 * Stores the information about a single attribute.
 	 * Although attributes can come in a large object literal
-	 * that specifies many attributes together, the primitive
+	 * that specifies many attributes together, the atomic
 	 * translator function splits them up into smaller metas,
 	 * which is done because some values may be static,
 	 * and others may be behind a force.

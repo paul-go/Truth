@@ -26,7 +26,7 @@ namespace Reflex.Core
 					CoreUtil.applyMetas(
 						containingBranch,
 						this.containerMeta,
-						CoreUtil.translatePrimitives(
+						CoreUtil.translateAtomics(
 							containingBranch,
 							containingBranchMeta,
 							result),

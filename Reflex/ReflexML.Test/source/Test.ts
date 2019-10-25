@@ -261,7 +261,7 @@ namespace Reflex.ML.Test
 	function testElementChildren()
 	{
 		const s = ml.div(ml`1`);
-		const p: Primitive = s;
+		const a: Atomic = s;
 		
 		return ml.div(
 			ml`Click to delete from the bottom`,
