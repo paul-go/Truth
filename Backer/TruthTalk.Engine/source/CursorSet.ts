@@ -73,6 +73,15 @@ namespace Backer.TruthTalk
 				case LeafOp.containers:
 					this.containers();
 					break;
+				case LeafOp.aliased:
+					this.filter(x => x[value] !== null);
+					break;
+				case LeafOp.leaves:
+					this.filter(x => x[value] === null);
+					break;
+				case LeafOp.fresh:
+					this.filter(x => x[typeOf].isFresh);
+					break;
 				case PredicateOp.equals:
 					this.filter(x => x[value] == (<Leaves.Predicate>leaf).operand);
 					break;
@@ -87,6 +96,17 @@ namespace Backer.TruthTalk
 					break;
 				case PredicateOp.endsWith:
 					this.filter(x => x[value] == null ? false : x[value]!.toString().endsWith(<string>(<Leaves.Predicate>leaf).operand));
+					break;
+				case LeafOp.slice:
+					this.slice(leaf);
+					break;
+				case LeafOp.occurences:
+					this.occurences(leaf);
+					break;
+				case LeafOp.sort: 
+					break;
+				case LeafOp.reverse:
+					this.cursors = new Set(this.snapshot().reverse());
 					break;
 			}
 		}
@@ -136,5 +156,68 @@ namespace Backer.TruthTalk
 			const snap = instances.flat();
 			this.filter(x => snap.includes(x));
 		}
+		
+		slice(leaf: Leaf)
+		{
+			let {
+				start,
+				end
+			} = <Leaves.Slice>leaf;
+			
+			const snap = this.snapshot();
+			if (end && end < 1) end = start + Math.round(end * snap.length);
+			
+			this.cursors = new Set(snap.slice(start, end));
+		}
+		
+		occurences(leaf: Leaf)
+		{
+			let {
+				min,
+				max
+			} = <Leaves.Occurences>leaf;
+			
+			if (!max) max = min;
+
+			const valueMap: Record<string, PLATypes[]> = {};
+			
+			for (const item of this.cursors)
+			{
+				const val = JSON.stringify(item[value]);
+				
+				if (!valueMap.hasOwnProperty(val))
+					valueMap[val] = [];
+					
+				valueMap[val].push(item);
+			}
+			
+			this.cursors = new Set(Object.values(valueMap).filter(x => x.length >= min && x.length <= max).flat());
+		}
+		
+		is(PLA: PLATypes, not = false)
+		{
+			const instance = this.clone();
+			return instance.filter(x => 
+				{
+					const condition = x[typeOf].parallelRoots.includes(PLA[typeOf]);
+					return not ? !condition : condition;
+				});
+		}
+		
+		access(obj: PLAObject, target: PLAAny)
+		{
+			if (!obj.is(target.root)) 
+				return null;
+				
+			obj
+		}
+		
+		sort(leaf: Leaf)
+		{
+			const PLAs = (<PLATypes[]>(<Leaves.Sort>leaf).contentTypes).reverse();
+			
+			
+		}
+		
 	}
 }
