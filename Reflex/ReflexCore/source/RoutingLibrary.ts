@@ -62,7 +62,7 @@ namespace Reflex.Core
 				// This is critical, because a higher-level library may operate
 				// on the same branch types as the lower-level libraries that
 				// it's abstracting.
-				for (let i = libs.length; --i > 0;)
+				for (let i = libs.length; i-- > 0;)
 				{
 					const lib = libs[i];
 					if (lib.isKnownBranch(referenceBranch))
