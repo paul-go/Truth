@@ -68,6 +68,16 @@ namespace Backer
 			return Object.values(this);
 		}
 		
+		get root()
+		{
+			let root: PLAObject = <PLAObject>this;
+			
+			while (root.parent) 
+				root = root.parent;
+			
+			return root;
+		}
+		
 		[Symbol.hasInstance](value: any)
 		{
 			return this.instanceof(value);
