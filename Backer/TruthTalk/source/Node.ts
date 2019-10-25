@@ -36,7 +36,10 @@ namespace Backer.TruthTalk
 		terminals = 64,
 		sort = 65,
 		reverse = 66,
-		surrogate = 67
+		surrogate = 67,
+		containers = 68,
+		roots = 69,
+		contents = 70
 	}
 	
 	/** */
@@ -210,6 +213,21 @@ namespace Backer.TruthTalk
 		export class Surrogate extends Leaf
 		{
 			readonly op = LeafOp.surrogate;
+		}
+		
+		export class Containers extends Leaf
+		{
+			readonly op = LeafOp.containers;
+		}
+		
+		export class Roots extends Leaf
+		{
+			readonly op = LeafOp.roots;
+		}
+		
+		export class Contents extends Leaf
+		{
+			readonly op = LeafOp.contents;
 		}
 	}
 }

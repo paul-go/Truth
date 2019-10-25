@@ -19,5 +19,14 @@ namespace Backer.TruthTalk
 		
 		/** */
 		or(...primitives: Primitives[]): Branches.Or;
+		
+		/** */
+		containers(): Leaves.Containers;
+		
+		/** */
+		root(): Leaves.Roots;
+		
+		/** */
+		contents(): Leaves.Contents;
 	}
 }

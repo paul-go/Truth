@@ -41,8 +41,8 @@ namespace Backer.TruthTalk
 			const leaves: any = {};
 			
 			for (const [key, value] of Object.entries(Leaves))
-				leaves[key.toLowerCase()] = value;
-			
+				leaves[key.toLowerCase()] = (arg1: PredicateOp, arg2: number) => new value(arg1, arg2);
+				
 			return leaves;
 		}
 		
