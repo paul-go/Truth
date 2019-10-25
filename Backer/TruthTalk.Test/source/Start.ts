@@ -1,19 +1,22 @@
 
 namespace Backer.TruthTalk.Test
 {
-	//> eqwe
 	(async function()
 	{
 		await Code.link("/Backer/TruthTalk.Test/code.json", "/Backer/TruthTalk.Test/Product.data.json");
 		
 		const {
-			Product
+			Product,
+			Something,
+			string,
+			number
 		} = Schema;
 		
-		const ast = tt(
-			tt.is(),
-		);
-		console.log(ast);
-		Execute({}, ast);
+		Query(
+			tt.contents(),
+			Something.Test,
+			tt.containers()
+		)
+		.forEach(x => console.log(x && x[typeOf].name));
 	})();	
 }

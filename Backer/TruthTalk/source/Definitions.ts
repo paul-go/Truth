@@ -19,5 +19,51 @@ namespace Backer.TruthTalk
 		
 		/** */
 		or(...primitives: Primitives[]): Branches.Or;
+		
+		/** */
+		containers(): Leaves.Containers;
+		
+		/** */
+		root(): Leaves.Roots;
+		
+		/** */
+		contents(): Leaves.Contents;
+		
+		/** */
+		equals(value: string | number | boolean): Leaves.Predicate;
+		
+		/** */
+		greaterThan(value: string | number): Leaves.Predicate;
+		
+		/** */
+		lessThan(value: string | number): Leaves.Predicate;
+		
+		/** */
+		startsWith(value: string | number): Leaves.Predicate;
+		
+		/** */
+		endsWith(value: string | number): Leaves.Predicate;
+		
+		/** */
+		aliased(): Leaves.Aliased;
+		
+		/** */
+		leaves(): Leaves.Leaves;
+		
+		/** */
+		fresh(): Leaves.Fresh;
+		
+		/** */
+		slice(start: number, end?: number): Leaves.Slice;
+		
+		/** */
+		occurences(min: number, max?: number): Leaves.Occurences;
+		
+		/** */
+		sort(...contentTypes: Object[]): Leaves.Sort;
+		
+		/** */
+		reverse(): Leaves.Reverse;
+		
 	}
 }

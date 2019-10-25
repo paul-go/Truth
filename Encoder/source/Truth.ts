@@ -41,6 +41,11 @@ boolean : any
 			))].join("\n");
 		const document = await Truth.parse(content);
 		
+		document.program.verify();
+		
+		for (const fault of document.program.faults.each())
+			console.error(fault);
+		
 		let code = new Code();
 		
 		const drill = (type: Truth.Type) => 

@@ -4,6 +4,12 @@ namespace Backer.TruthTalk
 	export class Library implements Reflex.Core.ILibrary
 	{
 		/** */
+		isKnownLeaf(leaf: any)
+		{
+			return leaf instanceof Node
+		}
+		
+		/** */
 		isKnownBranch(branch: Branch)
 		{
 			return branch instanceof Node;
@@ -35,8 +41,12 @@ namespace Backer.TruthTalk
 			const leaves: any = {};
 			
 			for (const [key, value] of Object.entries(Leaves))
-				leaves[key.toLowerCase()] = value;
-			
+				leaves[key.toLowerCase()] = (arg1: PredicateOp, arg2: number) => new value(arg1, arg2);
+				
+			for (const key in PredicateOp)
+				if (isNaN(parseInt(key)))
+					leaves[key] = (value: any) => new Leaves.Predicate((<any>PredicateOp)[key], value);
+				
 			return leaves;
 		}
 		

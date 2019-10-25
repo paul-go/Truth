@@ -1,21 +1,20 @@
-const JSBigInt = BigInt;
-const JSString = String;
-const JSObject = Object;
+
 type Constructor<T = any> = { new (...args: any[]): T };
 
 namespace Backer
 {
-	export const DataGraph: Record<string, Boolean | BigInt | Number | String | Object | Any> = {};
+	export type PLATypes = PLABoolean | PLABigInt | PLANumber | PLAString | PLAObject | PLAAny;
+	export const DataGraph: Record<string, PLATypes> = {};
 	
 	export const typeOf = Symbol("typeOf");
 	export const value = Symbol("value");
 	
-	export function PLA(type: Type)
+	export function PLA(type: Type, parent: PLAObject | null)
 	{
-		return new type.PLAConstructor(type);
+		return new type.PLAConstructor(type, parent);
 	}
 	
-	export class Any<T = string>
+	export class PLAAny<T = string> extends TruthTalk.Leaves.Surrogate
 	{ 
 		readonly [typeOf]: Type;
 		readonly [value]: T | null;
@@ -30,32 +29,53 @@ namespace Backer
 			return this[value] instanceof base || this[typeOf].is(base); 
 		};
 		
-		constructor(type: Type)
+		is(base: Type | PLATypes)
+		{
+			if (base instanceof Type)
+				return this[typeOf].is(base);
+			return this[typeOf].is(base[typeOf]);
+		}
+		
+		constructor(type: Type, public parent: PLAObject | null)
 		{	
-			JSObject.defineProperty(this, value, {
+			super();
+			Object.defineProperty(this, value, {
 				value: this.valueParse(type.value),
 				enumerable: false,
 				configurable: false,
 				writable: false
 			});
 			
-			JSObject.defineProperty(this, typeOf, {
+			Object.defineProperty(this, typeOf, {
 				value: type,
 				enumerable: false,
 				configurable: false,
 				writable: false
 			});
 			
+			Object.defineProperties(this, {
+				op: { enumerable: false },
+				parent: { enumerable: false },
+				_container: { enumerable: false },
+			});
+			
 			for (const child of type.contents)
-				(<any>this)[child.name] = PLA(child);
-				
-			JSObject.freeze(this);
+				(<any>this)[child.name] = PLA(child, <any>this);
 		}
 		
-		*[Symbol.iterator]()
+		get contents(): Array<PLATypes>
 		{
-			for (const key in this)
-				yield this[key];
+			return Object.values(this);
+		}
+		
+		get root()
+		{
+			let root: PLAObject = <PLAObject>this;
+			
+			while (root.parent) 
+				root = root.parent;
+			
+			return root;
 		}
 		
 		[Symbol.hasInstance](value: any)
@@ -71,20 +91,18 @@ namespace Backer
 			if (val === null)
 				return val;
 			
-			return JSString(val);
+			return String(val);
 		}
 		[Symbol.toPrimitive]() { return this[value]; }
 		get [Symbol.toStringTag]() { return "PLA"; }
 	}
 	
-	export class Object extends Any<string>
+	export class PLAObject<T = String> extends PLAAny<T>
 	{ 
-		
 	}
 	
-	export class String extends Any<string>
+	export class PLAString extends PLAObject
 	{ 
-		
 		protected valueParse(value: string | null)
 		{
 			if (value === null)
@@ -93,7 +111,7 @@ namespace Backer
 		}
 	}
 	
-	export class Number extends Any<number>
+	export class PLANumber extends PLAObject<number>
 	{
 		protected valueParse(value: string | null)
 		{
@@ -103,20 +121,18 @@ namespace Backer
 		}
 	}
 	
-	export class BigInt extends Any<bigint>
+	export class PLABigInt extends PLAObject<bigint>
 	{ 
-		
 		protected valueParse(value: string | null)
 		{
 			if (value === null)
 				return null;
-			return JSBigInt(value.substring(1, -1));
+			return BigInt(value.substring(1, -1));
 		}
 	}
 	
-	export class Boolean extends Any<boolean>
+	export class PLABoolean extends PLAObject<boolean>
 	{
-		
 		protected valueParse(value: string | null)
 		{
 			if (value === null)
@@ -126,8 +142,8 @@ namespace Backer
 	}
 }
 
-declare const any: typeof Backer.Any;
-declare const string: typeof Backer.String;
-declare const number: typeof Backer.Number;
-declare const bigint: typeof Backer.Number;
-declare const boolean: typeof Backer.Number;
+declare const any: typeof Backer.PLAAny;
+declare const string: typeof Backer.PLAString;
+declare const number: typeof Backer.PLANumber;
+declare const bigint: typeof Backer.PLANumber;
+declare const boolean: typeof Backer.PLANumber;

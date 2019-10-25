@@ -62,10 +62,8 @@ namespace Encoder
 					code.prototypes.push(type.prototype);	
 				type.transfer(code);
 			}
-				
-			const dataRoot = (x: Type) => [x.prototype.id, x.name, x.aliases];
 		
-			const data = dataSchema.map(x => [dataRoot(x.shift()!), ...x.map(x => x.aliases)]);
+			const data = dataSchema.map(x => [x.map(x => x.prototype.id), x[0].name, ...x.map(x => x.aliases)]);
 							
 			return {
 				code,

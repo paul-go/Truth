@@ -9,5 +9,8 @@
 	},
 	"include": [
 		"./source/**/*.ts"
+	],
+	"references": [
+		{"path": "../TruthTalk"}
 	]
 }

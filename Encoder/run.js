@@ -10,6 +10,8 @@ function PaulsReactor(...scripts)
 
 PaulsReactor(
 	readFile("../Truth/build/truth.js"),
+	readFile("../Reflex/ReflexCore/bundle/reflex-core.js"),
+	readFile("../Backer/TruthTalk/build/truthtalk.js"),
 	readFile("../Backer/Encoder/build/encoder.js"),
 	readFile("./build/encoder.js"),
 	"Encoder.run();"

@@ -35,7 +35,13 @@ namespace Backer.TruthTalk
 		aliased = 63,
 		terminals = 64,
 		sort = 65,
-		reverse = 66
+		reverse = 66,
+		surrogate = 67,
+		containers = 68,
+		roots = 69,
+		contents = 70,
+		leaves = 71,
+		fresh = 72
 	}
 	
 	/** */
@@ -188,6 +194,17 @@ namespace Backer.TruthTalk
 		}
 		
 		/** */
+		export class Leaves extends Leaf
+		{
+			readonly op = LeafOp.leaves;
+		}
+		
+		/** */
+		export class Fresh extends Leaf
+		{
+			readonly op = LeafOp.fresh;
+		}
+		/** */
 		export class Terminals extends Leaf
 		{
 			readonly op = LeafOp.terminals;
@@ -196,6 +213,15 @@ namespace Backer.TruthTalk
 		/** */
 		export class Sort extends Leaf
 		{
+			
+			constructor(
+				...contentTypes: Object[])
+			{
+				super();
+				this.contentTypes = contentTypes;
+			}
+			
+			readonly contentTypes: Object[];
 			readonly op = LeafOp.sort;
 		}
 		
@@ -203,6 +229,27 @@ namespace Backer.TruthTalk
 		export class Reverse extends Leaf
 		{
 			readonly op = LeafOp.reverse;
+		}
+		
+		/** */
+		export class Surrogate extends Leaf
+		{
+			readonly op = LeafOp.surrogate;
+		}
+		
+		export class Containers extends Leaf
+		{
+			readonly op = LeafOp.containers;
+		}
+		
+		export class Roots extends Leaf
+		{
+			readonly op = LeafOp.roots;
+		}
+		
+		export class Contents extends Leaf
+		{
+			readonly op = LeafOp.contents;
 		}
 	}
 }
