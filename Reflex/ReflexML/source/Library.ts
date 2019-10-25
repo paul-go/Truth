@@ -35,7 +35,8 @@ namespace Reflex.ML
 				 * Uses the Force's .value property when connected to an
 				 * HTMLInputElement, otherwise, the .textContent property is used.
 				 */
-				bind<T extends string | number | bigint>(statefulForce: Reflex.Core.StatefulForce<T>)
+				bind<T extends string | number | bigint>(
+					statefulForce: Reflex.Core.StatefulForce<T>): (e: HTMLElement) => any
 				{
 					const assign = (value: string | null) =>
 					{
@@ -212,10 +213,3 @@ namespace Reflex.ML
 		}
 	}
 }
-
-/**
- * Global library object.
- */
-const ml = Reflex.Core.createContentNamespace<Reflex.ML.Namespace>(
-	new Reflex.ML.Library(),
-	true);

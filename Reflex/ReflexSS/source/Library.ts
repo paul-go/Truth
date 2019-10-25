@@ -172,14 +172,12 @@ namespace Reflex.SS
 		{
 			if (owner instanceof Rule)
 			{
-				if (primitive instanceof Rule)
+				if (typeof primitive === "number")
 				{
-					// Nested rule
-					debugger;
-				}
-				else if (primitive instanceof Command)
-				{
-					owner.declarations.push(primitive);
+					const nth = Math.floor(primitive);
+					owner.selectorFragments.push(nth < 0 ?
+						`:nth-last-child(${nth * -1})` :
+						`:nth-child(${nth - 1})`);
 				}
 				else if (typeof primitive === "string")
 				{
@@ -191,12 +189,16 @@ namespace Reflex.SS
 					}
 					else owner.selectorFragments.push(primitive);
 				}
-				else if (typeof primitive === "number")
+				else if (primitive instanceof Command)
 				{
-					let nth = Math.floor(primitive);
-					return nth < 0 ?
-						`:nth-last-child(${nth * -1})` :
-						`:nth-child(${nth - 1})`;
+					owner.declarations.push(primitive);
+				}
+				else if (primitive instanceof Rule)
+				{
+					// Nested rule
+					// This wouldn't actually happen, because 
+					// the ss() function returns a string, not a rule.
+					debugger;
 				}
 			}
 		}
@@ -269,10 +271,3 @@ namespace Reflex.SS
 		}
 	}
 }
-
-/**
- * Global library object.
- */
-const ss = Reflex.Core.createContainerNamespace<Reflex.SS.Namespace, Reflex.SS.Library>(
-	new Reflex.SS.Library(),
-	true);
