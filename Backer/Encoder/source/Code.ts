@@ -39,7 +39,7 @@ namespace Backer
 			
 			for (const type of types)
 				if (!type.container)
-					Schema[type.name] = new PLAAny(type);
+					Schema[type.name] = new PLAAny(type, null);
 			
 			return code;
 		}
@@ -48,14 +48,15 @@ namespace Backer
 		{	
 			for (const info of data)
 			{
-				const typeData = info.shift() as [number, string, string[]];
-				const prototype = this.prototypes[typeData[0]];
+				const prototypes = info.shift() as number[];
+				const name = info.shift() as string;
+				const prototype = this.prototypes[prototypes.shift()!];
 				const type = new Type(
 					this, 
-					typeData[1], 
+					name, 
 					prototype, 
 					null,
-					typeData[2]
+					info.shift() as string[]
 				);
 				
 				const generate = (content: Type) => 
@@ -63,7 +64,7 @@ namespace Backer
 					const clone = new Type(
 						this,
 						content.name,
-						content.prototype,
+						this.prototypes[prototypes.shift()!],
 						FutureType.$(type),
 						content.aliases.concat(<string[]>info.shift())
 					);
@@ -84,7 +85,7 @@ namespace Backer
 							generate(content);
 					}
 				
-				DataGraph[type.name] = PLA(type);
+				DataGraph[type.name] = PLA(type, null);
 			}
 		}
 		

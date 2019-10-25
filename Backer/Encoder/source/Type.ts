@@ -1,7 +1,7 @@
 
 namespace Backer
 {
-	export type DataJSON = [[number, string, string[]], ...string[][]];
+	export type DataJSON = [number[], string, ...string[][]];
 	export type TypeJSON = [number, number | null, string, string[]];
 	
 	export class Type 
@@ -33,7 +33,6 @@ namespace Backer
 				this.is(this.code.types[3]) ? Backer.PLANumber  :
 				this.is(this.code.types[2]) ? Backer.PLAString  :
 				this.is(this.code.types[1]) || this.value == null ? Backer.PLAObject  : Backer.PLAAny);
-				
 		}
 			
 		get container()

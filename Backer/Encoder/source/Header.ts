@@ -1,6 +1,4 @@
-const JSBigInt = BigInt;
-const JSString = String;
-const JSObject = Object;
+
 type Constructor<T = any> = { new (...args: any[]): T };
 
 namespace Backer
@@ -11,9 +9,9 @@ namespace Backer
 	export const typeOf = Symbol("typeOf");
 	export const value = Symbol("value");
 	
-	export function PLA(type: Type)
+	export function PLA(type: Type, parent: PLAObject | null)
 	{
-		return new type.PLAConstructor(type);
+		return new type.PLAConstructor(type, parent);
 	}
 	
 	export class PLAAny<T = string> extends TruthTalk.Leaves.Surrogate
@@ -38,26 +36,36 @@ namespace Backer
 			return this[typeOf].is(base[typeOf]);
 		}
 		
-		constructor(type: Type)
+		constructor(type: Type, public parent: PLAObject | null)
 		{	
 			super();
-			JSObject.defineProperty(this, value, {
+			Object.defineProperty(this, value, {
 				value: this.valueParse(type.value),
 				enumerable: false,
 				configurable: false,
 				writable: false
 			});
 			
-			JSObject.defineProperty(this, typeOf, {
+			Object.defineProperty(this, typeOf, {
 				value: type,
 				enumerable: false,
 				configurable: false,
 				writable: false
 			});
 			
+			Object.defineProperties(this, {
+				op: { enumerable: false },
+				parent: { enumerable: false },
+				_container: { enumerable: false },
+			});
+			
 			for (const child of type.contents)
-				(<any>this)[child.name] = PLA(child);
-				
+				(<any>this)[child.name] = PLA(child, <any>this);
+		}
+		
+		get contents(): Array<PLATypes>
+		{
+			return Object.values(this);
 		}
 		
 		[Symbol.hasInstance](value: any)
@@ -73,7 +81,7 @@ namespace Backer
 			if (val === null)
 				return val;
 			
-			return JSString(val);
+			return String(val);
 		}
 		[Symbol.toPrimitive]() { return this[value]; }
 		get [Symbol.toStringTag]() { return "PLA"; }
@@ -81,16 +89,10 @@ namespace Backer
 	
 	export class PLAObject<T = String> extends PLAAny<T>
 	{ 
-		*[Symbol.iterator](): Iterator<PLATypes>
-		{
-			for (const key in this)
-				yield this[key] as any;
-		}
 	}
 	
 	export class PLAString extends PLAObject
 	{ 
-		
 		protected valueParse(value: string | null)
 		{
 			if (value === null)
@@ -115,13 +117,12 @@ namespace Backer
 		{
 			if (value === null)
 				return null;
-			return JSBigInt(value.substring(1, -1));
+			return BigInt(value.substring(1, -1));
 		}
 	}
 	
 	export class PLABoolean extends PLAObject<boolean>
 	{
-		
 		protected valueParse(value: string | null)
 		{
 			if (value === null)
