@@ -155,6 +155,8 @@ namespace Reflex.Core
 				branch,
 				lib => lib.attachPrimitive,
 				(fn, lib) => fn.call(lib, primitive, branch, ref));
+			
+			CoreRecurrent.attachPrimitive(branch, primitive);
 		}
 		
 		/**
@@ -166,6 +168,8 @@ namespace Reflex.Core
 				branch,
 				lib => lib.detachPrimitive,
 				(fn, lib) => fn.call(lib, primitive, branch));
+			
+			CoreRecurrent.detachPrimitive(branch, primitive);
 		}
 		
 		/**
