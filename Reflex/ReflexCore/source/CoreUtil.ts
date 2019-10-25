@@ -63,7 +63,7 @@ namespace Reflex.Core
 							containerMeta,
 							primitive));
 					}
-					else if (primitive.selector in CoreRecurrent.selectors)
+					else if (CoreRecurrent.selectors.includes(primitive.selector))
 					{
 						CoreRecurrent.listen(containerBranch, primitive);
 					}
