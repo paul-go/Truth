@@ -48,7 +48,7 @@ namespace Reflex.Talk
 		 * Constructs a new Query.
 		 */
 		(
-			...primitives: Core.Primitives<Operation | TypePrimitive, never, never>[]
+			...atomics: Core.Atomics<Operation | TypePrimitive, never, never>[]
 		): Promise<Query>;
 
 		/**
@@ -58,21 +58,21 @@ namespace Reflex.Talk
 		 * contravariance).
 		 */
 		is(
-			type: Core.Primitives<TypePrimitive, Operations.Is, never>
+			type: Core.Atomics<TypePrimitive, Operations.Is, never>
 		): Operations.Is;
 
 		/**
 		 * Negation.
 		 */
 		not(
-			...primitives: Core.Primitives<Operation, Operations.Not, never>[]
+			...atomics: Core.Atomics<Operation, Operations.Not, never>[]
 		): Operations.Not;
 
 		/**
 		 * Creates a logical OR operation between all passed operations.
 		 */
 		or(
-			...primitives: Core.Primitives<Operation, Operations.Or, never>[]
+			...atomics: Core.Atomics<Operation, Operations.Or, never>[]
 		): Operations.Or;
 
 		/**
@@ -81,7 +81,7 @@ namespace Reflex.Talk
 		 * single content type.
 		 */
 		has(
-			...primitives: Core.Primitives<
+			...atomics: Core.Atomics<
 				Operation | TypePrimitive,
 				Operations.Has,
 				never
@@ -95,7 +95,7 @@ namespace Reflex.Talk
 		 * call.
 		 */
 		greaterThan(
-			value: Core.Primitives<string | number, Operations.GreaterThan, never>
+			value: Core.Atomics<string | number, Operations.GreaterThan, never>
 		): Operations.GreaterThan;
 
 		/**
@@ -104,12 +104,12 @@ namespace Reflex.Talk
 		 * than or equal" is achieved by wrapping this function in a tt.not() call.
 		 */
 		lessThan(
-			value: Core.Primitives<string | number, Operations.LessThan, never>
+			value: Core.Atomics<string | number, Operations.LessThan, never>
 		): Operations.LessThan;
 
 		/** */
 		equals(
-			value: Core.Primitives<string | number, Operations.Equals, never>
+			value: Core.Atomics<string | number, Operations.Equals, never>
 		): Operations.Equals;
 	}
 }

@@ -6,7 +6,7 @@ namespace Backer.TruthTalk
 		/** */
 		isKnownLeaf(leaf: any)
 		{
-			return leaf instanceof Node
+			return leaf instanceof Node;
 		}
 		
 		/** */
@@ -63,12 +63,12 @@ namespace Backer.TruthTalk
 		}
 		
 		/** */
-		attachPrimitive(
-			primitive: Node,
+		attachAtomic(
+			atomic: Node,
 			owner: Branch,
 			ref: Node | "prepend" | "append")
 		{
-			if (!(primitive instanceof Node))
+			if (!(atomic instanceof Node))
 				return;
 			
 			const pos =
@@ -79,13 +79,13 @@ namespace Backer.TruthTalk
 				// never actually happen.)
 				owner.children.indexOf(ref) + 1 || -1;
 			
-			owner.addChild(primitive, pos);
+			owner.addChild(atomic, pos);
 		}
 		
 		/** */
-		detachPrimitive(primitive: Node, owner: Branch)
+		detachAtomic(atomic: Node, owner: Branch)
 		{
-			owner.removeChild(primitive);
+			owner.removeChild(atomic);
 		}
 		
 		/** */
@@ -163,6 +163,6 @@ namespace Backer.TruthTalk
 /**
  * Global library object.
  */
-const tt = Reflex.Core.createContainerNamespace<Backer.TruthTalk.Namespace>(
+const tt = Reflex.Core.createContainerNamespace<Backer.TruthTalk.Namespace, Backer.TruthTalk.Library>(
 	new Backer.TruthTalk.Library(),
 	true);

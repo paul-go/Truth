@@ -14,7 +14,7 @@ namespace Reflex.Talk
 
 		getNamespaceStatic() 
 		{
-			const $ = (BranchConstructor: any) => (...primitives: Core.Primitive[]) => 
+			const $ = (BranchConstructor: any) => (...atomics: Core.Primitive[]) => 
 			{
 				const branch = new BranchConstructor();
 				new Core.BranchMeta(branch, primitives);
@@ -89,7 +89,7 @@ namespace Reflex.Talk
 		}
 	}
 
-	const query = (...primitives: Core.Primitive[]) => 
+	const query = (...atomics: Core.Primitive[]) => 
 	{
 		const query = System.this.query();
 		new Core.BranchMeta(query, primitives);

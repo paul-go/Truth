@@ -1,24 +1,24 @@
 
 namespace Backer.TruthTalk
 {
-	export type Primitive = Reflex.Core.Primitive<Node, Branch>;
-	export type Primitives = Reflex.Core.Primitives<Node, Branch>;
+	export type Atomic = Reflex.Core.Atomic<Node, Branch>;
+	export type Atomics = Reflex.Core.Atomics<Node, Branch>;
 	
 	/** */
 	export interface Namespace extends
-		Reflex.Core.IContainerNamespace<Primitives, Branches.Query>
+		Reflex.Core.IContainerNamespace<Atomics, Branches.Query>
 	{
 		/** */
-		is(...primitives: Primitives[]): Branches.Is;
+		is(...atomics: Atomics[]): Branches.Is;
 		
 		/** */
-		has(...primitives: Primitives[]): Branches.Has;
+		has(...atomics: Atomics[]): Branches.Has;
 		
 		/** */
-		not(...primitives: Primitives[]): Branches.Not;
+		not(...atomics: Atomics[]): Branches.Not;
 		
 		/** */
-		or(...primitives: Primitives[]): Branches.Or;
+		or(...atomics: Atomics[]): Branches.Or;
 		
 		/** */
 		containers(): Leaves.Containers;
