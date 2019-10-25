@@ -40,36 +40,19 @@ namespace Backer.TruthTalk
 				case BranchOp.is:
 				case BranchOp.query:
 					for (const query of branch.children)
-						this.query(query);
-						
+						this.query(query);	
 					break;
 				case BranchOp.not: 
-				{
-					const instance = this.clone();
-					
-					for (const query of branch.children)
-						instance.query(query);
-					
-					const snap = instance.snapshot();
-					this.filter(x => !snap.includes(x));
-				}
-				break;
+					this.not(branch);
+					break;
 				case BranchOp.or:
-				{
-					const instances = [];
-					
-					for (const query of branch.children)
-					{
-						const instance = this.clone();	
-						instance.query(query);
-						instances.push(instance);
-					}
-					
-					const snap = instances.flat();
-					this.filter(x => snap.includes(x));
-				}
+					this.or(branch);
+					break;
 				case BranchOp.has:
-					
+					this.contents();
+					for (const query of branch.children)
+						this.query(query);
+					this.containers();
 					break;
 			}
 		}
@@ -85,11 +68,26 @@ namespace Backer.TruthTalk
 					this.contents();
 					break;
 				case LeafOp.roots:
-						this.roots();
-						break;
+					this.roots();
+					break;
 				case LeafOp.containers:
-						this.containers();
-						break;
+					this.containers();
+					break;
+				case PredicateOp.equals:
+					this.filter(x => x[value] == (<Leaves.Predicate>leaf).operand);
+					break;
+				case PredicateOp.greaterThan:
+					this.filter(x => (x[value] || 0) > (<Leaves.Predicate>leaf).operand);
+					break;
+				case PredicateOp.lessThan:
+					this.filter(x => (x[value] || 0) < (<Leaves.Predicate>leaf).operand);
+					break;	
+				case PredicateOp.startsWith:
+					this.filter(x => x[value] == null ? false : x[value]!.toString().startsWith(<string>(<Leaves.Predicate>leaf).operand));
+					break;
+				case PredicateOp.endsWith:
+					this.filter(x => x[value] == null ? false : x[value]!.toString().endsWith(<string>(<Leaves.Predicate>leaf).operand));
+					break;
 			}
 		}
 		
@@ -111,6 +109,32 @@ namespace Backer.TruthTalk
 		containers()
 		{
 			this.cursors = new Set(this.snapshot().map(x => x.parent).filter((x): x is PLAObject => !!x));
+		}
+		
+		not(branch: Branch)
+		{
+			const instance = this.clone();
+					
+			for (const query of branch.children)
+				instance.query(query);
+			
+			const snap = instance.snapshot();
+			this.filter(x => !snap.includes(x));
+		}
+		
+		or(branch: Branch)
+		{
+			const instances = [];
+			
+			for (const query of branch.children)
+			{
+				const instance = this.clone();	
+				instance.query(query);
+				instances.push(instance);
+			}
+			
+			const snap = instances.flat();
+			this.filter(x => snap.includes(x));
 		}
 	}
 }
