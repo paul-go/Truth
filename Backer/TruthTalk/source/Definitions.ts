@@ -28,5 +28,21 @@ namespace Backer.TruthTalk
 		
 		/** */
 		contents(): Leaves.Contents;
+		
+		/** */
+		equals(value: string | number | boolean): Leaves.Predicate;
+		
+		/** */
+		greaterThan(value: string | number): Leaves.Predicate;
+		
+		/** */
+		lessThan(value: string | number): Leaves.Predicate;
+		
+		/** */
+		startsWith(value: string | number): Leaves.Predicate;
+		
+		/** */
+		endsWith(value: string | number): Leaves.Predicate;
+		
 	}
 }
