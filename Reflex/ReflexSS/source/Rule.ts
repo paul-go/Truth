@@ -66,7 +66,7 @@ namespace Reflex.SS
 			if (this.classIndex < 0)
 				this.classIndex = ++classCounter;
 			
-			return "-" + this.classIndex.toString(36);
+			return "_" + this.classIndex.toString(36);
 		}
 		
 		private classIndex = -1;
