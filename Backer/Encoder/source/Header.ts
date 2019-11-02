@@ -4,12 +4,14 @@ type Constructor<T = any> = { new (...args: any[]): T };
 namespace Backer
 {
 	export type PLATypes = PLABoolean | PLABigInt | PLANumber | PLAString | PLAObject | PLAAny;
-	export const DataGraph: Record<string, PLATypes> = {};
+	
+	export type ObjectType<T extends PLAObject = PLAObject> = T & Record<string, T>;
+	export const DataGraph: Record<string, ObjectType> = {};
 	
 	export const typeOf = Symbol("typeOf");
 	export const value = Symbol("value");
 	
-	export function PLA(type: Type, parent: PLAObject | null)
+	export function PLA(type: Type, parent: ObjectType | null)
 	{
 		return new type.PLAConstructor(type, parent);
 	}
@@ -36,7 +38,7 @@ namespace Backer
 			return this[typeOf].is(base[typeOf]);
 		}
 		
-		constructor(type: Type, public parent: PLAObject | null)
+		constructor(type: Type, public parent: ObjectType | null)
 		{	
 			super();
 			Object.defineProperty(this, value, {
@@ -70,7 +72,7 @@ namespace Backer
 		
 		get root()
 		{
-			let root: PLAObject = <PLAObject>this;
+			let root: PLAObject = <any>this;
 			
 			while (root.parent) 
 				root = root.parent;
@@ -83,7 +85,7 @@ namespace Backer
 			return this.instanceof(value);
 		}
 		
-		toJSON() { return this[value]; }
+		toJSON(): any { return this[value]; }
 		valueOf() { return this[value]; }
 		toString() 
 		{
@@ -98,7 +100,38 @@ namespace Backer
 	}
 	
 	export class PLAObject<T = String> extends PLAAny<T>
-	{ 
+	{	
+		get(type: PLAAny): PLAObject | null
+		{		
+			const recursive = (obj: PLAObject): PLAObject | null => 
+			{
+				if (obj[typeOf].parallelRoots.some(x => x === type[typeOf]))
+					return obj;
+				
+				for (const child of obj.contents)
+				{
+					const res = recursive(<PLAObject>child);	
+					if (res)
+						return res;
+				}
+				
+				return null;
+			};
+			
+			return recursive(<any>this);
+		}
+		
+		
+		toJSON(): any 
+		{ 
+			if (this instanceof PLAObject && this.constructor !== PLAObject)
+				return this[value];
+				
+			const Obj: Record<string, PLAObject> & { $: any } = <any>Object.assign({}, this);
+			if (this[value] !== null && this[value] !== undefined ) 
+				Obj.$ = this[value];
+			return Obj; 
+		}
 	}
 	
 	export class PLAString extends PLAObject

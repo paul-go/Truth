@@ -85,7 +85,7 @@ namespace Backer
 							generate(content);
 					}
 				
-				DataGraph[type.name] = PLA(type, null);
+				DataGraph[type.name] = PLA(type, null) as ObjectType;
 			}
 		}
 		
