@@ -3,9 +3,9 @@ namespace Backer.TruthTalk
 {
 	export class CursorSet
 	{
-		cursors: Set<PLATypes>;
+		cursors: Set<ObjectType>;
 		
-		constructor(...cursors: PLATypes[])
+		constructor(...cursors: ObjectType[])
 		{
 			this.cursors = new Set(cursors);
 		}
@@ -20,7 +20,7 @@ namespace Backer.TruthTalk
 			return new CursorSet(...this.snapshot());
 		}
 		
-		filter(fn: (v: PLATypes) => boolean)
+		filter(fn: (v: ObjectType) => boolean)
 		{
 			this.cursors = new Set(this.snapshot().filter(x => fn(x)));
 		}
@@ -62,7 +62,7 @@ namespace Backer.TruthTalk
 			switch (leaf.op)
 			{
 				case LeafOp.surrogate:
-					this.filter(x => x[typeOf].parallelRoots.includes((<PLATypes>leaf)[typeOf]));
+					this.filter(x => x[typeOf].is((<PLATypes>leaf)[typeOf]) || x[typeOf].parallelRoots.includes((<PLATypes>leaf)[typeOf]));
 					break;
 				case LeafOp.contents:
 					this.contents();
@@ -104,6 +104,7 @@ namespace Backer.TruthTalk
 					this.occurences(leaf);
 					break;
 				case LeafOp.sort: 
+					this.sort(leaf);
 					break;
 				case LeafOp.reverse:
 					this.cursors = new Set(this.snapshot().reverse());
@@ -113,7 +114,7 @@ namespace Backer.TruthTalk
 		
 		contents()
 		{
-			this.cursors = new Set(this.snapshot().flatMap(x => x.contents).filter((x): x is PLAObject => !!x));
+			this.cursors = new Set(this.snapshot().flatMap(x => x.contents).filter((x): x is ObjectType => !!x));
 		}
 		
 		roots()
@@ -123,12 +124,12 @@ namespace Backer.TruthTalk
 					while (x.parent) 
 						x = x.parent;
 					return x;				
-				}).filter((x): x is PLAObject => !!x));
+				}).filter((x): x is ObjectType => !!x));
 		}
 		
 		containers()
 		{
-			this.cursors = new Set(this.snapshot().map(x => x.parent).filter((x): x is PLAObject => !!x));
+			this.cursors = new Set(this.snapshot().map(x => x.parent).filter((x): x is ObjectType => !!x));
 		}
 		
 		not(branch: Branch)
@@ -179,7 +180,7 @@ namespace Backer.TruthTalk
 			
 			if (!max) max = min;
 
-			const valueMap: Record<string, PLATypes[]> = {};
+			const valueMap: Record<string, ObjectType[]> = {};
 			
 			for (const item of this.cursors)
 			{
@@ -199,25 +200,28 @@ namespace Backer.TruthTalk
 			const instance = this.clone();
 			return instance.filter(x => 
 				{
-					const condition = x[typeOf].parallelRoots.includes(PLA[typeOf]);
+					const condition = x[typeOf].is(PLA[typeOf]) || x[typeOf].parallelRoots.includes(PLA[typeOf]);
 					return not ? !condition : condition;
 				});
 		}
 		
-		access(obj: PLAObject, target: PLAAny)
-		{
-			if (!obj.is(target.root)) 
-				return null;
-				
-			obj
-		}
-		
 		sort(leaf: Leaf)
 		{
-			const PLAs = (<PLATypes[]>(<Leaves.Sort>leaf).contentTypes).reverse();
+			const PLAs = (<PLAAny[]>(<Leaves.Sort>leaf).contentTypes).filter((x) => !!x).reverse();
 			
+			const snap = this.snapshot();
+			for (const PLA of PLAs)
+				snap.sort((a, b) => 
+				{
+					const p1 = a.get(PLA);
+					const p2 = b.get(PLA);
+					const v1: number = p1 ? <any>p1[value] || 0: 0;
+					const v2: number = p2 ? <any>p2[value] || 0: 0;
+					return v1 - v2;
+				});
 			
+			this.cursors = new Set(snap);
 		}
 		
 	}
-}
+} 
