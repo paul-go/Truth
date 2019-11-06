@@ -152,9 +152,9 @@ namespace Reflex.Core
 					case mutation.branch: break;
 					case mutation.branchAdd: break;
 					case mutation.branchRemove: break;
-					case mutation.content: break;
-					case mutation.contentAdd: break;
-					case mutation.contentRemove: break;
+					case mutation.leaf: break;
+					case mutation.leafAdd: break;
+					case mutation.leafRemove: break;
 					default: RoutingLibrary.this.attachRecurrent(
 						rec.kind,
 						containingBranch,
@@ -189,7 +189,7 @@ namespace Reflex.Core
 		detachRecurrents(
 			branch: IBranch,
 			selector: any,
-			systemCallback: RecurrentCallback<Atomics>)
+			systemCallback: RecurrentCallback<Atomic>)
 		{
 			const lib = RoutingLibrary.this;
 			
@@ -246,7 +246,7 @@ namespace Reflex.Core
 		for (const meta of returned)
 		{
 			unresolved.push(
-				meta instanceof BranchMeta || meta instanceof ContentMeta ?
+				meta instanceof BranchMeta || meta instanceof LeafMeta ?
 					meta.locator :
 					meta);
 		}
@@ -289,7 +289,7 @@ namespace Reflex.Core
 					const child = children[childIdx];
 					const childMeta = 
 						BranchMeta.of(<any>child) ||
-						ContentMeta.of(<any>child);
+						LeafMeta.of(<any>child);
 					
 					if (!childMeta)
 						continue;

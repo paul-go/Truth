@@ -18,7 +18,7 @@ namespace Reflex.Core
 	 * Creates a Reflex namespace, which is the top-level function object that
 	 * holds all functions in the reflexive library.
 	 * 
-	 * This function creates the "content" variant of a Reflex namespace, which
+	 * This function creates the "leaf" variant of a Reflex namespace, which
 	 * is the style where the namespace, when called as a function, produces
 	 * visual content to display. Reflexive libraries that use this variant may
 	 * use the namespace as a tagged template function, for example:
@@ -32,13 +32,13 @@ namespace Reflex.Core
 	 * current environment. If the ILibrary interface provided doesn't support
 	 * the creation of recurrent functions, this parameter has no effect.
 	 */
-	export function createContentNamespace
-		<T extends IContentNamespace<any, any>, L extends ILibrary>(
+	export function createLeafNamespace
+		<N extends ILeafNamespace, L extends ILibrary>(
 		library: L,
-		globalize?: boolean): AsLibrary<T, L>
+		globalize?: boolean): AsLibrary<N, L>
 	{
-		if (Const.debug && !library.createContent)
-			throw new Error("The .createContent function must be implemented in this library.");
+		if (Const.debug && !library.getLeaf)
+			throw new Error("The .getLeaf function must be implemented in this library.");
 		
 		return createNamespace(true, library, globalize);
 	}
@@ -59,13 +59,13 @@ namespace Reflex.Core
 	 * current environment. If the ILibrary interface provided doesn't support
 	 * the creation of recurrent functions, this parameter has no effect.
 	 */
-	export function createContainerNamespace
-		<T extends IContainerNamespace<any, any>, L extends ILibrary>(
+	export function createBranchNamespace
+		<N extends IBranchNamespace, L extends ILibrary>(
 		library: L,
-		globalize?: boolean): AsLibrary<T, L>
+		globalize?: boolean): AsLibrary<N, L>
 	{
-		if (Const.debug && !library.createContainer)
-			throw new Error("The .createContainer function must be implemented in this library.");
+		if (Const.debug && !library.getRootBranch)
+			throw new Error("The .getRootBranch function must be implemented in this library.");
 		
 		return createNamespace(false, library, globalize);
 	}
@@ -74,7 +74,7 @@ namespace Reflex.Core
 	 * Internal namespace object creation function.
 	 */
 	function createNamespace<TNamespace, TLibrary extends ILibrary>(
-		isContent: boolean,
+		isLeaf: boolean,
 		library: TLibrary,
 		globalize?: boolean): AsLibrary<TNamespace, TLibrary>
 	{
@@ -94,7 +94,7 @@ namespace Reflex.Core
 		{
 			const createGlobal = (kind: RecurrentKind) => (
 				selector: any,
-				callback: RecurrentCallback<Atomics<any>>,
+				callback: RecurrentCallback<Atomic<any>>,
 				...rest: any[]) =>
 			{
 				if (library.createRecurrent)
@@ -151,9 +151,9 @@ namespace Reflex.Core
 			return Object.assign({}, staticBranches, staticNonBranches);
 		})();
 		
-		const nsFn = isContent ?
-			createContentNamespaceFn(library) :
-			createContainerNamespaceFn(library);
+		const nsFn = isLeaf ?
+			createLeafNamespaceFn(library) :
+			createBranchNamespaceFn(library);
 		
 		const nsObj = (() =>
 		{
@@ -294,9 +294,9 @@ namespace Reflex.Core
 	
 	/**
 	 * Creates the function that exists at the top of the library,
-	 * which is used for inserting textual content into the tree.
+	 * which is used for inserting visible text into the tree.
 	 */
-	function createContentNamespaceFn(library: ILibrary)
+	function createLeafNamespaceFn(library: ILibrary)
 	{
 		return (
 			template: TemplateStringsArray | StatefulForce,
@@ -309,13 +309,13 @@ namespace Reflex.Core
 			const out: object[] = [];
 			const len = array.length + values.length;
 			
-			const createContent = library.createContent;
-			if (!createContent)
+			const getLeaf = library.getLeaf;
+			if (!getLeaf)
 				return;
 			
 			// TODO: This should be optimized so that multiple
 			// repeating string values don't result in the creation
-			// of many ContentMeta objects.
+			// of many LeafMeta objects.
 			
 			for (let i = -1; ++i < len;)
 			{
@@ -333,23 +333,23 @@ namespace Reflex.Core
 						val,
 						now =>
 						{
-							const result = createContent(now);
+							const result = getLeaf(now);
 							if (result)
-								new ContentMeta(result);
+								new LeafMeta(result);
 							
 							return result;
 						}).run());
 				}
 				else
 				{
-					const prepared = createContent(val);
+					const prepared = getLeaf(val);
 					if (prepared)
 						out.push(prepared);
 				}
 			}
 			
 			for (const object of out)
-				new ContentMeta(object);
+				new LeafMeta(object);
 			
 			return out;
 		};
@@ -359,11 +359,11 @@ namespace Reflex.Core
 	 * Creates the function that exists at the top of the library,
 	 * which is used for creating an abstract container object.
 	 */
-	function createContainerNamespaceFn(library: ILibrary)
+	function createBranchNamespaceFn(library: ILibrary)
 	{
-		const createContainer = library.createContainer;
-		return createContainer ?
-			createBranchFn(() => createContainer(), "") :
+		const getRootBranch = library.getRootBranch;
+		return getRootBranch ?
+			createBranchFn(() => getRootBranch(), "") :
 			() => {};
 	};
 }

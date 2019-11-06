@@ -1,4 +1,3 @@
-/// <reference path="../../ReflexML/build/reflex-ml.d.ts" />
 
 namespace Reflex.SS.Test
 {

@@ -73,7 +73,7 @@ namespace Reflex.ML
 		 * Appends new elements to an array, and returns the new length of the array.
 	       * @param children New elements of the Array.
 		 */
-		push(...children: Node[])
+		push(...children: (Branch | Leaf)[])
 		{
 			this.element.append(...children);
 			return this.length;
@@ -82,7 +82,7 @@ namespace Reflex.ML
 		/**
 		 * Removes the last element from an array and returns it.
 		 */
-		pop(): Node | undefined
+		pop(): (Branch | Leaf) | undefined
 		{
 			for (let i = this.length; i-- > 0;)
 			{
@@ -98,7 +98,7 @@ namespace Reflex.ML
 		/**
 		 * Removes the first element from an array and returns it.
 		 */
-		shift(): Node | undefined
+		shift(): (Branch | Leaf) | undefined
 		{
 			const len = this.length;
 			for (let i = -1; ++i < len;)
@@ -113,7 +113,7 @@ namespace Reflex.ML
 		 * Inserts new elements at the start of an array.
 		 * @param children  Elements to insert at the start of the array.
 		 */
-		unshift(...children: Node[])
+		unshift(...children: (Branch | Leaf)[])
 		{
 			this.element.prepend(...children);
 			return this.length;
@@ -158,7 +158,7 @@ namespace Reflex.ML
 			if (endVal <= startVal)
 				return [];
 			
-			const nodes: Node[] = [];
+			const nodes: (Branch | Leaf)[] = [];
 			for (let i = startVal; i < endVal; i++)
 			{
 				const e = this.element.childNodes[i];
@@ -175,7 +175,7 @@ namespace Reflex.ML
 		 * @param start The zero-based location in the array from which to start removing elements.
 		 * @param deleteCount The number of elements to remove.
 		 */
-		splice(start: number, deleteCount?: number): Node[];
+		splice(start: number, deleteCount?: number): (Branch | Leaf)[];
 		/**
 		 * Removes elements from an array and, if necessary, inserts new elements in their place,
 		 * returning the deleted elements.
@@ -183,8 +183,8 @@ namespace Reflex.ML
 		 * @param deleteCount The number of elements to remove.
 		 * @param items Elements to insert into the array in place of the deleted elements.
 		 */
-		splice(start: number, deleteCount?: number, ...items: Node[]): Node[];
-		splice(start: number, deleteCount?: number, ...items: Node[])
+		splice(start: number, deleteCount?: number, ...items: (Branch | Leaf)[]): (Branch | Leaf)[];
+		splice(start: number, deleteCount?: number, ...items: (Branch | Leaf)[])
 		{
 			const len = this.length;
 			const startIdx = this.normalizeIndex(start < 0 ? len - start : start);
@@ -195,7 +195,7 @@ namespace Reflex.ML
 				return [];
 			}
 			
-			const deleted: Node[] = [];
+			const deleted: (Branch | Leaf)[] = [];
 			if (deleteCount && deleteCount > 0)
 			{
 				for (let i = -1; ++i < deleteCount;)
@@ -302,7 +302,7 @@ namespace Reflex.ML
 	       * @param fromIndex The array index at which to begin the search. 
 		 * If fromIndex is omitted, the search starts at index 0.
 	       */
-		indexOf(searchNode: Node, fromIndex?: number)
+		indexOf(searchNode: (Branch | Leaf), fromIndex?: number)
 		{
 			const len = this.length;
 			let count = 0;
@@ -329,7 +329,7 @@ namespace Reflex.ML
 	       * @param fromIndex The array index at which to begin the search. 
 		 * If fromIndex is omitted, the search starts at the last index in the array.
 	       */
-		lastIndexOf(searchNode: Node, fromIndex?: number)
+		lastIndexOf(searchNode: (Branch | Leaf), fromIndex?: number)
 		{
 			// This algorithm is a bit weird because we need to continue
 			// counting backward even after we've found the element to

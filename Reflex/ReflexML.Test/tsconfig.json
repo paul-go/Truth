@@ -1,7 +1,7 @@
 {
 	"extends": "../tsconfig.composite.json",
 	"compilerOptions": {
-		"outFile": "./build/test/reflex-ml-test.js"
+		"outFile": "./build/reflex-ml-test.js"
 	},
 	"include": [
 		"./source/**/*.ts"
@@ -9,5 +9,9 @@
 	"references": [
 		{ "path": "../ReflexCore" },
 		{ "path": "../ReflexML" }
-	]
+	],
+	"moduless": {
+		"port": 7117,
+		"verbose": true
+	}
 }

@@ -8,29 +8,11 @@ namespace Reflex.Core
 	}
 	
 	/** */
-	export abstract class LeafMeta extends Meta
+	export abstract class StemMeta extends Meta
 	{
 		constructor(locator?: Locator)
 		{
 			super(locator || new Locator(LocatorType.leaf));
-		}
-	}
-	
-	/**
-	 * Stores information about a raw string or number that
-	 * will be applied to some branch.
-	 */
-	export class ValueMeta extends LeafMeta
-	{
-		constructor(readonly value: string | number | bigint) { super(); }
-	}
-	
-	/** */
-	export class ClosureMeta extends LeafMeta
-	{
-		constructor(readonly closure: Function)
-		{
-			super();
 		}
 	}
 	
@@ -42,7 +24,7 @@ namespace Reflex.Core
 	 * which is done because some values may be static,
 	 * and others may be behind a force.
 	 */
-	export class AttributeMeta extends LeafMeta
+	export class AttributeMeta extends StemMeta
 	{
 		constructor(
 			readonly key: string,
@@ -53,12 +35,32 @@ namespace Reflex.Core
 	}
 	
 	/**
-	 * Stores information about an instance of some class
-	 * that is known to a client Reflex library.
+	 * 
 	 */
-	export class InstanceMeta extends LeafMeta
+	export abstract class Auxilary
 	{
-		constructor(readonly value: object)
+		protected constructor() { }
+		
+		/** Enforce nominal type. */
+		private readonly auxiliary: undefined;
+	}
+	
+	/**
+	 * Stores information about some value that is known
+	 * to the library that will be applied to some branch.
+	 */
+	export class ValueMeta extends StemMeta
+	{
+		constructor(readonly value: string | number | bigint | Auxilary)
+		{
+			super();
+		}
+	}
+	
+	/** */
+	export class ClosureMeta extends StemMeta
+	{
+		constructor(readonly closure: Function)
 		{
 			super();
 		}

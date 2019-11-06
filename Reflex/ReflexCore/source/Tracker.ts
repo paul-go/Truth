@@ -76,7 +76,7 @@ namespace Reflex.Core
 				
 				const refMeta = 
 					BranchMeta.of(ref) ||
-					ContentMeta.of(ref);
+					LeafMeta.of(ref);
 				
 				return refMeta ?
 					refMeta.locator :
@@ -87,7 +87,7 @@ namespace Reflex.Core
 				return "append";
 			
 			const children = RoutingLibrary.this.getChildren(this.branch);
-			let previous: IBranch | IContent | null = null;
+			let previous: IBranch | ILeaf | null = null;
 			
 			for (const child of children)
 			{
@@ -96,7 +96,7 @@ namespace Reflex.Core
 				
 				const currentChildMeta = 
 					BranchMeta.of(child) ||
-					ContentMeta.of(child);
+					LeafMeta.of(child);
 				
 				if (currentChildMeta)
 				{

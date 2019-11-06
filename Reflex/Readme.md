@@ -16,7 +16,9 @@ A **node** is an abstract grouping concept that refers to either a *branch* or a
 
 A **branch** is a grouping construct that may have other branches, or leaves. Branches are created by calling functions on the namespace object. These branch functions are infinitely nestable, and [variadic](https://en.wikipedia.org/wiki/Variadic_function). In the ReflexML library, a branch is a [HTMLElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) object.
 
-A **leaf** is a region of content. Leafs are created by using the template literal syntax over the library's namespace object ``ns`content` ``. The way "content" is defined is library-specific. For example, in the ReflexML library, a leaf is a [Text](https://developer.mozilla.org/en-US/docs/Web/API/Text) object.
+A **stem** is an object that attaches to a branch, but does not contain any further branches below it.
+
+A **leaf** is a special kind of stem that refers to a region of content. Leafs are created by using the template literal syntax over the library's namespace object ``ns`content` ``. The way "content" is defined is library-specific. For example, in the ReflexML library, a leaf is a [Text](https://developer.mozilla.org/en-US/docs/Web/API/Text) object.
 
 A **recurrent function** is simply a function that may be attached to some branch (and not a leaf), that may be called multiple times while connected.
 

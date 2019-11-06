@@ -91,19 +91,6 @@ namespace Reflex.Core
 		}
 		
 		/**
-		 * 
-		 */
-		isKnownLeaf(leaf: object)
-		{
-			if (leaf && typeof leaf === "object")
-				for (const lib of RoutingLibrary.libraries)
-					if (lib.isKnownLeaf && lib.isKnownLeaf(leaf))
-						return true;
-			
-			return false;
-		}
-		
-		/**
 		 * Reflexive libraries may implement this method in order to provide
 		 * the system with knowledge of whether a branch has been disposed,
 		 * which it uses for performance optimizations. If the library has no
@@ -134,12 +121,12 @@ namespace Reflex.Core
 		/**
 		 * 
 		 */
-		createContent(content: any)
+		getLeaf(leaf: any)
 		{
 			return this.route(
-				content,
-				lib => lib.createContent,
-				(fn, lib) => fn.call(lib, content),
+				leaf,
+				lib => lib.getLeaf,
+				(fn, lib) => fn.call(lib, leaf),
 				null);
 		}
 		
@@ -151,12 +138,12 @@ namespace Reflex.Core
 			branch: IBranch,
 			ref: Ref)
 		{
+			CoreRecurrent.attachAtomic(branch, atomic);
+			
 			this.route(
 				branch,
 				lib => lib.attachAtomic,
 				(fn, lib) => fn.call(lib, atomic, branch, ref));
-			
-			CoreRecurrent.attachAtomic(branch, atomic);
 		}
 		
 		/**
@@ -164,12 +151,12 @@ namespace Reflex.Core
 		 */
 		detachAtomic(atomic: any, branch: IBranch)
 		{
+			CoreRecurrent.detachAtomic(branch, atomic);
+			
 			this.route(
 				branch,
 				lib => lib.detachAtomic,
 				(fn, lib) => fn.call(lib, atomic, branch));
-			
-			CoreRecurrent.detachAtomic(branch, atomic);
 		}
 		
 		/**
@@ -231,7 +218,7 @@ namespace Reflex.Core
 			kind: RecurrentKind,
 			target: IBranch,
 			selector: any,
-			callback: RecurrentCallback<Atomics>,
+			callback: RecurrentCallback<Atomic>,
 			rest: any[])
 		{
 			return this.route(
@@ -248,7 +235,7 @@ namespace Reflex.Core
 		detachRecurrent(
 			branch: IBranch,
 			selector: any,
-			callback: RecurrentCallback<Atomics>)
+			callback: RecurrentCallback<Atomic>)
 		{
 			return this.route(
 				branch,

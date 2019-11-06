@@ -7,8 +7,8 @@ namespace Reflex.Core
 	export class BranchMeta extends ContainerMeta
 	{
 		/**
-		 * Returns the ContentMeta object that corresponds
-		 * to the specified content object.
+		 * Returns the BranchMeta object that corresponds
+		 * to the specified Branch object.
 		 */
 		static of(branch: IBranch)
 		{

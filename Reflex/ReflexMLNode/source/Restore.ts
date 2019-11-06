@@ -72,7 +72,7 @@ function restore(
 				{
 					if (textNodeIndex === index)
 					{
-						new C.ContentMeta(child, locator);
+						new C.LeafMeta(child, locator);
 						break;
 					}
 					textNodeIndex++;

@@ -1,7 +1,15 @@
 
 namespace Reflex.Core
 {
-	export interface ILibrary
+	/**
+	 * The interface that Reflex libraries (Reflex ML, Reflex SS, etc)
+	 * must implement. 
+	 * 
+	 * A "Library" is different from a "Layer" in that a Library can
+	 * define it's own branch types, and therefore, it can operate
+	 * at ground-level.
+	 */
+	export interface ILibrary extends ILayer
 	{
 		/**
 		 * Reflexive libraries must implement this method, so that the
@@ -10,11 +18,6 @@ namespace Reflex.Core
 		 * whether the library is able to operate on the object specified.
 		 */
 		isKnownBranch(branch: IBranch): boolean;
-		
-		/**
-		 * 
-		 */
-		isKnownLeaf?: (leaf: object) => boolean;
 		
 		/**
 		 * Reflexive libraries may implement this method in order to provide
@@ -41,45 +44,33 @@ namespace Reflex.Core
 		getDynamicBranch?: (name: string) => IBranch;
 		
 		/**
-		 * 
-		 */
-		getDynamicNonBranch?: (name: string) => any;
-		
-		/**
-		 * Reflexive libraries that support inline target+children closures
-		 * must provide an implementation for this method.
-		 */
-		getChildren(target: IBranch): Iterable<IBranch | IContent>;
-		
-		/**
-		 * Reflexive libraries must implement this function to convert values
-		 * being processed by the top-level namespace function into other
-		 * values that will eventually be applied as atomics.
-		 * 
-		 * This function should be implemented by libraries that use the
-		 * content namespace variant.
-		 */
-		createContent?: (content: any) => object | null;
-		
-		/**
 		 * Reflexive libraries must implement this function to create abstract
 		 * top-level container branches.
 		 * 
 		 * This function should be implemented by libraries that use the
 		 * container namespace variant.
 		 */
-		createContainer?: () => IBranch;
+		getDynamicNonBranch?: (name: string) => any;
 		
 		/**
 		 * 
 		 */
-		attachAtomic(atomic: any, branch: IBranch, ref: Ref): void;
+		getRootBranch?: () => IBranch;
 		
 		/**
-		 * 
+		 * Reflexive libraries that are implemented with the leaf namespace
+		 * variant use this method to convert values passed into the namespace
+		 * object's tagged template function into objects that may be interpreted
+		 * as display text.
 		 */
-		detachAtomic(atomic: any, branch: IBranch): void;
-
+		getLeaf?: (leaf: any) => any;
+		
+		/**
+		 * Reflexive libraries that support inline target+children closures
+		 * must provide an implementation for this method.
+		 */
+		getChildren(target: IBranch): Iterable<IBranch | ILeaf>;
+		
 		/**
 		 * 
 		 */
@@ -110,7 +101,7 @@ namespace Reflex.Core
 		createRecurrent?: (
 			kind: RecurrentKind,
 			selector: any,
-			callback: RecurrentCallback<Atomics>,
+			callback: RecurrentCallback<Atomic>,
 			rest: any[]) => any
 		
 		/**
@@ -128,7 +119,7 @@ namespace Reflex.Core
 			kind: RecurrentKind,
 			target: IBranch,
 			selector: any,
-			callback: RecurrentCallback<Atomics>,
+			callback: RecurrentCallback<Atomic>,
 			rest: any[]) => boolean;
 		
 		/**
@@ -138,7 +129,7 @@ namespace Reflex.Core
 		detachRecurrent?: (
 			branch: IBranch,
 			selector: any,
-			callback: RecurrentCallback<Atomics>) => void;
+			callback: RecurrentCallback<Atomic>) => void;
 		
 		/**
 		 * Reflexive libraries can implement this function in order

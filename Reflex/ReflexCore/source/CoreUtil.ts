@@ -51,6 +51,7 @@ namespace Reflex.Core
 			for (let i = -1; ++i < atomics.length;)
 			{
 				const atomic = atomics[i];
+				const typeOf = typeof atomic;
 				
 				if (atomic instanceof Meta)
 					metas.push(atomic);
@@ -74,8 +75,15 @@ namespace Reflex.Core
 							atomic));
 					}
 				}
-				else if (typeof atomic === "function")
+				else if (typeOf === "function")
 					metas.push(new ClosureMeta(atomic));
+				
+				else if (
+					typeOf === "string" ||
+					typeOf === "number" ||
+					typeOf === "bigint" ||
+					atomic instanceof Auxilary)
+					metas.push(new ValueMeta(atomic));
 				
 				else if (this.isAsyncIterable(atomic))
 					metas.push(new AsyncIterableStreamMeta(containerMeta, atomic));
@@ -96,22 +104,14 @@ namespace Reflex.Core
 						else metas.push(new AttributeMeta(k, v));
 					}
 				}
-				else if (["string", "number", "bigint"].includes(typeof atomic))
-				{
-					metas.push(new ValueMeta(atomic));
-				}
 				else
 				{
 					const existingMeta = 
 						BranchMeta.of(atomic) ||
-						ContentMeta.of(atomic);
+						LeafMeta.of(atomic);
 					
 					if (existingMeta)
 						metas.push(existingMeta);
-					
-					else if (typeof atomic === "object" &&
-						lib.isKnownLeaf(atomic))
-						metas.push(new InstanceMeta(atomic));
 					
 					// This error occurs when something was passed as a atomic 
 					// to a branch function, and neither the Reflex core, or any of
@@ -165,7 +165,7 @@ namespace Reflex.Core
 		
 		/**
 		 * Applies the specified metas to the specified branch, and returns
-		 * the last applied branch or content object, which can be used for
+		 * the last applied branch or leaf object, which can be used for
 		 * future references.
 		 */
 		applyMetas(
@@ -222,13 +222,13 @@ namespace Reflex.Core
 					lib.attachAtomic(meta.branch, containingBranch, hardRef);
 					tracker.update(meta.branch);
 				}
-				else if (meta instanceof ContentMeta)
+				else if (meta instanceof LeafMeta)
 				{
 					const hardRef = tracker.getLastHardRef();
 					lib.attachAtomic(meta.value, containingBranch, hardRef);
 					tracker.update(meta.value);
 				}
-				else if (meta instanceof ValueMeta || meta instanceof InstanceMeta)
+				else if (meta instanceof ValueMeta)
 				{
 					lib.attachAtomic(meta.value, containingBranch, "append");
 				}
@@ -277,7 +277,7 @@ namespace Reflex.Core
 				if (meta instanceof ClosureMeta)
 					continue;
 				
-				if (meta instanceof ContentMeta || meta instanceof ValueMeta)
+				if (meta instanceof LeafMeta || meta instanceof ValueMeta)
 					lib.detachAtomic(meta.value, containingBranch);
 				
 				else if (meta instanceof AttributeMeta)

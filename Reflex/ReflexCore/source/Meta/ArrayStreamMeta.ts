@@ -151,7 +151,7 @@ namespace Reflex.Core
 			{
 				const meta = metas[i];
 				
-				if (meta instanceof BranchMeta || meta instanceof ContentMeta)
+				if (meta instanceof BranchMeta || meta instanceof LeafMeta)
 				{
 					meta.key = ++this.nextMetaKey;
 					rendered.splice(i, 1);
@@ -174,7 +174,7 @@ namespace Reflex.Core
 			{
 				const childMeta = 
 					BranchMeta.of(<any>child) ||
-					ContentMeta.of(<any>child);
+					LeafMeta.of(<any>child);
 					
 				if (childMeta && childMeta.key === key)
 				{

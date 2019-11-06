@@ -8,9 +8,9 @@ namespace Reflex
 		branch = "mutation-branch",
 		branchAdd = "mutation-branch-add",
 		branchRemove = "mutation-branch-remove",
-		content = "mutation-content",
-		contentAdd = "mutation-content-add",
-		contentRemove = "mutation-content-remove"
+		leaf = "mutation-leaf",
+		leafAdd = "mutation-leaf-add",
+		leafRemove = "mutation-leaf-remove"
 	}
 }
 
@@ -33,41 +33,38 @@ declare namespace Reflex.Core
 	export class BranchFunction<TName extends string = string>
 	{
 		readonly name: TName;
-		private readonly nominal: undefined; 
+		private readonly nominal: undefined;
 	}
 	
 	/**
 	 * Marker interface that defines an object that represents
-	 * a block of visible content in the tree.
+	 * a block of visible leaves (content) in the tree.
 	 * (For example: the W3C DOM's Text object)
 	 */
-	export interface IContent extends Object { }
+	export interface ILeaf extends Object { }
 	
 	/**
 	 * A type that identifies the atomic types that can exist
 	 * in any reflexive arguments list.
-	 */
-	export type Atomic<TMeta = object, TBranch = object, TAdditionals = unknown> =
-		Voidable<TMeta | TAdditionals> |
-		Iterable<TMeta | TAdditionals> |
-		AsyncIterable<TMeta | TAdditionals> |
-		Promise<TMeta | TAdditionals> |
-		((branch: TBranch, children: TMeta[]) => Atomics<TMeta, TBranch, TAdditionals>) |
-		BranchFunction |
-		Recurrent | 
-		IAttributes;
-	
-	/**
 	 * 
+	 * @param B The library's Branch type.
+	 * @param L The library's Leaf type.
+	 * @param X Extra types understood by the library.
 	 */
-	export type Atomics<M = object, B = object, A = unknown> =
-		M |
+	export type Atomic<B extends object = object, L = any, X = void> =
 		B |
-		A |
-		Atomic<M, B, A> |
-		Atomic<M, B, Atomic<M, B, A>> |
-		Atomic<M, B, Atomic<M, B, Atomic<M, B, A>>> |
-		Atomic<M, B, Atomic<M, B, Atomic<M, B, Atomic<M, B, A>>>>;
+		L |
+		X |
+		false |
+		void |
+		Iterable<Atomic<B, L, X>> |
+		AsyncIterable<Atomic<B, L, X>> |
+		Promise<Atomic<B, L, X>> |
+		((branch: B, children: (B | L)[]) => Atomic<B, L, X>) |
+		BranchFunction |
+		Recurrent |
+		IAttributes |
+		Auxilary;
 	
 	/** */
 	export interface IAttributes<T = string | number | bigint | boolean>
@@ -76,44 +73,52 @@ declare namespace Reflex.Core
 	}
 	
 	/**
-	 * Abstract definition of the content variant of the top-level
+	 * Abstract definition of the leaf variant of the top-level
 	 * namespace function.
+	 * 
+	 * @param L The Leaf type of the library.
+	 * @param S The "Leaf source" type, which are the other types
+	 * (typically primitives) that the library is capable of converting
+	 * into it's Leaf type.
 	 */
-	export interface IContentNamespace<TPreparedContent, TContent>
+	export interface ILeafNamespace<L = any, S = string | number | bigint>
 	{
 		(
 			template:
 				TemplateStringsArray | 
-				Voidable<TContent> | 
-				StatefulForce<Voidable<TContent>>,
+				L | S | void |
+				StatefulForce,
 			
 			...values: (
 				IBranch | 
-				Voidable<TContent> | 
-				StatefulForce<Voidable<TContent>>)[]
-		): TPreparedContent;
+				L | S | void |
+				StatefulForce)[]
+		): L;
 	}
 	
 	/**
-	 * Abstract definition of the container variant of the top-level
+	 * Abstract definition of the branch variant of the top-level
 	 * namespace function.
+	 * 
+	 * @param A The atomic type of the library.
+	 * @param R The return type of the root-level branch function.
 	 */
-	export interface IContainerNamespace<P extends Atomics, TResult = object>
+	export interface IBranchNamespace<A = any, R = any>
 	{
-		(...atomics: P[]): TResult;
+		(...atomics: A[]): R;
 	}
 	
 	/**
 	 * Defines a relative or specific meta reference, used for indicating
 	 * an insertion position of a new meta within a Reflexive tree.
 	 */
-	export type Ref = IBranch | IContent | "prepend" | "append";
+	export type Ref = IBranch | ILeaf | "prepend" | "append";
 	
 	/**
 	 * Generic function definition for callback functions provided to
 	 * the global on() function.
 	 */
-	export type RecurrentCallback<T extends Atomics = Atomics> = (...args: any[]) => T;
+	export type RecurrentCallback<T extends Atomic = Atomic> = (...args: any[]) => T;
 	
 	/**
 	 * 
@@ -165,8 +170,8 @@ declare namespace Reflex.Core
 	 * Extracts 
 	 */
 	export type AsBranch<F> = 
-		F extends () => infer R ? (...atomics: Atomics[]) => R :
-		F extends (...args: infer A) => infer R ? (...args: A) => (...atomics: Atomics[]) => R :
+		F extends () => infer R ? (...atomics: Atomic[]) => R :
+		F extends (...args: infer A) => infer R ? (...args: A) => (...atomics: Atomic[]) => R :
 		F;
 	
 	/**
@@ -185,3 +190,4 @@ declare namespace Reflex.Core
 			AsBranches<ReturnOf<L["getStaticNonBranches"]>> :
 			{};
 }
+

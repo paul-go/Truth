@@ -35,7 +35,7 @@ namespace Reflex.ML
 				 * Uses the Force's .value property when connected to an
 				 * HTMLInputElement, otherwise, the .textContent property is used.
 				 */
-				bind<T extends string | number | bigint>(
+				bind<T extends string | number | bigint | Text>(
 					statefulForce: Reflex.Core.StatefulForce<T>): (e: HTMLElement) => any
 				{
 					const assign = (value: string | null) =>
@@ -64,7 +64,7 @@ namespace Reflex.ML
 								on("input", () => assign(e.value)).run()
 							] :
 							[
-								ml(statefulForce),
+								ml(<Reflex.Core.StatefulForce>statefulForce),
 								on("input", () => assign(e.textContent)).run()
 							];
 				}
@@ -83,27 +83,30 @@ namespace Reflex.ML
 		}
 		
 		/** */
+		getLeaf(leafSource: any)
+		{
+			if (leafSource instanceof Text)
+				return leafSource;
+			
+			if (typeof leafSource === "string" || 
+				typeof leafSource === "number" ||
+				typeof leafSource === "bigint")
+				return new Text("" + leafSource);
+			
+			return null;
+		}
+		
+		/** */
 		getChildren(target: Branch)
 		{
 			return new NodeArray(target);
 		}
 		
 		/** */
-		createContent(content: any)
-		{
-			if (typeof content === "string" || 
-				typeof content === "number" ||
-				typeof content === "bigint")
-				return new Text("" + content);
-			
-			return null;
-		}
-		
-		/** */
 		attachAtomic(
 			atomic: any,
 			owner: Branch,
-			ref: Node | "prepend" | "append")
+			ref: Branch | Leaf | "prepend" | "append")
 		{
 			if (typeof atomic === "string")
 				return owner.classList.add(atomic);

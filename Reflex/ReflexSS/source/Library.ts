@@ -1,10 +1,9 @@
 
 namespace Reflex.SS
 {
-	export type Node = HTMLElement | Text;
-	export type Branch = Rule | Command;
-	export type Atomic = Core.Atomic<Node, Branch, string>;
-	export type Atomics = Core.Atomics<Node, Branch, string>;
+	export type Branch = Rule;
+	export type Leaf = Command;
+	export type Atomic = Core.Atomic<Branch, Leaf, string>;
 	
 	/**
 	 * Top-level value for all possible inputs
@@ -15,7 +14,7 @@ namespace Reflex.SS
 	/**
 	 * Creates a namespace.
 	 */
-	export interface Namespace extends Core.IContainerNamespace<Atomics, string>
+	export interface Namespace extends Core.IBranchNamespace<Atomic, string>
 	{
 		/**
 		 * Serializes all generated CSS content into a string.
@@ -49,13 +48,7 @@ namespace Reflex.SS
 		/** */
 		isKnownBranch(branch: Branch)
 		{
-			return branch instanceof Rule || branch instanceof Command;
-		}
-		
-		/** */
-		isKnownLeaf(leaf: object)
-		{
-			return leaf instanceof Command;
+			return branch instanceof Rule;
 		}
 		
 		/** */
@@ -152,14 +145,20 @@ namespace Reflex.SS
 		/** */
 		getChildren(target: Branch)
 		{
-			if (target instanceof Rule)
-				return (<Branch[]>target.declarations).concat(target.children);
-			
-			return target.values;
+			return (<(Branch | Leaf)[]>target.declarations).concat(target.children);
 		}
 		
+		/** * /
+		getLeaf(leaf: object)
+		{
+			if (leaf instanceof Command)
+				return leaf;
+			
+			return null;
+		}*/
+		
 		/** */
-		createContainer()
+		getRootBranch()
 		{
 			return new Rule();
 		}
