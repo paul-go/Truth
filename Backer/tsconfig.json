@@ -1,10 +1,30 @@
 {
-	"files": [],
-	"include": [],
+	"compilerOptions": {
+		"composite": true,
+		"module": "system",
+		"target": "esnext",
+		"inlineSourceMap": true,
+		"inlineSources": true,
+		"strict": true,
+		"rootDir": ".",
+		"declaration": true,
+		"declarationMap": true,
+		"stripInternal": false,
+		"incremental": true,
+		"lib": [
+			"esnext",
+			"esnext.array",
+			"esnext.asynciterable"
+		],
+		"outFile": "./build/backer.js"
+	},
+	"exclude": [
+		"**/build/**/*.ts",
+		"**/bundle/**/*.ts",
+		"**/make.ts"
+	],
 	"references": [
 		{ "path": "../Truth" },
-		{ "path": "Encoder" },
-		{ "path": "TruthTalk" },
-		{ "path": "TruthTalk.Test" }
+		{ "path": "../Reflex/ReflexCore" },
 	]
 }
