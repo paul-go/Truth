@@ -481,12 +481,13 @@ namespace Truth
 				return this.private.values;
 			
 			this.private.throwOnDirty();
-			const values: { value: string, base: Type | null }[] = [];
+			const values: { value: string, base: Type | null, aliased: boolean }[] = [];
 			
 			const extractType = (sp: SpecifiedParallel) =>
 			{
-				for (const { edge } of sp.eachBase())
+				for (const { edge, aliased } of sp.eachBase())
 					values.push({
+						aliased,
 						value: edge.identifier.toString(),
 						base: Type.construct(edge.predecessor.uri, this.private.program)
 					});
@@ -750,7 +751,7 @@ namespace Truth
 		aliases: readonly string[] | null = null;
 		
 		/** */
-		values: readonly { value: string; base: Type | null; }[] | null = null;
+		values: readonly { value: string; base: Type | null; aliased: boolean }[] | null = null;
 		
 		/** */
 		superordinates: readonly Type[] | null = null;
