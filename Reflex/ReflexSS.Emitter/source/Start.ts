@@ -1,9 +1,9 @@
 
 namespace Reflex.SS.Emitter
 {
-	const Fs = <typeof import("fs")>require("ReflexSS.Emitter/source/fs");
-	const Path = <typeof import("path")>require("ReflexSS.Emitter/source/path");
-	(<any>global).fetch = require("ReflexSS.Emitter/source/node-fetch");
+	const Fs = <typeof import("fs")>require("fs");
+	const Path = <typeof import("path")>require("path");
+	(<any>global).fetch = require("node-fetch");
 	
 	setTimeout(async () =>
 	{
