@@ -7,9 +7,5 @@ declare namespace Reflex.SS
 		repeatingRadialGradient(value: CssValue, ...values: CssValue[]): Command;
 		/** */
 		repeatingRadialGradient(values: CssValue[][]): Command;
-		/** */
-		"repeating-radial-gradient"(value: CssValue, ...values: CssValue[]): Command;
-		/** */
-		"repeating-radial-gradient"(values: CssValue[][]): Command;
 	}
 }

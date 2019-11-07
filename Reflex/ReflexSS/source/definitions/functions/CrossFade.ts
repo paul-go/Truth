@@ -7,9 +7,5 @@ declare namespace Reflex.SS
 		crossFade(value: CssValue, ...values: CssValue[]): Command;
 		/** */
 		crossFade(values: CssValue[][]): Command;
-		/** */
-		"cross-fade"(value: CssValue, ...values: CssValue[]): Command;
-		/** */
-		"cross-fade"(values: CssValue[][]): Command;
 	}
 }

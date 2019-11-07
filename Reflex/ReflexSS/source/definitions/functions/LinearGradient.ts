@@ -7,9 +7,5 @@ declare namespace Reflex.SS
 		linearGradient(value: CssValue, ...values: CssValue[]): Command;
 		/** */
 		linearGradient(values: CssValue[][]): Command;
-		/** */
-		"linear-gradient"(value: CssValue, ...values: CssValue[]): Command;
-		/** */
-		"linear-gradient"(values: CssValue[][]): Command;
 	}
 }

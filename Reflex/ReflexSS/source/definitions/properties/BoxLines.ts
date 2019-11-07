@@ -19,21 +19,5 @@ declare namespace Reflex.SS
 		 * @deprecated
 		 */
 		boxLines(values: CssValue[][]): Command;
-		/**
-		 * The **`box-lines`** CSS property determines whether the box may have a single or multiple lines (rows for horizontally oriented boxes, columns for vertically oriented boxes).
-		 * 
-		 * **Initial value**: `single`
-		 * 
-		 * @deprecated
-		 */
-		"box-lines"(value: CssValue, ...values: CssValue[]): Command;
-		/**
-		 * The **`box-lines`** CSS property determines whether the box may have a single or multiple lines (rows for horizontally oriented boxes, columns for vertically oriented boxes).
-		 * 
-		 * **Initial value**: `single`
-		 * 
-		 * @deprecated
-		 */
-		"box-lines"(values: CssValue[][]): Command;
 	}
 }

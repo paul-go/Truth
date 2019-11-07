@@ -7,9 +7,5 @@ declare namespace Reflex.SS
 		hueRotate(value: CssValue, ...values: CssValue[]): Command;
 		/** */
 		hueRotate(values: CssValue[][]): Command;
-		/** */
-		"hue-rotate"(value: CssValue, ...values: CssValue[]): Command;
-		/** */
-		"hue-rotate"(values: CssValue[][]): Command;
 	}
 }

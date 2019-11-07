@@ -19,21 +19,5 @@ declare namespace Reflex.SS
 		 * @deprecated
 		 */
 		boxOrdinalGroup(values: CssValue[][]): Command;
-		/**
-		 * The **`box-ordinal-group`** CSS property assigns the flexbox's child elements to an ordinal group.
-		 * 
-		 * **Initial value**: `1`
-		 * 
-		 * @deprecated
-		 */
-		"box-ordinal-group"(value: CssValue, ...values: CssValue[]): Command;
-		/**
-		 * The **`box-ordinal-group`** CSS property assigns the flexbox's child elements to an ordinal group.
-		 * 
-		 * **Initial value**: `1`
-		 * 
-		 * @deprecated
-		 */
-		"box-ordinal-group"(values: CssValue[][]): Command;
 	}
 }

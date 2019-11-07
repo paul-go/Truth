@@ -7,9 +7,5 @@ declare namespace Reflex.SS
 		targetCounters(value: CssValue, ...values: CssValue[]): Command;
 		/** */
 		targetCounters(values: CssValue[][]): Command;
-		/** */
-		"target-counters"(value: CssValue, ...values: CssValue[]): Command;
-		/** */
-		"target-counters"(values: CssValue[][]): Command;
 	}
 }

@@ -19,8 +19,10 @@ namespace Reflex.SS.Emitter
 			const properties = new Map<string, string[]>();
 			const docCommentL = "/**\n";
 			const docCommentR = "*/\n";
-			const nameL = " **`";
-			const nameR = "`** ";
+			const nameL1 = " **`";
+			const nameL2 = " `**";
+			const nameR1 = "`** ";
+			const nameR2 = "**` ";
 			
 			let pos = 0;
 			while (pos < dtsText.length)
@@ -49,13 +51,20 @@ namespace Reflex.SS.Emitter
 					commentLines.pop();
 				
 				const line0 = commentLines[0];
-				const idxNameL = line0.indexOf(nameL);
-				const idxNameR = line0.indexOf(nameR, idxNameL);
+				
+				const idxNameL = Math.max(
+					line0.indexOf(nameL1),
+					line0.indexOf(nameL2));
+					
+				const idxNameR = Math.max(
+					line0.indexOf(nameR1, idxNameL),
+					line0.indexOf(nameR2, idxNameL)
+				);
 				
 				if (idxNameL < 0 || idxNameR < 0)
 					continue;
 				
-				const propertyName = line0.slice(idxNameL + nameL.length, idxNameR);
+				const propertyName = line0.slice(idxNameL + nameL1.length, idxNameR);
 				if (!properties.has(propertyName))
 					properties.set(propertyName, commentLines);
 			}

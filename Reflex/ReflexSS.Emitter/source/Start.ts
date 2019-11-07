@@ -57,13 +57,6 @@ namespace Reflex.SS.Emitter
 			codeName + "(values: CssValue[][]): Command;",
 		];
 		
-		if (cssName.includes("-"))
-			allLines.push(
-				...commentPrefix,
-				`"${cssName}"(value: CssValue, ...values: CssValue[]): Command;`,
-				...commentPrefix,
-				`"${cssName}"(values: CssValue[][]): Command;`);
-		
 		writeCodeFile(dir, fileName, allLines);
 	}
 	
