@@ -52,9 +52,9 @@ namespace Reflex.SS.Emitter
 		
 		const allLines = [
 			...commentPrefix,
-			codeName + "(value: CssValue, ...values: CssValue[]): Command;",
+			codeName + "(...values: CssValue[]): Command;",
 			...commentPrefix,
-			codeName + "(values: CssValue[][]): Command;",
+			codeName + "(...values: CssValue[][]): Command;",
 		];
 		
 		writeCodeFile(dir, fileName, allLines);
