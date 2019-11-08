@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/perspective-origin
 		 */
-		perspectiveOrigin(value: CssValue, ...values: CssValue[]): Command;
+		perspectiveOrigin(...values: CssValue[]): Command;
 		/**
 		 * The **`perspective-origin`** CSS property determines the position at which the viewer is looking. It is used as the _vanishing point_ by the `perspective` property.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/perspective-origin
 		 */
-		perspectiveOrigin(values: CssValue[][]): Command;
+		perspectiveOrigin(...values: CssValue[][]): Command;
 	}
 }

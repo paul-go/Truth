@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-wrap
 		 */
-		flexWrap(value: CssValue, ...values: CssValue[]): Command;
+		flexWrap(...values: CssValue[]): Command;
 		/**
 		 * The **`flex-wrap`** CSS property sets whether flex items are forced onto one line or can wrap onto multiple lines. If wrapping is allowed, it sets the direction that lines are stacked.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-wrap
 		 */
-		flexWrap(values: CssValue[][]): Command;
+		flexWrap(...values: CssValue[][]): Command;
 	}
 }

@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding
 		 */
-		padding(value: CssValue, ...values: CssValue[]): Command;
+		padding(...values: CssValue[]): Command;
 		/**
 		 * The **`padding`** CSS property sets the padding area on all four sides of an element. It is a shorthand for `padding-top`, `padding-right`, `padding-bottom`, and `padding-left`.
 		 * 
@@ -22,6 +22,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding
 		 */
-		padding(values: CssValue[][]): Command;
+		padding(...values: CssValue[][]): Command;
 	}
 }

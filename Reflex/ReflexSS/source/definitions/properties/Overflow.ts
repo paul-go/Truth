@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overflow
 		 */
-		overflow(value: CssValue, ...values: CssValue[]): Command;
+		overflow(...values: CssValue[]): Command;
 		/**
 		 * The **`overflow`** CSS property sets what to do when an element's content is too big to fit in its block formatting context. It is a shorthand for `overflow-x` and `overflow-y`.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overflow
 		 */
-		overflow(values: CssValue[][]): Command;
+		overflow(...values: CssValue[][]): Command;
 	}
 }

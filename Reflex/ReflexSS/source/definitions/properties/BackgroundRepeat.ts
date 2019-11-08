@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-repeat
 		 */
-		backgroundRepeat(value: CssValue, ...values: CssValue[]): Command;
+		backgroundRepeat(...values: CssValue[]): Command;
 		/**
 		 * The **`background-repeat`** CSS property sets how background images are repeated. A background image can be repeated along the horizontal and vertical axes, or not repeated at all.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-repeat
 		 */
-		backgroundRepeat(values: CssValue[][]): Command;
+		backgroundRepeat(...values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-block-start
 		 */
-		paddingBlockStart(value: CssValue, ...values: CssValue[]): Command;
+		paddingBlockStart(...values: CssValue[]): Command;
 		/**
 		 * The **`padding-block-start`** CSS property defines the logical block start padding of an element, which maps to a physical padding depending on the element's writing mode, directionality, and text orientation. It corresponds to the `padding-top`, `padding-right`, `padding-bottom`, or `padding-left` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-block-start
 		 */
-		paddingBlockStart(values: CssValue[][]): Command;
+		paddingBlockStart(...values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-rendering
 		 */
-		textRendering(value: CssValue, ...values: CssValue[]): Command;
+		textRendering(...values: CssValue[]): Command;
 		/**
 		 * The **`text-rendering`** CSS property provides information to the rendering engine about what to optimize for when rendering text.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-rendering
 		 */
-		textRendering(values: CssValue[][]): Command;
+		textRendering(...values: CssValue[][]): Command;
 	}
 }

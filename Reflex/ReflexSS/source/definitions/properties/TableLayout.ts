@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/table-layout
 		 */
-		tableLayout(value: CssValue, ...values: CssValue[]): Command;
+		tableLayout(...values: CssValue[]): Command;
 		/**
 		 * The **`table-layout`** CSS property sets the algorithm used to lay out `<table>` cells, rows, and columns.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/table-layout
 		 */
-		tableLayout(values: CssValue[][]): Command;
+		tableLayout(...values: CssValue[][]): Command;
 	}
 }

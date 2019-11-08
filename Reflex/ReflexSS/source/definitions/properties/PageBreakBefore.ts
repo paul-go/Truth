@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/page-break-before
 		 */
-		pageBreakBefore(value: CssValue, ...values: CssValue[]): Command;
+		pageBreakBefore(...values: CssValue[]): Command;
 		/**
 		 * The **`page-break-before`** CSS property adjusts page breaks _before_ the current element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/page-break-before
 		 */
-		pageBreakBefore(values: CssValue[][]): Command;
+		pageBreakBefore(...values: CssValue[][]): Command;
 	}
 }

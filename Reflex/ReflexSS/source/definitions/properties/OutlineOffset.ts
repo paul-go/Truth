@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-offset
 		 */
-		outlineOffset(value: CssValue, ...values: CssValue[]): Command;
+		outlineOffset(...values: CssValue[]): Command;
 		/**
 		 * The **`outline-offset`** CSS property sets the amount of space between an outline and the edge or border of an element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-offset
 		 */
-		outlineOffset(values: CssValue[][]): Command;
+		outlineOffset(...values: CssValue[][]): Command;
 	}
 }

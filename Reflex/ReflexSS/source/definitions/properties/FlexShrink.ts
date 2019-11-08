@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-shrink
 		 */
-		flexShrink(value: CssValue, ...values: CssValue[]): Command;
+		flexShrink(...values: CssValue[]): Command;
 		/**
 		 * The **`flex-shrink`** CSS property sets the flex shrink factor of a flex item. If the size of flex items is larger than the flex container, items shrink to fit according to `flex-shrink`.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/flex-shrink
 		 */
-		flexShrink(values: CssValue[][]): Command;
+		flexShrink(...values: CssValue[][]): Command;
 	}
 }

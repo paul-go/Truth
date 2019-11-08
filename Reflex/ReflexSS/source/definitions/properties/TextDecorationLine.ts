@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-line
 		 */
-		textDecorationLine(value: CssValue, ...values: CssValue[]): Command;
+		textDecorationLine(...values: CssValue[]): Command;
 		/**
 		 * The **`text-decoration-line`** CSS property sets the kind of decoration that is used on text in an element, such as an underline or overline.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-line
 		 */
-		textDecorationLine(values: CssValue[][]): Command;
+		textDecorationLine(...values: CssValue[][]): Command;
 	}
 }

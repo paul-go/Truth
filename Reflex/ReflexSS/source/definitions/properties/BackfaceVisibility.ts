@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/backface-visibility
 		 */
-		backfaceVisibility(value: CssValue, ...values: CssValue[]): Command;
+		backfaceVisibility(...values: CssValue[]): Command;
 		/**
 		 * The **`backface-visibility`** CSS property sets whether the back face of an element is visible when turned towards the user.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/backface-visibility
 		 */
-		backfaceVisibility(values: CssValue[][]): Command;
+		backfaceVisibility(...values: CssValue[][]): Command;
 	}
 }

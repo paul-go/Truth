@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/caption-side
 		 */
-		captionSide(value: CssValue, ...values: CssValue[]): Command;
+		captionSide(...values: CssValue[]): Command;
 		/**
 		 * The **`caption-side`** CSS property puts the content of a table's `<caption>` on the specified side. The values are relative to the `writing-mode` of the table.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/caption-side
 		 */
-		captionSide(values: CssValue[][]): Command;
+		captionSide(...values: CssValue[][]): Command;
 	}
 }

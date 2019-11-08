@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-attachment
 		 */
-		backgroundAttachment(value: CssValue, ...values: CssValue[]): Command;
+		backgroundAttachment(...values: CssValue[]): Command;
 		/**
 		 * The **`background-attachment`** CSS property sets whether a background image's position is fixed within the viewport, or scrolls with its containing block.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-attachment
 		 */
-		backgroundAttachment(values: CssValue[][]): Command;
+		backgroundAttachment(...values: CssValue[][]): Command;
 	}
 }

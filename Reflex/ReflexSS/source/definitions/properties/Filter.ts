@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/filter
 		 */
-		filter(value: CssValue, ...values: CssValue[]): Command;
+		filter(...values: CssValue[]): Command;
 		/**
 		 * The **`filter`** CSS property applies graphical effects like blur or color shift to an element. Filters are commonly used to adjust the rendering of images, backgrounds, and borders.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/filter
 		 */
-		filter(values: CssValue[][]): Command;
+		filter(...values: CssValue[][]): Command;
 	}
 }

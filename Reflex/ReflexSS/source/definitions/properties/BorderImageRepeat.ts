@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-image-repeat
 		 */
-		borderImageRepeat(value: CssValue, ...values: CssValue[]): Command;
+		borderImageRepeat(...values: CssValue[]): Command;
 		/**
 		 * The **`border-image-repeat`** CSS property defines how the edge regions of a source image are adjusted to fit the dimensions of an element's border image.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-image-repeat
 		 */
-		borderImageRepeat(values: CssValue[][]): Command;
+		borderImageRepeat(...values: CssValue[][]): Command;
 	}
 }

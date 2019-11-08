@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-orientation
 		 */
-		textOrientation(value: CssValue, ...values: CssValue[]): Command;
+		textOrientation(...values: CssValue[]): Command;
 		/**
 		 * The **`text-orientation`** CSS property sets the orientation of the text characters in a line. It only affects text in vertical mode (when `writing-mode` is not `horizontal-tb`). It is useful for controlling the display of languages that use vertical script, and also for making vertical table headers.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-orientation
 		 */
-		textOrientation(values: CssValue[][]): Command;
+		textOrientation(...values: CssValue[][]): Command;
 	}
 }

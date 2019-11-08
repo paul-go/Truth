@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/touch-action
 		 */
-		touchAction(value: CssValue, ...values: CssValue[]): Command;
+		touchAction(...values: CssValue[]): Command;
 		/**
 		 * The **`touch-action`** CSS property sets how a region can be manipulated by a touchscreen user (for example, by zooming features built into the browser).
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/touch-action
 		 */
-		touchAction(values: CssValue[][]): Command;
+		touchAction(...values: CssValue[][]): Command;
 	}
 }

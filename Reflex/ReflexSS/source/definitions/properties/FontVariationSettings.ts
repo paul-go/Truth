@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variation-settings
 		 */
-		fontVariationSettings(value: CssValue, ...values: CssValue[]): Command;
+		fontVariationSettings(...values: CssValue[]): Command;
 		/**
 		 * The **`font-variation-settings`** CSS property provides low-level control over variable font characteristics, by specifying the four letter axis names of the characteristics you want to vary, along with their values.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variation-settings
 		 */
-		fontVariationSettings(values: CssValue[][]): Command;
+		fontVariationSettings(...values: CssValue[][]): Command;
 	}
 }

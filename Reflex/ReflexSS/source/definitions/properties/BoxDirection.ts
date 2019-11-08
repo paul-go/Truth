@@ -10,7 +10,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		boxDirection(value: CssValue, ...values: CssValue[]): Command;
+		boxDirection(...values: CssValue[]): Command;
 		/**
 		 * The **`box-direction`** CSS property specifies whether a box lays out its contents normally (from the top or left edge), or in reverse (from the bottom or right edge).
 		 * 
@@ -18,6 +18,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		boxDirection(values: CssValue[][]): Command;
+		boxDirection(...values: CssValue[][]): Command;
 	}
 }

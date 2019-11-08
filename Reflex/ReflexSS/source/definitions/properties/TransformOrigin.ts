@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transform-origin
 		 */
-		transformOrigin(value: CssValue, ...values: CssValue[]): Command;
+		transformOrigin(...values: CssValue[]): Command;
 		/**
 		 * The **`transform-origin`** CSS property sets the origin for an element's transformations.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transform-origin
 		 */
-		transformOrigin(values: CssValue[][]): Command;
+		transformOrigin(...values: CssValue[][]): Command;
 	}
 }

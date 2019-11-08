@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom-left-radius
 		 */
-		borderBottomLeftRadius(value: CssValue, ...values: CssValue[]): Command;
+		borderBottomLeftRadius(...values: CssValue[]): Command;
 		/**
 		 * The **`border-bottom-left-radius`** CSS property rounds the bottom-left corner of an element.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom-left-radius
 		 */
-		borderBottomLeftRadius(values: CssValue[][]): Command;
+		borderBottomLeftRadius(...values: CssValue[][]): Command;
 	}
 }

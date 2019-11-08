@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/page-break-after
 		 */
-		pageBreakAfter(value: CssValue, ...values: CssValue[]): Command;
+		pageBreakAfter(...values: CssValue[]): Command;
 		/**
 		 * The **`page-break-after`** CSS property adjusts page breaks _after_ the current element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/page-break-after
 		 */
-		pageBreakAfter(values: CssValue[][]): Command;
+		pageBreakAfter(...values: CssValue[][]): Command;
 	}
 }

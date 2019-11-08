@@ -10,7 +10,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		scrollSnapCoordinate(value: CssValue, ...values: CssValue[]): Command;
+		scrollSnapCoordinate(...values: CssValue[]): Command;
 		/**
 		 * The **`scroll-snap-coordinate`** CSS property defines the x and y coordinate positions within an element that will align with its nearest ancestor scroll container's `scroll-snap-destination` for each respective axis.
 		 * 
@@ -18,6 +18,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		scrollSnapCoordinate(values: CssValue[][]): Command;
+		scrollSnapCoordinate(...values: CssValue[][]): Command;
 	}
 }

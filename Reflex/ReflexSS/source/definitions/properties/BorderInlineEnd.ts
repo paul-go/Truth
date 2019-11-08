@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-end
 		 */
-		borderInlineEnd(value: CssValue, ...values: CssValue[]): Command;
+		borderInlineEnd(...values: CssValue[]): Command;
 		/**
 		 * The **`border-inline-end`** CSS property is a shorthand property for setting the individual logical inline-end border property values in a single place in the style sheet.
 		 * 
@@ -22,6 +22,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-end
 		 */
-		borderInlineEnd(values: CssValue[][]): Command;
+		borderInlineEnd(...values: CssValue[][]): Command;
 	}
 }

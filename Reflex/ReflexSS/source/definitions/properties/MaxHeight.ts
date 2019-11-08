@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/max-height
 		 */
-		maxHeight(value: CssValue, ...values: CssValue[]): Command;
+		maxHeight(...values: CssValue[]): Command;
 		/**
 		 * The **`max-height`** CSS property sets the maximum height of an element. It prevents the used value of the `height` property from becoming larger than the value specified for `max-height`.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/max-height
 		 */
-		maxHeight(values: CssValue[][]): Command;
+		maxHeight(...values: CssValue[][]): Command;
 	}
 }

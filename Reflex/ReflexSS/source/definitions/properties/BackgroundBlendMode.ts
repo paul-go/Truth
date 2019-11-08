@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-blend-mode
 		 */
-		backgroundBlendMode(value: CssValue, ...values: CssValue[]): Command;
+		backgroundBlendMode(...values: CssValue[]): Command;
 		/**
 		 * The **`background-blend-mode`** CSS property sets how an element's background images should blend with each other and with the element's background color.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-blend-mode
 		 */
-		backgroundBlendMode(values: CssValue[][]): Command;
+		backgroundBlendMode(...values: CssValue[][]): Command;
 	}
 }

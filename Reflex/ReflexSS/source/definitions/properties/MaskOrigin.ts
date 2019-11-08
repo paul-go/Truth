@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-origin
 		 */
-		maskOrigin(value: CssValue, ...values: CssValue[]): Command;
+		maskOrigin(...values: CssValue[]): Command;
 		/**
 		 * The **`mask-origin`** CSS property sets the origin of a mask.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-origin
 		 */
-		maskOrigin(values: CssValue[][]): Command;
+		maskOrigin(...values: CssValue[][]): Command;
 	}
 }

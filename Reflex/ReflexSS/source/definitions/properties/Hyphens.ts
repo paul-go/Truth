@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/hyphens
 		 */
-		hyphens(value: CssValue, ...values: CssValue[]): Command;
+		hyphens(...values: CssValue[]): Command;
 		/**
 		 * The **`hyphens`** CSS property specifies how words should be hyphenated when text wraps across multiple lines. You can prevent hyphenation entirely, use hyphenation in manually-specified points within the text, or let the browser automatically insert hyphens where appropriate.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/hyphens
 		 */
-		hyphens(values: CssValue[][]): Command;
+		hyphens(...values: CssValue[][]): Command;
 	}
 }

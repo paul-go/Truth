@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/position
 		 */
-		position(value: CssValue, ...values: CssValue[]): Command;
+		position(...values: CssValue[]): Command;
 		/**
 		 * The **`position`** CSS property sets how an element is positioned in a document. The `top`, `right`, `bottom`, and `left` properties determine the final location of positioned elements.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/position
 		 */
-		position(values: CssValue[][]): Command;
+		position(...values: CssValue[][]): Command;
 	}
 }

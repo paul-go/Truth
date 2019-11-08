@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-top
 		 */
-		paddingTop(value: CssValue, ...values: CssValue[]): Command;
+		paddingTop(...values: CssValue[]): Command;
 		/**
 		 * The **`padding-top`** padding area on the top of an element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-top
 		 */
-		paddingTop(values: CssValue[][]): Command;
+		paddingTop(...values: CssValue[][]): Command;
 	}
 }

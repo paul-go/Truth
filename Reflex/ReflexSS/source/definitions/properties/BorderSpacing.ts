@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-spacing
 		 */
-		borderSpacing(value: CssValue, ...values: CssValue[]): Command;
+		borderSpacing(...values: CssValue[]): Command;
 		/**
 		 * The **`border-spacing`** CSS property sets the distance between the borders of adjacent `<table>` cells. This property applies only when `border-collapse` is `separate`.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-spacing
 		 */
-		borderSpacing(values: CssValue[][]): Command;
+		borderSpacing(...values: CssValue[][]): Command;
 	}
 }

@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-block-start
 		 */
-		borderBlockStart(value: CssValue, ...values: CssValue[]): Command;
+		borderBlockStart(...values: CssValue[]): Command;
 		/**
 		 * The **`border-block-start`** CSS property is a shorthand property for setting the individual logical block-start border property values in a single place in the style sheet.
 		 * 
@@ -22,6 +22,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-block-start
 		 */
-		borderBlockStart(values: CssValue[][]): Command;
+		borderBlockStart(...values: CssValue[][]): Command;
 	}
 }

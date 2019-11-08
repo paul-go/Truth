@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/page-break-inside
 		 */
-		pageBreakInside(value: CssValue, ...values: CssValue[]): Command;
+		pageBreakInside(...values: CssValue[]): Command;
 		/**
 		 * The **`page-break-inside`** CSS property adjusts page breaks _inside_ the current element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/page-break-inside
 		 */
-		pageBreakInside(values: CssValue[][]): Command;
+		pageBreakInside(...values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/paint-order
 		 */
-		paintOrder(value: CssValue, ...values: CssValue[]): Command;
+		paintOrder(...values: CssValue[]): Command;
 		/**
 		 * The **`paint-order`** CSS property lets you control the order in which the fill and stroke (and painting markers) of text content and shapes are drawn.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/paint-order
 		 */
-		paintOrder(values: CssValue[][]): Command;
+		paintOrder(...values: CssValue[][]): Command;
 	}
 }

@@ -29,7 +29,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/justify-content
 		 */
-		justifyContent(value: CssValue, ...values: CssValue[]): Command;
+		justifyContent(...values: CssValue[]): Command;
 		/**
 		 * The CSS **`justify-content`** property defines how the browser distributes space between and around content items along the main-axis of a flex container, and the inline axis of a grid container.
 		 * 
@@ -56,6 +56,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/justify-content
 		 */
-		justifyContent(values: CssValue[][]): Command;
+		justifyContent(...values: CssValue[][]): Command;
 	}
 }

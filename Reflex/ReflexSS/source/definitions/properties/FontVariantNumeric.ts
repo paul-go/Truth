@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-numeric
 		 */
-		fontVariantNumeric(value: CssValue, ...values: CssValue[]): Command;
+		fontVariantNumeric(...values: CssValue[]): Command;
 		/**
 		 * The **`font-variant-numeric`** CSS property controls the usage of alternate glyphs for numbers, fractions, and ordinal markers.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-numeric
 		 */
-		fontVariantNumeric(values: CssValue[][]): Command;
+		fontVariantNumeric(...values: CssValue[][]): Command;
 	}
 }

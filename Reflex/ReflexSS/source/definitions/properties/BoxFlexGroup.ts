@@ -10,7 +10,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		boxFlexGroup(value: CssValue, ...values: CssValue[]): Command;
+		boxFlexGroup(...values: CssValue[]): Command;
 		/**
 		 * The **`box-flex-group`** CSS property assigns the flexbox's child elements to a flex group.
 		 * 
@@ -18,6 +18,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		boxFlexGroup(values: CssValue[][]): Command;
+		boxFlexGroup(...values: CssValue[][]): Command;
 	}
 }

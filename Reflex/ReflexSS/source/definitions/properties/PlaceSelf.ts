@@ -26,7 +26,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/place-self
 		 */
-		placeSelf(value: CssValue, ...values: CssValue[]): Command;
+		placeSelf(...values: CssValue[]): Command;
 		/**
 		 * The **`place-self`** CSS property is a shorthand property sets both the `align-self` and `justify-self` properties. The first value is the `align-self` property value, the second the `justify-self` one. If the second value is not present, the first value is also used for it.
 		 * 
@@ -50,6 +50,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/place-self
 		 */
-		placeSelf(values: CssValue[][]): Command;
+		placeSelf(...values: CssValue[][]): Command;
 	}
 }

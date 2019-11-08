@@ -36,7 +36,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/break-inside
 		 */
-		breakInside(value: CssValue, ...values: CssValue[]): Command;
+		breakInside(...values: CssValue[]): Command;
 		/**
 		 * The **`break-inside`** CSS property defines how page, column, or region breaks should behave inside a generated box. If there is no generated box, the property is ignored.
 		 * 
@@ -70,6 +70,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/break-inside
 		 */
-		breakInside(values: CssValue[][]): Command;
+		breakInside(...values: CssValue[][]): Command;
 	}
 }

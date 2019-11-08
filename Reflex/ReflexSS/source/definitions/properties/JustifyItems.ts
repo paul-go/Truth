@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/justify-items
 		 */
-		justifyItems(value: CssValue, ...values: CssValue[]): Command;
+		justifyItems(...values: CssValue[]): Command;
 		/**
 		 * The CSS **`justify-items`** property defines the default `justify-self` for all items of the box, giving them all a default way of justifying each box along the appropriate axis.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/justify-items
 		 */
-		justifyItems(values: CssValue[][]): Command;
+		justifyItems(...values: CssValue[][]): Command;
 	}
 }

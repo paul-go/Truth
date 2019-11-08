@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/object-position
 		 */
-		objectPosition(value: CssValue, ...values: CssValue[]): Command;
+		objectPosition(...values: CssValue[]): Command;
 		/**
 		 * The **`object-position`** CSS property specifies the alignment of the selected replaced element's contents within the element's box. Areas of the box which aren't covered by the replaced element's object will show the element's background.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/object-position
 		 */
-		objectPosition(values: CssValue[][]): Command;
+		objectPosition(...values: CssValue[][]): Command;
 	}
 }

@@ -38,7 +38,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-gap
 		 */
-		columnGap(value: CssValue, ...values: CssValue[]): Command;
+		columnGap(...values: CssValue[]): Command;
 		/**
 		 * The **`column-gap`** CSS property sets the size of the gap (gutter) between an element's columns.
 		 * 
@@ -74,6 +74,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-gap
 		 */
-		columnGap(values: CssValue[][]): Command;
+		columnGap(...values: CssValue[][]): Command;
 	}
 }

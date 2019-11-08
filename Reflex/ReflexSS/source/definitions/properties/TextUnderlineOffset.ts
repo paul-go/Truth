@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-underline-offset
 		 */
-		textUnderlineOffset(value: CssValue, ...values: CssValue[]): Command;
+		textUnderlineOffset(...values: CssValue[]): Command;
 		/**
 		 * The **`text-underline-offset`** CSS property sets the offset distance of an underline text decoration line (applied using `text-decoration`) from its original position.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-underline-offset
 		 */
-		textUnderlineOffset(values: CssValue[][]): Command;
+		textUnderlineOffset(...values: CssValue[][]): Command;
 	}
 }

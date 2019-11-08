@@ -13,7 +13,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation
 		 */
-		animation(value: CssValue, ...values: CssValue[]): Command;
+		animation(...values: CssValue[]): Command;
 		/**
 		 * The **`animation`** shorthand CSS property sets an animated transition between styles. It is a shorthand for `animation-name`, `animation-duration`, `animation-timing-function`, `animation-delay`, `animation-iteration-count`, `animation-direction`, `animation-fill-mode`, and `animation-play-state`.
 		 * 
@@ -24,6 +24,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation
 		 */
-		animation(values: CssValue[][]): Command;
+		animation(...values: CssValue[][]): Command;
 	}
 }

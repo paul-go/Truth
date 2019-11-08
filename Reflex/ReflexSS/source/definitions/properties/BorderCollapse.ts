@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-collapse
 		 */
-		borderCollapse(value: CssValue, ...values: CssValue[]): Command;
+		borderCollapse(...values: CssValue[]): Command;
 		/**
 		 * The **`border-collapse`** CSS property sets whether cells inside a `<table>` have shared or separate borders.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-collapse
 		 */
-		borderCollapse(values: CssValue[][]): Command;
+		borderCollapse(...values: CssValue[][]): Command;
 	}
 }

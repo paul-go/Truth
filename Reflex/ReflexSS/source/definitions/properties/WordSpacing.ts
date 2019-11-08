@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/word-spacing
 		 */
-		wordSpacing(value: CssValue, ...values: CssValue[]): Command;
+		wordSpacing(...values: CssValue[]): Command;
 		/**
 		 * The **`word-spacing`** CSS property sets the length of space between words and between tags.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/word-spacing
 		 */
-		wordSpacing(values: CssValue[][]): Command;
+		wordSpacing(...values: CssValue[][]): Command;
 	}
 }

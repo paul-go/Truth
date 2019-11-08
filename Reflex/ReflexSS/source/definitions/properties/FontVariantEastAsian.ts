@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-east-asian
 		 */
-		fontVariantEastAsian(value: CssValue, ...values: CssValue[]): Command;
+		fontVariantEastAsian(...values: CssValue[]): Command;
 		/**
 		 * The **`font-variant-east-asian`** CSS property controls the use of alternate glyphs for East Asian scripts, like Japanese and Chinese.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-east-asian
 		 */
-		fontVariantEastAsian(values: CssValue[][]): Command;
+		fontVariantEastAsian(...values: CssValue[][]): Command;
 	}
 }

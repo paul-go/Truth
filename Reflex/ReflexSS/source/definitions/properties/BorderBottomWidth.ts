@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom-width
 		 */
-		borderBottomWidth(value: CssValue, ...values: CssValue[]): Command;
+		borderBottomWidth(...values: CssValue[]): Command;
 		/**
 		 * The **`border-bottom-width`** CSS property sets the width of the bottom border of a box.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom-width
 		 */
-		borderBottomWidth(values: CssValue[][]): Command;
+		borderBottomWidth(...values: CssValue[][]): Command;
 	}
 }

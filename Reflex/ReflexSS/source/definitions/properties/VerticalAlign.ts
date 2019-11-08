@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/vertical-align
 		 */
-		verticalAlign(value: CssValue, ...values: CssValue[]): Command;
+		verticalAlign(...values: CssValue[]): Command;
 		/**
 		 * The **`vertical-align`** CSS property sets vertical alignment of an inline or table-cell box.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/vertical-align
 		 */
-		verticalAlign(values: CssValue[][]): Command;
+		verticalAlign(...values: CssValue[][]): Command;
 	}
 }

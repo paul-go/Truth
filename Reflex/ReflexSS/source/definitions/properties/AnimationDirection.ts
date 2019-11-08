@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-direction
 		 */
-		animationDirection(value: CssValue, ...values: CssValue[]): Command;
+		animationDirection(...values: CssValue[]): Command;
 		/**
 		 * The **`animation-direction`** CSS property sets whether an animation should play forwards, backwards, or alternating back and forth.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-direction
 		 */
-		animationDirection(values: CssValue[][]): Command;
+		animationDirection(...values: CssValue[][]): Command;
 	}
 }

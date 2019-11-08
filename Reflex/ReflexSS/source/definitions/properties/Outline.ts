@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline
 		 */
-		outline(value: CssValue, ...values: CssValue[]): Command;
+		outline(...values: CssValue[]): Command;
 		/**
 		 * The **`outline`** CSS property is a shorthand to set various outline properties in a single declaration: `outline-style`, `outline-width`, and `outline-color`.
 		 * 
@@ -22,6 +22,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline
 		 */
-		outline(values: CssValue[][]): Command;
+		outline(...values: CssValue[][]): Command;
 	}
 }

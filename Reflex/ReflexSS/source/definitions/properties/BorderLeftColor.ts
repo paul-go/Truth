@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-left-color
 		 */
-		borderLeftColor(value: CssValue, ...values: CssValue[]): Command;
+		borderLeftColor(...values: CssValue[]): Command;
 		/**
 		 * The **`border-left-color`** CSS property sets the color of an element's left border. It can also be set with the shorthand CSS properties `border-color` or `border-left`.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-left-color
 		 */
-		borderLeftColor(values: CssValue[][]): Command;
+		borderLeftColor(...values: CssValue[][]): Command;
 	}
 }

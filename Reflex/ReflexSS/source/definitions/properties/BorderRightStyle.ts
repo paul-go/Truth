@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right-style
 		 */
-		borderRightStyle(value: CssValue, ...values: CssValue[]): Command;
+		borderRightStyle(...values: CssValue[]): Command;
 		/**
 		 * The **`border-right-style`** CSS property sets the line style of an element's right `border`.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right-style
 		 */
-		borderRightStyle(values: CssValue[][]): Command;
+		borderRightStyle(...values: CssValue[][]): Command;
 	}
 }

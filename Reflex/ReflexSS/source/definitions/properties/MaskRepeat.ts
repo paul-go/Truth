@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-repeat
 		 */
-		maskRepeat(value: CssValue, ...values: CssValue[]): Command;
+		maskRepeat(...values: CssValue[]): Command;
 		/**
 		 * The **`mask-repeat`** CSS property sets how mask images are repeated. A mask image can be repeated along the horizontal axis, the vertical axis, both axes, or not repeated at all.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-repeat
 		 */
-		maskRepeat(values: CssValue[][]): Command;
+		maskRepeat(...values: CssValue[][]): Command;
 	}
 }

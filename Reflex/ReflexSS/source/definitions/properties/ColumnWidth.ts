@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-width
 		 */
-		columnWidth(value: CssValue, ...values: CssValue[]): Command;
+		columnWidth(...values: CssValue[]): Command;
 		/**
 		 * The **`column-width`** CSS property specifies the ideal column width in a multi-column layout. The container will have as many columns as can fit without any of them having a width less than the `column-width` value. If the width of the container is narrower than the specified value, the single column's width will be smaller than the declared column width.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-width
 		 */
-		columnWidth(values: CssValue[][]): Command;
+		columnWidth(...values: CssValue[][]): Command;
 	}
 }

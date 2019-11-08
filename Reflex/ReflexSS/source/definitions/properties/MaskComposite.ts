@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-composite
 		 */
-		maskComposite(value: CssValue, ...values: CssValue[]): Command;
+		maskComposite(...values: CssValue[]): Command;
 		/**
 		 * The **`mask-composite`** CSS property represents a compositing operation used on the current mask layer with the mask layers below it.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-composite
 		 */
-		maskComposite(values: CssValue[][]): Command;
+		maskComposite(...values: CssValue[][]): Command;
 	}
 }

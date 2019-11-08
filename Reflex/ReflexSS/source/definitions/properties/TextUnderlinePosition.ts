@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-underline-position
 		 */
-		textUnderlinePosition(value: CssValue, ...values: CssValue[]): Command;
+		textUnderlinePosition(...values: CssValue[]): Command;
 		/**
 		 * The **`text-underline-position`** CSS property specifies the position of the underline which is set using the `text-decoration` property's `underline` value.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-underline-position
 		 */
-		textUnderlinePosition(values: CssValue[][]): Command;
+		textUnderlinePosition(...values: CssValue[][]): Command;
 	}
 }

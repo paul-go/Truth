@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overflow-wrap
 		 */
-		overflowWrap(value: CssValue, ...values: CssValue[]): Command;
+		overflowWrap(...values: CssValue[]): Command;
 		/**
 		 * The `**overflow-wrap**` CSS property sets whether the browser should insert line breaks within words to prevent text from overflowing its content box.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/overflow-wrap
 		 */
-		overflowWrap(values: CssValue[][]): Command;
+		overflowWrap(...values: CssValue[][]): Command;
 	}
 }

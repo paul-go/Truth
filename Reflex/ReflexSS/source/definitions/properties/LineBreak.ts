@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/line-break
 		 */
-		lineBreak(value: CssValue, ...values: CssValue[]): Command;
+		lineBreak(...values: CssValue[]): Command;
 		/**
 		 * The **`line-break`** CSS property sets how to break lines of Chinese, Japanese, or Korean (CJK) text when working with punctuation and symbols.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/line-break
 		 */
-		lineBreak(values: CssValue[][]): Command;
+		lineBreak(...values: CssValue[][]): Command;
 	}
 }

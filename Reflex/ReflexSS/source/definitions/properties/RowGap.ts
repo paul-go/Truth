@@ -29,7 +29,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/row-gap
 		 */
-		rowGap(value: CssValue, ...values: CssValue[]): Command;
+		rowGap(...values: CssValue[]): Command;
 		/**
 		 * The **`row-gap`** CSS property sets the size of the gap (gutter) between an element's grid rows.
 		 * 
@@ -56,6 +56,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/row-gap
 		 */
-		rowGap(values: CssValue[][]): Command;
+		rowGap(...values: CssValue[][]): Command;
 	}
 }

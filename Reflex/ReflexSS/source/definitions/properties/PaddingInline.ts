@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-inline
 		 */
-		paddingInline(value: CssValue, ...values: CssValue[]): Command;
+		paddingInline(...values: CssValue[]): Command;
 		/**
 		 * The **`padding-inline`** CSS property defines the logical inline start and end padding of an element, which maps to physical padding properties depending on the element's writing mode, directionality, and text orientation.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-inline
 		 */
-		paddingInline(values: CssValue[][]): Command;
+		paddingInline(...values: CssValue[][]): Command;
 	}
 }

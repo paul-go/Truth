@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-feature-settings
 		 */
-		fontFeatureSettings(value: CssValue, ...values: CssValue[]): Command;
+		fontFeatureSettings(...values: CssValue[]): Command;
 		/**
 		 * The **`font-feature-settings`** CSS property controls advanced typographic features in OpenType fonts.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-feature-settings
 		 */
-		fontFeatureSettings(values: CssValue[][]): Command;
+		fontFeatureSettings(...values: CssValue[][]): Command;
 	}
 }

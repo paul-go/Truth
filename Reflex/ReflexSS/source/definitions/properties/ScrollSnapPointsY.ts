@@ -10,7 +10,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		scrollSnapPointsY(value: CssValue, ...values: CssValue[]): Command;
+		scrollSnapPointsY(...values: CssValue[]): Command;
 		/**
 		 * The **`scroll-snap-points-y`** CSS property defines the vertical positioning of snap points within the content of the scroll container they are applied to.
 		 * 
@@ -18,6 +18,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		scrollSnapPointsY(values: CssValue[][]): Command;
+		scrollSnapPointsY(...values: CssValue[][]): Command;
 	}
 }

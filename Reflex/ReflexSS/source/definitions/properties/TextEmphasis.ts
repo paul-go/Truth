@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-emphasis
 		 */
-		textEmphasis(value: CssValue, ...values: CssValue[]): Command;
+		textEmphasis(...values: CssValue[]): Command;
 		/**
 		 * The **`text-emphasis`** CSS property applies emphasis marks to text (except spaces and control characters). It is a shorthand for `text-emphasis-style` and `text-emphasis-color`.
 		 * 
@@ -22,6 +22,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-emphasis
 		 */
-		textEmphasis(values: CssValue[][]): Command;
+		textEmphasis(...values: CssValue[][]): Command;
 	}
 }

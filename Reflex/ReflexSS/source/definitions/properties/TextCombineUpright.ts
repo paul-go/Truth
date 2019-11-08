@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-combine-upright
 		 */
-		textCombineUpright(value: CssValue, ...values: CssValue[]): Command;
+		textCombineUpright(...values: CssValue[]): Command;
 		/**
 		 * The **`text-combine-upright`** CSS property sets the combination of characters into the space of a single character. If the combined text is wider than 1em, the user agent must fit the contents within 1em. The resulting composition is treated as a single upright glyph for layout and decoration. This property only has an effect in vertical writing modes.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-combine-upright
 		 */
-		textCombineUpright(values: CssValue[][]): Command;
+		textCombineUpright(...values: CssValue[][]): Command;
 	}
 }

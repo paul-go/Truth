@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border
 		 */
-		border(value: CssValue, ...values: CssValue[]): Command;
+		border(...values: CssValue[]): Command;
 		/**
 		 * The **`border`** CSS property sets an element's border. It's a shorthand for `border-width`, `border-style`, and `border-color`.
 		 * 
@@ -22,6 +22,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border
 		 */
-		border(values: CssValue[][]): Command;
+		border(...values: CssValue[][]): Command;
 	}
 }

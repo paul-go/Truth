@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-style
 		 */
-		outlineStyle(value: CssValue, ...values: CssValue[]): Command;
+		outlineStyle(...values: CssValue[]): Command;
 		/**
 		 * The **`outline-style`** CSS property sets the style of an element's outline. An outline is a line that is drawn around an element, outside the `border`.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-style
 		 */
-		outlineStyle(values: CssValue[][]): Command;
+		outlineStyle(...values: CssValue[][]): Command;
 	}
 }

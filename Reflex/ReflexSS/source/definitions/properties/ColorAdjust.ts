@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/color-adjust
 		 */
-		colorAdjust(value: CssValue, ...values: CssValue[]): Command;
+		colorAdjust(...values: CssValue[]): Command;
 		/**
 		 * The **`color-adjust`** CSS property sets what, if anything, the user agent may do to optimize the appearance of the element on the output device. By default, the browser is allowed to make any adjustments to the element's appearance it determines to be necessary and prudent given the type and capabilities of the output device.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/color-adjust
 		 */
-		colorAdjust(values: CssValue[][]): Command;
+		colorAdjust(...values: CssValue[][]): Command;
 	}
 }

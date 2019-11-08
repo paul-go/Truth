@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-color
 		 */
-		backgroundColor(value: CssValue, ...values: CssValue[]): Command;
+		backgroundColor(...values: CssValue[]): Command;
 		/**
 		 * The **`background-color`** CSS property sets the background color of an element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-color
 		 */
-		backgroundColor(values: CssValue[][]): Command;
+		backgroundColor(...values: CssValue[][]): Command;
 	}
 }

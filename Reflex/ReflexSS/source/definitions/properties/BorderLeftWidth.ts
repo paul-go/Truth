@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-left-width
 		 */
-		borderLeftWidth(value: CssValue, ...values: CssValue[]): Command;
+		borderLeftWidth(...values: CssValue[]): Command;
 		/**
 		 * The **`border-left-width`** CSS property sets the width of the left border of an element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-left-width
 		 */
-		borderLeftWidth(values: CssValue[][]): Command;
+		borderLeftWidth(...values: CssValue[][]): Command;
 	}
 }

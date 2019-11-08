@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/visibility
 		 */
-		visibility(value: CssValue, ...values: CssValue[]): Command;
+		visibility(...values: CssValue[]): Command;
 		/**
 		 * The **`visibility`** CSS property shows or hides an element without changing the layout of a document. The property can also hide rows or columns in a `<table>`.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/visibility
 		 */
-		visibility(values: CssValue[][]): Command;
+		visibility(...values: CssValue[][]): Command;
 	}
 }

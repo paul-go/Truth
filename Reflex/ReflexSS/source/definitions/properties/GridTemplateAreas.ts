@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-template-areas
 		 */
-		gridTemplateAreas(value: CssValue, ...values: CssValue[]): Command;
+		gridTemplateAreas(...values: CssValue[]): Command;
 		/**
 		 * The **`grid-template-areas`** CSS property specifies named grid areas.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-template-areas
 		 */
-		gridTemplateAreas(values: CssValue[][]): Command;
+		gridTemplateAreas(...values: CssValue[][]): Command;
 	}
 }

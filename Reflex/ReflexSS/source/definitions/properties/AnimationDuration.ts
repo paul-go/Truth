@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-duration
 		 */
-		animationDuration(value: CssValue, ...values: CssValue[]): Command;
+		animationDuration(...values: CssValue[]): Command;
 		/**
 		 * The **`animation-duration`** CSS property sets the length of time that an animation takes to complete one cycle.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-duration
 		 */
-		animationDuration(values: CssValue[][]): Command;
+		animationDuration(...values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-emphasis-position
 		 */
-		textEmphasisPosition(value: CssValue, ...values: CssValue[]): Command;
+		textEmphasisPosition(...values: CssValue[]): Command;
 		/**
 		 * The **`text-emphasis-position`** CSS property sets where emphasis marks are drawn. Like ruby text, if there isn't enough room for emphasis marks, the line height is increased.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-emphasis-position
 		 */
-		textEmphasisPosition(values: CssValue[][]): Command;
+		textEmphasisPosition(...values: CssValue[][]): Command;
 	}
 }

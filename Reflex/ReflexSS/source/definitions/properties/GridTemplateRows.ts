@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-template-rows
 		 */
-		gridTemplateRows(value: CssValue, ...values: CssValue[]): Command;
+		gridTemplateRows(...values: CssValue[]): Command;
 		/**
 		 * The **`grid-template-rows`** CSS property defines the line names and track sizing functions of the grid rows.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-template-rows
 		 */
-		gridTemplateRows(values: CssValue[][]): Command;
+		gridTemplateRows(...values: CssValue[][]): Command;
 	}
 }

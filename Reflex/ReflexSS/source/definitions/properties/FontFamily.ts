@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-family
 		 */
-		fontFamily(value: CssValue, ...values: CssValue[]): Command;
+		fontFamily(...values: CssValue[]): Command;
 		/**
 		 * The **`font-family`** CSS property specifies a prioritized list of one or more font family names and/or generic family names for the selected element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-family
 		 */
-		fontFamily(values: CssValue[][]): Command;
+		fontFamily(...values: CssValue[][]): Command;
 	}
 }

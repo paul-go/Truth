@@ -10,7 +10,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		boxOrient(value: CssValue, ...values: CssValue[]): Command;
+		boxOrient(...values: CssValue[]): Command;
 		/**
 		 * The **`box-orient`** CSS property specifies whether an element lays out its contents horizontally or vertically.
 		 * 
@@ -18,6 +18,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		boxOrient(values: CssValue[][]): Command;
+		boxOrient(...values: CssValue[][]): Command;
 	}
 }

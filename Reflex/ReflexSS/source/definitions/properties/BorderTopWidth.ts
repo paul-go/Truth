@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-width
 		 */
-		borderTopWidth(value: CssValue, ...values: CssValue[]): Command;
+		borderTopWidth(...values: CssValue[]): Command;
 		/**
 		 * The **`border-top-width`** CSS property sets the width of the top border of an element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-top-width
 		 */
-		borderTopWidth(values: CssValue[][]): Command;
+		borderTopWidth(...values: CssValue[][]): Command;
 	}
 }

@@ -10,7 +10,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		fontVariantAlternates(value: CssValue, ...values: CssValue[]): Command;
+		fontVariantAlternates(...values: CssValue[]): Command;
 		/**
 		 * The **`font-variant-alternates`** CSS property controls the usage of alternate glyphs. These alternate glyphs may be referenced by alternative names defined in `@font-feature-values`.
 		 * 
@@ -18,6 +18,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		fontVariantAlternates(values: CssValue[][]): Command;
+		fontVariantAlternates(...values: CssValue[][]): Command;
 	}
 }

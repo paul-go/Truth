@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/bottom
 		 */
-		bottom(value: CssValue, ...values: CssValue[]): Command;
+		bottom(...values: CssValue[]): Command;
 		/**
 		 * The **`bottom`** CSS property participates in specifying the vertical position of a _positioned element_. It has no effect on non-positioned elements.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/bottom
 		 */
-		bottom(values: CssValue[][]): Command;
+		bottom(...values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-position-y
 		 */
-		backgroundPositionY(value: CssValue, ...values: CssValue[]): Command;
+		backgroundPositionY(...values: CssValue[]): Command;
 		/**
 		 * The **`background-position-y`** CSS property sets the initial vertical position, relative to the background position layer defined by `background-origin`, for each defined background image.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-position-y
 		 */
-		backgroundPositionY(values: CssValue[][]): Command;
+		backgroundPositionY(...values: CssValue[][]): Command;
 	}
 }

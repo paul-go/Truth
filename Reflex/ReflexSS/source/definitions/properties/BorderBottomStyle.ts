@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom-style
 		 */
-		borderBottomStyle(value: CssValue, ...values: CssValue[]): Command;
+		borderBottomStyle(...values: CssValue[]): Command;
 		/**
 		 * The **`border-bottom-style`** CSS property sets the line style of an element's bottom `border`.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom-style
 		 */
-		borderBottomStyle(values: CssValue[][]): Command;
+		borderBottomStyle(...values: CssValue[][]): Command;
 	}
 }

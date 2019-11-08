@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-block-start
 		 */
-		marginBlockStart(value: CssValue, ...values: CssValue[]): Command;
+		marginBlockStart(...values: CssValue[]): Command;
 		/**
 		 * The **`margin-block-start`** CSS property defines the logical block start margin of an element, which maps to a physical margin depending on the element's writing mode, directionality, and text orientation.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/margin-block-start
 		 */
-		marginBlockStart(values: CssValue[][]): Command;
+		marginBlockStart(...values: CssValue[][]): Command;
 	}
 }

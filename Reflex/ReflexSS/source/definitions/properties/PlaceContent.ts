@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/place-content
 		 */
-		placeContent(value: CssValue, ...values: CssValue[]): Command;
+		placeContent(...values: CssValue[]): Command;
 		/**
 		 * The `**place-content**` CSS property is a shorthand for `align-content` and `justify-content`. It can be used in any layout method which utilizes both of these alignment values.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/place-content
 		 */
-		placeContent(values: CssValue[][]): Command;
+		placeContent(...values: CssValue[][]): Command;
 	}
 }

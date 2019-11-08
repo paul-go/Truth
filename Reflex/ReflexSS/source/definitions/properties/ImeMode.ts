@@ -10,7 +10,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		imeMode(value: CssValue, ...values: CssValue[]): Command;
+		imeMode(...values: CssValue[]): Command;
 		/**
 		 * The **`ime-mode`** CSS property controls the state of the input method editor (IME) for text fields. This property is obsolete.
 		 * 
@@ -18,6 +18,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		imeMode(values: CssValue[][]): Command;
+		imeMode(...values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/white-space
 		 */
-		whiteSpace(value: CssValue, ...values: CssValue[]): Command;
+		whiteSpace(...values: CssValue[]): Command;
 		/**
 		 * The **`white-space`** CSS property sets how white space inside an element is handled.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/white-space
 		 */
-		whiteSpace(values: CssValue[][]): Command;
+		whiteSpace(...values: CssValue[][]): Command;
 	}
 }

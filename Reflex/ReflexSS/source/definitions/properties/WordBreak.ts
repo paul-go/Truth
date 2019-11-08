@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/word-break
 		 */
-		wordBreak(value: CssValue, ...values: CssValue[]): Command;
+		wordBreak(...values: CssValue[]): Command;
 		/**
 		 * The **`word-break`** CSS property sets whether line breaks appear wherever the text would otherwise overflow its content box.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/word-break
 		 */
-		wordBreak(values: CssValue[][]): Command;
+		wordBreak(...values: CssValue[][]): Command;
 	}
 }

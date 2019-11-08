@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/empty-cells
 		 */
-		emptyCells(value: CssValue, ...values: CssValue[]): Command;
+		emptyCells(...values: CssValue[]): Command;
 		/**
 		 * The **`empty-cells`** CSS property sets whether borders and backgrounds appear around `<table>` cells that have no visible content.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/empty-cells
 		 */
-		emptyCells(values: CssValue[][]): Command;
+		emptyCells(...values: CssValue[][]): Command;
 	}
 }

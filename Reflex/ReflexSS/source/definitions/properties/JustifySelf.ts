@@ -28,7 +28,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/justify-self
 		 */
-		justifySelf(value: CssValue, ...values: CssValue[]): Command;
+		justifySelf(...values: CssValue[]): Command;
 		/**
 		 * The CSS **`justify-self`** property set the way a box is justified inside its alignment container along the appropriate axis.
 		 * 
@@ -54,6 +54,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/justify-self
 		 */
-		justifySelf(values: CssValue[][]): Command;
+		justifySelf(...values: CssValue[][]): Command;
 	}
 }

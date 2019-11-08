@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-kerning
 		 */
-		fontKerning(value: CssValue, ...values: CssValue[]): Command;
+		fontKerning(...values: CssValue[]): Command;
 		/**
 		 * The **`font-kerning`** CSS property sets the use of the kerning information stored in a font.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-kerning
 		 */
-		fontKerning(values: CssValue[][]): Command;
+		fontKerning(...values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-image-outset
 		 */
-		borderImageOutset(value: CssValue, ...values: CssValue[]): Command;
+		borderImageOutset(...values: CssValue[]): Command;
 		/**
 		 * The **`border-image-outset`** CSS property sets the distance by which an element's border image is set out from its border box.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-image-outset
 		 */
-		borderImageOutset(values: CssValue[][]): Command;
+		borderImageOutset(...values: CssValue[][]): Command;
 	}
 }

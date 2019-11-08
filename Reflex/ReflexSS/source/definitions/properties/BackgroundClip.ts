@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-clip
 		 */
-		backgroundClip(value: CssValue, ...values: CssValue[]): Command;
+		backgroundClip(...values: CssValue[]): Command;
 		/**
 		 * The **`background-clip`** CSS property sets whether an element's background `<color>` or `<image>` extends underneath its border.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-clip
 		 */
-		backgroundClip(values: CssValue[][]): Command;
+		backgroundClip(...values: CssValue[][]): Command;
 	}
 }

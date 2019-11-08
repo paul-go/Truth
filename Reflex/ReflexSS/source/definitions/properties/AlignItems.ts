@@ -29,7 +29,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/align-items
 		 */
-		alignItems(value: CssValue, ...values: CssValue[]): Command;
+		alignItems(...values: CssValue[]): Command;
 		/**
 		 * The CSS **`align-items`** property sets the `align-self` value on all direct children as a group. The align-self property sets the alignment of an item within its containing block. In Flexbox it controls the alignment of items on the Cross Axis, in Grid Layout it controls the alignment of items on the Block Axis within their grid area.
 		 * 
@@ -56,6 +56,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/align-items
 		 */
-		alignItems(values: CssValue[][]): Command;
+		alignItems(...values: CssValue[][]): Command;
 	}
 }

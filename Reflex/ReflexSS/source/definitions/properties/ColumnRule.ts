@@ -13,7 +13,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule
 		 */
-		columnRule(value: CssValue, ...values: CssValue[]): Command;
+		columnRule(...values: CssValue[]): Command;
 		/**
 		 * The **`column-rule`** CSS property sets the width, style, and color of the rule (line) drawn between columns in a multi-column layout.
 		 * 
@@ -24,6 +24,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-rule
 		 */
-		columnRule(values: CssValue[][]): Command;
+		columnRule(...values: CssValue[][]): Command;
 	}
 }

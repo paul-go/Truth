@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-color
 		 */
-		outlineColor(value: CssValue, ...values: CssValue[]): Command;
+		outlineColor(...values: CssValue[]): Command;
 		/**
 		 * The **`outline-color`** CSS property sets the color of an element's outline.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/outline-color
 		 */
-		outlineColor(values: CssValue[][]): Command;
+		outlineColor(...values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-image
 		 */
-		maskImage(value: CssValue, ...values: CssValue[]): Command;
+		maskImage(...values: CssValue[]): Command;
 		/**
 		 * The **`mask-image`** CSS property sets the image that is used as mask layer for an element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-image
 		 */
-		maskImage(values: CssValue[][]): Command;
+		maskImage(...values: CssValue[][]): Command;
 	}
 }

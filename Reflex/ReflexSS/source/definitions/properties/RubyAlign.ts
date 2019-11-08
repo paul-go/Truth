@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/ruby-align
 		 */
-		rubyAlign(value: CssValue, ...values: CssValue[]): Command;
+		rubyAlign(...values: CssValue[]): Command;
 		/**
 		 * The `**ruby-align**` CSS property defines the distribution of the different ruby elements over the base.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/ruby-align
 		 */
-		rubyAlign(values: CssValue[][]): Command;
+		rubyAlign(...values: CssValue[][]): Command;
 	}
 }

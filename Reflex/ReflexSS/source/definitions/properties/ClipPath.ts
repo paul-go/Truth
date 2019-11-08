@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/clip-path
 		 */
-		clipPath(value: CssValue, ...values: CssValue[]): Command;
+		clipPath(...values: CssValue[]): Command;
 		/**
 		 * The `**clip-path**` CSS property creates a clipping region that sets what part of an element should be shown. Parts that are inside the region are shown, while those outside are hidden.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/clip-path
 		 */
-		clipPath(values: CssValue[][]): Command;
+		clipPath(...values: CssValue[][]): Command;
 	}
 }

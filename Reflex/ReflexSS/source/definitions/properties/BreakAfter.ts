@@ -36,7 +36,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/break-after
 		 */
-		breakAfter(value: CssValue, ...values: CssValue[]): Command;
+		breakAfter(...values: CssValue[]): Command;
 		/**
 		 * The **`break-after`** CSS property defines how page, column, or region breaks should behave after a generated box. If there is no generated box, the property is ignored.
 		 * 
@@ -70,6 +70,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/break-after
 		 */
-		breakAfter(values: CssValue[][]): Command;
+		breakAfter(...values: CssValue[][]): Command;
 	}
 }

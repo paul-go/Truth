@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-image
 		 */
-		backgroundImage(value: CssValue, ...values: CssValue[]): Command;
+		backgroundImage(...values: CssValue[]): Command;
 		/**
 		 * The **`background-image`** CSS property sets one or more background images on an element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-image
 		 */
-		backgroundImage(values: CssValue[][]): Command;
+		backgroundImage(...values: CssValue[][]): Command;
 	}
 }

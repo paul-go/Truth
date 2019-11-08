@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-auto-columns
 		 */
-		gridAutoColumns(value: CssValue, ...values: CssValue[]): Command;
+		gridAutoColumns(...values: CssValue[]): Command;
 		/**
 		 * The **`grid-auto-columns`** CSS property specifies the size of an implicitly-created grid column track.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-auto-columns
 		 */
-		gridAutoColumns(values: CssValue[][]): Command;
+		gridAutoColumns(...values: CssValue[][]): Command;
 	}
 }

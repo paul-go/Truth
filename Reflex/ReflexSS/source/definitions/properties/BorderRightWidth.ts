@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right-width
 		 */
-		borderRightWidth(value: CssValue, ...values: CssValue[]): Command;
+		borderRightWidth(...values: CssValue[]): Command;
 		/**
 		 * The **`border-right-width`** CSS property sets the width of the right border of an element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-right-width
 		 */
-		borderRightWidth(values: CssValue[][]): Command;
+		borderRightWidth(...values: CssValue[][]): Command;
 	}
 }

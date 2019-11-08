@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/left
 		 */
-		left(value: CssValue, ...values: CssValue[]): Command;
+		left(...values: CssValue[]): Command;
 		/**
 		 * The **`left`** CSS property participates in specifying the horizontal position of a _positioned element_. It has no effect on non-positioned elements.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/left
 		 */
-		left(values: CssValue[][]): Command;
+		left(...values: CssValue[][]): Command;
 	}
 }

@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-span
 		 */
-		columnSpan(value: CssValue, ...values: CssValue[]): Command;
+		columnSpan(...values: CssValue[]): Command;
 		/**
 		 * The **`column-span`** CSS property makes it possible for an element to span across all columns when its value is set to `all`.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/column-span
 		 */
-		columnSpan(values: CssValue[][]): Command;
+		columnSpan(...values: CssValue[][]): Command;
 	}
 }

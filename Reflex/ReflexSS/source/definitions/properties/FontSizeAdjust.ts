@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-size-adjust
 		 */
-		fontSizeAdjust(value: CssValue, ...values: CssValue[]): Command;
+		fontSizeAdjust(...values: CssValue[]): Command;
 		/**
 		 * The **`font-size-adjust`** CSS property sets how the font size should be chosen based on the height of lowercase rather than capital letters.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-size-adjust
 		 */
-		fontSizeAdjust(values: CssValue[][]): Command;
+		fontSizeAdjust(...values: CssValue[][]): Command;
 	}
 }

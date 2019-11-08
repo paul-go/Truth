@@ -10,7 +10,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		scrollSnapDestination(value: CssValue, ...values: CssValue[]): Command;
+		scrollSnapDestination(...values: CssValue[]): Command;
 		/**
 		 * The **`scroll-snap-destination`** CSS property defines the position in x and y coordinates within the scroll container's visual viewport which element snap points align with.
 		 * 
@@ -18,6 +18,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @deprecated
 		 */
-		scrollSnapDestination(values: CssValue[][]): Command;
+		scrollSnapDestination(...values: CssValue[][]): Command;
 	}
 }

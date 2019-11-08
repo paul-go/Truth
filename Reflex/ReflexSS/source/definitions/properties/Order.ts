@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/order
 		 */
-		order(value: CssValue, ...values: CssValue[]): Command;
+		order(...values: CssValue[]): Command;
 		/**
 		 * The **`order`** CSS property sets the order to lay out an item in a flex or grid container. Items in a container are sorted by ascending `order` value and then by their source code order.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/order
 		 */
-		order(values: CssValue[][]): Command;
+		order(...values: CssValue[][]): Command;
 	}
 }

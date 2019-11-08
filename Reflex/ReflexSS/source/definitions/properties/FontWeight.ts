@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-weight
 		 */
-		fontWeight(value: CssValue, ...values: CssValue[]): Command;
+		fontWeight(...values: CssValue[]): Command;
 		/**
 		 * The **`font-weight`** CSS property specifies the weight (or boldness) of the font. The font weights available to you will depend on the `font-family` you are using. Some fonts are only available in `normal` and `bold`.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-weight
 		 */
-		fontWeight(values: CssValue[][]): Command;
+		fontWeight(...values: CssValue[][]): Command;
 	}
 }

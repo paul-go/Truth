@@ -12,7 +12,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style
 		 */
-		listStyle(value: CssValue, ...values: CssValue[]): Command;
+		listStyle(...values: CssValue[]): Command;
 		/**
 		 * The **`list-style`** CSS property is a shorthand to set list style properties `list-style-type`, `list-style-image`, and `list-style-position`.
 		 * 
@@ -22,6 +22,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/list-style
 		 */
-		listStyle(values: CssValue[][]): Command;
+		listStyle(...values: CssValue[][]): Command;
 	}
 }

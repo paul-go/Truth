@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-column-start
 		 */
-		gridColumnStart(value: CssValue, ...values: CssValue[]): Command;
+		gridColumnStart(...values: CssValue[]): Command;
 		/**
 		 * The **`grid-column-start`** CSS property specifies a grid item’s start position within the grid column by contributing a line, a span, or nothing (automatic) to its grid placement. This start position defines the block-start edge of the grid area.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/grid-column-start
 		 */
-		gridColumnStart(values: CssValue[][]): Command;
+		gridColumnStart(...values: CssValue[][]): Command;
 	}
 }

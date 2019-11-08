@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-mode
 		 */
-		maskMode(value: CssValue, ...values: CssValue[]): Command;
+		maskMode(...values: CssValue[]): Command;
 		/**
 		 * The **`mask-mode`** CSS property sets whether the mask reference defined by `mask-image` is treated as a luminance or alpha mask.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-mode
 		 */
-		maskMode(values: CssValue[][]): Command;
+		maskMode(...values: CssValue[][]): Command;
 	}
 }

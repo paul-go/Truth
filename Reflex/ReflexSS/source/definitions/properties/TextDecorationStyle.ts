@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-style
 		 */
-		textDecorationStyle(value: CssValue, ...values: CssValue[]): Command;
+		textDecorationStyle(...values: CssValue[]): Command;
 		/**
 		 * The **`text-decoration-style`** CSS property sets the style of the lines specified by `text-decoration-line`. The style applies to all lines that are set with `text-decoration-line`.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-style
 		 */
-		textDecorationStyle(values: CssValue[][]): Command;
+		textDecorationStyle(...values: CssValue[][]): Command;
 	}
 }

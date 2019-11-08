@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-left
 		 */
-		paddingLeft(value: CssValue, ...values: CssValue[]): Command;
+		paddingLeft(...values: CssValue[]): Command;
 		/**
 		 * The **`padding-left`** CSS property sets the width of the padding area on the left side of an element.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/padding-left
 		 */
-		paddingLeft(values: CssValue[][]): Command;
+		paddingLeft(...values: CssValue[][]): Command;
 	}
 }

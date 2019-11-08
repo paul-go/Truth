@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-size
 		 */
-		fontSize(value: CssValue, ...values: CssValue[]): Command;
+		fontSize(...values: CssValue[]): Command;
 		/**
 		 * The **`font-size`** CSS property sets the size of the font. This property is also used to compute the size of `em`, `ex`, and other relative `<length>` units.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/font-size
 		 */
-		fontSize(values: CssValue[][]): Command;
+		fontSize(...values: CssValue[][]): Command;
 	}
 }

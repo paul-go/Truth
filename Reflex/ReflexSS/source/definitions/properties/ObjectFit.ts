@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/object-fit
 		 */
-		objectFit(value: CssValue, ...values: CssValue[]): Command;
+		objectFit(...values: CssValue[]): Command;
 		/**
 		 * The **`object-fit`** CSS property sets how the content of a replaced element, such as an `<img>` or `<video>`, should be resized to fit its container.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/object-fit
 		 */
-		objectFit(values: CssValue[][]): Command;
+		objectFit(...values: CssValue[][]): Command;
 	}
 }

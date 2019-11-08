@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-thickness
 		 */
-		textDecorationThickness(value: CssValue, ...values: CssValue[]): Command;
+		textDecorationThickness(...values: CssValue[]): Command;
 		/**
 		 * The **`text-decoration-thickness`** CSS property sets the thickness, or width, of the decoration line that is used on text in an element, such as a line-through, underline, or overline.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-thickness
 		 */
-		textDecorationThickness(values: CssValue[][]): Command;
+		textDecorationThickness(...values: CssValue[][]): Command;
 	}
 }

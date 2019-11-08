@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/letter-spacing
 		 */
-		letterSpacing(value: CssValue, ...values: CssValue[]): Command;
+		letterSpacing(...values: CssValue[]): Command;
 		/**
 		 * The **`letter-spacing`** CSS property sets the spacing behavior between text characters.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/letter-spacing
 		 */
-		letterSpacing(values: CssValue[][]): Command;
+		letterSpacing(...values: CssValue[][]): Command;
 	}
 }

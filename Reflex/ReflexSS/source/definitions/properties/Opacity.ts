@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/opacity
 		 */
-		opacity(value: CssValue, ...values: CssValue[]): Command;
+		opacity(...values: CssValue[]): Command;
 		/**
 		 * The **`opacity`** CSS property sets the transparency of an element or the degree to which content behind an element is visible.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/opacity
 		 */
-		opacity(values: CssValue[][]): Command;
+		opacity(...values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-clip
 		 */
-		maskClip(value: CssValue, ...values: CssValue[]): Command;
+		maskClip(...values: CssValue[]): Command;
 		/**
 		 * The **`mask-clip`** CSS property determines the area, which is affected by a mask. The painted content of an element must be restricted to this area.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/mask-clip
 		 */
-		maskClip(values: CssValue[][]): Command;
+		maskClip(...values: CssValue[][]): Command;
 	}
 }

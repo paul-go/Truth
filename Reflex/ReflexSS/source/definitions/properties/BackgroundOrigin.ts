@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-origin
 		 */
-		backgroundOrigin(value: CssValue, ...values: CssValue[]): Command;
+		backgroundOrigin(...values: CssValue[]): Command;
 		/**
 		 * The **`background-origin`** CSS property sets the _background positioning area_. In other words, it sets the origin position of an image set with the `background-image` property.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/background-origin
 		 */
-		backgroundOrigin(values: CssValue[][]): Command;
+		backgroundOrigin(...values: CssValue[][]): Command;
 	}
 }

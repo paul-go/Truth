@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-start-start-radius
 		 */
-		borderStartStartRadius(value: CssValue, ...values: CssValue[]): Command;
+		borderStartStartRadius(...values: CssValue[]): Command;
 		/**
 		 * The **`border-start-start-radius`** CSS property defines a logical border radius on an element, which maps to a physical border radius that depends on the element's `writing-mode`, `direction`, and `text-orientation`.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-start-start-radius
 		 */
-		borderStartStartRadius(values: CssValue[][]): Command;
+		borderStartStartRadius(...values: CssValue[][]): Command;
 	}
 }

@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/user-select
 		 */
-		userSelect(value: CssValue, ...values: CssValue[]): Command;
+		userSelect(...values: CssValue[]): Command;
 		/**
 		 * The `**user-select**` CSS property controls whether the user can select text. This doesn't have any effect on content loaded as chrome, except in textboxes.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/user-select
 		 */
-		userSelect(values: CssValue[][]): Command;
+		userSelect(...values: CssValue[][]): Command;
 	}
 }

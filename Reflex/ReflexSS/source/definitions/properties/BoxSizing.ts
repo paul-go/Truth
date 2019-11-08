@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/box-sizing
 		 */
-		boxSizing(value: CssValue, ...values: CssValue[]): Command;
+		boxSizing(...values: CssValue[]): Command;
 		/**
 		 * The **`box-sizing`** CSS property defines how the user agent should calculate the total width and height of an element.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/box-sizing
 		 */
-		boxSizing(values: CssValue[][]): Command;
+		boxSizing(...values: CssValue[][]): Command;
 	}
 }

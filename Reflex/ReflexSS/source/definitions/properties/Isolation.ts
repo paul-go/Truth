@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/isolation
 		 */
-		isolation(value: CssValue, ...values: CssValue[]): Command;
+		isolation(...values: CssValue[]): Command;
 		/**
 		 * The **`isolation`** CSS property determines whether an element must create a new stacking context.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/isolation
 		 */
-		isolation(values: CssValue[][]): Command;
+		isolation(...values: CssValue[][]): Command;
 	}
 }

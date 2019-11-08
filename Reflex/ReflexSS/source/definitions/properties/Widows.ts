@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/widows
 		 */
-		widows(value: CssValue, ...values: CssValue[]): Command;
+		widows(...values: CssValue[]): Command;
 		/**
 		 * The **`widows`** CSS property sets the minimum number of lines in a block container that must be shown at the _top_ of a page, region, or column.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/widows
 		 */
-		widows(values: CssValue[][]): Command;
+		widows(...values: CssValue[][]): Command;
 	}
 }

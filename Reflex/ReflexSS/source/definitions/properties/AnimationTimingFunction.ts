@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-timing-function
 		 */
-		animationTimingFunction(value: CssValue, ...values: CssValue[]): Command;
+		animationTimingFunction(...values: CssValue[]): Command;
 		/**
 		 * The `**animation-timing-function**` CSS property sets how an animation progresses through the duration of each cycle.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/animation-timing-function
 		 */
-		animationTimingFunction(values: CssValue[][]): Command;
+		animationTimingFunction(...values: CssValue[][]): Command;
 	}
 }

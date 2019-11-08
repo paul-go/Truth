@@ -15,7 +15,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-delay
 		 */
-		transitionDelay(value: CssValue, ...values: CssValue[]): Command;
+		transitionDelay(...values: CssValue[]): Command;
 		/**
 		 * The **`transition-delay`** CSS property specifies the duration to wait before starting a property's transition effect when its value changes.
 		 * 
@@ -28,6 +28,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/transition-delay
 		 */
-		transitionDelay(values: CssValue[][]): Command;
+		transitionDelay(...values: CssValue[][]): Command;
 	}
 }

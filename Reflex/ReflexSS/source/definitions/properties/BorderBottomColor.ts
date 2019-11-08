@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom-color
 		 */
-		borderBottomColor(value: CssValue, ...values: CssValue[]): Command;
+		borderBottomColor(...values: CssValue[]): Command;
 		/**
 		 * The **`border-bottom-color`** CSS property sets the color of an element's bottom border. It can also be set with the shorthand CSS properties `border-color` or `border-bottom`.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom-color
 		 */
-		borderBottomColor(values: CssValue[][]): Command;
+		borderBottomColor(...values: CssValue[][]): Command;
 	}
 }

@@ -14,7 +14,7 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/resize
 		 */
-		resize(value: CssValue, ...values: CssValue[]): Command;
+		resize(...values: CssValue[]): Command;
 		/**
 		 * The **`resize`** CSS property sets whether an element is resizable, and if so, in which directions.
 		 * 
@@ -26,6 +26,6 @@ declare namespace Reflex.SS
 		 * 
 		 * @see https://developer.mozilla.org/docs/Web/CSS/resize
 		 */
-		resize(values: CssValue[][]): Command;
+		resize(...values: CssValue[][]): Command;
 	}
 }
