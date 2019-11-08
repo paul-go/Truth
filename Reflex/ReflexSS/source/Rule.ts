@@ -48,7 +48,7 @@ namespace Reflex.SS
 									const bn = b.callingName;
 									return (an === bn || an < bn) ? -1 : 1;
 								})
-								.map(d => line + indent + d.toDeclarationString())
+								.map(d => line + indent + d.toString())
 								.join("") + line + 
 						"}");
 				}

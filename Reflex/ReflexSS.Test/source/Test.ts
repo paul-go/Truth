@@ -19,9 +19,14 @@ namespace Reflex.SS.Test
 	
 	ss(
 		ml.body,
-		ss.backgroundColor("red")
+		ss.color(ss.rgba(0, 0, 0, 0.2)),
+		ss.backgroundColor("red"),
+		ss.backgroundImage(ss.linearGradient(["#333", 50..pct], ["#666", 30..pct])),
+		ss.width(ss.calc(50..pct, "+", 10..px)),
+		ss.fontFamily("-apple-system", "sans-serif")
 	);
 	
+	/*
 	ss(
 		ml.a,
 		ss.textAlign("left"),
@@ -36,7 +41,6 @@ namespace Reflex.SS.Test
 		)
 	);
 	
-	/*
 	ss(
 		" A, B",
 		", C, D",
