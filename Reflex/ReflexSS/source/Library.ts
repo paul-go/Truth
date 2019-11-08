@@ -148,15 +148,6 @@ namespace Reflex.SS
 			return (<(Branch | Leaf)[]>target.declarations).concat(target.children);
 		}
 		
-		/** * /
-		getLeaf(leaf: object)
-		{
-			if (leaf instanceof Command)
-				return leaf;
-			
-			return null;
-		}*/
-		
 		/** */
 		getRootBranch()
 		{
