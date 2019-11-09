@@ -163,7 +163,7 @@ declare namespace Reflex.Core
 	 * whose members are transformed into branch creation methods.
 	 */
 	export type AsBranches<T> = {
-		[K in keyof T]: AsBranch<T[K]>
+		readonly [K in keyof T]: AsBranch<T[K]>
 	};
 	
 	/**
