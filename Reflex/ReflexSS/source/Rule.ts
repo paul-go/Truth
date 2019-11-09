@@ -7,14 +7,21 @@ namespace Reflex.SS
 	 */
 	export class Rule
 	{
+		/**
+		 * Sets the priority of the rule. Low, default, and high
+		 * priority indicate that the rule should be inserted at
+		 * the top, middle, and bottom section of the style sheet.
+		 */
+		priority = Priority.default;
+		
 		readonly selectorFragments: string[] = [];
 		readonly declarations: Command[] = [];
 		readonly children: Rule[] = [];
 		readonly containers: Rule[] = [];
 		
 		/**
-		 * Returns a serialized CSS representation of this Rule instance,
-		 * and all rules nested inside of it.
+		 * Returns an array of strings that are serialized CSS representation 
+		 * of this Rule instance, and all rules nested inside of it.
 		 */
 		toStringArray(options?: IEmitOptions)
 		{

@@ -18,12 +18,32 @@ namespace Reflex.SS.Test
 	console.log("------------");
 	
 	ss(
+		ml.div,
+		ss.priority.high,
+		ss.backgroundColor("blue")
+	);
+	
+	ss(
+		ml.div,
+		ss.priority.high,
+		ss.backgroundColor("blue2")
+	);
+	
+	ss(
 		ml.body,
 		ss.color(ss.rgba(0, 0, 0, 0.2)),
-		ss.backgroundColor("red"),
+		ss.backgroundColor("green"),
 		ss.backgroundImage(ss.linearGradient(["#333", 50..pct], ["#666", 30..pct])),
 		ss.width(ss.calc(50..pct, "+", 10..px)),
-		ss.fontFamily("-apple-system", "sans-serif")
+		ss.fontFamily("-apple-system", "sans-serif"),
+		ss.boxShadow("inset", 1..px, 1..px, 5..px, ss.rgba(0, 0, 0, 0.5))
+	);
+	
+	ss(
+		ml.div,
+		
+		ss.priority.low,
+		ss.backgroundColor("red")
 	);
 	
 	/*

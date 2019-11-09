@@ -35,6 +35,16 @@ namespace Reflex.SS
 	}
 	
 	/**
+	 * An enumeration that calls out the 3 levels of priority in ReflexSS.
+	 */
+	export enum Priority
+	{
+		low = "( --- LOW --- )",
+		default = "( --- DEFAULT --- )",
+		high = "( --- HIGH --- )"
+	}
+	
+	/**
 	 * 
 	 */
 	export class Library implements Reflex.Core.ILibrary
@@ -62,8 +72,26 @@ namespace Reflex.SS
 		{
 			return {
 				emit: (options?: IEmitOptions) => this.emit(options || {}),
-				stream: (enable?: boolean) => this.stream(!!enable)
-			}
+				stream: (enable?: boolean) => this.stream(!!enable),
+				/**
+				 * A ReflexSS-specific priority assignment mechanism, which provides
+				 * some control over where in the generated style sheet a generated 
+				 * CSS rule may be placed. The 3 levels are intended for the following
+				 * uses:
+				 * 
+				 * Low priority - Intended for establishing defaults, many of which may
+				 * be overridden later, such as "CSS reset" style code. Rules with low
+				 * priority are inserted at the top of the style sheet.
+				 * 
+				 * Default priority - Intended for main application rules. Rules with
+				 * default priority are inserted in the middle of the style sheet.
+				 * 
+				 * High priority - Intended as a less onerous version of !important,
+				 * (which isn't well supported in ReflexSS, almost by design. Rules
+				 * with high priority are inserted at the bottom of the style sheet.
+				 */
+				priority: Priority
+			};
 		}
 		
 		/** */
@@ -101,11 +129,9 @@ namespace Reflex.SS
 		
 		/**
 		 * @internal
-		 * An internal map that stores all of the generated CSS rules,
-		 * as well as the internally generated identifiers (which may 
-		 * become class names) that refer to them.
+		 * 
 		 */
-		private readonly fauxSheet = new Map<string, Rule>();
+		private readonly fauxSheet = new FauxSheet();
 		
 		/**
 		 * @internal
@@ -171,13 +197,22 @@ namespace Reflex.SS
 				}
 				else if (typeof atomic === "string")
 				{
-					const existingRule = this.fauxSheet.get(atomic);
-					if (existingRule)
+					if (atomic === Priority.low ||
+						atomic === Priority.default ||
+						atomic === Priority.high)
 					{
-						existingRule.containers.push(owner);
-						owner.children.push(existingRule);
+						owner.priority = atomic;
 					}
-					else owner.selectorFragments.push(atomic);
+					else
+					{
+						const existingRule = this.fauxSheet.get(atomic);
+						if (existingRule)
+						{
+							existingRule.containers.push(owner);
+							owner.children.push(existingRule);
+						}
+						else owner.selectorFragments.push(atomic);
+					}
 				}
 				else if (atomic instanceof Command)
 				{
@@ -235,29 +270,88 @@ namespace Reflex.SS
 		}
 		
 		/** */
-		returnBranch(branch: Reflex.Core.IBranch)
+		returnBranch(rule: Reflex.Core.IBranch)
 		{
-			if (!(branch instanceof Rule))
-				return branch;
+			if (!(rule instanceof Rule))
+				return rule;
 			
-			const cls = branch.class;
-			if (!this.fauxSheet.has(cls))
-				this.fauxSheet.set(cls, branch);
-			
+			const cls = rule.class;
+			if (!this.fauxSheet.get(cls))
+				this.fauxSheet.set(cls, rule);
+			  
 			if (this.streamingEnabled && this.nativeSheet)
 			{
-				for (const cssText of branch.toStringArray())
+				for (const cssText of rule.toStringArray())
 				{
+					let insertAt = 
+						rule.priority === Priority.low ? ruleCountLow :
+						rule.priority === Priority.default ? ruleCountLow + ruleCountDefault :
+						this.nativeSheet.cssRules.length;
+					
 					const ruleHash = Util.calculateHash(cssText).toString(36);
 					if (!this.ruleHashes.has(ruleHash))
 					{
-						const len = this.nativeSheet.cssRules.length;
-						this.nativeSheet.insertRule(cssText, len);
+						this.nativeSheet.insertRule(cssText, insertAt);
 						this.ruleHashes.add(ruleHash);
+					}
+					
+					switch (rule.priority)
+					{
+						case Priority.low: ruleCountLow++; break;
+						case Priority.default: ruleCountDefault++; break;
 					}
 				}
 			}
 			return cls;
 		}
+	}
+	
+	let ruleCountLow = 0;
+	let ruleCountDefault = 0;
+	
+	/**
+	 * A class that stores a series of internal maps. These maps store
+	 * the generated CSS rules, as well as the internally generated 
+	 * identifiers (which may become class names) that refer to them.
+	 * The rules are divided into 3 maps that represent the 3 possible
+	 * priority levels of rules.
+	 */
+	class FauxSheet
+	{
+		/** */
+		get(className: string)
+		{
+			return this.low.get(className) || 
+				this.default.get(className) ||
+				this.high.get(className);
+		}
+		
+		/** */
+		set(className: string, rule: Rule)
+		{
+			switch (rule.priority)
+			{
+				case Priority.low: this.low.set(className, rule); break;
+				case Priority.default: this.default.set(className, rule); break;
+				case Priority.high: this.high.set(className, rule); break;
+			}
+		}
+		
+		/** */
+		*values()
+		{
+			for (const value of this.low.values())
+				yield value;
+			
+			for (const value of this.default.values())
+				yield value;
+			
+			for (const value of this.high.values())
+				yield value;
+		}
+		
+		readonly low = new Map<string, Rule>();
+		readonly default = new Map<string, Rule>();
+		readonly high = new Map<string, Rule>();
 	}
 }
