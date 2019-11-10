@@ -1,6 +1,3 @@
-import * as X from "../CoreTests/X";
-import * as Fs from "fs";
-
 
 /**
  * This is a generic graph visualization tool that can be
@@ -118,7 +115,7 @@ function vizFn(root: any | null, fn: (value: any) => any)
 			
 			if (objects.has(previous))
 			{
-				const obj = X.Not.undefined(objects.get(previous));
+				const obj = Truth.Not.undefined(objects.get(previous));
 				jsonViz.addEdge([obj, nodeName]);
 			}
 		};
@@ -212,8 +209,8 @@ function emitHtmlViewer()
 	Fs.writeFileSync(dirPath + "view.html", html.join("\n"), "utf8");
 }
 
-
-export function init()
+/** */
+function init()
 {
 	for (const path of Fs.readdirSync(dirPath, "utf8"))
 		Fs.unlinkSync(dirPath + path);

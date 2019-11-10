@@ -1,7 +1,6 @@
-import * as X from "../CoreTests/X";
-import * as Fs from "fs";
-import * as Os from "os";
 
+const Fs = <typeof import("fs")>require("fs");
+const Os = <typeof import("os")>require("os");
 
 /**
  * Entry point used for debugging.
@@ -15,16 +14,9 @@ setTimeout(async () =>
 	};
 	
 	const filePath = findArg("--file=");
-	const targetTypePath = !filePath ? [] : (() =>
-	{
-		const fileContent = Fs.readFileSync(filePath, "utf8");
-		const firstLineEnd = fileContent.indexOf(Os.EOL);
-		const firstLine = fileContent.slice("// ".length, firstLineEnd);
-		return firstLine.trim().split("/");
-	})();
-	
-	const program = new X.Program();
-	const uri = X.Not.null(X.Uri.tryParse(filePath));
+	const inspectPath = findArg("--inspect=").split("/");
+	const program = new Truth.Program();
+	const uri = Truth.Not.null(Truth.Uri.tryParse(filePath));
 	const doc = await program.documents.read(uri);
 	
 	if (doc instanceof Error)
@@ -46,12 +38,12 @@ setTimeout(async () =>
 	
 	///{
 	///	const newUri = doc.sourceUri.extendStore("x");
-	///	const param = new X.DocumentUriChangedParam(doc, newUri);
+	///	const param = new Truth.DocumentUriChangedParam(doc, newUri);
 	///	program.hooks.DocumentUriChanged.run(param);
 	///}
 	
-	const type = program.query(doc, ...targetTypePath);
-	if (type instanceof X.Type)
+	const type = program.query(doc, ...inspectPath);
+	if (type instanceof Truth.Type)
 	{
 		const aliases = type.aliases;
 		const values = type.values;
@@ -62,14 +54,14 @@ setTimeout(async () =>
 		const adjacents = type.adjacents;
 	}
 	
-	const uriMessage = `Using URI: ${filePath}//${targetTypePath}`;
+	const uriMessage = `Using URI: ${filePath}//${inspectPath}`;
 	const pipe = "-".repeat(uriMessage.length);
 	console.log(pipe);
 	console.log(uriMessage);
 	console.log(pipe);
 	
-	const printedFaults = new Set<X.Fault>();
-	const printFault = (fault: X.Fault) =>
+	const printedFaults = new Set<Truth.Fault>();
+	const printFault = (fault: Truth.Fault) =>
 	{
 		if (printedFaults.has(fault))
 			return;
@@ -81,7 +73,7 @@ setTimeout(async () =>
 	if (program.faults.count > 0)
 	{
 		for (const fault of program.faults.each())
-			printFault(fault);
+			printFault(<any>fault);
 	}
 	else
 	{

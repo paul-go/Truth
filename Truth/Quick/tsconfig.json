@@ -1,11 +1,9 @@
 {
-	"extends": "../tsconfig.base.json",
+	"extends": "../tsconfig.composite.json",
 	"compilerOptions": {
-		"rootDir": "../",
-		"baseUrl": "./",
-		"outDir": "../Build/Dev"
+		"outFile": "../build/truth-test-quick.js"
 	},
-	"include": [
-		"**/*.ts"
+	"references": [
+		{ "path": "../source", "prepend": true }
 	]
 }

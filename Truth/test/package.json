@@ -4,16 +4,16 @@
 	"description": "Tests for the Truth compiler",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/paul-go/Truth"
+		"url": "https://github.com/Truebase-com/TruthStack"
 	},
-	"author": "Paul Go",
+	"author": "Truebase",
 	"license": "MIT",
 	"scripts": {
 		"test": "jest",
 		"compile": "tsc"
 	},
 	"jest": {
-		"testRegex": "Build/Dev/test/Units/[\\w.]+\\.test\\.js$",
+		"testRegex": "build/units/[\\w.]+\\.test\\.js$",
 		"verbose": true,
 		"testURL": "http://localhost/"
 	},

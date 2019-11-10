@@ -4,9 +4,9 @@
 	"description": "Quick runner project for getting fast entry points into the compiler",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/paul-go/Truth"
+		"url": "https://github.com/Truebase-com/TruthStack"
 	},
-	"author": "Paul Go",
+	"author": "Truebase",
 	"license": "MIT",
 	"scripts": {
 		"compile": "tsc"

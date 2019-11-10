@@ -25,7 +25,7 @@
 		"publish": "makets publish"
 	},
 	"jest": {
-		"testRegex": "build/tests/Units/[\\w.]+\\.test\\.js$",
+		"testRegex": "build/tests/units/[\\w.]+\\.test\\.js$",
 		"verbose": true,
 		"testURL": "http://localhost/"
 	},

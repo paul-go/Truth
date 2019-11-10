@@ -4,6 +4,7 @@
 	"include": [],
 	"references": [
 		{ "path": "source" },
-		{ "path": "test" }
+		{ "path": "test" },
+		{ "path": "quick" }
 	]
 }

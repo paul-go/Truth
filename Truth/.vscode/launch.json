@@ -4,11 +4,12 @@
 		"type": "node",
 		"request": "launch",
 		"name": "Debug Project",
-		"program": "${workspaceFolder}/Build/Dev/Quick/Start.js", 
+		"program": "${workspaceFolder}/build/truth-test-quick.js", 
 		"internalConsoleOptions": "neverOpen",
 		"sourceMaps": true,
 		"args": [
-			"--file=./Quick/Samples/BaseWithAlias.truth"
+			"--file=./test/baselines/PatternAliasInheritance.truth",
+			"--inspect=SubSubType/Thing/Value"
 		]
 	},
 	{
