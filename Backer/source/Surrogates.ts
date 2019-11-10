@@ -17,11 +17,6 @@ namespace Backer
 		{
 			const constr = parentValue ? 
 				parentValue instanceof Surrogate ?
-				type.is(Schema.object[typeOf]) ? Surrogate :
-				type.is(Schema.string[typeOf]) ? SurrogateString :
-				type.is(Schema.number[typeOf]) ? SurrogateNumber :
-				type.is(Schema.bigint[typeOf]) ? SurrogateBigInt :
-				type.is(Schema.boolean[typeOf]) ? SurrogateBoolean :
 				Surrogate : Struct : Struct;
 				
 			return new constr(type, parentValue);
@@ -33,7 +28,7 @@ namespace Backer
 		/** */
 		get [values]()
 		{
-			return this[typeOf].aliases;
+			return this[typeOf].values;
 		}
 		
 		constructor(type: Type, parentValue: Struct | null)
@@ -45,7 +40,7 @@ namespace Backer
 			Util.shadows(this, false, typeOf, values, TruthTalk.op, parent, TruthTalk.container);
 			
 			for (const child of type.contents)
-				(<any>this)[child.name] = Struct.new(child, this);
+				(<any>this)[child.name.replace(/[^\d\w]/gm, () => "_")] = Struct.new(child, this);
 		}
 		
 		/**
@@ -113,9 +108,9 @@ namespace Backer
 		readonly [parent]: Surrogate | null;
 		
 		/** */
-		get [value]() : T | null
+		get [value]()
 		{
-			return this[typeOf].value as T | null;
+			return this[typeOf].value;
 		}
 		
 		/** */
@@ -153,63 +148,32 @@ namespace Backer
 			return recursive(<any>this);
 		}
 		
-		
 		/** */
 		toJSON(): any 
 		{ 
-			if (this instanceof Surrogate && this.constructor !== Surrogate)
-				return this[value];
-				
-			const Obj: Record<string | typeof value, Surrogate | T> & { $: any } = <any>Object.assign({}, this);
+			const val = this[value];
+			const primitive = val ? this[typeOf].values.toString() : undefined;
 			
-			if (this[value] !== null && this[value] !== undefined ) 
-				Obj[value] = this[value]!;
-				
+			if (this.contents.length === 0)
+				return primitive;
+	
+			const Obj: Record<string, Surrogate | T> & { $: any } = <any>Object.assign({}, this);
+							
 			return Obj; 
 		}
-	}
-	
-	export class SurrogateString extends Surrogate<string>
-	{
-		/** */
-		get [value]()
+		
+		toString(indent = 0)
 		{
-			const val = this[typeOf].value;
-			return val ? JSON.parse(val) : null;
-		}
-	}
-	
-	export class SurrogateNumber extends Surrogate<number>
-	{
-		/** */
-		get [value]()
-		{
-			const val = this[typeOf].value;
-			return val ? Number(val) : null;
-		}
-	}
-	export class SurrogateBigInt extends Surrogate<BigInt>
-	{
-		/** */
-		get [value]()
-		{
-			const val = this[typeOf].value;
-			return val ? BigInt(val) : null;
-		}
-	}
-	export class SurrogateBoolean extends Surrogate
-	{
-		/** */
-		get [value]()
-		{
-			const val = this[typeOf].value;
-			return val ? JSON.parse(val) : null;
+			let base = this[typeOf].name;
+			const primitive = this[value] ? this[typeOf].values.toString() : undefined;
+			
+			if (primitive) 
+				base += `: ${primitive}`;
+				
+			if (this.contents.length > 0)
+				base += this.contents.map(x => "\n" + x.toString(indent + 1));
+			
+			return "\t".repeat(indent) + base;
 		}
 	}
 }
-
-declare const any: typeof Backer.Surrogate;
-declare const string: typeof Backer.SurrogateString;
-declare const number: typeof Backer.SurrogateNumber;
-declare const bigint: typeof Backer.SurrogateBigInt;
-declare const boolean: typeof Backer.SurrogateBoolean;

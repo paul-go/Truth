@@ -117,34 +117,28 @@ namespace Backer
 					name, 
 					prototype, 
 					null,
-					info.shift() as string[]
+					ValueStore.load(...info.shift() as ValueJSON[])
 				);
 				
-				const generate = (content: Type) => 
+				const generate = (base: Type, contents: Type[]) => 
 				{
-					const clone = new Type(
-						this,
-						content.name,
-						this.prototypes[prototypes.shift()!],
-						FutureType.new(type),
-						content.aliases.concat(<string[]>info.shift())
-					);
-					this.types.push(clone);
-					
-					for (const contentType of content.contents)
-						generate(contentType);
-				};
-				
-				this.types.push(type);
-				
-				const bases = prototype.bases.toArray().map(x => x.type);
-				for (const base of bases)
-					if (base)
+					for (const content of contents)
 					{
-						type.aliases.push(...base.aliases);
-						for (const content of base.contents)
-							generate(content);
+						const clone = new Type(
+							this,
+							content.name,
+							this.prototypes[prototypes.shift()!],
+							FutureType.new(base),
+							content.values.concat(ValueStore.load(...info.shift() as ValueJSON[]))
+							);
+							
+						this.types.push(clone);
+						
+						generate(clone, clone.parallelContents);
 					}
+				}
+				
+				generate(type, type.parallelContents);
 				
 				Graph[type.name] = new Surrogate(type, null);
 			}
@@ -189,7 +183,7 @@ namespace Backer
 				type.transfer(code);
 			}
 		
-			const data = dataSchema.map(x => [x.map(x => x.prototype.id), x[0].name, ...x.map(x => x.aliases)]);
+			const data = dataSchema.map(x => [x.map(x => x.prototype.id), x[0].name, ...x.map(x => x.values.valueStore)]);
 							
 			return {
 				code,

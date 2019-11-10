@@ -1,8 +1,115 @@
 
 namespace Backer
 {
-	export type DataJSON = [number[], string, ...string[][]];
-	export type TypeJSON = [number, number | null, string, string[]];
+	export type ValueJSON = [number, number, string];
+	export type DataJSON = [number[], string, ...ValueJSON[][]];
+	export type TypeJSON = [number, number | null, string, ValueJSON[]];
+	
+	export class Value
+	{
+		static load(data: ValueJSON)
+		{
+			return new Value(FutureType.new(data[0]), !!data[1], data[2]);
+		}
+		
+		public value: any;
+		
+		constructor(public base: FutureType | null, public aliased: boolean, value: string) 
+		{
+			this.value = value;
+		}
+		
+		get primitive()
+		{
+			return this.value || this.baseName;
+		}
+		
+		get baseName()
+		{
+			return this.base ? this.base.type ? this.base.type.name : "" : "";	
+		}
+		
+		toJSON()
+		{
+			return [this.base && this.base.id, this.aliased ? 1 : 0, this.value];  
+		}
+		
+		toString()
+		{
+			return this.primitive;
+		}
+	}
+	
+	export class ValueStore
+	{	
+		static load(...data: ValueJSON[])
+		{
+			return new ValueStore(...data.map(x => Value.load(x)));
+		}
+		
+		public valueStore: Value[];
+		
+		constructor(...values: Value[])
+		{
+			this.valueStore = values.map(x => 
+			{
+				if (x.aliased)
+				{
+					try 
+					{
+						x.value = JSON.parse(x.value);
+					}
+					catch (ex)
+					{
+						if (/^\d+$/.test(x.value))
+							x.value = BigInt(x.value);
+					}
+				}
+				return x;
+			});
+		}
+		
+		get values()
+		{
+			return this.valueStore.filter(x => !x.aliased);
+		}
+		
+		get aliases()
+		{
+			return this.valueStore.filter(x => x.aliased);
+		}
+		
+		concat(store: ValueStore)
+		{
+			return new ValueStore(...this.valueStore.concat(store.valueStore));
+		}
+		
+		get alias()
+		{
+			return this.aliases[0];
+		}
+		
+		get value()
+		{
+			return this.values[0];
+		}
+		
+		get primitive()
+		{
+			return this.alias ? this.alias.value : this.value.toString();
+		}
+		
+		toJSON()
+		{
+			return this.valueStore;
+		}
+	
+		toString()
+		{
+			return this.alias ? this.alias.toString() + (this.value ? "[" + this.value.toString() + "]" : "") : this.value.toString();
+		}
+		
+	}
 	
 	export class Type 
 	{
@@ -16,7 +123,7 @@ namespace Backer
 				data[2],
 				code.prototypes[data[0]],
 				data[1] ? FutureType.new(data[1]) : null,
-				data[3]
+				ValueStore.load(...data[3])
 			);
 		}
 		
@@ -25,12 +132,15 @@ namespace Backer
 		 */
 		static new(code: Code, type: Truth.Type)
 		{	
+			const name = type.isPattern ? type.name.substr(9) : type.name;
 			const instance = new Type(
 				code, 
-				type.isPattern ? type.name.substr(9) : type.name, 
+				name, 
 				Prototype.new(code, type),
 				type.container ? FutureType.new(type.container) : null,
-				type.aliases as string[]
+				new ValueStore(...type.values
+					.filter(x => name !== x.value)
+					.map(x => new Value(x.base ? FutureType.new(x.base) : null, x.aliased, x.value)))
 			);
 			
 			FutureType.TypeMap.set(type, instance);
@@ -42,8 +152,8 @@ namespace Backer
 			public name: string,
 			public prototype: Prototype,
 			private _container: FutureType | null = null,
-			
-			public aliases: string[] = []) {}
+			public values: ValueStore) 
+		{ }
 			
 		get container()
 		{
@@ -58,6 +168,22 @@ namespace Backer
 		get contents()
 		{
 			return this.code.types.filter(x => x.container === this);
+		}
+		
+		/**
+		 * @interal
+		 */
+		get parallelContents()
+		{
+			const types: Type[] = [];
+			
+			for (const { type: parallelType } of this.iterate(t => t.parallels, true))
+				for (const { type: baseType } of parallelType.iterate(t => t.bases, true))
+					for(const content of baseType.contents)
+					if (!types.some(x => x.name === content.name))
+						types.push(content);
+						
+			return types;
 		}
 		
 		/**
@@ -125,13 +251,9 @@ namespace Backer
 			return roots;
 		}
 		
-		/**
-		 * Gets the first alias stored in the .values array, or null if the
-		 * values array is empty.
-		 */
 		get value()
 		{
-			return this.aliases.length > 0 ? this.aliases[0] : null;
+			return this.values.primitive;
 		}
 		
 		get id()
@@ -313,6 +435,15 @@ namespace Backer
 		}
 		
 		/**
+		 * Checks whether this Type has the specified type
+		 * somewhere in it's base graph.
+		 */
+		isRoot(baseType: Type)
+		{
+			return this.is(baseType) || this.parallelRoots.includes(baseType);
+		}
+		
+		/**
 		 * Checks whether the specified type is in this Type's
 		 * `.contents` property, either directly, or indirectly via
 		 * the parallel graphs of the `.contents` Types.
@@ -342,7 +473,7 @@ namespace Backer
 		
 		toJSON()
 		{	
-			return [this.prototype.id, this.container && this.container.id, this.name, this.aliases];
+			return [this.prototype.id, this.container && this.container.id, this.name, this.values];
 		}
 	}
 }
