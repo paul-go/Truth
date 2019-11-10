@@ -13,7 +13,7 @@ make.on("bundle", "publish", async () =>
 		}
 	});
 	
-	make.compilationConstants(outJsFile, {
+	make.constants(outJsFile, {
 		DEBUG: false
 	});
 	
