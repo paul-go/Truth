@@ -1,30 +1,30 @@
 
 // Util
-/// <reference path="./Util/Helpers.ts" />
-/// <reference path="./Util/MultiMap.ts" />
-/// <reference path="./Util/Fs.ts" />
-/// <reference path="./Util/Fetch.ts" />
-/// <reference path="./Util/Hash.ts" />
-/// <reference path="./Util/HigherOrder.ts" />
-/// <reference path="./Util/Not.ts" />
-/// <reference path="./Util/Parser.ts" />
-/// <reference path="./Util/UnicodeBlocks.ts" />
-/// <reference path="./Util/Misc.ts" />
+/// <reference path="./util/Helpers.ts" />
+/// <reference path="./util/MultiMap.ts" />
+/// <reference path="./util/Fs.ts" />
+/// <reference path="./util/Fetch.ts" />
+/// <reference path="./util/Hash.ts" />
+/// <reference path="./util/HigherOrder.ts" />
+/// <reference path="./util/Not.ts" />
+/// <reference path="./util/Parser.ts" />
+/// <reference path="./util/UnicodeBlocks.ts" />
+/// <reference path="./util/Misc.ts" />
 
 // System
-/// <reference path="./System/Program.ts" />
-/// <reference path="./System/AgentCache.ts" />
-/// <reference path="./System/Cause.ts" />
-/// <reference path="./System/Exception.ts" />
-/// <reference path="./System/Uri.ts" />
-/// <reference path="./System/UriProtocol.ts" />
-/// <reference path="./System/UriParser.ts" />
-/// <reference path="./System/UriComponent.ts" />
-/// <reference path="./System/UriReader.ts" />
-/// <reference path="./System/Syntax.ts" />
-/// <reference path="./System/FaultService.ts" />
-/// <reference path="./System/Faults.ts" />
-/// <reference path="./System/VersionStamp.ts" />
+/// <reference path="./system/Program.ts" />
+/// <reference path="./system/AgentCache.ts" />
+/// <reference path="./system/Cause.ts" />
+/// <reference path="./system/Exception.ts" />
+/// <reference path="./system/Uri.ts" />
+/// <reference path="./system/UriProtocol.ts" />
+/// <reference path="./system/UriParser.ts" />
+/// <reference path="./system/UriComponent.ts" />
+/// <reference path="./system/UriReader.ts" />
+/// <reference path="./system/Syntax.ts" />
+/// <reference path="./system/FaultService.ts" />
+/// <reference path="./system/Faults.ts" />
+/// <reference path="./system/VersionStamp.ts" />
 
 // Finite State Machine
 /// <reference path="./fsm/Alphabet.ts" />
@@ -34,43 +34,43 @@
 /// <reference path="./fsm/Fsm.ts" />
 /// <reference path="./fsm/FsmTranslator.ts" />
 
-// Phases/File
-/// <reference path="./Phases/File/Document.ts" />
-/// <reference path="./Phases/File/DocumentGraph.ts" />
-/// <reference path="./Phases/File/DocumentHeader.ts" />
-/// <reference path="./Phases/File/LineParser.ts" />
-/// <reference path="./Phases/File/Anon.ts" />
-/// <reference path="./Phases/File/Line.ts" />
-/// <reference path="./Phases/File/Bounds.ts" />
-/// <reference path="./Phases/File/Statement.ts" />
-/// <reference path="./Phases/File/Pattern.ts" />
-/// <reference path="./Phases/File/PatternPrecompiler.ts" />
-/// <reference path="./Phases/File/RegexTypes.ts" />
-/// <reference path="./Phases/File/Infix.ts" />
-/// <reference path="./Phases/File/Identifier.ts" />
-/// <reference path="./Phases/File/Span.ts" />
-/// <reference path="./Phases/File/Spine.ts" />
-/// <reference path="./Phases/File/Subject.ts" />
+// Phases / File Representation
+/// <reference path="./phases/file/Document.ts" />
+/// <reference path="./phases/file/DocumentGraph.ts" />
+/// <reference path="./phases/file/DocumentHeader.ts" />
+/// <reference path="./phases/file/LineParser.ts" />
+/// <reference path="./phases/file/Anon.ts" />
+/// <reference path="./phases/file/Line.ts" />
+/// <reference path="./phases/file/Bounds.ts" />
+/// <reference path="./phases/file/Statement.ts" />
+/// <reference path="./phases/file/Pattern.ts" />
+/// <reference path="./phases/file/PatternPrecompiler.ts" />
+/// <reference path="./phases/file/RegexTypes.ts" />
+/// <reference path="./phases/file/Infix.ts" />
+/// <reference path="./phases/file/Identifier.ts" />
+/// <reference path="./phases/file/Span.ts" />
+/// <reference path="./phases/file/Spine.ts" />
+/// <reference path="./phases/file/Subject.ts" />
 
-// Phases/Graph
-/// <reference path="./Phases/Graph/HyperGraph.ts" />
-/// <reference path="./Phases/Graph/Node.ts" />
-/// <reference path="./Phases/Graph/NodeIndex.ts" />
-/// <reference path="./Phases/Graph/HyperEdge.ts" />
-/// <reference path="./Phases/Graph/InfixSpan.ts" />
+// Phases / Graph Representation
+/// <reference path="./phases/graph/HyperGraph.ts" />
+/// <reference path="./phases/graph/Node.ts" />
+/// <reference path="./phases/graph/NodeIndex.ts" />
+/// <reference path="./phases/graph/HyperEdge.ts" />
+/// <reference path="./phases/graph/InfixSpan.ts" />
 
-// Phases/Parallel
-/// <reference path="./Phases/Parallel/ConstructionWorker.ts" />
-/// <reference path="./Phases/Parallel/Parallel.ts" />
-/// <reference path="./Phases/Parallel/SpecifiedParallel.ts" />
-/// <reference path="./Phases/Parallel/UnspecifiedParallel.ts" />
-/// <reference path="./Phases/Parallel/CruftCache.ts" />
-/// <reference path="./Phases/Parallel/ParallelCache.ts" />
-/// <reference path="./Phases/Parallel/Contract.ts" />
-/// <reference path="./Phases/Parallel/Sanitizer.ts" />
+// Phases / Parallel Representation
+/// <reference path="./phases/parallel/ConstructionWorker.ts" />
+/// <reference path="./phases/parallel/Parallel.ts" />
+/// <reference path="./phases/parallel/SpecifiedParallel.ts" />
+/// <reference path="./phases/parallel/UnspecifiedParallel.ts" />
+/// <reference path="./phases/parallel/CruftCache.ts" />
+/// <reference path="./phases/parallel/ParallelCache.ts" />
+/// <reference path="./phases/parallel/Contract.ts" />
+/// <reference path="./phases/parallel/Sanitizer.ts" />
 
-// Phases/Type
-/// <reference path="./Phases/Type/Type.ts" />
-/// <reference path="./Phases/Type/TypeProxy.ts" />
-/// <reference path="./Phases/Type/TypeProxyArray.ts" />
-/// <reference path="./Phases/Type/TypeCache.ts" />
+// Phases / Type Representation
+/// <reference path="./phases/type/Type.ts" />
+/// <reference path="./phases/type/TypeProxy.ts" />
+/// <reference path="./phases/type/TypeProxyArray.ts" />
+/// <reference path="./phases/type/TypeCache.ts" />
