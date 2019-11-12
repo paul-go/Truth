@@ -63,8 +63,8 @@ declare namespace Reflex.Core
 		((branch: B, children: (B | L)[]) => Atomic<B, L, X>) |
 		BranchFunction |
 		Recurrent |
-		IAttributes |
-		Volatile;
+		IVolatile<B, L> |
+		IAttributes;
 	
 	/** */
 	export interface IAttributes<T = string | number | bigint | boolean>
@@ -112,7 +112,7 @@ declare namespace Reflex.Core
 	 * Defines a relative or specific meta reference, used for indicating
 	 * an insertion position of a new meta within a Reflexive tree.
 	 */
-	export type Ref = IBranch | ILeaf | "prepend" | "append";
+	export type Ref<B = IBranch, L = ILeaf> = B | L | "prepend" | "append";
 	
 	/**
 	 * Generic function definition for callback functions provided to

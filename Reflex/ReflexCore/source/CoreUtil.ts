@@ -78,7 +78,7 @@ namespace Reflex.Core
 					typeOf === "string" ||
 					typeOf === "number" ||
 					typeOf === "bigint" ||
-					atomic instanceof Volatile)
+					this.isVolatile(atomic))
 					metas.push(new ValueMeta(atomic));
 				
 				else if (this.isAsyncIterable(atomic))
@@ -136,6 +136,17 @@ namespace Reflex.Core
 			}
 			
 			return true;
+		}
+		
+		/**
+		 * 
+		 */
+		isVolatile(object: any): object is IVolatile
+		{
+			if (!object || typeof object !== "object")
+				return false;
+			
+			return typeof (<IVolatile>object).atomize === "function";
 		}
 		
 		/**
