@@ -4,12 +4,8 @@ namespace Reflex.Core
 	/**
 	 * The interface that Reflex libraries (Reflex ML, Reflex SS, etc)
 	 * must implement. 
-	 * 
-	 * A "Library" is different from a "Layer" in that a Library can
-	 * define it's own branch types, and therefore, it can operate
-	 * at ground-level.
 	 */
-	export interface ILibrary extends ILayer
+	export interface ILibrary
 	{
 		/**
 		 * Reflexive libraries must implement this method, so that the
@@ -80,6 +76,16 @@ namespace Reflex.Core
 		 * 
 		 */
 		replaceBranch(branch1: IBranch, branch2: IBranch): void;
+		
+		/**
+		 * 
+		 */
+		attachAtomic(atomic: any, branch: IBranch, ref: Ref): void;
+		
+		/**
+		 * 
+		 */
+		detachAtomic(atomic: any, branch: IBranch): void;
 		
 		/**
 		 * 

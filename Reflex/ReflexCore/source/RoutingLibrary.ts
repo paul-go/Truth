@@ -138,12 +138,14 @@ namespace Reflex.Core
 			branch: IBranch,
 			ref: Ref)
 		{
-			CoreRecurrent.attachAtomic(branch, atomic);
+			const atomicTranslated = atomic instanceof Volatile ?
+				atomic.atomicize({ eventualBranch: branch, eventualRef: ref }) :
+				atomic;
 			
 			this.route(
 				branch,
 				lib => lib.attachAtomic,
-				(fn, lib) => fn.call(lib, atomic, branch, ref));
+				(fn, lib) => fn.call(lib, atomicTranslated, branch, ref));
 		}
 		
 		/**
@@ -151,8 +153,6 @@ namespace Reflex.Core
 		 */
 		detachAtomic(atomic: any, branch: IBranch)
 		{
-			CoreRecurrent.detachAtomic(branch, atomic);
-			
 			this.route(
 				branch,
 				lib => lib.detachAtomic,

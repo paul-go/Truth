@@ -35,18 +35,6 @@ namespace Reflex.Core
 	}
 	
 	/**
-	 * A base class for types that can be applied
-	 * as an atomic by some the Reflexive library.
-	 */
-	export abstract class Volatile
-	{
-		protected constructor() { }
-		
-		/** Enforce nominal type. */
-		private readonly volatile: undefined;
-	}
-	
-	/**
 	 * Stores information about some value that is known
 	 * to the library that will be applied to some branch.
 	 */

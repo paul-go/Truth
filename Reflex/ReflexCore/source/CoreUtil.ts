@@ -64,10 +64,6 @@ namespace Reflex.Core
 							containerMeta,
 							atomic));
 					}
-					else if (CoreRecurrent.selectors.includes(atomic.selector))
-					{
-						CoreRecurrent.listen(containerBranch, atomic);
-					}
 					else
 					{
 						metas.push(new RecurrentStreamMeta(
