@@ -64,7 +64,7 @@ declare namespace Reflex.Core
 		BranchFunction |
 		Recurrent |
 		IAttributes |
-		Auxilary;
+		Volatile;
 	
 	/** */
 	export interface IAttributes<T = string | number | bigint | boolean>

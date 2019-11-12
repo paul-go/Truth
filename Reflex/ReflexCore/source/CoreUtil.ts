@@ -82,7 +82,7 @@ namespace Reflex.Core
 					typeOf === "string" ||
 					typeOf === "number" ||
 					typeOf === "bigint" ||
-					atomic instanceof Auxilary)
+					atomic instanceof Volatile)
 					metas.push(new ValueMeta(atomic));
 				
 				else if (this.isAsyncIterable(atomic))

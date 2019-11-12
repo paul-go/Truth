@@ -13,7 +13,7 @@ namespace Reflex.SS
 	 * A class that represents either a CSS declaration, such as "color: red",
 	 * or a CSS function call, such as "rgb(1, 2, 3)".
 	 */
-	export class Command extends Core.Auxilary
+	export class Command extends Core.Volatile
 	{
 		constructor(
 			/**

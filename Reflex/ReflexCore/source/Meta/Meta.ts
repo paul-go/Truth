@@ -35,14 +35,15 @@ namespace Reflex.Core
 	}
 	
 	/**
-	 * 
+	 * A base class for types that can be applied
+	 * as an atomic by some the Reflexive library.
 	 */
-	export abstract class Auxilary
+	export abstract class Volatile
 	{
 		protected constructor() { }
 		
 		/** Enforce nominal type. */
-		private readonly auxiliary: undefined;
+		private readonly volatile: undefined;
 	}
 	
 	/**
@@ -51,7 +52,7 @@ namespace Reflex.Core
 	 */
 	export class ValueMeta extends StemMeta
 	{
-		constructor(readonly value: string | number | bigint | Auxilary)
+		constructor(readonly value: string | number | bigint | Volatile)
 		{
 			super();
 		}
