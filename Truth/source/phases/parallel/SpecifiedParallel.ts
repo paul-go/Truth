@@ -64,7 +64,7 @@ namespace Truth
 		
 		/**
 		 * Performs a shallow traversal on the non-cruft bases
-		 * defined directly on this Parallel.
+		 * defined directly on this SpecifiedParallel.
 		 */
 		*eachBase()
 		{
