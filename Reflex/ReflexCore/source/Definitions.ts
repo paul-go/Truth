@@ -63,7 +63,7 @@ declare namespace Reflex.Core
 		((branch: B, children: (B | L)[]) => Atomic<B, L, X>) |
 		BranchFunction |
 		Recurrent |
-		IVolatile<B, L> |
+		IVolatile<B, L, X> |
 		IAttributes;
 	
 	/** */

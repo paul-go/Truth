@@ -37,11 +37,11 @@ function force(val?: any)
 	if (typeof val === "number")
 		return new Reflex.Core.StatefulForce(val || 0);
 	
-	if (typeof val === "object" || typeof val === "symbol")
-		return new Reflex.Core.StatefulForce(val);
-	
 	if (Array.isArray(val))
 		return Reflex.Core.ArrayForce.create(val);
+	
+	if (typeof val === "object" || typeof val === "symbol")
+		return new Reflex.Core.StatefulForce(val);
 	
 	throw new Error("Cannot create a force from this value.");
 }

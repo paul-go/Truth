@@ -5,29 +5,14 @@ namespace Reflex.Core
 	 * A base class for types that can be applied
 	 * as an atomic by some the Reflexive library.
 	 */
-	export interface IVolatile<B = IBranch, L = ILeaf>
+	export interface IVolatile<B extends object = object, L = any, X = void>
 	{
 		/**
 		 * A function or method that converts this IVolatile
 		 * instance into an Atomic that will eventually be
-		 * applied to the specified branch.
+		 * applied to the branch passed in through the 
+		 * `destination` argument.
 		 */
-		atomize(info: IAtomizeInfo<B, L>): Atomic;
-	}
-	
-	/** */
-	export interface IAtomizeInfo<B = IBranch, L = ILeaf>
-	{
-		/**
-		 * Stores a reference to the branch to which the atomic
-		 * will eventually be attached.
-		 */
-		readonly eventualBranch: B;
-		
-		/**
-		 * Stores information about where specifically the atomic
-		 * will eventually be attached in the Branch.
-		 */
-		readonly eventualRef: Ref<B, L>;
+		atomize(destination: B): Atomic<B, L, X>;
 	}
 }

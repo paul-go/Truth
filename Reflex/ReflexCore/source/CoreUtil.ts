@@ -17,7 +17,6 @@ namespace Reflex.Core
 			containerMeta: ContainerMeta,
 			rawAtomics: unknown)
 		{
-			const lib = RoutingLibrary.this;
 			const atomics = Array.isArray(rawAtomics) ?
 				rawAtomics.slice() :
 				[rawAtomics];
@@ -30,7 +29,7 @@ namespace Reflex.Core
 				if (atomic === null || 
 					atomic === undefined || 
 					typeof atomic === "boolean" ||
-					atomic === "" ||  
+					atomic === "" || 
 					atomic !== atomic || 
 					atomic === containerBranch)
 					atomics.splice(i--, 1);
@@ -44,6 +43,9 @@ namespace Reflex.Core
 				
 				else if (this.hasSymbol && atomic[Symbol.iterator])
 					atomics.splice(i--, 1, ...Array.from(atomic));
+				
+				else if (this.isVolatile(atomic))
+					atomics[i--] = atomic.atomize(containerBranch);
 			}
 			
 			const metas: Meta[] = [];
@@ -55,7 +57,7 @@ namespace Reflex.Core
 				
 				if (atomic instanceof Meta)
 					metas.push(atomic);
-					
+				
 				else if (atomic instanceof Recurrent)
 				{
 					if (atomic.selector instanceof ArrayForce)
@@ -77,8 +79,7 @@ namespace Reflex.Core
 				else if (
 					typeOf === "string" ||
 					typeOf === "number" ||
-					typeOf === "bigint" ||
-					this.isVolatile(atomic))
+					typeOf === "bigint")
 					metas.push(new ValueMeta(atomic));
 				
 				else if (this.isAsyncIterable(atomic))

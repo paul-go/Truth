@@ -138,14 +138,10 @@ namespace Reflex.Core
 			branch: IBranch,
 			ref: Ref)
 		{
-			const atomicTranslated = CoreUtil.isVolatile(atomic) ?
-				atomic.atomize({ eventualBranch: branch, eventualRef: ref }) :
-				atomic;
-			
 			this.route(
 				branch,
 				lib => lib.attachAtomic,
-				(fn, lib) => fn.call(lib, atomicTranslated, branch, ref));
+				(fn, lib) => fn.call(lib, atomic, branch, ref));
 		}
 		
 		/**
