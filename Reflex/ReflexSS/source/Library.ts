@@ -214,16 +214,12 @@ namespace Reflex.SS
 						else owner.selectorFragments.push(atomic);
 					}
 				}
-				else if (atomic instanceof Command)
-				{
-					owner.declarations.push(atomic);
-				}
 				else if (atomic instanceof Rule)
 				{
 					// Nested rule
 					// This wouldn't actually happen, because 
 					// the ss() function returns a string, not a rule.
-					debugger;
+					throw new Error("Internal error.");
 				}
 			}
 		}

@@ -42,6 +42,12 @@ namespace Reflex.SS
 			this.hypenatedName = chars.join("");
 		}
 		
+		/** */
+		atomize(destination: Rule)
+		{
+			destination.declarations.push(this);
+		}
+		
 		/**
 		 * Stores the name of the call in it's hypenated format,
 		 * for example, "text-align".
