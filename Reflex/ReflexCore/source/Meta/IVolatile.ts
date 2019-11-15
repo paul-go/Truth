@@ -13,6 +13,6 @@ namespace Reflex.Core
 		 * applied to the branch passed in through the 
 		 * `destination` argument.
 		 */
-		atomize(destination: B): Atom<B, L, X>;
+		atomize(branch: B, children: (B | L)[]): Atom<B, L, X>;
 	}
 }

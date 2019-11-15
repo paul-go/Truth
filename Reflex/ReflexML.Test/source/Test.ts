@@ -568,20 +568,22 @@ namespace Reflex.ML.Test
 		{
 			constructor(private readonly content: string) { }
 			
-			atomize(destination: HTMLElement)
+			atomize(e: HTMLElement, children: HTMLElement[])
 			{
 				return [
 					ml(this.content),
 					ml.br(),
 					ml(
 						"Passed in destination should be an HTMLElement, and it is: " +
-						destination.constructor.name)
+						e.constructor.name)
 				]
 			}
 		}
 		
 		return ml.div(
-			new CustomVolatile("Atomized!")
+			() => ml.div(ml`Should be before.`),
+			new CustomVolatile("Atomized!"),
+			() => ml.div(ml`Should be after.`),
 		);
 	}
 	

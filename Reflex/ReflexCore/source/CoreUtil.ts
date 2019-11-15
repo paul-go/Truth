@@ -43,9 +43,6 @@ namespace Reflex.Core
 				
 				else if (this.hasSymbol && atom[Symbol.iterator])
 					atoms.splice(i--, 1, ...Array.from(atom));
-				
-				else if (this.isVolatile(atom))
-					atoms[i--] = atom.atomize(containerBranch);
 			}
 			
 			const metas: Meta[] = [];
@@ -73,6 +70,9 @@ namespace Reflex.Core
 							atom));
 					}
 				}
+				else if (this.isVolatile(atom))
+					metas.push(new ClosureMeta(this.createClosureForVolatile(atom)));
+				
 				else if (typeOf === "function")
 					metas.push(new ClosureMeta(atom));
 				
@@ -148,6 +148,15 @@ namespace Reflex.Core
 				return false;
 			
 			return typeof (<IVolatile>object).atomize === "function";
+		}
+		
+		/**
+		 * Creates a temporary closure function for the
+		 * specified Volatile object.
+		 */
+		private createClosureForVolatile(v: IVolatile)
+		{
+			return (branch: object, children: any[]) => v.atomize(branch, children);
 		}
 		
 		/**
