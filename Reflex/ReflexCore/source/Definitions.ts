@@ -121,16 +121,6 @@ declare namespace Reflex.Core
 	export type RecurrentCallback<T extends Atomic = Atomic> = (...args: any[]) => T;
 	
 	/**
-	 * 
-	 */
-	export type ObjectForce<T> = {
-		[P in keyof T]:
-			T[P] extends (string | number | bigint | boolean | null) ? StatefulForce<T[P]> :
-			T[P] extends Array<infer U> ? ArrayForce<U> :
-			T[P];
-	}
-	
-	/**
 	 * A mapped type that extracts the names of the methods and
 	 * function-valued fields out of the specified type.
 	 */

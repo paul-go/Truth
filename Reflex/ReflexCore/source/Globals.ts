@@ -1,106 +1,47 @@
 
 /**
- * 
+ * Returns a force function that remotely triggers some behavior when invoked.
  */
 function force(): () => void;
 /**
- * 
+ * Returns a StatelessForce that remotely triggers some behavior when the
+ * internal value is changed.
  */
 function force<F extends Reflex.Core.StatelessForce = () => void>(): F;
 /**
- * 
+ * Returns a BooleanForce object that remotely triggers some behavior
+ * when the internal boolean value is changed.
  */
 function force(initialValue: boolean): Reflex.Core.BooleanForce;
 /**
- * 
- */
-function force(initialValue: string): Reflex.Core.StatefulForce<string>;
-/**
- * 
- */
-function force(initialValue: number): Reflex.Core.StatefulForce<number>;
-/**
- * 
- */
-function force(initialValue: bigint): Reflex.Core.StatefulForce<bigint>;
-/**
- * 
+ * Returns an ArrayForce object that remotely triggers some behavior
+ * when the array is modified.
  */
 function force<T>(backingArray: T[]): Reflex.Core.ArrayForce<T>;
 /**
- * Returns an observable proxy of the specified source object.
+ * Returns a StatelessForce object that remotely triggers some
+ * behavior when the internal object value is changed.
  */
-function force<T>(backingObject: T): Reflex.Core.ObjectForce<T>;
-function force(initialValue?: any)
+function force<T extends {}>(initialValue: T): Reflex.Core.StatefulForce<T>;
+function force(val?: any)
 {
-	const tryCreateSingle = (val: any) =>
-	{
-		if (val === undefined || val === null)
-			return Reflex.Core.ForceUtil.createFunction();
-		
-		if (typeof val === "boolean")
-			return new Reflex.Core.BooleanForce(val);
-		
-		if (typeof val === "string" || typeof val === "bigint")
-			return new Reflex.Core.StatefulForce(val);
-		
-		if (typeof val === "number")
-			return new Reflex.Core.StatefulForce(val || 0);
-		
-		if (Array.isArray(val))
-			return Reflex.Core.ArrayForce.create(val);
-		
-		return null;
-	};
+	if (val === undefined || val === null)
+		return Reflex.Core.ForceUtil.createFunction();
 	
-	const single = tryCreateSingle(initialValue);
-	if (single !== null)
-		return single;
+	if (typeof val === "boolean")
+		return new Reflex.Core.BooleanForce(val);
 	
-	const backing: { [key: string]: object; } = {};
+	if (typeof val === "string" || typeof val === "bigint")
+		return new Reflex.Core.StatefulForce(val);
 	
-	for (const key in initialValue)
-	{
-		// Skip past any private properties
-		if (key.startsWith("_"))
-			continue;
-		
-		const value = initialValue[key];
-		
-		// We can't deal with anything that starts as null or undefined
-		if (value === undefined || value === null || typeof value === "function")
-			continue;
-		
-		const single = tryCreateSingle(value);
-		if (single !== null)
-			backing[key] = single;
-	}
+	if (typeof val === "number")
+		return new Reflex.Core.StatefulForce(val || 0);
 	
-	return new Proxy(initialValue, {
-		get: (target: any, property: string) =>
-		{
-			if (property in backing)
-				return backing[property];
-			
-			return target[property];
-		},
-		set: (target: any, property: string, value: any) =>
-		{
-			if (property in backing)
-			{
-				const targetVal = backing[property];
-				
-				if (targetVal instanceof Reflex.Core.StatefulForce)
-					targetVal.value = value;
-				
-				else if (targetVal instanceof Reflex.Core.ArrayForce)
-					throw new Error("Re-assignment of arrays is not implemented.");
-				
-				else throw new Error("Unknown error.");
-			}
-			else target[property] = value;
-			
-			return true;
-		}
-	});
+	if (typeof val === "object" || typeof val === "symbol")
+		return new Reflex.Core.StatefulForce(val);
+	
+	if (Array.isArray(val))
+		return Reflex.Core.ArrayForce.create(val);
+	
+	throw new Error("Cannot create a force from this value.");
 }
