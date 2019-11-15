@@ -38,7 +38,7 @@ infinite("this").wont.generate("an", "error")
 
 Such a programming API when used in pure JavaScript would be almost comically unmanageable. However, TypeScript type definitions can be used to block off the areas where the user shouldn't be allowed to go.
 
-Unbounded objects allow for vast amounts of glue-code to be eliminated from the deployment bundle, and moved into the set of code that is only run during development. For example, the ReflexML library uses this technique to provide type-safe access to the entire HTML DOM (all elements and their associated attributes), without any of this actually being present in the compiled JavaScript. In fact, the entire ReflexML library is a mere **2.5KB** (gzipped + minified). However, the full version that includes all the TypeScript definitions is much larger.
+Unbounded objects allow for vast amounts of glue-code to be eliminated from the deployment bundle, and moved into the set of code that is only run during development. For example, the ReflexML library uses this technique to provide type-safe access to the entire HTML DOM (all elements and their associated attributes), without any of this actually being present in the compiled JavaScript. In fact, the entire ReflexML library is a mere **10.5KB** (gzipped + minified). However, the full version that includes all the TypeScript definitions is much larger.
 
 ## The Reflexive Pattern Applied To Web Interfaces
 
