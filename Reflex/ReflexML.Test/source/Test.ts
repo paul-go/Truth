@@ -33,11 +33,11 @@ namespace Reflex.ML.Test
 			testRefreshMultipleForces,
 			testArrayForces,
 			testStatefulForces,
-			testComplexForces,
-			testValueBinding
-			///testProxyObjects,
+			testValueBinding,
+			testVolatileTypes
 			
 			// These don't need to be uncommented for now
+			// Mutations are probably going to get axed
 			
 			///testMutationWatcher,
 			///testHeadElements,
@@ -533,42 +533,6 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testComplexForces()
-	{
-		class Person
-		{
-			greet()
-			{
-				alert("Hello " + this.name);
-			}
-			
-			name = "Paul";
-			numbers = [Math.random()];
-		}
-
-		const person = force(new Person());
-
-		return ml.div(
-			on(person.greet, () =>
-			{
-				//alert("Intercepting greet() call");
-			}),
-			ml.button(
-				ml`Add Number`,
-				on("click", () =>
-				{
-					//person.greet();
-					person.numbers.push(Math.random());
-				})
-			),
-			ml`${person.name}'s numbers:`,
-			ml.ul(
-				on(person.numbers, num => ml.li(ml` ${num} `))
-			)
-		);
-	}
-	
-	/** */
 	function testValueBinding()
 	{
 		const backing = force("Change this text");
@@ -596,51 +560,31 @@ namespace Reflex.ML.Test
 		
 		return ml.div(...array);
 	}
-
+	
 	/** */
-	function testProxyObjects()
+	function testVolatileTypes()
 	{
-		class NestedObject
+		class CustomVolatile
 		{
-			value = makeString();
+			constructor(private readonly content: string) { }
+			
+			atomize(destination: HTMLElement)
+			{
+				return [
+					ml(this.content),
+					ml.br(),
+					ml(
+						"Passed in destination should be an HTMLElement, and it is: " +
+						destination.constructor.name)
+				]
+			}
 		}
-		
-		class DataObject
-		{
-			str = makeString();
-			num = makeNumber();
-			bool = false;
-			array = [new NestedObject()];
-		}
-		
-		const proxy = force(new DataObject());
 		
 		return ml.div(
-			ml.div(
-				ml`Click to change string value`,
-				on("click", ev => proxy.str.set(makeString()))
-			),
-			ml.div("dark", ml(proxy.str)),
-			
-			ml.div(
-				ml`Click to change number value`,
-				on("click", ev => proxy.num.set(makeNumber()))
-			),
-			ml.div("dark", ml(proxy.num)),
-			
-			ml.div( 
-				ml`Click to add more elements`,
-				on("click", ev => void proxy.array.push(new NestedObject()))
-			),
-			ml.div(
-				///ml.sync(proxy.array, item =>
-				///{
-				///	return ml.div(ml(item.value));
-				///})
-			)
+			new CustomVolatile("Atomized!")
 		);
 	}
-
+	
 	/** * /
 	function testMutationWatcher()
 	{

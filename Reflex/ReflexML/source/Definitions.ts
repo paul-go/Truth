@@ -384,9 +384,12 @@ declare namespace Reflex.ML
 	export type Leaf = Text;
 	export type Atomic = Core.Atomic<Branch, Leaf, string>;
 	
-	/** Atomize typings for Reflex.ML */
-	export interface IVolatile extends Core.IVolatile<Branch, Leaf> { }
-	export interface IAtomizeInfo extends Core.IAtomizeInfo<Branch, Leaf> { }
+	/**
+	 * Custom volatile types that atomize via ReflexML should implement
+	 * this interface (explicitly or implicitly), rather than using the equivalent
+	 * interface as defined in Reflex Core.
+	 */
+	export interface IVolatile extends Core.IVolatile<Branch, Leaf, string> { }
 	
 	export interface Namespace extends Core.ILeafNamespace<Text>
 	{
