@@ -144,7 +144,7 @@ namespace Reflex.Core
 		 */
 		isVolatile(object: any): object is IVolatile
 		{
-			if (!object || typeof object !== "object")
+			if (!object || (typeof object !== "object" && typeof object !== "function"))
 				return false;
 			
 			return typeof (<IVolatile>object).atomize === "function";
