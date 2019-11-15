@@ -76,7 +76,7 @@ namespace Reflex.Core
 				// doesn't have a relevant return value.
 				if (wasMetas.length > 0 || p !== undefined && p !== null)
 				{
-					const nowMetas = CoreUtil.translateAtomics(this, containerMeta, p);
+					const nowMetas = CoreUtil.translateAtoms(this, containerMeta, p);
 					
 					if (self.when)
 						self.when(wasMetas, nowMetas, this);
@@ -189,7 +189,7 @@ namespace Reflex.Core
 		detachRecurrents(
 			branch: IBranch,
 			selector: any,
-			systemCallback: RecurrentCallback<Atomic>)
+			systemCallback: RecurrentCallback<Atom>)
 		{
 			const lib = RoutingLibrary.this;
 			

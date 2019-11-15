@@ -3,7 +3,7 @@ namespace Reflex.SS
 {
 	export type Branch = Rule;
 	export type Leaf = Command;
-	export type Atomic = Core.Atomic<Branch, Leaf, string>;
+	export type Atom = Core.Atom<Branch, Leaf, string>;
 	
 	/**
 	 * Top-level value for all possible inputs
@@ -14,7 +14,7 @@ namespace Reflex.SS
 	/**
 	 * Creates a namespace.
 	 */
-	export interface Namespace extends Core.IBranchNamespace<Atomic, string>
+	export interface Namespace extends Core.IBranchNamespace<Atom, string>
 	{
 		/**
 		 * Serializes all generated CSS content into a string.
@@ -181,40 +181,40 @@ namespace Reflex.SS
 		}
 		
 		/** */
-		attachAtomic(
-			atomic: any,
+		attachAtom(
+			atom: any,
 			owner: Branch,
 			ref: Node | "prepend" | "append")
 		{
 			if (owner instanceof Rule)
 			{
-				if (typeof atomic === "number")
+				if (typeof atom === "number")
 				{
-					const nth = Math.floor(atomic);
+					const nth = Math.floor(atom);
 					owner.selectorFragments.push(nth < 0 ?
 						`:nth-last-child(${nth * -1})` :
 						`:nth-child(${nth - 1})`);
 				}
-				else if (typeof atomic === "string")
+				else if (typeof atom === "string")
 				{
-					if (atomic === Priority.low ||
-						atomic === Priority.default ||
-						atomic === Priority.high)
+					if (atom === Priority.low ||
+						atom === Priority.default ||
+						atom === Priority.high)
 					{
-						owner.priority = atomic;
+						owner.priority = atom;
 					}
 					else
 					{
-						const existingRule = this.fauxSheet.get(atomic);
+						const existingRule = this.fauxSheet.get(atom);
 						if (existingRule)
 						{
 							existingRule.containers.push(owner);
 							owner.children.push(existingRule);
 						}
-						else owner.selectorFragments.push(atomic);
+						else owner.selectorFragments.push(atom);
 					}
 				}
-				else if (atomic instanceof Rule)
+				else if (atom instanceof Rule)
 				{
 					// Nested rule
 					// This wouldn't actually happen, because 
@@ -225,7 +225,7 @@ namespace Reflex.SS
 		}
 		
 		/** */
-		detachAtomic()
+		detachAtom()
 		{
 			throw new Error("Not implemented.");
 		}
@@ -257,9 +257,9 @@ namespace Reflex.SS
 		/** */
 		handleBranchFunction(
 			branch: Reflex.Core.IBranch, 
-			branchFn: (...atomics: any[]) => Reflex.Core.IBranch)
+			branchFn: (...atoms: any[]) => Reflex.Core.IBranch)
 		{
-			this.attachAtomic(
+			this.attachAtom(
 				" " + branchFn.name.toUpperCase(),
 				<Branch>branch,
 				"append");

@@ -133,26 +133,26 @@ namespace Reflex.Core
 		/**
 		 * 
 		 */
-		attachAtomic(
-			atomic: any,
+		attachAtom(
+			atom: any,
 			branch: IBranch,
 			ref: Ref)
 		{
 			this.route(
 				branch,
-				lib => lib.attachAtomic,
-				(fn, lib) => fn.call(lib, atomic, branch, ref));
+				lib => lib.attachAtom,
+				(fn, lib) => fn.call(lib, atom, branch, ref));
 		}
 		
 		/**
 		 * 
 		 */
-		detachAtomic(atomic: any, branch: IBranch)
+		detachAtom(atom: any, branch: IBranch)
 		{
 			this.route(
 				branch,
-				lib => lib.detachAtomic,
-				(fn, lib) => fn.call(lib, atomic, branch));
+				lib => lib.detachAtom,
+				(fn, lib) => fn.call(lib, atom, branch));
 		}
 		
 		/**
@@ -214,7 +214,7 @@ namespace Reflex.Core
 			kind: RecurrentKind,
 			target: IBranch,
 			selector: any,
-			callback: RecurrentCallback<Atomic>,
+			callback: RecurrentCallback<Atom>,
 			rest: any[])
 		{
 			return this.route(
@@ -231,7 +231,7 @@ namespace Reflex.Core
 		detachRecurrent(
 			branch: IBranch,
 			selector: any,
-			callback: RecurrentCallback<Atomic>)
+			callback: RecurrentCallback<Atom>)
 		{
 			return this.route(
 				branch,
@@ -243,11 +243,11 @@ namespace Reflex.Core
 		/**
 		 * Reflexive libraries can implement this function in order
 		 * to capture the flow of branches being passed as
-		 * atomics to other branch functions.
+		 * atoms to other branch functions.
 		 */
 		handleBranchFunction(
 			branch: IBranch,
-			branchFn: (...atomics: any[]) => IBranch)
+			branchFn: (...atoms: any[]) => IBranch)
 		{
 			return this.route(
 				branch,

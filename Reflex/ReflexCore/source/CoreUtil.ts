@@ -8,89 +8,89 @@ namespace Reflex.Core
 	export const CoreUtil = new class CoreUtil
 	{
 		/**
-		 * Cleans out the cruft from the atomics array,
+		 * Cleans out the cruft from the atoms array,
 		 * flattens all arrays, and converts the resulting
 		 * values into Meta instances.
 		 */
-		translateAtomics(
+		translateAtoms(
 			containerBranch: IBranch,
 			containerMeta: ContainerMeta,
-			rawAtomics: unknown)
+			rawAtoms: unknown)
 		{
-			const atomics = Array.isArray(rawAtomics) ?
-				rawAtomics.slice() :
-				[rawAtomics];
+			const atoms = Array.isArray(rawAtoms) ?
+				rawAtoms.slice() :
+				[rawAtoms];
 			
-			for (let i = -1; ++i < atomics.length;)
+			for (let i = -1; ++i < atoms.length;)
 			{
-				const atomic = atomics[i];
+				const atom = atoms[i];
 				
 				// Initial clear out of discarded values.
-				if (atomic === null || 
-					atomic === undefined || 
-					typeof atomic === "boolean" ||
-					atomic === "" || 
-					atomic !== atomic || 
-					atomic === containerBranch)
-					atomics.splice(i--, 1);
+				if (atom === null || 
+					atom === undefined || 
+					typeof atom === "boolean" ||
+					atom === "" || 
+					atom !== atom || 
+					atom === containerBranch)
+					atoms.splice(i--, 1);
 				
 				// strings, numbers, and bigints are passed through verbatim in this phase.
-				else if (typeof atomic !== "object")
+				else if (typeof atom !== "object")
 					continue;
 				
-				else if (Array.isArray(atomic))
-					atomics.splice(i--, 1, ...atomic);
+				else if (Array.isArray(atom))
+					atoms.splice(i--, 1, ...atom);
 				
-				else if (this.hasSymbol && atomic[Symbol.iterator])
-					atomics.splice(i--, 1, ...Array.from(atomic));
+				else if (this.hasSymbol && atom[Symbol.iterator])
+					atoms.splice(i--, 1, ...Array.from(atom));
 				
-				else if (this.isVolatile(atomic))
-					atomics[i--] = atomic.atomize(containerBranch);
+				else if (this.isVolatile(atom))
+					atoms[i--] = atom.atomize(containerBranch);
 			}
 			
 			const metas: Meta[] = [];
 			
-			for (let i = -1; ++i < atomics.length;)
+			for (let i = -1; ++i < atoms.length;)
 			{
-				const atomic = atomics[i];
-				const typeOf = typeof atomic;
+				const atom = atoms[i];
+				const typeOf = typeof atom;
 				
-				if (atomic instanceof Meta)
-					metas.push(atomic);
+				if (atom instanceof Meta)
+					metas.push(atom);
 				
-				else if (atomic instanceof Recurrent)
+				else if (atom instanceof Recurrent)
 				{
-					if (atomic.selector instanceof ArrayForce)
+					if (atom.selector instanceof ArrayForce)
 					{
 						metas.push(new ArrayStreamMeta(
 							containerMeta,
-							atomic));
+							atom));
 					}
 					else
 					{
 						metas.push(new RecurrentStreamMeta(
 							containerMeta,
-							atomic));
+							atom));
 					}
 				}
 				else if (typeOf === "function")
-					metas.push(new ClosureMeta(atomic));
+					metas.push(new ClosureMeta(atom));
 				
 				else if (
 					typeOf === "string" ||
 					typeOf === "number" ||
 					typeOf === "bigint")
-					metas.push(new ValueMeta(atomic));
+					metas.push(new ValueMeta(atom));
 				
-				else if (this.isAsyncIterable(atomic))
-					metas.push(new AsyncIterableStreamMeta(containerMeta, atomic));
+				else if (this.isAsyncIterable(atom))
+					metas.push(new AsyncIterableStreamMeta(containerMeta, atom));
 				
-				else if (atomic instanceof Promise)
-					metas.push(new PromiseStreamMeta(containerMeta, atomic));
+				else if (atom instanceof Promise)
+					metas.push(new PromiseStreamMeta(containerMeta, atom));
 				
-				else if (this.isAttributes(atomic))
+				else if (this.isAttributes(atom))
 				{
-					for (const [k, v] of Object.entries(atomic))
+					for (const [k, v] of Object.entries(atom))
 					{
 						if (v instanceof StatefulForce)
 						{
@@ -104,13 +104,13 @@ namespace Reflex.Core
 				else
 				{
 					const existingMeta = 
-						BranchMeta.of(atomic) ||
-						LeafMeta.of(atomic);
+						BranchMeta.of(atom) ||
+						LeafMeta.of(atom);
 					
 					if (existingMeta)
 						metas.push(existingMeta);
 					
-					// This error occurs when something was passed as a atomic 
+					// This error occurs when something was passed as a atom 
 					// to a branch function, and neither the Reflex core, or any of
 					// the connected Reflexive libraries know what to do with it.
 					else throw new Error("Unidentified flying object.");
@@ -201,13 +201,13 @@ namespace Reflex.Core
 					{
 						lib.handleBranchFunction(
 							containingBranch, 
-							<(...atomics: any[]) => IBranch>meta.closure);
+							<(...atoms: any[]) => IBranch>meta.closure);
 					}	
 					else
 					{
 						const children = lib.getChildren(containingBranch);
 						const closureReturn = meta.closure(containingBranch, children);
-						const metasReturned = this.translateAtomics(
+						const metasReturned = this.translateAtoms(
 							containingBranch,
 							containingBranchMeta,
 							closureReturn);
@@ -227,18 +227,18 @@ namespace Reflex.Core
 				if (meta instanceof BranchMeta)
 				{
 					const hardRef = tracker.getLastHardRef();
-					lib.attachAtomic(meta.branch, containingBranch, hardRef);
+					lib.attachAtom(meta.branch, containingBranch, hardRef);
 					tracker.update(meta.branch);
 				}
 				else if (meta instanceof LeafMeta)
 				{
 					const hardRef = tracker.getLastHardRef();
-					lib.attachAtomic(meta.value, containingBranch, hardRef);
+					lib.attachAtom(meta.value, containingBranch, hardRef);
 					tracker.update(meta.value);
 				}
 				else if (meta instanceof ValueMeta)
 				{
-					lib.attachAtomic(meta.value, containingBranch, "append");
+					lib.attachAtom(meta.value, containingBranch, "append");
 				}
 				else if (meta instanceof StreamMeta)
 				{
@@ -286,7 +286,7 @@ namespace Reflex.Core
 					continue;
 				
 				if (meta instanceof LeafMeta || meta instanceof ValueMeta)
-					lib.detachAtomic(meta.value, containingBranch);
+					lib.detachAtom(meta.value, containingBranch);
 				
 				else if (meta instanceof AttributeMeta)
 					lib.detachAttribute(containingBranch, meta.value);
@@ -296,7 +296,7 @@ namespace Reflex.Core
 					// You would be able to re-discover the branch by
 					// enumerating through the children of containingBranch,
 					// using the getChildren() method provided by the library.
-					lib.detachAtomic(meta.branch, containingBranch);
+					lib.detachAtom(meta.branch, containingBranch);
 				
 				else if (meta instanceof RecurrentStreamMeta)
 					meta.detachRecurrents(
