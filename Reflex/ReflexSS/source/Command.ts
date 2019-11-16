@@ -43,7 +43,7 @@ namespace Reflex.SS
 		}
 		
 		/** */
-		atomize(destination: Rule)
+		[Reflex.atom](destination: Rule)
 		{
 			destination.declarations.push(this);
 		}

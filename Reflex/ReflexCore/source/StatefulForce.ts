@@ -1,5 +1,5 @@
 
-namespace Reflex.Core
+namespace Reflex
 {
 	/**
 	 * A class that wraps a value whose changes can be observed.

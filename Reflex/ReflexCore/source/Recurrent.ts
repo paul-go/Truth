@@ -1,6 +1,8 @@
 
-namespace Reflex.Core
+namespace Reflex
 {
+	const autorunCache = new WeakMap<Recurrent, any[]>();
+	
 	/**
 	 * Manages the responsibilities of a single call to on() or only().
 	 */
@@ -10,7 +12,7 @@ namespace Reflex.Core
 		 * 
 		 */
 		constructor(
-			readonly kind: RecurrentKind,
+			readonly kind: Core.RecurrentKind,
 			readonly selector: any,
 			readonly userCallback: RecurrentCallback<Atom>,
 			readonly userRestArgs: any[] = [])
@@ -40,49 +42,50 @@ namespace Reflex.Core
 		private recurrentNominal: undefined;
 	}
 	
-	/**
-	 * @internal
-	 * A class that deals with the special case of a Force that
-	 * was plugged into an attribute.
-	 */
-	export class AttributeRecurrent extends Recurrent
+	export namespace Core
 	{
-		constructor(
-			attributeKey: string,
-			force: StatefulForce)
+		/**
+		 * @internal
+		 * A class that deals with the special case of a Force that
+		 * was plugged into an attribute.
+		 */
+		export class AttributeRecurrent extends Recurrent
 		{
-			super(
-				RecurrentKind.on, 	
-				force,
-				((now: any) => new AttributeMeta(attributeKey, now)));
-			
-			autorunCache.set(this, []);
+			constructor(
+				attributeKey: string,
+				force: StatefulForce)
+			{
+				super(
+					RecurrentKind.on, 	
+					force,
+					((now: any) => new AttributeMeta(attributeKey, now)));
+				
+				autorunCache.set(this, []);
+			}
 		}
-	}
-	
-	/**
-	 * @internal
-	 * Extracts the autorun arguments from the internal cache.
-	 * Can only be executed once.
-	 */
-	export function extractAutorunArguments(recurrent: Recurrent)
-	{
-		const args = autorunCache.get(recurrent) || null;
-		if (args)
-			autorunCache.delete(recurrent);
 		
-		return args;
-	}
-	
-	const autorunCache = new WeakMap<Recurrent, any[]>();
-	
-	/**
-	 * 
-	 */
-	export const enum RecurrentKind
-	{
-		on,
-		once,
-		only
+		/**
+		 * @internal
+		 * Extracts the autorun arguments from the internal cache.
+		 * Can only be executed once.
+		 */
+		export function extractAutorunArguments(recurrent: Recurrent)
+		{
+			const args = autorunCache.get(recurrent) || null;
+			if (args)
+				autorunCache.delete(recurrent);
+			
+			return args;
+		}
+		
+		/**
+		 * 
+		 */
+		export const enum RecurrentKind
+		{
+			on,
+			once,
+			only
+		}
 	}
 }

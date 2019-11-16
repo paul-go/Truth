@@ -36,7 +36,7 @@ namespace Reflex.ML
 				 * HTMLInputElement, otherwise, the .textContent property is used.
 				 */
 				bind<T extends string | number | bigint | Text>(
-					statefulForce: Reflex.Core.StatefulForce<T>): (e: HTMLElement) => any
+					statefulForce: Reflex.StatefulForce<T>): (e: HTMLElement) => any
 				{
 					const assign = (value: string | null) =>
 					{
@@ -64,7 +64,7 @@ namespace Reflex.ML
 								on("input", () => assign(e.value)).run()
 							] :
 							[
-								ml(<Reflex.Core.StatefulForce>statefulForce),
+								ml(<Reflex.StatefulForce>statefulForce),
 								on("input", () => assign(e.textContent)).run()
 							];
 				}
@@ -188,7 +188,7 @@ namespace Reflex.ML
 			kind: Reflex.Core.RecurrentKind,
 			target: Reflex.Core.IBranch,
 			selector: any,
-			callback: Reflex.Core.RecurrentCallback,
+			callback: Reflex.RecurrentCallback,
 			rest: any[])
 		{
 			if (typeof selector !== "string")
@@ -208,7 +208,7 @@ namespace Reflex.ML
 		detachRecurrent(
 			target: Reflex.Core.IBranch,
 			selector: any,
-			callback: Reflex.Core.RecurrentCallback)
+			callback: Reflex.RecurrentCallback)
 		{
 			if (target instanceof HTMLElement)
 				if (typeof selector === "string")

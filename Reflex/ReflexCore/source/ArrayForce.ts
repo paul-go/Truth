@@ -1,20 +1,24 @@
 
-namespace Reflex.Core
+namespace Reflex
 {
 	type SortFunction<T = any> = (a: T, b: T) => number;
 	type FilterFunction<T = any> = (value: T, index: number, array: T[]) => boolean;
 	
+	/**
+	 * 
+	 */
 	export class ArrayForce<T> implements Array<T>
 	{
 		/** */
 		static create<T>(items: T[])
 		{
-			const store = new ArrayStore<T>();
+			const store = new Core.ArrayStore<T>();
 			const view = new ArrayForce(store);
 			view.push(...items);
 			return view.proxy();
 		}
 		
+		/** */
 		[n: number]: T;
 		
 		readonly added = force<(item: T, position: number) => void>();
@@ -26,30 +30,32 @@ namespace Reflex.Core
 		readonly positions: number[] = [];
 		
 		/** */
-		readonly root: ArrayStore<T>;
+		readonly root: Core.ArrayStore<T>;
 		
 		/** */
-		constructor(root: ArrayStore<T> | ArrayForce<T>) 
+		constructor(root: Core.ArrayStore<T> | ArrayForce<T>) 
 		{
-			if (root instanceof ArrayStore)
+			if (root instanceof Core.ArrayStore)
 			{	
 				this.root = root;
 			}
 			else 
 			{
 				this.root = root.root;
-				ForceUtil.attachForce(root.added, (item: T, index: number) =>
+				
+				Core.ForceUtil.attachForce(root.added, (item: T, index: number) =>
 				{
 					this.insertRef(index, root.positions[index]);
 				});
-				ForceUtil.attachForce(root.removed, (item: T, index: number, id: number) =>
+				
+				Core.ForceUtil.attachForce(root.removed, (item: T, index: number, id: number) =>
 				{
 					const loc = this.positions.indexOf(id);
 					if (loc > -1) 
 						this.splice(loc, 1);
 				});
 			}
-			ForceUtil.attachForce(this.root.changed, () => 
+			Core.ForceUtil.attachForce(this.root.changed, () => 
 			{
 				this.executeFilter();
 				this.executeSort();
@@ -316,7 +322,7 @@ namespace Reflex.Core
 			array.sortFn = compareFn;
 			
 			for (const fo of forces)
-				ForceUtil.attachForce(
+				Core.ForceUtil.attachForce(
 					fo instanceof StatefulForce ?
 						fo.changed : fo, array.executeSort
 				);
@@ -392,7 +398,7 @@ namespace Reflex.Core
 			
 			for (const fo of forces)
 			{
-				ForceUtil.attachForce(fo instanceof StatefulForce ? fo.changed : fo, () => 
+				Core.ForceUtil.attachForce(fo instanceof StatefulForce ? fo.changed : fo, () => 
 				{
 					array.executeFilter();
 					this.positions.forEach((x, i) => 

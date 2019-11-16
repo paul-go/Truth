@@ -40,7 +40,7 @@ namespace Reflex.Core
 	 */
 	export class ValueMeta extends StemMeta
 	{
-		constructor(readonly value: string | number | bigint | IVolatile)
+		constructor(readonly value: string | number | bigint)
 		{
 			super();
 		}

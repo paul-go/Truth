@@ -7,7 +7,7 @@
 declare function on<K extends keyof HTMLElementEventMap>(
 	events: K | K[],
 	callback: (ev: HTMLElementEventMap[K], e: HTMLElement) => Reflex.ML.Atom,
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -15,7 +15,7 @@ declare function on<K extends keyof HTMLElementEventMap>(
 declare function on(
 	forces: (() => void) | (() => void)[],
 	callback: (e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -23,7 +23,7 @@ declare function on(
 declare function on<A1>(
 	forces: ((a1: A1) => void) | ((a1: A1) => void)[],
 	callback: (a1: A1, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent<[A1]>;
+): Reflex.Recurrent<[A1]>;
 
 /**
  * 
@@ -31,7 +31,7 @@ declare function on<A1>(
 declare function on<A1, A2>(
 	forces: ((a1: A1, a2: A2) => void) | ((a1: A1, a2: A2) => void)[],
 	callback: (a1: A1, a2: A2, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent<[A1, A2]>;
+): Reflex.Recurrent<[A1, A2]>;
 
 /**
  * 
@@ -39,7 +39,7 @@ declare function on<A1, A2>(
 declare function on<A1, A2, A3>(
 	forces: ((a1: A1, a2: A2, a3: A3) => void) | ((a1: A1, a2: A2, a3: A3) => void)[],
 	callback: (a1: A1, a2: A2, a3: A3, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent<[A1, A2, A3]>;
+): Reflex.Recurrent<[A1, A2, A3]>;
 
 /**
  * 
@@ -47,7 +47,7 @@ declare function on<A1, A2, A3>(
 declare function on<A1, A2, A3, A4>(
 	forces: ((a1: A1, a2: A2, a3: A3, a4: A4) => void) | ((a1: A1, a2: A2, a3: A3, a4: A4) => void)[],
 	callback: (a1: A1, a2: A2, a3: A3, a4: A4, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent<[A1, A2, A3, A4]>;
+): Reflex.Recurrent<[A1, A2, A3, A4]>;
 
 /**
  * 
@@ -55,23 +55,23 @@ declare function on<A1, A2, A3, A4>(
 declare function on<A1, A2, A3, A4, A5>(
 	forces: ((a1: A1, a2: A2, a3: A3, a4: A4, a5: A5) => void) | ((a1: A1, a2: A2, a3: A3, a4: A4, a5: A5) => void)[],
 	callback: (a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent<[A1, A2, A3, A4, A5]>;
+): Reflex.Recurrent<[A1, A2, A3, A4, A5]>;
 
 /**
  * 
  */
 declare function on<T>(
-	forces: Reflex.Core.StatefulForce<T> | Reflex.Core.StatefulForce<T>[],
+	forces: Reflex.StatefulForce<T> | Reflex.StatefulForce<T>[],
 	callback: (now: T, was: T, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
  */
 declare function on<T>(
-	array: Reflex.Core.ArrayForce<T>,
+	array: Reflex.ArrayForce<T>,
 	renderFn: (item: T, e: HTMLElement, index: number) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -79,7 +79,7 @@ declare function on<T>(
 declare function on(
 	mutationEvent: Reflex.mutation,
 	callback: (kind: Reflex.mutation, node: HTMLElement | Text) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -89,7 +89,7 @@ declare function on(
 	callback: (
 		kind: Reflex.mutation.branchAdd | Reflex.mutation.branchRemove,
 		e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -97,7 +97,7 @@ declare function on(
 declare function on(
 	mutationEvent: Reflex.mutation.branchAdd,
 	callback: (e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -105,7 +105,7 @@ declare function on(
 declare function on(
 	mutationEvent: Reflex.mutation.branchRemove,
 	callback: (e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -115,7 +115,7 @@ declare function on(
 	callback: (
 		kind: Reflex.mutation.leafAdd | Reflex.mutation.leafRemove,
 		text: Text) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -123,7 +123,7 @@ declare function on(
 declare function on(
 	mutationEvent: Reflex.mutation.leafAdd,
 	callback: (text: Text) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -131,7 +131,7 @@ declare function on(
 declare function on(
 	mutationEvent: Reflex.mutation.leafRemove,
 	callback: (text: Text) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * Wraps a function that executes during restoration.
@@ -139,7 +139,7 @@ declare function on(
 declare function on<A extends any[]>(
 	callback: (e: HTMLElement, ...args: A) => Reflex.ML.Atom,
 	...args: A
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 //# once() function declarations
 
@@ -149,7 +149,7 @@ declare function on<A extends any[]>(
 declare function once<K extends keyof HTMLElementEventMap>(
 	events: K | K[],
 	callback: (ev: HTMLElementEventMap[K], e: HTMLElement) => Reflex.ML.Atom,
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -157,7 +157,7 @@ declare function once<K extends keyof HTMLElementEventMap>(
 declare function once(
 	forces: (() => void) | (() => void)[],
 	callback: (e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -165,7 +165,7 @@ declare function once(
 declare function once<A1>(
 	forces: ((a1: A1) => void) | ((a1: A1) => void)[],
 	callback: (a1: A1, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent<[A1]>;
+): Reflex.Recurrent<[A1]>;
 
 /**
  * 
@@ -173,7 +173,7 @@ declare function once<A1>(
 declare function once<A1, A2>(
 	forces: ((a1: A1, a2: A2) => void) | ((a1: A1, a2: A2) => void)[],
 	callback: (a1: A1, a2: A2, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent<[A1, A2]>;
+): Reflex.Recurrent<[A1, A2]>;
 
 /**
  * 
@@ -181,7 +181,7 @@ declare function once<A1, A2>(
 declare function once<A1, A2, A3>(
 	forces: ((a1: A1, a2: A2, a3: A3) => void) | ((a1: A1, a2: A2, a3: A3) => void)[],
 	callback: (a1: A1, a2: A2, a3: A3, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent<[A1, A2, A3]>;
+): Reflex.Recurrent<[A1, A2, A3]>;
 
 /**
  * 
@@ -189,7 +189,7 @@ declare function once<A1, A2, A3>(
 declare function once<A1, A2, A3, A4>(
 	forces: ((a1: A1, a2: A2, a3: A3, a4: A4) => void) | ((a1: A1, a2: A2, a3: A3, a4: A4) => void)[],
 	callback: (a1: A1, a2: A2, a3: A3, a4: A4, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent<[A1, A2, A3, A4]>;
+): Reflex.Recurrent<[A1, A2, A3, A4]>;
 
 /**
  * 
@@ -197,23 +197,23 @@ declare function once<A1, A2, A3, A4>(
 declare function once<A1, A2, A3, A4, A5>(
 	forces: ((a1: A1, a2: A2, a3: A3, a4: A4, a5: A5) => void) | ((a1: A1, a2: A2, a3: A3, a4: A4, a5: A5) => void)[],
 	callback: (a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent<[A1, A2, A3, A4, A5]>;
+): Reflex.Recurrent<[A1, A2, A3, A4, A5]>;
 
 /**
  * 
  */
 declare function once<T>(
-	forces: Reflex.Core.StatefulForce<T> | Reflex.Core.StatefulForce<T>[],
+	forces: Reflex.StatefulForce<T> | Reflex.StatefulForce<T>[],
 	callback: (now: T, was: T, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
  */
 declare function once<T>(
-	forces: Reflex.Core.ArrayForce<T>,
+	forces: Reflex.ArrayForce<T>,
 	renderFn: (item: T) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -221,7 +221,7 @@ declare function once<T>(
 declare function once(
 	event: Reflex.mutation,
 	callback: (kind: Reflex.mutation, node: HTMLElement | Text) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -231,7 +231,7 @@ declare function once(
 	callback: (
 		kind: Reflex.mutation.branchAdd | Reflex.mutation.branchRemove,
 		e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -239,7 +239,7 @@ declare function once(
 declare function once(
 	event: Reflex.mutation.branchAdd,
 	callback: (e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -247,7 +247,7 @@ declare function once(
 declare function once(
 	event: Reflex.mutation.branchRemove,
 	callback: (e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -257,7 +257,7 @@ declare function once(
 	callback: (
 		kind: Reflex.mutation.leafAdd | Reflex.mutation.leafRemove,
 		text: Text) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -265,7 +265,7 @@ declare function once(
 declare function once(
 	event: Reflex.mutation.leafAdd,
 	callback: (text: Text) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -273,7 +273,7 @@ declare function once(
 declare function once(
 	event: Reflex.mutation.leafRemove,
 	callback: (text: Text) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 //# only() function declarations
 
@@ -283,7 +283,7 @@ declare function once(
 declare function only<K extends keyof HTMLElementEventMap>(
 	events: K | K[],
 	callback: (ev: HTMLElementEventMap[K], e: HTMLElement) => Reflex.ML.Atom,
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -291,15 +291,15 @@ declare function only<K extends keyof HTMLElementEventMap>(
 declare function only<A extends any[]>(
 	forces: (...args: A) => void,
 	callback: (...args: A) => Reflex.ML.Atom
-): Reflex.Core.Recurrent<A>;
+): Reflex.Recurrent<A>;
 
 /**
  * 
  */
 declare function only<T>(
-	forces: Reflex.Core.StatefulForce<T> | Reflex.Core.StatefulForce<T>[],
+	forces: Reflex.StatefulForce<T> | Reflex.StatefulForce<T>[],
 	callback: (now: T, was: T, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -307,7 +307,7 @@ declare function only<T>(
 declare function only(
 	event: Reflex.mutation,
 	callback: (kind: Reflex.mutation, node: HTMLElement | Text) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -317,7 +317,7 @@ declare function only(
 	callback: (
 		kind: Reflex.mutation.branchAdd | Reflex.mutation.branchRemove,
 		e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -325,7 +325,7 @@ declare function only(
 declare function only(
 	event: Reflex.mutation.branchAdd,
 	callback: (e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -333,7 +333,7 @@ declare function only(
 declare function only(
 	event: Reflex.mutation.branchRemove,
 	callback: (e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -343,7 +343,7 @@ declare function only(
 	callback: (
 		kind: Reflex.mutation.leafAdd | Reflex.mutation.leafRemove,
 		text: Text) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -351,7 +351,7 @@ declare function only(
 declare function only(
 	event: Reflex.mutation.leafAdd,
 	callback: (text: Text) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * 
@@ -359,7 +359,7 @@ declare function only(
 declare function only(
 	event: Reflex.mutation.leafRemove,
 	callback: (text: Text) => Reflex.ML.Atom
-): Reflex.Core.Recurrent;
+): Reflex.Recurrent;
 
 /**
  * Removes all event handlers from the specified element.
@@ -382,14 +382,14 @@ declare namespace Reflex.ML
 {
 	export type Branch = HTMLElement;
 	export type Leaf = Text;
-	export type Atom = Core.Atom<Branch, Leaf, string>;
+	export type Atom = Reflex.Atom<Branch, Leaf, string>;
 	
 	/**
-	 * Custom volatile types that atomize via ReflexML should implement
+	 * Custom symbolic types that atomize via ReflexML should implement
 	 * this interface (explicitly or implicitly), rather than using the equivalent
 	 * interface as defined in Reflex Core.
 	 */
-	export interface IVolatile extends Core.IVolatile<Branch, Leaf, string> { }
+	export type SymbolicAtom = Reflex.SymbolicAtom<Branch, Leaf, string>;
 	
 	export interface Namespace extends Core.ILeafNamespace<Text>
 	{
@@ -402,7 +402,7 @@ declare namespace Reflex.ML
 		 * Uses the Force's .value property when connected to an
 		 * HTMLInputElement, otherwise, the .textContent property is used.
 		 */
-		bind<T extends string | number | bigint>(statefulForce: Reflex.Core.StatefulForce<T>): void;
+		bind<T extends string | number | bigint>(statefulForce: Reflex.StatefulForce<T>): void;
 		
 		//# HTML Elements
 		

@@ -143,7 +143,7 @@ namespace Reflex.Core
 				if (selectorItem instanceof StatefulForce)
 					ForceUtil.attachForce(selectorItem.changed, this.systemCallback);
 				
-				else if (isForceFunction(selectorItem))
+				else if (isStatelessForce(selectorItem))
 					ForceUtil.attachForce(selectorItem, this.systemCallback);
 				
 				else switch (selectorItem)
@@ -172,7 +172,7 @@ namespace Reflex.Core
 				if (item instanceof StatefulForce)
 					this.invokeAutorunCallback([item.value, item.value], containingBranch);
 				
-				else if (isForceFunction(item))
+				else if (isStatelessForce(item))
 					this.invokeAutorunCallback(autorunArguments, containingBranch);
 				
 				else if (typeof item === "string" && item in Reflex.mutation)

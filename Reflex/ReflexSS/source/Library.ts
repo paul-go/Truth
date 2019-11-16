@@ -3,7 +3,7 @@ namespace Reflex.SS
 {
 	export type Branch = Rule;
 	export type Leaf = Command;
-	export type Atom = Core.Atom<Branch, Leaf, string>;
+	export type Atom = Reflex.Atom<Branch, Leaf, string>;
 	
 	/**
 	 * Top-level value for all possible inputs

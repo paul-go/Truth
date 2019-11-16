@@ -12,16 +12,64 @@ namespace Reflex
 		leafAdd = "mutation-leaf-add",
 		leafRemove = "mutation-leaf-remove"
 	}
+	
+	/**
+	 * A symbol which may be applied as an object key in 
+	 * a type, in order to make it a valid Reflex atom.
+	 */
+	export declare const atom: unique symbol;
+	(<any>Reflex)["atom"] = typeof Symbol === "function" ?
+		Symbol("Reflex.atom") :
+		"Reflex.atom";
+	
+	/**
+	 * A type that identifies the types of atoms that can exist
+	 * in any reflexive arguments list.
+	 * 
+	 * @param B The library's Branch type.
+	 * @param L The library's Leaf type.
+	 * @param X Extra types understood by the library.
+	 */
+	export type Atom<B extends object = object, L = any, X = void> =
+		B |
+		L |
+		X |
+		false |
+		null |
+		void |
+		Iterable<Atom<B, L, X>> |
+		AsyncIterable<Atom<B, L, X>> |
+		Promise<Atom<B, L, X>> |
+		((branch: B, children: (B | L)[]) => Atom<B, L, X>) |
+		Core.BranchFunction |
+		Recurrent |
+		SymbolicAtom<B, L, X> |
+		IAttributes;
+	
+	/**
+	 * An interface for an object that has it's own atomization
+	 * process.
+	 */
+	export interface SymbolicAtom<B extends object = object, L = any, X = void>
+	{
+		readonly [atom]: Atom<B, L, X>;
+	}
+	
+	/** */
+	export interface IAttributes<T = string | number | bigint | boolean>
+	{
+		[attributeName: string]: Core.Voidable<T> | StatefulForce<Core.Voidable<T>>;
+	}
+	
+	/**
+	 * Generic function definition for callback functions provided to
+	 * the global on() function.
+	 */
+	export type RecurrentCallback<T extends Atom = Atom> = (...args: any[]) => T;
 }
 
 declare namespace Reflex.Core
 {
-	/** */
-	export type Voidable<T> = 
-		T |
-		false |
-		void;
-	
 	/**
 	 * Marker interface that defines an object that can have
 	 * reflexive values attached to it.
@@ -43,34 +91,12 @@ declare namespace Reflex.Core
 	 */
 	export interface ILeaf extends Object { }
 	
-	/**
-	 * A type that identifies the types of atoms that can exist
-	 * in any reflexive arguments list.
-	 * 
-	 * @param B The library's Branch type.
-	 * @param L The library's Leaf type.
-	 * @param X Extra types understood by the library.
-	 */
-	export type Atom<B extends object = object, L = any, X = void> =
-		B |
-		L |
-		X |
-		false |
-		void |
-		Iterable<Atom<B, L, X>> |
-		AsyncIterable<Atom<B, L, X>> |
-		Promise<Atom<B, L, X>> |
-		((branch: B, children: (B | L)[]) => Atom<B, L, X>) |
-		BranchFunction |
-		Recurrent |
-		IVolatile<B, L, X> |
-		IAttributes;
-	
 	/** */
-	export interface IAttributes<T = string | number | bigint | boolean>
-	{
-		[attributeName: string]: Voidable<T> | StatefulForce<Voidable<T>>;
-	}
+	export type Voidable<T> = 
+		T |
+		false |
+		null |
+		void;
 	
 	/**
 	 * Abstract definition of the leaf variant of the top-level
@@ -113,12 +139,6 @@ declare namespace Reflex.Core
 	 * an insertion position of a new meta within a Reflexive tree.
 	 */
 	export type Ref<B = IBranch, L = ILeaf> = B | L | "prepend" | "append";
-	
-	/**
-	 * Generic function definition for callback functions provided to
-	 * the global on() function.
-	 */
-	export type RecurrentCallback<T extends Atom = Atom> = (...args: any[]) => T;
 	
 	/**
 	 * A mapped type that extracts the names of the methods and

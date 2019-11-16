@@ -34,7 +34,7 @@ namespace Reflex.ML.Test
 			testArrayForces,
 			testStatefulForces,
 			testValueBinding,
-			testVolatileTypes
+			testSymbolicAtomTypes
 			
 			// These don't need to be uncommented for now
 			// Mutations are probably going to get axed
@@ -562,27 +562,27 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testVolatileTypes()
+	function testSymbolicAtomTypes()
 	{
-		class CustomVolatile
+		class CustomSymbolic
 		{
 			constructor(private readonly content: string) { }
 			
-			atomize(e: HTMLElement, children: HTMLElement[])
+			[Reflex.atom](e: HTMLElement, children: Reflex.ML.Atom[])
 			{
-				return [
+				return ml.div([
 					ml(this.content),
 					ml.br(),
 					ml(
 						"Passed in destination should be an HTMLElement, and it is: " +
 						e.constructor.name)
-				]
+				])
 			}
 		}
 		
 		return ml.div(
 			() => ml.div(ml`Should be before.`),
-			new CustomVolatile("Atomized!"),
+			new CustomSymbolic("Atomized!"),
 			() => ml.div(ml`Should be after.`),
 		);
 	}
