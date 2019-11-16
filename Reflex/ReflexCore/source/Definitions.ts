@@ -44,27 +44,27 @@ declare namespace Reflex.Core
 	export interface ILeaf extends Object { }
 	
 	/**
-	 * A type that identifies the atomic types that can exist
+	 * A type that identifies the types of atoms that can exist
 	 * in any reflexive arguments list.
 	 * 
 	 * @param B The library's Branch type.
 	 * @param L The library's Leaf type.
 	 * @param X Extra types understood by the library.
 	 */
-	export type Atomic<B extends object = object, L = any, X = void> =
+	export type Atom<B extends object = object, L = any, X = void> =
 		B |
 		L |
 		X |
 		false |
 		void |
-		Iterable<Atomic<B, L, X>> |
-		AsyncIterable<Atomic<B, L, X>> |
-		Promise<Atomic<B, L, X>> |
-		((branch: B, children: (B | L)[]) => Atomic<B, L, X>) |
+		Iterable<Atom<B, L, X>> |
+		AsyncIterable<Atom<B, L, X>> |
+		Promise<Atom<B, L, X>> |
+		((branch: B, children: (B | L)[]) => Atom<B, L, X>) |
 		BranchFunction |
 		Recurrent |
-		IAttributes |
-		Auxilary;
+		IVolatile<B, L, X> |
+		IAttributes;
 	
 	/** */
 	export interface IAttributes<T = string | number | bigint | boolean>
@@ -100,35 +100,25 @@ declare namespace Reflex.Core
 	 * Abstract definition of the branch variant of the top-level
 	 * namespace function.
 	 * 
-	 * @param A The atomic type of the library.
+	 * @param A The Atom type of the Reflexive library.
 	 * @param R The return type of the root-level branch function.
 	 */
 	export interface IBranchNamespace<A = any, R = any>
 	{
-		(...atomics: A[]): R;
+		(...atoms: A[]): R;
 	}
 	
 	/**
 	 * Defines a relative or specific meta reference, used for indicating
 	 * an insertion position of a new meta within a Reflexive tree.
 	 */
-	export type Ref = IBranch | ILeaf | "prepend" | "append";
+	export type Ref<B = IBranch, L = ILeaf> = B | L | "prepend" | "append";
 	
 	/**
 	 * Generic function definition for callback functions provided to
 	 * the global on() function.
 	 */
-	export type RecurrentCallback<T extends Atomic = Atomic> = (...args: any[]) => T;
-	
-	/**
-	 * 
-	 */
-	export type ObjectForce<T> = {
-		[P in keyof T]:
-			T[P] extends (string | number | bigint | boolean | null) ? StatefulForce<T[P]> :
-			T[P] extends Array<infer U> ? ArrayForce<U> :
-			T[P];
-	}
+	export type RecurrentCallback<T extends Atom = Atom> = (...args: any[]) => T;
 	
 	/**
 	 * A mapped type that extracts the names of the methods and
@@ -170,8 +160,8 @@ declare namespace Reflex.Core
 	 * Extracts 
 	 */
 	export type AsBranch<F> = 
-		F extends () => infer R ? (...atomics: Atomic[]) => R :
-		F extends (...args: infer A) => infer R ? (...args: A) => (...atomics: Atomic[]) => R :
+		F extends () => infer R ? (...atoms: Atom[]) => R :
+		F extends (...args: infer A) => infer R ? (...args: A) => (...atoms: Atom[]) => R :
 		F;
 	
 	/**

@@ -103,48 +103,48 @@ namespace Reflex.ML
 		}
 		
 		/** */
-		attachAtomic(
-			atomic: any,
+		attachAtom(
+			atom: any,
 			owner: Branch,
 			ref: Branch | Leaf | "prepend" | "append")
 		{
-			if (typeof atomic === "string")
-				return owner.classList.add(atomic);
+			if (typeof atom === "string")
+				return owner.classList.add(atom);
 			
-			if (typeof atomic === "number" ||
-				typeof atomic === "bigint" ||
-				typeof atomic === "boolean")
-				atomic = new Text("" + atomic);
+			if (typeof atom === "number" ||
+				typeof atom === "bigint" ||
+				typeof atom === "boolean")
+				atom = new Text("" + atom);
 			
-			if (atomic instanceof Element || atomic instanceof Text)
+			if (atom instanceof Element || atom instanceof Text)
 			{
 				if (ref === "prepend")
-					return owner.prepend(atomic);
+					return owner.prepend(atom);
 				
 				if (ref === "append")
-					return owner.append(atomic);
+					return owner.append(atom);
 				
-				if (ref instanceof Element && atomic instanceof Element)
-					return void ref.insertAdjacentElement("afterend", atomic);
+				if (ref instanceof Element && atom instanceof Element)
+					return void ref.insertAdjacentElement("afterend", atom);
 				
 				if (ref === owner.lastChild)
-					return void owner.append(atomic);
+					return void owner.append(atom);
 				
 				const nodes = owner.childNodes;
 				for (let i = nodes.length - 1; i-- > 0;)
 					if (nodes[i] === ref)
-						return void owner.insertBefore(atomic, nodes[i + 1]);
+						return void owner.insertBefore(atom, nodes[i + 1]);
 			}
 		}
 		
 		/** */
-		detachAtomic(atomic: any, owner: Branch)
+		detachAtom(atom: any, owner: Branch)
 		{
-			if (atomic instanceof Element || atomic instanceof Text)
-				atomic.remove();
+			if (atom instanceof Element || atom instanceof Text)
+				atom.remove();
 			
-			else if (typeof atomic === "string")
-				owner.classList.remove(atomic);
+			else if (typeof atom === "string")
+				owner.classList.remove(atom);
 		}
 		
 		/** */

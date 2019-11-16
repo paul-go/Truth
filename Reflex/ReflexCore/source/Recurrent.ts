@@ -12,7 +12,7 @@ namespace Reflex.Core
 		constructor(
 			readonly kind: RecurrentKind,
 			readonly selector: any,
-			readonly userCallback: RecurrentCallback<Atomic>,
+			readonly userCallback: RecurrentCallback<Atom>,
 			readonly userRestArgs: any[] = [])
 		{
 			// In the case when the first argument passed to the

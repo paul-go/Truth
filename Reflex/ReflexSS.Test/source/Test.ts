@@ -41,7 +41,6 @@ namespace Reflex.SS.Test
 	
 	ss(
 		ml.div,
-		
 		ss.priority.low,
 		ss.backgroundColor("red")
 	);

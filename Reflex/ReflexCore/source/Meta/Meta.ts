@@ -19,7 +19,7 @@ namespace Reflex.Core
 	/**
 	 * Stores the information about a single attribute.
 	 * Although attributes can come in a large object literal
-	 * that specifies many attributes together, the atomic
+	 * that specifies many attributes together, the atom
 	 * translator function splits them up into smaller metas,
 	 * which is done because some values may be static,
 	 * and others may be behind a force.
@@ -35,23 +35,12 @@ namespace Reflex.Core
 	}
 	
 	/**
-	 * 
-	 */
-	export abstract class Auxilary
-	{
-		protected constructor() { }
-		
-		/** Enforce nominal type. */
-		private readonly auxiliary: undefined;
-	}
-	
-	/**
 	 * Stores information about some value that is known
 	 * to the library that will be applied to some branch.
 	 */
 	export class ValueMeta extends StemMeta
 	{
-		constructor(readonly value: string | number | bigint | Auxilary)
+		constructor(readonly value: string | number | bigint | IVolatile)
 		{
 			super();
 		}

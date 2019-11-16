@@ -13,7 +13,7 @@ namespace Reflex.SS
 	 * A class that represents either a CSS declaration, such as "color: red",
 	 * or a CSS function call, such as "rgb(1, 2, 3)".
 	 */
-	export class Command extends Core.Auxilary
+	export class Command
 	{
 		constructor(
 			/**
@@ -27,8 +27,6 @@ namespace Reflex.SS
 			 */
 			readonly values: CommandValue[] = [])
 		{
-			super();
-			
 			const chars = callingName.split("");
 			for (let i = chars.length; i-- > 0;)
 			{
@@ -42,6 +40,12 @@ namespace Reflex.SS
 			}
 			
 			this.hypenatedName = chars.join("");
+		}
+		
+		/** */
+		atomize(destination: Rule)
+		{
+			destination.declarations.push(this);
 		}
 		
 		/**

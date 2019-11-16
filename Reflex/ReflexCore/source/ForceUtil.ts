@@ -55,7 +55,7 @@ namespace Reflex.Core
 		 */
 		attachForce(
 			fn: StatelessForce, 
-			systemCallback: RecurrentCallback<Atomic>)
+			systemCallback: RecurrentCallback<Atom>)
 		{
 			const re = entries.get(fn);
 			if (re)
@@ -67,7 +67,7 @@ namespace Reflex.Core
 		 */
 		detachForce(
 			fn: StatelessForce,
-			systemCallback: RecurrentCallback<Atomic>)
+			systemCallback: RecurrentCallback<Atom>)
 		{
 			const fo = entries.get(fn);
 			if (fo)
@@ -81,6 +81,6 @@ namespace Reflex.Core
 	
 	class Entry
 	{
-		readonly systemCallbacks = new Set<RecurrentCallback<Atomic>>();
+		readonly systemCallbacks = new Set<RecurrentCallback<Atom>>();
 	}
 }

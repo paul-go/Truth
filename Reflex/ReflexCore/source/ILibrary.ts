@@ -4,12 +4,8 @@ namespace Reflex.Core
 	/**
 	 * The interface that Reflex libraries (Reflex ML, Reflex SS, etc)
 	 * must implement. 
-	 * 
-	 * A "Library" is different from a "Layer" in that a Library can
-	 * define it's own branch types, and therefore, it can operate
-	 * at ground-level.
 	 */
-	export interface ILibrary extends ILayer
+	export interface ILibrary
 	{
 		/**
 		 * Reflexive libraries must implement this method, so that the
@@ -84,6 +80,16 @@ namespace Reflex.Core
 		/**
 		 * 
 		 */
+		attachAtom(atom: any, branch: IBranch, ref: Ref): void;
+		
+		/**
+		 * 
+		 */
+		detachAtom(atom: any, branch: IBranch): void;
+		
+		/**
+		 * 
+		 */
 		attachAttribute(branch: IBranch, key: string, value: any): void;
 				
 		/**
@@ -101,7 +107,7 @@ namespace Reflex.Core
 		createRecurrent?: (
 			kind: RecurrentKind,
 			selector: any,
-			callback: RecurrentCallback<Atomic>,
+			callback: RecurrentCallback<Atom>,
 			rest: any[]) => any
 		
 		/**
@@ -119,7 +125,7 @@ namespace Reflex.Core
 			kind: RecurrentKind,
 			target: IBranch,
 			selector: any,
-			callback: RecurrentCallback<Atomic>,
+			callback: RecurrentCallback<Atom>,
 			rest: any[]) => boolean;
 		
 		/**
@@ -129,16 +135,16 @@ namespace Reflex.Core
 		detachRecurrent?: (
 			branch: IBranch,
 			selector: any,
-			callback: RecurrentCallback<Atomic>) => void;
+			callback: RecurrentCallback<Atom>) => void;
 		
 		/**
 		 * Reflexive libraries can implement this function in order
 		 * to capture the flow of branches being passed as
-		 * atomics to other branch functions.
+		 * atoms to other branch functions.
 		 */
 		handleBranchFunction?: (
 			branch: IBranch,
-			branchFn: (...atomics: any[]) => IBranch) => void;
+			branchFn: (...atoms: any[]) => IBranch) => void;
 		
 		/**
 		 * Reflexive libraries can implement this function in order to process
