@@ -25,6 +25,6 @@
 	],
 	"references": [
 		{ "path": "../Truth" },
-		{ "path": "../Reflex/ReflexCore" },
+		{ "path": "../Reflex/ReflexCore" }
 	]
 }

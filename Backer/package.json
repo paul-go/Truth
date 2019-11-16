@@ -11,18 +11,25 @@
 	},
 	"author": "Truebase",
 	"license": "MIT",
-	"keywords": [
-	],
+	"keywords": [],
 	"scripts": {
 		"build": "makets build",
 		"bundle": "makets bundle",
-		"publish": "makets publish"
+		"publish": "makets publish",
+		"test": "jest"
 	},
 	"eslintIgnore": [
 		"**/node_modules/**/*.ts",
 		"**/*.d.ts"
 	],
 	"devDependencies": {
-		"@types/node": "^10.12.18"
+		"@types/node": "^10.12.18",
+		"jest": "^24.9.0",
+		"jest-dev-server": "^4.3.0",
+		"jest-puppeteer": "^4.3.0",
+		"puppeteer": "^2.0.0"
+	},
+	"jest": {
+		"preset": "jest-puppeteer"
 	}
 }

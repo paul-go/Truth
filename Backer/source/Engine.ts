@@ -104,7 +104,7 @@ namespace Backer.TruthTalk
 					this.filter(x => x[typeOf].isFresh);
 					break;
 				case PredicateOp.equals:
-					this.filter(x => x[value] == (<Leaves.Predicate>leaf).operand);
+					this.filter(x => x[value] !== null ? x[value] == (<Leaves.Predicate>leaf).operand : false);
 					break;
 				case PredicateOp.greaterThan:
 					this.filter(x => (x[value] || 0) > (<Leaves.Predicate>leaf).operand);
