@@ -1,6 +1,21 @@
 
 namespace Backer.Util
 {
+	const Headers = `
+	any
+	object : any
+	string : any
+	number : any
+	bigint : any
+	boolean : any
+	
+	/".+" : string
+	/(\\+|-)?(([1-9]\\d{0,17})|([1-8]\\d{18})|(9[01]\\d{17})) : number
+	/(0|([1-9][0-9]*)) : bigint
+	/(true|false) : boolean
+	
+	`;
+	
 	/**
 	 * Hash calculation function adapted from:
 	 * https://stackoverflow.com/a/52171480/133737
@@ -104,5 +119,50 @@ namespace Backer.Util
 	{
 		for (let key of keys)
 			shadow(object, key, enumerable);
+	}
+	
+	/**
+	 * 
+	 */
+	export async function loadFile(file: string, pattern: RegExp)
+	{
+		const doc = await Truth.parse(Headers + file);
+		
+		doc.program.verify();
+		
+		const faults = Array.from(doc.program.faults.each());
+		
+		if (faults.length) 
+		{			
+			for (const fault of faults)
+				console.error(fault.toString());
+				
+			throw faults[0].toString();
+		}
+		
+		let code = new Backer.Code();
+			
+		const drill = (type: Truth.Type) => 
+		{
+			code.add(Backer.Type.new(code, type));
+			for (const sub of type.contents)
+				drill(sub);
+		};
+		
+		for (const type of doc.types)
+			drill(type);
+			
+		const extracted = code.extractData(pattern);
+		
+		code = extracted.code;
+		const data = extracted.data;
+		
+		const simplecode = JSON.parse(JSON.stringify(code));
+		const simpledata = JSON.parse(JSON.stringify(data));
+		
+		const BCode = Backer.Code.new(simplecode);
+		BCode.loadData(simpledata);
+		
+		return code;
 	}
 }
