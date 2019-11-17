@@ -4,10 +4,81 @@ namespace Backer
 {
 	export const typeOf = Symbol("typeOf");
 	export const value = Symbol("value");
+	export const name = Symbol("name");
 	export const values = Symbol("values");
 	export const parent = Symbol("parent");
 	
-	export class Struct extends TruthTalk.Leaves.Surrogate
+	abstract class Base extends TruthTalk.Leaves.Surrogate
+	{
+		abstract [value]: any;
+		
+		[parent]: Struct | null;
+		
+		constructor(parentValue: Struct | Surrogate | null)
+		{
+			super();
+			this[parent] = parentValue;
+		}
+		
+		/**
+		 * Climb to root of this Struct
+		 */
+		get root(): Base | null
+		{
+			let root: Base | null = this;
+			
+			while (root && root[parent]) 
+				root = root[parent];
+			
+			return root;
+		}
+		
+		toJSON(){ return this[value]; }
+		valueOf() { return this[value]; }
+		toString() 
+		{
+			const val = this[value];
+			if (val === null)
+				return val;
+			
+			return String(val);
+		}
+		[Symbol.toPrimitive]() { return this[value]; }
+		get [Symbol.toStringTag]() { return "Proxy"; }
+	}
+	
+	export class Summary extends TruthTalk.Leaves.Surrogate
+	{
+		[parent]: Struct[];
+		
+		constructor(public value: any, containers: Struct[])
+		{
+			super();
+			this[parent] = containers;
+		}
+		
+		/** */
+		get [value]()
+		{
+			return this.value;
+		}
+	}
+	
+	export class Name extends Base
+	{
+		constructor(public name: string, container: Struct | null)
+		{
+			super(container);
+		}
+		
+		/** */
+		get [value]()
+		{
+			return this.name;
+		}
+	}
+	
+	export class Struct extends Base
 	{
 		
 		/**
@@ -23,6 +94,7 @@ namespace Backer
 		}
 		
 		readonly [typeOf]: Type;
+		readonly [name]: Name;
 		readonly [parent]: Struct | null;
 		
 		/** */
@@ -31,11 +103,18 @@ namespace Backer
 			return this[typeOf].values;
 		}
 		
+		/** */
+		get [value]()
+		{
+			return this[typeOf].value;
+		}
+		
 		constructor(type: Type, parentValue: Struct | null)
 		{
-			super();
+			super(parentValue);
 			this[typeOf] = type;
 			this[parent] = parentValue;
+			this[name] = new Name(type.name, this);
 			
 			Util.shadows(this, false, typeOf, values, TruthTalk.op, parent, TruthTalk.container);
 			
@@ -57,19 +136,6 @@ namespace Backer
 			return Object.values(this);
 		}
 		
-		/**
-		 * Climb to root of this Struct
-		 */
-		get root()
-		{
-			let root: Struct | null = this;
-			
-			while (root && root[parent]) 
-				root = root[parent];
-			
-			return root;
-		}
-		
 		/** */
 		instanceof(base: any)
 		{
@@ -88,30 +154,12 @@ namespace Backer
 		{
 			return this.instanceof(value);
 		}
-		
-		toJSON(){ return this[values]; }
-		valueOf() { return this[values]; }
-		toString() 
-		{
-			const val = this[values];
-			if (val === null)
-				return val;
-			
-			return String(val);
-		}
-		[Symbol.toPrimitive]() { return this[values]; }
-		get [Symbol.toStringTag]() { return "Struct"; }
 	}
 	
 	export class Surrogate<T = string> extends Struct
 	{
+		readonly [name]: Name;
 		readonly [parent]: Surrogate | null;
-		
-		/** */
-		get [value]()
-		{
-			return this[typeOf].value;
-		}
 		
 		/** */
 		get contents(): Surrogate[]

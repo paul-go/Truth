@@ -1,14 +1,19 @@
 
 namespace Backer.TruthTalk
 {
+	type Cursor = Surrogate | Name | Summary;
+	type MaybeArray<T> = T | T[];
+	
+	const SurrogateFilter = (x: Cursor): x is Surrogate => x instanceof Surrogate;
+	
 	/**
 	 * Keeps track of possible output of query
 	 */
 	export class CursorSet
 	{	
-		cursors: Set<Surrogate>;
+		cursors: Set<Cursor>;
 		
-		constructor(...cursors: Surrogate[])
+		constructor(...cursors: Cursor[])
 		{
 			this.cursors = new Set(cursors);
 		}
@@ -22,6 +27,14 @@ namespace Backer.TruthTalk
 		}
 		
 		/**
+		 * 
+		 */
+		map(filter: (cursor: Cursor) => boolean, map: (items: Cursor) => MaybeArray<Cursor>)
+		{
+			this.cursors = new Set(this.snapshot().filter(filter).flatMap(map).filter(x => !!x));
+		}
+		
+		/**
 		 * Clones current state of CursorSet
 		 */
 		clone()
@@ -32,9 +45,17 @@ namespace Backer.TruthTalk
 		/**
 		 * Filters current possibilities
 		 */
-		filter(fn: (v: Surrogate) => boolean)
+		filter(fn: (v: Cursor) => boolean)
 		{
 			this.cursors = new Set(this.snapshot().filter(x => fn(x)));
+		}
+		
+		/**
+		 * Filters current possibilities
+		 */
+		filterSurrogate(fn: (v: Surrogate) => boolean)
+		{
+			this.cursors = new Set(this.snapshot().filter((x): x is Surrogate => x instanceof Surrogate && fn(x)));
 		}
 		
 		/**
@@ -83,7 +104,7 @@ namespace Backer.TruthTalk
 			switch (leaf[op])
 			{
 				case LeafOp.surrogate:
-					this.filter(x => x[typeOf].is((<Surrogate>leaf)[typeOf]) || x[typeOf].parallelRoots.includes((<Surrogate>leaf)[typeOf]));
+					this.filterSurrogate(x => x[typeOf].is((<Surrogate>leaf)[typeOf]) || x[typeOf].parallelRoots.includes((<Surrogate>leaf)[typeOf]));
 					break;
 				case LeafOp.contents:
 					this.contents();
@@ -101,10 +122,10 @@ namespace Backer.TruthTalk
 					this.filter(x => x[value] === null);
 					break;
 				case LeafOp.fresh:
-					this.filter(x => x[typeOf].isFresh);
+					this.filterSurrogate(x => x[typeOf].isFresh);
 					break;
 				case PredicateOp.equals:
-					this.filter(x => x[value] !== null ? x[value] == (<Leaves.Predicate>leaf).operand : false);
+					this.equals(<Leaves.Predicate>leaf);
 					break;
 				case PredicateOp.greaterThan:
 					this.filter(x => (x[value] || 0) > (<Leaves.Predicate>leaf).operand);
@@ -130,7 +151,25 @@ namespace Backer.TruthTalk
 				case LeafOp.reverse:
 					this.cursors = new Set(this.snapshot().reverse());
 					break;
+				case LeafOp.names:
+					this.names();
+					break;
+				case PredicateOp.named:
+					this.names();
+					this.equals(<Leaves.Predicate>leaf);
+					this.containers();
+					break;
 			}
+		}
+		
+		equals(leaf: Leaves.Predicate)
+		{
+			this.filter(x => x[value] !== null ? x[value] == (leaf).operand : false);
+		}
+		
+		names()
+		{
+			this.map(SurrogateFilter, (x) => (<Surrogate>x)[name]);
 		}
 		
 		/**
@@ -138,7 +177,7 @@ namespace Backer.TruthTalk
 		 */
 		contents()
 		{
-			this.cursors = new Set(this.snapshot().flatMap(x => x.contents).filter((x): x is Surrogate => !!x));
+			this.map(SurrogateFilter, x => (<Surrogate>x).contents);
 		}
 		
 		/**
@@ -146,10 +185,10 @@ namespace Backer.TruthTalk
 		 */
 		roots()
 		{
-			this.cursors = new Set(this.snapshot().map((x: Surrogate | null) =>
+			this.cursors = new Set(this.snapshot().map((x: Cursor | null) =>
 				{
 					while (x && x[parent]) 
-						x = x[parent];
+						x = x[parent] as Surrogate;
 					return x;				
 				}).filter((x): x is Surrogate => !!x));
 		}
@@ -159,7 +198,7 @@ namespace Backer.TruthTalk
 		 */
 		containers()
 		{
-			this.cursors = new Set(this.snapshot().map(x => x[parent]).filter((x): x is Surrogate => !!x));
+			this.map(x => !!x[parent], x => (<any>x[parent]));
 		}
 	
 		/** */
@@ -214,7 +253,7 @@ namespace Backer.TruthTalk
 			
 			if (!max) max = min;
 
-			const valueMap: Record<string, Surrogate[]> = {};
+			const valueMap: Record<string, Cursor[]> = {};
 			
 			for (const item of this.cursors)
 			{
@@ -233,7 +272,7 @@ namespace Backer.TruthTalk
 		is(surrogate: Surrogate, not = false)
 		{
 			const instance = this.clone();
-			return instance.filter(x => 
+			return instance.filterSurrogate(x => 
 				{
 					const condition = x[typeOf].is(surrogate[typeOf]) || x[typeOf].parallelRoots.includes(surrogate[typeOf]);
 					return not ? !condition : condition;
@@ -246,9 +285,19 @@ namespace Backer.TruthTalk
 			const structs = (<Struct[]>(<Leaves.Sort>leaf).contentTypes).filter((x) => !!x).reverse();
 			
 			const snap = this.snapshot();
+			
+			snap.sort((x,y) => x[value] - y[value]);
+			
 			for (const struct of structs)
 				snap.sort((a, b) => 
 				{
+					if (!(a instanceof Surrogate)) 
+						if (!(b instanceof Surrogate))
+							return 0;
+						else return -1;
+					else if (!(b instanceof Surrogate))
+						return 1;
+					
 					const p1 = a.get(struct);
 					const p2 = b.get(struct);
 					const v1: number = p1 ? <any>p1[value] || 0: 0;

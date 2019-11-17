@@ -26,7 +26,8 @@ namespace Backer.TruthTalk
 		startsWith = 36,
 		endsWith  = 37,
 		includes = 38,
-		matches = 39
+		matches = 39,
+		named = 40
 	}
 	
 	/** */
@@ -44,7 +45,13 @@ namespace Backer.TruthTalk
 		roots = 69,
 		contents = 70,
 		leaves = 71,
-		fresh = 72
+		fresh = 72,
+		names = 73,
+		sum = 74,
+		avg = 75,
+		min = 76,
+		max = 77,
+		count = 78
 	}
 	
 	/** */
@@ -261,6 +268,42 @@ namespace Backer.TruthTalk
 		export class Contents extends Leaf
 		{
 			readonly [op] = LeafOp.contents;
+		}
+		
+		/** */
+		export class Names extends Leaf
+		{
+			readonly [op] = LeafOp.names;
+		}
+		
+		/** */
+		export class Sum extends Leaf
+		{
+			readonly [op] = LeafOp.sum;
+		}
+		
+		/** */
+		export class Avg extends Leaf
+		{
+			readonly [op] = LeafOp.avg;
+		}
+		
+		/** */
+		export class Min extends Leaf
+		{
+			readonly [op] = LeafOp.min;
+		}
+		
+		/** */
+		export class Max extends Leaf
+		{
+			readonly [op] = LeafOp.max;
+		}
+		
+		/** */
+		export class Count extends Leaf
+		{
+			readonly [op] = LeafOp.count;
 		}
 	}
 }
