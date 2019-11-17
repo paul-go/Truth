@@ -1,13 +1,10 @@
 
 namespace Backer.TruthTalk
 {
+	export let tt: Reflex.Core.AsLibrary<Backer.TruthTalk.Namespace, Backer.TruthTalk.Library>;
+	
 	export class Library implements Reflex.Core.ILibrary
 	{
-		/** */
-		isKnownLeaf(leaf: any)
-		{
-			return leaf instanceof Node;
-		}
 		
 		/** */
 		isKnownBranch(branch: Branch)
@@ -171,3 +168,5 @@ namespace Backer.TruthTalk
 const tt = Reflex.Core.createBranchNamespace<Backer.TruthTalk.Namespace, Backer.TruthTalk.Library>(
 	new Backer.TruthTalk.Library(),
 	true);
+
+Backer.TruthTalk.tt = tt;
