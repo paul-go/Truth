@@ -1,7 +1,7 @@
 {
 	"name": "backer",
 	"version": "1.0.00",
-	"description": "Javascript runtime for Truth",
+	"description": "JavaScript Runtime for Truth",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Truebase-com/TruthStack"
@@ -26,6 +26,5 @@
 	"devDependencies": {
 		"@types/node": "^10.12.18",
 		"cypress": "^3.6.1"
-	},
-	"dependencies": {}
+	}
 }
