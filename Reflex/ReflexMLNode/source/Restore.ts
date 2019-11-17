@@ -6,7 +6,7 @@
  * that is generated during the rendering process.
  */
 function restore(
-	callbacks: readonly Reflex.Core.RecurrentCallback<any>[],
+	callbacks: readonly Reflex.RecurrentCallback<any>[],
 	commands: readonly any[])
 {
 	/*
@@ -91,10 +91,10 @@ function restore(
 			
 			const selectors = ("" + streamInfo[s + 3]).split(Const.selectorSep);
 			const callbackArgs = streamInfo[s + 5].slice();
-			const recurrent = new C.Recurrent(
+			const recurrent = new Reflex.Recurrent(
 				<Reflex.Core.RecurrentKind>streamInfo[s + 2],
 				selectors,
-				<Reflex.Core.RecurrentCallback<unknown>>callbacks[streamInfo[s + 4]],
+				<Reflex.RecurrentCallback<unknown>>callbacks[streamInfo[s + 4]],
 				callbackArgs);
 			
 			// An empty string selector indicates that the callback is a restore function.
