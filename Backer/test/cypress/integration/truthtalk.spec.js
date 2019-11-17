@@ -2,21 +2,21 @@
 
 context("TruthTalk", () => 
 {
-  beforeEach(() => 
-  {
+	beforeEach(() => 
+	{
 		cy.visit("/");  
 		
 		cy.window().its("Backer").as("Backer");
 		
-    cy.readFile("truth/screws.truth")
-      .then(file => cy.get("@Backer").its("Util").invoke("loadFile", file, /^\d{3}-.+/)).as("document");
-			
+		cy.readFile("truth/screws.truth")
+			.then(file => cy.get("@Backer").its("Util").invoke("loadFile", file, /^\d{3}-.+/)).as("document");
+		
 		cy.get("@Backer").its("Schema").as("Schema");
 		cy.get("@Backer").its("Graph").as("Graph");
 		
-  });
-
-  it("Backer Types are loaded", () => 
+	});
+	
+	it("Backer Types are loaded", () => 
 	{
 		cy.get("@Schema").its("any").should("exist");
 		cy.get("@Schema").its("object").should("exist");
@@ -36,5 +36,4 @@ context("TruthTalk", () =>
 		.then(data => JSON.stringify(data))
 		.should("equal", JSON.stringify(["16[mm]"]));
 	});
-  
 });
