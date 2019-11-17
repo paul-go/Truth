@@ -18,6 +18,7 @@ namespace Backer.TruthTalk
 			return branch instanceof Branch && branch[container] !== null;
 		}
 		
+		/** */
 		getRootBranch()
 		{
 			return new Branches.Query();
