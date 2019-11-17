@@ -26,7 +26,8 @@ context("TruthTalk", () =>
 		cy.get("@Schema").its("boolean").should("exist");
 	});
 	
-	it("Some example queries", () => {
+	it("Some example queries", () =>
+	{
 		cy.get("@Backer").its("TruthTalk").as("tt");
 		cy.get("@tt").its("tt")
 		.then(tt => tt(
