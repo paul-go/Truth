@@ -12,6 +12,7 @@
 		"stripInternal": false,
 		"incremental": true,
 		"lib": [
+			"dom",
 			"esnext",
 			"esnext.array",
 			"esnext.asynciterable"
@@ -21,10 +22,11 @@
 	"exclude": [
 		"**/build/**/*.ts",
 		"**/bundle/**/*.ts",
-		"**/make.ts"
+		"**/make.ts",
+		"node_modules/**/*.ts"
 	],
 	"references": [
-		{ "path": "../Truth" },
+		{ "path": "../Truth/source" },
 		{ "path": "../Reflex/ReflexCore" }
 	]
 }

@@ -6,6 +6,13 @@ namespace Backer.TruthTalk
 	
 	const SurrogateFilter = (x: Cursor): x is Surrogate => x instanceof Surrogate;
 	
+	export function Execute(Ast: Branch)
+	{
+		const cursors = new CursorSet(...Object.values(Backer.Graph));
+		cursors.query(Ast);
+		return cursors.snapshot();
+	}
+	
 	/**
 	 * Keeps track of possible output of query
 	 */

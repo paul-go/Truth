@@ -16,7 +16,8 @@
 		"build": "makets build",
 		"bundle": "makets bundle",
 		"publish": "makets publish",
-		"test": "jest"
+		"test": "cd test && cypress open",
+		"test:term": "cd test && cypress run"
 	},
 	"eslintIgnore": [
 		"**/node_modules/**/*.ts",
@@ -24,12 +25,7 @@
 	],
 	"devDependencies": {
 		"@types/node": "^10.12.18",
-		"jest": "^24.9.0",
-		"jest-dev-server": "^4.3.0",
-		"jest-puppeteer": "^4.3.0",
-		"puppeteer": "^2.0.0"
+		"cypress": "^3.6.1"
 	},
-	"jest": {
-		"preset": "jest-puppeteer"
-	}
+	"dependencies": {}
 }
