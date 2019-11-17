@@ -33,7 +33,7 @@ namespace Reflex
 		readonly root: Core.ArrayStore<T>;
 		
 		/** */
-		constructor(root: Core.ArrayStore<T> | ArrayForce<T>) 
+		constructor(root: Core.ArrayStore<T> | ArrayForce<T>)
 		{
 			if (root instanceof Core.ArrayStore)
 			{	
