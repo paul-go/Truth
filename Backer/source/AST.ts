@@ -1,12 +1,12 @@
 
 namespace Backer.TruthTalk
 {
-	export type Atomic = Reflex.Core.Atomic<Node, Branch>;
-	export type Atomics = Reflex.Core.Atomics<Node, Branch>;
+	export type Atomic = Reflex.Atom<Node, Branch>;
+	export type Atomics = Reflex.Atom<Node, Branch>;
 	
 	/** */
 	export interface Namespace extends
-		Reflex.Core.IContainerNamespace<Atomics, Branches.Query>
+		Reflex.Core.IBranchNamespace<Atomics, Branches.Query>
 	{
 		/** */
 		is(...atomics: Atomics[]): Branches.Is;
@@ -65,5 +65,25 @@ namespace Backer.TruthTalk
 		/** */
 		reverse(): Leaves.Reverse;
 		
+		/** */
+		names(): Leaves.Names;
+		
+		/** */
+		named(value: string): Leaves.Predicate;
+		
+		/** */
+		sum(): Leaves.Sum;
+		
+		/** */
+		avg(): Leaves.Avg;
+		
+		/** */
+		min(): Leaves.Min;
+		
+		/** */
+		max(): Leaves.Max;
+		
+		/** */
+		count(): Leaves.Count;
 	}
 }

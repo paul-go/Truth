@@ -21,6 +21,11 @@ namespace Backer.TruthTalk
 			return branch instanceof Branch && branch[container] !== null;
 		}
 		
+		getRootBranch()
+		{
+			return new Branches.Query();
+		}
+		
 		/** */
 		getStaticBranches()
 		{
@@ -63,7 +68,7 @@ namespace Backer.TruthTalk
 		}
 		
 		/** */
-		attachAtomic(
+		attachAtom(
 			atomic: Node,
 			owner: Branch,
 			ref: Node | "prepend" | "append")
@@ -83,7 +88,7 @@ namespace Backer.TruthTalk
 		}
 		
 		/** */
-		detachAtomic(atomic: Node, owner: Branch)
+		detachAtom(atomic: Node, owner: Branch)
 		{
 			owner.removeChild(atomic);
 		}
@@ -141,7 +146,7 @@ namespace Backer.TruthTalk
 			kind: Reflex.Core.RecurrentKind,
 			target: Reflex.Core.IBranch,
 			selector: any,
-			callback: Reflex.Core.RecurrentCallback,
+			callback: Reflex.RecurrentCallback,
 			rest: any[])
 		{
 			throw new Error("Not supported.");
@@ -152,7 +157,7 @@ namespace Backer.TruthTalk
 		detachRecurrent(
 			target: Reflex.Core.IBranch,
 			selector: any,
-			callback: Reflex.Core.RecurrentCallback)
+			callback: Reflex.RecurrentCallback)
 		{
 			throw new Error("Not supported.");
 			return false;
@@ -163,6 +168,6 @@ namespace Backer.TruthTalk
 /**
  * Global library object.
  */
-const tt = Reflex.Core.createContainerNamespace<Backer.TruthTalk.Namespace, Backer.TruthTalk.Library>(
+const tt = Reflex.Core.createBranchNamespace<Backer.TruthTalk.Namespace, Backer.TruthTalk.Library>(
 	new Backer.TruthTalk.Library(),
 	true);
