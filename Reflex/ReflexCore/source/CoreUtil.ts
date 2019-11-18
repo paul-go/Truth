@@ -206,7 +206,7 @@ namespace Reflex.Core
 						lib.handleBranchFunction(
 							containingBranch, 
 							<(...atoms: any[]) => IBranch>meta.closure);
-					}	
+					}
 					else
 					{
 						const children = lib.getChildren(containingBranch);
