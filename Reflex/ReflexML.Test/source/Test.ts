@@ -12,7 +12,7 @@ namespace Reflex.ML.Test
 			
 			testAttributes,
 			testClosures,
-			
+			testComplexClosures,
 			testManyLevels,
 			testOnce,
 			testMultipleSelectors,
@@ -133,6 +133,23 @@ namespace Reflex.ML.Test
 					return ml.div(ml`From Closure`);
 				},
 				ml`After`
+			)
+		];
+	}
+	
+	/** */
+	function testComplexClosures()
+	{
+		return [
+			ml.section(
+				"d0",
+				[[[ml.b("d1")]]],
+				[[ml.u("d2")]],
+				[ml.i("d3")],
+				(e, children) =>
+				{
+					return ml(children.length === 3 ? "PASS" : "FAIL");
+				}
 			)
 		];
 	}
@@ -423,11 +440,11 @@ namespace Reflex.ML.Test
 		const wait = () => new Promise(r => setTimeout(r));
 		
 		return ml.div(
-			ml`There should be 2 items below this, which are loaded asynchronously.`,
+			ml`There shouldn't be anything above this.`,
 			async function*(e, children)
 			{
 				await wait();
-				yield ml.div(`purple`, ml(makeString()));
+				yield ml.div(`purple`, ml("(Must be first div) " + makeString()));
 				yield ml`(Begin nested stream)`;
 				yield ml.hr();
 				
@@ -443,26 +460,8 @@ namespace Reflex.ML.Test
 				
 				yield ml`(End nested stream)`;
 				await wait();
-				yield ml.div(`orange`, ml("Orange " + makeString()));
+				yield ml.div(`orange`, ml("(Must be last div) Orange " + makeString()));
 			},
-			
-			/*
-			ml.hr(),
-			ml`3 more items below this.`,
-			ml.hr(),
-			
-			async function*(e, children)
-			{
-				await wait();
-				yield ml.div(`red`, ml("Red Non-Nested " + makeString()));
-				await wait();
-				yield ml.div(`green`, ml("Green Non-Nested " + makeString()));
-				await wait();
-				yield ml.div(`blue`, ml("Blue Non-Nested " + makeString()));
-			},
-			
-			ml.hr(),
-			ml`...and this should be at the end.`*/
 		);
 	}
 	

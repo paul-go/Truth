@@ -193,12 +193,17 @@ namespace Reflex.Core
 			const lib = RoutingLibrary.this;
 			childMetas = childMetas.slice();
 			
-			// ClosureMeta instances need to be collapsed before
-			// we proceed so that the locators of any meta that it
-			// returns can be assimilated.
 			for (let i = -1; ++i < childMetas.length;)
 			{
 				const meta = childMetas[i];
+				
+				// ClosureMeta instances must be dealt with first, because
+				// they can return other Meta instances, and those Meta
+				// instances are the ones that (likely) have Locators that
+				// must be assimilated (i.e. by calling .setContainer())
+				// The ClosureMeta instances themselves don't participate
+				// in the Tracker / Locator madness, but they can return 
+				// other Meta instances that do.
 				if (meta instanceof ClosureMeta)
 				{
 					if (lib.handleBranchFunction && isBranchFunction(meta.closure))
@@ -219,14 +224,8 @@ namespace Reflex.Core
 						childMetas.splice(i--, 1, ...metasReturned);
 					}
 				}
-			}
-			
-			for (const meta of childMetas)
+				
 				meta.locator.setContainer(containerMeta.locator);
-			
-			for (let i = -1; ++i < childMetas.length;)
-			{
-				const meta = childMetas[i];
 				
 				if (meta instanceof BranchMeta)
 				{
