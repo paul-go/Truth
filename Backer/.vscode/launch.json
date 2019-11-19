@@ -5,12 +5,17 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"type": "",
+			"type": "browser-preview",
+			"name": "Browser Preview: Attach",
+			"request": "attach",
+			"webRoot": "${workspaceFolder}/../../"
+		},
+		{
+			"type": "browser-preview",
 			"request": "launch",
-			"name": "Launch Chrome against localhost",
-			"port": 9222,
-			"url": "http://localhost:8080",
-			"webRoot": "${workspaceFolder}"
+			"name": "Browser Preview: Launch",
+			"url": "http://localhost:7561",
+			"webRoot": "${workspaceFolder}/../../"
 		}
 	]
 }

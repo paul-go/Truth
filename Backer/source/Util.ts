@@ -124,9 +124,9 @@ namespace Backer.Util
 	/**
 	 * 
 	 */
-	export async function loadFile(file: string, pattern: RegExp)
+	export async function loadFile(content: string, pattern: RegExp)
 	{
-		const doc = await Truth.parse(Headers + file);
+		const doc = await Truth.parse(Headers + content);
 		
 		doc.program.verify();
 		
