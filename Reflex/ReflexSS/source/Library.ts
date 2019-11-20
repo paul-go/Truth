@@ -287,8 +287,13 @@ namespace Reflex.SS
 					const ruleHash = Util.calculateHash(cssText).toString(36);
 					if (!this.ruleHashes.has(ruleHash))
 					{
-						this.nativeSheet.insertRule(cssText, insertAt);
 						this.ruleHashes.add(ruleHash);
+						const insertedAt = this.nativeSheet.insertRule(cssText, insertAt);
+						
+						const cssRule = this.nativeSheet.cssRules.item(insertedAt);
+						if (typeof CSSStyleRule === "function")
+							if (cssRule instanceof CSSStyleRule)
+								ruleAssociations.set(rule, cssRule);
 					}
 					
 					switch (rule.priority)
@@ -301,6 +306,14 @@ namespace Reflex.SS
 			return cls;
 		}
 	}
+	
+	/**
+	 * @internal
+	 * A WeakMap that makes associations between ReflexSS's Rule instances
+	 * and native CSSStyleRule instances, which is necessary to support dynamic
+	 * Commands.
+	 */
+	export const ruleAssociations = new WeakMap<Rule, CSSStyleRule>();
 	
 	let ruleCountLow = 0;
 	let ruleCountDefault = 0;

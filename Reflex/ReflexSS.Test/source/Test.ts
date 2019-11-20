@@ -29,15 +29,23 @@ namespace Reflex.SS.Test
 		ss.backgroundColor("blue2")
 	);
 	
+	let cmd: Command;
+	
 	ss(
 		ml.body,
-		ss.color(ss.rgba(0, 0, 0, 0.2)),
-		ss.backgroundColor("green"),
-		ss.backgroundImage(ss.linearGradient(["#333", 50..pct], ["#666", 30..pct])),
-		ss.width(ss.calc(50..pct, "+", 10..px)),
-		ss.fontFamily("-apple-system", "sans-serif"),
-		ss.boxShadow("inset", 1..px, 1..px, 5..px, ss.rgba(0, 0, 0, 0.5))
+		//ss.color(ss.rgba(0, 0, 0, 0.2)),
+		cmd = ss.backgroundColor("green").dynamic(),
+		//ss.backgroundImage(ss.linearGradient(["#333", 50..pct], ["#666", 30..pct])),
+		//ss.width(ss.calc(50..pct, "+", 10..px)),
+		//ss.fontFamily("-apple-system", "sans-serif"),
+		//ss.boxShadow("inset", 1..px, 1..px, 5..px, ss.rgba(0, 0, 0, 0.5))
 	);
+	
+	setTimeout(() =>
+	{
+		cmd.recall("red");
+	},
+	500);
 	
 	ss(
 		ml.div,

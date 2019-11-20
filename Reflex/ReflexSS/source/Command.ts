@@ -25,7 +25,7 @@ namespace Reflex.SS
 			 * Stores the values that were passed in the call to the function,
 			 * for example "center" in the case of ss.textAlign("center").
 			 */
-			readonly values: CommandValue[] = [])
+			readonly values: readonly CommandValue[] = [])
 		{
 			const chars = callingName.split("");
 			for (let i = chars.length; i-- > 0;)
@@ -40,12 +40,82 @@ namespace Reflex.SS
 			}
 			
 			this.hypenatedName = chars.join("");
+			
+			for (const value of values)
+				if (value instanceof Command)
+					value.container = this;
 		}
+		
+		/**
+		 * Stores the object that owns this Command.
+		 * 
+		 * In the case when this Command refers to a CSS function, 
+		 * such as rgb() or calc(), the container refers to another Command.
+		 * 
+		 * In the case when the Command refers to a CSS property,
+		 * the container refers to a Rule.
+		 * 
+		 * In the case when the Command hasn't been connected
+		 * anywhere, the container is null.
+		 */
+		private container: Command | Rule | null = null;
 		
 		/** */
 		[Reflex.atom](destination: Rule)
 		{
 			destination.declarations.push(this);
+			this.container = destination;
+		}
+		
+		/**
+		 * 
+		 */
+		recall(...values: CommandValue[])
+		{
+			if (!this.isDynamic)
+				throw new Error(
+					"Cannot recall this Command, because " +
+					"it has not been marked as .dynamic()");
+			
+			let rule: Rule | null = null;
+			let property: Command | null = null;
+			
+			if (this.container instanceof Rule)
+			{
+				rule = this.container;
+				property = this;
+			}
+			else if (this.container)
+			{
+				property = this.container;
+				while (property)
+				{
+					if (property.container instanceof Rule)
+					{
+						rule = property.container;
+						break;
+					}
+					
+					property = property.container;
+				}
+			}
+			
+			const nativeRule = rule && ruleAssociations.get(rule);
+			if (!nativeRule || !property)
+				throw new Error(
+					"Cannot recall this Command, because it hasn't " +
+					"yet been attached to a CSS style sheet.");
+			
+			const storedValues = <CommandValue[]>this.values;
+			storedValues.length = 0;
+			storedValues.push(...values);
+			
+			nativeRule.style.setProperty(
+				property.hypenatedName,
+				Command.serializeValues(property, true),
+				this.isImportant ?
+					"important" :
+					"");
 		}
 		
 		/**
@@ -59,28 +129,67 @@ namespace Reflex.SS
 		 */
 		toString(useFunctionSyntax?: boolean)
 		{
-			return stringify(this, !useFunctionSyntax);
+			return Command.serialize(this, !useFunctionSyntax);
 		}
-	}
-	
-	/** */
-	function stringify(command: Command, propertyLevel: boolean): string
-	{
-		const hn = command.hypenatedName;
-		const values = command.values;
 		
-		const valuesText = (() =>
+		/**
+		 * Causes the !important marker to be emitted at the end of the
+		 * declaration emitted from this Command. Has no effect when
+		 * this Command is not serialized as a property.
+		 */
+		important()
 		{
+			this.isImportant = true;
+			return this;
+		}
+		
+		private isImportant = false;
+		
+		/**
+		 * Used to indicate that the value of the Command may change
+		 * in the future (this prevents certain optimizations from occuring).
+		 */
+		dynamic()
+		{
+			this.isDynamic = true;
+			return this;
+		}
+		
+		private isDynamic = false;
+		
+		/**
+		 * Converts the specified command into a fully serialized representation,
+		 * producing a string result such as "property: value;" or "rgb(0, 0, 0)".
+		 */
+		private static serialize(command: Command, propertyLevel: boolean): string
+		{
+			const hn = command.hypenatedName;
+			const valuesText = this.serializeValues(command, propertyLevel);
+			
+			return propertyLevel ?
+				hn + ": " + valuesText + ";" :
+				hn + "(" + valuesText + ")";
+		}
+		
+		/**
+		 * Converts the values of the specified command into a serialized
+		 * representation, producing a string result such as "1px solid red".
+		 */
+		private static serializeValues(command: Command, propertyLevel: boolean)
+		{
+			const values = command.values;
 			const isSingleDimension = values.every(v => !Array.isArray(v));
+			const importantText = command.isImportant ? " !important" : "";
+			
 			if (isSingleDimension)
 			{
 				const c = ", ";
 				const s = " ";
 				const sep = propertyLevel ?
-					specialCommaCases.includes(hn) ? c : s :
-					specialSpaceCases.includes(hn) ? s : c;
+					specialCommaCases.includes(command.hypenatedName) ? c : s :
+					specialSpaceCases.includes(command.hypenatedName) ? s : c;
 				
-				return values.map(v => stringifyOne(v)).join(sep);
+				return values.map(v => this.serializeValue(v)).join(sep) + importantText;
 			}
 			else
 			{
@@ -103,84 +212,80 @@ namespace Reflex.SS
 					}
 					
 					out.push(value
-						.map(v => stringifyOne(v))
+						.map(v => this.serializeValue(v))
 						.filter(v => !!v));
 				}
 				
-				return out.map(arrayL1 => arrayL1.join(" ")).join(", ");
+				return out.map(arrayL1 => arrayL1.join(" ")).join(", ") + importantText;
 			}
-		})();
-		
-		return propertyLevel ?
-			hn + ": " + valuesText + ";" :
-			hn + "(" + valuesText + ")";
-	}
-	
-	/** */
-	function stringifyOne(val: unknown)
-	{
-		if (typeof val === "string")
-			return normalizeString(val);
-		
-		else if (typeof val === "number")
-			return String(val);
-		
-		else if (val instanceof Unit)
-			return val.toString();
-		
-		else if (val instanceof Command)
-			return stringify(val, false)
-		
-		return "";
-	};
-	
-	/** */
-	function normalizeString(str: string)
-	{
-		const has = {
-			single: false,
-			double: false,
-			space: false,
-			parens: false,
-			highRange: false
-		};
-		
-		for (let i = str.length; i-- > 0;)
-		{
-			const c = str[i];
-			
-			if (c === "'")
-				has.single = true;
-			
-			else if (c === '"')
-				has.double = true;
-			
-			else if (c === " " || c === "\t")
-				has.space = true;
-			
-			else if (c === "(" || c === ")")
-				has.parens = true;
-			
-			else if (str.charCodeAt(i) > 126)
-				has.highRange = true;
 		}
 		
-		if (Object.values(has).every(value => !value))
-			return str;
+		/** */
+		private static serializeValue(val: unknown)
+		{
+			if (typeof val === "string")
+				return this.normalizeString(val);
+			
+			else if (typeof val === "number")
+				return String(val);
+			
+			else if (val instanceof Unit)
+				return val.toString();
+			
+			else if (val instanceof Command)
+				return this.serialize(val, false)
+			
+			return "";
+		};
 		
-		if (!has.double)
-			return `"${str}"`;
-		
-		if (!has.single)
-			return `'${str}'`;
-		
-		const chars = str.split("");
-		for (let i = chars.length; i-- > 0;)
-			if (chars[i] === "'")
-				chars.splice(i, 0, "\\");
-		
-		return `"${chars.join("")}"`;
-	};
+		/** */
+		private static normalizeString(str: string)
+		{
+			const has = {
+				single: false,
+				double: false,
+				space: false,
+				parens: false,
+				highRange: false
+			};
+			
+			for (let i = str.length; i-- > 0;)
+			{
+				const c = str[i];
+				
+				if (c === "'")
+					has.single = true;
+				
+				else if (c === '"')
+					has.double = true;
+				
+				else if (c === " " || c === "\t")
+					has.space = true;
+				
+				else if (c === "(" || c === ")")
+					has.parens = true;
+				
+				else if (str.charCodeAt(i) > 126)
+					has.highRange = true;
+			}
+			
+			if (Object.values(has).every(value => !value))
+				return str;
+			
+			if (!has.double)
+				return `"${str}"`;
+			
+			if (!has.single)
+				return `'${str}'`;
+			
+			const chars = str.split("");
+			for (let i = chars.length; i-- > 0;)
+				if (chars[i] === "'")
+					chars.splice(i, 0, "\\");
+			
+			return `"${chars.join("")}"`;
+		};
+	}
 	
 	//
 	const specialCommaCases = Object.freeze([
