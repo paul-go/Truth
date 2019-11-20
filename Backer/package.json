@@ -15,16 +15,14 @@
 	"scripts": {
 		"build": "makets build",
 		"bundle": "makets bundle",
-		"publish": "makets publish",
-		"test": "cd test && cypress open",
-		"test:term": "cd test && cypress run"
+		"publish": "makets publish"
 	},
 	"eslintIgnore": [
 		"**/node_modules/**/*.ts",
 		"**/*.d.ts"
 	],
 	"devDependencies": {
-		"@types/node": "^10.12.18",
-		"cypress": "^3.6.1"
-	}
+		"@types/node": "^10.12.18"
+	},
+	"dependencies": {}
 }

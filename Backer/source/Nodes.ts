@@ -69,10 +69,15 @@ namespace Backer.TruthTalk
 		
 		readonly [container]: Branch | null = null;
 		
+		[Reflex.atom](destination: Branch)
+		{
+			destination.addChild(this);
+		}
+		
 		setContainer(cont: Branch | null)
 		{
 			//@ts-ignore
-			this[container] = null;
+			this[container] = cont;
 		}
 	}
 	

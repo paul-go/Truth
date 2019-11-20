@@ -28,5 +28,8 @@
 	"references": [
 		{ "path": "../Truth/source" },
 		{ "path": "../Reflex/ReflexCore" }
-	]
+	],
+	"moduless": {
+		"port": "7561"
+	}
 }
