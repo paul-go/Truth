@@ -15,7 +15,7 @@ namespace Reflex
 	 * when changed, potentially causes the execution of a series of 
 	 * recurrent functions.
 	 */
-	export type StatelessForce<A extends any[] = any[]> = (...args: A) => void;
+	export type StatelessForce = (...args: any[]) => void;
 	
 	/**
 	 * Returns a boolean that indicates whether the specified value

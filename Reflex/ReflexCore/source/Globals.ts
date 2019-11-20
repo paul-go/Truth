@@ -7,7 +7,7 @@ function force(): () => void;
  * Returns a StatelessForce that remotely triggers some behavior when the
  * internal value is changed.
  */
-function force<F extends Reflex.StatelessForce = () => void>(): F;
+function force<F extends (...args: any[]) => void = () => void>(): F;
 /**
  * Returns a BooleanForce object that remotely triggers some behavior
  * when the internal boolean value is changed.
