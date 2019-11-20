@@ -22,12 +22,12 @@ namespace Reflex.Core
 			localTracker.update(this.locator);
 			
 			const rec = this.recurrent;
-			const forceArray: ArrayForce<any> = rec.selector;
+			const arrayForce: ArrayForce<any> = rec.selector;
 			const restArgs = rec.userRestArgs.slice();
 			
-			for (let i = -1; ++i < forceArray.length;)
+			for (let i = -1; ++i < arrayForce.length;)
 			{
-				const fo = forceArray[i];
+				const fo = arrayForce[i];
 				
 				const atoms = rec.userCallback(
 					fo,
@@ -63,9 +63,9 @@ namespace Reflex.Core
 				}
 			};
 			
-			ForceUtil.attachForce(forceArray.root.changed, (item: any, position: number) => 
+			ForceUtil.attachForce(arrayForce.root.changed, (item: any, position: number) => 
 			{
-				const internalPos = forceArray.positions.indexOf(position);
+				const internalPos = arrayForce.positions.indexOf(position);
 				if (position > -1) 
 				{
 					const meta = findMeta(internalPos);
@@ -83,7 +83,7 @@ namespace Reflex.Core
 				}
 			});
 			
-			ForceUtil.attachForce(forceArray.added, (item: any, position: number) =>
+			ForceUtil.attachForce(arrayForce.added, (item: any, position: number) =>
 			{
 				const atoms = rec.userCallback(item, containingBranch, position);
 				
@@ -94,7 +94,7 @@ namespace Reflex.Core
 					
 				let tracker = localTracker;
 				
-				if (position < forceArray.length)
+				if (position < arrayForce.length)
 				{
 					const meta = findMeta(position - 1);
 					if (meta)
@@ -111,22 +111,22 @@ namespace Reflex.Core
 					tracker);
 			});
 						
-			ForceUtil.attachForce(forceArray.removed, (item: any, position: number) =>
+			ForceUtil.attachForce(arrayForce.removed, (item: any, position: number) =>
 			{
 				const meta = findMeta(position);
 				if (meta)
 					CoreUtil.unapplyMetas(containingBranch, [meta]);
 			});
 			
-			ForceUtil.attachForce(forceArray.moved, (item1: any, item2: any, index1: number, index2: number) =>
+			ForceUtil.attachForce(arrayForce.moved, (item1: any, item2: any, index1: number, index2: number) =>
 			{
 				const source = findMeta(index1);
 				const target = findMeta(index2);
 
 				if (source && target)
 				{
-					const srcLocVal = source.locator.getlastLocatorValue();
-					const targetLocVal = target.locator.getlastLocatorValue();
+					const srcLocVal = source.locator.getLastLocatorValue();
+					const targetLocVal = target.locator.getLastLocatorValue();
 					source.locator.setLastLocatorValue(targetLocVal);
 					target.locator.setLastLocatorValue(srcLocVal);
 
@@ -134,60 +134,12 @@ namespace Reflex.Core
 				}
 			});
 			
-			ForceUtil.attachForce(forceArray.tailChange, (item: any, position: number) =>
+			ForceUtil.attachForce(arrayForce.tailChange, (item: any, position: number) =>
 			{
 				const source = findMeta(position);
 				if (source)
 					localTracker.update(source.branch);
 			});
 		}
-		
-		/** */
-		private filterRendered(rendered: Meta[])
-		{
-			const metas = rendered.slice();
-			
-			for (let i = metas.length; i-- > 0;)
-			{
-				const meta = metas[i];
-				
-				if (meta instanceof BranchMeta || meta instanceof LeafMeta)
-				{
-					meta.key = ++this.nextMetaKey;
-					rendered.splice(i, 1);
-				}
-			}
-			
-			return metas;
-		}
-		
-		private nextMetaKey = 0;
-		
-		/** */
-		private unfilterRendered(key: number, containingBranch: IBranch)
-		{
-			const resolved: Meta[] = [];
-			const iterator = RoutingLibrary.this.getChildren(containingBranch);
-			let inRange = false;
-			
-			for (const child of iterator)
-			{
-				const childMeta = 
-					BranchMeta.of(<any>child) ||
-					LeafMeta.of(<any>child);
-					
-				if (childMeta && childMeta.key === key)
-				{
-					inRange = true;
-					resolved.push(childMeta);
-				}
-				else if (inRange)
-					break;
-			}
-			
-			return resolved;
-		}
 	}
-	
-	type ArrayItemRendererFn = (item: any, branch: IBranch, index: number) => any;
 }

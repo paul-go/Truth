@@ -12,7 +12,15 @@ namespace Reflex.Core
 		stream = 2
 	}
 	
-	/** */
+	/**
+	 * A multi-level indexing data type, used to control where new sibling branches
+	 * should be inserted in a given sibling list.
+	 * 
+	 * Locators are used to solve the problem of determining where to position the
+	 * leaves and branches returned by recurrent functions within some other branch.
+	 * 
+	 * Each Meta object has a corresponding Locator.
+	 */
 	export class Locator
 	{
 		/**
@@ -62,7 +70,7 @@ namespace Reflex.Core
 		/**
 		 * 
 		 */
-		getlastLocatorValue()
+		getLastLocatorValue()
 		{
 			return this.values[this.values.length - 1];
 		}

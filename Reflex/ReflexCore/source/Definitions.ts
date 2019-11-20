@@ -37,13 +37,13 @@ namespace Reflex
 		false |
 		null |
 		void |
+		SymbolicAtom<B, L, X> |
 		Iterable<Atom<B, L, X>> |
 		AsyncIterable<Atom<B, L, X>> |
 		Promise<Atom<B, L, X>> |
 		((branch: B, children: (B | L)[]) => Atom<B, L, X>) |
 		Core.BranchFunction |
 		Recurrent |
-		SymbolicAtom<B, L, X> |
 		IAttributes;
 	
 	/**
