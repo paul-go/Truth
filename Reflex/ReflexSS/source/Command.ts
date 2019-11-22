@@ -25,7 +25,7 @@ namespace Reflex.SS
 			 * Stores the values that were passed in the call to the function,
 			 * for example "center" in the case of ss.textAlign("center").
 			 */
-			readonly values: readonly CommandValue[] = [])
+			values: CommandValue[] = [])
 		{
 			const chars = callingName.split("");
 			for (let i = chars.length; i-- > 0;)
@@ -40,11 +40,22 @@ namespace Reflex.SS
 			}
 			
 			this.hypenatedName = chars.join("");
+			this._values = values.slice();
 			
 			for (const value of values)
 				if (value instanceof Command)
 					value.container = this;
 		}
+		
+		/**
+		 * Stores the values that were passed in the call to the function,
+		 * for example "center" in the case of ss.textAlign("center").
+		 */
+		get values(): readonly CommandValue[]
+		{
+			return this._values;
+		}
+		private readonly _values: CommandValue[];
 		
 		/**
 		 * Stores the object that owns this Command.
@@ -100,22 +111,17 @@ namespace Reflex.SS
 				}
 			}
 			
+			this._values.length = 0;
+			this._values.push(...values);
+			
 			const nativeRule = rule && ruleAssociations.get(rule);
-			if (!nativeRule || !property)
-				throw new Error(
-					"Cannot recall this Command, because it hasn't " +
-					"yet been attached to a CSS style sheet.");
-			
-			const storedValues = <CommandValue[]>this.values;
-			storedValues.length = 0;
-			storedValues.push(...values);
-			
-			nativeRule.style.setProperty(
-				property.hypenatedName,
-				Command.serializeValues(property, true),
-				this.isImportant ?
-					"important" :
-					"");
+			if (nativeRule && property)
+			{
+				nativeRule.style.setProperty(
+					property.hypenatedName,
+					Command.serializeValues(property, true),
+					this.isImportant ? "important" : "");
+			}
 		}
 		
 		/**
