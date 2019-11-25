@@ -37,9 +37,6 @@ namespace Reflex
 	
 	export namespace Core
 	{
-		/**
-		 * @internal
-		 */
 		export const ForceUtil =
 		{
 			/** */

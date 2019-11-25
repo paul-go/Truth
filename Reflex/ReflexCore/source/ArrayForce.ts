@@ -90,14 +90,16 @@ namespace Reflex
 		{
 			if (this.filterFn)
 			{
-				for (let i = -1; ++i < this.positions.length;)
+				for (let i = this.positions.length; --i >= 0;)
 				{
 					const position = this.positions[i];
-					if (this.filterFn(this.getRoot(position), i, this))
+					if (!this.filterFn(this.getRoot(position), i, this))
 					{
-						const loc = this.positions.indexOf(i);
+						const loc = this.positions.indexOf(position);
 						if (loc > -1) 
 							this.splice(loc, 1);
+						else 
+							debugger;
 					}
 				}
 			}
@@ -180,7 +182,7 @@ namespace Reflex
 		{
 			const filtered = this.filterFn ?
 				positions.filter((value, index) => 
-					this.filterFn!(this.getRoot(value), index, this)) :
+					this.filterFn!(this.getRoot(value), start + index, this)) :
 				positions;
 			
 			this.positions.splice(start, 0, ...filtered);
@@ -189,6 +191,7 @@ namespace Reflex
 			{
 				const item = filtered[i];
 				const loc = start + i;
+				console.log(this.getRoot(item), loc);
 				this.added(this.getRoot(item), loc);
 				this.defineIndex(loc);
 			}
