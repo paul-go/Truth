@@ -33,6 +33,9 @@ namespace Reflex.SS
 			
 			for (const rule of eachDecendentRule(this))
 			{
+				if (rule.declarations.length === 0)
+					continue;
+				
 				for (const rulePath of eachRulePath(rule))
 				{
 					const selectorPaths = rulePath.map(fragmentsOf);
