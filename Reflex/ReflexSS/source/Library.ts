@@ -39,9 +39,9 @@ namespace Reflex.SS
 	 */
 	export enum Priority
 	{
-		low = "( --- LOW --- )",
-		default = "( --- DEFAULT --- )",
-		high = "( --- HIGH --- )"
+		low = "{ Priority.low }",
+		default = "{ Priority.default }",
+		high = "{ Priority.high }"
 	}
 	
 	/**
@@ -132,16 +132,6 @@ namespace Reflex.SS
 		 * 
 		 */
 		private readonly fauxSheet = new FauxSheet();
-		
-		/**
-		 * @internal
-		 * Stores a table of hashes of all serialized rules.
-		 * Used to determine if an identical rule has already been
-		 * generated. Note that this only deals with rules that are
-		 * generated on the client side. Rules that were brought
-		 * into the system by another means are not considered.
-		 */
-		private readonly ruleHashes = new Set<string>();
 		
 		/**
 		 * @internal
@@ -284,17 +274,12 @@ namespace Reflex.SS
 						rule.priority === Priority.default ? ruleCountLow + ruleCountDefault :
 						this.nativeSheet.cssRules.length;
 					
-					const ruleHash = Util.calculateHash(cssText).toString(36);
-					if (!this.ruleHashes.has(ruleHash))
-					{
-						this.ruleHashes.add(ruleHash);
-						const insertedAt = this.nativeSheet.insertRule(cssText, insertAt);
-						
-						const cssRule = this.nativeSheet.cssRules.item(insertedAt);
-						if (typeof CSSStyleRule === "function")
-							if (cssRule instanceof CSSStyleRule)
-								ruleAssociations.set(rule, cssRule);
-					}
+					const insertedAt = this.nativeSheet.insertRule(cssText, insertAt);
+					
+					const cssRule = this.nativeSheet.cssRules.item(insertedAt);
+					if (typeof CSSStyleRule === "function")
+						if (cssRule instanceof CSSStyleRule)
+							ruleAssociations.set(rule, cssRule);
 					
 					switch (rule.priority)
 					{
