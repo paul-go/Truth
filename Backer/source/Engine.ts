@@ -1,7 +1,7 @@
 
 namespace Backer.TruthTalk
 {
-	type Cursor = Surrogate | Name | Summary;
+	export type Cursor = Surrogate | Name | Summary;
 	type MaybeArray<T> = T | T[];
 	
 	const SurrogateFilter = (x: Cursor): x is Surrogate => x instanceof Surrogate;

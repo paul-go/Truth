@@ -8,13 +8,13 @@ namespace Backer
 	export const values = Symbol("values");
 	export const parent = Symbol("parent");
 	
-	abstract class Base extends TruthTalk.Leaves.Surrogate
+	export abstract class Base<T, Q> extends TruthTalk.Leaves.Surrogate
 	{
-		abstract [value]: any;
+		abstract [value]: T;
 		
-		[parent]: Struct | null;
+		[parent]: Q | null;
 		
-		constructor(parentValue: Struct | Surrogate | null)
+		constructor(parentValue: Q | null)
 		{
 			super();
 			this[parent] = parentValue;
@@ -23,9 +23,9 @@ namespace Backer
 		/**
 		 * Climb to root of this Struct
 		 */
-		get root(): Base | null
+		get root(): Base<T, Q> | null
 		{
-			let root: Base | null = this;
+			let root: any = this;
 			
 			while (root && root[parent]) 
 				root = root[parent];
@@ -47,14 +47,13 @@ namespace Backer
 		get [Symbol.toStringTag]() { return "Proxy"; }
 	}
 	
-	export class Summary extends TruthTalk.Leaves.Surrogate
-	{
+	export class Summary extends Base<any, Struct[]>
+	{	
 		[parent]: Struct[];
 		
 		constructor(public value: any, containers: Struct[])
 		{
-			super();
-			this[parent] = containers;
+			super(containers);
 		}
 		
 		/** */
@@ -64,7 +63,7 @@ namespace Backer
 		}
 	}
 	
-	export class Name extends Base
+	export class Name extends Base<string, Struct>
 	{
 		constructor(public name: string, container: Struct | null)
 		{
@@ -78,9 +77,8 @@ namespace Backer
 		}
 	}
 	
-	export class Struct extends Base
+	export class Struct extends Base<any, Struct | Surrogate>
 	{
-		
 		/**
 		 * Generate a Struct/Surrogate from Backer.Type
 		 */
@@ -165,6 +163,11 @@ namespace Backer
 		get contents(): Surrogate[]
 		{
 			return Object.values(this);
+		}
+		
+		get bases(): Struct[]
+		{
+			return this[typeOf].bases.map(x => Backer.Schema[x.name]);
 		}
 		
 		/** */
