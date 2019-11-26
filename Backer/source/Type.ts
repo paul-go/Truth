@@ -96,7 +96,7 @@ namespace Backer
 		
 		get primitive()
 		{
-			return this.alias ? this.alias.value : this.value.toString();
+			return this.alias ? this.alias.value : this.value && this.value.toString();
 		}
 		
 		toJSON()

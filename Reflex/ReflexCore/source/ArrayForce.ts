@@ -191,7 +191,6 @@ namespace Reflex
 			{
 				const item = filtered[i];
 				const loc = start + i;
-				console.log(this.getRoot(item), loc);
 				this.added(this.getRoot(item), loc);
 				this.defineIndex(loc);
 			}
