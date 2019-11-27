@@ -9,10 +9,10 @@ namespace Reflex.Core
 	/**
 	 * 
 	 */
-	export type AsLibrary<T, L extends ILibrary> = 
-		T &
-		StaticBranchesOf<L> &
-		StaticNonBranchesOf<L>;
+	export type AsLibrary<TNamespace, TLib extends ILibrary> = 
+		TNamespace &
+		StaticBranchesOf<TLib> &
+		StaticNonBranchesOf<TLib>;
 	
 	/**
 	 * Creates a Reflex namespace, which is the top-level function object that
@@ -60,9 +60,9 @@ namespace Reflex.Core
 	 * the creation of recurrent functions, this parameter has no effect.
 	 */
 	export function createBranchNamespace
-		<N extends IBranchNamespace, L extends ILibrary>(
-		library: L,
-		globalize?: boolean): AsLibrary<N, L>
+		<TNamespace extends IBranchNamespace, TLib extends ILibrary>(
+		library: TLib,
+		globalize?: boolean): AsLibrary<TNamespace, TLib>
 	{
 		if (Const.debug && !library.getRootBranch)
 			throw new Error("The .getRootBranch function must be implemented in this library.");

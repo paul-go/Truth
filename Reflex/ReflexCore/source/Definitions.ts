@@ -126,12 +126,12 @@ declare namespace Reflex.Core
 	 * Abstract definition of the branch variant of the top-level
 	 * namespace function.
 	 * 
-	 * @param A The Atom type of the Reflexive library.
-	 * @param R The return type of the root-level branch function.
+	 * @param TAtom The Atom type of the Reflexive library.
+	 * @param TRet The return type of the root-level branch function.
 	 */
-	export interface IBranchNamespace<A = any, R = any>
+	export interface IBranchNamespace<TAtom = any, TRet = any>
 	{
-		(...atoms: A[]): R;
+		(...atoms: TAtom[]): TRet;
 	}
 	
 	/**
