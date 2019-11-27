@@ -281,7 +281,9 @@ namespace Reflex.Core
 				returnBranch(branchFn(constructBranchArgs), atoms));
 	
 	/**
-	 * 
+	 * Returns the IBranch back to the user, while providing an
+	 * opportunity for the Reflexive library to augment the actual
+	 * return value.
 	 */
 	function returnBranch(branch: IBranch, atoms: any[])
 	{
