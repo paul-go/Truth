@@ -221,6 +221,9 @@ namespace Reflex.Core
 							containingBranchMeta,
 							closureReturn);
 						
+						if (metasReturned.length < 1)
+							continue;
+						
 						childMetas.splice(i--, 1, ...metasReturned);
 					}
 				}
