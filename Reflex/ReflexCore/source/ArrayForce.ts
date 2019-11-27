@@ -381,13 +381,27 @@ namespace Reflex
 		}
 		
 		/** */
-		map<U>(callbackFn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[]
+		map<U>(callbackFn: (value: T, index: number, array: T[]) => U, thisArg?: any): ArrayForce<U>
 		{
-			return ArrayForce.create(
+			const Force = ArrayForce.create(
 				this.positions
 					.map(x => this.getRoot(x))
 					.map((value, index) => callbackFn.call(thisArg || this, value, index, this))
 			);
+			
+			Reflex.Core.ForceUtil.attachForce(this.added, (item: T, index: number) =>
+			{
+				Force.splice(index, 0, callbackFn(item, index, this));
+			});
+			
+			Reflex.Core.ForceUtil.attachForce(this.removed, (item: T, index: number, id: number) =>
+			{
+				const loc = Force.positions.indexOf(id);
+				if (loc > -1) 
+					Force.splice(loc, 1);
+			});
+			
+			return Force;
 		}
 		
 		/** */
@@ -520,22 +534,103 @@ namespace Reflex
 			callback: (this: This, value: T, index: number, array: T[]) => U | readonly U[], 
 			thisArg?: This | undefined): U[]
 		{
-			return this.snapshot().flatMap(callback, thisArg); 
+			//@ts-ignore
+			return this.map(callback, thisArg).flat();
 		}
 		
-		/** */
-		flat<U>(this: U[][][][][][][][], depth: 7): U[];
-		flat<U>(this: U[][][][][][][], depth: 6): U[];
-		flat<U>(this: U[][][][][][], depth: 5): U[];
-		flat<U>(this: U[][][][][], depth: 4): U[];
-		flat<U>(this: U[][][][], depth: 3): U[];
-		flat<U>(this: U[][][], depth: 2): U[];
-		flat<U>(this: U[][], depth?: 1 | undefined): U[];
-		flat<U>(this: U[], depth: 0): U[];
-		flat<U>(depth?: number | undefined): any[];
+		/** */		
+		flat(this: T[][][][][][][][], depth: 7): ArrayForce<T>;
+		flat(this: T[][][][][][][], depth: 6): ArrayForce<T>;
+		flat(this: T[][][][][][], depth: 5): ArrayForce<T>;
+		flat(this: T[][][][][], depth: 4): ArrayForce<T>;
+		flat(this: T[][][][], depth: 3): ArrayForce<T>;
+		flat(this: T[][][], depth: 2): ArrayForce<T>;
+		flat(this: T[][], depth?: 1 | undefined): ArrayForce<T>;
+		flat(this: T[], depth: 0): ArrayForce<T>;
 		flat(depth?: any)
 		{
-			return this.snapshot().flat(depth);
+			if (depth < 1) return this;
+			 
+			const levelDown = (source: ArrayForce<T>) => {
+				const Force = ArrayForce.create(source.snapshot().flat());
+				const NumberMap = new Map<number, number[]>();
+				
+				Reflex.Core.ForceUtil.attachForce(source.added, (item: T[], index: number) =>
+				{
+					const id = source.positions[index];
+					const indexes = item.map(x => Force.root.push(x));
+					NumberMap.set(id, indexes);
+					Force.positions.splice(index, 0, ...indexes);
+					
+					for (let i = -1; ++i < indexes.length;)
+					{
+						Force.added(item[i], index + i);
+						Force.defineIndex(index + i);
+					}
+				});
+				
+				Reflex.Core.ForceUtil.attachForce(source.removed, (item: T[], index: number, id: number) =>
+				{
+					const map = NumberMap.get(id);
+					if (map) 
+						for(const item of map)
+						{
+							const loc = Force.positions.indexOf(item);
+							if (loc > -1)
+								Force.splice(loc, 1);
+						}
+				});
+				return Force;
+			}
+			
+			let result;
+			
+			while (depth--)
+				result = levelDown(<ArrayForce<T>>result);
+			
+			return result;
+		}
+		
+		distinct(keyFn: (x: any, index: number) => any)
+		{
+			const KeyMap = new Map<any, number>();
+			const Force = ArrayForce.create<T>([]);
+			
+			const added = (item: T, index: number) =>
+			{
+				const key = keyFn(item, index);
+				const current = KeyMap.get(key) || 0;
+				if (!current)
+					Force.splice(index, 0, item);
+				KeyMap.set(key, current + 1);
+			};
+			
+			const removed = (item: T, index: number) =>
+			{
+				const key = keyFn(item, index);
+				let current = KeyMap.get(key) || 0;
+				if (current > 0)
+				{	
+					current--;
+					
+					if (current === 0)
+					{
+						KeyMap.delete(key);
+						const loc = Force.findIndex(x => JSON.stringify(x) == JSON.stringify(item));
+						if (loc > -1) 
+							Force.splice(loc, 1);
+					}
+					else 
+					{
+						KeyMap.set(key, current);
+					}
+				}
+			}
+			
+			this.forEach((x, i) => added(x, i));
+			
+			Reflex.Core.ForceUtil.attachForce(this.added, added);
+			Reflex.Core.ForceUtil.attachForce(this.removed, removed);
 		}
 
 		/** */
@@ -588,5 +683,6 @@ namespace Reflex
 			positions.forEach(x => this.root.delete(x));
 			return result;
 		}
+		
 	}
 }
