@@ -83,7 +83,7 @@ namespace Reflex.SS
 		 */
 		recall(...values: CommandValue[])
 		{
-			if (!this.isDynamic)
+			if (!this._isDynamic)
 				throw new Error(
 					"Cannot recall this Command, because " +
 					"it has not been marked as .dynamic()");
@@ -154,14 +154,20 @@ namespace Reflex.SS
 		/**
 		 * Used to indicate that the value of the Command may change
 		 * in the future (this prevents certain optimizations from occuring).
-		 */
+		 * /
 		dynamic()
 		{
-			this.isDynamic = true;
+			this._isDynamic = true;
 			return this;
 		}
 		
-		private isDynamic = false;
+		/** @internal * /
+		get isDynamic()
+		{
+			return this._isDynamic;
+		}
+		private _isDynamic = false;
+		*/
 		
 		/**
 		 * Converts the specified command into a fully serialized representation,

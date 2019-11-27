@@ -20,6 +20,16 @@ namespace Reflex.SS
 		readonly containers: Rule[] = [];
 		
 		/**
+		 * The atom of a Rule is it's generated CSS class, if any.
+		 * This allows Rule instances to be compatible with ReflexML,
+		 * i.e., so that they can be fed 
+		 */
+		[Reflex.atom]()
+		{
+			return this.class;
+		}
+		
+		/**
 		 * Returns an array of strings that are serialized CSS representation 
 		 * of this Rule instance, and all rules nested inside of it.
 		 */
@@ -68,21 +78,59 @@ namespace Reflex.SS
 		}
 		
 		/**
-		 * Returns the name of the unique CSS class name
-		 * generated to represent this Rule.
+		 * In the case when this Rule is anonymous (meaning that it has no selector 
+		 * information), this property stores a generated CSS class name, used to
+		 * uniquely identify this rule.
+		 * 
+		 * In other cases, this property stores an empty string.
 		 */
 		get class()
 		{
 			if (this.classIndex < 0)
-				this.classIndex = ++classCounter;
+				this.classIndex = ++Rule.classCounter;
 			
 			return "_" + this.classIndex.toString(36);
 		}
 		
 		private classIndex = -1;
+		
+		/**
+		 * 
+		 */
+		get hash()
+		{
+			if (this._hash !== null)
+				return this._hash;
+			
+			if (this.hasDynamic())
+				return this._hash = "";
+			
+			const ruleText = this.toStringArray({ format: false }).join("");
+			return this._hash = Util.calculateHash(ruleText).toString(36);
+		}
+		private _hash: string | null = null;
+		
+		/**
+		 * @internal
+		 */
+		hasDynamic()
+		{
+			for (const rule of eachDecendentRule(this))
+				if (rule.declarations.some(d => d.isDynamic))
+					return true;
+			
+			return false;
+		}
+		
+		/** @internal */
+		static reset()
+		{
+			this.classCounter = 0;
+		}
+		
+		private static classCounter = 0;
 	}
 	
-	let classCounter = 0;
 	
 	/**
 	 * Returns an array containing the sub-selectors of
@@ -132,8 +180,8 @@ namespace Reflex.SS
 	}
 	
 	/**
-	 * Returns an array containing the entire list of decendent
-	 * sub-rules the specified rule, in breadth-first order.
+	 * Returns an array containing the specifed rule, and it's
+	 * entire subtree of decendent rules, in breadth-first order.
 	 */
 	function eachDecendentRule(rule: Rule)
 	{
@@ -165,5 +213,23 @@ namespace Reflex.SS
 		
 		recurse(rule, []);
 		return out;
+	}
+	
+	/**
+	 * 
+	 */
+	function extractIdentifyingClassNames(selector: string)
+	{
+		const chars = selector.split("");
+		const terminatingChars = [" ", "["];
+		
+		let pos = 0;
+		
+		while (pos < chars.length)
+		{
+			
+			
+			pos++;
+		}
 	}
 }

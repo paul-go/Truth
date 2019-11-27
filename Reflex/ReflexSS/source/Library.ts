@@ -12,9 +12,9 @@ namespace Reflex.SS
 	export type CssValue = string | number | Command | Unit;
 	
 	/**
-	 * Creates a namespace.
+	 * 
 	 */
-	export interface Namespace extends Core.IBranchNamespace<Atom, string>
+	export interface Namespace extends Core.IBranchNamespace<Atom, Rule>
 	{
 		/**
 		 * Serializes all generated CSS content into a string.
@@ -74,6 +74,11 @@ namespace Reflex.SS
 				emit: (options?: IEmitOptions) => this.emit(options || {}),
 				stream: (enable?: boolean) => this.stream(!!enable),
 				/**
+				 * Removes all generated CSS rules from ReflexSS's internal
+				 * style sheet, as well as it's internal caches.
+				 */
+				reset: () => this.reset(),
+				/**
 				 * A ReflexSS-specific priority assignment mechanism, which provides
 				 * some control over where in the generated style sheet a generated 
 				 * CSS rule may be placed. The 3 levels are intended for the following
@@ -125,6 +130,20 @@ namespace Reflex.SS
 				document.head.appendChild(link);
 				this.nativeSheet = <CSSStyleSheet>link.sheet;
 			}
+		}
+		
+		/** */
+		private reset()
+		{
+			this.fauxSheet.clear();
+			Rule.reset();
+			
+			this.nativeRuleCountLow = 0;
+			this.nativeRuleCountDefault = 0;
+			this.ruleHashes.clear();
+			
+			while (this.nativeSheet?.cssRules.length)
+				this.nativeSheet.deleteRule(0);
 		}
 		
 		/**
@@ -264,33 +283,50 @@ namespace Reflex.SS
 			const cls = rule.class;
 			if (!this.fauxSheet.get(cls))
 				this.fauxSheet.set(cls, rule);
-			  
+			
+			const hasDynamic = rule.hasDynamic();
+			
+			if (rule.hash)
+			{
+				// If you have a rule hash, what does this mean?
+				// 
+			}
+			
 			if (this.streamingEnabled && this.nativeSheet)
 			{
-				for (const cssText of rule.toStringArray())
+				
+				for (const ruleText of rule.toStringArray())
 				{
 					let insertAt = 
-						rule.priority === Priority.low ? ruleCountLow :
-						rule.priority === Priority.default ? ruleCountLow + ruleCountDefault :
+						rule.priority === Priority.low ? this.nativeRuleCountLow :
+						rule.priority === Priority.default ? this.nativeRuleCountLow + this.nativeRuleCountDefault :
 						this.nativeSheet.cssRules.length;
 					
-					const insertedAt = this.nativeSheet.insertRule(cssText, insertAt);
-					
+					const insertedAt = this.nativeSheet.insertRule(ruleText, insertAt);
 					const cssRule = this.nativeSheet.cssRules.item(insertedAt);
+					
 					if (typeof CSSStyleRule === "function")
 						if (cssRule instanceof CSSStyleRule)
 							ruleAssociations.set(rule, cssRule);
 					
 					switch (rule.priority)
 					{
-						case Priority.low: ruleCountLow++; break;
-						case Priority.default: ruleCountDefault++; break;
+						case Priority.low: this.nativeRuleCountLow++; break;
+						case Priority.default: this.nativeRuleCountDefault++; break;
 					}
 				}
 			}
-			return cls;
+			
+			return rule;
 		}
+		
+		private nativeRuleCountLow = 0;
+		private nativeRuleCountDefault = 0;
+		
+		/** */
+		private ruleHashes = new Set<string>();
 	}
+	
 	
 	/**
 	 * @internal
@@ -300,10 +336,11 @@ namespace Reflex.SS
 	 */
 	export const ruleAssociations = new WeakMap<Rule, CSSStyleRule>();
 	
-	let ruleCountLow = 0;
-	let ruleCountDefault = 0;
 	
 	/**
+	 * An internal intermediate representation of a CSSStyleSheet used
+	 * to determine the regions of rules that belong to each priority level.
+	 * 
 	 * A class that stores a series of internal maps. These maps store
 	 * the generated CSS rules, as well as the internally generated 
 	 * identifiers (which may become class names) that refer to them.
@@ -342,6 +379,14 @@ namespace Reflex.SS
 			
 			for (const value of this.high.values())
 				yield value;
+		}
+		
+		/** */
+		clear()
+		{
+			this.low.clear();
+			this.default.clear();
+			this.high.clear();
 		}
 		
 		readonly low = new Map<string, Rule>();
