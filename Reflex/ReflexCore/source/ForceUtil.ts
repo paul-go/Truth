@@ -1,7 +1,9 @@
 
 namespace Reflex
 {
-	/** */
+	/**
+	 * Stores a WeakMap of all forces used across the entire system.
+	 */
 	const globalForceMap = new WeakMap<StatelessForce, ForceEntry>();
 	
 	/** */
@@ -36,6 +38,7 @@ namespace Reflex
 	
 	export namespace Core
 	{
+		/** @internal */
 		export const ForceUtil =
 		{
 			/** */
