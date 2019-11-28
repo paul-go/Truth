@@ -16,10 +16,10 @@ namespace Reflex.Core
 		/** */
 		set(index: number, value: T)
 		{
-			if (!Object.prototype.hasOwnProperty.call(this.root, index)) 
-				this.root[index] = { value: undefined, ref: 1 };
-			else 
+			if (Object.prototype.hasOwnProperty.call(this.root, index)) 
 				this.changed(value, index);
+			else 
+				this.root[index] = { value: void 0, ref: 1 };
 			
 			this.root[index].value = value;
 			return index;
@@ -49,7 +49,7 @@ namespace Reflex.Core
 					item.ref--;
 				
 				if (item.ref === 0) 
-					item.value = undefined;
+					item.value = void 0;
 			}
 		}
 		
