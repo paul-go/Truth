@@ -34,7 +34,9 @@ namespace Reflex.ML.Test
 			testArrayForces,
 			testStatefulForces,
 			testValueBinding,
-			testSymbolicAtomTypes
+			testSymbolicAtomTypes,
+			testForceReturners,
+			testForceWatchers
 			
 			// These don't need to be uncommented for now
 			// Mutations are probably going to get axed
@@ -583,6 +585,49 @@ namespace Reflex.ML.Test
 			() => ml.div(ml`Should be before.`),
 			new CustomSymbolic("Atomized!"),
 			() => ml.div(ml`Should be after.`),
+		);
+	}
+	
+	/** */
+	function testForceReturners()
+	{
+		const fo = force(0).return((now, was) => now % 2 === 0 ? now : was);
+		const numbers: number[] = [];
+		
+		for (let i = -1; ++i < 20;)
+		{
+			fo.value = i;
+			
+			if (!numbers.includes(fo.value))
+				numbers.push(fo.value);
+		}
+		
+		return ml.div(
+			ml("Should only have even numbers: "),
+			ml.br(),
+			ml(numbers.join())
+		);
+	}
+	
+	/** */
+	function testForceWatchers()
+	{
+		const stringFo = force("");
+		const numFo = force(0).watch((now, was) =>
+			stringFo.value = "The number is: " + now);
+		
+		return ml.div(
+			ml.button(
+				on("click", () =>
+				{
+					numFo.value++;
+				}),
+				ml`Click this button to indirectly change the string force.`
+			),
+			on(stringFo, now =>
+			{
+				return ml(now);
+			})
 		);
 	}
 	
