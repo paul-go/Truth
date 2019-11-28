@@ -2,10 +2,10 @@
 namespace Reflex
 {
 	/** */
-	const entries = new WeakMap<StatelessForce, Entry>();
+	const globalForceMap = new WeakMap<StatelessForce, ForceEntry>();
 	
 	/** */
-	class Entry
+	class ForceEntry
 	{
 		readonly systemCallbacks = new Set<RecurrentCallback<Atom>>();
 	}
@@ -32,7 +32,7 @@ namespace Reflex
 	 */
 	export function isStatelessForce(forceFn: any): forceFn is (...args: any[]) => void
 	{
-		return !!forceFn && entries.has(forceFn);
+		return !!forceFn && globalForceMap.has(forceFn);
 	}
 	
 	export namespace Core
@@ -47,14 +47,14 @@ namespace Reflex
 				// directly when the thing happens.
 				const userForceFn = (...args: any[]) =>
 				{
-					const reFn = entries.get(userForceFn);
-					if (reFn)
-						for (const systemCallback of reFn.systemCallbacks)
+					const foFn = globalForceMap.get(userForceFn);
+					if (foFn)
+						for (const systemCallback of foFn.systemCallbacks)
 							systemCallback(...args);
 				};
 				
-				const entry = new Entry();
-				entries.set(userForceFn, entry);
+				const fe = new ForceEntry();
+				globalForceMap.set(userForceFn, fe);
 				return userForceFn;
 			},
 			
@@ -66,7 +66,7 @@ namespace Reflex
 				fn: StatelessForce, 
 				systemCallback: RecurrentCallback<Atom>)
 			{
-				const re = entries.get(fn);
+				const re = globalForceMap.get(fn);
 				if (re)
 					re.systemCallbacks.add(systemCallback);
 			},
@@ -78,7 +78,7 @@ namespace Reflex
 				fn: StatelessForce,
 				systemCallback: RecurrentCallback<Atom>)
 			{
-				const fo = entries.get(fn);
+				const fo = globalForceMap.get(fn);
 				if (fo)
 					fo.systemCallbacks.delete(systemCallback);
 			}

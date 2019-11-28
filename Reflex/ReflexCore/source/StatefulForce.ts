@@ -63,7 +63,7 @@ namespace Reflex
 	}
 	
 	/**
-	 * 
+	 * A class that wraps a boolean whose changes can be observed.
 	 */
 	export class BooleanForce extends StatefulForce<boolean>
 	{
