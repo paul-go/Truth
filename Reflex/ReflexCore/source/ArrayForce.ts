@@ -60,10 +60,10 @@ namespace Reflex
 				this.executeSort();
 			});
 		}
-
+		
 		private sortFn?: (a: T, b: T) => number;
 		private filterFn?: (value: T, index: number, array: ArrayForce<T>) => boolean;
-
+		
 		/** 
 		 * @internal
 		 */
@@ -73,7 +73,7 @@ namespace Reflex
 			this.executeSort();
 			return this;
 		}
-
+		
 		/** 
 		 * @internal
 		 */
@@ -105,7 +105,7 @@ namespace Reflex
 				}
 			}
 		}
-
+		
 		/** */
 		protected executeSort()
 		{
@@ -131,7 +131,7 @@ namespace Reflex
 							this.moved(itemNow, itemNext, n, n + 1);
 						}
 					}
-
+					
 					if (!changed)
 						break;
 				}
@@ -141,7 +141,7 @@ namespace Reflex
 					this.tailChanged(this.get(length - 1), length - 1);
 			}
 		}
-
+		
 		/** */
 		protected filterPush(...items: T[])
 		{
@@ -175,7 +175,7 @@ namespace Reflex
 				});
 			}
 		}
-
+		
 		/** 
 		 * @internal
 		 * Inserts positions from parameters into positions array of this
@@ -207,7 +207,7 @@ namespace Reflex
 		{
 			return this.positions.length;
 		}
-
+		
 		/** */
 		set length(i: number)
 		{
@@ -243,7 +243,7 @@ namespace Reflex
 					}
 				}) as ArrayForce<T>;
 			}
-				
+			
 			return this._proxy;
 		}
 		
@@ -265,7 +265,7 @@ namespace Reflex
 			
 			return result;
 		}
-
+		
 		/**
 		 * Sets a value within the array, at the specified index.
 		 */
@@ -274,10 +274,10 @@ namespace Reflex
 			if (this.filterFn)
 				if (!this.filterFn(value, index, this))
 					this.positions.splice(index, 1);
-					
+			
 			this.root.set(this.positions[index], value);
 		}
-
+		
 		/** 
 		 * Returns snapshot of this ArrayForce as a plain JavaScript array.
 		 */
@@ -285,19 +285,19 @@ namespace Reflex
 		{
 			return this.positions.map(x => this.getRoot(x));
 		}
-
+		
 		/** */
 		toString(): string
 		{
 			return JSON.stringify(this.snapshot());
 		}
-
+		
 		/** */
 		toLocaleString(): string
 		{
 			return this.toString();
 		}
-
+		
 		/** */
 		concat(...items: ConcatArray<T>[]): T[];
 		concat(...items: (T | ConcatArray<T>)[]): T[];
@@ -307,7 +307,7 @@ namespace Reflex
 			array.push(...items);
 			return array.proxy();
 		}
-
+		
 		/** */
 		join(separator?: string): string
 		{
@@ -340,7 +340,7 @@ namespace Reflex
 					fo instanceof StatefulForce ?
 						fo.changed : fo, array.executeSort
 				);
-				
+			
 			array.insertRef(0, ...this.positions);
 			return array.proxy() as this;
 		}
@@ -351,7 +351,7 @@ namespace Reflex
 			for (let i = fromIndex - 1; ++i < this.positions.length;)
 				if (this.get(i) === searchElement) 
 					return i;
-					
+			
 			return -1;
 		}
 		
@@ -361,7 +361,7 @@ namespace Reflex
 			for (let i = fromIndex || this.positions.length; --i > -1;)
 				if (this.get(i) === searchElement) 
 					return i;
-					
+			
 			return -1;
 		}
 		
@@ -371,7 +371,7 @@ namespace Reflex
 			for (let i = -1; ++i < this.positions.length;)
 				if (!callbackFn.call(thisArg || this, this.get(i), i, this)) 
 					return false;
-					
+			
 			return true;
 		}
 		
@@ -381,7 +381,7 @@ namespace Reflex
 			for (let i = -1; ++i < this.positions.length;)
 				if (callbackFn.call(thisArg || this, this.get(i), i, this)) 
 					return true;
-					
+			
 			return false;
 		}
 		
@@ -495,7 +495,7 @@ namespace Reflex
 			for (let i = -1; ++i < this.positions.length;)
 				if (predicate.call(thisArg || this, this.get(i), i, this))
 					return i;
-					
+			
 			return -1;
 		}
 		
@@ -636,7 +636,7 @@ namespace Reflex
 		{
 			if (depth < 1)
 				return this;
-			 
+			
 			const levelDown = (source: ArrayForce<T>) =>
 			{
 				const fo = ArrayForce.create(source.snapshot().flat());
@@ -730,20 +730,20 @@ namespace Reflex
 			Core.ForceUtil.attachForce(this.added, added);
 			Core.ForceUtil.attachForce(this.removed, removed);
 		}
-
+		
 		/** */
 		push(...items: T[])
 		{
 			this.insertRef(this.length, ...this.filterPush(...items));
 			return this.positions.length;
 		}
-
+		
 		/** */
 		pop()
 		{
 			if (this.positions.length < 1) 
 				return void 0;
-				
+			
 			const pos = this.positions.pop();
 			if (pos === void 0)
 				return void 0;
@@ -753,20 +753,20 @@ namespace Reflex
 			this.root.delete(pos);
 			return item;
 		}
-
+		
 		/** */
 		unshift(...items: T[])
 		{
 			this.insertRef(0, ...this.filterPush(...items));
 			return this.positions.length;
 		}
-
+		
 		/** */
 		shift()
 		{
 			if (this.positions.length < 1) 
 				return void 0;
-				
+			
 			const pos = this.positions.shift();
 			if (pos === void 0)
 				return void 0;
@@ -776,7 +776,7 @@ namespace Reflex
 			this.root.delete(pos);
 			return item;
 		}
-
+		
 		/** */
 		splice(start: number, deleteCount: number, ...items: T[])
 		{
