@@ -10,7 +10,6 @@ function restore(
 	commands: readonly any[])
 {
 	/*
-	
 	The commands array is a long series of entries. The entries are consumed
 	sequentially, like a parser. Below is a schematic of how this array is organized:
 	
@@ -38,6 +37,7 @@ function restore(
 	const C = Reflex.Core;
 	const parse = C.Locator.parse;
 	const error = () => new Error();
+	const lib = Reflex.Core.libraryOf(ml);
 	
 	if (commands.length % BlockSize.branch !== 0)
 		throw error();
@@ -50,7 +50,7 @@ function restore(
 			continue;
 		
 		const branchLocator = parse("" + commands[b + 1]);
-		const branchMeta = new C.BranchMeta(branch, [], branchLocator);
+		const branchMeta = new C.BranchMeta(branch, [], lib, branchLocator);
 		
 		const textInfo: any[] = commands[b + 2];
 		const streamInfo: any[] = commands[b + 3];
@@ -72,7 +72,7 @@ function restore(
 				{
 					if (textNodeIndex === index)
 					{
-						new C.LeafMeta(child, locator);
+						new C.LeafMeta(child, lib, locator);
 						break;
 					}
 					textNodeIndex++;
