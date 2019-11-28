@@ -30,7 +30,7 @@ namespace Reflex
 		readonly root: Core.ArrayStore<T>;
 		
 		/** */
-		private constructor(root: Core.ArrayStore<T> | ArrayForce<T>)
+		protected constructor(root: Core.ArrayStore<T> | ArrayForce<T>)
 		{
 			super(root);
 			
