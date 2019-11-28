@@ -1,15 +1,12 @@
 
 namespace Reflex
 {
-	type SortFunction<T = any> = (a: T, b: T) => number;
-	type FilterFunction<T = any> = (value: T, index: number, array: T[]) => boolean;
-	
 	/**
-	 * 
+	 * A class that mimicks a JavaScript array, but whose contents can be observed.
 	 */
-	export class ArrayForce<T> implements Array<T>
+	export class ArrayForce<T> extends StatefulForce implements Array<T>
 	{
-		/** */
+		/** @internal */
 		static create<T>(items: T[])
 		{
 			const store = new Core.ArrayStore<T>();
@@ -24,17 +21,19 @@ namespace Reflex
 		readonly added = force<(item: T, position: number) => void>();
 		readonly removed = force<(item: T, position: number, id: number) => void>();
 		readonly moved = force<(e1: T, e2: T, i1: number, i2: number) => void>();
-		readonly tailChange = force<(item: T, position: number) => void>();
+		readonly tailChanged = force<(item: T, position: number) => void>();
 		
-		/** */
+		/** @internal */
 		readonly positions: number[] = [];
 		
-		/** */
+		/** @internal */
 		readonly root: Core.ArrayStore<T>;
 		
 		/** */
-		constructor(root: Core.ArrayStore<T> | ArrayForce<T>)
+		private constructor(root: Core.ArrayStore<T> | ArrayForce<T>)
 		{
+			super(root);
+			
 			if (root instanceof Core.ArrayStore)
 			{	
 				this.root = root;
@@ -90,16 +89,18 @@ namespace Reflex
 		{
 			if (this.filterFn)
 			{
-				for (let i = this.positions.length; --i >= 0;)
+				for (let i = this.positions.length; i-- > 0;)
 				{
 					const position = this.positions[i];
-					if (!this.filterFn(this.getRoot(position), i, this))
+					const root = this.getRoot(position);
+					
+					if (!this.filterFn(root, i, this))
 					{
 						const loc = this.positions.indexOf(position);
-						if (loc > -1) 
-							this.splice(loc, 1);
-						else 
-							debugger;
+						if (loc < 0)
+							throw new Error("Unknown state.");
+						
+						this.splice(loc, 1);
 					}
 				}
 			}
@@ -117,13 +118,17 @@ namespace Reflex
 				for (let i = -1; ++i < length - 1;)
 				{
 					let changed = false;
+					
 					for (let n = -1; ++n < length - (i + 1);)
 					{
-						if (this.sortFn(this.get(n)!, this.get(n + 1)!) > 0)
+						const itemNow = this.get(n);
+						const itemNext = this.get(n + 1);
+						
+						if (this.sortFn(itemNow, itemNext) > 0)
 						{
 							changed = true;
 							[array[n], array[n + 1]] = [array[n + 1], array[n]];
-							this.moved(this.get(n)!, this.get(n + 1)!, n, n + 1);
+							this.moved(itemNow, itemNext, n, n + 1);
 						}
 					}
 
@@ -133,7 +138,7 @@ namespace Reflex
 				
 				const newLastItem = array[length - 1];
 				if (lastItem !== newLastItem)
-					this.tailChange(this.get(length - 1)!, length - 1);
+					this.tailChanged(this.get(length - 1), length - 1);
 			}
 		}
 
@@ -142,10 +147,10 @@ namespace Reflex
 		{
 			if (this.filterFn)
 				return items
-					.filter((value, index) => this.filterFn!(value, index, this))
-					.map(x => this.root.push(x));
+					.filter((value, index) => this.filterFn && this.filterFn(value, index, this))
+					.map(item => this.root.push(item));
 
-			return items.map(x => this.root.push(x));
+			return items.map(item => this.root.push(item));
 		}
 		
 		/**
@@ -181,8 +186,7 @@ namespace Reflex
 		protected insertRef(start: number, ...positions: number[])
 		{
 			const filtered = this.filterFn ?
-				positions.filter((value, index) => 
-					this.filterFn!(this.getRoot(value), start + index, this)) :
+				positions.filter((value, index) => this.filterFn!(this.getRoot(value), start + index, this)) :
 				positions;
 			
 			this.positions.splice(start, 0, ...filtered);
@@ -225,13 +229,15 @@ namespace Reflex
 					get(target, prop: Extract<keyof ArrayForce<T>, string>)
 					{
 						const index = parseInt(prop, 10);
-						return index !== index ? target[prop] : target.get(index);
+						return index !== index ?
+							target[prop] :
+							target.get(index);
 					},
 					set(target, prop: Extract<keyof ArrayForce<T>, string>, value: T)
 					{
 						const index = parseInt(prop, 10);
 						if (index !== index)
-							target.set(index, value);
+							target.set(value, index);
 							
 						return true;
 					}
@@ -253,11 +259,17 @@ namespace Reflex
 		/** */
 		private getRoot(index: number)
 		{
-			return this.root.get(index)!;
+			const result = this.root.get(index);
+			if (result === void 0)
+				throw new Error("No item exists at the position " + index);
+			
+			return result;
 		}
 
-		/** */
-		set(index: number, value: T)
+		/**
+		 * Sets a value within the array, at the specified index.
+		 */
+		set(value: T, index = this.positions.length - 1)
 		{
 			if (this.filterFn)
 				if (!this.filterFn(value, index, this))
@@ -267,7 +279,7 @@ namespace Reflex
 		}
 
 		/** 
-		 * Returns snapshot of this as a js array 
+		 * Returns snapshot of this ArrayForce as a plain JavaScript array.
 		 */
 		snapshot()
 		{
@@ -297,7 +309,7 @@ namespace Reflex
 		}
 
 		/** */
-		join(separator?: string | undefined): string
+		join(separator?: string): string
 		{
 			return this.snapshot().join(separator);
 		}
@@ -310,7 +322,7 @@ namespace Reflex
 		}
 		
 		/** */
-		slice(start?: number | undefined, end?: number | undefined): T[]
+		slice(start?: number, end?: number): T[]
 		{
 			const array = new ArrayForce(this.root);
 			array.insertRef(0, ...this.positions.slice(start, end));
@@ -344,7 +356,7 @@ namespace Reflex
 		}
 		
 		/** */
-		lastIndexOf(searchElement: T, fromIndex?: number | undefined): number
+		lastIndexOf(searchElement: T, fromIndex?: number): number
 		{
 			for (let i = fromIndex || this.positions.length; --i > -1;)
 				if (this.get(i) === searchElement) 
@@ -367,7 +379,7 @@ namespace Reflex
 		some(callbackFn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean
 		{
 			for (let i = -1; ++i < this.positions.length;)
-				if (callbackFn.call(thisArg || this, this.get(i)!, i, this)) 
+				if (callbackFn.call(thisArg || this, this.get(i), i, this)) 
 					return true;
 					
 			return false;
@@ -389,12 +401,12 @@ namespace Reflex
 					.map((value, index) => callbackFn.call(thisArg || this, value, index, this))
 			);
 			
-			Reflex.Core.ForceUtil.attachForce(this.added, (item: T, index: number) =>
+			Core.ForceUtil.attachForce(this.added, (item: T, index: number) =>
 			{
 				Force.splice(index, 0, callbackFn(item, index, this));
 			});
 			
-			Reflex.Core.ForceUtil.attachForce(this.removed, (item: T, index: number, id: number) =>
+			Core.ForceUtil.attachForce(this.removed, (item: T, index: number, id: number) =>
 			{
 				const loc = Force.positions.indexOf(id);
 				if (loc > -1) 
@@ -417,11 +429,15 @@ namespace Reflex
 				Core.ForceUtil.attachForce(fo instanceof StatefulForce ? fo.changed : fo, () => 
 				{
 					array.executeFilter();
-					this.positions.forEach((x, i) => 
+					
+					for (let i = -1; ++i < this.positions.length;)
 					{
-						if (array.filterFn!(this.getRoot(x), i, this) && !array.positions.includes(x)) 
-							array.insertRef(i, x);
-					});
+						const pos = this.positions[i];
+						if (array.filterFn)
+							if (array.filterFn(this.getRoot(i), i, this))
+								if (!array.positions.includes(pos))
+									array.insertRef(i, pos);
+					}
 				});
 			}
 			
@@ -433,20 +449,34 @@ namespace Reflex
 		reduce(callbackFn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T): T;
 		reduce(callbackFn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T, initialValue: T): T;
 		reduce<U>(callbackFn: (previousValue: U, currentValue: T, currentIndex: number, array: T[]) => U, initialValue: U): U;
-		reduce(callbackFn: any, initialValue?: any)
+		reduce(callbackFn: (previousValue: any, currentValue: any, currentIndex: number, array: any[]) => any, initialValue?: any)
 		{
-			return this.positions
-				.reduce((prev, curr, ci) => callbackFn(prev, this.get(curr), ci, this), initialValue);
+			return this.positions.reduce((previousVal, currentVal, currentIdx) =>
+			{
+				return callbackFn(
+					previousVal,
+					this.get(currentVal),
+					currentIdx,
+					this);
+			},
+			initialValue);
 		}
 		
 		/** */
 		reduceRight(callbackFn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T): T;
 		reduceRight(callbackFn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T, initialValue: T): T;
 		reduceRight<U>(callbackFn: (previousValue: U, currentValue: T, currentIndex: number, array: T[]) => U, initialValue: U): U;
-		reduceRight(callbackFn: any, initialValue?: any)
+		reduceRight(callbackFn: (previousValue: any, currentValue: any, currentIndex: number, array: any[]) => any, initialValue?: any)
 		{
-			return this.positions
-				.reduceRight((prev, curr, ci) => callbackFn(prev, this.get(curr), ci, this), initialValue);
+			return this.positions.reduceRight((previousVal, currentVal, currentIdx) =>
+			{
+				return callbackFn(
+					previousVal,
+					this.get(currentVal),
+					currentIdx,
+					this);
+			},
+			initialValue);
 		}
 		
 		/** */
@@ -455,31 +485,33 @@ namespace Reflex
 		find(predicate: any, thisArg?: any)
 		{
 			for (let i = -1; ++i < this.positions.length;)
-				if (predicate.call(thisArg || this, this.get(i)!, i, this)) 
-					return this.get(i)!;
+				if (predicate.call(thisArg || this, this.get(i), i, this))
+					return this.get(i);
 		}
 		
 		/** */
 		findIndex(predicate: (value: T, index: number, obj: T[]) => unknown, thisArg?: any): number
 		{
 			for (let i = -1; ++i < this.positions.length;)
-				if (predicate.call(thisArg || this, this.get(i)!, i, this)) 
+				if (predicate.call(thisArg || this, this.get(i), i, this))
 					return i;
 					
 			return -1;
 		}
 		
 		/** */
-		fill(value: T, start?: number | undefined, end?: number | undefined): this
+		fill(value: T, start?: number, end?: number): this
 		{
-			for (let i = (start || 0) - 1; ++i < (end || this.positions.length);)
-				this.set(i, value);
-				
+			const startIdx = Math.max(0, start || 0);
+			
+			for (let i = end ?? this.positions.length; i-- > startIdx;)
+				this.set(value, i);
+			
 			return this;
 		}
 		
 		/** */
-		copyWithin(target: number, start: number, end?: number | undefined): this
+		copyWithin(target: number, start: number, end?: number): this
 		{
 			this.positions.copyWithin(target, start, end);
 			return this;
@@ -489,14 +521,14 @@ namespace Reflex
 		*[Symbol.iterator](): IterableIterator<T>
 		{
 			for (let i = -1; ++i < this.positions.length;)
-				yield this.get(i)!;
+				yield this.get(i);
 		}
 		
 		/** */
 		*entries(): IterableIterator<[number, T]>
 		{
 			for (let i = -1; ++i < this.positions.length;)
-				yield [i, this.get(i)!];
+				yield [i, this.get(i)];
 		}
 		
 		/** */
@@ -520,12 +552,12 @@ namespace Reflex
 		}
 		
 		/** */
-		includes(searchElement: T, fromIndex: number = 0): boolean
+		includes(searchElement: T, fromIndex = 0): boolean
 		{
-			for (let i = fromIndex - 1; ++i < this.positions.length;)
+			for (let i = this.positions.length; i-- > fromIndex;)
 				if (this.get(i) === searchElement) 
 					return true;
-					
+			
 			return false;
 		}
 		
@@ -534,53 +566,112 @@ namespace Reflex
 			callback: (this: This, value: T, index: number, array: T[]) => U | readonly U[], 
 			thisArg?: This | undefined): U[]
 		{
-			//@ts-ignore
-			return this.map(callback, thisArg).flat();
+			return (<ArrayForce<U>>this.map(callback, thisArg)).flat();
 		}
 		
-		/** */		
-		flat(this: T[][][][][][][][], depth: 7): ArrayForce<T>;
-		flat(this: T[][][][][][][], depth: 6): ArrayForce<T>;
-		flat(this: T[][][][][][], depth: 5): ArrayForce<T>;
-		flat(this: T[][][][][], depth: 4): ArrayForce<T>;
-		flat(this: T[][][][], depth: 3): ArrayForce<T>;
-		flat(this: T[][][], depth: 2): ArrayForce<T>;
-		flat(this: T[][], depth?: 1 | undefined): ArrayForce<T>;
-		flat(this: T[], depth: 0): ArrayForce<T>;
-		flat(depth?: any)
+		/**
+		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
+		 * up to the specified depth.
+		 *
+		 * @param depth The maximum recursion depth
+		 */
+		flat<U>(this: U[][][][][][][][], depth: 7): ArrayForce<T>;
+		/**
+		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
+		 * up to the specified depth.
+		 *
+		 * @param depth The maximum recursion depth
+		 */
+		flat<U>(this: U[][][][][][][], depth: 6): ArrayForce<T>;
+		/**
+		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
+		 * up to the specified depth.
+		 *
+		 * @param depth The maximum recursion depth
+		 */
+		flat<U>(this: U[][][][][][], depth: 5): ArrayForce<T>;
+		/**
+		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
+		 * up to the specified depth.
+		 *
+		 * @param depth The maximum recursion depth
+		 */
+		flat<U>(this: U[][][][][], depth: 4): ArrayForce<T>;
+		/**
+		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
+		 * up to the specified depth.
+		 *
+		 * @param depth The maximum recursion depth
+		 */
+		flat<U>(this: U[][][][], depth: 3): ArrayForce<T>;
+		/**
+		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
+		 * up to the specified depth.
+		 *
+		 * @param depth The maximum recursion depth
+		 */
+		flat<U>(this: U[][][], depth: 2): ArrayForce<T>;
+		/**
+		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
+		 * up to the specified depth.
+		 *
+		 * @param depth The maximum recursion depth
+		 */
+		flat<U>(this: U[][], depth?: 1): ArrayForce<T>;
+		/**
+		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
+		 * up to the specified depth.
+		 *
+		 * @param depth The maximum recursion depth
+		 */
+		flat<U>(this: U[], depth: 0): ArrayForce<T>;
+		/**
+		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
+		 * up to the specified depth. If no depth is provided, flat method defaults to the depth of 1.
+		 *
+		 * @param depth The maximum recursion depth
+		 */
+		flat<U>(this: any[], depth?: number): ArrayForce<T>;
+		flat(depth: number = 1): any
 		{
-			if (depth < 1) return this;
+			if (depth < 1)
+				return this;
 			 
-			const levelDown = (source: ArrayForce<T>) => {
-				const Force = ArrayForce.create(source.snapshot().flat());
-				const NumberMap = new Map<number, number[]>();
+			const levelDown = (source: ArrayForce<T>) =>
+			{
+				const fo = ArrayForce.create(source.snapshot().flat());
+				const numberMap = new Map<number, number[]>();
 				
-				Reflex.Core.ForceUtil.attachForce(source.added, (item: T[], index: number) =>
+				Core.ForceUtil.attachForce(source.added, (item: T[], index: number) =>
 				{
 					const id = source.positions[index];
-					const indexes = item.map(x => Force.root.push(x));
-					NumberMap.set(id, indexes);
-					Force.positions.splice(index, 0, ...indexes);
+					const indexes = item.map(x => fo.root.push(x));
+					
+					numberMap.set(id, indexes);
+					fo.positions.splice(index, 0, ...indexes);
 					
 					for (let i = -1; ++i < indexes.length;)
 					{
-						Force.added(item[i], index + i);
-						Force.defineIndex(index + i);
+						fo.added(item[i], index + i);
+						fo.defineIndex(index + i);
 					}
 				});
 				
-				Reflex.Core.ForceUtil.attachForce(source.removed, (item: T[], index: number, id: number) =>
+				Core.ForceUtil.attachForce(source.removed, (item: T[], index: number, id: number) =>
 				{
-					const map = NumberMap.get(id);
-					if (map) 
+					const map = numberMap.get(id);
+					if (map)
+					{
 						for(const item of map)
 						{
-							const loc = Force.positions.indexOf(item);
+							const loc = fo.positions.indexOf(item);
 							if (loc > -1)
-								Force.splice(loc, 1);
+								fo.splice(loc, 1);
 						}
+					}
 				});
-				return Force;
+				
+				return fo;
 			}
 			
 			let result;
@@ -591,46 +682,53 @@ namespace Reflex
 			return result;
 		}
 		
+		/**
+		 * 
+		 */
 		distinct(keyFn: (x: any, index: number) => any)
 		{
-			const KeyMap = new Map<any, number>();
-			const Force = ArrayForce.create<T>([]);
+			const keyMap = new Map<any, number>();
+			const fo = ArrayForce.create<T>([]);
 			
 			const added = (item: T, index: number) =>
 			{
 				const key = keyFn(item, index);
-				const current = KeyMap.get(key) || 0;
+				const current = keyMap.get(key) || 0;
 				if (!current)
-					Force.splice(index, 0, item);
-				KeyMap.set(key, current + 1);
+					fo.splice(index, 0, item);
+				
+				keyMap.set(key, current + 1);
 			};
 			
 			const removed = (item: T, index: number) =>
 			{
 				const key = keyFn(item, index);
-				let current = KeyMap.get(key) || 0;
+				let current = keyMap.get(key) || 0;
 				if (current > 0)
 				{	
 					current--;
 					
 					if (current === 0)
 					{
-						KeyMap.delete(key);
-						const loc = Force.findIndex(x => JSON.stringify(x) == JSON.stringify(item));
+						keyMap.delete(key);
+						const itemSerialized = JSON.stringify(item);
+						const loc = fo.findIndex(item => JSON.stringify(item) == itemSerialized);
+						
 						if (loc > -1) 
-							Force.splice(loc, 1);
+							fo.splice(loc, 1);
 					}
 					else 
 					{
-						KeyMap.set(key, current);
+						keyMap.set(key, current);
 					}
 				}
 			}
 			
-			this.forEach((x, i) => added(x, i));
+			for (let i = -1; ++i < this.length;)
+				added(this[i], i);
 			
-			Reflex.Core.ForceUtil.attachForce(this.added, added);
-			Reflex.Core.ForceUtil.attachForce(this.removed, removed);
+			Core.ForceUtil.attachForce(this.added, added);
+			Core.ForceUtil.attachForce(this.removed, removed);
 		}
 
 		/** */
@@ -646,9 +744,12 @@ namespace Reflex
 			if (this.positions.length < 1) 
 				return void 0;
 				
-			const pos = this.positions.pop()!;
+			const pos = this.positions.pop();
+			if (pos === void 0)
+				return void 0;
+			
 			const item = this.getRoot(pos);
-			this.removed(item!, this.positions.length, pos);
+			this.removed(item, this.positions.length, pos);
 			this.root.delete(pos);
 			return item;
 		}
@@ -666,9 +767,12 @@ namespace Reflex
 			if (this.positions.length < 1) 
 				return void 0;
 				
-			const pos = this.positions.shift()!;
+			const pos = this.positions.shift();
+			if (pos === void 0)
+				return void 0;
+			
 			const item = this.getRoot(pos);
-			this.removed(item!, 0, pos);
+			this.removed(item, 0, pos);
 			this.root.delete(pos);
 			return item;
 		}
@@ -677,12 +781,29 @@ namespace Reflex
 		splice(start: number, deleteCount: number, ...items: T[])
 		{
 			const positions = this.positions.splice(start, deleteCount);
-			positions.forEach((x, i) => this.removed(this.getRoot(x), start + i, x));
+			
+			for (let i = -1; ++i < positions.length;)
+			{
+				const item = positions[i];
+				this.removed(
+					this.getRoot(item),
+					start + i,
+					item);
+			}
+			
 			this.insertRef(start, ...this.filterPush(...items));
-			const result = positions.map(x => this.getRoot(x));
-			positions.forEach(x => this.root.delete(x));
+			const result = positions.map(pos => this.getRoot(pos));
+			
+			for (const pos of positions)
+				this.root.delete(pos);
+			
 			return result;
 		}
-		
 	}
+	
+	/** */
+	type SortFunction<T = any> = (a: T, b: T) => number;
+	
+	/** */
+	type FilterFunction<T = any> = (value: T, index: number, array: T[]) => boolean;
 }

@@ -129,12 +129,11 @@ namespace Reflex.Core
 					const targetLocVal = target.locator.getLastLocatorValue();
 					source.locator.setLastLocatorValue(targetLocVal);
 					target.locator.setLastLocatorValue(srcLocVal);
-
 					RoutingLibrary.this.swapBranches(source.branch, target.branch);
 				}
 			});
 			
-			ForceUtil.attachForce(arrayForce.tailChange, (item: any, position: number) =>
+			ForceUtil.attachForce(arrayForce.tailChanged, (item: any, position: number) =>
 			{
 				const source = findMeta(position);
 				if (source)
