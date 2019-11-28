@@ -54,6 +54,7 @@ namespace Reflex
 						this.splice(loc, 1);
 				});
 			}
+			
 			Core.ForceUtil.attachForce(this.root.changed, () => 
 			{
 				this.executeFilter();
