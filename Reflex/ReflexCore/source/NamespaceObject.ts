@@ -207,16 +207,13 @@ namespace Reflex.Core
 	}
 	
 	/**
-	 * Returns the ILibrary instance that corresponds
-	 * to the specified namespace object. This function
-	 * is used for layering Reflexive libraries on top of
-	 * each other, i.e., to defer the implementation of
-	 * one of the ILibrary functions to another ILibrary
-	 * at a lower-level.
+	 * Returns the ILibrary instance that corresponds to the specified namespace
+	 * object. This function is used for layering Reflexive libraries on top of each
+	 * other, i.e., to defer the implementation of one of the ILibrary functions to
+	 * another ILibrary at a lower-level.
 	 * 
-	 * The typings of the returned ILibrary assume that
-	 * all ILibrary functions are implemented in order to
-	 * avoid excessive "possibly undefined" checks.
+	 * The typings of the returned ILibrary assume that all ILibrary functions are
+	 * implemented in order to avoid excessive "possibly undefined" checks.
 	 */
 	export function libraryOf(namespaceObject: object): Defined<ILibrary>
 	{
@@ -287,8 +284,11 @@ namespace Reflex.Core
 	 */
 	function returnBranch(branch: IBranch, atoms: any[])
 	{
-		new BranchMeta(branch, atoms);
-		const lib = RoutingLibrary.this;
+		const lib = RoutingLibrary.of(branch);
+		if (!lib)
+			throw new Error("Unknown branch type.");
+		
+		new BranchMeta(branch, atoms, lib);
 		return lib.returnBranch ?
 			lib.returnBranch(branch) :
 			branch;
@@ -337,7 +337,7 @@ namespace Reflex.Core
 						{
 							const result = getLeaf(now);
 							if (result)
-								new LeafMeta(result);
+								new LeafMeta(result, library);
 							
 							return result;
 						}).run());
@@ -351,7 +351,7 @@ namespace Reflex.Core
 			}
 			
 			for (const object of out)
-				new LeafMeta(object);
+				new LeafMeta(object, library);
 			
 			return out;
 		};

@@ -21,6 +21,8 @@ namespace Reflex.Core
 				rawAtoms.slice() :
 				[rawAtoms];
 			
+			let lib: ILibrary | null = null;
+			
 			for (let i = -1; ++i < atoms.length;)
 			{
 				const atom = atoms[i];
@@ -51,8 +53,13 @@ namespace Reflex.Core
 			{
 				const atom = atoms[i];
 				const typeOf = typeof atom;
+				const existingMeta = BranchMeta.of(atom) || LeafMeta.of(atom);
 				
-				if (atom instanceof Meta)
+				if (existingMeta &&
+					((lib = lib || RoutingLibrary.of(containerBranch)) === existingMeta.library))
+					metas.push(existingMeta);
+				
+				else if (atom instanceof Meta)
 					metas.push(atom);
 				
 				else if (atom instanceof Recurrent)
@@ -101,20 +108,11 @@ namespace Reflex.Core
 						else metas.push(new AttributeMeta(k, v));
 					}
 				}
-				else
-				{
-					const existingMeta = 
-						BranchMeta.of(atom) ||
-						LeafMeta.of(atom);
-					
-					if (existingMeta)
-						metas.push(existingMeta);
-					
-					// This error occurs when something was passed as a atom 
-					// to a branch function, and neither the Reflex core, or any of
-					// the connected Reflexive libraries know what to do with it.
-					else throw new Error("Unidentified flying object.");
-				}
+				
+				// This error occurs when something was passed as a atom 
+				// to a branch function, and neither the Reflex core, or any of
+				// the connected Reflexive libraries know what to do with it.
+				else throw new Error("Unidentified flying object.");
 			}
 			
 			return metas;

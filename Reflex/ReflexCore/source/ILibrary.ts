@@ -59,7 +59,7 @@ namespace Reflex.Core
 		 * object's tagged template function into objects that may be interpreted
 		 * as display text.
 		 */
-		getLeaf?: (leaf: any) => any;
+		getLeaf?: (leaf: any) => ILeaf | null;
 		
 		/**
 		 * Reflexive libraries that support inline target+children closures

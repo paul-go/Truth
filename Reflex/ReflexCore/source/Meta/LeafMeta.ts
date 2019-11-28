@@ -19,11 +19,20 @@ namespace Reflex.Core
 		/** */
 		constructor(
 			readonly value: ILeaf,
+			library: ILibrary,
 			locator?: Locator)
 		{
 			super(locator);
+			this.library = library;
 			LeafMeta.metas.set(value, this);
 		}
+		
+		/**
+		 * @internal
+		 * Stores a reference to the ILibrary that was responsible for
+		 * instantiating the underlying branch object.
+		 */
+		readonly library: ILibrary;
 		
 		/**
 		 * An arbitrary unique value used to identify an index in a force

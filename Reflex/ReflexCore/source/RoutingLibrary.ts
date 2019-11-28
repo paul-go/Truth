@@ -26,6 +26,20 @@ namespace Reflex.Core
 		private static _this: RoutingLibrary | null = null;
 		
 		/**
+		 * Returns a reference to the Reflexive library that
+		 * interprets the specified object as a branch.
+		 */
+		static of(branch: IBranch)
+		{
+			if (branch)
+				for (const lib of RoutingLibrary.libraries)
+					if (lib.isKnownBranch(branch))
+						return lib;
+			
+			return null;
+		}
+		
+		/**
 		 * Adds a reference to a Reflexive library, which may be
 		 * called upon in the future.
 		 */

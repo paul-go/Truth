@@ -22,9 +22,12 @@ namespace Reflex.Core
 		constructor(
 			branch: IBranch,
 			initialAtoms: Atom[],
+			library: ILibrary,
 			locator?: Locator)
 		{
 			super(locator || new Locator(LocatorType.branch));
+			
+			this.library = library;
 			this.branch = branch;
 			BranchMeta.metas.set(branch, this);
 			
@@ -38,6 +41,13 @@ namespace Reflex.Core
 				CoreUtil.applyMetas(branch, this, metas);
 			}
 		}
+		
+		/**
+		 * @internal
+		 * Stores a reference to the ILibrary that was responsible for
+		 * instantiating the underlying branch object.
+		 */
+		readonly library: ILibrary;
 		
 		/**
 		 * @internal
