@@ -23,7 +23,6 @@ namespace Reflex
 	 */
 	export function isForce(fo: any): fo is ((...args: any[]) => void) | StatefulForce
 	{
-		// TODO: This function also needs to check for ArrayForce's
 		return isStatelessForce(fo) || fo instanceof StatefulForce;
 	}
 	
