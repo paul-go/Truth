@@ -6,6 +6,7 @@ namespace Reflex
 	 */
 	export class ArrayForce<T> extends StatefulForce implements Array<T>
 	{
+		/** @internal */
 		static create<T>(items: T[])
 		{
 			const store = new Core.ArrayStore<T>();
