@@ -144,24 +144,6 @@ namespace Reflex.SS
 		private isImportant = false;
 		
 		/**
-		 * Used to indicate that the value of the Command may change
-		 * in the future (this prevents certain optimizations from occuring).
-		 * /
-		dynamic()
-		{
-			this._isDynamic = true;
-			return this;
-		}
-		
-		/** @internal * /
-		get isDynamic()
-		{
-			return this._isDynamic;
-		}
-		private _isDynamic = false;
-		*/
-		
-		/**
 		 * Converts the specified command into a fully serialized representation,
 		 * producing a string result such as "property: value;" or "rgb(0, 0, 0)".
 		 */
