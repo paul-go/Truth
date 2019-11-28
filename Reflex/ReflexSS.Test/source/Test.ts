@@ -74,6 +74,26 @@ namespace Reflex.SS.Test
 		ss.reset();
 	}
 	
+	/**
+	 * 
+	 */
+	function getNativeCss()
+	{
+		const sel = "style[data-reflex-ss]";
+		const styleTag = <HTMLStyleElement>document.querySelector(sel);
+		const sheet = styleTag.sheet;
+		
+		if (!(sheet instanceof CSSStyleSheet))
+			return "";
+		
+		const cssText: string[] = [];
+		const rules = sheet.cssRules;
+		for (let i = -1; ++i < rules.length;)
+			cssText.push(rules[i].cssText);
+		
+		return cssText.join("\n");
+	}
+	
 	/** */
 	0 && test("Basic", () =>
 	{
@@ -142,7 +162,7 @@ namespace Reflex.SS.Test
 	0 && test("Explicit class name specified", () =>
 	{
 		const rule = ss(".xyz", ss.color("red"));
-		return () => rule.class === "xyz";
+		return () => rule.instanceClass === "xyz";
 	},
 	`
 	.xyz
@@ -168,7 +188,7 @@ namespace Reflex.SS.Test
 		ss(
 			ml.body,
 			//ss.color(ss.rgba(0, 0, 0, 0.2)),
-			cmd = ss.backgroundColor("green").dynamic(),
+			cmd = ss.backgroundColor("green"),
 			//ss.backgroundImage(ss.linearGradient(["#333", 50..pct], ["#666", 30..pct])),
 			//ss.width(ss.calc(50..pct, "+", 10..px)),
 			//ss.fontFamily("-apple-system", "sans-serif"),
@@ -185,26 +205,49 @@ namespace Reflex.SS.Test
 	`);
 	
 	/** */
-	test("Nested rules", () =>
+	0 && test("Basic hierarchy formations", () =>
 	{
-		let nested: Rule;
-		const root = ss(
-			".abc",
+		const ruleInner = ss();
+		const ruleOuter = ss(ruleInner);
+		
+		return [
+			() => ruleOuter.children.length === 1,
+			() => ruleOuter.children[0] === ruleInner
+		]
+	});
+	
+	/** */
+	0 && test("Nested rules", () =>
+	{
+		let lev2: Rule;
+		let lev3: Rule;
+		
+		const lev1 = ss(
+			"a, b",
 			ss.color("red"),
-			nested = ss(
-				".xyz",
-				ss.color("blue")
+			lev2 = ss(
+				"c, d",
+				ss.color("green"),
+				lev3 = ss(
+					"e, f",
+					ss.color("blue")
+				)
 			)
 		);
 		
+		console.log(lev1.toString());
+		console.log(lev2.toString());
+		console.log(lev3.toString());
+		
 		return [
-			() => nested instanceof Rule,
-			() => root instanceof Rule,
-			() => !root[Reflex.atom]()
+			() => !lev1[Reflex.atom](),
+			() => lev1 instanceof Rule,
+			() => lev2 instanceof Rule,
+			() => lev3 instanceof Rule,
 		];
 	},
 	`
-	.abc
+	a, b, c
 	{
 		color: red;
 	}
@@ -235,7 +278,7 @@ namespace Reflex.SS.Test
 	`);
 	
 	/** */
-	test("Multiple equivalent rules", () =>
+	0 && test("Multiple equivalent rules", () =>
 	{
 		const rule1 = ss(".a", ss.color("red"));
 		const rule2 = ss(".a", ss.color("red"));
@@ -246,6 +289,17 @@ namespace Reflex.SS.Test
 		color: red;
 	}
 	`);
+	
+	/** */
+	test("Dynamic commands", () =>
+	{
+		const cmd = ss.color("red");
+		const rule = ss(cmd);
+		cmd.recall("blue");
+		
+		const nativeCssText = getNativeCss();
+		console.log(nativeCssText);
+	});
 	
 	/*
 	ss(

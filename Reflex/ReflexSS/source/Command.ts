@@ -83,11 +83,6 @@ namespace Reflex.SS
 		 */
 		recall(...values: CommandValue[])
 		{
-			if (!this._isDynamic)
-				throw new Error(
-					"Cannot recall this Command, because " +
-					"it has not been marked as .dynamic()");
-			
 			let rule: Rule | null = null;
 			let property: Command | null = null;
 			
@@ -114,14 +109,11 @@ namespace Reflex.SS
 			this._values.length = 0;
 			this._values.push(...values);
 			
-			const nativeRule = rule && ruleAssociations.get(rule);
-			if (nativeRule && property)
-			{
-				nativeRule.style.setProperty(
+			if (rule && property)
+				InternalSheet.this.getNativeInstanceRule(rule)?.style.setProperty(
 					property.hypenatedName,
 					Command.serializeValues(property, true),
 					this.isImportant ? "important" : "");
-			}
 		}
 		
 		/**
