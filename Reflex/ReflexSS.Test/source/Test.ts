@@ -291,7 +291,7 @@ namespace Reflex.SS.Test
 	`);
 	
 	/** */
-	test("Dynamic commands", () =>
+	0 && test("Dynamic commands", () =>
 	{
 		const cmd = ss.color("red");
 		const rule = ss(cmd);
@@ -299,6 +299,20 @@ namespace Reflex.SS.Test
 		
 		const nativeCssText = getNativeCss();
 		console.log(nativeCssText);
+	});
+	
+	/** */
+	test("Ensure hierarchies are constructing without errors", () =>
+	{
+		ss(
+			ss.color("red"),
+			ss("SPAN",
+				ss.color("green"),
+				ss("SPAN",
+					ss.color("blue")
+				)
+			)
+		);
 	});
 	
 	/*

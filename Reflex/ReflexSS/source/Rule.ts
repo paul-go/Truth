@@ -208,7 +208,7 @@ namespace Reflex.SS
 				if (!nextContainer)
 					break;
 				
-				out.unshift(nextContainer);
+				out.push(nextContainer);
 			}
 			
 			if (i >= 1000)
