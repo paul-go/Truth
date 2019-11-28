@@ -56,7 +56,7 @@ namespace Reflex.SS
 					rule.toString();
 			});
 		
-			return this._hash = Util.calculateHash(hashContent).toString(36);
+			return this._hash = "_" + Util.calculateHash(hashContent).toString(36);
 		}
 		private _hash: string | null = null;
 		
