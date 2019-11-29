@@ -803,7 +803,7 @@ namespace Reflex
 		
 		/** 
 		 * Returns absolute index in root
-		*/
+		 */
 		absoluteIndex(index: number)
 		{
 			return this.positions[index];
@@ -811,7 +811,7 @@ namespace Reflex
 		
 		/** 
 		 * Returns item from root with given absolute index
-		*/
+		 */
 		getAbsolute(index: number)
 		{
 			return this.root.get(index);
