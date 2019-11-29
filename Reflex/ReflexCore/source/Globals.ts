@@ -45,3 +45,13 @@ function force(val?: any)
 	
 	throw new Error("Cannot create a force from this value.");
 }
+
+function watch(force: Reflex.StatefulForce, callbackFn: (now: any, was: any) => void): void;
+function watch(force: Reflex.StatelessForce, callbackFn: Reflex.RecurrentCallback<any>): void;
+function watch(force: Reflex.StatefulForce | Reflex.StatelessForce, callbackFn: (now: any, was: any) => void | Reflex.RecurrentCallback<any>)
+{
+	if (force instanceof Reflex.StatefulForce)
+		force.watch(callbackFn);
+	else
+		Reflex.Core.ForceUtil.attachForce(force, callbackFn);
+}
