@@ -827,16 +827,17 @@ namespace Reflex
 		 */
 		reset(state: T[])
 		{
-			const diff = this.snapshot().filter(x => !state.includes(x));
+			const diff = this.snapshot().map((v, i) => v !== state[i] ? i : undefined).filter((v): v is number => v !== undefined).reverse();
 			
 			for (const item of diff)
-				this.splice(this.indexOf(item), 1);
+				this.splice(item, 1);
 				
-			for (const index in state)
+			for (let index = -1; ++index < state.length;)
 			{
 				const item = state[index];
-				if (this[index] !== item)
-					this.splice(index as any, 0, item);
+				
+				if (index >= this.positions.length || this[index] !== item)
+					this.splice(index, 0, item);
 			}
 		}
 	}
