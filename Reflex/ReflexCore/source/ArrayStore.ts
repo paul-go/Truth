@@ -57,7 +57,7 @@ namespace Reflex.Core
 		readonly changed = force<(item: T, index: number) => void>();
 		
 		/** */
-		private root: Record<number, {
+		private readonly root: Record<number, {
 			value: T | undefined;
 			ref: number;
 		}> = {};
