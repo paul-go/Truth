@@ -45,7 +45,7 @@ namespace Reflex.Core
 			{
 				const item = this.root[index];
 				
-				if (item.ref > 1) 
+				if (item.ref > 1)
 					item.ref--;
 				
 				if (item.ref === 0) 
