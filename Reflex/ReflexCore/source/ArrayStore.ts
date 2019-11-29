@@ -45,7 +45,7 @@ namespace Reflex.Core
 			{
 				const item = this.root[index];
 				
-				if (item.ref > 1) 
+				if (item.ref > 1)
 					item.ref--;
 				
 				if (item.ref === 0) 
@@ -57,7 +57,7 @@ namespace Reflex.Core
 		readonly changed = force<(item: T, index: number) => void>();
 		
 		/** */
-		private root: Record<number, {
+		private readonly root: Record<number, {
 			value: T | undefined;
 			ref: number;
 		}> = {};
