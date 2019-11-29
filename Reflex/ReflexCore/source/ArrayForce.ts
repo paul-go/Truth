@@ -414,6 +414,11 @@ namespace Reflex
 					Force.splice(loc, 1);
 			});
 			
+			Core.ForceUtil.attachForce(this.root.changed, (item: T, index: number) => 
+			{
+				Force.root.set(index, callbackFn(item, index, this));
+			});
+			
 			return Force;
 		}
 		
@@ -820,16 +825,20 @@ namespace Reflex
 		/**
 		 * Diff with given array and apply changes
 		 */
-		loadState(state: T[])
+		reset(state: T[])
 		{
-			const diff = this.snapshot().filter(x => !state.includes(x));
+			const diff = this.snapshot().map((v, i) => v !== state[i] ? i : undefined).filter((v): v is number => v !== undefined).reverse();
 			
 			for (const item of diff)
-				this.splice(this.indexOf(item), 1);
-			
-			for (const item of state)
-				if (!this.includes(item))
-					this.push(item);
+				this.splice(item, 1);
+				
+			for (let index = -1; ++index < state.length;)
+			{
+				const item = state[index];
+				
+				if (index >= this.positions.length || this[index] !== item)
+					this.splice(index, 0, item);
+			}
 		}
 	}
 	
