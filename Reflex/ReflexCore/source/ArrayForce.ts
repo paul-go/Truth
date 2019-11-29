@@ -800,6 +800,37 @@ namespace Reflex
 			
 			return result;
 		}
+		
+		/** 
+		 * Returns absolute index in root
+		*/
+		absoluteIndex(index: number)
+		{
+			return this.positions[index];
+		}
+		
+		/** 
+		 * Returns item from root with given absolute index
+		*/
+		getAbsolute(index: number)
+		{
+			return this.root.get(index);
+		}
+		
+		/**
+		 * Diff with given array and apply changes
+		 */
+		loadState(state: T[])
+		{
+			const diff = this.snapshot().filter(x => !state.includes(x));
+			
+			for (const item of diff)
+				this.splice(this.indexOf(item), 1);
+			
+			for (const item of state)
+				if (!this.includes(item))
+					this.push(item);
+		}
 	}
 	
 	/** */
