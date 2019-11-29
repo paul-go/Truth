@@ -43,8 +43,8 @@ namespace Reflex.SS
 		 */
 		get structuralClass()
 		{
-			if (this._hash !== null)
-				return this._hash;
+			if (this._structuralClass !== null)
+				return this._structuralClass;
 			
 			const hashContent = this.getSubtree().map(rule =>
 			{
@@ -55,10 +55,12 @@ namespace Reflex.SS
 					rule.selectorFragments.concat(rule.declarations.map(d => d.toString())) :
 					rule.toString();
 			});
-		
-			return this._hash = "_" + Util.calculateHash(hashContent).toString(36);
+			
+			hashContent.push(this.priority);
+			const hash = Util.calculateHash(hashContent).toString(36);
+			return this._structuralClass = "_" + hash;
 		}
-		private _hash: string | null = null;
+		private _structuralClass: string | null = null;
 		
 		/**
 		 * 

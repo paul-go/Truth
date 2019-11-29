@@ -39,6 +39,12 @@ namespace Reflex.SS
 				
 				for (const rule of subtree)
 				{
+					if (this.ruleHashes.has(rule.structuralClass))
+						continue;
+					
+					this.ruleHashes.add(rule.structuralClass);
+					
+					const cssText = rule.toString();
 					const low = this.nativeRuleCountLow;
 					const def = this.nativeRuleCountDefault;
 					const insertAt =
@@ -46,13 +52,11 @@ namespace Reflex.SS
 						rule.priority === Priority.default ? low + def :
 						this.nativeSheet.cssRules.length;
 					
-					const cssText = rule.toString();
 					this.nativeSheet.insertRule(cssText, insertAt);
-					const cssRule = this.nativeSheet.cssRules.item(insertAt);
 					
-					if (typeof CSSStyleRule === "function")
-						if (cssRule instanceof CSSStyleRule)
-							this.structuralRuleMap.set(rule, cssRule);
+					const cssRule = this.nativeSheet.cssRules.item(insertAt);
+					if (cssRule instanceof CSSStyleRule)
+						this.structuralRuleMap.set(rule, cssRule);
 					
 					switch (rule.priority)
 					{
@@ -230,7 +234,7 @@ namespace Reflex.SS
 		private nativeRuleCountDefault = 0;
 		
 		/** */
-		private ruleHashes = new Set<string>();
+		private readonly ruleHashes = new Set<string>();
 		
 		/**
 		 * @reword
