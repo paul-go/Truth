@@ -18,6 +18,11 @@ namespace Backer.TruthTalk
 	 */
 	export class CursorSet
 	{	
+		static new()
+		{
+			return new CursorSet(...Object.values(Backer.Graph));
+		}
+		
 		cursors: Set<Cursor>;
 		
 		constructor(...cursors: Cursor[])

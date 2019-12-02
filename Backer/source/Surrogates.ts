@@ -10,6 +10,7 @@ namespace Backer
 	
 	export abstract class Base<T, Q> extends TruthTalk.Leaves.Surrogate
 	{
+		abstract [name]: string | Name;
 		abstract [value]: T;
 		
 		[parent]: Q | null;
@@ -51,7 +52,7 @@ namespace Backer
 	{	
 		[parent]: Struct[];
 		
-		constructor(public value: any, containers: Struct[])
+		constructor(public value: any, containers: Struct[], private _name: string)
 		{
 			super(containers);
 		}
@@ -60,6 +61,12 @@ namespace Backer
 		get [value]()
 		{
 			return this.value;
+		}
+		
+		/** */
+		get [name]()
+		{
+			return this._name || this[parent].map(x => x[name]).join(',');
 		}
 	}
 	
@@ -74,6 +81,12 @@ namespace Backer
 		get [value]()
 		{
 			return this.name;
+		}
+		
+		/** */
+		get [name]()
+		{
+			return "name";
 		}
 	}
 	
