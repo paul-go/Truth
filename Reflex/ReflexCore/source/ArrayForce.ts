@@ -581,63 +581,63 @@ namespace Reflex
 		 *
 		 * @param depth The maximum recursion depth
 		 */
-		flat<U>(this: U[][][][][][][][], depth: 7): ArrayForce<T>;
+		flat<U>(this: U[][][][][][][][], depth: 7): ArrayForce<U>;
 		/**
 		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
 		 * up to the specified depth.
 		 *
 		 * @param depth The maximum recursion depth
 		 */
-		flat<U>(this: U[][][][][][][], depth: 6): ArrayForce<T>;
+		flat<U>(this: U[][][][][][][], depth: 6): ArrayForce<U>;
 		/**
 		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
 		 * up to the specified depth.
 		 *
 		 * @param depth The maximum recursion depth
 		 */
-		flat<U>(this: U[][][][][][], depth: 5): ArrayForce<T>;
+		flat<U>(this: U[][][][][][], depth: 5): ArrayForce<U>;
 		/**
 		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
 		 * up to the specified depth.
 		 *
 		 * @param depth The maximum recursion depth
 		 */
-		flat<U>(this: U[][][][][], depth: 4): ArrayForce<T>;
+		flat<U>(this: U[][][][][], depth: 4): ArrayForce<U>;
 		/**
 		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
 		 * up to the specified depth.
 		 *
 		 * @param depth The maximum recursion depth
 		 */
-		flat<U>(this: U[][][][], depth: 3): ArrayForce<T>;
+		flat<U>(this: U[][][][], depth: 3): ArrayForce<U>;
 		/**
 		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
 		 * up to the specified depth.
 		 *
 		 * @param depth The maximum recursion depth
 		 */
-		flat<U>(this: U[][][], depth: 2): ArrayForce<T>;
+		flat<U>(this: U[][][], depth: 2): ArrayForce<U>;
 		/**
 		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
 		 * up to the specified depth.
 		 *
 		 * @param depth The maximum recursion depth
 		 */
-		flat<U>(this: U[][], depth?: 1): ArrayForce<T>;
+		flat<U>(this: U[][], depth?: 1): ArrayForce<U>;
 		/**
 		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
 		 * up to the specified depth.
 		 *
 		 * @param depth The maximum recursion depth
 		 */
-		flat<U>(this: U[], depth: 0): ArrayForce<T>;
+		flat<U>(this: U[], depth: 0): ArrayForce<U>;
 		/**
 		 * Returns a new ArrayForce with all nested array elements concatenated into it recursively,
 		 * up to the specified depth. If no depth is provided, flat method defaults to the depth of 1.
 		 *
 		 * @param depth The maximum recursion depth
 		 */
-		flat<U>(this: any[], depth?: number): ArrayForce<T>;
+		flat<U>(this: any[], depth?: number): ArrayForce<U>;
 		flat(depth: number = 1): any
 		{
 			if (depth < 1)
@@ -680,7 +680,7 @@ namespace Reflex
 				return fo;
 			}
 			
-			let result;
+			let result = this as ArrayForce<T>;
 			
 			while (depth--)
 				result = levelDown(<ArrayForce<T>>result);
@@ -839,6 +839,11 @@ namespace Reflex
 				if (index >= this.positions.length || this[index] !== item)
 					this.splice(index, 0, item);
 			}
+		}
+		
+		as<L>(constr: { new (arr: ArrayForce<T>): L })
+		{
+			return new constr(this);
 		}
 	}
 	
