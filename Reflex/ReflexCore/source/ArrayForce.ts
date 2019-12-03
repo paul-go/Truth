@@ -735,6 +735,8 @@ namespace Reflex
 			
 			Core.ForceUtil.attachForce(this.added, added);
 			Core.ForceUtil.attachForce(this.removed, removed);
+			
+			return fo;
 		}
 		
 		/** */
