@@ -548,7 +548,7 @@ namespace Reflex
 		*values(): IterableIterator<T>
 		{
 			for (let i = -1; ++i < this.positions.length;)
-				yield this.get(i)!;
+				yield this.get(i);
 		}
 		
 		/** */
@@ -843,9 +843,10 @@ namespace Reflex
 			}
 		}
 		
-		as<L>(constr: { new (arr: ArrayForce<T>): L })
+		/** */
+		as<L>(ctor: { new (arr: ArrayForce<T>): L })
 		{
-			return new constr(this);
+			return new ctor(this);
 		}
 	}
 	
