@@ -1,0 +1,9 @@
+{
+	"extends": "../../tsconfig.standard.json",
+	"compilerOptions": {
+		"outFile": "../build/backer.coverage.js"
+	},
+	"include": [
+		"**/*.ts"
+	]
+}
