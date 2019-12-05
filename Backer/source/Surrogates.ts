@@ -48,7 +48,10 @@ namespace Backer
 		get [Symbol.toStringTag]() { return "Proxy"; }
 	}
 	
-	export class Summary extends Base<any, Struct[]>
+	/**
+	 * 
+	 */
+	export class Aggregate extends Base<any, Struct[]>
 	{	
 		[parent]: Struct[];
 		
@@ -66,10 +69,13 @@ namespace Backer
 		/** */
 		get [name]()
 		{
-			return this._name || this[parent].map(x => x[name]).join(',');
+			return this._name || this[parent].map(v => v[name]).join(",");
 		}
 	}
 	
+	/**
+	 * 
+	 */
 	export class Name extends Base<string, Struct>
 	{
 		constructor(public name: string, container: Struct | null)
@@ -90,6 +96,9 @@ namespace Backer
 		}
 	}
 	
+	/**
+	 * 
+	 */
 	export class Struct extends Base<any, Struct | Surrogate>
 	{
 		/**
