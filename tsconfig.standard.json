@@ -2,21 +2,23 @@
 	"compilerOptions": {
 		"composite": true,
 		"module": "system",
-		"target": "esnext",
+		"target": "es2017",
 		"inlineSourceMap": true,
 		"inlineSources": true,
 		"strict": true,
+		"baseUrl": "./",
 		"rootDir": ".",
 		"declaration": true,
 		"declarationMap": true,
-		"stripInternal": false,
+		"stripInternal": true,
 		"incremental": true,
 		"lib": [
+			"dom",
 			"esnext",
 			"esnext.array",
 			"esnext.asynciterable"
 		],
-		"outFile": "./build/truth.js"
+		"outFile": "./build/unused.js"
 	},
 	"exclude": [
 		"**/build/**/*.ts",

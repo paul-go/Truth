@@ -4,7 +4,7 @@
 		"type": "node",
 		"request": "launch",
 		"name": "Debug Project",
-		"program": "${workspaceFolder}/build/truth-test-quick.js", 
+		"program": "${workspaceFolder}/build/truth.quick.js", 
 		"internalConsoleOptions": "neverOpen",
 		"sourceMaps": true,
 		"args": [

@@ -1,9 +1,8 @@
 
 namespace Truth
 {
-
 	/**
-	 * 
+	 * A class that represents a single line within a Truth document.
 	 */
 	export class Statement
 	{
@@ -15,7 +14,7 @@ namespace Truth
 		readonly stamp = VersionStamp.next();
 		
 		/**
-		 * @internal
+		 * 
 		 */
 		constructor(document: Document, text: string)
 		{

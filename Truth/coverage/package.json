@@ -1,7 +1,7 @@
 {
-	"name": "truth-compiler-tests",
+	"name": "truth-coverage",
 	"version": "0.2.1",
-	"description": "Tests for the Truth compiler",
+	"description": "Coverage tests for the Truth compiler",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Truebase-com/TruthStack"

@@ -1,9 +1,9 @@
 {
-	"extends": "../tsconfig.composite.json",
+	"extends": "../../tsconfig.standard.json",
 	"compilerOptions": {
-		"outFile": "../build/truth-test.js"
+		"outFile": "../build/truth.coverage.js"
 	},
 	"references": [
-		{ "path": "../source" }
+		{ "path": "../core" }
 	]
 }
