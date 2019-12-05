@@ -396,7 +396,7 @@ namespace Reflex
 		/** */
 		map<U>(callbackFn: (value: T, index: number, array: T[]) => U, thisArg?: any): ArrayForce<U>
 		{
-			const Force = ArrayForce.create(
+			const fo = ArrayForce.create(
 				this.positions
 					.map(x => this.getRoot(x))
 					.map((value, index) => callbackFn.call(thisArg || this, value, index, this))
@@ -404,22 +404,22 @@ namespace Reflex
 			
 			Core.ForceUtil.attachForce(this.added, (item: T, index: number) =>
 			{
-				Force.splice(index, 0, callbackFn(item, index, this));
+				fo.splice(index, 0, callbackFn(item, index, this));
 			});
 			
 			Core.ForceUtil.attachForce(this.removed, (item: T, index: number, id: number) =>
 			{
-				const loc = Force.positions.indexOf(id);
+				const loc = fo.positions.indexOf(id);
 				if (loc > -1) 
-					Force.splice(loc, 1);
+					fo.splice(loc, 1);
 			});
 			
 			Core.ForceUtil.attachForce(this.root.changed, (item: T, index: number) => 
 			{
-				Force.root.set(index, callbackFn(item, index, this));
+				fo.root.set(index, callbackFn(item, index, this));
 			});
 			
-			return Force;
+			return fo;
 		}
 		
 		/** */
@@ -829,7 +829,10 @@ namespace Reflex
 		 */
 		reset(state: T[])
 		{
-			const diff = this.snapshot().map((v, i) => v !== state[i] ? i : undefined).filter((v): v is number => v !== undefined).reverse();
+			const diff = this.snapshot()
+				.map((v, i) => v !== state[i] ? i : undefined)
+				.filter((v): v is number => v !== undefined)
+				.reverse();
 			
 			for (const item of diff)
 				this.splice(item, 1);
@@ -844,7 +847,7 @@ namespace Reflex
 		}
 		
 		/** */
-		as<L>(ctor: { new (arr: ArrayForce<T>): L })
+		as<L>(ctor: new (arr: ArrayForce<T>) => L)
 		{
 			return new ctor(this);
 		}
