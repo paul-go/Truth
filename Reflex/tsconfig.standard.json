@@ -18,7 +18,7 @@
 			"esnext.array",
 			"esnext.asynciterable"
 		],
-		"outFile": "./build/reflex.js"
+		"outFile": null
 	},
 	"exclude": [
 		"**/build/**/*.ts",

@@ -1,5 +1,5 @@
 
-namespace Reflex.ML.Test
+namespace Reflex.ML
 {
 	const cssText = `
 		HTML *

@@ -1,42 +1,42 @@
 
-namespace Reflex.ML.Test
+namespace Reflex.ML
 {
 	typeof window === "object" && setTimeout(() =>
 	{
 		///testBodyAttach();
 		
 		const functions: (() => HTMLElement | HTMLElement[])[] = [
-			testNesting,
+			coverNesting,
 			
 			// Later
 			
-			testAttributes,
-			testClosures,
-			testComplexClosures,
-			testManyLevels,
-			testOnce,
-			testMultipleSelectors,
-			testCustomEvents,
-			testInterpolation,
+			coverAttributes,
+			coverClosures,
+			coverComplexClosures,
+			coverManyLevels,
+			coverOnce,
+			coverMultipleSelectors,
+			coverCustomEvents,
+			coverInterpolation,
 			///testOnly,
-			testStatelessForces,
-			testElementChildren,
-			testBasicValueStreaming,
-			testImmediateValueStreaming,
-			testImmediateValueStreamingOnForce,
-			testChangingContentsOnForce,
-			testPromises,
-			testTransitions,
-			testIterators,
-			testAsyncIteratorsSimple,
-			testAsyncIteratorsComplex,
-			testRefreshMultipleForces,
-			testArrayForces,
-			testStatefulForces,
-			testValueBinding,
-			testSymbolicAtomTypes,
-			testForceReturners,
-			testForceWatchers
+			coverStatelessForces,
+			coverElementChildren,
+			coverBasicValueStreaming,
+			coverImmediateValueStreaming,
+			coverImmediateValueStreamingOnForce,
+			coverChangingContentsOnForce,
+			coverPromises,
+			coverTransitions,
+			coverIterators,
+			coverAsyncIteratorsSimple,
+			coverAsyncIteratorsComplex,
+			coverRefreshMultipleForces,
+			coverArrayForces,
+			coverStatefulForces,
+			coverValueBinding,
+			coverSymbolicAtomTypes,
+			coverForceReturners,
+			coverForceWatchers
 			
 			// These don't need to be uncommented for now
 			// Mutations are probably going to get axed
@@ -49,16 +49,19 @@ namespace Reflex.ML.Test
 		///functions.length = 0;
 		///functions.push(testArrayForces);
 		
-		for (const fn of functions)
+		if (false)
 		{
-			const result = fn();
-			const elements = Array.isArray(result) ? result : [result];
-			
-			document.body.append(
-				ml.br(),
-				ml.h1(ml(fn.name + ":")),
-				...elements
-			);
+			for (const fn of functions)
+			{
+				const result = fn();
+				const elements = Array.isArray(result) ? result : [result];
+				
+				//document.body.append(
+				//	ml.br(),
+				//	ml.h1(ml(fn.name + ":")),
+				//	...elements
+				//);
+			}
 		}
 	});
 	
@@ -73,9 +76,8 @@ namespace Reflex.ML.Test
 	{
 		return makeNumber().toString(36);
 	}
-
-	/** */
-	function testNesting()
+	
+	function coverNesting()
 	{
 		let val = false;
 		
@@ -100,8 +102,7 @@ namespace Reflex.ML.Test
 		);
 	}
 	
-	/** */
-	function testBodyAttach()
+	function caseBodyAttachments()
 	{
 		///const array = [
 		///	{ dataBody: 0 },
@@ -111,8 +112,7 @@ namespace Reflex.ML.Test
 		///attach(array, document.body);
 	}
 	
-	/** */
-	function testAttributes()
+	function coverAttributes()
 	{
 		return ml.div(
 			ml`This input should have a maximum length of 5 characters`,
@@ -125,7 +125,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testClosures()
+	function coverClosures()
 	{
 		return [
 			ml.div(
@@ -140,7 +140,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testComplexClosures()
+	function coverComplexClosures()
 	{
 		return [
 			ml.section(
@@ -157,7 +157,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testManyLevels()
+	function coverManyLevels()
 	{
 		return ml.div(
 			[[[""]]],
@@ -170,7 +170,7 @@ namespace Reflex.ML.Test
 	}
 
 	/** */
-	function testOnce()
+	function coverOnce()
 	{
 		return ml.div(
 			ml`Click and the text "Clicked" should be inserted. Should only work once.`,
@@ -183,7 +183,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testMultipleSelectors()
+	function coverMultipleSelectors()
 	{
 		let value = 0;
 		
@@ -199,7 +199,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testOnly()
+	function coverOnly()
 	{
 		return ml.div(
 			ml`Outer`,
@@ -218,7 +218,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testStatelessForces()
+	function coverStatelessForces()
 	{
 		const greet = force<(name: string) => void>();
 		
@@ -238,7 +238,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testStatefulForces()
+	function coverStatefulForces()
 	{
 		const flag = force(false);
 
@@ -252,7 +252,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testCustomEvents()
+	function coverCustomEvents()
 	{
 		const fx = force<(str: string, num: number) => void>();
 		
@@ -271,13 +271,13 @@ namespace Reflex.ML.Test
 	}
 
 	/** */
-	function testInterpolation()
+	function coverInterpolation()
 	{
 		return ml.div(ml`${ml.span(ml`(span 1)`)} (not span 1) ${ml.span(ml`(span 2)`)} (not span 2)`);
 	}
 
 	/** */
-	function testElementChildren()
+	function coverElementChildren()
 	{
 		const s = ml.div(ml`1`);
 		const a: Atom = s;
@@ -298,7 +298,7 @@ namespace Reflex.ML.Test
 	}
 
 	/** */
-	function testBasicValueStreaming()
+	function coverBasicValueStreaming()
 	{
 		let isDark = false;
 		
@@ -310,7 +310,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testImmediateValueStreaming()
+	function coverImmediateValueStreaming()
 	{
 		let isDark = false;
 		
@@ -324,7 +324,7 @@ namespace Reflex.ML.Test
 	}
 
 	/** */
-	function testImmediateValueStreamingOnForce()
+	function coverImmediateValueStreamingOnForce()
 	{
 		const randomForClick = force(makeString());
 		const randomForHover = force(makeString());
@@ -338,7 +338,7 @@ namespace Reflex.ML.Test
 			}).run(),
 			
 			// NOTE: You could actually do this by just returning the makeString()
-			// content and omitting this line, but this is for testing purposes only.
+			// content and omitting this line, but this is for cover purposes only.
 			on(["click", "mousemove"], () =>
 			{
 				randomForClick.set(makeString());
@@ -347,7 +347,7 @@ namespace Reflex.ML.Test
 	}
 
 	/** */
-	function testChangingContentsOnForce()
+	function coverChangingContentsOnForce()
 	{
 		const value = force(false);
 		
@@ -371,7 +371,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testPromises()
+	function coverPromises()
 	{
 		return ml.div(
 			ml.p(ml`Before`),
@@ -385,7 +385,7 @@ namespace Reflex.ML.Test
 	}
 
 	/** */
-	function testTransitions()
+	function coverTransitions()
 	{
 		let wide = false;
 		
@@ -397,7 +397,7 @@ namespace Reflex.ML.Test
 	}
 
 	/** */
-	function testIterators()
+	function coverIterators()
 	{
 		return ml.div(
 			ml`There should be 3 items below this.`,
@@ -416,7 +416,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testAsyncIteratorsSimple()
+	function coverAsyncIteratorsSimple()
 	{
 		const wait = () => new Promise(r => setTimeout(r));
 		
@@ -437,7 +437,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testAsyncIteratorsComplex()
+	function coverAsyncIteratorsComplex()
 	{
 		const wait = () => new Promise(r => setTimeout(r));
 		
@@ -468,7 +468,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testRefreshMultipleForces()
+	function coverRefreshMultipleForces()
 	{
 		const fx1 = force();
 		const fx2 = force();
@@ -492,7 +492,7 @@ namespace Reflex.ML.Test
 	}
 
 	/** */
-	function testArrayForces()
+	function coverArrayForces()
 	{
 		const list = force([6, 3, 8]);
 		const sortFlip = force(false);
@@ -534,7 +534,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testValueBinding()
+	function coverValueBinding()
 	{
 		const backing = force("Change this text");
 		
@@ -563,7 +563,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testSymbolicAtomTypes()
+	function coverSymbolicAtomTypes()
 	{
 		class CustomSymbolic
 		{
@@ -589,7 +589,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testForceReturners()
+	function coverForceReturners()
 	{
 		const fo = force(0).return((now, was) => now % 2 === 0 ? now : was);
 		const numbers: number[] = [];
@@ -610,7 +610,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** */
-	function testForceWatchers()
+	function coverForceWatchers()
 	{
 		const stringFo = force("");
 		const numFo = force(0).watch((now, was) =>
@@ -632,7 +632,7 @@ namespace Reflex.ML.Test
 	}
 	
 	/** * /
-	function testMutationWatcher()
+	function coverMutationWatcher()
 	{
 		const elementVisible = force(false);
 		const contentVisible = force(false);
@@ -722,7 +722,7 @@ namespace Reflex.ML.Test
 	}
 
 	/** * /
-	function testHeadElements()
+	function coverHeadElements()
 	{
 		let styleTag: HTMLStyleElement;
 		
@@ -760,7 +760,7 @@ namespace Reflex.ML.Test
 	}
 
 	/** * /
-	function testScrolling()
+	function coverScrolling()
 	{
 		return ml.div(
 			{ style: "width: 100px; height: 100px; overflow: scroll; border: 1px solid black; padding: 5px" },

@@ -2,12 +2,12 @@
 	"files": [],
 	"include": [],
 	"references": [
-		{ "path": "./ReflexCore" },
-		{ "path": "./ReflexML" },
-		{ "path": "./ReflexML.Test" },
-		{ "path": "./ReflexMLNode" },
-		{ "path": "./ReflexSS" },
-		{ "path": "./ReflexSS.Test" },
-		{ "path": "./ReflexSS.Emitter" }
+		{ "path": "./ReflexCore/core" },
+		{ "path": "./ReflexML/core" },
+		{ "path": "./ReflexML/coverage" },
+		{ "path": "./ReflexMLNode/core" },
+		{ "path": "./ReflexSS/core" },
+		{ "path": "./ReflexSS/coverage" },
+		{ "path": "./ReflexSSEmitter/core" }
 	]
 }

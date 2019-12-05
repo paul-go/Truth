@@ -18,9 +18,25 @@ namespace Reflex
 		/** */
 		[n: number]: T;
 		
+		/**
+		 * A StatelessForce that triggers when an item is added to the backing array.
+		 */
 		readonly added = force<(item: T, position: number) => void>();
+		
+		/**
+		 * A StatelessForce that triggers when an item is removed from the backing array.
+		 */
 		readonly removed = force<(item: T, position: number, id: number) => void>();
+		
+		/**
+		 * A StatelessForce that triggers when an item is moved in the backing array
+		 * from one position to another.
+		 */
 		readonly moved = force<(e1: T, e2: T, i1: number, i2: number) => void>();
+		
+		/**
+		 * A StatelessForce that triggers when the last item of the ArrayForce changes.
+		 */	
 		readonly tailChanged = force<(item: T, position: number) => void>();
 		
 		/** @internal */

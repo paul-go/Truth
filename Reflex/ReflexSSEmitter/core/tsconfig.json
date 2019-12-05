@@ -1,0 +1,12 @@
+{
+	"extends": "../../tsconfig.standard.json",
+	"compilerOptions": {
+		"outFile": "../build/reflex-ss-emitter.js"
+	},
+	"include": [
+		"**/*.ts"
+	],
+	"moduless": {
+		"port": 7077
+	}
+}

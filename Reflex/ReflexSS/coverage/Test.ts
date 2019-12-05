@@ -1,5 +1,5 @@
 
-namespace Reflex.SS.Test
+namespace Reflex.SS
 {
 	/** */
 	type TestResult =
