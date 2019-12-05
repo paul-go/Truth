@@ -1,8 +1,6 @@
 {
 	"extends": "../../tsconfig.standard.json",
 	"compilerOptions": {
-		"declaration": true,
-		"stripInternal": true,
 		"outFile": "../build/reflex-core.js"
 	},
 	"include": [
