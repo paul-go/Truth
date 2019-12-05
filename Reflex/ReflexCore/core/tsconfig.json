@@ -1,5 +1,5 @@
 {
-	"extends": "../../tsconfig.standard.json",
+	"extends": "../../../tsconfig.standard.json",
 	"compilerOptions": {
 		"outFile": "../build/reflex-core.js"
 	},
