@@ -70,7 +70,7 @@ namespace Reflex.ML
 	{
 		return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
 	}
-
+	
 	/** */
 	function makeString()
 	{
@@ -158,7 +158,7 @@ namespace Reflex.ML
 			]
 		);
 	}
-
+	
 	/** */
 	function coverOnce()
 	{
@@ -231,7 +231,7 @@ namespace Reflex.ML
 	function coverStatefulForces()
 	{
 		const flag = force(false);
-
+		
 		return ml.div(
 			// Effects that store a boolean value are given an additional 
 			// method called .flip() to toggle it's internal value:
@@ -259,13 +259,13 @@ namespace Reflex.ML
 			ml`Events test. Click this. It should randomly switch between red and blue`
 		);
 	}
-
+	
 	/** */
 	function coverInterpolation()
 	{
 		return ml.div(ml`${ml.span(ml`(span 1)`)} (not span 1) ${ml.span(ml`(span 2)`)} (not span 2)`);
 	}
-
+	
 	/** */
 	function coverElementChildren()
 	{
@@ -312,7 +312,7 @@ namespace Reflex.ML
 			on("click", () => (isDark = !isDark) ? "blue" : "green").run()
 		);
 	}
-
+	
 	/** */
 	function coverImmediateValueStreamingOnForce()
 	{
@@ -335,7 +335,7 @@ namespace Reflex.ML
 			})
 		);
 	}
-
+	
 	/** */
 	function coverChangingContentsOnForce()
 	{
@@ -373,7 +373,7 @@ namespace Reflex.ML
 			ml.p(ml`After`)
 		);
 	}
-
+	
 	/** */
 	function coverTransitions()
 	{
@@ -385,7 +385,7 @@ namespace Reflex.ML
 			on("click", () => (wide = !wide) ? "wide" : "narrow").run()
 		);
 	}
-
+	
 	/** */
 	function coverIterators()
 	{
@@ -480,7 +480,7 @@ namespace Reflex.ML
 			]).run()
 		);
 	}
-
+	
 	/** */
 	function coverArrayForces()
 	{
@@ -718,7 +718,7 @@ namespace Reflex.ML
 			)
 		);
 	}
-
+	
 	/** * /
 	function coverHeadElements()
 	{
@@ -756,7 +756,7 @@ namespace Reflex.ML
 			ml.code(ml(htmlText))
 		);
 	}
-
+	
 	/** * /
 	function coverScrolling()
 	{
