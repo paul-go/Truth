@@ -106,7 +106,18 @@ namespace Backer
 	
 		toString()
 		{
-			return this.alias ? this.alias.toString() + (this.value ? "[" + this.value.toString() + "]" : "") : this.value.toString();
+			return this.alias ? 
+				this.alias.toString() + 
+				this.values
+					.map(v => v.toString())
+					.reduce((v: string[], p: string) => 
+					{
+						if (!v.includes(p))
+							v.push(p);
+						return v;
+					}, [])
+					.join(" ") 
+				: this.value.toString();
 		}
 		
 	}
