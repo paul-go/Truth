@@ -10,6 +10,17 @@ declare function on<K extends keyof HTMLElementEventMap>(
 ): Reflex.Recurrent;
 
 /**
+ * Binds to an ArrayForce. The callback function is essentially a render
+ * function. It's expected to return a series of ReflexML atoms that are
+ * inserted into the document at the location corresponding to some
+ * index in the array.
+ */
+declare function on<T>(
+	arrayForce: Reflex.ArrayForce<T>,
+	renderFn: (item: T, index: number) => Reflex.ML.Atom
+): Reflex.Recurrent;
+
+/**
  * 
  */
 declare function on(
@@ -63,14 +74,6 @@ declare function on<A1, A2, A3, A4, A5>(
 declare function on<T>(
 	forces: Reflex.StatefulForce<T> | Reflex.StatefulForce<T>[],
 	callback: (now: T, was: T, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Recurrent;
-
-/**
- * 
- */
-declare function on<T>(
-	array: Reflex.ArrayForce<T>,
-	renderFn: (item: T, e: HTMLElement, index: number) => Reflex.ML.Atom
 ): Reflex.Recurrent;
 
 /**
@@ -141,17 +144,6 @@ declare function on<A extends any[]>(
 	...args: A
 ): Reflex.Recurrent;
 
-/**
- * Binds to an ArrayForce. The callback function is essentially a render
- * function. It's expected to return a series of ReflexML atoms that are
- * inserted into the document at the location corresponding to some
- * index in the array.
- */
-declare function on<T>(
-	events: Reflex.ArrayForce<T>,
-	callback: (item: T) => Reflex.ML.Atom
-): Reflex.Recurrent;
-
 //# once() function declarations
 
 /**
@@ -216,14 +208,6 @@ declare function once<A1, A2, A3, A4, A5>(
 declare function once<T>(
 	forces: Reflex.StatefulForce<T> | Reflex.StatefulForce<T>[],
 	callback: (now: T, was: T, e: HTMLElement) => Reflex.ML.Atom
-): Reflex.Recurrent;
-
-/**
- * 
- */
-declare function once<T>(
-	forces: Reflex.ArrayForce<T>,
-	renderFn: (item: T) => Reflex.ML.Atom
 ): Reflex.Recurrent;
 
 /**

@@ -511,14 +511,22 @@ namespace Reflex.ML
 				on("click", () => sortFlip.flip())
 			),
 			on(list
-				.filter((x) => full.value ? true : x > 5, full)
-				.sort((a, b) => 
-					sortSwitch.value ? 
-						sortFlip.value ? 
-							b - a : a - b 
-							: 0, 
-					sortSwitch, 
-					sortFlip), 
+				.filter(v =>
+				{
+					return full.value ?
+						true :
+						v > 5;
+				}, full)
+				
+				.sort((a, b) =>
+				{
+					if (sortSwitch.value)
+						return sortFlip.value ? b - a : a - b;
+					
+					return 0;
+					
+				}, sortSwitch, sortFlip),
+				
 				num => ml.div(ml(num)))
 		);
 	}
