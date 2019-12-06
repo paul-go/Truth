@@ -761,7 +761,14 @@ namespace Reflex.ML
 	function coverScrolling()
 	{
 		return ml.div(
-			{ style: "width: 100px; height: 100px; overflow: scroll; border: 1px solid black; padding: 5px" },
+			{
+				style: 
+					"width: 100px;" +
+					"height: 100px;" +
+					"overflow: scroll;" +
+					"border: 1px solid black; " +
+					"padding: 5px"
+			},
 			on("wheel", (ev, e) =>
 			{
 				const absX = Math.abs(ev.deltaX);
