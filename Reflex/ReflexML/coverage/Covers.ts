@@ -102,16 +102,6 @@ namespace Reflex.ML
 		);
 	}
 	
-	function caseBodyAttachments()
-	{
-		///const array = [
-		///	{ dataBody: 0 },
-		///	ml.div(ml`Top level content attached directly to the body`)
-		///];
-		///
-		///attach(array, document.body);
-	}
-	
 	function coverAttributes()
 	{
 		return ml.div(
