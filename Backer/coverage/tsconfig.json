@@ -5,5 +5,10 @@
 	},
 	"include": [
 		"**/*.ts"
+	],
+	"references": [
+		{ "path": "../../Truth/core" },
+		{ "path": "../../Reflex/ReflexCore/core" },
+		{ "path": "../core" }
 	]
 }

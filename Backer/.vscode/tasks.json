@@ -6,7 +6,7 @@
 		{
 			"label": "watch",
 			"command": "tsc",
-			"args": ["--watch"],
+			"args": ["-b", "--watch"],
 			"isBackground": true,
 			"problemMatcher": {
 				"owner": "typescript",
