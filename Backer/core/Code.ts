@@ -155,7 +155,8 @@ namespace Backer
 		 */
 		extractData(pattern: RegExp)
 		{
-			const dataRoots = this.types.filter(x => x.container === null && pattern.test(x.name));
+			const dataRoots = this.types
+				.filter(x => x.container === null && pattern.test(x.name));
 			
 			const drill = (x: Type) =>
 			{
@@ -169,9 +170,15 @@ namespace Backer
 				return array;
 			};
 			
-			const dataSchema = dataRoots.map(drill).filter(x => Array.isArray(x) ? x.length : true);
+			const dataSchema = dataRoots
+				.map(drill)
+				.filter(x => Array.isArray(x) ? x.length : true);
+				
 			const dataQuery = dataSchema.flat();
-			const codeRoots = this.types.filter(x => !dataQuery.includes(x));
+			
+			const codeRoots = this.types
+				.filter(x => !dataQuery.includes(x));
+			
 			const code = new Code();
 			for (const type of codeRoots)
 				code.add(type);
@@ -183,7 +190,12 @@ namespace Backer
 				type.transfer(code);
 			}
 		
-			const data = dataSchema.map(x => [x.map(x => x.prototype.id), x[0].name, ...x.map(x => x.values.valueStore)]);
+			const data = dataSchema
+				.map(x => [
+					x.map(x => x.prototype.id), 
+					x[0].name, 
+					...x.map(x => x.values.valueStore)
+				]);
 							
 			return {
 				code,

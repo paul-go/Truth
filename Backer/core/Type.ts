@@ -7,6 +7,7 @@ namespace Backer
 	
 	export class Value
 	{
+		/** */
 		static load(data: ValueJSON)
 		{
 			return new Value(FutureType.new(data[0]), !!data[1], data[2]);
@@ -14,26 +15,51 @@ namespace Backer
 		
 		public value: any;
 		
+		/** 
+		 * A unit of Truth Data JSON Value
+		 * It handles serialization and castings
+		*/
 		constructor(public base: FutureType | null, public aliased: boolean, value: string) 
 		{
-			this.value = value;
+			if (aliased)
+			{
+				try 
+				{
+					this.value = JSON.parse(value);
+				}
+				catch (ex)
+				{
+					this.value = value;
+				}
+				
+				if (typeof this.value === "number" && Number.isFinite(this.value))
+					this.value = BigInt(value);
+			}
+			else 
+			{
+				this.value = value;
+			}
 		}
 		
+		/** */
 		get primitive()
 		{
 			return this.value || this.baseName;
 		}
 		
+		/** */
 		get baseName()
 		{
 			return this.base ? this.base.type ? this.base.type.name : "" : "";	
 		}
 		
+		/** */
 		toJSON()
 		{
 			return [this.base && this.base.id, this.aliased ? 1 : 0, this.value];  
 		}
 		
+		/** */
 		toString()
 		{
 			return this.primitive;
@@ -42,6 +68,7 @@ namespace Backer
 	
 	export class ValueStore
 	{	
+		/** */
 		static load(...data: ValueJSON[])
 		{
 			return new ValueStore(...data.map(x => Value.load(x)));
@@ -49,61 +76,57 @@ namespace Backer
 		
 		public valueStore: Value[];
 		
+		/** 
+		 * Manages array of Truth Data JSON Values
+		*/
 		constructor(...values: Value[])
 		{
-			this.valueStore = values.map(x => 
-			{
-				if (x.aliased)
-				{
-					try 
-					{
-						x.value = JSON.parse(x.value);
-					}
-					catch (ex)
-					{
-						if (/^\d+$/.test(x.value))
-							x.value = BigInt(x.value);
-					}
-				}
-				return x;
-			});
+			this.valueStore = values;
 		}
 		
+		/** */
 		get values()
 		{
 			return this.valueStore.filter(x => !x.aliased);
 		}
 		
+		/** */
 		get aliases()
 		{
 			return this.valueStore.filter(x => x.aliased);
 		}
 		
+		/** */
 		concat(store: ValueStore)
 		{
 			return new ValueStore(...this.valueStore.concat(store.valueStore));
 		}
 		
+		/** */
 		get alias()
 		{
 			return this.aliases[0];
 		}
 		
+		/** */
 		get value()
 		{
 			return this.values[0];
 		}
 		
+		/** */
 		get primitive()
 		{
 			return this.alias ? this.alias.value : this.value && this.value.toString();
 		}
 		
+		/** */
 		toJSON()
 		{
 			return this.valueStore;
 		}
 	
+		/** */
 		toString()
 		{
 			return this.alias ? 
@@ -149,6 +172,7 @@ namespace Backer
 			return instance;
 		}
 		
+		/** */
 		constructor(
 			private code: Code,
 			public name: string,
@@ -157,6 +181,7 @@ namespace Backer
 			public values: ValueStore) 
 		{ }
 			
+		/** */
 		get container()
 		{
 			return this._container && this._container.type;
@@ -253,26 +278,31 @@ namespace Backer
 			return roots;
 		}
 		
+		/** */
 		get value()
 		{
 			return this.values.primitive;
 		}
 		
+		/** */
 		get id()
 		{
 			return this.code.types.indexOf(this);
 		}
 		
+		/** */
 		get isAnonymous()
 		{
 			return this.prototype.flags.get(0);
 		}
 		
+		/** */
 		get isFresh()
 		{
 			return this.prototype.flags.get(1);
 		}
 		
+		/** */
 		get isList()
 		{
 			return this.prototype.flags.get(2);
@@ -296,12 +326,13 @@ namespace Backer
 			return this.prototype.flags.get(4);
 		}
 		
-		
+		/** */
 		get isPattern()
 		{
 			return this.prototype.flags.get(5);
 		}
 		
+		/** */
 		get isUri()
 		{
 			return this.prototype.flags.get(6);
@@ -473,6 +504,7 @@ namespace Backer
 			this.prototype.transfer(code);
 		}
 		
+		/** */
 		toJSON()
 		{	
 			return [this.prototype.id, this.container && this.container.id, this.name, this.values];

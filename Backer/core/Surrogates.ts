@@ -15,6 +15,7 @@ namespace Backer
 		
 		[parent]: Q | null;
 		
+		/** */
 		constructor(parentValue: Q | null)
 		{
 			super();
@@ -55,6 +56,7 @@ namespace Backer
 	{	
 		[parent]: Struct[];
 		
+		/** */
 		constructor(public value: any, containers: Struct[], private _name: string)
 		{
 			super(containers);
@@ -78,6 +80,7 @@ namespace Backer
 	 */
 	export class Name extends Base<string, Struct>
 	{
+		/** */
 		constructor(public name: string, container: Struct | null)
 		{
 			super(container);
@@ -129,6 +132,7 @@ namespace Backer
 			return this[typeOf].value;
 		}
 		
+		/** */
 		constructor(type: Type, parentValue: Struct | null)
 		{
 			super(parentValue);
@@ -187,6 +191,7 @@ namespace Backer
 			return Object.values(this);
 		}
 		
+		/** */
 		get bases(): Struct[]
 		{
 			return this[typeOf].bases.map(x => Backer.Schema[x.name]);
@@ -235,6 +240,7 @@ namespace Backer
 			return Obj; 
 		}
 		
+		/** */
 		toString(indent = 0)
 		{
 			let base = this[typeOf].name;
