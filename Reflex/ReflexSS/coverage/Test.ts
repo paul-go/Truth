@@ -302,7 +302,26 @@ namespace Reflex.SS
 	});
 	
 	/** */
-	test("Ensure hierarchies are constructing without errors", () =>
+	test("Nested functions with multi-word names", () =>
+	{
+		const test = ss(
+			".a",
+			ss.textAlign("center"),
+			ss.transform(
+				ss.translateY("-" + 100..pct)
+			)
+		);
+	},
+	`
+	.a
+	{
+		text-align: center;
+		transform: translateY(-100%);
+	}
+	`);
+	
+	/** */
+	0 && test("Ensure hierarchies are constructing without errors", () =>
 	{
 		ss(
 			ss.color("red"),

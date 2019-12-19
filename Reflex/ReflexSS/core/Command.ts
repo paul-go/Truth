@@ -147,21 +147,24 @@ namespace Reflex.SS
 		 * Converts the specified command into a fully serialized representation,
 		 * producing a string result such as "property: value;" or "rgb(0, 0, 0)".
 		 */
-		private static serialize(command: Command, propertyLevel: boolean): string
+		private static serialize(command: Command, atPropertyLevel: boolean): string
 		{
-			const hn = command.hypenatedName;
-			const valuesText = this.serializeValues(command, propertyLevel);
+			const cmdName = atPropertyLevel ?
+				command.hypenatedName :
+				command.callingName;
 			
-			return propertyLevel ?
-				hn + ": " + valuesText + ";" :
-				hn + "(" + valuesText + ")";
+			const valuesText = this.serializeValues(command, atPropertyLevel);
+			
+			return atPropertyLevel ?
+				cmdName + ": " + valuesText + ";" :
+				cmdName + "(" + valuesText + ")";
 		}
 		
 		/**
 		 * Converts the values of the specified command into a serialized
 		 * representation, producing a string result such as "1px solid red".
 		 */
-		private static serializeValues(command: Command, propertyLevel: boolean)
+		private static serializeValues(command: Command, atPropertyLevel: boolean)
 		{
 			const values = command.values;
 			const isSingleDimension = values.every(v => !Array.isArray(v));
@@ -171,7 +174,7 @@ namespace Reflex.SS
 			{
 				const c = ", ";
 				const s = " ";
-				const sep = propertyLevel ?
+				const sep = atPropertyLevel ?
 					specialCommaCases.includes(command.hypenatedName) ? c : s :
 					specialSpaceCases.includes(command.hypenatedName) ? s : c;
 				
