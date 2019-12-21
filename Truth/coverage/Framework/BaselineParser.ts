@@ -25,7 +25,7 @@ namespace Truth.Test
 					graphOutputLines.push(lineText);
 					continue;
 				}
-					
+				
 				const checks: Check[] = [];
 				const added = lineText[0] === BaselineSyntax.added;
 				const removed = lineText[0] === BaselineSyntax.removed;
