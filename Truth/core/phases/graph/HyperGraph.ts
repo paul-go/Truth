@@ -445,6 +445,7 @@ namespace Truth
 			
 			return { document, iterator };
 		}
+		
 		/**
 		 * Reports any Node-level faults detected.
 		 */
