@@ -41,7 +41,7 @@ namespace Truth
 				return null;
 			
 			const uriLike = typeof uri === "string" ?
-				UriParser.parse(uri) :
+				Truth.parseUri(uri) :
 				uri;
 			
 			if (uriLike === null)
@@ -53,7 +53,7 @@ namespace Truth
 					return new Uri(uriLike);
 				
 				const viaParsed = typeof via === "string" ?
-					UriParser.parse(via) :
+					Truth.parseUri(via) :
 					via;
 				
 				if (viaParsed === null)
@@ -301,9 +301,12 @@ namespace Truth
 							return process.cwd() || null;
 					
 					if (typeof window !== "undefined")
-						if (typeof window.location !== "undefined")
-							if (typeof window.location.href === "string")
-								return window.location.href || null;
+					{
+						const lo = window.location;
+						if (typeof lo !== "undefined")
+							return lo.protocol + "//" + lo.hostname + lo.pathname;
+					}
+									
 				}
 				catch (e) { }
 				
