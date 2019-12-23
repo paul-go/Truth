@@ -1,5 +1,4 @@
 {
-	"extends": "../tsconfig.standard.json",
 	"files": [],
 	"include": [],
 	"references": [

@@ -1,7 +1,4 @@
 
-const Fs = <typeof import("fs")>require("fs");
-const Os = <typeof import("os")>require("os");
-
 /**
  * Entry point used for debugging.
  */

@@ -19,24 +19,15 @@
 		"compiler"
 	],
 	"scripts": {
-		"test": "jest",
 		"build": "makets build",
 		"bundle": "makets bundle",
 		"publish": "makets publish"
-	},
-	"jest": {
-		"testRegex": "build/tests/units/[\\w.]+\\.test\\.js$",
-		"verbose": true,
-		"testURL": "http://localhost/"
 	},
 	"eslintIgnore": [
 		"**/node_modules/**/*.ts",
 		"**/*.d.ts"
 	],
 	"devDependencies": {
-		"@types/jest": "^23.3.12",
-		"@types/node": "^10.12.18",
-		"jest": "23.6.0",
-		"memfs": "^2.10.1"
+		"@types/node": "^10.12.18"
 	}
 }
