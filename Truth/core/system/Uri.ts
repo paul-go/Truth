@@ -294,21 +294,16 @@ namespace Truth
 			
 			const via: string | null = (() =>
 			{
-				try
+				if (typeof process === "object")
+					if (typeof process.cwd === "function")
+						return process.cwd() || null;
+				
+				if (typeof window !== "undefined")
 				{
-					if (typeof process === "object")
-						if (typeof process.cwd === "function")
-							return process.cwd() || null;
-					
-					if (typeof window !== "undefined")
-					{
-						const lo = window.location;
-						if (typeof lo !== "undefined")
-							return lo.protocol + "//" + lo.hostname + lo.pathname;
-					}
-									
+					const lo = window.location;
+					if (typeof lo !== "undefined")
+						return lo.protocol + "//" + lo.hostname + lo.pathname;
 				}
-				catch (e) { }
 				
 				return null;
 			})();
