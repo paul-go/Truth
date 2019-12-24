@@ -3,6 +3,9 @@
 	"compilerOptions": {
 		"outFile": "../build/truth.coverage.js"
 	},
+	"include": [
+		"**/*.ts"
+	],
 	"references": [
 		{ "path": "../core" }
 	]
