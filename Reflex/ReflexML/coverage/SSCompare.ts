@@ -3,11 +3,12 @@ namespace Reflex.ML.Tests
 {
   async function coverTest()
   {
-    void "snapshot()";
+    document.body.append("asdadsa");
     
+    console.log("123");
     
     return [
-      () => void "compareSnapshot()"
+      () => void "snapshot()"
     ]
   }
-}
+} 
