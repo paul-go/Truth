@@ -652,7 +652,7 @@ namespace Truth
 					return [];
 				
 				const bases = Array.from(par.eachBase())
-					.map(entry => <Parallel>entry.base)
+					.map(entry => entry.base as Parallel)
 					.slice();
 				
 				const result = bases

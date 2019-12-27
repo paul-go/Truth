@@ -191,7 +191,7 @@ namespace Truth
 		/** */
 		*each()
 		{
-			const values = <FaultType<object>[]>Object.values(Faults);
+			const values = Object.values(Faults) as FaultType<object>[];
 			
 			for (const faultType of values)
 				if (faultType instanceof FaultType)
@@ -206,7 +206,7 @@ namespace Truth
 		 */
 		nameOf(faultCode: number)
 		{
-			const entries = <[string, FaultType<object>][]>Object.entries(Faults);
+			const entries = Object.entries(Faults) as [string, FaultType<object>][];
 			
 			for (const [name, type] of entries)
 				if (type instanceof FaultType)

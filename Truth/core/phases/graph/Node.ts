@@ -566,7 +566,7 @@ namespace Truth
 				fragment.statement.annotations.length === 1;
 			
 			/**
-			 * Adds a edge to it's two applicable successor nodes.
+			 * Adds an edge to it's two applicable successor nodes.
 			 */
 			const append = (edge: HyperEdge) =>
 			{
@@ -706,7 +706,7 @@ namespace Truth
 			{
 				yield {
 					sourceDocument: doc,
-					container: <Node | null>currentLevel,
+					container: currentLevel as Node | null,
 					adjacents: currentLevel.adjacents,
 					longitudeDelta: longitudeCount++
 				};

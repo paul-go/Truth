@@ -67,7 +67,7 @@ namespace Truth
 			try
 			{
 				const fn = Object.freeze(Function.apply(Function, params));
-				await fn.apply(fn, <any>args);
+				await fn.apply(fn, args as any);
 			}
 			catch (e)
 			{
