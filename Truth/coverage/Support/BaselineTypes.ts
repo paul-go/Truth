@@ -1,5 +1,5 @@
 
-namespace Truth.Test
+namespace Truth
 {
 	/**
 	 * 
@@ -11,8 +11,7 @@ namespace Truth.Test
 			readonly graphOutput: string)
 		{ }
 	}
-
-
+	
 	/**
 	 * 
 	 */
@@ -24,8 +23,7 @@ namespace Truth.Test
 			readonly baselineLines: readonly BaselineLine[])
 		{ }
 	}
-
-
+	
 	/**
 	 * 
 	 */
@@ -39,8 +37,7 @@ namespace Truth.Test
 			readonly line: Line)
 		{ }
 	}
-
-
+	
 	/**
 	 * Stores the faults that are applied to specific subjects in a statement.
 	 * If the subjectIndex is 0, this indicates that the fault generated relates
@@ -54,7 +51,7 @@ namespace Truth.Test
 			readonly faultCode: number)
 		{ }
 	}
-
+	
 	/** */
 	export class InferenceCheck
 	{
@@ -63,7 +60,7 @@ namespace Truth.Test
 			readonly isPositive: boolean)
 		{ }
 	}
-
+	
 	/** */
 	export class DescendantCheck
 	{
@@ -72,11 +69,10 @@ namespace Truth.Test
 			readonly annotations: string[])
 		{ }
 	}
-
+	
 	/** */
 	export type Check = FaultCheck | InferenceCheck | DescendantCheck;
-
-
+	
 	/**
 	 * 
 	 */

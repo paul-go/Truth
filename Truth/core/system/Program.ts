@@ -146,7 +146,7 @@ namespace Truth
 		 */
 		cause<R>(cause: Cause<R>, ...filters: Uri[])
 		{
-			const causeType = <typeof Cause>cause.constructor;
+			const causeType = cause.constructor as typeof Cause;
 			const attachmentsAll = this.causes.get(causeType) || [];
 			const attachments = attachmentsAll.filter(attachment =>
 			{

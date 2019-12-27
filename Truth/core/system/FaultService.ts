@@ -121,13 +121,37 @@ namespace Truth
 		 * at the specified source. If the source has no faults, an empty
 		 * array is returned.
 		 */
-		check<TSource extends object>(source: TSource): Fault<TSource>[]
+		check<TSource extends TFaultSource>(source: TSource): Fault<TSource>[]
 		{
 			const out: Fault<TSource>[] = [];
 			
 			for (const retainedFault of this.each())
 				if (retainedFault.source === source)
 					out.push(<Fault<TSource>>retainedFault);
+			
+			return out;
+		}
+		
+		/**
+		 * @returns An array of Fault objects that have been reported that
+		 * correspond to the specified Statement, or any Span or InfixSpan
+		 * objects contained within it.
+		 */
+		checkAll(source: Statement): Fault[]
+		{
+			const out: Fault[] = [];
+			
+			for (const retainedFault of this.each())
+			{
+				const reSource = retainedFault.source;
+				
+				if (reSource === source)
+					out.push(retainedFault);
+				
+				else if (reSource instanceof Span || reSource instanceof InfixSpan)
+					if (reSource.statement === source)
+						out.push(retainedFault);
+			}
 			
 			return out;
 		}

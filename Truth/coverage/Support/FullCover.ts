@@ -1,16 +1,78 @@
 
-namespace Truth.Test
+namespace Truth
 {
 	/**
-	 * 
+	 * A fixture for a cover function that captures the behavior of loading
+	 * a Truth document, and verifying whether it was loaded properly.
 	 */
-	export class BaselineParser
+	export class FullCover
 	{
 		/** */
-		static parse(sourcePath: string, fileContent: string)
+		constructor()
+		{
+			this.program = new Program();
+		}
+		
+		/**
+		 * Gets the Truth Program instance within which the 
+		 * Truth code relating to the cover is processed.
+		 */
+		readonly program: Truth.Program;
+		
+		/** */
+		private readonly documents = new Map<string, BaselineDocument>();
+		
+		/**
+		 * Adds a virtual file with the specified source content.
+		 * @returns The virtual URI specified.
+		 */
+		add(sourceText: string, fakeUri = this.createFakeUri())
+		{
+			this.addDocument(fakeUri, outdent`${sourceText}`);
+			return fakeUri;
+		}
+		
+		/** */
+		createFakeUri()
+		{
+			return `file://this/is/fake/${++this.uriCount}.truth`;
+		}
+		
+		/** */
+		private uriCount = 0;
+		
+		/**
+		 * Makes a change to the virtual file with the specified URI, at the
+		 * specified line number. The line number is the line counting from
+		 * the first non-whitespace line in the virtual file.
+		 * 
+		 * The operation works by finding the first occurence of the substring
+		 * specified in the "find" argument, and replacing it with the string
+		 * specified in the "replace" argument.
+		 */
+		edit(fakeFileUri: string, lineNumber: number, find: string, replace: string)
+		{
+			
+		}
+		
+		/** */
+		try(sourceText?: string)
+		{
+			if (sourceText)
+				this.add(sourceText);
+			
+			const execResult = this.execute();
+			return execResult;
+		}
+		
+		/**
+		 * Parses a document at the specified virtual path, with the
+		 * specified sourceText. After parsing, the document is added
+		 * to the local documents map.
+		 */
+		private addDocument(virtualPath: string, sourceText: string)
 		{
 			const baselineLines: BaselineLine[] = [];
-			const fakeFilePaths = new Map<number, string>();
 			const descendantChecks = new MultiMap<number, Line>();
 			
 			let fileLineIdx = 0;
@@ -18,7 +80,7 @@ namespace Truth.Test
 			let lastNonDescendantCheckLineIdx = -1;
 			const graphOutputLines: string[] = [];
 			
-			for (let lineText of LineParser.read(fileContent))
+			for (let lineText of LineParser.read(sourceText))
 			{
 				if (hitGraphMarker)
 				{
@@ -43,26 +105,6 @@ namespace Truth.Test
 					
 					fileLineIdx++;
 				};
-				
-				if (isLineGraphMarker(lineText))
-				{
-					hitGraphMarker = true;
-					continue;
-				}
-				
-				const fakeFilePath = maybeReadFileMarker(lineText);
-				if (fakeFilePath)
-				{
-					fakeFilePaths.set(fileLineIdx, fakeFilePath);
-					push();
-					continue;
-				}
-				
-				if (lineText.startsWith(BaselineSyntax.afterEditPrefix))
-				{
-					push();
-					continue;
-				}
 				
 				lineText = added || removed ?
 					lineText.slice(1) : 
@@ -167,21 +209,6 @@ namespace Truth.Test
 				
 				const lineAdjusted = lineText.replace(/~\s*/, "");
 				return LineParser.parse(lineAdjusted);
-			}
-			
-			/** */
-			function maybeReadFileMarker(lineText: string)
-			{
-				const prefix = BaselineSyntax.fakeFilePathPrefix;
-				return lineText.startsWith(prefix) ?
-					lineText.slice(prefix.length) :
-					null;
-			}
-			
-			/** */
-			function isLineGraphMarker(lineText: string)
-			{
-				return lineText.startsWith(BaselineSyntax.graphOutputPrefix);
 			}
 			
 			//
@@ -303,60 +330,152 @@ namespace Truth.Test
 				}
 			}
 			
-			// 
-			// Split the baseline up into two parts: the first being the
-			// "before", which means "before the edit transaction took
-			// place", and the second being "after the edit transaction
-			// took place".
-			// 
+			const rawDocumentText = baselineLines
+				.map(docLine => docLine.line.sourceText)
+				.join(Syntax.terminal);
 			
-			//
-			// Generate a proper BaselineProgram where the faults
-			// that are generated can be easily lined up.
-			//
+			const baselineDocument = new BaselineDocument(
+				virtualPath,
+				rawDocumentText,
+				Object.freeze(baselineLines.slice()));
 			
-			//
-			// Note that if there are multiple files ("fake files") specified
-			// in a baseline, the lines before the first fake file definition
-			// are ignored.
-			//
+			this.documents.set(virtualPath, baselineDocument);
+		}
+		
+		/**
+		 * 
+		 */
+		private execute()
+		{
+			const reports: Report[] = [];
 			
-			const baselineDocuments = new Map<string, BaselineDocument>();
-			const documentLines: BaselineLine[] = [];
+			// Errors need to be blocked from checking while
+			// the program is populated with content.
 			
-			const storeBaselineDocument = (path: string) =>
+			for (const [fakeUriText, baselineDoc] of this.documents)
 			{
-				const rawDocumentText = documentLines
-					.map(docLine => docLine.line.sourceText)
-					.join(Syntax.terminal);
+				const fakeUri = Uri.tryParse(fakeUriText);
+				if (!fakeUri)
+					throw new Error("Invalid URI: " + fakeUriText);
 				
-				const baselineDocument = new BaselineDocument(
-					path,
-					rawDocumentText,
-					Object.freeze(documentLines.slice()));
-				
-				baselineDocuments.set(path, baselineDocument);
-			};
+				this.program.documents.create(fakeUri, baselineDoc.sourceText);
+			}
 			
-			for (let lineIdx = baselineLines.length; lineIdx-- > 0;)
+			this.program.verify();
+			
+			// Go through all BaselineDocument instances, and make sure that 
+			// faults are reported (and not reported) in the locations as specified
+			// by the BaselineDocument's checks.
+			
+			for (const [fakeUriText, baselineDoc] of this.documents)
 			{
-				const fakeFilePath = fakeFilePaths.get(lineIdx);
-				if (fakeFilePath)
+				const fakeUri = Not.null(Uri.tryParse(fakeUriText));
+				const realDoc = Not.null(this.program.documents.get(fakeUri));
+				
+				for (const [docLineIdx, baselineLine] of baselineDoc.baselineLines.entries())
 				{
-					storeBaselineDocument(fakeFilePath);
-					documentLines.length = 0;
-				}
-				else
-				{
-					const src = baselineLines[lineIdx].line.sourceText;
-					documentLines.unshift(baselineLines[lineIdx]);
+					const statement = realDoc.read(docLineIdx);
+					const faultsGenerated = this.program.faults.checkAll(statement);
+					const checks = baselineLine.checks;
+					
+					const faultChecks = checks.filter((chk): chk is FaultCheck => 
+						chk instanceof FaultCheck);
+					
+					const inferenceChecks = checks.filter((chk): chk is InferenceCheck =>
+						chk instanceof InferenceCheck);
+					
+					const descendantChecks = checks.filter((chk): chk is DescendantCheck =>
+						chk instanceof DescendantCheck);
+					
+					if (faultChecks.length > 0 || faultsGenerated.length > 0)
+					{
+						const expected: string[] = [];
+						const received: string[] = [];
+						
+						for (const [spanIdx, span] of statement.spans.entries())
+						{
+							const checks = faultChecks.filter(chk => chk.spanIndex === spanIdx);
+							const expCodes = checks.map(chk => chk.faultCode);
+							const expNames = expCodes.map(code => Faults.nameOf(code));
+							expected.push(this.serializeSpan(span, expCodes, expNames));
+							
+							const recFaults = this.program.faults.check(span);
+							const recCodes = recFaults.map(f => f.type.code);
+							const recNames = recCodes.map(code => Faults.nameOf(code));
+							received.push(this.serializeSpan(span, recCodes, recNames));
+						}
+						
+						const splitter = "   ";
+						const expectedSerialized = expected.join(splitter);
+						const receivedSerialized = received.join(splitter);
+						
+						if (expectedSerialized !== receivedSerialized)
+						{
+							reports.push(new Report(
+								docLineIdx + 1,
+								baselineLine.line.sourceText,
+								[
+									"Expected faults: " + expectedSerialized,
+									"Received faults: " + receivedSerialized
+								]));
+						}
+					}
+					
+					//! TODO: Handle inference checks
+					//! TODO: Handle descendent checks
 				}
 			}
 			
-			storeBaselineDocument(sourcePath);
-			return new BaselineDocuments(
-				baselineDocuments,
-				graphOutputLines.join("\n").trim());
+			const reportStrings: string[] = [];
+			
+			for (const report of reports)
+			{
+				const reportLines = [
+					"Line: " + report.documentLineNumber,
+					"Source: " + report.lineSource,
+					...report.messages
+				];
+				
+				reportStrings.push(reportLines.join("\n"));
+			}
+			
+			return reportStrings;
 		}
+		
+		/**
+		 * 
+		 */
+		private serializeSpan(span: Span, codes: number[], names: string[])
+		{
+			const parts = [span.toString()];
+			
+			if (codes.length !== names.length)
+				throw Exception.unknownState();
+			
+			if (codes.length > 0)
+			{
+				for (const [i, code] of codes.entries())
+				{
+					parts.push(BaselineSyntax.faultBegin + code + BaselineSyntax.faultEnd);
+					parts.push("(" + names[i] + ")");
+				}
+			}
+			else
+			{
+				parts.push("(none)");
+			}
+			
+			return parts.join(" ");
+		}
+	}
+	
+	/** */
+	class Report
+	{
+		constructor(
+			readonly documentLineNumber: number,
+			readonly lineSource: string,
+			readonly messages: string[])
+		{ }
 	}
 }

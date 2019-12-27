@@ -15,7 +15,14 @@ namespace Truth
 		 */
 		readonly id = ++nextId;
 		
-		/** */
+		/**
+		 * Returns a string representation of the Anon object which may be used to
+		 * uniquely identify it.
+		 * 
+		 * Each Anon object serializes differently, otherwise, problems would arise
+		 * when trying to reference any of it's contained types (Ex. What specific
+		 * type is being refered to in "__ANON__" in the type URI "A/B/__ANON__/C"?
+		 */
 		toString()
 		{
 			return `__ANON${this.id}__`;
