@@ -146,7 +146,7 @@ namespace Truth
 			const affectedNodes: Node[] = [];
 			
 			// Stores a subset of the affectedNodes array. Contains
-			// only the nodes that are at the highest level of depth
+			// only the nodes that are at the outer-most level of depth
 			// within the node set (not necessarily the document root).
 			const affectedNodesApexes: Node[] = [];
 			
@@ -489,8 +489,7 @@ namespace Truth
 			return this.nodeIndex.toString();
 		}
 	}
-
-
+	
 	/**
 	 * 
 	 */
@@ -510,8 +509,7 @@ namespace Truth
 		 */
 		readonly destablizedEdges: HyperEdge[] = [];
 	}
-
-
+	
 	/**
 	 * @internal
 	 * Debug utility.

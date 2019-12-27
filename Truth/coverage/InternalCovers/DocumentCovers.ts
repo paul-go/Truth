@@ -63,7 +63,6 @@ namespace Truth
 		];
 	}
 
-	//
 	function coverGetParentWithStatement()
 	{
 		const prog = new Program();
@@ -85,7 +84,6 @@ namespace Truth
 		];
 	}
 
-	//
 	function coverGetParentWithNumber()
 	{
 		const prog = new Program();
@@ -103,7 +101,6 @@ namespace Truth
 		];
 	}
 
-	/** */
 	function coverGetParentWithTopLevelStatement()
 	{
 		const prog = new Program();
@@ -126,7 +123,6 @@ namespace Truth
 		];
 	}
 
-	/** */
 	function coverGetParentFromPositionWithEmptyDocument()
 	{
 		const prog = new Program();
@@ -139,7 +135,6 @@ namespace Truth
 		];
 	}
 
-	/** */
 	function coverGetParentFromPositionOnEmptyLine()
 	{
 		const prog = new Program();
@@ -171,7 +166,6 @@ namespace Truth
 		];
 	}
 
-	/** */
 	function coverGetParentFromPositionOnNonEmptyLine()
 	{
 		const prog = new Program();
@@ -196,8 +190,7 @@ namespace Truth
 			() => parentOfD === c
 		];
 	}
-
-	/** */
+	
 	function coverGetParentFromPositionReturningContainingDocument()
 	{
 		const prog = new Program();
@@ -213,8 +206,7 @@ namespace Truth
 			() => container === doc
 		];
 	}
-
-	/** */
+	
 	function coverGetSiblingsOnTopLevelStatement()
 	{
 		const prog = new Program();
@@ -235,8 +227,7 @@ namespace Truth
 			C
 		`);
 	}
-
-	/** */
+	
 	function coverGetSiblingsOnNestedStatement()
 	{
 		const prog = new Program();
@@ -263,8 +254,7 @@ namespace Truth
 			F
 		`);
 	}
-
-	/** */
+	
 	function coverGetSiblingsOnTopLevelNoopStatement()
 	{
 		const prog = new Program();
@@ -279,8 +269,7 @@ namespace Truth
 		
 		return () => siblings === null;
 	}
-
-	/** */
+	
 	function coverGetSiblingsOnNestedNoopStatement()
 	{
 		const prog = new Program();
@@ -297,8 +286,7 @@ namespace Truth
 		const siblings = doc.getSiblings(3);
 		return () => siblings === null;
 	}
-
-	/** */
+	
 	function coverGetChildrenOnEmptyDocument()
 	{
 		const prog = new Program();
@@ -307,8 +295,7 @@ namespace Truth
 		
 		return () => hasContent(children, "");
 	}
-
-	/** */
+	
 	function coverGetChildrenOnNonEmptyDocument()
 	{
 		const prog = new Program();
@@ -336,8 +323,7 @@ namespace Truth
 		
 		return () => children.join() === [smtB, smtC, smtD, smtE].join();
 	}
-
-	/** */
+	
 	function coverGetChildrenOnTopLevelStatement()
 	{
 		const prog = new Program();
@@ -345,8 +331,7 @@ namespace Truth
 			
 		`);
 	}
-
-	/** */
+	
 	function coverGetChildrenOnNestedStatement()
 	{
 		const prog = new Program();
@@ -354,8 +339,7 @@ namespace Truth
 			
 		`);
 	}
-
-	/** */
+	
 	function coverGetChildrenOnNestedNoopStatement()
 	{
 		const prog = new Program();
@@ -363,8 +347,7 @@ namespace Truth
 			
 		`);
 	}
-
-	/** */
+	
 	function coverHasDescendents()
 	{
 		const prog = new Program();
@@ -372,8 +355,7 @@ namespace Truth
 			
 		`);
 	}
-
-	/** */
+	
 	function coverHasDescendentsOnNonEmptyDocument()
 	{
 		const prog = new Program();
@@ -381,8 +363,7 @@ namespace Truth
 			
 		`);
 	}
-
-	/** */
+	
 	function coverHasDescendentsOnTopLevelStatement()
 	{
 		const prog = new Program();
@@ -390,8 +371,7 @@ namespace Truth
 			
 		`);
 	}
-
-	/** */
+	
 	function coverHasDescendentsOnNestedStatement()
 	{
 		const prog = new Program();
@@ -399,8 +379,7 @@ namespace Truth
 			
 		`);
 	}
-
-	/** */
+	
 	function coverHasDescendentsOnNestedNoopStatement()
 	{
 		const prog = new Program();
@@ -408,8 +387,7 @@ namespace Truth
 			
 		`);
 	}
-
-	/** */
+	
 	function coverHasDescendentsOnStatementAtNumericPosition()
 	{
 		const prog = new Program();
@@ -417,8 +395,7 @@ namespace Truth
 			
 		`);
 	}
-
-	/** */
+	
 	function coverGetStatementIndex()
 	{
 		const prog = new Program();
@@ -426,8 +403,7 @@ namespace Truth
 			
 		`);
 	}
-
-	/** */
+	
 	function coverGetNotes()
 	{
 		const prog = new Program();
@@ -441,8 +417,7 @@ namespace Truth
 		const notes = doc.getNotes(3);
 		return () => notes.join() === ["**", "**"].join();
 	}
-
-	/** */
+	
 	function coverGetNotesWhenNoneAvailable()
 	{
 		const prog = new Program();
@@ -457,8 +432,7 @@ namespace Truth
 			() => notes === ""
 		];
 	}
-
-	/** */
+	
 	function coverGetNotesOnCommentLine()
 	{
 		const prog = new Program();
@@ -473,8 +447,7 @@ namespace Truth
 			() => notes === ""
 		];
 	}
-
-	/** */
+	
 	function coverReadOnLineFromPossiblePositions()
 	{
 		const prog = new Program();

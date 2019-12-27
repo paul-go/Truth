@@ -38,8 +38,8 @@ namespace Truth
 				throw Exception.unknownState();
 			
 			this.identifier = source.boundary.subject;
-			this.fragmentsMutable = [source];
-			this.successorsMutable = successors.slice();
+			this._fragments = [source];
+			this._successors = successors.slice();
 		}
 		
 		/**
@@ -56,12 +56,12 @@ namespace Truth
 			///if (isPattern !== isInfix)
 			///	throw Exception.invalidCall();
 			
-			if (this.fragmentsMutable.includes(fragment))
+			if (this._fragments.includes(fragment))
 				return;
 			
 			//! The ordering of the sources is not being handled here.
 			
-			this.fragmentsMutable.push(fragment);
+			this._fragments.push(fragment);
 		}
 		
 		/**
@@ -70,15 +70,15 @@ namespace Truth
 		 */
 		removeFragment(fragment: Span | InfixSpan)
 		{
-			const fragPos = this.fragmentsMutable.indexOf(fragment);
+			const fragPos = this._fragments.indexOf(fragment);
 			if (fragPos >= 0)
-				this.fragmentsMutable.splice(fragPos, 1);
+				this._fragments.splice(fragPos, 1);
 		}
 		
 		/** */
 		clearFragments()
 		{
-			this.fragmentsMutable.length = 0;
+			this._fragments.length = 0;
 		}
 		
 		/**
@@ -93,19 +93,17 @@ namespace Truth
 		 */
 		get fragments(): readonly (Span | InfixSpan)[]
 		{
-			return this.fragmentsMutable;
+			return this._fragments;
 		}
-		
-		/** */
-		private readonly fragmentsMutable: (Span | InfixSpan)[];
+		private readonly _fragments: (Span | InfixSpan)[];
 		
 		/**
 		 * 
 		 */
 		addSuccessor(node: Node, longitude: number)
 		{
-			if (!this.successorsMutable.find(scsr => scsr.node === node))
-				this.successorsMutable.push(new Successor(node, longitude));
+			if (!this._successors.find(scsr => scsr.node === node))
+				this._successors.push(new Successor(node, longitude));
 		}
 		
 		/**
@@ -113,9 +111,9 @@ namespace Truth
 		 */
 		removeSuccessor(node: Node)
 		{
-			for (let i = this.successorsMutable.length; i-- > 0;)
-				if (this.successorsMutable[i].node === node)
-					this.successorsMutable.splice(i, 1);
+			for (let i = this._successors.length; i-- > 0;)
+				if (this._successors[i].node === node)
+					this._successors.splice(i, 1);
 		}
 		
 		/**
@@ -126,11 +124,9 @@ namespace Truth
 		 */
 		get successors(): readonly Successor[]
 		{
-			return this.successorsMutable;
+			return this._successors;
 		}
-		
-		/** */
-		private readonly successorsMutable: Successor[];
+		private readonly _successors: Successor[];
 		
 		/**
 		 * Gets whether this HyperEdge has no immediately resolvable
@@ -207,10 +203,10 @@ namespace Truth
 		{
 			//! Is this still necessary?
 			
-			if (this.fragmentsMutable.length === 0)
+			if (this._fragments.length === 0)
 				throw Exception.unknownState();
 			
-			const src = this.fragmentsMutable[0];
+			const src = this._fragments[0];
 			if (src instanceof Span)
 				return HyperEdgeOrigin.statement;
 			

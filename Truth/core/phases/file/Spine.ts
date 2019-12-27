@@ -20,12 +20,12 @@ namespace Truth
 				if (v instanceof Span)
 					return v;
 				
-				const existCruftMarker = CruftMarkers.get(v);
+				const existCruftMarker = cruftMarkers.get(v);
 				if (existCruftMarker !== undefined)
 					return existCruftMarker;
 				
 				const newCruftMarker = new CruftMarker(v);
-				CruftMarkers.set(v, newCruftMarker);
+				cruftMarkers.set(v, newCruftMarker);
 				return newCruftMarker;
 			});
 			
@@ -48,8 +48,7 @@ namespace Truth
 		/** Stores an array of the Spans that compose the Spine. */
 		readonly vertebrae: readonly (Span | CruftMarker)[] = [];
 	}
-
-
+	
 	/**
 	 * A class that acts as a stand-in for a statement that has been
 	 * marked as cruft, suitable for usage in a Spine.
@@ -69,6 +68,6 @@ namespace Truth
 			return "≈" + Hash.calculate(this.statement.sourceText);
 		}
 	}
-
-	const CruftMarkers = new WeakMap<Statement, CruftMarker>();
+	
+	const cruftMarkers = new WeakMap<Statement, CruftMarker>();
 }
