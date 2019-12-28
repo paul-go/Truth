@@ -271,7 +271,7 @@ namespace Truth
 		}
 		
 		/**
-		 * Gets whether the statement has been removed from it's
+		 * Gets whether this Statement has been removed from it's
 		 * containing document. Removal occurs after the statement
 		 * has been invalidated. Therefore, this property will be false
 		 * before the invalidation phase has occured, even if it will be
@@ -284,7 +284,8 @@ namespace Truth
 		}
 		
 		/**
-		 * 
+		 * Gets whether the Statement has been marked as cruft,
+		 * due to a parsing error (and specifically not a type error).
 		 */
 		get isCruft()
 		{
@@ -292,16 +293,31 @@ namespace Truth
 			return (this.flags & f) === f;
 		}
 		
+		/**
+		 * Gets the URI embedded within the Statement, in the case
+		 * when the statement is a URI statement.
+		 * 
+		 * Gets null in the case when the Statement is not a URI
+		 * statement.
+		 */
+		get uri()
+		{
+			const f = LineFlags.hasUri;
+			return (this.flags & f) !== f ?
+				this.declarations[0].boundary.subject as Uri :
+				null;
+		}
+		
 		/** @internal */
 		private flags = LineFlags.none;
 		
-		/** */
+		/** Stores a list of the parse-related faults that were detected on this Statement. */
 		readonly faults: readonly Fault[];
 		
-		/** Stores a reference to the document that contains this statement. */
+		/** Stores a reference to the document that contains this Statement. */
 		readonly document: Document;
 		
-		/** Stores the indent level of the statement. */
+		/** Stores the indent level of the Statement. */
 		readonly indent: number;
 		
 		/**
