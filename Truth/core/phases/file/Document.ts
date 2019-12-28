@@ -1158,8 +1158,7 @@ namespace Truth
 		 */
 		readonly endColumn: number;
 	}
-
-
+	
 	/**
 	 * Generator function that yields all statements (unparsed lines)
 	 * of the given source text. 
@@ -1184,8 +1183,7 @@ namespace Truth
 			}
 		}
 	}
-
-
+	
 	/**
 	 * Performs the integer bounding and wrapping formula that is
 	 * common on all positional arguments found in JavaScript array
