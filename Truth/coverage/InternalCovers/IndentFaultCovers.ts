@@ -1,7 +1,7 @@
 
 namespace Truth
 {
-	function coverSingleIndentationFault()
+	async function coverSingleIndentationFault()
 	{
 		const program = new Program();
 		const t = Syntax.tab;
@@ -14,7 +14,7 @@ namespace Truth
 			t + s + "TabSpace"
 		];
 		
-		program.documents.create(lines.join("\n"));
+		program.addDocument(lines.join("\n"));
 		
 		return [
 			() => hasFault(program, Faults.TabsAndSpaces.code, 3),
@@ -22,7 +22,7 @@ namespace Truth
 		];
 	}
 	
-	function coverMultipleIndentationFault()
+	async function coverMultipleIndentationFault()
 	{
 		const program = new Program();
 		const t = Syntax.tab;
@@ -36,7 +36,7 @@ namespace Truth
 			s + t + "SpaceTab"
 		];
 		
-		program.documents.create(lines.join("\n"));
+		await program.addDocument(lines.join("\n"));
 		
 		return [
 			() => hasFault(program, Faults.TabsAndSpaces.code, 2),
@@ -45,18 +45,20 @@ namespace Truth
 		];
 	}
 	
-	function coverIndentationFaultRectification()
+	async function coverIndentationFaultRectification()
 	{
 		const program = new Program();
 		const t = Syntax.tab;
 		const s = Syntax.space;
 		const lines = [t + s + "TabSpace"];
 		
-		const doc = program.documents.create(lines.join("\n"));
+		const doc = await program.addDocument(lines.join("\n"));
+		if (doc instanceof Error)
+			return doc;
 		
-		doc.edit(facts =>
+		doc.edit(mutator =>
 		{
-			facts.delete(0, 1);
+			mutator.delete(0, 1);
 		});
 		
 		return [

@@ -170,6 +170,15 @@ namespace Truth
 		}
 		
 		/** */
+		static cannotAssignUri()
+		{
+			return error(`
+				Cannot assign this URI to this document, because
+				another document is already loaded in the program
+				with the Uri specified.`);
+		}
+		
+		/** */
 		static nonEmptyDocument()
 		{
 			return error("Cannot call this method on a non-empty document.");

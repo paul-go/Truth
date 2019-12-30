@@ -1,16 +1,18 @@
 
 namespace Truth
 {
-	function coverGetAncestryWithStatement()
+	async function coverGetAncestryWithStatement()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 				B
 					C
 						D
 							E
 		`);
+		
+		if (doc instanceof Error)
+			throw doc;
 		
 		const ancestryAtA = Not.null(doc.getAncestry(doc.read(0)));
 		const ancestryAtB = Not.null(doc.getAncestry(doc.read(1)));
@@ -41,16 +43,18 @@ namespace Truth
 		];
 	}
 	
-	function coverGetAncestryWithNumber()
+	async function coverGetAncestryWithNumber()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 				B
 					C
 						D
 							E
 		`);
+		
+		if (doc instanceof Error)
+			throw doc;
 		
 		const ancestry = doc.getAncestry(3);
 		
@@ -63,14 +67,16 @@ namespace Truth
 		];
 	}
 
-	function coverGetParentWithStatement()
+	async function coverGetParentWithStatement()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 				B
 					C
 		`);
+		
+		if (doc instanceof Error)
+			throw doc;
 		
 		const smtA = doc.read(0);
 		const smtB = doc.read(1);
@@ -84,14 +90,16 @@ namespace Truth
 		];
 	}
 
-	function coverGetParentWithNumber()
+	async function coverGetParentWithNumber()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 				B
 					C
 		`);
+		
+		if (doc instanceof Error)
+			throw doc;
 		
 		const smtA = doc.read(0);
 		const smtBParent = doc.getParent(1);
@@ -101,16 +109,18 @@ namespace Truth
 		];
 	}
 
-	function coverGetParentWithTopLevelStatement()
+	async function coverGetParentWithTopLevelStatement()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 			// 
 			B
 			//
 			C
 		`);
+		
+		if (doc instanceof Error)
+			throw doc;
 		
 		const parentA = doc.getParent(0);
 		const parentB = doc.getParent(2);
@@ -123,10 +133,11 @@ namespace Truth
 		];
 	}
 
-	function coverGetParentFromPositionWithEmptyDocument()
+	async function coverGetParentFromPositionWithEmptyDocument()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create("");
+		const doc = await Truth.parse("");
+		if (doc instanceof Error)
+			throw doc;
 		
 		const parent = doc.getParentFromPosition(0, 0);
 		
@@ -135,10 +146,9 @@ namespace Truth
 		];
 	}
 
-	function coverGetParentFromPositionOnEmptyLine()
+	async function coverGetParentFromPositionOnEmptyLine()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 				B
 					C
@@ -147,6 +157,9 @@ namespace Truth
 				E
 					F
 		`);
+		
+		if (doc instanceof Error)
+			throw doc;
 		
 		const a = doc.read(0);
 		const b = doc.read(1);
@@ -165,16 +178,18 @@ namespace Truth
 			() => parentAt4 === d
 		];
 	}
-
-	function coverGetParentFromPositionOnNonEmptyLine()
+	
+	async function coverGetParentFromPositionOnNonEmptyLine()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 				B
 					C
 						D
 		`);
+		
+		if (doc instanceof Error)
+			throw doc;
 		
 		const a = doc.read(0);
 		const b = doc.read(1);
@@ -191,15 +206,17 @@ namespace Truth
 		];
 	}
 	
-	function coverGetParentFromPositionReturningContainingDocument()
+	async function coverGetParentFromPositionReturningContainingDocument()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(`
+		const doc = await Truth.parse(`
 			A
 				B
 					C
 						D
 		`);
+		
+		if (doc instanceof Error)
+			throw doc;
 		
 		const container = doc.getParentFromPosition(3, 0);
 		return [
@@ -207,16 +224,18 @@ namespace Truth
 		];
 	}
 	
-	function coverGetSiblingsOnTopLevelStatement()
+	async function coverGetSiblingsOnTopLevelStatement()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 					A
 				B
 			C
 				D
 					E
 		`);
+		
+		if (doc instanceof Error)
+			throw doc;
 		
 		const c = doc.read(2);
 		const siblings = doc.getSiblings(c);
@@ -228,10 +247,9 @@ namespace Truth
 		`);
 	}
 	
-	function coverGetSiblingsOnNestedStatement()
+	async function coverGetSiblingsOnNestedStatement()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 				
 				B
@@ -245,6 +263,9 @@ namespace Truth
 				H
 		`);
 		
+		if (doc instanceof Error)
+			throw doc;
+		
 		const c = doc.read(4);
 		const siblings = doc.getSiblings(c);
 		
@@ -255,14 +276,16 @@ namespace Truth
 		`);
 	}
 	
-	function coverGetSiblingsOnTopLevelNoopStatement()
+	async function coverGetSiblingsOnTopLevelNoopStatement()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 			//
 			B
 		`);
+		
+		if (doc instanceof Error)
+			throw doc;
 		
 		const cmt = doc.read(1);
 		const siblings = doc.getSiblings(cmt);
@@ -270,10 +293,9 @@ namespace Truth
 		return () => siblings === null;
 	}
 	
-	function coverGetSiblingsOnNestedNoopStatement()
+	async function coverGetSiblingsOnNestedNoopStatement()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 				B
 				//
@@ -283,23 +305,26 @@ namespace Truth
 			D
 		`);
 		
+		if (doc instanceof Error)
+			throw doc;
+		
 		const siblings = doc.getSiblings(3);
 		return () => siblings === null;
 	}
 	
-	function coverGetChildrenOnEmptyDocument()
+	async function coverGetChildrenOnEmptyDocument()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create("\t".repeat(5));
-		const children = doc.getChildren();
+		const doc = await Truth.parse("\t".repeat(5));
+		if (doc instanceof Error)
+			throw doc;
 		
+		const children = doc.getChildren();
 		return () => hasContent(children, "");
 	}
 	
-	function coverGetChildrenOnNonEmptyDocument()
+	async function coverGetChildrenOnNonEmptyDocument()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 						B
 							//
@@ -314,6 +339,9 @@ namespace Truth
 			F
 		`);
 		
+		if (doc instanceof Error)
+			throw doc;
+		
 		const smtA = doc.read(0);
 		const smtB = doc.read(1);
 		const smtC = doc.read(8);
@@ -324,107 +352,101 @@ namespace Truth
 		return () => children.join() === [smtB, smtC, smtD, smtE].join();
 	}
 	
-	function coverGetChildrenOnTopLevelStatement()
+	async function coverGetChildrenOnTopLevelStatement()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			
 		`);
 	}
 	
-	function coverGetChildrenOnNestedStatement()
+	async function coverGetChildrenOnNestedStatement()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			
 		`);
 	}
 	
-	function coverGetChildrenOnNestedNoopStatement()
+	async function coverGetChildrenOnNestedNoopStatement()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			
 		`);
 	}
 	
-	function coverHasDescendents()
+	async function coverHasDescendents()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			
 		`);
 	}
 	
-	function coverHasDescendentsOnNonEmptyDocument()
+	async function coverHasDescendentsOnNonEmptyDocument()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			
 		`);
 	}
 	
-	function coverHasDescendentsOnTopLevelStatement()
+	async function coverHasDescendentsOnTopLevelStatement()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			
 		`);
 	}
 	
-	function coverHasDescendentsOnNestedStatement()
+	async function coverHasDescendentsOnNestedStatement()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			
 		`);
 	}
 	
-	function coverHasDescendentsOnNestedNoopStatement()
+	async function coverHasDescendentsOnNestedNoopStatement()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			
 		`);
 	}
 	
-	function coverHasDescendentsOnStatementAtNumericPosition()
+	async function coverHasDescendentsOnStatementAtNumericPosition()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			
 		`);
 	}
 	
-	function coverGetStatementIndex()
+	async function coverGetStatementIndex()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			
 		`);
 	}
 	
-	function coverGetNotes()
+	async function coverGetNotes()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 				// **
 				// **
 				B
 		`);
 		
+		if (doc instanceof Error)
+			throw doc;
+		
 		const notes = doc.getNotes(3);
 		return () => notes.join() === ["**", "**"].join();
 	}
 	
-	function coverGetNotesWhenNoneAvailable()
+	async function coverGetNotesWhenNoneAvailable()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 			B
 		`);
+		
+		if (doc instanceof Error)
+			throw doc;
 		
 		const notes = doc.getNotes(2).join("");
 		
@@ -433,13 +455,15 @@ namespace Truth
 		];
 	}
 	
-	function coverGetNotesOnCommentLine()
+	async function coverGetNotesOnCommentLine()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			// ***
 			// ***
 		`);
+		
+		if (doc instanceof Error)
+			throw doc;
 		
 		const notes = doc.getNotes(1).join("");
 		
@@ -448,14 +472,16 @@ namespace Truth
 		];
 	}
 	
-	function coverReadOnLineFromPossiblePositions()
+	async function coverReadOnLineFromPossiblePositions()
 	{
-		const prog = new Program();
-		const doc = prog.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 			B
 			C
 		`);
+		
+		if (doc instanceof Error)
+			throw doc;
 		
 		const aFromZero = doc.read(0);
 		const aFromNegative = doc.read(-3);

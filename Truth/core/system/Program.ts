@@ -44,7 +44,6 @@ namespace Truth
 			});
 			
 			this.agentCache = new AgentCache(this);
-			this.documents = new DocumentGraph(this);
 			this.graph = new HyperGraph(this);
 			
 			this.on(CauseRevalidate, data =>
@@ -66,14 +65,67 @@ namespace Truth
 			});
 		}
 		
-		/** @internal */
-		private readonly agentCache: AgentCache;
+		/**
+		 * 
+		 */
+		async addDocument(sourceText: string)
+		{
+			return await Document.new(this, sourceText, d => this.saveDocument(d));
+		}
 		
-		/** */
-		readonly documents: DocumentGraph;
+		/**
+		 * Adds a Document to this Program, by loading it from the specified
+		 * URI. In the case when there has already been a document loaded
+		 * from the URI specified, this pre-loaded document is returned.
+		 */
+		async addDocumentFromUri(sourceUri: string | Uri)
+		{
+			const uriParsed = Uri.tryParse(sourceUri);
+			if (!uriParsed)
+				throw Exception.invalidUri();
+			
+			const existing = this.getDocumentByUri(uriParsed);
+			if (existing)
+				return existing;
+			
+			return await Document.new(this, uriParsed, d => this.saveDocument(d));
+		}
+		
+		/**
+		 * Adds the specified document to the internal list of documents.
+		 */
+		private saveDocument(doc: Document)
+		{
+			this._documents.push(doc);
+		}
+		
+		/**
+		 * @returns The loaded document with the specified URI.
+		 */
+		getDocumentByUri(uri: Uri)
+		{
+			for (const doc of this._documents)
+				if (doc.sourceUri.equals(uri))
+					return doc;
+			
+			return null;
+		}
+		
+		/**
+		 * Gets a readonly array of truth documents
+		 * that have been loaded into this Program.
+		 */
+		get documents(): readonly Document[]
+		{
+			return this._documents;
+		}
+		private readonly _documents: Document[] = [];
 		
 		/** @internal */
 		readonly graph: HyperGraph;
+		
+		/** @internal */
+		private readonly agentCache: AgentCache;
 		
 		/**  */
 		readonly faults: FaultService;
@@ -303,7 +355,7 @@ namespace Truth
 			if (docUri === null)
 				throw Exception.absoluteUriExpected();
 			
-			const doc = this.documents.get(root);
+			const doc = this.getDocumentByUri(docUri);
 			if (!doc)
 				return null;
 			
@@ -406,7 +458,7 @@ namespace Truth
 		 */
 		verify()
 		{
-			for (const doc of this.documents.each())
+			for (const doc of this.documents)
 				for (const { statement } of doc.eachDescendant())
 					this.verifyAssociatedDeclarations(statement);
 			

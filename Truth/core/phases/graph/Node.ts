@@ -697,8 +697,7 @@ namespace Truth
 		*enumerateContainment()
 		{
 			const doc = this.document;
-			const program = doc.program;
-			const deps = program.documents.getDependencies(doc);
+			const deps = doc.dependencies;
 			let currentLevel: Node | null = this;
 			let longitudeCount = 0;
 			

@@ -9,20 +9,22 @@ namespace Truth
 	 * 
 	 * @returns A reference to the document read, or an Error.
 	 */
-	export async function read(truthFilePathOrUri: string)
+	export async function read(
+		sourcePathOrUri: string,
+		targetProgram = new Program())
 	{
-		const program = new Program();
-		return await program.documents.read(truthFilePathOrUri);
+		return await targetProgram.addDocumentFromUri(sourcePathOrUri);
 	}
-
+	
 	/**
 	 * Parses the specified truth content into a new Truth program.
 	 * 
 	 * @returns A reference to the parsed document.
 	 */
-	export async function parse(truthContent: string)
+	export async function parse(
+		sourceText: string,
+		targetProgram = new Program())
 	{
-		const program = new Program();
-		return await program.documents.create(truthContent);
+		return await targetProgram.addDocument(sourceText);
 	}
 }

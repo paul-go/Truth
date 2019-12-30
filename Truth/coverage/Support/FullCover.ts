@@ -26,14 +26,15 @@ namespace Truth
 		 * Adds a virtual file with the specified source content.
 		 * @returns The virtual URI specified.
 		 */
-		add(sourceText: string, fakeUri = this.createFakeUri())
+		add(sourceText: string)
 		{
-			this.addDocument(fakeUri, outdent`${sourceText}`);
-			return fakeUri;
+			const virtualPath = this.createVirtualPath();
+			this.addDocument(outdent`${sourceText}`, virtualPath);
+			return virtualPath;
 		}
 		
 		/** */
-		createFakeUri()
+		createVirtualPath()
 		{
 			return `file://this/is/fake/${++this.uriCount}.truth`;
 		}
@@ -56,12 +57,12 @@ namespace Truth
 		}
 		
 		/** */
-		try(sourceText?: string)
+		async try(sourceText?: string)
 		{
 			if (sourceText)
 				this.add(sourceText);
 			
-			const execResult = this.execute();
+			const execResult = await this.execute();
 			return execResult;
 		}
 		
@@ -70,7 +71,7 @@ namespace Truth
 		 * specified sourceText. After parsing, the document is added
 		 * to the local documents map.
 		 */
-		private addDocument(virtualPath: string, sourceText: string)
+		private addDocument(sourceText: string, virtualPath: string)
 		{
 			const baselineLines: BaselineLine[] = [];
 			const descendantChecks = new MultiMap<number, Line>();
@@ -335,7 +336,6 @@ namespace Truth
 				.join(Syntax.terminal);
 			
 			const baselineDocument = new BaselineDocument(
-				virtualPath,
 				rawDocumentText,
 				Object.freeze(baselineLines.slice()));
 			
@@ -345,23 +345,27 @@ namespace Truth
 		/**
 		 * 
 		 */
-		private execute()
+		private async execute()
 		{
 			const reports: Report[] = [];
 			
 			// Errors need to be blocked from checking while
 			// the program is populated with content.
 			
-			for (const [fakeUriText, baselineDoc] of this.documents)
+			for await (const [virtualPath, baselineDoc] of this.documents)
 			{
-				const fakeUri = Uri.tryParse(fakeUriText);
-				if (!fakeUri)
-					throw new Error("Invalid URI: " + fakeUriText);
+				const virtualUri = Uri.tryParse(virtualPath);
+				if (!virtualUri)
+					throw new Error("Invalid URI: " + virtualPath);
 				
-				this.program.documents.create(fakeUri, baselineDoc.sourceText);
+				const doc = await this.program.addDocument(baselineDoc.sourceText);
+				if (doc instanceof Error)
+					return doc;
+				
+				doc.updateUri(virtualUri);
 			}
 			
-			this.program.verify();
+			const result = this.program.verify();
 			
 			// Go through all BaselineDocument instances, and make sure that 
 			// faults are reported (and not reported) in the locations as specified
@@ -370,7 +374,7 @@ namespace Truth
 			for (const [fakeUriText, baselineDoc] of this.documents)
 			{
 				const fakeUri = Not.null(Uri.tryParse(fakeUriText));
-				const realDoc = Not.null(this.program.documents.get(fakeUri));
+				const realDoc = Not.null(this.program.getDocumentByUri(fakeUri));
 				
 				for (const [docLineIdx, baselineLine] of baselineDoc.baselineLines.entries())
 				{

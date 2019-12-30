@@ -2,43 +2,300 @@
 namespace Truth
 {
 	/**
+	 * A class that manages a single Truth document loaded as part of
+	 * a Program.
 	 * 
+	 * Truth documents may be loaded from files, or they may be loaded
+	 * from a string of Truth content directly (see the associated methods
+	 * in Truth.Program).
 	 */
 	export class Document
 	{
 		/**
 		 * @internal
 		 * Internal constructor for Document objects.
-		 * Document objects are created via a Program
-		 * object.
+		 * Document objects are created via a Program object.
+		 * 
+		 * @param source 
 		 */
-		constructor(program: Program, sourceUri: Uri, sourceText: string)
+		static async new(
+			program: Program,
+			source: Uri | string,
+			saveFn: (doc: Document) => void): Promise<Document | Error>
+		{
+			const sourceUri = source instanceof Uri ?
+				source :
+				Uri.createInternal();
+			
+			let sourceText = await (async () =>
+			{
+				if (typeof source === "string")
+					return source;
+				
+				const uriAbsolute = source.toAbsolute();
+				if (!uriAbsolute)
+					throw Exception.unknownState();
+				
+				const readResult = await UriReader.tryRead(uriAbsolute);
+				if (readResult instanceof Error)
+					return readResult;
+				
+				return readResult;
+			})();
+			
+			if (sourceText instanceof Error)
+				return sourceText;
+			
+			const doc = new Document(program, sourceUri);
+			const uriStatements: UriStatement[] = [];
+			
+			for (const statementText of DocumentUtil.readLines(sourceText))
+			{
+				const smt = new Statement(doc, statementText)
+				doc.statements.push(smt);
+				
+				if (smt.uri)
+					uriStatements.push(smt as UriStatement);
+			}
+			
+			// Calling this function saves the document in the Program instance
+			// that invoked this new Document. This is a bit spagetti-ish, but the
+			// newly created document has to be in the Program's .documents
+			// array, or the updating of references won't work.
+			saveFn(doc);
+			
+			if (uriStatements.length > 0)
+				await doc.updateReferences([], uriStatements);
+			
+			return doc;
+		}
+		
+		/** */
+		private constructor(program: Program, sourceUri: Uri)
 		{
 			if (sourceUri.types.length)
 				throw Exception.invalidArgument();
 			
 			this.program = program;
 			this._sourceUri = sourceUri;
-			
-			if (this.inEdit)
-				throw Exception.doubleTransaction();
-			
-			this.statements.length = 0;
-			
-			for (const statementText of readLines(sourceText))
-				this.statements.push(new Statement(this, statementText));
-			
-			program.on(CauseDocumentUriChange, data =>
-			{
-				if (data.document === this)
-				{
-					if (this.inEdit)
-						throw Exception.invalidWhileInEditTransaction();
-						
-					this._sourceUri = data.newUri;
-				}
-			});
 		}
+		
+		/** Stores the URI from where this document was loaded. */
+		get sourceUri()
+		{
+			return this._sourceUri;
+		}
+		private _sourceUri: Uri;
+		
+		/**
+		 * Updates this Document's sourceUri with the new URI specified.
+		 * 
+		 * Note: Setting this method can break other documents that are 
+		 * referring to this document via a URI. Use with caution.
+		 * 
+		 * @throws An error in the case when a document has been loaded
+		 * into the Program that is already associated with the URI specified.
+		 */
+		updateUri(newUri: Uri)
+		{
+			const existing = this.program.getDocumentByUri(newUri);
+			if (existing)
+				throw Exception.cannotAssignUri();
+			
+			this._sourceUri = newUri;
+		}
+		
+		/**
+		 * @internal
+		 * A rolling version stamp that increments after each edit transaction.
+		 */
+		get version()
+		{
+			return this._version;
+		}
+		private _version = VersionStamp.next();
+		
+		/**
+		 * Stores the complete list of the Document's statements,
+		 * sorted in the order that they appear in the file.
+		 */
+		private readonly statements: Statement[] = [];
+		
+		/**
+		 * Stores references to the Statement objects within the
+		 * .statements field that contain Uri instances.
+		 */
+		private readonly uriStatements: UriStatement[] = [];
+		
+		/**
+		 * 
+		 */
+		private async updateReferences(
+			deleted: UriStatement[],
+			added: UriStatement[])
+		{
+			// This algorithm always performs all deletes before adds.
+			// For this reason, if a URI is both in the list of deleted URIs
+			// as well as the list of added URIs, it means that the URI
+			// started in the document, and is currently still there.
+			
+			const existing = this.uriStatements.slice();
+			
+			// Delete old URI statements from the array.
+			for (const del of deleted)
+			{
+				const idxDel = existing.indexOf(del);
+				if (idxDel > -1)
+					existing.splice(idxDel, 1);
+			}
+			
+			const toTuples = (smts: UriStatement[]) =>
+				smts.map(smt => [this.getLineNumber(smt), smt] as [number, UriStatement]);
+			
+			const concatenated = [
+				...toTuples(existing),
+				...toTuples(added)
+			];
+			
+			// If you specify the same URI more than once, it has to generate a fault.
+			// If it's faulty ... you still need to store it.
+			// For this reason, the UriStatements array is not necessarily equivalent
+			// to the dependencies array.
+			
+			const proposedUriSmts = concatenated
+				.sort(([numA], [numB]) => numB - numA)
+				.map(([num, uriSmt]) => uriSmt);
+			
+			const uriTexts = proposedUriSmts.map(smt => smt.uri.toStoreString());
+			const faultyStatements: UriStatement[] = [];
+			
+			const report = (type: Readonly<FaultType<Statement>>, smt: UriStatement) =>
+			{
+				const fault = type.create(smt);
+				this.program.faults.reportAsync(fault);
+				faultyStatements.push(smt);
+			};
+			
+			// Searches through the proposed final list of URIs, and reports 
+			// faults on the statements that contain URIs, where those URIs
+			// are referenced in a preceeding statement .
+			for (const [i, uriText] of uriTexts.entries())
+				if (uriTexts.indexOf(uriText) < i)
+					report(Faults.DuplicateReference, proposedUriSmts[i]);
+			
+			const dependencies = ([] as (Document | null)[]).fill(null, 0, proposedUriSmts.length);
+			
+			// Attempt to load the documents referenced in each new UriStatement.
+			for await (const [i, smt] of proposedUriSmts.entries())
+			{
+				if (faultyStatements.includes(smt))
+					continue;
+				
+				if (existing.includes(smt))
+				{
+					dependencies[i] = this.dependencies.find(v => v.sourceUri.equals(smt.uri)) || null;
+					continue;
+				}
+				
+				if (!added.includes(smt))
+					continue;
+				
+				// Bail if a document loaded from HTTP is trying to reference
+				// a document located on the file system.
+				const isToFile = smt.uri.protocol === UriProtocol.file;
+				const thisProto = this.sourceUri.protocol;
+				
+				if (isToFile && (thisProto === UriProtocol.http || thisProto === UriProtocol.https))
+				{
+					report(Faults.InsecureResourceReference, smt);
+					continue;
+				}
+				
+				let refDoc: Document | Error | null = this.program.getDocumentByUri(smt.uri);
+				if (!refDoc)
+					refDoc = await this.program.addDocumentFromUri(smt.uri);
+				
+				if (!(refDoc instanceof Document))
+				{
+					report(Faults.UnresolvedResource, smt);
+					continue;
+				}
+				
+				if (this.isUnlinkable(refDoc))
+				{
+					report(Faults.CircularResourceReference, smt);
+					continue;
+				}
+				
+				dependencies[i] = refDoc;
+			}
+			
+			const newDeps = dependencies.filter((v): v is Document => !!v);
+			const addedDeps = newDeps.filter(v => !this._dependencies.includes(v));
+			const removedDeps = this._dependencies.filter(v => !newDeps.includes(v));
+			
+			for (const addedDep of addedDeps)
+				addedDep._dependents.push(this);
+			
+			for (const removedDep of removedDeps)
+				removedDep._dependents.splice(removedDep._dependents.indexOf(this), 1);
+			
+			// TODO: Broadcast the added and removed dependencies to external
+			// observers (outside the compiler). Implementing this will require a
+			// re-working of the cause system.
+			
+			this._dependencies.length = 0;
+			this._dependencies.push(...newDeps);
+			
+			this.uriStatements.length = 0;
+			this.uriStatements.push(...proposedUriSmts);
+		}
+		
+		/**
+		 * Checks to see if the addition of a reference between this
+		 * document and the specified proposed document would result
+		 * in a document graph with circular relationships.
+		 * 
+		 * The algorithm used performs a depth-first dependency search,
+		 * starting at the desiredReference. If the traversal pattern is able
+		 * to make its way back to this document, it can be concluded that
+		 * the addition of the proposed reference would result in a cyclical
+		 * relationship.
+		 */
+		private isUnlinkable(proposedReference: Document)
+		{
+			const hasCyclesRecursive = (current: Document) =>
+			{
+				// Found a path to the .this document
+				if (current === this)
+					return true;
+				
+				for (const dependency of current._dependencies)
+					if (hasCyclesRecursive(dependency))
+						return true;
+				
+				return false;
+			};
+			
+			return hasCyclesRecursive(proposedReference);
+		}
+		
+		/** */
+		get dependencies(): readonly Document[]
+		{
+			return this._dependencies;
+		}
+		private readonly _dependencies: Document[] = [];
+		
+		/** */
+		get dependents(): readonly Document[]
+		{
+			return this._dependents;
+		}
+		private readonly _dependents: Document[] = [];
+		
+		/** A reference to the instance of the Compiler that owns this Document. */
+		readonly program: Program;
 		
 		/**
 		 * Queries this document for the root-level types.
@@ -169,7 +426,7 @@ namespace Truth
 			if (virtualLine === 0 || virtualOffset < 1 || this.statements.length === 0)
 				return this;
 			
-			const line = applyBounds(virtualLine, this.statements.length);
+			const line = DocumentUtil.applyBounds(virtualLine, this.statements.length);
 			
 			for (let idx = line; idx--;)
 			{
@@ -480,7 +737,7 @@ namespace Truth
 		 */
 		read(lineNumber: number)
 		{
-			const lineBounded = applyBounds(lineNumber, this.statements.length);
+			const lineBounded = DocumentUtil.applyBounds(lineNumber, this.statements.length);
 			return this.statements[lineBounded];
 		}
 		
@@ -504,7 +761,7 @@ namespace Truth
 		{
 			return statementOrIndex instanceof Statement ?
 				this.getLineNumber(statementOrIndex) :
-				applyBounds(statementOrIndex, this.statements.length);
+				DocumentUtil.applyBounds(statementOrIndex, this.statements.length);
 		}
 		
 		/** 
@@ -516,23 +773,22 @@ namespace Truth
 		 * 
 		 * @param editFn The callback function in which to perform
 		 * document mutation operations.
+		 * 
+		 * @returns A promise that resolves any external document
+		 * references added during the edit operation have been resolved.
+		 * If no such references were added, a promise is returned that
+		 * resolves immediately.
 		 */
-		edit(editFn: (mutator: IDocumentMutator) => void)
+		async edit(editFn: (mutator: IDocumentMutator) => void)
 		{
 			if (this.inEdit)
 				throw Exception.doubleTransaction();
 			
-			class InsertCall { constructor(readonly smt: Statement, readonly at: number) { } }
-			class UpdateCall { constructor(readonly smt: Statement, readonly at: number) { } }
-			class DeleteCall { constructor(readonly at: number, readonly count: number) { } }
-			type TCallType = InsertCall | UpdateCall | DeleteCall;
+			this.inEdit = true;
 			const calls: TCallType[] = [];
-			
 			let hasDelete = false;
 			let hasInsert = false;
 			let hasUpdate = false;
-			
-			this.inEdit = true;
 			
 			editFn({
 				delete: (at = -1, count = 1) =>
@@ -550,7 +806,7 @@ namespace Truth
 				},
 				update: (text: string, at = -1) =>
 				{
-					const boundAt = applyBounds(at, this.statements.length);
+					const boundAt = DocumentUtil.applyBounds(at, this.statements.length);
 					if (this.read(boundAt).sourceText !== text)
 					{
 						calls.push(new UpdateCall(new Statement(this, text), at));
@@ -565,6 +821,9 @@ namespace Truth
 				return;
 			}
 			
+			const deletedUriSmts: UriStatement[] = [];
+			const addedUriSmts: UriStatement[] = [];
+			
 			// Begin the algorithm that determines the changeset,
 			// and runs the appropriate invalidation and revalidation
 			// hooks. This is wrapped in an IIFE because we need to
@@ -578,7 +837,8 @@ namespace Truth
 					hasUpdate && hasDelete;
 				
 				const boundAt = (call: TCallType) =>
-					applyBounds(call.at, this.statements.length);
+					DocumentUtil.applyBounds(call.at, this.statements.length);
+				
 				
 				const doDelete = (call: DeleteCall) =>
 				{
@@ -586,7 +846,12 @@ namespace Truth
 					const smts = this.statements.splice(at, call.count);
 					
 					for (const smt of smts)
+					{
 						smt.dispose();
+						
+						if (smt.uri)
+							deletedUriSmts.push(smt as UriStatement);
+					}
 					
 					return smts;
 				};
@@ -602,13 +867,23 @@ namespace Truth
 						const at = boundAt(call);
 						this.statements.splice(at, 0, call.smt);
 					}
+					
+					if (call.smt.uri)
+						addedUriSmts.push(call.smt as UriStatement);
 				};
 				
 				const doUpdate = (call: UpdateCall) =>
 				{
 					const at = boundAt(call);
-					this.statements[at].dispose();
+					const existing = this.statements[at];
+					if (existing.uri)
+						deletedUriSmts.push(existing as UriStatement);
+					
 					this.statements[at] = call.smt;
+					if (call.smt.uri)
+						addedUriSmts.push(call.smt as UriStatement);
+					
+					existing.dispose();
 				};
 				
 				if (!hasMixed)
@@ -758,7 +1033,7 @@ namespace Truth
 				// In the majority of cases, this will only be one single statement object.
 				for (const call of calls)
 				{
-					const atBounded = applyBounds(call.at, this.statements.length);
+					const atBounded = DocumentUtil.applyBounds(call.at, this.statements.length);
 					
 					if (call instanceof DeleteCall)
 					{
@@ -861,6 +1136,7 @@ namespace Truth
 				// descendants of the specified set of parent statements.
 				this.program.cause(new CauseInvalidate(this, parents, indexes));
 				
+				
 				const deletedStatements: Statement[] = [];
 				
 				// Perform the document mutations.
@@ -888,7 +1164,7 @@ namespace Truth
 					this, 
 					Array.from(invalidatedParents.values()),
 					Array.from(invalidatedParents.keys())
-				));
+				));				
 			})();
 			
 			// Perform a debug-time check to be sure that there are
@@ -907,15 +1183,23 @@ namespace Truth
 			
 			this._version = VersionStamp.next();
 			this.inEdit = false;
+			
+			if (addedUriSmts.length + deletedUriSmts.length > 0)
+				await this.updateReferences(deletedUriSmts, addedUriSmts);
 		}
 		
 		/**
 		 * Executes a complete edit transaction, applying the series
 		 * of edits specified in the `edits` parameter. 
+		 * 
+		 * @returns A promise that resolves any external document
+		 * references added during the edit operation have been resolved.
+		 * If no such references were added, a promise is returned that
+		 * resolves immediately.
 		 */
-		editAtomic(edits: IDocumentEdit[])
+		async editAtomic(edits: IDocumentEdit[])
 		{
-			this.edit(statements =>
+			return this.edit(statements =>
 			{
 				for (const editInfo of edits)
 				{
@@ -1028,37 +1312,11 @@ namespace Truth
 			});
 		}
 		
-		/** Stores the URI from where this document was loaded. */
-		get sourceUri()
-		{
-			return this._sourceUri;
-		}
-		private _sourceUri: Uri;
-		
-		/** A reference to the instance of the Compiler that owns this Document. */
-		readonly program: Program;
-		
-		/**
-		 * Stores the complete list of the Document's statements,
-		 * sorted in the order that they appear in the file.
-		 */
-		private readonly statements: Statement[] = [];
-		
 		/**
 		 * A state variable that stores whether an
 		 * edit transaction is currently underway.
 		 */
 		private inEdit = false;
-		
-		/**
-		 * @internal
-		 * A rolling version stamp that increments after each edit transaction.
-		 */
-		get version()
-		{
-			return this._version;
-		}
-		private _version = VersionStamp.next();
 		
 		/**
 		 * Returns a formatted version of the Document.
@@ -1080,126 +1338,5 @@ namespace Truth
 			
 			return lines.join("\n");
 		}
-	}
-
-
-	/**
-	 * Represents an interface for creating a
-	 * batch of document mutation operations.
-	 */
-	interface IDocumentMutator
-	{
-		/**
-		 * Inserts a fact at the given position, and returns the inserted Fact. 
-		 * Negative numbers insert facts starting from the end of the document.
-		 * The factText argument is expected to be one single complete line of text.
-		 */
-		insert(text: string, at: number): void;
-		
-		/**
-		 * Replaces a fact at the given position, and returns the replaced Fact. 
-		 * Negative numbers insert facts starting from the end of the document.
-		 * The factText argument is expected to be one single complete line of text.
-		 */
-		update(factText: string, at: number): void;
-		
-		/** 
-		 * Deletes a fact at the given position, and returns the deleted Fact. 
-		 * Negative numbers delete facts starting from the end of the document.
-		 */
-		delete(at: number, count?: number): void;
-	}
-
-
-	/**
-	 * 
-	 */
-	interface IDocumentEdit
-	{
-		/**
-		 * Stores a range in the document that represents the
-		 * content that should be replaced.
-		 */
-		readonly range: IDocumentEditRange;
-		
-		/**
-		 * Stores the new text to be inserted into the document.
-		 */
-		readonly text: string;
-	}
-
-
-	/**
-	 * An interface that represents a text range within the loaded document.
-	 * This interface is explicitly designed to be compatible with the Monaco
-	 * text editor API (and maybe others) to simplify integrations.
-	 */
-	export interface IDocumentEditRange
-	{
-		/**
-		 * Stores the line number on which the range starts (starts at 0).
-		 */
-		readonly startLineNumber: number;
-		
-		/**
-		 * Stores the column on which the range starts in line
-		 * `startLineNumber` (starts at 0).
-		 */
-		readonly startColumn: number;
-		
-		/**
-		 * Stores the line number on which the range ends.
-		 */
-		readonly endLineNumber: number;
-		
-		/**
-		 * Stores the Column on which the range ends in line
-		 * `endLineNumber`.
-		 */
-		readonly endColumn: number;
-	}
-	
-	/**
-	 * Generator function that yields all statements (unparsed lines)
-	 * of the given source text. 
-	 */
-	function *readLines(source: string)
-	{
-		let cursor = -1;
-		let statementStart = 0;
-		const char = () => source[cursor];
-		
-		for (;;)
-		{
-			if (cursor >= source.length - 1)
-				return yield source.slice(statementStart);
-			
-			cursor++;
-			
-			if (char() === Syntax.terminal)
-			{
-				yield source.slice(statementStart, cursor);
-				statementStart = cursor + 1;
-			}
-		}
-	}
-	
-	/**
-	 * Performs the integer bounding and wrapping formula that is
-	 * common on all positional arguments found in JavaScript array
-	 * and string methods (such as Array.slice).
-	 */
-	function applyBounds(index: number, length: number)
-	{
-		if (index === 0 || length === 0)
-			return 0;
-		
-		if (index > 0)
-			return Math.min(index, length - 1);
-		
-		if (index < 0)
-			return Math.max(length + index, 0);
-		
-		throw Exception.unknownState();
 	}
 }

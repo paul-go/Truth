@@ -266,6 +266,9 @@ namespace Truth
 			if (this === other)
 				return true;
 			
+			if (this.file !== other.file)
+				return false;
+			
 			if (compareTypes)
 			{
 				if (this.types.length !== other.types.length)

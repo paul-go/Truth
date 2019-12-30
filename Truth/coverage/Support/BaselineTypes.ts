@@ -18,7 +18,6 @@ namespace Truth
 	export class BaselineDocument
 	{
 		constructor(
-			readonly fakeUri: string,
 			readonly sourceText: string,
 			readonly baselineLines: readonly BaselineLine[])
 		{ }

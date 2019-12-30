@@ -20,8 +20,8 @@ namespace Truth
 			if (HyperGraph.disabled)
 				return;
 			
-			program.documents.each()
-				.forEach(this.include.bind(this));
+			for (const doc of program.documents)
+				this.include(doc);
 			
 			program.on(CauseDocumentCreate, data =>
 			{

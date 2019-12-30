@@ -374,7 +374,7 @@ namespace Truth
 				return this.private.adjacents = this.container.contents.filter(t => t !== this);
 			
 			const program = this.private.program;
-			const document = Not.null(program.documents.get(this.uri));
+			const document = Not.null(program.getDocumentByUri(this.uri));
 			const roots = Array.from(this.private.program.graph.readRoots(document));
 			const adjacents = roots
 				.map(node => Type.construct(node.uri, program))

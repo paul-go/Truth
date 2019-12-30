@@ -34,7 +34,7 @@ namespace Truth
 		`);
 	}
 	
-	function coverFiles()
+	async function coverFiles()
 	{
 		const cover = new FullCover();
 		
@@ -43,11 +43,25 @@ namespace Truth
 			B : A
 		`);
 		
-		cover.add(`
+		const file2 = cover.add(`
 			${file1}
 			C : B
+			D
 		`);
 		
-		return cover.try();
+		const result = await cover.try();
+		return result;
+	}
+	
+	async function coverStatementWithUri()
+	{
+		const program = new Program();
+		const document = await program.addDocumentFromUri("./file.truth");
+		if (document instanceof Error)
+			return document;
+		
+		const statement = document.read(0);
+		const uri = statement.uri;
+		return () => uri instanceof Uri;
 	}
 }

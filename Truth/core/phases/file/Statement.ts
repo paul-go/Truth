@@ -303,7 +303,7 @@ namespace Truth
 		get uri()
 		{
 			const f = LineFlags.hasUri;
-			return (this.flags & f) !== f ?
+			return (this.flags & f) === f ?
 				this.declarations[0].boundary.subject as Uri :
 				null;
 		}

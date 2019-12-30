@@ -70,7 +70,7 @@ namespace Truth
 			if (typePath.length === 0)
 				throw Exception.invalidArgument();
 			
-			const sourceDoc = this.program.documents.get(directive);
+			const sourceDoc = this.program.getDocumentByUri(directive);
 			if (sourceDoc === null)
 				throw Exception.documentNotLoaded();
 			

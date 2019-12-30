@@ -2,12 +2,14 @@
 namespace Truth
 {
 	/** */
-	function coverEditWithSingleUpdate()
+	async function coverEditWithSingleUpdate()
 	{
-		const program = new Program();
-		const doc = program.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			X
 		`);
+		
+		if (doc instanceof Error)
+			return doc;
 		
 		doc.edit(facts =>
 		{
@@ -19,14 +21,16 @@ namespace Truth
 	}
 	
 	/** */
-	function coverEditWithMultipleUpdates()
+	async function coverEditWithMultipleUpdates()
 	{
-		const program = new Program();
-		const doc = program.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			X
 			Y
 			Z
 		`);
+		
+		if (doc instanceof Error)
+			return doc;
 		
 		doc.edit(facts =>
 		{
@@ -50,12 +54,14 @@ namespace Truth
 	}
 	
 	/** */
-	function coverEditWithSingleInsert()
+	async function coverEditWithSingleInsert()
 	{
-		const program = new Program();
-		const doc = program.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 		`);
+		
+		if (doc instanceof Error)
+			return doc;
 		
 		doc.edit(facts =>
 		{
@@ -70,18 +76,20 @@ namespace Truth
 	}
 	
 	/** */
-	function coverEditWithMultipleInserts()
+	async function coverEditWithMultipleInserts()
 	{
 		return () => true;
 	}
 
 	/** */
-	function coverEditSimpleDelete()
+	async function coverEditSimpleDelete()
 	{
-		const program = new Program();
-		const doc = program.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 		`);
+		
+		if (doc instanceof Error)
+			return doc;
 		
 		doc.edit(facts =>
 		{
@@ -93,16 +101,18 @@ namespace Truth
 	}
 
 	/** */
-	function coverEditParentDeletion()
+	async function coverEditParentDeletion()
 	{
-		const program = new Program();
-		const doc = program.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 				B
 					C
 					D
 				F
 		`);
+		
+		if (doc instanceof Error)
+			return doc;
 		
 		doc.edit(facts =>
 		{
@@ -119,16 +129,18 @@ namespace Truth
 	}
 	
 	/** */
-	function coverEditNestedParentDeletion()
+	async function coverEditNestedParentDeletion()
 	{
-		const program = new Program();
-		const doc = program.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 				B
 					C
 						D
 				F
 		`);
+		
+		if (doc instanceof Error)
+			return doc;
 		
 		doc.edit(facts =>
 		{
@@ -144,10 +156,9 @@ namespace Truth
 	}
 	
 	/** */
-	function coverEditMultipleNestedParentDeletion()
+	async function coverEditMultipleNestedParentDeletion()
 	{
-		const program = new Program();
-		const doc = program.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			A
 				B
 					C
@@ -158,6 +169,9 @@ namespace Truth
 				I
 				J
 		`);
+		
+		if (doc instanceof Error)
+			return doc;
 		
 		doc.edit(facts =>
 		{
@@ -181,16 +195,18 @@ namespace Truth
 	}
 	
 	/** */
-	function coverEditUpdateInsertDelete()
+	async function coverEditUpdateInsertDelete()
 	{
-		const program = new Program();
-		const doc = program.documents.create(outdent`
+		const doc = await Truth.parse(outdent`
 			Container
 				WillUpdate
 				WillDelete
 				WillDelete
 				WillUpdate
 		`);
+		
+		if (doc instanceof Error)
+			return doc;
 		
 		doc.edit(facts =>
 		{

@@ -36,8 +36,6 @@
 
 // Phases / File Representation
 /// <reference path="./Phases/File/Document.ts" />
-/// <reference path="./Phases/File/DocumentGraph.ts" />
-/// <reference path="./Phases/File/DocumentHeader.ts" />
 /// <reference path="./Phases/File/LineParser.ts" />
 /// <reference path="./Phases/File/Anon.ts" />
 /// <reference path="./Phases/File/Line.ts" />
