@@ -307,31 +307,27 @@ namespace Truth
 		};
 	}
 	
-
-
 	/** */
 	function isUpperAscii(char: string)
 	{
 		const point = char.codePointAt(0) || 0;
 		return point >= 65 && point <= 90;
 	}
-
-
+	
 	/** */
 	function isLowerAscii(char: string)
 	{
 		const point = char.codePointAt(0) || 0;
 		return point >= 97 && point <= 122;
 	}
-
-
+	
 	/** */
 	function isDigit(char: string)
 	{
 		const point = char.codePointAt(0) || 0;
 		return point >= 48 && point <= 57;
 	}
-
+	
 	/** */
 	function isValidIPv4Address(maybeIP: string)
 	{
@@ -351,7 +347,7 @@ namespace Truth
 		
 		return true;
 	}
-
+	
 	/** */
 	function isValidHostName(maybeHostName: string)
 	{

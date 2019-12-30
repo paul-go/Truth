@@ -21,16 +21,14 @@ namespace Truth
 			throw Exception.notImplemented();
 		}
 	}();
-
-
+	
 	/** */
 	const fileExists = (path: string) =>
 		new Promise<boolean>((resolve, reject) =>
 		{
 			Fs.module.exists(path, resolve);
 		});
-
-
+	
 	/** */
 	const readFile = (path: string, opts = "utf8") =>
 		new Promise<string | Error>(resolve =>
@@ -42,8 +40,7 @@ namespace Truth
 					data || "");
 			});
 		});
-
-
+	
 	/** */
 	const writeFile = (path: string, data: string, opts = "utf8") =>
 		new Promise<null | Error>(resolve =>

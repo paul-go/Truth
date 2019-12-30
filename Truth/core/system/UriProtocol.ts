@@ -15,7 +15,7 @@ namespace Truth
 		http = "http:",
 		internal = "internal:"
 	}
-
+	
 	export namespace UriProtocol
 	{
 		/**

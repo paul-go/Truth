@@ -6,7 +6,7 @@ namespace Truth
 	 * that may be responsible for the generation of a fault.
 	 */
 	export type TFaultSource = Statement | Span | InfixSpan;
-
+	
 	/**
 	 * 
 	 */
@@ -110,7 +110,7 @@ namespace Truth
 		 */
 		readonly range: number[];
 	}
-
+	
 	/**
 	 * 
 	 */
@@ -141,7 +141,7 @@ namespace Truth
 			return new Fault<TSource>(this, source);
 		}
 	}
-
+	
 	/**
 	 * The following definitions are intentionally equivalent
 	 * to the severity codes from the monaco editor.
@@ -166,7 +166,7 @@ namespace Truth
 		 */
 		error = 8
 	}
-
+	
 	/**
 	 * Utility function for creating frozen fault instances.
 	 */
@@ -177,12 +177,12 @@ namespace Truth
 	{
 		return Object.freeze(new FaultType<T>(code, message, severity));
 	}
-
+	
 	const quantifiers = 
 		`(${RegexSyntaxMisc.star}, 
 		${RegexSyntaxMisc.plus},
 		${RegexSyntaxDelimiter.quantifierStart}..${RegexSyntaxDelimiter.quantifierEnd})`;
-
+	
 	/**
 	 * 
 	 */
@@ -233,6 +233,12 @@ namespace Truth
 			104,
 			`Documents loaded from remote locations
 			cannot reference documents stored locally.`),
+		
+		/** */
+		DuplicateReference: createFault<Statement>(
+			106,
+			"Document has already been referenced.",
+			FaultSeverity.error),
 		
 		//# Type verification faults
 		
@@ -558,8 +564,7 @@ namespace Truth
 			1010,
 			"Pattern has no matchable content.")
 	});
-
-
+	
 	// Additional safety
 	Array.from(Faults.each()).every(Object.freeze);
 }

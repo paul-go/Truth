@@ -239,8 +239,7 @@ namespace Truth
 		 */
 		private asyncFrame = new FaultFrame();
 	}
-
-
+	
 	/**
 	 * 
 	 */
@@ -312,6 +311,6 @@ namespace Truth
 		 */
 		readonly faults = new Map<TFaultSource, TFaultMap>();
 	}
-
+	
 	type TFaultMap = Map<number, Fault>;
 }
