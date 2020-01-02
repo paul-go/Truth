@@ -1,7 +1,7 @@
 
 namespace Truth
 {
-	async function coverComplexDependencies()
+	async function coverTwoWayLink()
 	{
 		const program = new Program();
 		const docA = await program.addDocument(outdent`
@@ -25,162 +25,281 @@ namespace Truth
 		});
 		
 		return [
-			() => docA.dependents.length === 1,
 			() => docA.dependencies.length === 0,
-			() => docB.dependents.length === 0,
-			() => docB.dependencies.length === 1
+			() => docA.dependents.length === 1,
+			() => docB.dependencies.length === 1,
+			() => docB.dependents.length === 0
 		];
 	}
 	
-	function coverBasicLinking()
+	async function coverThreeWayLink()
 	{
-		const cover = new FullCover();
+		const program = new Program();
 		
-		const path1 = cover.add(`
-			Doc1
+		const docA = await program.addDocument(`
+			DocA
 		`);
 		
-		const path2 = cover.add(`
-			${path1}
-			Doc2
+		const docB = await program.addDocument(`
+			DocB
 		`);
 		
-		const path3 = cover.add(`
-			${path2}
-			Doc3
-			Doc3
+		const docC = await program.addDocument(`
+			DocC
 		`);
 		
-		cover.try();
-		const documentGraphText = cover.program.documents.toString();
-		
-		return () => documentGraphText === outdent`
-			${path1}
-				Dependencies
-					(undefined)
-				Dependents
-					${path2}
-			
-			${path2}
-				Dependencies
-					${path1}
-				Dependents
-					${path3}
-			
-			${path3}
-				Dependencies
-					${path2}
-				Dependents
-					(undefined)
-		`;
-	}
-	
-	function coverBasicUnlinking()
-	{
-		/*const cover = new FullCover();
-		
-		const uri1 = cover.add(outdent`
-			Doc1
-		`);
-		
-		const uri2 = cover.add(outdent`
-			${uri1}
-			Doc2
-		`);
-		
-		const uri3 = cover.add(outdent`
-			${uri2}
-		`);
-		
-		cover.try();
-		cover.program.documents.delete(Uri.maybeParse(uri3)!);
-		
-		const documentGraphText = cover.program.documents.toString();
-		const documentGraphTextExpected = outdent`
-			${uri1}
-				Dependencies
-					(undefined)
-				Dependents
-					${uri2}
-			
-			${uri2}
-				Dependencies
-					${uri1}
-				Dependents
-					(undefined)
-		`;
-		
-		return () => documentGraphText === documentGraphTextExpected;*/
-	}
-	
-	function coverMultipleReferencesTheSameDocument()
-	{
-		const cover = new FullCover();
-		const uri1 = cover.add("A");
-		const uri2 = cover.add(uri1);
-		const uri3 = cover.add(uri1);
-		
-		cover.try();
-		
-		const documentGraphText = cover.program.documents.toString();
-		const documentGraphTextExpected = outdent`
-			${uri1}
-				Dependencies
-					(undefined)
-				Dependents
-					${uri2}
-					${uri3}
-			
-			${uri2}
-				Dependencies
-					${uri1}
-				Dependents
-					(undefined)
-			
-			${uri3}
-				Dependencies
-					${uri1}
-				Dependents
-					(undefined)
-		`;
-		
-		return () => documentGraphText === documentGraphTextExpected;
-	}
-	
-	function coverCircularLinkingFault()
-	{
-		const cover = new FullCover();
-		const program = cover.program;
-		const path1 = cover.createVirtualPath();
-		const path2 = cover.createVirtualPath();
-		cover.add(path2);
-		cover.add(path1);
-		cover.try();
-		
-		return [
-			() => program.faults.count === 1,
-			() => hasFault(program, Faults.CircularResourceReference.code, 0)
-		];
-	}
-	
-	//
-	function coverRecoveryOnFaultyLinkRemoval()
-	{
-		/*const cover = new FullCover();
-		const program = cover.program;
-		const uri1 = cover.createFakeUri();
-		const uri2 = cover.createFakeUri();
-		cover.add(uri2);
-		cover.add(uri1);
-		cover.try();
-		
-		const doc2 = cover.program.documents.get(uri2)!;
-		
-		doc2.edit(facts =>
+		if (docA instanceof Error || docB instanceof Error || docC instanceof Error)
 		{
-			facts.delete(0, 1);
+			debugger;
+			return;
+		}
+		
+		const uri = docA.sourceUri.toStoreString();
+		
+		await docB.edit((mutator: IDocumentMutator) =>
+		{
+			mutator.insert(uri, 0);
 		});
 		
-		return () => program.faults.count === 0;*/
+		await docC.edit((mutator: IDocumentMutator) =>
+		{
+			mutator.insert(uri, 0);
+		});
+		
+		return [
+			() => docA.dependencies.length === 0,
+			() => docA.dependents.length === 2,
+			() => docA.dependents[0] === docB,
+			() => docA.dependents[1] === docC,
+			
+			() => docB.dependencies.length === 1,
+			() => docB.dependencies[0] === docA,
+			
+			() => docC.dependencies.length === 1,
+			() => docC.dependencies[0] === docA
+		];
+	}
+	
+	async function coverBasicUnlinking()
+	{
+		const program = new Program();
+		const docA = await program.addDocument(outdent`
+			A
+		`);
+		
+		const docB = await program.addDocument(outdent`
+			B
+		`);
+		
+		if (docA instanceof Error || docB instanceof Error)
+		{
+			debugger;
+			return;
+		}
+		
+		await docB.edit((mutator: IDocumentMutator) =>
+		{
+			const uri = docA.sourceUri.toStoreString();
+			mutator.insert(uri, 0);
+		});
+		
+		await docB.edit((mutator: IDocumentMutator) =>
+		{
+			mutator.delete(0);
+		});
+		
+		return [
+			() => docA.dependencies.length === 0,
+			() => docA.dependents.length === 0,
+			() => docB.dependencies.length === 0,
+			() => docB.dependents.length === 0
+		];
+	}
+	
+	async function coverCircular1WayLinkingFault()
+	{
+		const program = new Program();
+		
+		const docA = await program.addDocument(`
+			DocA
+		`);
+		
+		if (docA instanceof Error)
+		{
+			debugger;
+			return;
+		}
+		
+		const docAPath = docA.sourceUri.toStoreString();
+		
+		await docA.edit((mutator: IDocumentMutator) =>
+		{
+			mutator.insert(docAPath, 0);
+		});
+		
+		return [
+			() => program.faults.hasOnly(
+				[Faults.CircularResourceReference, docA, 1]
+			),
+			
+			() => docA.dependencies.length === 1,
+			() => docA.dependencies[0] === docA,
+			() => docA.dependents.length === 1,
+			() => docA.dependents[0] === docA
+		];
+	}
+	
+	async function coverCircular2WayLinkingFault()
+	{
+		const program = new Program();
+		
+		const docA = await program.addDocument(`
+			DocA
+		`);
+		
+		const docB = await program.addDocument(`
+			DocB
+		`);
+		
+		if (docA instanceof Error || docB instanceof Error)
+		{
+			debugger;
+			return;
+		}
+		
+		const docAPath = docA.sourceUri.toStoreString();
+		const docBPath = docB.sourceUri.toStoreString();
+		
+		await docB.edit((mutator: IDocumentMutator) =>
+		{
+			mutator.insert(docAPath, 0);
+		});
+		
+		await docA.edit((mutator: IDocumentMutator) =>
+		{
+			mutator.insert(docBPath, 0);
+		});
+		
+		return [
+			() => program.faults.hasOnly(
+				[Faults.CircularResourceReference, docA, 1],
+				[Faults.CircularResourceReference, docB, 1]
+			),
+			
+			() => docA.dependencies.length === 1,
+			() => docA.dependencies[0] === docB,
+			() => docA.dependents.length === 1,
+			() => docA.dependents[0] === docB,
+			
+			() => docB.dependencies.length === 1,
+			() => docB.dependencies[0] === docA,
+			() => docB.dependents.length === 1,
+			() => docB.dependents[0] === docA
+		];
+	}
+	
+	async function coverCircular3WayLinkingFault()
+	{
+		const program = new Program();
+		
+		const docA = await program.addDocument(`
+			DocA
+		`);
+		
+		const docB = await program.addDocument(`
+			DocB
+		`);
+		
+		const docC = await program.addDocument(`
+			DocC
+		`);
+		
+		if (docA instanceof Error || docB instanceof Error || docC instanceof Error)
+		{
+			debugger;
+			return;
+		}
+		
+		const docAPath = docA.sourceUri.toStoreString();
+		const docBPath = docB.sourceUri.toStoreString();
+		const docCPath = docC.sourceUri.toStoreString();
+		
+		await docA.edit((mutator: IDocumentMutator) =>
+		{
+			mutator.insert(docBPath, 0);
+		});
+		
+		await docB.edit((mutator: IDocumentMutator) =>
+		{
+			mutator.insert(docCPath, 0);
+		});
+		
+		await docC.edit((mutator: IDocumentMutator) =>
+		{
+			mutator.insert(docAPath, 0);
+		});
+		
+		return [
+			() => program.faults.hasOnly(
+				[Faults.CircularResourceReference, docA, 1],
+				[Faults.CircularResourceReference, docB, 1],
+				[Faults.CircularResourceReference, docC, 1]
+			),
+			
+			() => docA.dependencies.length === 1,
+			() => docA.dependents.length === 1,
+			() => docA.dependencies[0] === docB,
+			() => docA.dependents[0] === docC,
+			
+			() => docB.dependencies.length === 1,
+			() => docB.dependents.length === 1,
+			() => docB.dependencies[0] === docC,
+			() => docB.dependents[0] === docA,
+			
+			() => docC.dependencies.length === 1,
+			() => docC.dependents.length === 1,
+			() => docC.dependencies[0] === docA,
+			() => docC.dependents[0] === docB
+		];
+	}
+	
+	async function coverTraverseDependencies()
+	{
+		
+	}
+	
+	async function coverTraverseDependenciesWithCircularFault()
+	{
+		
+	}
+	
+	async function coverDuplicateResourceReferencesFault()
+	{
+		
+	}
+	
+	async function coverDuplicateResourceReferencesRecovery()
+	{
+		
+	}
+	
+	async function coverInsecureResourceReferencesFault()
+	{
+		
+	}
+	
+	async function coverInsecureResourceReferencesRecovery()
+	{
+		
+	}
+	
+	async function coverUnknownResourceReferencesFault()
+	{
+		
+	}
+	
+	async function coverUnknownResourceReferencesRecovery()
+	{
+		
 	}
 }

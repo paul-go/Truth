@@ -103,4 +103,22 @@ namespace Truth
 	 * A type that describes a Statement object with a non-null .uri value.
 	 */
 	export type UriStatement = Statement & { readonly uri: Uri; };
+	
+	/**
+	 * @internal
+	 * A class that stores information about a reference established by
+	 * one document (via a Statement) to another document.
+	 */
+	export class Reference extends AbstractClass
+	{
+		constructor(
+			readonly statement: UriStatement,
+			readonly target: Document | null)
+		{
+			super();
+		}
+		
+		/** @internal */
+		readonly class = Class.reference;
+	}
 }

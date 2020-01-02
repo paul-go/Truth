@@ -696,15 +696,13 @@ namespace Truth
 		 */
 		*enumerateContainment()
 		{
-			const doc = this.document;
-			const deps = doc.dependencies;
 			let currentLevel: Node | null = this;
 			let longitudeCount = 0;
 			
 			do
 			{
 				yield {
-					sourceDocument: doc,
+					sourceDocument: this.document,
 					container: currentLevel as Node | null,
 					adjacents: currentLevel.adjacents,
 					longitudeDelta: longitudeCount++
@@ -712,16 +710,12 @@ namespace Truth
 			}
 			while ((currentLevel = currentLevel.container) !== null);
 			
-			// NOTE: This is broken. It needs to be recursive.
-			
-			for (let i = deps.length; --i > 0;)
+			for (const doc of this.document.traverseDependencies())
 			{
-				const sourceDocument = deps[i];
-				
 				yield {
-					sourceDocument,
+					sourceDocument: doc,
 					container: null,
-					adjacents: this.getRootNodes(sourceDocument),
+					adjacents: this.getRootNodes(doc),
 					longitudeDelta: longitudeCount
 				};
 			}

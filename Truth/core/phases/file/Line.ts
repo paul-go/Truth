@@ -17,7 +17,7 @@ namespace Truth
 			readonly sum: string,
 			readonly jointPosition: number,
 			readonly flags: LineFlags,
-			readonly faultType: Readonly<FaultType<Statement>> | null)
+			readonly faultType: StatementFaultType | null)
 		{ }
 	}
 

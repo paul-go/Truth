@@ -379,7 +379,7 @@ namespace Truth
 				for (const [docLineIdx, baselineLine] of baselineDoc.baselineLines.entries())
 				{
 					const statement = realDoc.read(docLineIdx);
-					const faultsGenerated = this.program.faults.checkAll(statement);
+					const faultsGenerated = this.program.faults.inspectDeep(statement);
 					const checks = baselineLine.checks;
 					
 					const faultChecks = checks.filter((chk): chk is FaultCheck => 
@@ -403,7 +403,7 @@ namespace Truth
 							const expNames = expCodes.map(code => Faults.nameOf(code));
 							expected.push(this.serializeSpan(span, expCodes, expNames));
 							
-							const recFaults = this.program.faults.check(span);
+							const recFaults = this.program.faults.inspect(span);
 							const recCodes = recFaults.map(f => f.type.code);
 							const recNames = recCodes.map(code => Faults.nameOf(code));
 							received.push(this.serializeSpan(span, recCodes, recNames));

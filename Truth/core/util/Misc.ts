@@ -8,6 +8,31 @@ namespace Truth
 	export class Misc
 	{
 		/**
+		 * Compresses the number sequence into a reasonably unique 53-bit hash number.
+		 * The hash is commutative in that the sequences [1, 2, 3] and [3, 2, 1] should result
+		 * in the same number.
+		 */
+		static hashCommutative(numbers: number[])
+		{
+			let mul = 1;
+			let add = 0;
+			
+			for (let i = numbers.length; i-- > 0;)
+			{
+				const num = numbers[i];
+				// 32 bits for the multiplying of numbers together
+				mul = (mul *= num) % (2 ** 32);
+				// 18 bits for the total of all the numbers
+				add = (add += num) % (2 ** 18);
+			}
+			
+			// 3 bits for the number of numbers
+			const count = numbers.length % (2 ** 3);
+			
+			return (count << 50) | (add << 32) | mul;
+		}
+		
+		/**
 		 * Counts incrementally through numbers, using the specified
 		 * radix sequence. For example, if the radixes [2, 2, 2] were to
 		 * be specified, this would result in binary counting starting at
