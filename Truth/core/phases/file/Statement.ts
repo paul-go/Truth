@@ -4,8 +4,11 @@ namespace Truth
 	/**
 	 * A class that represents a single line within a Truth document.
 	 */
-	export class Statement
+	export class Statement extends AbstractClass
 	{
+		/** @internal */
+		readonly class = Class.statement;
+		
 		/**
 		 * @internal
 		 * Logical clock value used to make chronological 
@@ -18,6 +21,8 @@ namespace Truth
 		 */
 		constructor(document: Document, text: string)
 		{
+			super();
+			
 			const line = LineParser.parse(text);
 			this.document = document;
 			this.sourceText = line.sourceText;

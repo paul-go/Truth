@@ -9,7 +9,7 @@ namespace Truth
 	 * from a string of Truth content directly (see the associated methods
 	 * in Truth.Program).
 	 */
-	export class Document
+	export class Document extends AbstractClass
 	{
 		/**
 		 * @internal
@@ -73,12 +73,17 @@ namespace Truth
 		/** */
 		private constructor(program: Program, sourceUri: Uri)
 		{
+			super();
+			
 			if (sourceUri.types.length)
 				throw Exception.invalidArgument();
 			
 			this.program = program;
 			this._sourceUri = sourceUri;
 		}
+		
+		/** @internal */
+		readonly class = Class.document;
 		
 		/** Stores the URI from where this document was loaded. */
 		get sourceUri()
@@ -120,179 +125,6 @@ namespace Truth
 		 * sorted in the order that they appear in the file.
 		 */
 		private readonly statements: Statement[] = [];
-		
-		/**
-		 * Stores references to the Statement objects within the
-		 * .statements field that contain Uri instances.
-		 */
-		private readonly uriStatements: UriStatement[] = [];
-		
-		/**
-		 * 
-		 */
-		private async updateReferences(
-			deleted: UriStatement[],
-			added: UriStatement[])
-		{
-			// This algorithm always performs all deletes before adds.
-			// For this reason, if a URI is both in the list of deleted URIs
-			// as well as the list of added URIs, it means that the URI
-			// started in the document, and is currently still there.
-			
-			const existing = this.uriStatements.slice();
-			
-			// Delete old URI statements from the array.
-			for (const del of deleted)
-			{
-				const idxDel = existing.indexOf(del);
-				if (idxDel > -1)
-					existing.splice(idxDel, 1);
-			}
-			
-			const toTuples = (smts: UriStatement[]) =>
-				smts.map(smt => [this.getLineNumber(smt), smt] as [number, UriStatement]);
-			
-			const concatenated = [
-				...toTuples(existing),
-				...toTuples(added)
-			];
-			
-			// If you specify the same URI more than once, it has to generate a fault.
-			// If it's faulty ... you still need to store it.
-			// For this reason, the UriStatements array is not necessarily equivalent
-			// to the dependencies array.
-			
-			const proposedUriSmts = concatenated
-				.sort(([numA], [numB]) => numB - numA)
-				.map(([num, uriSmt]) => uriSmt);
-			
-			const uriTexts = proposedUriSmts.map(smt => smt.uri.toStoreString());
-			const faultyStatements: UriStatement[] = [];
-			
-			const report = (type: Readonly<FaultType<Statement>>, smt: UriStatement) =>
-			{
-				const fault = type.create(smt);
-				this.program.faults.reportAsync(fault);
-				faultyStatements.push(smt);
-			};
-			
-			// Searches through the proposed final list of URIs, and reports 
-			// faults on the statements that contain URIs, where those URIs
-			// are referenced in a preceeding statement .
-			for (const [i, uriText] of uriTexts.entries())
-				if (uriTexts.indexOf(uriText) < i)
-					report(Faults.DuplicateReference, proposedUriSmts[i]);
-			
-			const dependencies = ([] as (Document | null)[]).fill(null, 0, proposedUriSmts.length);
-			
-			// Attempt to load the documents referenced in each new UriStatement.
-			for await (const [i, smt] of proposedUriSmts.entries())
-			{
-				if (faultyStatements.includes(smt))
-					continue;
-				
-				if (existing.includes(smt))
-				{
-					dependencies[i] = this.dependencies.find(v => v.sourceUri.equals(smt.uri)) || null;
-					continue;
-				}
-				
-				if (!added.includes(smt))
-					continue;
-				
-				// Bail if a document loaded from HTTP is trying to reference
-				// a document located on the file system.
-				const isToFile = smt.uri.protocol === UriProtocol.file;
-				const thisProto = this.sourceUri.protocol;
-				
-				if (isToFile && (thisProto === UriProtocol.http || thisProto === UriProtocol.https))
-				{
-					report(Faults.InsecureResourceReference, smt);
-					continue;
-				}
-				
-				let refDoc: Document | Error | null = this.program.getDocumentByUri(smt.uri);
-				if (!refDoc)
-					refDoc = await this.program.addDocumentFromUri(smt.uri);
-				
-				if (!(refDoc instanceof Document))
-				{
-					report(Faults.UnresolvedResource, smt);
-					continue;
-				}
-				
-				if (this.isUnlinkable(refDoc))
-				{
-					report(Faults.CircularResourceReference, smt);
-					continue;
-				}
-				
-				dependencies[i] = refDoc;
-			}
-			
-			const newDeps = dependencies.filter((v): v is Document => !!v);
-			const addedDeps = newDeps.filter(v => !this._dependencies.includes(v));
-			const removedDeps = this._dependencies.filter(v => !newDeps.includes(v));
-			
-			for (const addedDep of addedDeps)
-				addedDep._dependents.push(this);
-			
-			for (const removedDep of removedDeps)
-				removedDep._dependents.splice(removedDep._dependents.indexOf(this), 1);
-			
-			// TODO: Broadcast the added and removed dependencies to external
-			// observers (outside the compiler). Implementing this will require a
-			// re-working of the cause system.
-			
-			this._dependencies.length = 0;
-			this._dependencies.push(...newDeps);
-			
-			this.uriStatements.length = 0;
-			this.uriStatements.push(...proposedUriSmts);
-		}
-		
-		/**
-		 * Checks to see if the addition of a reference between this
-		 * document and the specified proposed document would result
-		 * in a document graph with circular relationships.
-		 * 
-		 * The algorithm used performs a depth-first dependency search,
-		 * starting at the desiredReference. If the traversal pattern is able
-		 * to make its way back to this document, it can be concluded that
-		 * the addition of the proposed reference would result in a cyclical
-		 * relationship.
-		 */
-		private isUnlinkable(proposedReference: Document)
-		{
-			const hasCyclesRecursive = (current: Document) =>
-			{
-				// Found a path to the .this document
-				if (current === this)
-					return true;
-				
-				for (const dependency of current._dependencies)
-					if (hasCyclesRecursive(dependency))
-						return true;
-				
-				return false;
-			};
-			
-			return hasCyclesRecursive(proposedReference);
-		}
-		
-		/** */
-		get dependencies(): readonly Document[]
-		{
-			return this._dependencies;
-		}
-		private readonly _dependencies: Document[] = [];
-		
-		/** */
-		get dependents(): readonly Document[]
-		{
-			return this._dependents;
-		}
-		private readonly _dependents: Document[] = [];
 		
 		/** A reference to the instance of the Compiler that owns this Document. */
 		readonly program: Program;
@@ -1317,6 +1149,246 @@ namespace Truth
 		 * edit transaction is currently underway.
 		 */
 		private inEdit = false;
+		
+		/**
+		 * 
+		 */
+		private async updateReferences(
+			deleted: UriStatement[],
+			added: UriStatement[])
+		{
+			// This algorithm always performs all deletes before adds.
+			// For this reason, if a URI is both in the list of deleted URIs
+			// as well as the list of added URIs, it means that the URI
+			// started in the document, and is currently still there.
+			
+			const rawRefsExisting = this.referencesRaw.slice();
+			const rawRefsToAdd: Reference[] = [];
+			const rawRefsToDelete: Reference[] = [];
+			
+			// The faults that are generated are stored in an array,
+			// so that they can all be reported at once at the end.
+			// This is because this method is async, and it's important
+			// that all the faults are reported in the same turn of
+			// the event loop.
+			const faults: StatementFault[] = [];
+			
+			// Delete old URI statements from the array.
+			for (const del of deleted)
+			{
+				const idx = rawRefsExisting.findIndex(v => v.statement === del);
+				if (idx > -1)
+					rawRefsToDelete.push(rawRefsExisting.splice(idx, 1)[0]);
+			}
+			
+			if ("DEBUG")
+				if (deleted.length !== rawRefsToDelete.length)
+					throw Exception.unknownState();
+			
+			// Populate addedReferences array. This loop blindly attempts to load
+			// all referenced documents, regardless of whether there's going to be
+			// some fault generated as a result of attempting to establish a reference
+			// to the document.
+			for await (const smt of added)
+			{
+				let refDoc: Document | Error | null = null;
+				
+				// Bail if a document loaded from HTTP is trying to reference
+				// a document located on the file system.
+				const isToFile = smt.uri.protocol === UriProtocol.file;
+				const thisProto = this.sourceUri.protocol;
+				
+				if (isToFile && (thisProto === UriProtocol.http || thisProto === UriProtocol.https))
+				{
+					faults.push(Faults.InsecureResourceReference.create(smt));
+				}
+				else
+				{
+					refDoc = this.program.getDocumentByUri(smt.uri);
+					if (!refDoc)
+						refDoc = await this.program.addDocumentFromUri(smt.uri);
+				}
+				
+				// This is cheating a bit. It's unclear how this could result in an error
+				// at this point, or what to do if it did.
+				if (refDoc instanceof Error)
+				{
+					refDoc = null;
+					faults.push(Faults.UnresolvedResource.create(smt));
+				}
+				
+				rawRefsToAdd.push(new Reference(smt, refDoc));
+			}
+			
+			if ("DEBUG")
+				if (added.length !== rawRefsToAdd.length)
+					throw Exception.unknownState();
+			
+			const toReferenceTuples = (refs: Reference[]) =>
+				refs.map(v => [this.getLineNumber(v.statement), v] as [number, Reference]);
+			
+			const rawRefsProposed = [
+				...toReferenceTuples(rawRefsExisting),
+				...toReferenceTuples(rawRefsToAdd)
+			]
+				.sort(([numA], [numB]) => numB - numA)
+				.map(([num, ref]) => ref);
+			
+			const realRefs: Reference[] = [];
+			const rawRefDocuments = rawRefsProposed.map(v => v.target);
+			
+			for (const [idx, doc] of rawRefDocuments.entries())
+			{
+				if (!doc)
+					continue;
+				
+				if (rawRefDocuments.indexOf(doc) !== idx)
+				{
+					const smt = rawRefsProposed[idx].statement;
+					faults.push(Faults.DuplicateReference.create(smt));
+				}
+				else
+				{
+					realRefs.push(rawRefsProposed[idx]);
+				}
+			}
+			
+			const realRefsDeleted = this.referencesReal.filter(v => !realRefs.includes(v));
+			const realRefsAdded = realRefs.filter(v => !this.referencesReal.includes(v));
+			
+			this.referencesRaw.length = 0;
+			this.referencesRaw.push(...rawRefsProposed);
+			this.referencesReal.length = 0;
+			this.referencesReal.push(...realRefs);
+			
+			this._dependencies.length = 0;
+			this._dependencies.push(...realRefs
+				.map(v => v.target)
+				.filter((v): v is Document => !!v));
+			
+			for (const ref of realRefsAdded)
+			{
+				const dependents = ref.target?._dependents;
+				if (dependents && !dependents.includes(this))
+					dependents.push(this);
+			}
+			
+			for (const ref of realRefsDeleted)
+			{
+				const dependents = ref.target?._dependents;
+				if (dependents)
+					for (let i = dependents.length; i-- > 0;)
+						if (dependents[i] === this)
+							dependents.splice(i, 1);
+			}
+			
+			let hasCircularFaults = false;
+			
+			for (const refDeleted of realRefsDeleted)
+				if (this.program.cycleDetector.didDelete(refDeleted.statement))
+					hasCircularFaults = true;
+			
+			for (const refAdded of realRefsAdded)
+				if (this.program.cycleDetector.didAdd(refAdded.statement))
+					hasCircularFaults = true;
+			
+			for (const fault of faults)
+				this.program.faults.report(fault);
+			
+			if (faults.length || hasCircularFaults)
+				this.program.faults.refresh();
+			
+			// TODO: Broadcast the added and removed dependencies to external
+			// observers (outside the compiler). Make sure to broadcast only the
+			// change in dependencies, not the change in references (which are different)
+			// Implementing this will require a re-working of the cause system.
+		}
+		
+		/**
+		 * Stores the Reference objects that are having some impact 
+		 * on this document's relationship structure. 
+		 */
+		private readonly referencesReal: Reference[] = [];
+		
+		/**
+		 * Stores an array of Reference objects, where each item the array
+		 * corresponds to a unique URI-containing Statement objects. 
+		 * Statement objects may not actually be affecting the document's
+		 * relationship structure, such as in the case when there are multiple
+		 * statements within this document all referencing the same document, 
+		 * (only one statement would be affecting in this case), or when the
+		 * referenced document is unavailable for some reason.
+		 */
+		private readonly referencesRaw: Reference[] = [];
+		
+		/**
+		 * Gets an array containing the other documents that this document has
+		 * as a dependency.
+		 * 
+		 * Because circular document relationships are storable at the Document
+		 * level, performing a deep traversal on these dependencies is considered an
+		 * unsafe operation, due to the possibility of generating a stack overflow.
+		 * 
+		 * To perform a deep traversal on document dependencies, considering
+		 * using the .traverseDependencies() method.
+		 */
+		get dependencies(): readonly Document[]
+		{
+			return this._dependencies;
+		}
+		private readonly _dependencies: Document[] = [];
+		
+		/**
+		 * Gets an array containing the other documents that depend on this
+		 * document.
+		 * 
+		 * Because circular document relationships are storable at the Document
+		 * level, performing a deep traversal on these dependents is considered an
+		 * unsafe operation, due to the possibility of generating a stack overflow.
+		 */
+		get dependents(): readonly Document[]
+		{
+			return this._dependents;
+		}
+		private readonly _dependents: Document[] = [];
+		
+		/** @internal */
+		getStatementCausingDependency(dependency: Document)
+		{
+			for (const ref of this.referencesReal)
+				if (ref.target === dependency)
+					return ref.statement;
+			
+			return null;
+		}
+		
+		/**
+		 * Performs a depth-first traversal on this Document's dependency structure.
+		 * The traversal pattern avoids following infinite loops due to circular dependencies.
+		 */
+		*traverseDependencies(): IterableIterator<Document>
+		{
+			const self = this;
+			const yielded: Document[] = [];
+			
+			function* recurse(doc: Document): IterableIterator<Document>
+			{
+				if (doc === self)
+					return;
+				
+				if (!yielded.includes(doc))
+				{
+					yielded.push(doc);
+					yield doc;
+				}
+				
+				for (const dependency of doc._dependencies)
+					yield* recurse(dependency);
+			};
+			
+			for (const dependency of this._dependencies)
+				yield* recurse(dependency);
+		}
 		
 		/**
 		 * Returns a formatted version of the Document.

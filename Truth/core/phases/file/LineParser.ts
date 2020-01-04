@@ -2,13 +2,6 @@
 namespace Truth
 {
 	/**
-	 * Local marker values used as return values to
-	 * indicate that a pattern failed to parse.
-	 */
-	type TParseFault = Readonly<FaultType<Statement>>;
-
-
-	/**
 	 * Stores the options for the line parser.
 	 */
 	export interface ILineParserOptions
@@ -16,8 +9,7 @@ namespace Truth
 		readonly readPatterns?: boolean;
 		readonly readUris?: boolean;
 	}
-
-
+	
 	/**
 	 * Parses a single line of Truth code, and returns
 	 * a Line object that contains information about
@@ -81,7 +73,7 @@ namespace Truth
 			 * Universal function for quickly producing a RawStatement
 			 * instance using the values of the constructed local variables.
 			 */
-			const ret = (fault: TParseFault | null = null) => new Line(
+			const ret = (fault: StatementFaultType | null = null) => new Line(
 				sourceText,
 				indent,
 				new BoundaryGroup(declarationEntries),
@@ -157,7 +149,7 @@ namespace Truth
 				const markBeforePattern = parser.position;
 				const pattern = maybeReadPattern();
 				
-				if (isParseFault(pattern))
+				if (isFault(pattern))
 				{
 					flags |= LineFlags.isCruft;
 					return ret(pattern);
@@ -416,7 +408,7 @@ namespace Truth
 			/**
 			 * Attempts to read a pattern from the steam.
 			 */
-			function maybeReadPattern(nested = false): Pattern | TParseFault | null
+			function maybeReadPattern(nested = false): Pattern | StatementFaultType | null
 			{
 				if (!nested && !parser.read(RegexSyntaxDelimiter.main))
 					return null;
@@ -437,7 +429,7 @@ namespace Truth
 					readRegexUnits(true) :
 					readRegexUnits(false);
 				
-				if (isParseFault(units))
+				if (isFault(units))
 					return units;
 				
 				// Right-trim any trailing whitespace
@@ -487,9 +479,9 @@ namespace Truth
 			/**
 			 * 
 			 */
-			function readRegexUnits(nested: true): TParseFault | (RegexUnit)[];
-			function readRegexUnits(nested: false): TParseFault | (RegexUnit | Infix)[];
-			function readRegexUnits(nested: boolean): TParseFault | (RegexUnit | Infix)[]
+			function readRegexUnits(nested: true): StatementFaultType | (RegexUnit)[];
+			function readRegexUnits(nested: false): StatementFaultType | (RegexUnit | Infix)[];
+			function readRegexUnits(nested: boolean): StatementFaultType | (RegexUnit | Infix)[]
 			{
 				const units: (RegexUnit | Infix)[] = [];
 				
@@ -497,13 +489,13 @@ namespace Truth
 				{
 					const setOrGroup = maybeReadRegexSet() || maybeReadRegexGroup();
 					
-					if (isParseFault(setOrGroup))
+					if (isFault(setOrGroup))
 						return setOrGroup;
 					
 					if (setOrGroup !== null)
 					{
 						const quantifier = maybeReadRegexQuantifier();
-						if (isParseFault(quantifier))
+						if (isFault(quantifier))
 							return quantifier;
 						
 						units.push(appendQuantifier(setOrGroup, quantifier));
@@ -523,7 +515,7 @@ namespace Truth
 						// Infixes are not supported anywhere other 
 						// than at the top level of the pattern.
 						const infix = maybeReadInfix();
-						if (isParseFault(infix))
+						if (isFault(infix))
 							return infix;
 						
 						if (infix !== null)
@@ -568,7 +560,7 @@ namespace Truth
 					
 					const quantifier = maybeReadRegexQuantifier();
 					
-					if (isParseFault(quantifier))
+					if (isFault(quantifier))
 						return quantifier;
 					
 					if (regexKnownSet !== null)
@@ -610,7 +602,7 @@ namespace Truth
 			 * Attempts to read a character set from the parse stream.
 			 * Example: [a-z0-9]
 			 */
-			function maybeReadRegexSet(): RegexSet | TParseFault | null
+			function maybeReadRegexSet(): RegexSet | StatementFaultType | null
 			{
 				if (!parser.read(RegexSyntaxDelimiter.setStart))
 					return null;
@@ -715,7 +707,7 @@ namespace Truth
 						singles.push(g.character);
 				
 				const quantifier = maybeReadRegexQuantifier();
-				if (isParseFault(quantifier))
+				if (isFault(quantifier))
 					return quantifier;
 				
 				return new RegexSet(
@@ -731,7 +723,7 @@ namespace Truth
 			 * Attempts to read an alternation group from the parse stream.
 			 * Example: (A|B|C)
 			 */
-			function maybeReadRegexGroup(): RegexGroup | TParseFault | null
+			function maybeReadRegexGroup(): RegexGroup | StatementFaultType | null
 			{
 				if (!parser.read(RegexSyntaxDelimiter.groupStart))
 					return null;
@@ -751,7 +743,7 @@ namespace Truth
 					}
 					
 					const subUnits = readRegexUnits(true);
-					if (isParseFault(subUnits))
+					if (isFault(subUnits))
 						return subUnits;
 					
 					// If the call to maybeReadPattern causes the cursor
@@ -773,7 +765,7 @@ namespace Truth
 					return Faults.UnterminatedGroup;
 				
 				const quantifier = maybeReadRegexQuantifier();
-				if (isParseFault(quantifier))
+				if (isFault(quantifier))
 					return quantifier;
 				
 				return new RegexGroup(Object.freeze(cases), quantifier);
@@ -785,7 +777,7 @@ namespace Truth
 			 * regular expression flavor (and others?) cannot parse an expression
 			 * with two consecutive quantifiers.
 			 */
-			function maybeReadRegexQuantifier(): RegexQuantifier | TParseFault | null
+			function maybeReadRegexQuantifier(): RegexQuantifier | StatementFaultType | null
 			{
 				/** */
 				function maybeReadQuantifier()
@@ -875,7 +867,7 @@ namespace Truth
 			/**
 			 * 
 			 */
-			function maybeReadInfix(): Infix | TParseFault | null
+			function maybeReadInfix(): Infix | StatementFaultType | null
 			{
 				const mark = parser.position;
 				const lhsEntries: Boundary<Identifier>[] = [];
@@ -1024,7 +1016,7 @@ namespace Truth
 			}
 			
 			/** */
-			function isParseFault(value: unknown): value is Readonly<FaultType<Statement>>
+			function isFault(value: unknown): value is StatementFaultType
 			{
 				return value instanceof FaultType;
 			}
@@ -1033,8 +1025,7 @@ namespace Truth
 		/** */
 		private constructor() { }
 	}
-
-
+	
 	/** */
 	class Grapheme
 	{
@@ -1061,8 +1052,7 @@ namespace Truth
 			readonly escaped: boolean)
 		{ }
 	}
-
-
+	
 	/**
 	 * Slightly awkward hack function to attach a PatternQuantifier
 	 * to an already existing PatternUnit (without resorting to making

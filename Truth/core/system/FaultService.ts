@@ -7,7 +7,6 @@ namespace Truth
 	 */
 	export class FaultService
 	{
-		/** */
 		constructor(private readonly program: Program)
 		{
 			// Listen for invalidations and clear out any faults
@@ -43,30 +42,31 @@ namespace Truth
 		 */
 		private removeStatementFaults(statement: Statement)
 		{
-			this.bufferFrame.removeSource(statement);
+			this.backgroundManualFrame.removeSource(statement);
+			this.backgroundAutoFrame.removeSource(statement);
 			
 			for (const span of statement.allSpans)
-				this.bufferFrame.removeSource(span);
+				this.backgroundAutoFrame.removeSource(span);
 			
 			for (const infixSpan of statement.infixSpans)
-				this.bufferFrame.removeSource(infixSpan);
+				this.backgroundAutoFrame.removeSource(infixSpan);
 		}
 		
 		/**
-		 * Enumerates through the unrectified faults retained
-		 * by this FaultService.
+		 * Returns an array that contains all faults retained by this FaultService,
+		 * sorted in the order that they exist in the program.
 		 */
-		*each()
+		each()
 		{
-			const faultsSorted = 
-				Array.from(this.asyncFrame.faults.values())
-					.concat(Array.from(this.visibleFrame.faults.values()))
-					.map(faultMap => Array.from(faultMap.values()))
-					.reduce((a, b) => a.concat(b), [])
-					.sort((a, b) => a.line - b.line);
-			
-			for (const fault of faultsSorted)
-				yield fault;
+			return [
+				...this.foregroundAutoFrame.faults.values(),
+				...this.foregroundManualFrame.faults.values()
+			]
+				.map(faultMap => [...faultMap.values()])
+				.reduce((a, b) => a.concat(b), [])
+				.sort((a, b) => a.document === b.document ?
+					a.line - b.line :
+					a.document.sourceUri.toStoreString() < b.document.sourceUri.toStoreString() ? -1 : 1);
 		}
 		
 		/**
@@ -75,7 +75,8 @@ namespace Truth
 		 */
 		get count()
 		{
-			return this.visibleFrame.faults.size;
+			return this.foregroundAutoFrame.faults.size +
+				this.foregroundManualFrame.faults.size;
 		}
 		
 		/**
@@ -85,7 +86,7 @@ namespace Truth
 		 */
 		report(fault: Fault)
 		{
-			this.bufferFrame.addFault(fault);
+			this.backgroundAutoFrame.addFault(fault);
 		}
 		
 		/**
@@ -93,27 +94,86 @@ namespace Truth
 		 * This method is to be used for faults that are reported in
 		 * asynchronous callbacks, such as network errors.
 		 */
-		reportAsync(fault: Fault)
+		reportManual(fault: Fault)
 		{
-			this.bufferFrame.addFault(fault);
-			
-			if (!this.inEditTransaction)
-				this.refresh();
+			this.backgroundManualFrame.addFault(fault);
+			this.maybeQueueManualRefresh();
 		}
 		
 		/**
-		 * @returns A boolean value indicating whether this
-		 * FaultService retains a fault that is similar to the specified
-		 * fault (meaning that it has the same code and source).
+		 * Clears a fault that was previously reported outside
+		 * of an edit transaction. 
 		 */
-		has(similarFault: Fault)
+		resolveManual(fault: Fault)
+		{
+			this.backgroundManualFrame.removeFault(fault);
+			this.maybeQueueManualRefresh();
+		}
+		
+		/**
+		 * Queues the copying of the background fault buffer to the 
+		 * foreground. 
+		 */
+		private maybeQueueManualRefresh()
+		{
+			if (this.manualRefreshQueued)
+				return;
+			
+			this.manualRefreshQueued = true;
+			
+			setTimeout(() =>
+			{
+				this.manualRefreshQueued = false;
+				
+				if (!this.inEditTransaction)
+					this.refresh();
+			},
+			0);
+		}
+		private manualRefreshQueued = false;
+		
+		/**
+		 * @returns A boolean value indicating whether this FaultService retains a fault
+		 * that is similar to the specified fault (meaning that it has the same code and source).
+		 * 
+		 * @param faultType The type of fault being inspected.
+		 * @param inDocument Optional parameter to restrict the inspection to a particular Document.
+		 * @param atLine A number specifying a 1-based line number at which to inspect.
+		 */
+		has(faultType: Readonly<FaultType>, inDocument?: Document, atLine = -1)
 		{
 			for (const retainedFault of this.each())
-				if (retainedFault.type.code === similarFault.type.code)
-					if (retainedFault.source === similarFault.source)
-						return true;
+			{
+				if (retainedFault.type.code !== faultType.code)
+					continue;
+				
+				if (!inDocument)
+					return true;
+				
+				if (retainedFault.document !== inDocument)
+					continue;
+				
+				if (atLine < 0 || retainedFault.line === atLine)
+					return true;
+			}
 			
 			return false;
+		}
+		
+		/**
+		 * @returns A boolean value indicating whether the faults that have been
+		 * reported to this FaultService are equal to the set of similarFaults provided.
+		 */
+		hasOnly(...similarFaults: [Readonly<FaultType>, Document?, number?][])
+		{
+			if (similarFaults.length !== this.count)
+				return false;
+			
+			for (const check of similarFaults)
+				if (!this.has(...check))
+					return false;
+			
+			return true;
 		}
 		
 		/**
@@ -121,7 +181,7 @@ namespace Truth
 		 * at the specified source. If the source has no faults, an empty
 		 * array is returned.
 		 */
-		check<TSource extends TFaultSource>(source: TSource): Fault<TSource>[]
+		inspect<TSource extends TFaultSource>(source: TSource): Fault<TSource>[]
 		{
 			const out: Fault<TSource>[] = [];
 			
@@ -137,7 +197,7 @@ namespace Truth
 		 * correspond to the specified Statement, or any Span or InfixSpan
 		 * objects contained within it.
 		 */
-		checkAll(source: Statement): Fault[]
+		inspectDeep(source: Statement): Fault[]
 		{
 			const out: Fault[] = [];
 			
@@ -164,7 +224,7 @@ namespace Truth
 		 * so the FaultService needs to know which Nodes were analyzed
 		 * so that newly rectified faults can be cleared out.
 		 * 
-		 * When this method is called, any the faults corresponding to the
+		 * When this method is called, any faults corresponding to the
 		 * specified Node are cleared out, and are only added back in if
 		 * they were re-detected during this edit transaction.
 		 */
@@ -174,7 +234,7 @@ namespace Truth
 			
 			// Clear out any statement-level faults that touch the node
 			for (const smt of smts)
-				this.bufferFrame.removeSource(smt);
+				this.backgroundAutoFrame.removeSource(smt);
 				
 			// Clear out any span-level faults that touch the node
 			const spans = smts
@@ -182,7 +242,7 @@ namespace Truth
 				.reduce((a, b) => a.concat(b), []);
 			
 			for (const span of spans)
-				this.bufferFrame.removeSource(span);
+				this.backgroundAutoFrame.removeSource(span);
 			
 			// Clear out any infix-level faults that touch the node
 			const infixes = smts
@@ -190,58 +250,95 @@ namespace Truth
 				.reduce((a, b) => a.concat(b), []);
 			
 			for (const infix of infixes)
-				this.bufferFrame.removeSource(infix);
+				this.backgroundAutoFrame.removeSource(infix);
 		}
 		
 		/**
 		 * @internal
+		 * Broadcasts any not-yet-reported faults to the FaultService.
 		 */
 		refresh()
+		{
+			const [autoAdded, autoRemoved] = this.refreshFrameSet(
+				this.backgroundAutoFrame,
+				this.foregroundAutoFrame);
+			
+			const [manualAdded, manualRemoved] = this.refreshFrameSet(
+				this.backgroundManualFrame,
+				this.foregroundManualFrame);
+			
+			const autoChanged = autoAdded.length + autoRemoved.length > 0;
+			if (autoChanged)
+			{
+				this.foregroundAutoFrame = this.backgroundAutoFrame;
+				this.backgroundAutoFrame = this.backgroundAutoFrame.clone();
+			}
+			
+			const manualChanged = manualAdded.length + manualRemoved.length > 0;
+			if (manualChanged)
+			{
+				this.foregroundManualFrame = this.backgroundManualFrame;
+				this.backgroundManualFrame = this.backgroundManualFrame.clone();
+			}
+			
+			if (autoChanged || manualChanged)
+				this.program.cause(new CauseFaultChange(
+					autoAdded.concat(manualAdded),
+					autoRemoved.concat(manualRemoved)));
+		}
+		
+		/** */
+		private refreshFrameSet(bgFrame: FaultFrame, fgFrame: FaultFrame)
 		{
 			const faultsAdded: Fault[] = [];
 			const faultsRemoved: Fault[] = [];
 			
-			for (const map of this.bufferFrame.faults.values())
+			for (const map of bgFrame.faults.values())
 				for (const fault of map.values())
-					if (!this.visibleFrame.hasFault(fault))
+					if (!fgFrame.hasFault(fault))
 						faultsAdded.push(fault);
 			
-			for (const map of this.visibleFrame.faults.values())
+			for (const map of fgFrame.faults.values())
 				for (const fault of map.values())
-					if (!this.bufferFrame.hasFault(fault))
+					if (!bgFrame.hasFault(fault))
 						faultsRemoved.push(fault);
 			
-			this.visibleFrame = this.bufferFrame;
-			this.bufferFrame = this.bufferFrame.clone();
-			
-			if (faultsAdded.length + faultsRemoved.length > 0)
-				this.program.cause(new CauseFaultChange(
-					faultsAdded,
-					faultsRemoved));
+			return [faultsAdded, faultsRemoved];
 		}
 		
 		/**
-		 * Stores the faults that are presented to external consumer
-		 * of the fault service when they use the accessor methods.
+		 * Stores faults that are exposed to the outside when the 
+		 * FaultService's accessor methods are used. These faults are
+		 * reported within an edit transaction, and clear automatically
+		 * when the Statement or Span to which they are connected is
+		 * disposed.
 		 */
-		private visibleFrame = new FaultFrame();
+		private foregroundAutoFrame = new FaultFrame();
 		
 		/**
-		 * Stores the faults that have been built up during an edit transaction.
-		 * These faults are copied to the `visibleFrame` when the edit
-		 * transaction completes.
+		 * Stores a buffer of the faults that will eventually be exposed to the
+		 * outside. These faults clear automatically when the Statement or
+		 * Span to which they are connected is disposed.
 		 */
-		private bufferFrame = new FaultFrame();
+		private backgroundAutoFrame = new FaultFrame();
 		
 		/**
-		 * Stores the faults that were reported asynchronously, and therefore
-		 * are not bound to any edit transaction.
+		 * Stores faults that are exposed to the outside when the
+		 * FaultService's accessor methods are used. 
 		 */
-		private asyncFrame = new FaultFrame();
+		private foregroundManualFrame = new FaultFrame();
+		
+		/**
+		 * Stores a buffer of the faults that will eventually be exposed to the
+		 * outside, after being copied to the foregroundManualFrame.
+		 * These faults are reported outside of an edit transacrtion, and must 
+		 * be cleared manually (via reportManual).
+		 */
+		private backgroundManualFrame = new FaultFrame();
 	}
 	
 	/**
-	 * 
+	 * Stores a buffer of faults.
 	 */
 	class FaultFrame
 	{

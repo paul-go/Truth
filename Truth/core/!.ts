@@ -12,6 +12,7 @@
 /// <reference path="./Util/Misc.ts" />
 
 // System
+/// <reference path="./System/AbstractClass.ts" />
 /// <reference path="./System/Program.ts" />
 /// <reference path="./System/AgentCache.ts" />
 /// <reference path="./System/Cause.ts" />
@@ -36,6 +37,9 @@
 
 // Phases / File Representation
 /// <reference path="./Phases/File/Document.ts" />
+/// <reference path="./Phases/File/DocumentTypes.ts" />
+/// <reference path="./Phases/File/DocumentUtil.ts" />
+/// <reference path="./Phases/File/CycleDetector.ts" />
 /// <reference path="./Phases/File/LineParser.ts" />
 /// <reference path="./Phases/File/Anon.ts" />
 /// <reference path="./Phases/File/Line.ts" />

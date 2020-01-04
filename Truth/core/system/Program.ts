@@ -45,6 +45,7 @@ namespace Truth
 			
 			this.agentCache = new AgentCache(this);
 			this.graph = new HyperGraph(this);
+			this.cycleDetector = new CycleDetector(this);
 			
 			this.on(CauseRevalidate, data =>
 			{
@@ -123,6 +124,9 @@ namespace Truth
 		
 		/** @internal */
 		readonly graph: HyperGraph;
+		
+		/** @internal */
+		readonly cycleDetector: CycleDetector;
 		
 		/** @internal */
 		private readonly agentCache: AgentCache;
@@ -525,8 +529,7 @@ namespace Truth
 			scope: AttachmentScope;
 		}
 	}
-
-
+	
 	/**
 	 * Gets information about the object that holds 
 	 * the specified Program instance.
@@ -540,8 +543,7 @@ namespace Truth
 			scope: <AttachmentScope>(ih ? ih.scope : program)
 		};
 	}
-
-
+	
 	/**
 	 * @internal
 	 * Stores information about the attachment
@@ -556,14 +558,12 @@ namespace Truth
 			readonly scope: AttachmentScope)
 		{ }
 	}
-
-
+	
 	/**
 	 * Describes a place in the program where a Cause is attached.
 	 */
 	export type AttachmentScope = Program | Document | Type;
-
-
+	
 	/**
 	 * Stores the details about a precise location in a Document.
 	 */
