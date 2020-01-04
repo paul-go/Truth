@@ -1206,11 +1206,11 @@ namespace Truth
 					if (!editInfo.range)
 						throw new TypeError("No range included.");
 					
-					const startLine = editInfo.range.startLineNumber - 1;
-					const endLine = editInfo.range.endLineNumber - 1;
+					const startLine = editInfo.range.startLineNumber;
+					const endLine = editInfo.range.endLineNumber;
 					
-					const startChar = editInfo.range.startColumn - 1;
-					const endChar = editInfo.range.endColumn - 1;
+					const startChar = editInfo.range.startColumn;
+					const endChar = editInfo.range.endColumn;
 					
 					const startLineText = this.read(startLine).sourceText;
 					const endLineText = this.read(endLine).sourceText;

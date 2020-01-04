@@ -176,4 +176,8 @@ namespace Truth
 		
 		private constructor() {}
 	}
+	
+	if (typeof module !== 'undefined' && module.exports) {
+		module.exports = Truth;
+	}
 }
