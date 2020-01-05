@@ -49,13 +49,26 @@ namespace Truth
 			const doc = new Document(program, sourceUri);
 			const uriStatements: UriStatement[] = [];
 			
+			const topLevelStatements: Statement[] = [];
+			const topLevelStatementIndexes: number[] = [];
+			let maxIndent = Number.MAX_SAFE_INTEGER;
+			let lineNumber = 0;
+			
 			for (const statementText of DocumentUtil.readLines(sourceText))
 			{
 				const smt = new Statement(doc, statementText)
 				doc.statements.push(smt);
 				
 				if (smt.uri)
+				{
 					uriStatements.push(smt as UriStatement);
+				}
+				else if (smt.indent <= maxIndent && !smt.isNoop)
+				{
+					topLevelStatements.push(smt);
+					topLevelStatementIndexes.push(++lineNumber);
+					maxIndent = smt.indent;
+				}
 			}
 			
 			// Calling this function saves the document in the Program instance
@@ -66,6 +79,12 @@ namespace Truth
 			
 			if (uriStatements.length > 0)
 				await doc.updateReferences([], uriStatements);
+			
+			program.cause(new CauseRevalidate(
+				doc,
+				topLevelStatements,
+				topLevelStatementIndexes
+			));
 			
 			return doc;
 		}
