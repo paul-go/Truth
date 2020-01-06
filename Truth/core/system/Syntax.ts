@@ -15,8 +15,7 @@ namespace Truth
 		escapeChar = "\\",
 		comment = "//"
 	}
-
-
+	
 	/**
 	 * 
 	 */
@@ -30,8 +29,7 @@ namespace Truth
 		indexerStart = "[",
 		indexerEnd = "]",
 	}
-
-
+	
 	/**
 	 * A constant enumerations that stores the valid extensions
 	 * that must be present in a parsable URI.
@@ -43,8 +41,7 @@ namespace Truth
 		js = ".truth.js",
 		wasm = ".truth.wasm"
 	}
-
-
+	
 	/**
 	 * An enumeration that stores the escape sequences
 	 * that only match a single kind of character. "Sign" in
@@ -59,7 +56,8 @@ namespace Truth
 		escapedFinalizer = "\\/",
 		backslash = "\\\\"
 	}
-
+	
+	/** */
 	export namespace RegexSyntaxSign
 	{
 		/**
@@ -72,9 +70,9 @@ namespace Truth
 			if (value.length < 1 || value.length > 2)
 				return null;
 			
-			const vals = <string[]>Object.values(RegexSyntaxSign);
+			const vals = Object.values(RegexSyntaxSign) as string[];
 			const idx = vals.indexOf(value);
-			return idx < 0 ? null : <RegexSyntaxSign>vals[idx];
+			return idx < 0 ? null : vals[idx] as RegexSyntaxSign;
 		}
 		
 		/** */
@@ -92,8 +90,7 @@ namespace Truth
 			return "";
 		}
 	}
-
-
+	
 	/**
 	 * An enumeration that stores the escape sequences
 	 * that can match more than one kind of character.
@@ -108,19 +105,19 @@ namespace Truth
 		whitespaceNon = "\\S",
 		wild = ".",
 	}
-
+	
+	/** */
 	export namespace RegexSyntaxKnownSet
 	{
-		const vals = <string[]>Object.values(RegexSyntaxKnownSet);
+		const vals = Object.values(RegexSyntaxKnownSet) as string[];
 		
 		export function resolve(value: string): RegexSyntaxKnownSet | null
 		{
 			const idx = vals.indexOf(value);
-			return idx < 0 ? null : <RegexSyntaxKnownSet>vals[idx];
+			return idx < 0 ? null : vals[idx] as RegexSyntaxKnownSet;
 		}
 	}
-
-
+	
 	/**
 	 * An enumeration that stores the delimiters available
 	 * in the system's regular expression flavor.
@@ -140,8 +137,7 @@ namespace Truth
 		quantifierSeparator = ",",
 		range = "-",
 	}
-
-
+	
 	/**
 	 * An enumeration that stores miscellaneous regular
 	 * expression special characters that don't fit into
@@ -156,8 +152,7 @@ namespace Truth
 		boundary = "\\b",
 		boundaryNon = "\\B",
 	}
-
-
+	
 	/**
 	 * An enumeration that stores the delimiters available
 	 * in the infix syntax.

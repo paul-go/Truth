@@ -169,7 +169,7 @@ namespace Truth
 			// the code in our own setTimeout() block.
 			const prefix = ";".repeat(this.sourceMapLineOffset + 1);
 			
-			const pathModule = <typeof import("path")>require("path");
+			const pathModule = require("path") as typeof import("path");
 			const basePath = sourceUri.toStoreString(true);
 			sourceMap.mappings = prefix + sourceMap.mappings;
 			

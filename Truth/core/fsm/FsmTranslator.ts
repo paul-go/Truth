@@ -31,7 +31,7 @@ namespace Truth
 				else throw Exception.unknownState();
 			}
 			
-			return <Fsm>null!;
+			return null! as Fsm;
 		}
 		
 		/** */

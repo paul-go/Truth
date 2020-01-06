@@ -10,7 +10,7 @@ namespace Truth
 		 * @returns The argument as specified, but throws an
 		 * exception in the case when it's strictly equal to null.
 		 */
-		static null<T>(param: T): NotNull<T>
+		static null<T>(param: T)
 		{
 			if (param === null)
 			{
@@ -18,14 +18,14 @@ namespace Truth
 				throw new ReferenceError();
 			}
 			
-			return <NotNull<T>>param;
+			return param as NotNull<T>;
 		}
 		
 		/**
 		 * @returns The argument as specified, but throws an
 		 * exception in the case when it's strictly equal to undefined.
 		 */
-		static undefined<T>(param: T): NotUndefined<T>
+		static undefined<T>(param: T)
 		{
 			if (param === undefined)
 			{
@@ -33,14 +33,14 @@ namespace Truth
 				throw new ReferenceError();
 			}
 			
-			return <NotUndefined<T>>param;
+			return param as NotUndefined<T>;
 		}
 		
 		/**
 		 * @returns The argument as specified, but throws an
 		 * exception in the case when it's null or undefined.
 		 */
-		static nullable<T>(param: T): NotNull<T> | NotUndefined<T>
+		static nullable<T>(param: T)
 		{
 			if (param === null || param === undefined)
 			{
@@ -48,7 +48,7 @@ namespace Truth
 				throw new ReferenceError();
 			}
 			
-			return <NotNull<T> | NotUndefined<T>>param;
+			return param as NotNull<T> | NotUndefined<T>;
 		}
 	}
 

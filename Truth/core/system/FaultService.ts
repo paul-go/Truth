@@ -187,7 +187,7 @@ namespace Truth
 			
 			for (const retainedFault of this.each())
 				if (retainedFault.source === source)
-					out.push(<Fault<TSource>>retainedFault);
+					out.push(retainedFault as Fault<TSource>);
 			
 			return out;
 		}

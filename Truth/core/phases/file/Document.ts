@@ -313,7 +313,7 @@ namespace Truth
 			if (parent === this)
 				return parent.getChildren(null);
 			
-			return this.getChildren(<Statement>parent);
+			return this.getChildren(parent as Statement);
 		}
 		
 		/**
@@ -802,7 +802,7 @@ namespace Truth
 					// descendants. This will handle the majority of "delete a line" cases.
 					if (hasDelete)
 					{
-						const deleteCalls = <DeleteCall[]>calls;
+						const deleteCalls = calls as DeleteCall[];
 						const deadStatements: Statement[] = [];
 						const deadIndexes: number[] = [];
 						let hasOpStatements = false;
@@ -856,7 +856,7 @@ namespace Truth
 					// into the document.
 					if (hasInsert)
 					{
-						const insertCalls = <InsertCall[]>calls;
+						const insertCalls = calls as InsertCall[];
 						if (insertCalls.every(call => call.smt.isNoop))
 						{
 							insertCalls.forEach(doInsert);

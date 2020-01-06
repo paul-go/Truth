@@ -172,7 +172,7 @@ namespace Truth
 		static patch<T extends object>(source: T, patch: Partial<T>)
 		{
 			type K = readonly (keyof T)[];
-			const patchKeys = <K>Object.freeze(Object.keys(patch));
+			const patchKeys = Object.freeze(Object.keys(patch)) as K;
 			
 			return new Proxy(source, {
 				get(target: T, key: keyof T)

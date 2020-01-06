@@ -23,9 +23,9 @@ namespace Truth
 		 */
 		export function resolve(value: string): UriProtocol | null
 		{
-			const vals = <string[]>Object.values(UriProtocol);
+			const vals = Object.values(UriProtocol) as string[];
 			const idx = vals.indexOf(value);
-			return idx < 0 ? null : <UriProtocol>vals[idx];
+			return idx < 0 ? null : vals[idx] as UriProtocol;
 		}
 	}
 }
