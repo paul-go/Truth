@@ -14,14 +14,12 @@ namespace Truth
 		 */
 		readonly returns: R = null!;
 	}
-
-
+	
 	/**
 	 * Extracts the *Result* type parameter of a Cause.
 	 */
 	export type TCauseReturn<T> = T extends { returns: infer R } ? R : never;
-
-
+	
 	/**
 	 * Maps a Cause type over to it's corresponding object
 	 * that is fed into all cause callback functions.
@@ -31,13 +29,11 @@ namespace Truth
 			readonly T[P][] : 
 			T[P];
 	};
-
-
+	
 	// 
 	// Causes
 	// 
-
-
+	
 	/** */
 	export class CauseAgentAttach extends Cause
 	{
@@ -65,25 +61,25 @@ namespace Truth
 			readonly scope: Program | Document | Type)
 		{ super(); }
 	}
-
+	
 	/** */
 	export class CauseAgentDetach extends Cause
 	{
 		constructor(readonly uri: Uri) { super(); }
 	}
-
+	
 	/** A cause that runs immediately after a document has been created. */
 	export class CauseDocumentCreate extends Cause
 	{
 		constructor(readonly document: Document) { super(); }
 	}
-
+	
 	/** A cause that runs immediately before a document is removed from the program. */
 	export class CauseDocumentDelete extends Cause
 	{
 		constructor(readonly document: Document) { super(); }
 	}
-
+	
 	/** A cause that runs when a document's file name changes. */
 	export class CauseDocumentUriChange extends Cause
 	{
@@ -92,7 +88,7 @@ namespace Truth
 			readonly newUri: Uri)
 		{ super(); }
 	}
-
+	
 	/** Abstract cause class for the resolution causes */
 	export abstract class CauseResolve extends Cause<IResolutionReturn>
 	{
@@ -101,22 +97,22 @@ namespace Truth
 			readonly spine: Spine)
 		{ super(); }
 	}
-
+	
 	/** Output for resolution hooks */
 	export interface IResolutionReturn
 	{
 		readonly resolves: boolean;
 	}
-
+	
 	/** A cause that runs before the compiler is about to resolve a term. */
 	export class CauseBeforeResolve extends CauseResolve { }
-
+	
 	/** A cause that runs after the compiler has resolved a term. */
 	export class CauseAfterResolve extends CauseResolve { }
-
+	
 	/** A cause that runs when the compiler is unable to resolve a term. */
 	export class CauseNotResolved extends CauseResolve { }
-
+	
 	/** */
 	export class CauseInvalidate extends Cause
 	{
@@ -137,7 +133,7 @@ namespace Truth
 			readonly indexes: readonly number[])
 		{ super(); }
 	}
-
+	
 	/** */
 	export class CauseRevalidate extends Cause
 	{
@@ -157,13 +153,13 @@ namespace Truth
 			readonly indexes: readonly number[])
 		{ super(); }
 	}
-
+	
 	/** A cause that runs when a document edit transaction has completed. */
 	export class CauseEditComplete extends Cause
 	{
 		constructor(readonly document: Document) { super(); }
 	}
-
+	
 	/** */
 	export abstract class CauseUriReference extends Cause
 	{
@@ -177,18 +173,18 @@ namespace Truth
 			readonly uri: Uri) 
 		{ super(); }
 	}
-
+	
 	/**
 	 * A hook that runs when a URI reference is added to a document, 
 	 * but before it resolves to a resource.
 	 */
 	export class CauseUriReferenceAdd extends CauseUriReference { }
-
+	
 	/**
 	 * A hook that runs when a URI reference is removed from a document.
 	 */
 	export class CauseUriReferenceRemove extends CauseUriReference { }
-
+	
 	/**
 	 * A hook that runs when the set of faults that are detected
 	 * within the document have changed.

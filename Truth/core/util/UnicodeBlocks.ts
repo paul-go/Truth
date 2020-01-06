@@ -3,7 +3,7 @@ namespace Truth
 {
 	type T = [number, number];
 	type TUnicodeBlocks = { [blockName: string]: T };
-
+	
 	/**
 	 * Converts the names in the UnicodeBlocks object
 	 * to a map with lower case keys, for easy lookup.
@@ -14,12 +14,12 @@ namespace Truth
 		const entriesFmt = entries.map(entry => <[string, T]>[entry[0].toLowerCase(), entry[1]]);
 		return Object.freeze(new Map<string, T>(entriesFmt));
 	}
-
+	
 	/**
 	 * Stores the maximum character code in the unicode set.
 	 */
 	export const UnicodeMax = 65536;
-
+	
 	/**
 	 * Stores a map of the names of all unicode blocks,
 	 * and their character ranges.

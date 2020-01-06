@@ -2,7 +2,7 @@
 namespace Truth
 {
 	const hashRegex = new RegExp("[a-f0-9]{" + Hash.length + "}", "i");
-
+	
 	/**
 	 * A class that represents a single component of a Uri.
 	 * Handled encoding and decoding of the underlying value.
@@ -118,6 +118,6 @@ namespace Truth
 			return new URL("http://" + this.value).host;
 		}
 	}
-
+	
 	declare const URL: typeof import("url").URL;
 }

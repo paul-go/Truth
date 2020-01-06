@@ -5,8 +5,7 @@ namespace Truth
 	 * @internal
 	 */
 	export type TCachedType = Type | TypeProxy | null;
-
-
+	
 	/**
 	 * @internal
 	 */

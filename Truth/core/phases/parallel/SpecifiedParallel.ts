@@ -433,7 +433,7 @@ namespace Truth
 		 */
 		private compiledExpression: string | null = null;
 	}
-
+	
 	/**
 	 * A type that describes an entry in the bases map
 	 * of a SpecifiedParallel.

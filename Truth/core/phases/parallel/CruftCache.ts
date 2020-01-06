@@ -43,8 +43,7 @@ namespace Truth
 		/** Stores a set of objects that have been marked as cruft. */
 		private readonly cruft = new Set<TCruft>();
 	}
-
-
+	
 	/** */
 	export type TCruft = TFaultSource | Node | HyperEdge;
 }

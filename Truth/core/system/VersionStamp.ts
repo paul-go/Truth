@@ -79,6 +79,6 @@ namespace Truth
 				this.stamp.toString();
 		}
 	}
-
+	
 	type TStampNumber = bigint | readonly bigint[] | number | readonly number[];
 }

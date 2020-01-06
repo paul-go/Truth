@@ -597,8 +597,7 @@ namespace Truth
 			return indent + decls + jointL + joint + jointR + annos;
 		}
 	}
-
-
+	
 	/**
 	 * Defines the areas of a statement that are significantly
 	 * different when performing inspection.
@@ -633,8 +632,7 @@ namespace Truth
 		/** */
 		annotationVoid
 	}
-
-
+	
 	/**
 	 * Yields faults on infix spans in the case when an identifier
 	 * has been re-declared multiple times within the same infix.
@@ -656,8 +654,7 @@ namespace Truth
 			else subjects.push(subText);
 		}
 	}
-
-
+	
 	/**
 	 * Yields faults on infix spans in the case when an identifier
 	 * has been re-declared multiple times across the infixes.
@@ -683,8 +680,7 @@ namespace Truth
 			}
 		}
 	}
-
-
+	
 	/**
 	 * Yields when successive equivalent instances are discovered
 	 * in the specified iterator.
@@ -703,8 +699,7 @@ namespace Truth
 				yielded.push(item);
 		}
 	}
-
-
+	
 	/**
 	 * Performs a quick and dirty check to see if the infix is referencing
 	 * a list, by looking to see if it has the list operator. A full check needs

@@ -20,8 +20,7 @@ namespace Truth
 			readonly faultType: StatementFaultType | null)
 		{ }
 	}
-
-
+	
 	/**
 	 * A bit field enumeration used to efficiently store
 	 * meta data about a Line (or a Statement) object.

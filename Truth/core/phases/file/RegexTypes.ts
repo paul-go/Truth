@@ -11,8 +11,7 @@ namespace Truth
 		/** */
 		abstract toString(): string;
 	}
-
-
+	
 	/**
 	 * 
 	 */
@@ -144,8 +143,7 @@ namespace Truth
 			return alphabetBuilder.toAlphabet(this.isNegated);
 		}
 	}
-
-
+	
 	/**
 	 * 
 	 */
@@ -156,8 +154,7 @@ namespace Truth
 			readonly to: number)
 		{ }
 	}
-
-
+	
 	/**
 	 * 
 	 */
@@ -190,8 +187,7 @@ namespace Truth
 			return start + mid + end + quant;
 		}
 	}
-
-
+	
 	/**
 	 * A pattern "grapheme" is a pattern unit class that
 	 * represents:
@@ -226,7 +222,7 @@ namespace Truth
 				g + qEsc;
 		}
 	}
-
+	
 	/** */
 	const escapableGraphemes: string[] = [
 		RegexSyntaxMisc.star,
@@ -241,7 +237,7 @@ namespace Truth
 		RegexSyntaxDelimiter.quantifierStart,
 		RegexSyntaxDelimiter.quantifierEnd
 	];
-
+	
 	/**
 	 * A Regex "Sign" refers to an escape sequence that refers
 	 * to one other character, as opposed to that character
@@ -263,8 +259,7 @@ namespace Truth
 			return this.sign.toString() + (q === null ? "" : esc(q.toString()));
 		}
 	}
-
-
+	
 	/**
 	 * A pattern unit class that represents +, *, 
 	 * and explicit quantifiers such as {1,2}.
@@ -318,8 +313,7 @@ namespace Truth
 				qs + this.min + qp + (this.max === Infinity ? "" : this.max.toString()) + qe;
 		}
 	}
-
-
+	
 	/**
 	 * Utility function that returns a double escape
 	 * if the passed value is a backslash.
@@ -334,8 +328,7 @@ namespace Truth
 		
 		return maybeBackslash;
 	}
-
-
+	
 	/**
 	 * 
 	 */
@@ -343,8 +336,7 @@ namespace Truth
 	{
 		return array.map(esc).join("");
 	}
-
-
+	
 	/**
 	 * 
 	 */

@@ -234,8 +234,7 @@ namespace Truth
 			return error("This code appears to be operating in an unsupported platform.");
 		}
 	}
-
-
+	
 	/**
 	 * Generates a proper error object from the specified message.
 	 */

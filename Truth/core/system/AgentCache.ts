@@ -263,10 +263,10 @@ namespace Truth
 		 */
 		private readonly cache = new Map<string, Set<Statement | Program>>();
 	}
-
+	
 	declare function atob(input: string): string;
 	declare function btoa(input: string): string;
-
+	
 	/**
 	 * A simple type definition for a V3 source map object.
 	 */

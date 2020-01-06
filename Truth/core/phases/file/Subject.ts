@@ -3,22 +3,21 @@ namespace Truth
 {
 	/** */
 	export type Subject = DeclarationSubject | AnnotationSubject;
-
+	
 	/**
 	 * Stores a map of the character offsets within a Statement
 	 * that represent the starting positions of the statement's
 	 * declarartions.
 	 */
 	export type DeclarationSubject = Identifier | Pattern | Uri | Anon;
-
+	
 	/**
 	 * Stores a map of the character offsets within a Statement
 	 * that represent the starting positions of the statement's
 	 * annotations.
 	 */
 	export type AnnotationSubject = Identifier;
-
-
+	
 	/** */
 	export class SubjectSerializer
 	{
@@ -73,7 +72,7 @@ namespace Truth
 			throw Exception.unknownState();
 		}
 	}
-
+	
 	/** Identifies a Type that is or contains a Subject. */
 	export type SubjectContainer = Subject | Boundary<Subject> | Span | InfixSpan;
 }

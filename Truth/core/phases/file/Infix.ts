@@ -102,8 +102,7 @@ namespace Truth
 			return delimL + join(this.lhs) + joint + join(this.rhs) + delimR;
 		}
 	}
-
-
+	
 	/**
 	 * 
 	 */

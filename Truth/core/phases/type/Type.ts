@@ -7,7 +7,7 @@ namespace Truth
 		version: VersionStamp;
 		worker: ConstructionWorker;
 	}
-
+	
 	/**
 	 * A class that represents a fully constructed type within the program.
 	 */
@@ -709,8 +709,7 @@ namespace Truth
 		 */
 		private readonly private: TypePrivate;
 	}
-
-
+	
 	/**
 	 * @internal
 	 * A hidden class that stores the private information of

@@ -81,8 +81,7 @@ namespace Truth
 			throw Exception.unsupportedPlatform();
 		}
 	}
-
-
+	
 	/**
 	 * 
 	 */
@@ -93,6 +92,6 @@ namespace Truth
 			readonly statusText: string)
 		{ super(); }
 	}
-
+	
 	declare function fetch(...args: unknown[]): any;
 }

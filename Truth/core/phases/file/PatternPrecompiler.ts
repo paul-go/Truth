@@ -18,7 +18,7 @@ namespace Truth
 			{
 				if (unit instanceof RegexGrapheme)
 				{
-					if (MustEscapeChars.includes(unit.grapheme))
+					if (mustEscapeChars.includes(unit.grapheme))
 						result.push(Syntax.escapeChar + unit.grapheme);
 					else
 						result.push(unit.grapheme);
@@ -28,7 +28,7 @@ namespace Truth
 				}
 				else if (unit instanceof Infix)
 				{
-					result.push(ExpedientInfixPattern);
+					result.push(expedientInfixPattern);
 				}
 				else
 				{
@@ -51,15 +51,14 @@ namespace Truth
 			}
 		}
 	}
-
-
+	
 	/**
 	 * Stores the list of characters that must be escaped
 	 * in order for the Truth regular expression flavor to
 	 * be compatible with the engine build into JavaScript.
 	 */
-	const MustEscapeChars = ["$", "^", "{", "}"];
-
+	const mustEscapeChars = ["$", "^", "{", "}"];
+	
 	/**
 	 * Stores the pattern that is fed into a pattern in
 	 * place of where infixes are, in order to be able to
@@ -71,5 +70,5 @@ namespace Truth
 	 * of characters, provided that the string of characters
 	 * don't begin or end with whitespace."
 	 */
-	const ExpedientInfixPattern = "(\\S+(\\s+\\S+)*)";
+	const expedientInfixPattern = "(\\S+(\\s+\\S+)*)";
 }

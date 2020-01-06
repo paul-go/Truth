@@ -716,7 +716,7 @@ namespace Truth
 		readonly pattern: Pattern;
 		readonly patternParallel: SpecifiedParallel;
 	}
-
+	
 	/** */
 	export type TBaseTable = ReadonlyMap<SpecifiedParallel, HyperEdge>;
 }

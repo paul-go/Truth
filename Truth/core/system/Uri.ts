@@ -372,6 +372,6 @@ namespace Truth
 			return out;
 		}
 	}
-
+	
 	declare const window: any;
 }

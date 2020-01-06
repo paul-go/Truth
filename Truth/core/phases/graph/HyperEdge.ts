@@ -240,8 +240,7 @@ namespace Truth
 			].join("\n");
 		}
 	}
-
-
+	
 	/**
 	 * 
 	 */
@@ -260,8 +259,7 @@ namespace Truth
 		
 		readonly stamp = VersionStamp.next();
 	}
-
-
+	
 	/**
 	 * Indicates the place in a statement where a HyperEdge starts.
 	 * (HyperEdges can start either at the statement level, or within
