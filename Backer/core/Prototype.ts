@@ -1,6 +1,9 @@
 
 namespace Backer
 {
+	/**
+	 * 
+	 */
 	export type PrototypeJSON = [number, number, ...number[][]];
 	
 	/**
@@ -33,11 +36,10 @@ namespace Backer
 				new TypeSet(type.contentsIntrinsic.map(FutureType.new))
 			);
 			
-			const ex = code.prototypes.find(x => x.hash === proto.hash);
-			
-			if (ex) 
+			const ex = code.prototypes.find(proto => proto.hash === proto.hash);
+			if (ex)
 				proto = ex;
-				
+			
 			return proto;
 		}
 	
@@ -58,16 +60,16 @@ namespace Backer
 			);
 		}
 		
-		
+		/** */
 		constructor(
 			private code: Code,
-			public flags: Bitfields,
-			
-			public bases = new TypeSet(),
-			public patterns = new TypeSet(),
-			public parallels = new TypeSet(),
-			public contentsIntrinsic = new TypeSet()) {}
-			
+			readonly flags: Bitfields,
+			readonly bases = new TypeSet(),
+			readonly patterns = new TypeSet(),
+			readonly parallels = new TypeSet(),
+			readonly contentsIntrinsic = new TypeSet())
+		{}
+		
 		/** */
 		get id()
 		{
@@ -92,8 +94,12 @@ namespace Backer
 		toJSON()
 		{	
 			return Util.encode([
-				this.flags, this.bases, this.patterns, this.parallels, this.contentsIntrinsic
+				this.flags,
+				this.bases,
+				this.patterns,
+				this.parallels,
+				this.contentsIntrinsic
 			]);
-		}		
+		}
 	}
 }

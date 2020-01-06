@@ -1,7 +1,14 @@
 
 namespace Backer.TruthTalk
 {
+	/**
+	 * 
+	 */
 	export const op = Symbol("op");
+	
+	/**
+	 * 
+	 */
 	export const container = Symbol("container");
 	
 	/** */

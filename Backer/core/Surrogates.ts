@@ -8,11 +8,20 @@ namespace Backer
 	export const values = Symbol("values");
 	export const parent = Symbol("parent");
 	
+	/**
+	 * 
+	 */
 	export abstract class Base<T, Q> extends TruthTalk.Leaves.Surrogate
 	{
+		/** */
 		abstract [name]: string | Name;
+		
+		/** */
 		abstract [value]: T;
 		
+		/**
+		 * 
+		 */
 		[parent]: Q | null;
 		
 		/** */
@@ -35,8 +44,19 @@ namespace Backer
 			return root;
 		}
 		
-		toJSON(){ return this[value]; }
-		valueOf() { return this[value]; }
+		/** */
+		toJSON()
+		{
+			return this[value];
+		}
+		
+		/** */
+		valueOf()
+		{
+			return this[value];
+		}
+		
+		/** */
 		toString() 
 		{
 			const val = this[value];
@@ -45,15 +65,28 @@ namespace Backer
 			
 			return String(val);
 		}
-		[Symbol.toPrimitive]() { return this[value]; }
-		get [Symbol.toStringTag]() { return "Proxy"; }
+		
+		/** */
+		[Symbol.toPrimitive]()
+		{
+			return this[value];
+		}
+		
+		/** */
+		get [Symbol.toStringTag]()
+		{
+			return "Proxy";
+		}
 	}
 	
 	/**
 	 * 
 	 */
 	export class Aggregate extends Base<any, Struct[]>
-	{	
+	{
+		/**
+		 * 
+		 */
 		[parent]: Struct[];
 		
 		/** */
@@ -112,7 +145,7 @@ namespace Backer
 			const constr = parentValue ? 
 				parentValue instanceof Surrogate ?
 				Surrogate : Struct : Struct;
-				
+			
 			return new constr(type, parentValue);
 		}
 		
@@ -180,6 +213,9 @@ namespace Backer
 		}
 	}
 	
+	/**
+	 * 
+	 */
 	export class Surrogate<T = string> extends Struct
 	{
 		readonly [name]: Name;
@@ -207,7 +243,7 @@ namespace Backer
 		 * Get nested property with matching Struct
 		*/
 		get(type: Struct): Surrogate | null
-		{		
+		{
 			const recursive = (obj: Surrogate): Surrogate | null => 
 			{
 				if (obj[typeOf].parallelRoots.some(x => x === type[typeOf]))
@@ -234,9 +270,8 @@ namespace Backer
 			
 			if (this.contents.length === 0)
 				return primitive;
-	
+			
 			const Obj: Record<string, Surrogate | T> & { $: any } = <any>Object.assign({}, this);
-							
 			return Obj; 
 		}
 		
@@ -248,7 +283,7 @@ namespace Backer
 			
 			if (primitive) 
 				base += `: ${primitive}`;
-				
+			
 			if (this.contents.length > 0)
 				base += this.contents.map(x => "\n" + x.toString(indent + 1));
 			

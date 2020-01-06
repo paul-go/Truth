@@ -1,24 +1,24 @@
 
 namespace Backer.TruthTalk
 {
-	export type Atomic = Reflex.Atom<Node, Branch>;
-	export type Atomics = Reflex.Atom<Node, Branch>;
+	export type Atom = Reflex.Atom<Node, Branch>;
+	export type Atoms = Reflex.Atom<Node, Branch>;
 	
 	/** */
 	export interface Namespace extends
-		Reflex.Core.IBranchNamespace<Atomics, Branches.Query>
+		Reflex.Core.IBranchNamespace<Atoms, Branches.Query>
 	{
 		/** */
-		is(...atomics: Atomics[]): Branches.Is;
+		is(...atomics: Atoms[]): Branches.Is;
 		
 		/** */
-		has(...atomics: Atomics[]): Branches.Has;
+		has(...atomics: Atoms[]): Branches.Has;
 		
 		/** */
-		not(...atomics: Atomics[]): Branches.Not;
+		not(...atomics: Atoms[]): Branches.Not;
 		
 		/** */
-		or(...atomics: Atomics[]): Branches.Or;
+		or(...atomics: Atoms[]): Branches.Or;
 		
 		/** */
 		containers(): Leaves.Containers;

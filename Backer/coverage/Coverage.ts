@@ -19,23 +19,20 @@ Product
 	Name: "Prd2"
 	Count: 10
 `);
+		
+		if (doc instanceof Error)
+		{
+			debugger;
+			return;
+		}
+		
 		doc.program.verify();
 		
 		const faults = Array.from(doc.program.faults.each());
-		
-		return ["A stupid error", () => false, () => faults.length === 0];
-	}
-	
-	async function coverLoadTruthWorks()
-	{
-		console.log("123");
-		console.log("123");
-		console.log("123");
-		console.log("123");
-		console.log("123");
-		console.log("123");
-		console.log("123");
-		console.log("123");
-		console.log("123");
+		return [
+			"An error occured.",
+			() => false,
+			() => faults.length === 0
+		];
 	}
 }

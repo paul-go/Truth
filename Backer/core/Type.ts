@@ -157,18 +157,23 @@ namespace Backer
 		 */
 		static new(code: Code, type: Truth.Type)
 		{	
-			const name = type.isPattern ? type.name.substr(9) : type.name;
+			const name = type.isPattern ?
+				type.name.substr(9) : 
+				type.name;
+			
 			const instance = new Type(
 				code, 
 				name, 
 				Prototype.new(code, type),
-				type.container ? FutureType.new(type.container) : null,
+				type.container ? 
+					FutureType.new(type.container) : 
+					null,
 				new ValueStore(...type.values
 					.filter(x => name !== x.value)
 					.map(x => new Value(x.base ? FutureType.new(x.base) : null, x.aliased, x.value)))
 			);
 			
-			FutureType.TypeMap.set(type, instance);
+			FutureType.typeMap.set(type, instance);
 			return instance;
 		}
 		
@@ -207,9 +212,9 @@ namespace Backer
 			for (const { type: parallelType } of this.iterate(t => t.parallels, true))
 				for (const { type: baseType } of parallelType.iterate(t => t.bases, true))
 					for(const content of baseType.contents)
-					if (!types.some(x => x.name === content.name))
-						types.push(content);
-						
+						if (!types.some(x => x.name === content.name))
+							types.push(content);
+			
 			return types;
 		}
 		

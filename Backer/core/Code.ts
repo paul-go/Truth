@@ -66,18 +66,17 @@ namespace Backer
 			for (const type of types)
 			{
 				const id = code.types.push(type) - 1;
-				FutureType.IdMap.set(id, type);
+				FutureType.idMap.set(id, type);
 			}
 			
-			const Schema: Record<string, Struct> = {};
+			const schema: Record<string, Struct> = {};
 			
 			for (const type of types)
 				if (!type.container)
-					Schema[type.name] = new Struct(type, null);
-									
-			Backer.Schema = Schema;
-					
-			Schemas.push(Schema);
+					schema[type.name] = new Struct(type, null);
+			
+			Backer.Schema = schema;
+			Schemas.push(schema);
 			Codes.push(code);
 			
 			return code;
@@ -93,7 +92,7 @@ namespace Backer
 		{
 			if (!this.prototypes.some(x => x.hash === type.prototype.hash))
 				this.prototypes.push(type.prototype);
-				
+			
 			const id = this.types.push(type) - 1;
 			type.transfer(this);
 			return id;
@@ -105,7 +104,7 @@ namespace Backer
 		 */
 		loadData(data: DataJSON[])
 		{	
-			const Graph: Record<string, Surrogate> = {};
+			const graph: Record<string, Surrogate> = {};
 			
 			for (const info of data)
 			{
@@ -130,23 +129,21 @@ namespace Backer
 							this.prototypes[prototypes.shift()!],
 							FutureType.new(base),
 							content.values.concat(ValueStore.load(...info.shift() as ValueJSON[]))
-							);
-							
-						this.types.push(clone);
+						);
 						
+						this.types.push(clone);
 						generate(clone, clone.parallelContents);
 					}
 				}
 				
 				generate(type, type.parallelContents);
-				
-				Graph[type.name] = new Surrogate(type, null);
+				graph[type.name] = new Surrogate(type, null);
 			}
 			
-			Backer.Graph = Graph;
-			Graphs.push(Graph);
+			Backer.Graph = graph;
+			Graphs.push(graph);
 			
-			return Graph;
+			return graph;
 		}
 		
 		/**
@@ -158,26 +155,30 @@ namespace Backer
 			const dataRoots = this.types
 				.filter(x => x.container === null && pattern.test(x.name));
 			
-			const drill = (x: Type) =>
+			const drill = (type: Type) =>
 			{
-				const array = [x];
-				for (const type of x.contents)
+				const array = [type];
+				
+				for (const contentType of type.contents)
 				{
-					const child = drill(type).flat();
+					const child = drill(contentType).flat();
 					if (child.length)
 						array.push(...child);
-				} 
+				}
+				
 				return array;
 			};
 			
 			const dataSchema = dataRoots
 				.map(drill)
-				.filter(x => Array.isArray(x) ? x.length : true);
-				
+				.filter(type => Array.isArray(type) ?
+					type.length : 
+					true);
+			
 			const dataQuery = dataSchema.flat();
 			
 			const codeRoots = this.types
-				.filter(x => !dataQuery.includes(x));
+				.filter(type => !dataQuery.includes(type));
 			
 			const code = new Code();
 			for (const type of codeRoots)
@@ -185,27 +186,47 @@ namespace Backer
 				
 			for (const type of dataQuery)
 			{			
-				if (!code.prototypes.some(x => x.hash === type.prototype.hash))
-					code.prototypes.push(type.prototype);	
+				if (!code.prototypes.some(proto => proto.hash === type.prototype.hash))
+					code.prototypes.push(type.prototype);
+				
 				type.transfer(code);
 			}
-		
+			
 			const data = dataSchema
-				.map(x => [
-					x.map(x => x.prototype.id), 
-					x[0].name, 
-					...x.map(x => x.values.valueStore)
+				.map(types => [
+					types.map(type => type.prototype.id), 
+					types[0].name, 
+					...types.map(type => type.values.valueStore)
 				]);
-							
+			
 			return {
 				code,
 				data
 			}
 		}
 		
-		toJSON() { return [this.prototypes, this.types]; }
-		valueOf() { return this.types.length; }
-		[Symbol.toPrimitive]() { return this.types.length; }
-		get [Symbol.toStringTag]() { return "Code"; }
+		/** */
+		toJSON()
+		{
+			return [this.prototypes, this.types];
+		}
+		
+		/** */
+		valueOf()
+		{
+			return this.types.length;
+		}
+		
+		/** */
+		[Symbol.toPrimitive]()
+		{
+			return this.types.length;
+		}
+		
+		/** */
+		get [Symbol.toStringTag]()
+		{
+			return "Code";
+		}
 	}
 }

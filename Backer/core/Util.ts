@@ -13,7 +13,6 @@ boolean : any
 /(\\+|-)?(([1-9]\\d{0,17})|([1-8]\\d{18})|(9[01]\\d{17})) : number
 /(0|([1-9][0-9]*)) : bigint
 /(true|false) : boolean
-	
 	`;
 	
 	/**
@@ -52,7 +51,7 @@ boolean : any
 			const value = vp && typeof vp === "object" && "toJSON" in vp ? vp.toJSON() : vp;	
 			const bit = Array.isArray(value) && value.length === 0;
 			bf.set(i, bit ? false : true);
-			 
+			
 			if (!bit) 
 				result.push(value);
 		}
@@ -60,7 +59,6 @@ boolean : any
 		result.unshift(bf);
 		return result;
 	}
-	
 	
 	/**
 	 * Decompress nested arrays
@@ -72,7 +70,7 @@ boolean : any
 		
 		if (!length || length < 1) 
 			length = bf.size;
-			
+		
 		const result = new Array(length);
 		
 		for (let i = -1; ++i < length;)
@@ -128,41 +126,34 @@ boolean : any
 	{
 		const doc = await Truth.parse(Headers + content);
 		
-		doc.program.verify();
+		if (doc instanceof Error)
+			throw doc;
 		
+		doc.program.verify();
 		const faults = Array.from(doc.program.faults.each());
 		
 		if (faults.length) 
 		{			
 			for (const fault of faults)
 				console.error(fault.toString());
-				
+			
 			throw faults[0].toString();
 		}
 		
-		let code = new Backer.Code();
-			
+		let code = new Code();
+		
 		const drill = (type: Truth.Type) => 
 		{
-			code.add(Backer.Type.new(code, type));
+			code.add(Type.new(code, type));
+			
 			for (const sub of type.contents)
 				drill(sub);
 		};
 		
 		for (const type of doc.types)
 			drill(type);
-			
+		
 		const extracted = code.extractData(pattern);
-		
-		code = extracted.code;
-		const data = extracted.data;
-		
-		const simplecode = JSON.parse(JSON.stringify(code));
-		const simpledata = JSON.parse(JSON.stringify(data));
-		
-		const BCode = Backer.Code.new(simplecode);
-		BCode.loadData(simpledata);
-		
-		return code;
+		return extracted.code;
 	}
 }

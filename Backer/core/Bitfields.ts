@@ -43,9 +43,28 @@ namespace Backer
 				this.flags &= ~mask;
 		}
 		
-		toJSON() { return this.flags; }
-		valueOf() { return this.flags; }
-		[Symbol.toPrimitive]() { return this.flags; }
-		get [Symbol.toStringTag]() { return "Bitfields"; }
+		/** */
+		toJSON()
+		{
+			return this.flags;
+		}
+		
+		/** */
+		valueOf()
+		{
+			return this.flags;
+		}
+		
+		/** */
+		[Symbol.toPrimitive]()
+		{
+			return this.flags;
+		}
+		
+		/** */
+		get [Symbol.toStringTag]()
+		{
+			return "Bitfields";
+		}
 	}
 }

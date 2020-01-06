@@ -1,15 +1,18 @@
 
 namespace Backer.TruthTalk
 {
+	/**
+	 * 
+	 */
 	export type Cursor = Surrogate | Name | Aggregate;
-	type MaybeArray<T> = T | T[];
 	
-	const SurrogateFilter = (x: Cursor): x is Surrogate => x instanceof Surrogate;
-	
-	export function Execute(Ast: Branch)
+	/**
+	 * 
+	 */
+	export function execute(ast: Branch)
 	{
 		const cursors = new CursorSet(...Object.values(Backer.Graph));
-		cursors.query(Ast);
+		cursors.query(ast);
 		return cursors.snapshot();
 	}
 	
@@ -18,17 +21,20 @@ namespace Backer.TruthTalk
 	 */
 	export class CursorSet
 	{	
+		/** */
 		static new()
 		{
 			return new CursorSet(...Object.values(Backer.Graph));
 		}
 		
-		cursors: Set<Cursor>;
-		
+		/** */
 		constructor(...cursors: Cursor[])
 		{
 			this.cursors = new Set(cursors);
 		}
+		
+		/** */
+		private cursors: Set<Cursor>;
 		
 		/**
 		 * Snapshot of current possibilities
@@ -43,7 +49,10 @@ namespace Backer.TruthTalk
 		 */
 		map(filter: (cursor: Cursor) => boolean, map: (items: Cursor) => MaybeArray<Cursor>)
 		{
-			this.cursors = new Set(this.snapshot().filter(filter).flatMap(map).filter(x => !!x));
+			this.cursors = new Set(this.snapshot()
+				.filter(filter)
+				.flatMap(map)
+				.filter(cursor => !!cursor));
 		}
 		
 		/**
@@ -57,9 +66,9 @@ namespace Backer.TruthTalk
 		/**
 		 * Filters current possibilities
 		 */
-		filter(fn: (v: Cursor) => boolean)
+		filter(fn: (cursor: Cursor) => boolean)
 		{
-			this.cursors = new Set(this.snapshot().filter(x => fn(x)));
+			this.cursors = new Set(this.snapshot().filter(cursor => fn(cursor)));
 		}
 		
 		/**
@@ -67,7 +76,8 @@ namespace Backer.TruthTalk
 		 */
 		filterSurrogate(fn: (v: Surrogate) => boolean)
 		{
-			this.cursors = new Set(this.snapshot().filter((x): x is Surrogate => x instanceof Surrogate && fn(x)));
+			this.cursors = new Set(this.snapshot()
+				.filter((v): v is Surrogate => v instanceof Surrogate && fn(v)));
 		}
 		
 		/**
@@ -93,16 +103,21 @@ namespace Backer.TruthTalk
 					for (const query of branch.children)
 						this.query(query);	
 					break;
+				
 				case BranchOp.not: 
 					this.not(branch);
 					break;
+				
 				case BranchOp.or:
 					this.or(branch);
 					break;
+				
 				case BranchOp.has:
 					this.contents();
+					
 					for (const query of branch.children)
 						this.query(query);
+					
 					this.containers();
 					break;
 			}
@@ -116,101 +131,148 @@ namespace Backer.TruthTalk
 			switch (leaf[op])
 			{
 				case LeafOp.surrogate:
-					this.filterSurrogate(x => x[typeOf].is((<Surrogate>leaf)[typeOf]) || x[typeOf].parallelRoots.includes((<Surrogate>leaf)[typeOf]));
+					const surrogateLeaf = leaf as Surrogate;
+					this.filterSurrogate(sur =>
+					{
+						if (sur[typeOf].is(surrogateLeaf[typeOf]))
+							return true;
+						
+						if (sur[typeOf].parallelRoots.includes(surrogateLeaf[typeOf]))
+							return true;
+						
+						return false;
+					});
 					break;
+				
 				case LeafOp.contents:
 					this.contents();
 					break;
+				
 				case LeafOp.roots:
 					this.roots();
 					break;
+				
 				case LeafOp.containers:
 					this.containers();
 					break;
+				
 				case LeafOp.aliased:
-					this.filter(x => x[value] !== null);
+					this.filter(sur => sur[value] !== null);
 					break;
+				
 				case LeafOp.leaves:
-					this.filter(x => x[value] === null);
+					this.filter(sur => sur[value] === null);
 					break;
+				
 				case LeafOp.fresh:
-					this.filterSurrogate(x => x[typeOf].isFresh);
+					this.filterSurrogate(sur => sur[typeOf].isFresh);
 					break;
+				
 				case PredicateOp.equals:
-					this.equals(<Leaves.Predicate>leaf);
+					this.equals(leaf as Leaves.Predicate);
 					break;
+				
 				case PredicateOp.greaterThan:
-					this.filter(x => (x[value] || 0) > (<Leaves.Predicate>leaf).operand);
+					this.filter(sur => (sur[value] || 0) > (leaf as Leaves.Predicate).operand);
 					break;
+				
 				case PredicateOp.lessThan:
-					this.filter(x => (x[value] || 0) < (<Leaves.Predicate>leaf).operand);
-					break;	
+					this.filter(sur => (sur[value] || 0) < (leaf as Leaves.Predicate).operand);
+					break;
+					
 				case PredicateOp.startsWith:
-					this.filter(x => x[value] == null ? false : x[value]!.toString().startsWith(<string>(<Leaves.Predicate>leaf).operand));
+					this.filter(sur => sur[value] == null ? 
+						false : 
+						sur[value]!.toString().startsWith((leaf as Leaves.Predicate).operand as string));
 					break;
+				
 				case PredicateOp.endsWith:
-					this.filter(x => x[value] == null ? false : x[value]!.toString().endsWith(<string>(<Leaves.Predicate>leaf).operand));
+					this.filter(sur => sur[value] == null ? 
+						false : 
+						sur[value]!.toString().endsWith((leaf as Leaves.Predicate).operand as string));
 					break;
+				
 				case LeafOp.slice:
 					this.slice(leaf);
 					break;
+				
 				case LeafOp.occurences:
 					this.occurences(leaf);
 					break;
+				
 				case LeafOp.sort: 
 					this.sort(leaf);
 					break;
+				
 				case LeafOp.reverse:
 					this.cursors = new Set(this.snapshot().reverse());
 					break;
+				
 				case LeafOp.names:
 					this.names();
 					break;
+				
 				case PredicateOp.named:
 					this.names();
-					this.equals(<Leaves.Predicate>leaf);
+					this.equals(leaf as Leaves.Predicate);
 					this.containers();
 					break;
+				
 			}
 		}
 		
+		/**
+		 * 
+		 */
 		equals(leaf: Leaves.Predicate)
 		{
-			this.filter(x => x[value] !== null ? x[value] == (leaf).operand : false);
-		}
-		
-		names()
-		{
-			this.map(SurrogateFilter, (x) => (<Surrogate>x)[name]);
+			this.filter(sur => sur[value] === null ? 
+				false :
+				sur[value] == (leaf).operand);
 		}
 		
 		/**
-		 * Go one level nested in
+		 * 
+		 */
+		names()
+		{
+			this.map(surrogateFilterFn, cursor => (cursor as Surrogate)[name]);
+		}
+		
+		/**
+		 * Extends all cursors to include their direct contents.
 		 */
 		contents()
 		{
-			this.map(SurrogateFilter, x => (<Surrogate>x).contents);
+			this.map(surrogateFilterFn, cursor => (cursor as Surrogate).contents);
 		}
 		
 		/**
-		 * Go to top level
+		 * Retracts all cursors to their top-level ancestors.
 		 */
 		roots()
 		{
-			this.cursors = new Set(this.snapshot().map((x: Cursor | null) =>
+			const newCursors = this.snapshot()
+				.map((cursor: Cursor | null) =>
 				{
-					while (x && x[parent]) 
-						x = x[parent] as Surrogate;
-					return x;				
-				}).filter((x): x is Surrogate => !!x));
+					while (cursor && cursor[parent])
+						cursor = cursor[parent] as Surrogate;
+					
+					return cursor;
+				})
+				.filter((sur): sur is Surrogate => !!sur);
+			
+			this.cursors = new Set(newCursors);
 		}
 		
 		/**
-		 * Go one level nested out
+		 * Retracts all cursors to their immediate container.
 		 */
 		containers()
 		{
-			this.map(x => !!x[parent], x => (<any>x[parent]));
+			this.map(
+				cursor => !!cursor[parent],
+				cursor => cursor[parent] as any);
 		}
 	
 		/** */
@@ -228,7 +290,7 @@ namespace Backer.TruthTalk
 		/** */
 		or(branch: Branch)
 		{
-			const instances = [];
+			const instances: CursorSet[] = [];
 			
 			for (const query of branch.children)
 			{
@@ -244,13 +306,11 @@ namespace Backer.TruthTalk
 		/** */
 		slice(leaf: Leaf)
 		{
-			let {
-				start,
-				end
-			} = <Leaves.Slice>leaf;
-			
+			let { start, end } = leaf as Leaves.Slice;
 			const snap = this.snapshot();
-			if (end && end < 1) end = start + Math.round(end * snap.length);
+			
+			if (end && end < 1)
+				end = start + Math.round(end * snap.length);
 			
 			this.cursors = new Set(snap.slice(start, end));
 		}
@@ -258,13 +318,11 @@ namespace Backer.TruthTalk
 		/** */
 		occurences(leaf: Leaf)
 		{
-			let {
-				min,
-				max
-			} = <Leaves.Occurences>leaf;
+			let { min, max } = leaf as Leaves.Occurences;
 			
-			if (!max) max = min;
-
+			if (!max)
+				max = min;
+			
 			const valueMap: Record<string, Cursor[]> = {};
 			
 			for (const item of this.cursors)
@@ -277,48 +335,60 @@ namespace Backer.TruthTalk
 				valueMap[val].push(item);
 			}
 			
-			this.cursors = new Set(Object.values(valueMap).filter(x => x.length >= min && x.length <= max).flat());
+			this.cursors = new Set(Object.values(valueMap)
+				.filter(cursor => cursor.length >= min && cursor.length <= max)
+				.flat());
 		}
 		
 		/** */
 		is(surrogate: Surrogate, not = false)
 		{
 			const instance = this.clone();
-			return instance.filterSurrogate(x => 
-				{
-					const condition = x[typeOf].is(surrogate[typeOf]) || x[typeOf].parallelRoots.includes(surrogate[typeOf]);
-					return not ? !condition : condition;
-				});
+			return instance.filterSurrogate(sur => 
+			{
+				const condition = 
+					sur[typeOf].is(surrogate[typeOf]) || 
+					sur[typeOf].parallelRoots.includes(surrogate[typeOf]);
+				
+				return not ?
+					!condition : 
+					condition;
+			});
 		}
 		
 		/** */
 		sort(leaf: Leaf)
 		{
-			const structs = (<Struct[]>(<Leaves.Sort>leaf).contentTypes).filter((x) => !!x).reverse();
-			
+			const contentTypes = (leaf as Leaves.Sort).contentTypes as Struct[];
 			const snap = this.snapshot();
+			snap.sort((a, b) => a[value] - b[value]);
 			
-			snap.sort((x,y) => x[value] - y[value]);
-			
-			for (const struct of structs)
+			for (let i = contentTypes.length; i-- > 0;)
+			{
+				const struct = contentTypes[i];
+				if (!struct)
+					continue;
+				
 				snap.sort((a, b) => 
 				{
 					if (!(a instanceof Surrogate)) 
-						if (!(b instanceof Surrogate))
-							return 0;
-						else return -1;
+						return b instanceof Surrogate ? -1 : 0;
+					
 					else if (!(b instanceof Surrogate))
 						return 1;
 					
 					const p1 = a.get(struct);
 					const p2 = b.get(struct);
-					const v1: number = p1 ? <any>p1[value] || 0: 0;
-					const v2: number = p2 ? <any>p2[value] || 0: 0;
+					const v1: number = p1 ? p1[value] || 0 : 0;
+					const v2: number = p2 ? p2[value] || 0 : 0;
 					return v1 - v2;
 				});
+			}
 			
 			this.cursors = new Set(snap);
 		}
-		
 	}
+	
+	type MaybeArray<T> = T | T[];
+	const surrogateFilterFn = (x: Cursor): x is Surrogate => x instanceof Surrogate;
 }

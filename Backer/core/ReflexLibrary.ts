@@ -1,11 +1,16 @@
 
 namespace Backer.TruthTalk
 {
+	/**
+	 * 
+	 */
 	export let tt: Reflex.Core.AsLibrary<Backer.TruthTalk.Namespace, Backer.TruthTalk.Library>;
 	
+	/**
+	 * 
+	 */
 	export class Library implements Reflex.Core.ILibrary
 	{
-		
 		/** */
 		isKnownBranch(branch: Branch)
 		{
@@ -29,11 +34,11 @@ namespace Backer.TruthTalk
 		{
 			const branches: any = {};
 			
-			Object.entries(Branches).forEach(([branchName, branchCtor]) =>
+			for (const [branchName, branchCtor] of Object.entries(Branches))
 			{
 				const name = branchName.toLowerCase();
 				branches[name] = () => new branchCtor();
-			});
+			}
 			
 			return branches;
 		}
