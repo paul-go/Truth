@@ -391,7 +391,7 @@ namespace Truth
 			const region = statement.getRegion(offset);
 			const position = {
 				line,
-				character: offset
+				offset
 			};
 			
 			switch (region)
@@ -575,10 +575,13 @@ namespace Truth
 	 */
 	export type AttachmentScope = Program | Document | Type;
 	
+	/**
+	 * Marks a specific line and offset within a Truth document.
+	 */
 	export interface Position 
 	{
 		line: number;
-		character: number;
+		offset: number;
 	}
 	
 	/**
@@ -589,13 +592,15 @@ namespace Truth
 		/** @internal */
 		constructor(
 			/**
-			 * Specified location.
+			 * Stores the location of the inspection point within a Document.
 			 */
 			readonly position: Position,
+			
 			/**
 			 * Stores the Region of statement found at the specified location.
 			 */
 			readonly region: StatementRegion,
+			
 			/**
 			 * Stores the compilation object that most closely represents
 			 * what was found at the specified location. Stores null in the
