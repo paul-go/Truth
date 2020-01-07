@@ -389,25 +389,29 @@ namespace Truth
 		{
 			const statement = document.read(line);
 			const region = statement.getRegion(offset);
+			const position = {
+				line,
+				character: offset
+			};
 			
 			switch (region)
 			{
 				case StatementRegion.void:
-					return new ProgramInspectionResult(null, statement);
+					return new ProgramInspectionResult(position, region, null, statement);
 				
 				// Return all the types in the declaration side of the parent.
 				case StatementRegion.whitespace:
 				{
 					const parent = document.getParentFromPosition(line, offset);
 					if (parent instanceof Document)
-						return new ProgramInspectionResult(parent, statement);
+						return new ProgramInspectionResult(position, region, parent, statement);
 					
 					const types = parent.declarations
 						.map(decl => decl.factor())
 						.reduce((spines, s) => spines.concat(s), [])
 						.map(spine => Type.construct(spine, this));
 					
-					return new ProgramInspectionResult(types, statement, null);
+					return new ProgramInspectionResult(position, region, types, statement, null);
 				}
 				//
 				case StatementRegion.pattern:
@@ -416,7 +420,7 @@ namespace Truth
 					// but rather a fully constructed IPattern object. This
 					// code is only here as a shim.
 					const patternTypes: Type[] = [];
-					return new ProgramInspectionResult(patternTypes, statement);
+					return new ProgramInspectionResult(position, region, patternTypes, statement);
 				}
 				// Return all the types related to the specified declaration.
 				case StatementRegion.declaration:
@@ -429,7 +433,7 @@ namespace Truth
 						.factor()
 						.map(spine => Type.construct(spine, this));
 					
-					return new ProgramInspectionResult(types, statement, decl);
+					return new ProgramInspectionResult(position, region, types, statement, decl);
 				}
 				// 
 				case StatementRegion.annotation:
@@ -441,14 +445,21 @@ namespace Truth
 					const spine = statement.declarations[0].factor()[0];
 					const type = Type.construct(spine, this);
 					const annoText = anno.boundary.subject.toString();
-					const base = type.bases.find(b => b.name === annoText);
-					const bases = base ? [base] : null;
+					const base = type.bases.filter(b => b.name === annoText);
+					base.push(type);
 					
-					return new ProgramInspectionResult(bases, statement, anno);
+					return new ProgramInspectionResult(position, region, base, statement, anno);
+				}
+				case StatementRegion.annotationVoid:
+				{
+					const anno = statement.getAnnotation(offset);
+					const spine = statement.declarations[0].factor()[0];
+					const type = Type.construct(spine, this);
+					return new ProgramInspectionResult(position, region, [type], statement, anno);
 				}
 			}
 			
-			return new ProgramInspectionResult(null, statement, null);
+			return new ProgramInspectionResult(position, region, null, statement, null);
 		}
 		
 		/**
@@ -564,6 +575,12 @@ namespace Truth
 	 */
 	export type AttachmentScope = Program | Document | Type;
 	
+	export interface Position 
+	{
+		line: number;
+		character: number;
+	}
+	
 	/**
 	 * Stores the details about a precise location in a Document.
 	 */
@@ -571,6 +588,14 @@ namespace Truth
 	{
 		/** @internal */
 		constructor(
+			/**
+			 * Specified location.
+			 */
+			readonly position: Position,
+			/**
+			 * Stores the Region of statement found at the specified location.
+			 */
+			readonly region: StatementRegion,
 			/**
 			 * Stores the compilation object that most closely represents
 			 * what was found at the specified location. Stores null in the
