@@ -240,7 +240,6 @@ namespace Backer.TruthTalk
 		/** */
 		export class Sort extends Leaf
 		{
-			
 			constructor(
 				...contentTypes: Object[])
 			{
