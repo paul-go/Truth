@@ -106,7 +106,7 @@ namespace Backer.TruthTalk
 		
 		/** */
 		removeChild(child: Node): Node | null;
-		removeChild(childIdx: number) : Node| null;
+		removeChild(childIdx: number) : Node | null;
 		removeChild(param: Node | number)
 		{
 			const childIdx = param instanceof Node ?

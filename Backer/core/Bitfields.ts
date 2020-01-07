@@ -6,7 +6,10 @@ namespace Backer
 	 */
 	export class Bitfields
 	{
-		constructor(public flags = 0) {}
+		constructor(private flags = 0)
+		{
+			
+		}
 		
 		/**
 		 * Returns approx. size based on last set bit.
