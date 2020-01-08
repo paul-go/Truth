@@ -1,87 +1,11 @@
 
 namespace Reflex.ML
 {
-	typeof window === "object" && setTimeout(() =>
-	{
-		///testBodyAttach();
-		
-		const functions: (() => HTMLElement | HTMLElement[])[] = [
-			coverNesting,
-			
-			// Later
-			
-			coverAttributes,
-			coverClosures,
-			coverComplexClosures,
-			coverManyLevels,
-			coverOnce,
-			coverMultipleSelectors,
-			coverCustomEvents,
-			coverInterpolation,
-			///testOnly,
-			coverStatelessForces,
-			coverElementChildren,
-			coverBasicValueStreaming,
-			coverImmediateValueStreaming,
-			coverImmediateValueStreamingOnForce,
-			coverChangingContentsOnForce,
-			coverPromises,
-			coverTransitions,
-			coverIterators,
-			coverAsyncIteratorsSimple,
-			coverAsyncIteratorsComplex,
-			coverRefreshMultipleForces,
-			coverArrayForces,
-			coverStatefulForces,
-			coverValueBinding,
-			coverSymbolicAtomTypes,
-			coverForceReturners,
-			coverForceWatchers
-			
-			// These don't need to be uncommented for now
-			// Mutations are probably going to get axed
-			
-			///testMutationWatcher,
-			///testHeadElements,
-			///testScrolling
-		];
-		
-		///functions.length = 0;
-		///functions.push(testArrayForces);
-		
-		if (false)
-		{
-			for (const fn of functions)
-			{
-				const result = fn();
-				const elements = Array.isArray(result) ? result : [result];
-				
-				//document.body.append(
-				//	ml.br(),
-				//	ml.h1(ml(fn.name + ":")),
-				//	...elements
-				//);
-			}
-		}
-	});
-	
-	/** */
-	function makeNumber()
-	{
-		return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
-	}
-	
-	/** */
-	function makeString()
-	{
-		return makeNumber().toString(36);
-	}
-	
 	function coverNesting()
 	{
 		let val = false;
 		
-		return ml.div(
+		render(ml.div(
 			ml.h1(ml`Before Everything`),
 			
 			once("dblclick", () =>
@@ -99,7 +23,11 @@ namespace Reflex.ML
 			}),
 			
 			ml.h6(ml`After Everything`)
-		);
+		));
+		
+		return [
+			() => true
+		];
 	}
 	
 	function coverAttributes()
@@ -117,6 +45,8 @@ namespace Reflex.ML
 	/** */
 	function coverClosures()
 	{
+		alert("Hello");
+		
 		return [
 			ml.div(
 				ml`Before`,
@@ -183,7 +113,11 @@ namespace Reflex.ML
 			
 			on(["mouseup", "mousedown"], () =>
 			{
-				return ml((++value).toString());
+				alert("Asdf");
+				debugger;
+				
+				//return ml((++value).toString());
+				return "";
 			}).run()
 		);
 	}
