@@ -12,7 +12,7 @@ namespace Truth
 		/** */
 		constructor(raw: string)
 		{
-			this.isRetract = raw === "..";
+			this.isRetractor = raw === "..";
 			this.isCurrent = raw === ".";
 			this.hash = this.tryExtractHash(raw);
 			
@@ -20,7 +20,7 @@ namespace Truth
 				if (raw[0] === UriSyntax.indexerStart)
 					if (raw[raw.length - 1] === UriSyntax.indexerEnd)
 						if (/\d+/.test(raw.slice(1, -1)))
-							this.index = +raw.slice(1, -1);
+							this.index = Number(raw.slice(1, -1));
 			
 			this.value = this.index >= 0 ?
 				this.index.toString() :
@@ -55,7 +55,7 @@ namespace Truth
 		get isPattern() { return this.hash !== ""; }
 		
 		/** Stores whether this component is the retraction indicator (..) */
-		readonly isRetract: boolean;
+		readonly isRetractor: boolean;
 		
 		/** Stores whether this component is the current indicator (.) */
 		readonly isCurrent: boolean;

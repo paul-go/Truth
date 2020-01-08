@@ -7,31 +7,6 @@ namespace Truth
 	export class Uri
 	{
 		/**
-		 * Constructs a new Uri instance that points to a (possibly nested)
-		 * type defined in the specified document.
-		 */
-		static from(document: Document, ...types: string[])
-		{
-			return document.sourceUri.extendType(types);
-		}
-		
-		/**
-		 * Attempts to parse the specified string or Uri into
-		 * another Uri instance. If the parameter is already
-		 * a Uri, it is returned without further processing.
-		 */
-		static maybeParse(value: string | Uri): Uri | null
-		{
-			if (value instanceof Uri)
-				return value;
-			
-			if (!value)
-				return null;
-			
-			return this.tryParse(value);
-		}
-		
-		/**
 		 * Attempts to parse the specified string into a Uri instance.
 		 * Returns null in the case when the Uri could not be parsed.
 		 */

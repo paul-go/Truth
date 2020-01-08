@@ -340,7 +340,7 @@ namespace Truth
 		 * could be found.
 		 */
 		query(uri: string, ...typePath: string[]): Type | null;
-		query(root: Document | Uri | string, ...typePath: string[]): 
+		query(root: Document | Uri | string, ...typePath: string[]):
 			readonly Type[] | Type | null
 		{
 			if (arguments.length > 1 && typePath.length === 0)
@@ -355,7 +355,7 @@ namespace Truth
 				return Type.construct(uri, this);
 			}
 			
-			const docUri = Uri.maybeParse(root);
+			const docUri = root instanceof Uri ? root : Uri.tryParse(root);
 			if (docUri === null)
 				throw Exception.absoluteUriExpected();
 			
