@@ -60,11 +60,8 @@ namespace Truth
 		 */
 		read(document: Document, name: string): Node | null
 		{
-			const uriText = document.sourceUri
-				.extendType(name)
-				.toString();
-			
-			return this.nodeIndex.getNodeByUri(uriText) || null;
+			const uri = document.sourceUri.extendType(name);
+			return this.nodeIndex.getNodeByUri(uri);
 		}
 		
 		/**
@@ -193,7 +190,7 @@ namespace Truth
 			// (3) A unique Span object that corresponds to a unqiue
 			// occurence of a subject in the document.
 			interface IBreadthFirstEntry { uri: Uri; declaration: Span | InfixSpan }
-			const breadthFirstOrganizer: Array<MultiMap<string, IBreadthFirstEntry>> = [];
+			const breadthFirstOrganizer: MultiMap<string, IBreadthFirstEntry>[] = [];
 			
 			for (const { level, statement } of iterator)
 			{
@@ -402,9 +399,7 @@ namespace Truth
 			for (const affectedNode of affectedNodes)
 			{
 				affectedNode.sortOutbounds();
-				
-				const affectedUri = affectedNode.uri.toString();
-				const cachedNode = this.nodeIndex.getNodeByUri(affectedUri);
+				const cachedNode = this.nodeIndex.getNodeByUri(affectedNode.uri);
 				
 				if (cachedNode)
 				{
@@ -415,6 +410,7 @@ namespace Truth
 				}
 				else
 				{
+					const affectedUri = affectedNode.uri.toString();
 					this.nodeIndex.set(affectedUri, affectedNode);
 				}
 				

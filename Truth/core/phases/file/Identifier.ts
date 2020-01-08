@@ -78,8 +78,7 @@ namespace Truth
 			return val + (this.isList ? Syntax.list : "");
 		}
 	}
-
-
+	
 	/**
 	 * An enumeration that describes the various ways
 	 * to handle escaping when serializing an identifier.

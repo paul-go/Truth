@@ -105,10 +105,9 @@ namespace Truth
 		}
 		
 		/** */
-		getNodeByUri(uri: Uri | string)
+		getNodeByUri(uri: Uri)
 		{
-			const uriText = typeof uri === "string" ? uri : uri.toString();
-			return this.uriToNodeMap.get(uriText);
+			return this.uriToNodeMap.get(uri.toString()) || null;
 		}
 		
 		/**

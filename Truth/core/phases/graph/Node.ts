@@ -672,21 +672,6 @@ namespace Truth
 		}
 		
 		/**
-		 * 
-		 */
-		private enumerateOutbounds()
-		{
-			///const recurse = (node: Node) =>
-			///{
-			///	for (const edge of node.outbounds)
-			///		for (const successor of edge.successors)
-			///			//yield { node: 
-			///}
-			///
-			///yield *recurse(this);
-		}
-		
-		/**
 		 * Enumerates upwards through the containment
 		 * hierarchy of the Nodes present in this Node's
 		 * containing document, yielding the adjacents at

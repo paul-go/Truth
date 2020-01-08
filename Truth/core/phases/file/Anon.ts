@@ -28,6 +28,6 @@ namespace Truth
 			return `__ANON${this.id}__`;
 		}
 	}
-
+	
 	let nextId = 0;
 }

@@ -58,8 +58,7 @@ namespace Truth
 		/** */
 		private readonly entries: readonly Boundary<TSubject>[];
 	}
-
-
+	
 	/** */
 	export class Boundary<TSubject>
 	{
