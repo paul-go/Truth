@@ -191,8 +191,8 @@ namespace Truth
 					if (infixSpan.boundary.subject.isList)
 						yield new Fault(Faults.InfixUsingListOperator, infixSpan);
 				
-				yield *dedupInfixSubjects(lhs);
-				yield *dedupInfixSubjects(rhs);
+				yield *normalizeInfixSpans(lhs);
+				yield *normalizeInfixSpans(rhs);
 				
 				const lhsSubjects = lhs.map(nfxSpan => 
 					nfxSpan.boundary.subject.toString());
@@ -209,7 +209,7 @@ namespace Truth
 				yield *expedientListCheck(rhs);
 			}
 			
-			for (const infixSpan of dedupInfixesAcrossInfixes(
+			for (const infixSpan of eachRepeatedInfix(
 				patternSpan,
 				infix => patternSpan.eachDeclarationForInfix(infix)))
 			{
@@ -219,7 +219,7 @@ namespace Truth
 						infixSpan);
 			}
 			
-			for (const infixSpan of dedupInfixesAcrossInfixes(
+			for (const infixSpan of eachRepeatedInfix(
 				patternSpan,
 				infix => patternSpan.eachAnnotationForInfix(infix)))
 			{
@@ -640,35 +640,38 @@ namespace Truth
 	
 	/**
 	 * Yields faults on infix spans in the case when a term
-	 * has been re-declared multiple times within the same infix.
+	 * exists multiple times within the same infix.
 	 */
-	function *dedupInfixSubjects(side: InfixSpan[])
+	function *normalizeInfixSpans(side: InfixSpan[])
 	{
 		if (side.length === 0)
 			return;
 		
-		const subjects: string[] = [];
+		const subjects = new Set<Subject>();
 		
 		for (const nfxSpan of side)
 		{
-			const subText = nfxSpan.boundary.subject.toString();
-			if (subjects.includes(subText))
-			{
+			const sub = nfxSpan.boundary.subject;
+			if (subjects.has(sub))
 				yield new Fault(Faults.InfixHasDuplicateTerm, nfxSpan);
-			}
-			else subjects.push(subText);
+			
+			else
+				subjects.add(sub);
 		}
 	}
 	
 	/**
 	 * Yields faults on infix spans in the case when a term
 	 * has been re-declared multiple times across the infixes.
+	 * 
+	 * Yields infixes that have terms that exist multiple times
+	 * within the same statement.
 	 */
-	function *dedupInfixesAcrossInfixes(
+	function *eachRepeatedInfix(
 		span: Span,
 		infixFn: (nfx: Infix) => IterableIterator<InfixSpan>)
 	{
-		const terms: string[] = [];
+		const subjects = new Set<Subject>();
 			
 		for (const infix of span.infixes)
 		{
@@ -676,12 +679,13 @@ namespace Truth
 			
 			for (const infixSpan of infixSpans)
 			{
-				const text = infixSpan.boundary.subject.toString();
-				if (terms.includes(text))
-				{
+				const sub = infixSpan.boundary.subject;
+				
+				if (subjects.has(sub))
 					yield infixSpan;
-				}
-				else terms.push(text);
+				
+				else
+					subjects.add(sub);
 			}
 		}
 	}
