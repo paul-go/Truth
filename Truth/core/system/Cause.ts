@@ -160,31 +160,6 @@ namespace Truth
 		constructor(readonly document: Document) { super(); }
 	}
 	
-	/** */
-	export abstract class CauseUriReference extends Cause
-	{
-		constructor(
-			/**
-			 * A reference to the Statement instance that references
-			 * this URI, or null in the case when the program itself
-			 * references the URI by another means.
-			 */
-			readonly statement: Statement | null,
-			readonly uri: KnownUri)
-		{ super(); }
-	}
-	
-	/**
-	 * A hook that runs when a URI reference is added to a document, 
-	 * but before it resolves to a resource.
-	 */
-	export class CauseUriReferenceAdd extends CauseUriReference { }
-	
-	/**
-	 * A hook that runs when a URI reference is removed from a document.
-	 */
-	export class CauseUriReferenceRemove extends CauseUriReference { }
-	
 	/**
 	 * A hook that runs when the set of faults that are detected
 	 * within the document have changed.
