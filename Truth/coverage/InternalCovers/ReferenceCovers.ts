@@ -52,6 +52,27 @@ namespace Truth
 		];
 	}
 	
+	async function coverTypeReferencesBetwenFiles()
+	{
+		const [doc1, doc2] = await createLanguageCover(`
+			A
+			B : A
+		`, `
+			./1.truth
+			C : B
+			D
+		`);
+		
+		const [tA] = typesOf(doc1, "A");
+		const [tC] = typesOf(doc2, "C");
+		
+		return [
+			() => !doc1.hasFaults(),
+			() => !doc2.hasFaults(),
+			() => tC.is(tA)
+		];
+	}
+	
 	async function coverBasicUnlinking()
 	{
 		const [doc1, doc2] = await createLanguageCover(
