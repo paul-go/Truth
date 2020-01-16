@@ -15,38 +15,14 @@ namespace Truth
 		 * @internal
 		 * Internal constructor for Document objects.
 		 * Document objects are created via a Program object.
-		 * 
-		 * @param source 
 		 */
 		static async new(
 			program: Program,
-			source: Uri | string,
+			fromUri: KnownUri,
+			sourceText: string,
 			saveFn: (doc: Document) => void): Promise<Document | Error>
 		{
-			const sourceUri = source instanceof Uri ?
-				source :
-				Uri.createInternal();
-			
-			let sourceText = await (async () =>
-			{
-				if (typeof source === "string")
-					return source;
-				
-				const uriAbsolute = source.toAbsolute();
-				if (!uriAbsolute)
-					throw Exception.unknownState();
-				
-				const readResult = await UriReader.tryRead(uriAbsolute);
-				if (readResult instanceof Error)
-					return readResult;
-				
-				return readResult;
-			})();
-			
-			if (sourceText instanceof Error)
-				return sourceText;
-			
-			const doc = new Document(program, sourceUri);
+			const doc = new Document(program, fromUri);
 			const uriStatements: UriStatement[] = [];
 			
 			const topLevelStatements: Statement[] = [];
@@ -54,7 +30,7 @@ namespace Truth
 			let maxIndent = Number.MAX_SAFE_INTEGER;
 			let lineNumber = 0;
 			
-			for (const statementText of DocumentUtil.readLines(sourceText))
+			for (const statementText of this.readLines(sourceText))
 			{
 				const smt = new Statement(doc, statementText)
 				doc.statements.push(smt);
@@ -89,27 +65,55 @@ namespace Truth
 			return doc;
 		}
 		
+		/**
+		 * Generator function that yields all statements (unparsed lines)
+		 * of the given source text. 
+		 */
+		private static *readLines(source: string)
+		{
+			let cursor = -1;
+			let statementStart = 0;
+			const char = () => source[cursor];
+			
+			for (;;)
+			{
+				if (cursor >= source.length - 1)
+					return yield source.slice(statementStart);
+				
+				cursor++;
+				
+				if (char() === Syntax.terminal)
+				{
+					yield source.slice(statementStart, cursor);
+					statementStart = cursor + 1;
+				}
+			}
+		}
+		
 		/** */
-		private constructor(program: Program, sourceUri: Uri)
+		private constructor(program: Program, sourceUri: KnownUri)
 		{
 			super();
-			
-			if (sourceUri.types.length)
-				throw Exception.invalidArgument();
-			
 			this.program = program;
-			this._sourceUri = sourceUri;
+			this.phrase = Phrase.new(sourceUri);
 		}
 		
 		/** @internal */
 		readonly class = Class.document;
 		
-		/** Stores the URI from where this document was loaded. */
-		get sourceUri()
+		/**
+		 * @internal
+		 * Stores the root phrase associated with this document (with an empty terms array).
+		 */
+		readonly phrase: Phrase;
+		
+		/**
+		 * Stores the URI from where this document was loaded.
+		 */
+		get uri()
 		{
-			return this._sourceUri;
+			return this.phrase.containingUri;
 		}
-		private _sourceUri: Uri;
 		
 		/**
 		 * Updates this Document's sourceUri with the new URI specified.
@@ -120,13 +124,13 @@ namespace Truth
 		 * @throws An error in the case when a document has been loaded
 		 * into the Program that is already associated with the URI specified.
 		 */
-		updateUri(newUri: Uri)
+		updateUri(newUri: KnownUri)
 		{
 			const existing = this.program.getDocumentByUri(newUri);
 			if (existing)
 				throw Exception.cannotAssignUri();
 			
-			this._sourceUri = newUri;
+			debugger;
 		}
 		
 		/**
@@ -178,6 +182,92 @@ namespace Truth
 		private _types: readonly Type[] | null = null;
 		
 		/**
+		 * @returns A boolean value that indicates whether this document has a
+		 * statement-level fault matching the fault type specified, on the specified line.
+		 */
+		hasFault(
+			faultType: StatementFaultType,
+			line: number): boolean;
+		/**
+		 * @returns A boolean value that indicates whether this document has a
+		 * term-level fault matching the fault type specified, on the specified line,
+		 * and at the specified term index.
+		 */
+		hasFault(
+			faultType: SpanFaultType,
+			line: number,
+			termIndex: number): boolean;
+		
+		hasFault(faultType: Readonly<FaultType>, line: number, termIndex = -1)
+		{
+			const comp = termIndex < 0 ?
+				[faultType, line] :
+				[faultType, line, termIndex];
+			
+			const compFault = this.createComparisonFault(comp as TComparisonFault);
+			
+			for (const fault of this.program.faults.each(this))
+				if (this.program.faults.compareFaults(compFault, fault) === 0)
+					return true;
+			
+			return false;
+		}
+		
+		/**
+		 * @returns A boolean value that indicates whether the document
+		 * has at least one fault.
+		 */
+		hasFaults(): boolean;
+		/**
+		 * @returns A boolean value that indicates whether the document
+		 * has exactly the faults specified (no more, no less).
+		 */
+		hasFaults(...expectations: TComparisonFault[]): boolean
+		hasFaults(...expectations: TComparisonFault[])
+		{
+			const faultsReported = Array.from(this.program.faults.each(this));
+			
+			if (expectations.length === 0)
+				return faultsReported.length > 0;
+			
+			if (expectations.length !== faultsReported.length)
+				return false;
+			
+			const faultsExpected = expectations
+				.map(exp => this.createComparisonFault(exp))
+				.sort(this.program.faults.compareFaults);
+			
+			for (let i = -1; ++i < faultsReported.length;)
+			{
+				const rep = faultsReported[i];
+				const exp = faultsExpected[i];
+				
+				if (this.program.faults.compareFaults(rep, exp) !== 0)
+					return false;
+			}
+			
+			return true;
+		}
+		
+		/** */
+		private createComparisonFault(comp: TComparisonFault)
+		{
+			const smt = this.read(comp[1]);
+			
+			if (comp.length === 2)
+				return new Fault(comp[0], smt);
+			
+			const nfxLen = smt.infixSpans.length;
+			const idx = comp[2];
+			const span = 
+				nfxLen > 0 && idx === 0 ? smt.spans[0] :
+				nfxLen > 0 && idx < nfxLen + 1 ? smt.infixSpans[idx - 1] :
+				smt.spans[idx - nfxLen];
+			
+			return new Fault(comp[0], span);
+		}
+		
+		/**
 		 * @returns An array of Statement objects that represent
 		 * ancestry of the specified statement. If the specified
 		 * statement is not in this document, the returned value
@@ -191,18 +281,18 @@ namespace Truth
 			if (smt.indent === 0)
 				return [];
 			
-			const startingIndex = this.toLineNumber(statement);
+			let idx = this.getIndex(statement);
 			
-			if (startingIndex < 0)
+			if (idx < 0)
 				return null;
 			
-			if (startingIndex === 0)
+			if (idx === 0)
 				return [];
 			
 			const ancestry = [smt];
 			let indentToBeat = smt.indent;
 			
-			for (let idx = startingIndex; --idx > -1;)
+			do
 			{
 				const currentStatement = this.statements[idx];
 				if (currentStatement.isNoop)
@@ -217,16 +307,19 @@ namespace Truth
 				if (currentStatement.indent === 0)
 					break;
 			}
+			while (idx-- > 0);
 			
 			return ancestry.slice(0, -1);
 		}
 		
 		/**
-		 * @returns The parent Statement object of the specified
-		 * Statement. If the statement is top level, a reference to
-		 * this document object is returned. If the statement is
-		 * not found in the document, or the specified statement
-		 * is a no-op, the returned value is null.
+		 * Gets the parent Statement object of the specified Statement. 
+		 * If the statement is top level, a reference to this document object
+		 * is returned. If the statement is not found in the document, or the
+		 * specified statement is a no-op, the returned value is null.
+		 * 
+		 * @param statement A statement object, or a 1-based line number
+		 * of a statement within this document.
 		 */
 		getParent(statement: Statement | number)
 		{
@@ -239,25 +332,26 @@ namespace Truth
 			if (smt.indent === 0)
 				return this;
 			
-			const startingIndex = this.toLineNumber(statement);
+			let idx = this.getIndex(statement);
 			
-			if (startingIndex < 0)
+			if (idx < 0)
 				return null;
 			
-			if (startingIndex === 0)
+			if (idx === 0)
 				return this;
 			
-			const currentIndent = smt.indent;
+			const indentToBeat = smt.indent;
 			
-			for (let idx = startingIndex; --idx > -1;)
+			do
 			{
 				const currentStatement = this.statements[idx];
 				if (currentStatement.isNoop)
 					continue;
 				
-				if (currentStatement.indent < currentIndent)
+				if (currentStatement.indent < indentToBeat)
 					return currentStatement;
 			}
+			while (idx-- > 0);
 			
 			// If a parent statement wasn't found, then the
 			// input statement is top-level, and a reference
@@ -266,23 +360,22 @@ namespace Truth
 		}
 		
 		/**
-		 * @returns The Statement that would act as the parent 
-		 * if a statement where to be inserted at the specified
-		 * virtual position in the document. If an inserted
-		 * statement would be top-level, a reference to this 
-		 * document object is returned.
+		 * @returns The Statement that would act as the parent  if a statement where to be
+		 * inserted at the specified virtual position in the document. If an inserted statement
+		 * would be top-level, a reference to this document object is returned.
 		 */
-		getParentFromPosition(virtualLine: number, virtualOffset: number): Statement | this
+		getParentFromPosition(lineNumber: number, lineOffset: number): Statement | this
 		{
-			if (virtualLine === 0 || virtualOffset < 1 || this.statements.length === 0)
+			if (lineNumber === 1 || 
+				lineNumber === 0 ||
+				lineOffset < 1 || 
+				this.statements.length === 0)
 				return this;
 			
-			const line = DocumentUtil.applyBounds(virtualLine, this.statements.length);
-			
-			for (let idx = line; idx--;)
+			for (let idx = this.getIndex(lineNumber) + 1; idx--;)
 			{
 				const currentStatement = this.statements[idx];
-				if (!currentStatement.isNoop && currentStatement.indent < virtualOffset)
+				if (!currentStatement.isNoop && currentStatement.indent < lineOffset)
 					return currentStatement;
 			}
 			
@@ -290,10 +383,10 @@ namespace Truth
 		}
 		
 		/**
-		 * @returns The sibling Statement objects of the 
-		 * specified Statement. If the specified statement
-		 * is not found in the document, or is a no-op, the
-		 * returned value is null.
+		 * @returns The sibling Statement objects of the  specified Statement. 
+		 * If the specified statement is a no-op, the returned value is null.
+		 * @throws An error in the case when the statement is not found in 
+		 * the document.
 		 */
 		getSiblings(statement: Statement | number)
 		{
@@ -303,61 +396,66 @@ namespace Truth
 				return null;
 			
 			if (smt.indent === 0)
-				return this.getChildren(null);
+				return this.getChildren();
 			
 			const parent = this.getParent(smt);
 			
 			if (parent === null)
-				return null;
+				return this.getChildren();
 			
 			if (parent === this)
-				return parent.getChildren(null);
+				return parent.getChildren();
 			
 			return this.getChildren(parent as Statement);
 		}
 		
 		/**
 		 * @returns The child Statement objects of the specified
-		 * Statement. If the argument is null or omitted, the document's
-		 * top-level statements are returned. If the specified statement 
-		 * is not found in the document, the returned value is null.
+		 * Statement. If the argument is null or omitted, the
+		 * document's top-level statements are returned. 
+		 * 
+		 * @throws An error in the case when the specified
+		 * statement is not found in the document. 
 		 */
-		getChildren(statement: Statement | null = null)
+		getChildren(statement?: Statement)
 		{
 			const children: Statement[] = [];
 			
+			let idx = statement ?
+				this.statements.indexOf(statement) :
+				0;
+			
+			if (idx < 0)
+				throw Exception.statementNotInDocument();
+			
 			// Stores the indent value that causes the loop
 			// to terminate when reached.
-			const breakIndent = statement ? statement.indent : -1;
-			let childIndent = Number.MAX_SAFE_INTEGER;
+			const minIndent = statement?.indent || 0;
+			let maxIndent = Number.MAX_SAFE_INTEGER;
 			
-			const startIdx = statement ? 
-				this.getLineNumber(statement) :
-				-1;
-				
-			if (startIdx >= this.statements.length)
-				return [];
+			// Start the iteration 1 position after the statement
+			// specified, so that we're always passing through
+			// potential children.
 			
-			for (let idx = startIdx; ++idx < this.statements.length;)
+			while (++idx < this.statements.length)
 			{
-				const currentStatement = this.statements[idx];
+				const smt = this.statements[idx];
 				
-				if (currentStatement.isNoop)
+				if (smt.isNoop)
 					continue;
 				
-				// Check if we need to back up the indentation
-				// of child statements, in order to deal with bizarre
-				// (but unfortunately, valid) indentation.
-				if (currentStatement.indent < childIndent)
-					childIndent = currentStatement.indent;
+				// Check if we need to back up the indentation of child statements, 
+				// in order to deal with bizarre (but valid) indentation.
+				if (smt.indent < maxIndent)
+					maxIndent = smt.indent;
 				
 				// If we've reached the end of a series of a
 				// statement locality.
-				if (currentStatement.indent <= breakIndent)
+				if (smt.indent <= minIndent)
 					break;
 				
-				if (currentStatement.indent <= childIndent)
-					children.push(currentStatement);
+				if (smt.indent <= maxIndent)
+					children.push(smt);
 			}
 			
 			return children;
@@ -388,7 +486,7 @@ namespace Truth
 					return false;
 				
 				let idx = statement instanceof Statement ?
-					this.getLineNumber(statement) :
+					this.statements.indexOf(statement) :
 					statement;
 				
 				while (++idx < this.statements.length)
@@ -405,14 +503,49 @@ namespace Truth
 		}
 		
 		/**
-		 * @returns The index of the specified statement in
-		 * the document, relying on caching when available.
-		 * If the statement does not exist in the document,
-		 * the returned value is -1.
+		 * @returns The 1-based line number of the specified statement in
+		 * the document, relying on caching when available. If the statement
+		 * does not exist in the document, the returned value is -1.
 		 */
 		getLineNumber(statement: Statement)
 		{
-			return this.statements.indexOf(statement);
+			const idx = this.statements.indexOf(statement);
+			return idx < 0 ? -1 : idx + 1;
+		}
+		
+		/**
+		 * Returns the 0-based index of the specified statement in this
+		 * document's array of statements.
+		 */
+		private getIndex(statement: Statement | number): number;
+		/**
+		 * Returns a 0-based index that corresponds to the specified line
+		 * number. 
+		 * 
+		 * The number returned is upper-bounded by the length of
+		 * the document, and lower-bounded by 1.
+		 * 
+		 * Negative line numbers refer to positions starting from the
+		 * last statement in the document.
+		 */
+		private getIndex(lineNumber: Statement | number): number;
+		private getIndex(param: Statement | number)
+		{
+			if (param instanceof Statement)
+				return this.statements.indexOf(param);
+			
+			const len = this.statements.length;
+			
+			if (len === 0 || param === 0)
+				return 0;
+			
+			if (param > 0)
+				return Math.min(param, len) - 1;
+			
+			if (param < 0)
+				return Math.max(len - param, 1);
+			
+			throw Exception.unknownState();
 		}
 		
 		/** 
@@ -473,7 +606,7 @@ namespace Truth
 		 * must be non-null.
 		 */
 		*eachDescendant(
-			initialStatement: Statement | null = null, 
+			initialStatement: Statement | undefined = undefined, 
 			includeInitial?: boolean)
 		{
 			if (includeInitial)
@@ -485,6 +618,9 @@ namespace Truth
 			}
 			
 			const initialChildren = this.getChildren(initialStatement);
+			if (!initialChildren)
+				return;
+			
 			const self = this;
 			
 			// The initial level is 0 if the specified initialStatement is
@@ -501,7 +637,7 @@ namespace Truth
 				
 				level++;
 				
-				for (const childStatement of self.getChildren(statement))
+				for (const childStatement of self.getChildren(statement) || [])
 					yield *recurse(childStatement);
 				
 				level--;
@@ -509,52 +645,6 @@ namespace Truth
 			
 			for (const statement of initialChildren)
 				yield *recurse(statement);
-		}
-		
-		/**
-		 * @deprecated
-		 * Enumerates through each unique URI defined in this document,
-		 * that are referenced within the descendants of the specified
-		 * statement. If the parameters are null or omitted, all unique
-		 * URIs referenced in this document are yielded.
-		 * 
-		 * @param initialStatement A reference to the statement object
-		 * from where the enumeration should begin.
-		 * 
-		 * @param includeInitial A boolean value indicating whether or
-		 * not the specified initialStatement should also be returned
-		 * as an element in the enumeration. If true, initialStatement
-		 * must be non-null.
-		 */
-		*eachUri(
-			initialStatement: Statement | null = null,
-			includeInitial?: boolean)
-		{
-			//
-			// NOTE: Although this method is deprecated, if it were
-			// to be revived, it would need to support "cruft".
-			//
-			
-			const yieldedUris = new Set<string>();
-			const iter = this.eachDescendant(initialStatement, includeInitial);
-			
-			for (const descendant of iter)
-			{
-				for (const span of descendant.statement.declarations)
-				{
-					for (const spine of span.factor())
-					{
-						const uri = Uri.clone(spine);
-						const uriText = uri.toString();
-						
-						if (!yieldedUris.has(uriText))
-						{
-							yieldedUris.add(uriText);
-							yield { uri, uriText };
-						}
-					}
-				}
-			}
 		}
 		
 		/**
@@ -567,29 +657,29 @@ namespace Truth
 		 */
 		*eachStatement(statement?: Statement | number)
 		{
-			const startNum = (() =>
+			const startIdx = (() =>
 			{
 				if (!statement)
 					return 0;
 				
 				if (statement instanceof Statement)
-					return this.getLineNumber(statement);
+					return this.statements.indexOf(statement);
 				
 				return statement;
 			})();
 			
-			for (let i = startNum - 1; ++i < this.statements.length;)
+			for (let i = startIdx; i < this.statements.length; i++)
 				yield this.statements[i];
 		}
 		
 		/**
-		 * Reads the Statement at the given position.
+		 * Reads the Statement at the given 1-based line number.
 		 * Negative numbers read Statement starting from the end of the document.
 		 */
 		read(lineNumber: number)
 		{
-			const lineBounded = DocumentUtil.applyBounds(lineNumber, this.statements.length);
-			return this.statements[lineBounded];
+			const idx = this.getIndex(lineNumber);
+			return this.statements[idx];
 		}
 		
 		/**
@@ -601,18 +691,6 @@ namespace Truth
 			return statementOrIndex instanceof Statement ? 
 				statementOrIndex :
 				this.read(statementOrIndex);
-		}
-		
-		/**
-		 * Convenience method to quickly turn a value that may be
-		 * a statement or a statement index, into a bounded statement 
-		 * index.
-		 */
-		private toLineNumber(statementOrIndex: Statement | number)
-		{
-			return statementOrIndex instanceof Statement ?
-				this.getLineNumber(statementOrIndex) :
-				DocumentUtil.applyBounds(statementOrIndex, this.statements.length);
 		}
 		
 		/** 
@@ -657,8 +735,7 @@ namespace Truth
 				},
 				update: (text: string, at = -1) =>
 				{
-					const boundAt = DocumentUtil.applyBounds(at, this.statements.length);
-					if (this.read(boundAt).sourceText !== text)
+					if (this.read(at).sourceText !== text)
 					{
 						calls.push(new UpdateCall(new Statement(this, text), at));
 						hasUpdate = true;
@@ -687,14 +764,13 @@ namespace Truth
 					hasInsert && hasDelete ||
 					hasUpdate && hasDelete;
 				
-				const boundAt = (call: TCallType) =>
-					DocumentUtil.applyBounds(call.at, this.statements.length);
-				
+				const toIdx = (call: TCallType) =>
+					this.getIndex(call.at);
 				
 				const doDelete = (call: DeleteCall) =>
 				{
-					const at = boundAt(call);
-					const smts = this.statements.splice(at, call.count);
+					const idx = toIdx(call);
+					const smts = this.statements.splice(idx, call.count);
 					
 					for (const smt of smts)
 					{
@@ -715,8 +791,8 @@ namespace Truth
 					}
 					else
 					{
-						const at = boundAt(call);
-						this.statements.splice(at, 0, call.smt);
+						const idx = toIdx(call);
+						this.statements.splice(idx, 0, call.smt);
 					}
 					
 					if (call.smt.uri)
@@ -725,12 +801,12 @@ namespace Truth
 				
 				const doUpdate = (call: UpdateCall) =>
 				{
-					const at = boundAt(call);
-					const existing = this.statements[at];
+					const idx = toIdx(call);
+					const existing = this.statements[idx];
 					if (existing.uri)
 						deletedUriSmts.push(existing as UriStatement);
 					
-					this.statements[at] = call.smt;
+					this.statements[idx] = call.smt;
 					if (call.smt.uri)
 						addedUriSmts.push(call.smt as UriStatement);
 					
@@ -884,15 +960,15 @@ namespace Truth
 				// In the majority of cases, this will only be one single statement object.
 				for (const call of calls)
 				{
-					const atBounded = DocumentUtil.applyBounds(call.at, this.statements.length);
+					const idx = this.getIndex(call.at);
 					
 					if (call instanceof DeleteCall)
 					{
-						const deletedStatement = this.statements[atBounded];
+						const deletedStatement = this.statements[idx];
 						if (deletedStatement.isNoop)
 							continue;
 						
-						const parent = this.getParent(atBounded);
+						const parent = this.getParent(idx);
 						
 						if (parent instanceof Statement)
 						{
@@ -914,7 +990,7 @@ namespace Truth
 						}
 						else if (call instanceof UpdateCall)
 						{
-							const oldStatement = this.statements[atBounded];
+							const oldStatement = this.statements[idx];
 							
 							if (oldStatement.isNoop && call.smt.isNoop)
 								continue;
@@ -1105,7 +1181,6 @@ namespace Truth
 					{
 						const deleteCount = deltaCount * -1;
 						
-						
 						// Detect a delete ranging from the end of 
 						// one line, to the end of a successive line
 						if (startChar === startLineText.length)
@@ -1215,7 +1290,7 @@ namespace Truth
 				// Bail if a document loaded from HTTP is trying to reference
 				// a document located on the file system.
 				const isToFile = smt.uri.protocol === UriProtocol.file;
-				const thisProto = this.sourceUri.protocol;
+				const thisProto = this.uri.protocol;
 				
 				if (isToFile && (thisProto === UriProtocol.http || thisProto === UriProtocol.https))
 				{

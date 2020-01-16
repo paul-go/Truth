@@ -12,8 +12,8 @@ namespace Truth
 		constructor(
 			readonly sourceText: string,
 			readonly indent: number,
-			readonly declarations: BoundaryGroup<DeclarationSubject>,
-			readonly annotations: BoundaryGroup<AnnotationSubject>,
+			readonly declarations: BoundaryGroup<Subject>,
+			readonly annotations: BoundaryGroup<Term>,
 			readonly sum: string,
 			readonly jointPosition: number,
 			readonly flags: LineFlags,

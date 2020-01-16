@@ -13,7 +13,17 @@ namespace Truth
 		file = "file:",
 		https = "https:",
 		http = "http:",
-		internal = "internal:"
+		
+		/**
+		 * @internal
+		 * Internal URIs (which are URIs that refer to an in-memory document)
+		 * are sourced from the gopher protocol. Yes, the gopher protocol. This
+		 * is because it's the only protocol that will parse through the standard
+		 * URL constructor in V8, other than the standard protocols (http, https).
+		 * (Other JavaScript engines seem to parse all protocols, even made-up 
+		 * ones).
+		 */
+		memory = "memory:"
 	}
 	
 	export namespace UriProtocol

@@ -1,22 +1,14 @@
 
 namespace Truth
 {
-	/** */
-	export type Subject = DeclarationSubject | AnnotationSubject;
-	
 	/**
-	 * Stores a map of the character offsets within a Statement
-	 * that represent the starting positions of the statement's
-	 * declarartions.
+	 * A type alias that refers to the kinds of objects that exist 
+	 * at the bottom of a Statement's abstract syntax tree.
 	 */
-	export type DeclarationSubject = Identifier | Pattern | Uri | Anon;
+	export type Subject = Term | Pattern | KnownUri;
 	
-	/**
-	 * Stores a map of the character offsets within a Statement
-	 * that represent the starting positions of the statement's
-	 * annotations.
-	 */
-	export type AnnotationSubject = Identifier;
+	/** Aliases a type that is or contains a Subject. */
+	export type SubjectContainer = Span | InfixSpan | Boundary<Subject> | Subject;
 	
 	/** */
 	export class SubjectSerializer
@@ -27,7 +19,7 @@ namespace Truth
 		 */
 		static forExternal(
 			target: SubjectContainer,
-			escapeStyle: IdentifierEscapeKind = IdentifierEscapeKind.none)
+			escapeStyle: TermEscapeKind = TermEscapeKind.none)
 		{
 			const subject = this.resolveSubject(target);
 			return this.serialize(subject, escapeStyle, false);
@@ -39,7 +31,7 @@ namespace Truth
 		static forInternal(target: SubjectContainer)
 		{
 			const subject = this.resolveSubject(target);
-			return this.serialize(subject, IdentifierEscapeKind.none, true);
+			return this.serialize(subject, TermEscapeKind.none, true);
 		}
 		
 		/** */
@@ -54,25 +46,19 @@ namespace Truth
 		/** */
 		private static serialize(
 			subject: SubjectContainer,
-			escapeStyle: IdentifierEscapeKind,
+			escapeStyle: TermEscapeKind,
 			includeHash: boolean)
 		{
-			if (subject instanceof Identifier)
+			if (subject instanceof Term)
 				return subject.toString(escapeStyle);
 			
 			else if (subject instanceof Pattern)
 				return subject.toString(includeHash);
 			
-			else if (subject instanceof Uri)
-				return subject.toString();
-			
-			else if (subject instanceof Anon)
+			else if (subject instanceof KnownUri)
 				return subject.toString();
 			
 			throw Exception.unknownState();
 		}
 	}
-	
-	/** Identifies a Type that is or contains a Subject. */
-	export type SubjectContainer = Subject | Boundary<Subject> | Span | InfixSpan;
 }

@@ -3,25 +3,18 @@ namespace Truth
 {
 	async function coverProgramQuery()
 	{
-		const program = new Program();
-		const doc = await program.addDocument(outdent`
-			A
-			B : A
-			C : B
+		const [doc] = await createLanguageCover(`
+			a
+			b : a
+			c : b
 		`);
-		
-		if (doc instanceof Error)
-		{
-			debugger;
-			return;
-		}
 		
 		await doc.edit(mutator =>
 		{
 			mutator.insert("", 3);
 		});
 		
-		const typeC = doc.query("C");
-		return () => typeC instanceof Type;
+		const c = doc.query("c");
+		return () => c instanceof Type;
 	}
 }

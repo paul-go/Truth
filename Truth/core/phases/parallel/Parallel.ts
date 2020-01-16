@@ -11,23 +11,27 @@ namespace Truth
 		 * Invoked by ParallelCache. Do not call.
 		 */
 		constructor(
-			readonly uri: Uri,
+			readonly phrase: Phrase,
 			readonly container: Parallel | null)
 		{
-			this.name = uri.toTypeString();
+			if ("DEBUG")
+			{
+				this.name = phrase.toString();
 			
-			if (this.name.startsWith("/"))
-				this.name = unescape(this.name);
+				if (this.name.startsWith("/"))
+					this.name = unescape(this.name);
+			}
 			
 			if (container !== null)
-				container._contents.set(uri.types.slice(-1)[0].value, this);
+				container._contents.set(phrase.terminal, this);
 		}
 		
 		/**
+		 * @internal
 		 * Stores a string representation of this Parallel,
 		 * useful for debugging purposes.
 		 */
-		readonly name: string;
+		readonly name: string | undefined;
 		
 		/**
 		 * Stores a version number for this instance,
@@ -38,11 +42,11 @@ namespace Truth
 		/**
 		 * 
 		 */
-		get contents(): ReadonlyMap<string, Parallel>
+		get contents(): ReadonlyMap<Subject, Parallel>
 		{
 			return this._contents;
 		}
-		private _contents = new Map<string, Parallel>();
+		private _contents = new Map<Subject, Parallel>();
 		
 		/** */
 		getParallels()

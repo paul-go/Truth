@@ -39,7 +39,7 @@ namespace Truth
 			{
 				for (const [cause, attachments] of this.causes)
 					for (const attachment of attachments)
-						if (attachment.uri && attachment.uri.equals(data.uri))
+						if (attachment.uri && attachment.uri === data.uri)
 							this.causes.delete(cause, attachment);
 			});
 			
@@ -67,29 +67,52 @@ namespace Truth
 		}
 		
 		/**
+		 * Adds a document to this program with the specified sourceText.
+		 * The URI for the document is an auto-generated, auto-incrementing
+		 * number.
 		 * 
+		 * For example, the first document added in this way is considered
+		 * to have the URI "memory://memory/1.truth", the second being 
+		 * "memory://memory/2.truth", and so on.
 		 */
 		async addDocument(sourceText: string)
 		{
-			return await Document.new(this, sourceText, d => this.saveDocument(d));
+			const memoryUri = KnownUri.createMemoryUri(++this.memoryUriCount);
+			return await Document.new(this, memoryUri, sourceText, d => this.saveDocument(d));
 		}
+		private memoryUriCount = 0;
 		
 		/**
-		 * Adds a Document to this Program, by loading it from the specified
+		 * Adds a document to this program, by loading it from the specified
 		 * URI. In the case when there has already been a document loaded
 		 * from the URI specified, this pre-loaded document is returned.
 		 */
-		async addDocumentFromUri(sourceUri: string | Uri)
+		async addDocumentFromUri(documentUri: string | KnownUri)
 		{
-			const uriParsed = Uri.tryParse(sourceUri);
-			if (!uriParsed)
+			const uri = typeof documentUri === "string" ?
+				KnownUri.fromString(documentUri) :
+				documentUri;
+			
+			if (!uri)
 				throw Exception.invalidUri();
 			
-			const existing = this.getDocumentByUri(uriParsed);
-			if (existing)
-				return existing;
+			const existingDoc = this.getDocumentByUri(uri);
+			if (existingDoc)
+				return existingDoc;
 			
-			return await Document.new(this, uriParsed, d => this.saveDocument(d));
+			let sourceText = await (async () =>
+			{
+				const readResult = await UriReader.tryRead(uri);
+				if (readResult instanceof Error)
+					return readResult;
+				
+				return readResult;
+			})();
+			
+			if (sourceText instanceof Error)
+				return sourceText;
+			
+			return await Document.new(this, uri, sourceText, d => this.saveDocument(d));
 		}
 		
 		/**
@@ -103,10 +126,10 @@ namespace Truth
 		/**
 		 * @returns The loaded document with the specified URI.
 		 */
-		getDocumentByUri(uri: Uri)
+		getDocumentByUri(uri: KnownUri)
 		{
 			for (const doc of this._documents)
-				if (doc.sourceUri.equals(uri))
+				if (doc.uri === uri)
 					return doc;
 			
 			return null;
@@ -155,7 +178,7 @@ namespace Truth
 			if (scope instanceof Type)
 				throw Exception.notImplemented();
 			
-			const results: { uri: Uri | null; scope: AttachmentScope }[] = [];
+			const results: { uri: KnownUri | null; scope: AttachmentScope }[] = [];
 			const push = (ca: CauseAttachment) =>
 				results.push({ uri: ca.uri, scope: ca.scope });
 			
@@ -200,7 +223,7 @@ namespace Truth
 		 * agent was attached programmatically, the URI value 
 		 * will be null.
 		 */
-		cause<R>(cause: Cause<R>, ...filters: Uri[])
+		cause<R>(cause: Cause<R>, ...filters: KnownUri[])
 		{
 			const causeType = cause.constructor as typeof Cause;
 			const attachmentsAll = this.causes.get(causeType) || [];
@@ -213,13 +236,13 @@ namespace Truth
 				if (otherUri === null)
 					return true;
 				
-				return filters.find(uri => uri.equals(otherUri));
+				return filters.find(uri => uri === otherUri);
 			});
 			
 			if (attachments.length === 0)
 				return [];
 			
-			const result: { from: Uri | null; returned: R }[] = [];
+			const result: { from: KnownUri | null; returned: R }[] = [];
 			
 			for (const attachment of attachments)
 			{
@@ -248,7 +271,7 @@ namespace Truth
 		/**
 		 * 
 		 */
-		attach(agentUri: Uri): Promise<Error | void>
+		attach(agentUri: KnownUri): Promise<Error | void>
 		{
 			return new Promise(() =>
 			{
@@ -259,7 +282,7 @@ namespace Truth
 		/**
 		 * 
 		 */
-		detach(agentUri: Uri)
+		detach(agentUri: KnownUri)
 		{
 			throw Exception.notImplemented();
 		}
@@ -273,7 +296,7 @@ namespace Truth
 		 * @returns An array containing the top-level types that are
 		 * defined within the specified document.
 		 */
-		query(document: Document): Type[];
+		query(document: Document): readonly Type[];
 		/**
 		 * Queries the program for the types that exist within
 		 * the specified document, at the specified type path.
@@ -286,96 +309,17 @@ namespace Truth
 		 * could be found.
 		 */
 		query(document: Document, ...typePath: string[]): Type | null;
-		/**
-		 * Queries the program for types that exist within this program,
-		 * at the specified type URI.
-		 * 
-		 * @param uri The URI of the document to query. If the URI contains
-		 * a type path, it is factored into the search.
-		 * 
-		 * @returns An array containing the top-level types that are
-		 * defined within the specified document. If the specified URI has a
-		 * type path, the returned array will contain a single Type instance
-		 * that corresponds to the Type found. In the case when no type
-		 * could be found at the type path, an empty array is returned.
-		 */
-		query(uri: Uri): Type[];
-		/**
-		 * Queries the program for types that exist within this program,
-		 * at the specified URI and type path.
-		 * 
-		 * @param uri The URI of the document to query. If the URI contains
-		 * a type path, it is factored into the search.
-		 * @param typePath The type path within the document to search.
-		 * 
-		 * @returns A fully constructed Type instance that corresponds to
-		 * the type at the URI specified, or null in the case when no type
-		 * could be found.
-		 */
-		query(uri: Uri, ...typePath: string[]): Type | null;
-		/**
-		 * Queries the program for types that exist within this document,
-		 * at the specified URI.
-		 * 
-		 * @param uri The a string representation of the URI of the document
-		 * to query. If the URI contains a type path, it is factored into the search.
-		 * 
-		 * @returns An array containing the top-level types that are
-		 * defined within the specified document. If the specified URI has a
-		 * type path, the returned array will contain a single Type instance
-		 * that corresponds to the Type found. In the case when no type
-		 * could be found at the type path, an empty array is returned.
-		 */
-		query(uri: string): Type[];
-		/**
-		 * Queries the program for types that exist within this program,
-		 * at the specified URI and type path.
-		 * 
-		 * @param uri The URI of the document to query. If the URI contains
-		 * a type path, it is factored into the search.
-		 * @param typePath The type path within the document to search.
-		 * 
-		 * @returns A fully constructed Type instance that corresponds to
-		 * the type at the URI specified, or null in the case when no type
-		 * could be found.
-		 */
-		query(uri: string, ...typePath: string[]): Type | null;
-		query(root: Document | Uri | string, ...typePath: string[]):
+		query(document: Document, ...typePath: string[]):
 			readonly Type[] | Type | null
 		{
 			if (arguments.length > 1 && typePath.length === 0)
 				throw Exception.passedArrayCannotBeEmpty("typePath");
 			
-			if (root instanceof Document)
-			{
-				if (typePath.length === 0)
-					return Type.constructRoots(root);
-				
-				const uri = root.sourceUri.extendType(typePath);
-				return Type.construct(uri, this);
-			}
-			
-			const docUri = root instanceof Uri ? root : Uri.tryParse(root);
-			if (docUri === null)
-				throw Exception.absoluteUriExpected();
-			
-			const doc = this.getDocumentByUri(docUri);
-			if (!doc)
-				return null;
-			
-			const types = docUri.types.map(t => t.toString()).concat(typePath);
-			if (types.length === 0)
-				return Type.constructRoots(doc);
-			
-			const fullUri = docUri.extendType(typePath);
-			const constructed = Type.construct(fullUri, this);
-			
 			if (typePath.length === 0)
-				return constructed ?
-					Object.freeze([constructed]) :
-					[];
+				return Type.constructRoots(document);
 			
-			return constructed;
+			const phrase = document.phrase.forwardDeep(typePath);
+			return Type.construct(phrase, this);
 		}
 		
 		/**
@@ -388,42 +332,42 @@ namespace Truth
 			offset: number): ProgramInspectionResult
 		{
 			const statement = document.read(line);
-			const region = statement.getRegion(offset);
+			const zone = statement.getZone(offset);
 			const position = {
 				line,
 				offset
 			};
 			
-			switch (region)
+			switch (zone)
 			{
-				case StatementRegion.void:
-					return new ProgramInspectionResult(position, region, null, statement);
+				case StatementZone.void:
+					return new ProgramInspectionResult(position, zone, null, statement);
 				
 				// Return all the types in the declaration side of the parent.
-				case StatementRegion.whitespace:
+				case StatementZone.whitespace:
 				{
 					const parent = document.getParentFromPosition(line, offset);
 					if (parent instanceof Document)
-						return new ProgramInspectionResult(position, region, parent, statement);
+						return new ProgramInspectionResult(position, zone, parent, statement);
 					
 					const types = parent.declarations
 						.map(decl => decl.factor())
 						.reduce((spines, s) => spines.concat(s), [])
 						.map(spine => Type.construct(spine, this));
 					
-					return new ProgramInspectionResult(position, region, types, statement, null);
+					return new ProgramInspectionResult(position, zone, types, statement, null);
 				}
 				//
-				case StatementRegion.pattern:
+				case StatementZone.pattern:
 				{
 					// TODO: This should not be returning a PatternLiteral,
 					// but rather a fully constructed IPattern object. This
 					// code is only here as a shim.
 					const patternTypes: Type[] = [];
-					return new ProgramInspectionResult(position, region, patternTypes, statement);
+					return new ProgramInspectionResult(position, zone, patternTypes, statement);
 				}
 				// Return all the types related to the specified declaration.
-				case StatementRegion.declaration:
+				case StatementZone.declaration:
 				{
 					const decl = statement.getDeclaration(offset);
 					if (!decl)
@@ -433,10 +377,10 @@ namespace Truth
 						.factor()
 						.map(spine => Type.construct(spine, this));
 					
-					return new ProgramInspectionResult(position, region, types, statement, decl);
+					return new ProgramInspectionResult(position, zone, types, statement, decl);
 				}
 				// 
-				case StatementRegion.annotation:
+				case StatementZone.annotation:
 				{
 					const anno = statement.getAnnotation(offset);
 					if (!anno)
@@ -448,18 +392,18 @@ namespace Truth
 					const base = type.bases.filter(b => b.name === annoText);
 					base.push(type);
 					
-					return new ProgramInspectionResult(position, region, base, statement, anno);
+					return new ProgramInspectionResult(position, zone, base, statement, anno);
 				}
-				case StatementRegion.annotationVoid:
+				case StatementZone.annotationVoid:
 				{
 					const anno = statement.getAnnotation(offset);
 					const spine = statement.declarations[0].factor()[0];
 					const type = Type.construct(spine, this);
-					return new ProgramInspectionResult(position, region, [type], statement, anno);
+					return new ProgramInspectionResult(position, zone, [type], statement, anno);
 				}
 			}
 			
-			return new ProgramInspectionResult(position, region, null, statement, null);
+			return new ProgramInspectionResult(position, zone, null, statement, null);
 		}
 		
 		/**
@@ -536,7 +480,7 @@ namespace Truth
 		 * uses a Proxy object to provide 
 		 */
 		readonly instanceHolder?: {
-			uri: Uri;
+			uri: KnownUri;
 			scope: AttachmentScope;
 		}
 	}
@@ -550,7 +494,7 @@ namespace Truth
 		const ih = program.instanceHolder;
 		
 		return {
-			uri: <Uri | null>(ih ? ih.uri : null),
+			uri: ih ? ih.uri : null,
 			scope: <AttachmentScope>(ih ? ih.scope : program)
 		};
 	}
@@ -564,7 +508,7 @@ namespace Truth
 	{
 		/** */
 		constructor(
-			readonly uri: Uri | null,
+			readonly uri: KnownUri | null,
 			readonly callback: (data: any) => any,
 			readonly scope: AttachmentScope)
 		{ }
@@ -597,9 +541,9 @@ namespace Truth
 			readonly position: Position,
 			
 			/**
-			 * Stores the Region of statement found at the specified location.
+			 * Stores the zone of the statement found at the specified location.
 			 */
-			readonly region: StatementRegion,
+			readonly zone: StatementZone,
 			
 			/**
 			 * Stores the compilation object that most closely represents

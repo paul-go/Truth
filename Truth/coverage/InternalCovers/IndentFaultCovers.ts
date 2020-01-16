@@ -1,60 +1,39 @@
 
 namespace Truth
 {
+	const t = Syntax.tab;
+	const s = Syntax.space;
+	
 	async function coverSingleIndentationFault()
 	{
-		const program = new Program();
-		const t = Syntax.tab;
-		const s = Syntax.space;
-		
-		const lines = [
+		const [doc] = await createLanguageCover([
 			"None",
 			t + "Tab",
 			s + "Space",
 			t + s + "TabSpace"
-		];
+		].join("\n"));
 		
-		program.addDocument(lines.join("\n"));
-		
-		return [
-			() => hasFault(program, Faults.TabsAndSpaces.code, 3),
-			() => program.faults.count === 1
-		];
+		return () => doc.hasFaults([Faults.TabsAndSpaces, 3]);
 	}
 	
 	async function coverMultipleIndentationFault()
 	{
-		const program = new Program();
-		const t = Syntax.tab;
-		const s = Syntax.space;
-		
-		const lines = [
+		const [doc] = await createLanguageCover([
 			"None",
 			t + "Tab",
 			t + s + "TabSpace",
 			s + "Space",
 			s + t + "SpaceTab"
-		];
+		].join("\n"));
 		
-		await program.addDocument(lines.join("\n"));
-		
-		return [
-			() => hasFault(program, Faults.TabsAndSpaces.code, 2),
-			() => hasFault(program, Faults.TabsAndSpaces.code, 4),
-			() => program.faults.count === 2
-		];
+		return () => doc.hasFaults(
+			[Faults.TabsAndSpaces, 2],
+			[Faults.TabsAndSpaces, 4]);
 	}
 	
 	async function coverIndentationFaultRectification()
 	{
-		const program = new Program();
-		const t = Syntax.tab;
-		const s = Syntax.space;
-		const lines = [t + s + "TabSpace"];
-		
-		const doc = await program.addDocument(lines.join("\n"));
-		if (doc instanceof Error)
-			return doc;
+		const [doc] = await createLanguageCover(t + s + "TabSpace");
 		
 		doc.edit(mutator =>
 		{
@@ -62,7 +41,7 @@ namespace Truth
 		});
 		
 		return [
-			() => program.faults.count === 0
+			() => !doc.hasFaults()
 		];
 	}
 }

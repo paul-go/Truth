@@ -9,11 +9,12 @@ namespace Truth
 		/** */
 		constructor(program: Program)
 		{
+			/*DEAD
 			program.on(CauseDocumentUriChange, data =>
 			{
 				// Update the entire cache when the URI of any document changes.
 				const newUriStore = data.newUri.retractTypeTo(0);
-				const entries = Array.from(this.uriToNodeMap.entries());
+				const entries = Array.from(this.phraseToNodeMap.entries());
 				
 				for (const [oldUriText, node] of entries)
 				{
@@ -25,10 +26,11 @@ namespace Truth
 						.extendType(oldUri.types.map(t => t.value))
 						.toString();
 					
-					this.uriToNodeMap.delete(oldUriText);
-					this.uriToNodeMap.set(newUriText, node);
+					this.phraseToNodeMap.delete(oldUriText);
+					this.phraseToNodeMap.set(newUriText, node);
 				}
 			});
+			*/
 		}
 		
 		/**
@@ -37,7 +39,7 @@ namespace Truth
 		 */
 		*eachNode()
 		{
-			for (const node of this.uriToNodeMap.values())
+			for (const node of this.phraseToNodeMap.values())
 				yield node;
 		}
 		
@@ -46,79 +48,78 @@ namespace Truth
 		 */
 		get count()
 		{
-			return this.uriToNodeMap.size;
+			return this.phraseToNodeMap.size;
 		}
 		
 		/**
 		 * Updates the index, establishing a cached relationship
 		 * between the specified uri and the specified node.
 		 */
-		set(uri: Uri | string, node: Node)
+		set(phrase: Phrase, node: Node)
 		{
-			const uriText = typeof uri === "string" ? uri : uri.toString();
-			this.uriToNodeMap.set(uriText, node);
+			this.phraseToNodeMap.set(phrase, node);
 			this.update(node);
 		}
 		
 		/** 
-		 * Updates the index by refreshing in the set of identifiers
+		 * Updates the index by refreshing in the set of terms
 		 * that are associated with the specified node.
 		 */
 		update(node: Node)
 		{
-			const pastIdentifiers = this.nodesToIdentifiersMap.get(node);
-			const presentIdentifiers = this.getAssociatedIdentifiers(node);
+			const pastTerms = this.nodesToTermsMap.get(node);
+			const presentTerms = this.getAssociatedTerms(node);
 			
-			if (pastIdentifiers !== undefined)
+			if (pastTerms !== undefined)
 			{
-				for (const [idx, ident] of pastIdentifiers.entries())
+				for (const [idx, term] of pastTerms.entries())
 				{
-					if (presentIdentifiers.includes(ident))
+					if (presentTerms.includes(term))
 						continue;
 					
-					pastIdentifiers.splice(idx, 1);
+					pastTerms.splice(idx, 1);
 					
-					const map = this.identifierToNodesMap.get(ident);
+					const map = this.termToNodesMap.get(term);
 					if (map === undefined)
 						continue;
 					
 					map.delete(node);
 					
 					if (map.size === 0)
-						this.identifierToNodesMap.delete(ident);
+						this.termToNodesMap.delete(term);
 				}
 			}
 			
-			for (const identifier of presentIdentifiers)
+			for (const term of presentTerms)
 			{
-				const nodesForIdent = this.identifierToNodesMap.get(identifier) || (() =>
+				const nodesForTerm = this.termToNodesMap.get(term) || (() =>
 				{
 					const out = new Set<Node>();
-					this.identifierToNodesMap.set(identifier, out);
+					this.termToNodesMap.set(term, out);
 					return out;
 				})();
 				
-				nodesForIdent.add(node);
+				nodesForTerm.add(node);
 			}
 			
-			this.nodesToIdentifiersMap.set(node, presentIdentifiers);
+			this.nodesToTermsMap.set(node, presentTerms);
 		}
 		
 		/** */
-		getNodeByUri(uri: Uri)
+		getNodeByPhrase(phrase: Phrase)
 		{
-			return this.uriToNodeMap.get(uri.toString()) || null;
+			return this.phraseToNodeMap.get(phrase) || null;
 		}
 		
 		/**
 		 * @returns An array that contains the nodes that are associated
-		 * with the specified identifier that exist at or below the specified
-		 * depth. "Associated" means that the identifier is either equivalent
+		 * with the specified term that exist at or below the specified
+		 * depth. "Associated" means that the term is either equivalent
 		 * to the Node's main subject, or it is referenced in one of it's edges.
 		 */
-		getNodesByIdentifier(identifer: string)
+		getNodesByTerm(term: Term)
 		{
-			const out = this.identifierToNodesMap.get(identifer);
+			const out = this.termToNodesMap.get(term);
 			return out ? Array.from(out) : [];
 		}
 		
@@ -127,72 +128,72 @@ namespace Truth
 		 */
 		delete(deadNode: Node)
 		{
-			for (const [uri, node] of this.uriToNodeMap)
+			for (const [uri, node] of this.phraseToNodeMap)
 				if (node === deadNode)
-					this.uriToNodeMap.delete(uri);
+					this.phraseToNodeMap.delete(uri);
 			
-			const existingIdentifiers = this.nodesToIdentifiersMap.get(deadNode);
-			if (existingIdentifiers === undefined)
+			const existingTerms = this.nodesToTermsMap.get(deadNode);
+			if (existingTerms === undefined)
 				return;
 			
-			for (const identifier of existingIdentifiers)
+			for (const term of existingTerms)
 			{
-				const nodes = this.identifierToNodesMap.get(identifier);
+				const nodes = this.termToNodesMap.get(term);
 				if (nodes === undefined)
 					continue;
 				
 				nodes.delete(deadNode);
 				
 				if (nodes.size === 0)
-					this.identifierToNodesMap.delete(identifier);
+					this.termToNodesMap.delete(term);
 			}
 			
-			this.nodesToIdentifiersMap.delete(deadNode);
+			this.nodesToTermsMap.delete(deadNode);
 		}
 		
 		/** 
-		 * @returns An array that contains the identifiers associated with
+		 * @returns An array that contains the terms associated with
 		 * the specified Node.
 		 */
-		getAssociatedIdentifiers(node: Node)
+		getAssociatedTerms(node: Node)
 		{
-			const identifiers: string[] = [];
+			const terms: Term[] = [];
 			
-			if (node.subject instanceof Identifier)
-				identifiers.push(node.subject.typeName);
+			if (node.subject instanceof Term)
+				terms.push(node.subject);
 			
 			for (const smt of node.statements)
 				for (const anno of smt.allAnnotations)
-					if (anno.boundary.subject instanceof Identifier)
-						identifiers.push(anno.boundary.subject.typeName);
+					if (anno.boundary.subject instanceof Term)
+						terms.push(anno.boundary.subject);
 			
-			return identifiers;
+			return terms;
 		}
 		
 		/**
 		 * Stores a map of all nodes that have been loaded into the program,
-		 * indexed by a string representation of it's URI.
+		 * indexed by the Phrase that references them.
 		 */
-		private readonly uriToNodeMap = new Map<string, Node>();
+		private readonly phraseToNodeMap = new Map<Phrase, Node>();
 		
 		/**
-		 * Stores a map which is indexed by a unique identifier, and which as
-		 * values that are the nodes that use that identifier, either as a declaration
+		 * Stores a map which is indexed by a unique term, and which as
+		 * values that are the nodes that use that term, either as a declaration
 		 * or an annotation.
 		 * 
 		 * The purpose of this cache is to get a quick answer to the question:
-		 * "We added a new identifier at position X ... what nodes might possibly
+		 * "We added a new term at position X ... what nodes might possibly
 		 * have been affected by this?"
 		 */
-		private readonly identifierToNodesMap = new Map<string, Set<Node>>();
+		private readonly termToNodesMap = new Map<Term, Set<Node>>();
 		
 		/**
-		 * Stores a map which is essentially a reverse of identifierToNodesMap.
+		 * Stores a map which is essentially a reverse of termToNodesMap.
 		 * This is so that when nodes need to be deleted or updated, we can
-		 * quickly find the place in identifierToNodesMap where the node has
+		 * quickly find the place in termToNodesMap where the node has
 		 * been referenced.
 		 */
-		private readonly nodesToIdentifiersMap = new WeakMap<Node, string[]>();
+		private readonly nodesToTermsMap = new WeakMap<Node, Term[]>();
 		
 		/**
 		 * Serializes the index into a format suitable
@@ -200,17 +201,14 @@ namespace Truth
 		 */
 		toString()
 		{
-			if (this.uriToNodeMap.size === 0)
+			if (this.phraseToNodeMap.size === 0)
 				return "(empty)";
 			
 			const out: string[] = [];
-			const keys = Array.from(this.uriToNodeMap.keys()).map(s =>
-			{
-				const uri = Uri.tryParse(s);
-				return uri ? uri.toString() : s;
-			});
+			const keys = Array.from(this.phraseToNodeMap.keys())
+				.map(ph => ph.toString());
 			
-			const values = Array.from(this.uriToNodeMap.values());
+			const values = Array.from(this.phraseToNodeMap.values());
 			
 			for (let i = -1; ++i < keys.length;)
 			{
@@ -219,13 +217,13 @@ namespace Truth
 				out.push(`${key}\n\t${value}\n`);
 			}
 			
-			out.push("(Identifier Cache)");
+			out.push("(Term Cache)");
 			
-			for (const [identifier, nodes] of this.identifierToNodesMap)
+			for (const [term, nodes] of this.termToNodesMap)
 			{
-				out.push("\t" + identifier);
+				out.push("\t" + term);
 				out.push("\t\t: " + Array.from(nodes)
-					.map(node => node.uri.toTypeString())
+					.map(node => node.phrase.toString())
 					.join(", "));
 			}
 			

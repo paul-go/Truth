@@ -1,0 +1,46 @@
+// 
+// This file uses Truth to describe the general layout 
+// of the class relationships in the Truth compiler.
+// 
+
+// ---- Transcendent Objects ----
+
+Program
+	Documents : Document...
+	Graph
+
+Document
+	Statements : Statement...
+	KnownUrl
+
+KnownUrl
+Phrase
+Term
+
+Graph
+	Nodes : Node
+
+Node
+	HyperEdge
+
+HyperEdge
+
+
+// ---- Volatile Objects ----
+
+Statement
+	Declarations : Fragment...
+	Annotations : Fragment...
+
+UriStatement : Statement
+
+Fragment
+	Boundary
+
+Boundary
+	OffsetStart : number
+	OffsetEnd : number
+	Term
+	Pattern
+	
+Pattern

@@ -29,7 +29,9 @@ namespace Truth
 	export type AnyClass = 
 		Document | 
 		Statement | 
-		Reference;
+		Reference |
+		Phrase |
+		Term;
 	
 	/**
 	 * A const enum to uniquely identify each domain object in the system.
@@ -38,6 +40,8 @@ namespace Truth
 	{
 		document,
 		statement,
-		reference
+		reference,
+		phrase,
+		term
 	}
 }

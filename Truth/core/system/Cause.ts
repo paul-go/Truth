@@ -41,7 +41,7 @@ namespace Truth
 			/**
 			 * Stores the URI from where the agent was loaded.
 			 */
-			readonly uri: Uri,
+			readonly uri: KnownUri,
 			/**
 			 * Stores an object that represents the scope of where the agent
 			 * applies.
@@ -65,7 +65,7 @@ namespace Truth
 	/** */
 	export class CauseAgentDetach extends Cause
 	{
-		constructor(readonly uri: Uri) { super(); }
+		constructor(readonly uri: KnownUri) { super(); }
 	}
 	
 	/** A cause that runs immediately after a document has been created. */
@@ -85,7 +85,7 @@ namespace Truth
 	{
 		constructor(
 			readonly document: Document,
-			readonly newUri: Uri)
+			readonly newUri: KnownUri)
 		{ super(); }
 	}
 	
@@ -170,7 +170,7 @@ namespace Truth
 			 * references the URI by another means.
 			 */
 			readonly statement: Statement | null,
-			readonly uri: Uri) 
+			readonly uri: KnownUri)
 		{ super(); }
 	}
 	
