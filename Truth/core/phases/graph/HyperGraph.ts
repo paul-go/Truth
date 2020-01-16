@@ -195,7 +195,7 @@ namespace Truth
 			interface IBreadthFirstEntry
 			{
 				phrase: Phrase;
-				declaration: Span | InfixSpan
+				declaration: Span | InfixSpan;
 			}
 			
 			const breadthFirstOrganizer: MultiMap<string, IBreadthFirstEntry>[] = [];
