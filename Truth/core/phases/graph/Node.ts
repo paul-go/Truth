@@ -367,14 +367,11 @@ namespace Truth
 			if (!(this.subject instanceof Pattern))
 				return this._portabilityTargets = [];
 			
-			const termArrays = this.subject
+			return this._portabilityTargets = this.subject
 				.getInfixes(InfixFlags.portability)
-				.map(nfx => Object.freeze(Array.from(nfx.rhs.eachSubject())
-					.map(term => term.textContent)));
-			
-			return this._portabilityTargets = Object.freeze(termArrays);
+				.map(nfx => Array.from(nfx.rhs.eachSubject()));
 		}
-		private _portabilityTargets: readonly (readonly string[])[] | null = null;
+		private _portabilityTargets: readonly (readonly Term[])[] | null = null;
 		
 		/**
 		 * @returns A set of nodes that are matched by
