@@ -23,14 +23,19 @@ namespace Truth
 				yield entry;
 		}
 		
-		/** */
+		/**
+		 * Iterates through each subject in the boundary group.
+		 */
 		*eachSubject()
 		{
 			for (const entry of this.entries)
 				yield entry.subject;
 		}
 		
-		/** */
+		/**
+		 * Returns the subject at the specified offset, or null in the case
+		 * when no subject exists at the specified offset.
+		 */
 		inspect(offset: number): TSubject | null
 		{
 			for (const entry of this.entries)
@@ -40,7 +45,10 @@ namespace Truth
 			return null;
 		}
 		
-		/** */
+		/**
+		 * Returns the first subject in the boundary group, or null in the
+		 * case when the boundary group contains no subjects.
+		 */
 		first()
 		{
 			for (const entry of this)
