@@ -7,15 +7,12 @@ namespace Truth
 	 * done in a way that transcends multiple levels of 
 	 * abstraction through the use of entanglements.
 	 */
-	function coverEntanglementCircularInheritance()
+	async function coverEntanglementCircularInheritance()
 	{
-		const cover = new FullCover();
-		
-		const result = cover.try(`
+		const [doc] = await createLanguageCover(`
 			Thing
 			
 			Class
-				// How is this not a circular reference right here?
 				Property : Thing
 				Field : Property
 				
@@ -24,33 +21,30 @@ namespace Truth
 				Property : Field #203;
 		`);
 		
-		return result;
-	}
-	
-	function coverSomething()
-	{
-		return new FullCover().try(`
-			A : B
-		`);
+		return [
+			() => true // ??	
+		];
 	}
 	
 	async function coverFiles()
 	{
-		const cover = new FullCover();
-		
-		const file1 = cover.add(`
+		const [doc1, doc2] = await createLanguageCover(`
 			A
 			B : A
-		`);
-		
-		const file2 = cover.add(`
-			${file1}
+		`, `
+			./1.truth
 			C : B
 			D
 		`);
 		
-		const result = await cover.try();
-		return result;
+		const [tA] = typesOf(doc1, "A");
+		const [tC] = typesOf(doc2, "C");
+		
+		return [
+			() => !doc1.hasFaults(),
+			() => !doc2.hasFaults(),
+			() => tC.is(tA)
+		];
 	}
 	
 	async function coverStatementWithUri()
@@ -62,6 +56,6 @@ namespace Truth
 		
 		const statement = document.read(0);
 		const uri = statement.uri;
-		return () => uri instanceof Uri;
+		return () => uri instanceof KnownUri;
 	}
 }

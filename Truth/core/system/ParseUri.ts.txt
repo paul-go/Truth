@@ -56,7 +56,7 @@ namespace Truth
 			const mark = parser.position;
 			let rawProto = "";
 			
-			if (parser.read(UriSyntax.protocolRelative))
+			if (parser.read(UriSyntax.protocolSeparator))
 			{
 				protocol = UriProtocol.unknown;
 				return true;
@@ -213,7 +213,7 @@ namespace Truth
 				return null;
 			};
 			
-			let anon = parser.read(UriSyntax.indexerStart);
+			let anon: string = parser.read(UriSyntax.indexerStart);
 			if (!anon)
 				return null;
 				

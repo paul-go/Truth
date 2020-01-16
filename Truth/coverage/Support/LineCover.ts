@@ -10,10 +10,15 @@ namespace Truth
 		expected: ILineCoverExpectation)
 	{
 		let parsedLine: Line | null = null;
+		const options: ILineParserOptions = {
+			assumedUri: Not.null(KnownUri.fromString(UriProtocol.memory + "//0.truth")),
+			readPatterns: true,
+			readUris: true
+		};
 		
 		try
 		{
-			parsedLine = LineParser.parse(source);
+			parsedLine = LineParser.parse(source, options);
 		}
 		catch (e)
 		{
@@ -60,7 +65,7 @@ namespace Truth
 		
 		const first = parsedLine.declarations.first();
 		
-		if (expected.uri === undefined && !!first && first.subject instanceof Uri)
+		if (expected.uri === undefined && !!first && first.subject instanceof KnownUri)
 		{
 			debugger;
 			return fail("Line should not have parsed as a URI.");
@@ -73,64 +78,9 @@ namespace Truth
 				debugger;
 				return fail("Line should have the hasUri flag: " + source);
 			}
-			else if (first !== null && first.subject instanceof Uri)
+			else if (first !== null && first.subject instanceof KnownUri)
 			{
-				const uri = first.subject;
-				const uriExpected = expected.uri;
-				
-				if (uriExpected.protocol !== uri.protocol.toString())
-				{
-					debugger;
-					verifiers.push(() => uriExpected.protocol === uri.protocol);
-				}
-				
-				if (uriExpected.retractionCount !== uri.retractionCount)
-				{
-					debugger;
-					verifiers.push(() => uriExpected.retractionCount === uri.retractionCount);
-				}
-				
-				if (uriExpected.isRelative !== uri.isRelative)
-				{
-					debugger;
-					verifiers.push(() => uriExpected.isRelative === uri.isRelative);
-				}
-				
-				if (uriExpected.stores.join() !== uri.stores.join())
-				{
-					debugger;
-					verifiers.push(() => uriExpected.stores.join() === uri.stores.join());
-				}
-				
-				if (uriExpected.file !== uri.file)
-				{
-					debugger;
-					verifiers.push(() => uriExpected.file === uri.file);
-				}
-				
-				if (uriExpected.ext !== uri.ext)
-				{
-					debugger;
-					verifiers.push(() => uriExpected.ext === uri.ext);
-				}
-				
-				if (uriExpected.types)
-				{
-					if (uriExpected.types.join() !== uri.types.join())
-					{
-						debugger;
-						verifiers.push(() => uriExpected.stores.join() === uri.stores.join());
-					}
-				}
-				
-				if (uriExpected.file !== undefined)
-				{
-					if (uriExpected.file !== uri.file)
-					{
-						debugger;
-						verifiers.push(() => uriExpected.file === uri.file);
-					}
-				}
+				verifiers.push(() => first.subject instanceof KnownUri);
 			}
 			else
 			{
@@ -288,7 +238,7 @@ namespace Truth
 					if (act.lhs.length !== expLhs.length)
 					{
 						debugger;
-						fail(`Identifier count of left side of infix ${nfxIdx} expected ` +
+						fail(`Term count of left side of infix ${nfxIdx} expected ` +
 							`to be ${expLhs.length}. Found ${act.lhs.length}.`);
 						continue;
 					}
@@ -296,33 +246,33 @@ namespace Truth
 					if (act.rhs.length !== expRhs.length)
 					{
 						debugger;
-						fail(`Identifier count of right side of infix ${nfxIdx} expected ` +
+						fail(`Term count of right side of infix ${nfxIdx} expected ` +
 							`to be ${expRhs.length}. Found ${act.rhs.length}.`);
 						continue;
 					}
 					
 					for (let idIdx = -1; ++idIdx < expLhs.length;)
 					{
-						const expIdent = expLhs[idIdx];
-						const actIdent = actLhs[idIdx];
+						const expTerm = expLhs[idIdx];
+						const actTerm = actLhs[idIdx];
 						
-						if (expIdent !== actIdent)
+						if (expTerm !== actTerm)
 						{
 							debugger;
-							fail(`Unexpected left side identifier ${idIdx} of infix ${nfxIdx}`);
+							fail(`Unexpected left side term ${idIdx} of infix ${nfxIdx}`);
 							continue;
 						}
 					}
 					
 					for (let idIdx = -1; ++idIdx < expRhs.length;)
 					{
-						const expIdent = expRhs[idIdx];
-						const actIdent = actRhs[idIdx];
+						const expTerm = expRhs[idIdx];
+						const actTerm = actRhs[idIdx];
 						
-						if (expIdent !== actIdent)
+						if (expTerm !== actTerm)
 						{
 							debugger;
-							fail(`Unexpected right side identifier ${idIdx} of infix ${nfxIdx}`);
+							fail(`Unexpected right side term ${idIdx} of infix ${nfxIdx}`);
 							continue;
 						}
 					}
@@ -338,7 +288,7 @@ namespace Truth
 		if (expected.annotations !== undefined)
 		{
 			const actualAnnos = Array.from(parsedLine.annotations.eachSubject())
-				.filter((anno): anno is Identifier => !!anno)
+				.filter((anno): anno is Term => !!anno)
 				.map(anno => anno.toString());
 			
 			const ea = expected.annotations;
@@ -394,7 +344,7 @@ namespace Truth
 		 * Indicates whether or not the statement should be found to
 		 * have a URI as it's sole declaration.
 		 */
-		uri?: {
+		uriz?: {
 			protocol: string;
 			stores: string[];
 			types: string[];
@@ -403,6 +353,8 @@ namespace Truth
 			isRelative: boolean;
 			ext: string;
 		};
+		
+		uri?: boolean;
 		
 		/**
 		 * Indicates whether or not the statement should be found to

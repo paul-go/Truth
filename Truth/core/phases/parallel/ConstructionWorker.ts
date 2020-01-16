@@ -2,6 +2,7 @@
 namespace Truth
 {
 	/**
+	 * @internal
 	 * A worker class that handles the construction of networks
 	 * of Parallel instances, which are eventually transformed
 	 * into type objects.
@@ -53,66 +54,65 @@ namespace Truth
 		 * Constructs the fewest possible Parallel instances
 		 * to arrive at the type specified by the directive.
 		 */
-		drill(directive: Uri)
+		drill(directive: Phrase)
 		{
-			const result = this.drillFromUri(directive);
+			const result = this.drillFromPhrase(directive);
 			this.drillQueue.length = 0;
 			return result;
 		}
 		
 		/** */
-		private drillFromUri(directive: Uri)
+		private drillFromPhrase(directive: Phrase)
 		{
 			if (this.parallels.has(directive))
 				return Not.undefined(this.parallels.get(directive));
 			
-			const typePath = directive.types.slice().map(t => t.value);
-			if (typePath.length === 0)
+			if (directive.length === 0)
 				throw Exception.invalidArgument();
 			
-			const sourceDoc = this.program.getDocumentByUri(directive);
+			const ancestry = directive.ancestry;
+			
+			const sourceDoc = this.program.getDocumentByUri(directive.containingUri);
 			if (sourceDoc === null)
 				throw Exception.documentNotLoaded();
 			
 			const surfaceNode = this.program.graph.read(
 				sourceDoc,
-				typePath[0]);
+				ancestry[0].terminal);
 			
 			if (surfaceNode === null)
 				return null;
 			
 			let typeIdx = 0;
 			let lastSeed = 
-				this.parallels.get(directive.retractTypeTo(1)) ||
+				this.parallels.get(directive.back()) ||
 				this.rake(this.parallels.create(surfaceNode, this.cruft));
 			
-			// We can pass by any Parallel instances that have already
+			// This code skips by any Parallel instances that have already
 			// been constructed. The real work begins when we get to
 			// the first point in the URI where there is no constructed
 			// Parallel instance.
-			for (;;)
+			for (const phrase of ancestry)
 			{
-				const uri = directive.retractTypeTo(typeIdx + 1);
-				if (!this.parallels.has(uri))
+				if (!this.parallels.has(phrase))
 					break;
 				
-				lastSeed = Not.undefined(this.parallels.get(uri));
+				lastSeed = Not.undefined(this.parallels.get(phrase));
 				
-				if (++typeIdx >= typePath.length)
+				if (++typeIdx >= directive.length)
 					return lastSeed;
 			}
 			
 			do
 			{
-				const typeName = typePath[typeIdx];
-				
-				const descended = this.descend(lastSeed, typeName);
+				const targetSubject = ancestry[typeIdx].terminal;
+				const descended = this.descend(lastSeed, targetSubject);
 				if (descended === null)
 					return null;
 				
 				lastSeed = this.rake(descended);
 			}
-			while (++typeIdx < typePath.length);
+			while (++typeIdx < directive.length);
 			
 			return lastSeed;
 		}
@@ -127,24 +127,24 @@ namespace Truth
 		{
 			// Circular drilling is only a problem if we're
 			// drilling on the same level.
-			const q = this.drillQueue;
+			const dq = this.drillQueue;
 			
-			if (q.length === 0)
+			if (dq.length === 0)
 			{
-				q.push(node);
+				dq.push(node);
 			}
-			else if (q[0].container === node.container)
+			else if (dq[0].container === node.container)
 			{
-				if (q.includes(node))
+				if (dq.includes(node))
 					return null;
 			}
 			else
 			{
-				q.length = 0;
-				q.push(node);
+				dq.length = 0;
+				dq.push(node);
 			}
 			
-			const drillResult = this.drillFromUri(node.uri);
+			const drillResult = this.drillFromPhrase(node.phrase);
 			if (drillResult === null)
 				throw Exception.unknownState();
 			
@@ -304,14 +304,14 @@ namespace Truth
 					
 					if (candidatePatternPars.length > 0)
 					{
-						const identifiers = hyperEdge.fragments
+						const terms = hyperEdge.fragments
 							.map(src => src.boundary.subject)
-							.filter((s): s is Identifier => s instanceof Identifier);
+							.filter((v): v is Term => v instanceof Term);
 						
-						if (identifiers.length === 0)
+						if (terms.length === 0)
 							continue;
 						
-						const alias = identifiers[0].fullName;
+						const alias = terms[0].textContent;
 						
 						if (srcParallel.tryAddAliasedBase(candidatePatternPars, hyperEdge, alias))
 						{
@@ -519,9 +519,9 @@ namespace Truth
 		
 		/**
 		 * Constructs and returns a new seed Parallel from the specified
-		 * zenith Parallel, navigating downwards to the specified type name.
+		 * zenith Parallel, navigating downwards to the specified target subject.
 		 */
-		private descend(zenith: Parallel, typeName: string)
+		private descend(zenith: Parallel, targetSubject: Subject)
 		{
 			/**
 			 * @returns A new Parallel (either being a SpecifiedParallel
@@ -532,7 +532,7 @@ namespace Truth
 			{
 				if (zenith instanceof SpecifiedParallel)
 				{
-					const nextNode = zenith.node.contents.get(typeName);
+					const nextNode = zenith.node.contents.get(targetSubject);
 					if (nextNode)
 					{
 						const out = this.parallels.get(nextNode) ||
@@ -543,7 +543,7 @@ namespace Truth
 					}
 				}
 				
-				const nextUri = zenith.uri.extendType(typeName);
+				const nextUri = zenith.phrase.forward(targetSubject);
 				return (
 					this.parallels.get(nextUri) ||
 					this.parallels.create(nextUri));
@@ -559,7 +559,7 @@ namespace Truth
 			{
 				return (
 					parallel instanceof SpecifiedParallel &&
-					parallel.node.contents.has(typeName));
+					parallel.node.contents.has(targetSubject));
 			}
 			
 			//

@@ -4,7 +4,7 @@ namespace Truth
 	/**
 	 * Universal class for handling URIs that exist within a Truth document.
 	 */
-	export class Uri
+	export class UriFire
 	{
 		/**
 		 * Attempts to parse the specified string into a Uri instance.

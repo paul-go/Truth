@@ -30,14 +30,14 @@ namespace Truth
 				return false;
 			
 			const spans = sources.filter((src): src is Span => src instanceof Span);
-			const identifiers = spans
+			const terms = spans
 				.map(f => f.boundary.subject)
-				.filter((sub): sub is Identifier => sub instanceof Identifier);
+				.filter((sub): sub is Term => sub instanceof Term);
 			
-			const identifiersList = identifiers.filter(id => id.isList);
-			const identifiersNonList = identifiers.filter(id => !id.isList);
+			const termsList = terms.filter(id => id.isList);
+			const termsNonList = terms.filter(id => !id.isList);
 			
-			if (identifiersList.length > 0 && identifiersNonList.length > 0)
+			if (termsList.length > 0 && termsNonList.length > 0)
 				for (const span of spans)
 					this.addFault(span, Faults.ListAnnotationConflict);
 			

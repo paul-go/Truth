@@ -17,7 +17,7 @@ namespace Truth
 	export type SpanFault = Readonly<Fault<Span>>;
 	
 	/** @internal */
-	export type SpanFaultType = Readonly<FaultType<Span>>;
+	export type SpanFaultType = Readonly<FaultType<Span | InfixSpan>>;
 	
 	/**
 	 * 
@@ -70,13 +70,13 @@ namespace Truth
 			const doc = this.document;
 			
 			const avoidProtocols = [
-				UriProtocol.internal,
+				UriProtocol.memory,
 				UriProtocol.none,
 				UriProtocol.unknown
 			];
 			
-			const uriText = avoidProtocols.includes(doc.sourceUri.protocol) ?
-				"" : doc.sourceUri.toStoreString() + " ";
+			const uriText = avoidProtocols.includes(doc.uri.protocol) ?
+				"" : doc.uri.toString() + " ";
 			
 			const colNums = this.range.join("-");
 			const colText = colNums ? ", Col " + colNums : "";
@@ -106,12 +106,12 @@ namespace Truth
 		}
 		
 		/**
-		 * Gets the line number of the Statement in which this Fault was detected.
+		 * Gets the 1-based line number of the Statement in which this Fault was detected.
 		 */
 		get line()
 		{
 			const smt = this.statement;
-			return smt.document.getLineNumber(smt) + 1;
+			return smt.document.getLineNumber(smt);
 		}
 		
 		/**
@@ -120,7 +120,7 @@ namespace Truth
 		 * offsets are 1-based (not 0-based) to comply with the behaviour of 
 		 * most text editors.
 		 */
-		readonly range: number[];
+		readonly range: [number, number];
 	}
 	
 	/**
@@ -416,10 +416,10 @@ namespace Truth
 			`Infixes cannot have quantifiers ${quantifiers} applied to them`),
 		
 		/** */
-		InfixHasDuplicateIdentifier: createFault<InfixSpan>(
+		InfixHasDuplicateTerm: createFault<InfixSpan>(
 			///0,
 			501,
-			"Infixes cannot have duplicate identifiers."),
+			"Infixes cannot have duplicate terms."),
 		
 		/** */
 		InfixHasSelfReferentialType: createFault<InfixSpan>(
@@ -469,7 +469,7 @@ namespace Truth
 		InfixUsingListOperator: createFault<InfixSpan>(
 			///0,
 			517,
-			`Infix identifiers cannot end with the list operator (${Syntax.list}).`),
+			`Infix terms cannot end with the list operator (${Syntax.list}).`),
 		
 		/** */
 		InfixReferencingList: createFault<InfixSpan>(

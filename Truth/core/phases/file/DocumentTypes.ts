@@ -55,23 +55,23 @@ namespace Truth
 	export interface IDocumentEditRange
 	{
 		/**
-		 * Stores the line number on which the range starts (starts at 0).
+		 * Stores the 1-based line number on which the range starts.
 		 */
 		readonly startLineNumber: number;
 		
 		/**
-		 * Stores the column on which the range starts in line
-		 * `startLineNumber` (starts at 0).
+		 * Stores the 1-based column on which the range starts in line
+		 * `startLineNumber`.
 		 */
 		readonly startColumn: number;
 		
 		/**
-		 * Stores the line number on which the range ends.
+		 * Stores the 1-based line number on which the range ends.
 		 */
 		readonly endLineNumber: number;
 		
 		/**
-		 * Stores the Column on which the range ends in line
+		 * Stores the 1-based column on which the range ends in line
 		 * `endLineNumber`.
 		 */
 		readonly endColumn: number;
@@ -102,7 +102,7 @@ namespace Truth
 	 * @internal
 	 * A type that describes a Statement object with a non-null .uri value.
 	 */
-	export type UriStatement = Statement & { readonly uri: Uri; };
+	export type UriStatement = Statement & { readonly uri: KnownUri; };
 	
 	/**
 	 * @internal
@@ -121,4 +121,16 @@ namespace Truth
 		/** @internal */
 		readonly class = Class.reference;
 	}
+	
+	/**
+	 * An alias for a tuple used to construct faults that are used by a Document's
+	 * .hasFaults method in order to check for the existence of a particular fault.
+	 * 
+	 * The schema of the tuple is [Fault type, line number
+	 * 
+	 * In the case when the fault type is an InfixSpan, 
+	 */
+	export type TComparisonFault = 
+		[StatementFaultType, number] | 
+		[SpanFaultType, number, number];
 }

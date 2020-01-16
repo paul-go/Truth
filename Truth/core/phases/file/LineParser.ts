@@ -6,8 +6,23 @@ namespace Truth
 	 */
 	export interface ILineParserOptions
 	{
-		readonly readPatterns?: boolean;
-		readonly readUris?: boolean;
+		/**
+		 * Specifies a full URI that the parsing can use to resolve
+		 * relative URIs discovered during the parsing process.
+		 */
+		readonly assumedUri: KnownUri;
+		
+		/**
+		 * A boolean value that indicates whether patterns should be
+		 * parsed as patterns (true), or as regular types (false).
+		 */
+		readonly readPatterns: boolean;
+		
+		/**
+		 * A boolean value that indicates whether URIs should be
+		 * parsed as URIs (true), or as regular types (false).
+		 */
+		readonly readUris: boolean;
 	}
 	
 	/**
@@ -18,28 +33,28 @@ namespace Truth
 	export class LineParser
 	{
 		/**
-		 * Generator function that yields all statements
-		 * (unparsed lines) of the given source text. 
+		 * Generator function that yields all statements (unparsed lines)
+		 * of the given source text. 
 		 */
-		static *read(fullSource: string)
+		static *read(sourceText: string)
 		{
-			if (fullSource.length === 0)
+			if (sourceText.length === 0)
 				return;
 			
 			let cursor = 0;
 			let statementStart = 0;
 			
-			for (; cursor < fullSource.length; cursor++)
+			for (; cursor < sourceText.length; cursor++)
 			{
-				if (fullSource[cursor] === Syntax.terminal)
+				if (sourceText[cursor] === Syntax.terminal)
 				{
-					yield fullSource.slice(statementStart, cursor);
+					yield sourceText.slice(statementStart, cursor);
 					statementStart = cursor + 1;
 				}
 			}
 			
 			if (statementStart < cursor)
-				yield fullSource.slice(statementStart);
+				yield sourceText.slice(statementStart);
 		}
 		
 		/**
@@ -51,19 +66,16 @@ namespace Truth
 		 * to follow. Technically, it's probably some mash-up of LL(k) & LALR.
 		 * Maybe if I blew 4 years of my life in some silly Comp Sci program
 		 * instead of dropping out of high school I could say for sure.
+		 * 
+		 * @param lineText A string containing the line to parse.
 		 */
-		static parse(lineText: string, options?: ILineParserOptions)
+		static parse(lineText: string, options: ILineParserOptions)
 		{
-			const parserOptions = options || {
-				readPatterns: true,
-				readUris: true
-			};
-			
 			const parser = new Parser(lineText);
 			const sourceText = lineText;
 			const indent = parser.readWhitespace();
-			const declarationEntries: Boundary<DeclarationSubject>[] = [];
-			const annotationEntries: Boundary<AnnotationSubject>[] = [];
+			const declarationEntries: Boundary<Subject>[] = [];
+			const annotationEntries: Boundary<Term>[] = [];
 			const esc = Syntax.escapeChar;
 			let flags = LineFlags.none;
 			let jointPosition = -1;
@@ -196,7 +208,7 @@ namespace Truth
 						declarationEntries.unshift(new Boundary(
 							jointPosition,
 							jointPosition,
-							new Anon()));
+							Term.void));
 						
 						if (aLen === 0)
 							flags |= LineFlags.isVacuous;
@@ -216,18 +228,18 @@ namespace Truth
 			 */
 			function readDeclarations(quitTokens: string[])
 			{
-				const entries: Boundary<Identifier>[] = [];
+				const entries: Boundary<Term>[] = [];
 				const until = quitTokens.concat(Syntax.joint);
 				
 				while (parser.more())
 				{
-					const readResult = maybeReadIdentifier(until);
+					const readResult = maybeReadTerm(until);
 					
 					if (readResult !== null)
-						entries.push(new Boundary<Identifier>(
+						entries.push(new Boundary<Term>(
 							readResult.at, 
 							parser.position,
-							readResult.identifier));
+							readResult.term));
 					
 					// The following combinator must be eaten before
 					// moving on to another declaration. If this fails,
@@ -304,19 +316,19 @@ namespace Truth
 			 */
 			function readAnnotations(quitTokens: string[])
 			{
-				const annotations: Boundary<AnnotationSubject>[] = [];
+				const annotations: Boundary<Term>[] = [];
 				let raw = "";
 				
 				while (parser.more())
 				{
-					const readResult = maybeReadIdentifier(quitTokens);
+					const readResult = maybeReadTerm(quitTokens);
 					
 					if (readResult !== null)
 					{
 						annotations.push(new Boundary(
 							readResult.at, 
 							parser.position,
-							readResult.identifier));
+							readResult.term));
 						
 						raw += readResult.raw;
 					}
@@ -334,10 +346,9 @@ namespace Truth
 			}
 			
 			/**
-			 * Attempts to read a raw annotation from the parse stream.
-			 * If found, the raw string found is returned.
+			 * Attempts to read and return a term from the parse stream.
 			 */
-			function maybeReadIdentifier(quitTokens: string[])
+			function maybeReadTerm(quitTokens: string[])
 			{
 				const until = quitTokens
 					.concat(Syntax.combinator)
@@ -360,9 +371,9 @@ namespace Truth
 					if (parser.more())
 					{
 						// The only operators that can be meaningfully escaped at
-						// the identifier level are the joint, the combinator, and the
+						// the term level are the joint, the combinator, and the
 						// pattern delimiter. Other occurences of the escape character
-						// append this character to the identifier.
+						// append this character to the term.
 						
 						if (g1 === esc)
 						{
@@ -381,7 +392,7 @@ namespace Truth
 				
 				return {
 					at,
-					identifier: new Identifier(tokenTrimmed),
+					term: Term.from(tokenTrimmed),
 					raw: token
 				};
 			}
@@ -393,16 +404,26 @@ namespace Truth
 			 */
 			function maybeReadUri()
 			{
-				if (!parserOptions.readUris)
+				if (!options.readUris)
+					return null;
+				
+				let prefix = 
+					parser.read(Syntax.httpPrefix) ||
+					parser.read(Syntax.httpsPrefix) ||
+					parser.read(Syntax.retractingUriPrefix) ||
+					parser.read(Syntax.relativeUriPrefix);
+				
+				if (prefix === "")
 					return null;
 				
 				const mark = parser.position;
-				const uri = Uri.tryParse(parser.readUntil());
+				const maybeUriContent = parser.readUntil();
 				
-				if (uri === null)
-					parser.position = mark;
+				if (maybeUriContent.endsWith(Syntax.truthExtension))
+					return KnownUri.fromString(prefix + maybeUriContent, options.assumedUri);
 				
-				return uri;
+				parser.position = mark;
+				return null;
 			}
 			
 			/**
@@ -413,7 +434,7 @@ namespace Truth
 				if (!nested && !parser.read(RegexSyntaxDelimiter.main))
 					return null;
 				
-				if (!parserOptions.readPatterns)
+				if (!options.readPatterns)
 					return null;
 				
 				// These are reserved starting sequences. They're invalid
@@ -870,8 +891,8 @@ namespace Truth
 			function maybeReadInfix(): Infix | StatementFaultType | null
 			{
 				const mark = parser.position;
-				const lhsEntries: Boundary<Identifier>[] = [];
-				const rhsEntries: Boundary<Identifier>[] = [];
+				const lhsEntries: Boundary<Term>[] = [];
+				const rhsEntries: Boundary<Term>[] = [];
 				const infixStart = parser.position;
 				let infixFlags: InfixFlags = InfixFlags.none;
 				let quitToken = InfixSyntax.end;

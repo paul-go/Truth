@@ -12,33 +12,29 @@ namespace Truth
 	export class TypeCache
 	{
 		/** */
-		static has(uri: Uri, program: Program)
+		static has(phrase: Phrase, program: Program)
 		{
 			const cache = this.getCache(program);
-			const uriText = uri.toString();
-			return cache.map.has(uriText);
+			return cache.map.has(phrase);
 		}
 		
 		/** */
-		static get(uri: Uri, program: Program)
+		static get(phrase: Phrase, program: Program)
 		{
 			const cache = this.getCache(program);
-			const uriText = uri.toString();
+			if (cache.map.has(phrase))
+				return Not.undefined(cache.map.get(phrase));
 			
-			if (cache.map.has(uriText))
-				return Not.undefined(cache.map.get(uriText));
-			
-			const proxy = new TypeProxy(uri, program);
-			this.set(uri, program, proxy);
+			const proxy = new TypeProxy(phrase, program);
+			this.set(phrase, program, proxy);
 			return proxy;
 		}
 		
 		/** */
-		static set(uri: Uri, program: Program, type: TCachedType): TCachedType
+		static set(phrase: Phrase, program: Program, type: TCachedType): TCachedType
 		{
 			const cache = this.getCache(program);
-			const uriText = uri.toString();
-			cache.map.set(uriText, type);
+			cache.map.set(phrase, type);
 			return type;
 		}
 		
@@ -81,6 +77,6 @@ namespace Truth
 		private version: VersionStamp;
 		
 		/** */
-		private readonly map = new Map<string, TCachedType>();
+		private readonly map = new Map<Phrase, TCachedType>();
 	}
 }

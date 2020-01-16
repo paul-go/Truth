@@ -17,8 +17,8 @@ namespace Truth
 		 * input was already created.
 		 */
 		create(node: Node, cruft: CruftCache): SpecifiedParallel;
-		create(uri: Uri): UnspecifiedParallel;
-		create(key: Node | Uri, cruft?: CruftCache)
+		create(phrase: Phrase): UnspecifiedParallel;
+		create(key: Node | Phrase, cruft?: CruftCache)
 		{
 			if (this.has(key))
 				throw Exception.unknownState();
@@ -37,12 +37,12 @@ namespace Truth
 						Not.undefined(this.get(key.container)) :
 						null;
 				
-				return key.types.length > 1 ?
-					Not.undefined(this.get(key.retractType(1))) :
+				return key.length > 1 ?
+					Not.undefined(this.get(key.back())) :
 					null;
 			})();
 			
-			if (key instanceof Uri)
+			if (key instanceof Phrase)
 				return save(new UnspecifiedParallel(key, container));
 			
 			if (!(container instanceof SpecifiedParallel) && container !== null)
@@ -68,9 +68,9 @@ namespace Truth
 		}
 		
 		/** */
-		get(key: Uri): Parallel | undefined;
+		get(key: Phrase): Parallel | undefined;
 		get(key: Node): SpecifiedParallel | undefined;
-		get(key: Node | Uri)
+		get(key: Node | Phrase)
 		{
 			const keyVal = this.getKeyVal(key);
 			const out = this.parallels.get(keyVal);
@@ -84,31 +84,30 @@ namespace Truth
 		}
 		
 		/** */
-		has(key: Node | Uri)
+		has(key: Node | Phrase)
 		{
 			return this.parallels.has(this.getKeyVal(key));
 		}
 		
 		/** */
-		private getKeyVal(key: Node | Uri)
+		private getKeyVal(key: Node | Phrase)
 		{
-			const uri = key instanceof Node ? key.uri : key;
-			return uri.toString();
+			return key instanceof Node ? key.phrase : key;
 		}
 		
 		/**
-		 * Stores a map of all Parallel instances that have been
-		 * constructed by this object.
+		 * Stores a map of all Parallel objects that have been constructed,
+		 * keyed by the Phrase to which they correspond.
 		 */
-		private readonly parallels = new Map<string, Parallel>();
+		private readonly parallels = new Map<Phrase, Parallel>();
 		
 		/** */
 		get debug()
 		{
 			const text: string[] = [];
 			
-			for (const [key, value] of this.parallels)
-				text.push(value.name);
+			for (const parallel of this.parallels.values())
+				text.push(parallel.name || "(undefined)");
 			
 			return text.join("\n");
 		}

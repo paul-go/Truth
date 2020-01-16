@@ -55,13 +55,13 @@ namespace Truth
 		}
 		
 		/**
-		 * Reads a root Node with the specified
-		 * name out of the specified document.
+		 * Reads a root Node corresponding to the specified subject
+		 * from the specified document.
 		 */
-		read(document: Document, name: string): Node | null
+		read(document: Document, subject: Subject): Node | null
 		{
-			const uri = document.sourceUri.extendType(name);
-			return this.nodeIndex.getNodeByUri(uri);
+			const phrase = document.phrase.forward(subject);
+			return this.nodeIndex.getNodeByPhrase(phrase);
 		}
 		
 		/**
@@ -94,8 +94,13 @@ namespace Truth
 				{
 					const associatedNodes = new Set(declaration
 						.factor()
-						.map(spine => Uri.clone(spine))
-						.map(uri => this.nodeIndex.getNodeByUri(uri))
+						.map(spine =>
+						{
+							const phrase = Phrase.fromSpine(spine);
+							return phrase ?
+								this.nodeIndex.getNodeByPhrase(phrase) :
+								null;
+						})
 						.filter((n): n is Node => n instanceof Node));
 					
 					for (const associatedNode of associatedNodes)
@@ -151,18 +156,16 @@ namespace Truth
 			 * @returns The containing node that
 			 * corresponds to the specified URI.
 			 */ 
-			const findNode = (uri: Uri) =>
+			const findNode = (phrase: Phrase) =>
 			{
-				if (uri.types.length === 0)
+				if (phrase.length === 0)
 					throw Exception.invalidArgument();
 				
-				const existingNode = affectedNodes.find(node => 
-					node.uri.equals(uri, true));
-				
+				const existingNode = affectedNodes.find(node => node.phrase === phrase);
 				if (existingNode)
 					return existingNode;
 				
-				const cachedNode = this.nodeIndex.getNodeByUri(uri);
+				const cachedNode = this.nodeIndex.getNodeByPhrase(phrase);
 				if (cachedNode)
 					return cachedNode;
 				
@@ -189,7 +192,12 @@ namespace Truth
 			//
 			// (3) A unique Span object that corresponds to a unqiue
 			// occurence of a subject in the document.
-			interface IBreadthFirstEntry { uri: Uri; declaration: Span | InfixSpan }
+			interface IBreadthFirstEntry
+			{
+				phrase: Phrase;
+				declaration: Span | InfixSpan
+			}
+			
 			const breadthFirstOrganizer: MultiMap<string, IBreadthFirstEntry>[] = [];
 			
 			for (const { level, statement } of iterator)
@@ -225,12 +233,17 @@ namespace Truth
 				{
 					for (const spine of decl.factor())
 					{
-						const uri = Uri.clone(spine);
-						const typeNames = spine.vertebrae.map(v => v.toString(true));
+						const phrase = Phrase.fromSpine(spine);
+						if (!phrase)
+							continue;
 						
-						multiMap.add(
-							typeNames.join(Syntax.terminal),
-							{ uri, declaration: decl });
+						const typeNames = spine.vertebrae.map(v => v.toString(true));
+						const entry: IBreadthFirstEntry = {
+							phrase,
+							declaration: decl
+						};
+						
+						multiMap.add(typeNames.join(Syntax.terminal), entry);
 						
 						// If the declaration has population infixes, these
 						// need to be added to the map as though they
@@ -245,14 +258,14 @@ namespace Truth
 							for (const infixSpan of decl.eachDeclarationForInfix(infix))
 							{
 								const nfxText = SubjectSerializer.forInternal(infixSpan);
+								const nfx = infixSpan.boundary.subject;
 								const infixSpineParts = typeNames.concat(nfxText);
+								const entry: IBreadthFirstEntry = {
+									phrase: phrase.forward(nfx),
+									declaration: infixSpan
+								};
 								
-								multiMap.add(
-									infixSpineParts.join(Syntax.terminal),
-									{
-										uri: uri.extendType(nfxText),
-										declaration: infixSpan
-									});
+								multiMap.add(infixSpineParts.join(Syntax.terminal), entry);
 							}
 						}
 					}
@@ -264,22 +277,24 @@ namespace Truth
 			// in through the "root" parameter. New Node objects
 			// are created if necessary.
 			for (const multiMap of breadthFirstOrganizer)
+			{
 				for (const entry of multiMap.values())
-					for (const { uri, declaration } of entry)
+				{
+					for (const { phrase, declaration } of entry)
 					{
-						const nodeAtUri = findNode(uri);
-						if (nodeAtUri)
+						const nodeAtPhrase = findNode(phrase);
+						if (nodeAtPhrase)
 						{
-							affectedNodes.push(nodeAtUri);
-							nodeAtUri.addDeclaration(declaration);
+							affectedNodes.push(nodeAtPhrase);
+							nodeAtPhrase.addDeclaration(declaration);
 							continue;
 						}
 						
-						const container = uri.types.length > 1 ?
-							findNode(uri.retractType(1)) :
+						const container = phrase.length > 1 ?
+							findNode(phrase.back()) :
 							null;
 						
-						if (uri.types.length > 1 && container === null)
+						if (phrase.length > 1 && container === null)
 							throw Exception.unknownState();
 						
 						// Note that when creating a Node, it's
@@ -300,8 +315,8 @@ namespace Truth
 							// If we've encountered a node that is higher
 							// than the level of depth defined in the nodes currently
 							// in the affectedNodesApexes array.
-							const highestDepth = affectedNodes[0].uri.types.length;
-							const nodeDepth = newNode.uri.types.length;
+							const highestDepth = affectedNodes[0].phrase.length;
+							const nodeDepth = newNode.phrase.length;
 							
 							if (nodeDepth < highestDepth)
 								affectedNodesApexes.length = 0;
@@ -310,6 +325,8 @@ namespace Truth
 								affectedNodesApexes.push(newNode);
 						}
 					}
+				}
+			}
 			
 			// Add or update all new HyperEdges by feeding in all
 			// annotation spans for each declaration span.
@@ -361,15 +378,15 @@ namespace Truth
 				{
 					// Pattern and URI resolution doesn't occur in the
 					// Node graph, so when the node's subject isn't 
-					// an identifier, we don't add any edges to it.
-					if (!(scsrNode.subject instanceof Identifier))
+					// a term, we don't add any edges to it.
+					if (!(scsrNode.subject instanceof Term))
 						continue;
 					
-					const idents = this.nodeIndex.getAssociatedIdentifiers(scsrNode);
+					const terms = this.nodeIndex.getAssociatedTerms(scsrNode);
 					
-					for (const ident of idents)
+					for (const term of terms)
 					{
-						const predecessors = this.nodeIndex.getNodesByIdentifier(ident);
+						const predecessors = this.nodeIndex.getNodesByTerm(term);
 						
 						for (const predecessor of predecessors)
 							if (checkRoot || isBelowAnApexContainer(predecessor))
@@ -399,7 +416,7 @@ namespace Truth
 			for (const affectedNode of affectedNodes)
 			{
 				affectedNode.sortOutbounds();
-				const cachedNode = this.nodeIndex.getNodeByUri(affectedNode.uri);
+				const cachedNode = this.nodeIndex.getNodeByPhrase(affectedNode.phrase);
 				
 				if (cachedNode)
 				{
@@ -410,8 +427,7 @@ namespace Truth
 				}
 				else
 				{
-					const affectedUri = affectedNode.uri.toString();
-					this.nodeIndex.set(affectedUri, affectedNode);
+					this.nodeIndex.set(affectedNode.phrase, affectedNode);
 				}
 				
 				this.sanitize(affectedNode);

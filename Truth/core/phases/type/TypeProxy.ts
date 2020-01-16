@@ -8,7 +8,7 @@ namespace Truth
 	{
 		/** */
 		constructor(
-			private readonly uri: Uri,
+			private readonly phrase: Phrase,
 			private readonly program: Program)
 		{ }
 		
@@ -18,7 +18,7 @@ namespace Truth
 			if (this.compiledType !== undefined)
 				return this.compiledType;
 			
-			return this.compiledType = Type.construct(this.uri, this.program);
+			return this.compiledType = Type.construct(this.phrase, this.program);
 		}
 		
 		/** */

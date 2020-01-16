@@ -23,7 +23,12 @@ namespace Truth
 		{
 			super();
 			
-			const line = LineParser.parse(text);
+			const line = LineParser.parse(text, {
+				readPatterns: true,
+				readUris: true,
+				assumedUri: document.uri
+			});
+			
 			this.document = document;
 			this.sourceText = line.sourceText;
 			this.sum = line.sum;
@@ -115,7 +120,7 @@ namespace Truth
 				const getListSpans = (spans: readonly Span[]) => spans.filter(span =>
 				{
 					const sub = span.boundary.subject;
-					return sub instanceof Identifier && sub.isList;
+					return sub instanceof Term && sub.isList;
 				});
 				
 				const lhsListSpans = getListSpans(this.allDeclarations);
@@ -189,11 +194,11 @@ namespace Truth
 				yield *dedupInfixSubjects(lhs);
 				yield *dedupInfixSubjects(rhs);
 				
-				const lhsIdentifiers = lhs.map(nfxSpan => 
+				const lhsSubjects = lhs.map(nfxSpan => 
 					nfxSpan.boundary.subject.toString());
 				
 				for (const infixSpan of rhs)
-					if (lhsIdentifiers.includes(infixSpan.boundary.subject.toString()))
+					if (lhsSubjects.includes(infixSpan.boundary.subject.toString()))
 						yield new Fault(Faults.InfixHasSelfReferentialType, infixSpan);
 				
 				if (infix.isPopulation)
@@ -309,7 +314,7 @@ namespace Truth
 		{
 			const f = LineFlags.hasUri;
 			return (this.flags & f) === f ?
-				this.declarations[0].boundary.subject as Uri :
+				this.declarations[0].boundary.subject as KnownUri :
 				null;
 		}
 		
@@ -337,7 +342,7 @@ namespace Truth
 		 * document, or -1 if the statement is disposed and/or is not
 		 * in the document.
 		 */
-		get index()
+		get line()
 		{
 			if (this.isDisposed)
 				return -1;
@@ -469,22 +474,22 @@ namespace Truth
 		}
 		
 		/**
-		 * @returns The kind of StatementRegion that exists
+		 * @returns The kind of StatementZone that exists
 		 * at the given character offset within the Statement.
 		 */
-		getRegion(offset: number)
+		getZone(offset: number)
 		{
 			if (this.isComment || offset < this.indent || this.isCruft)
-				return StatementRegion.void;
+				return StatementZone.void;
 			
 			if (this.isWhitespace)
-				return StatementRegion.whitespace;
+				return StatementZone.whitespace;
 			
 			if (this.hasPattern)
 			{
 				const bnd = this.allDeclarations[0].boundary;
 				if (offset >= bnd.offsetStart && offset <= bnd.offsetEnd)
-					return StatementRegion.pattern;
+					return StatementZone.pattern;
 			}
 			
 			if (offset <= this.jointPosition || this.jointPosition < 0)
@@ -493,20 +498,20 @@ namespace Truth
 				{
 					const bnd = span.boundary;
 					if (offset >= bnd.offsetStart && offset <= bnd.offsetEnd)
-						return StatementRegion.declaration;
+						return StatementZone.declaration;
 				}
 				
-				return StatementRegion.declarationVoid;
+				return StatementZone.declarationVoid;
 			}
 			
 			for (const span of this.allAnnotations)
 			{
 				const bnd = span.boundary;
 				if (offset >= bnd.offsetStart && offset <= bnd.offsetEnd)
-					return StatementRegion.annotation;
+					return StatementZone.annotation;
 			}
 			
-			return StatementRegion.annotationVoid;
+			return StatementZone.annotationVoid;
 		}
 		
 		/**
@@ -568,7 +573,7 @@ namespace Truth
 		{
 			const serializeSpans = (
 				spans: readonly Span[],
-				escStyle: IdentifierEscapeKind) =>
+				escStyle: TermEscapeKind) =>
 			{
 				return spans
 					.filter(sp => !(sp.boundary.subject instanceof Anon))
@@ -587,8 +592,8 @@ namespace Truth
 			if (this.isVacuous)
 				return indent + Syntax.joint;
 			
-			const decls = serializeSpans(this.allDeclarations, IdentifierEscapeKind.declaration);
-			const annos = serializeSpans(this.allAnnotations, IdentifierEscapeKind.annotation);
+			const decls = serializeSpans(this.allDeclarations, TermEscapeKind.declaration);
+			const annos = serializeSpans(this.allAnnotations, TermEscapeKind.annotation);
 			
 			const joint = annos.length > 0 || this.isRefresh ? Syntax.joint : "";
 			const jointL = decls.length > 0 && joint !== "" ? Syntax.space : "";
@@ -602,7 +607,7 @@ namespace Truth
 	 * Defines the areas of a statement that are significantly
 	 * different when performing inspection.
 	 */
-	export enum StatementRegion
+	export enum StatementZone
 	{
 		/**
 		 * Refers to the area within a comment statement,
@@ -634,7 +639,7 @@ namespace Truth
 	}
 	
 	/**
-	 * Yields faults on infix spans in the case when an identifier
+	 * Yields faults on infix spans in the case when a term
 	 * has been re-declared multiple times within the same infix.
 	 */
 	function *dedupInfixSubjects(side: InfixSpan[])
@@ -649,21 +654,21 @@ namespace Truth
 			const subText = nfxSpan.boundary.subject.toString();
 			if (subjects.includes(subText))
 			{
-				yield new Fault(Faults.InfixHasDuplicateIdentifier, nfxSpan);
+				yield new Fault(Faults.InfixHasDuplicateTerm, nfxSpan);
 			}
 			else subjects.push(subText);
 		}
 	}
 	
 	/**
-	 * Yields faults on infix spans in the case when an identifier
+	 * Yields faults on infix spans in the case when a term
 	 * has been re-declared multiple times across the infixes.
 	 */
 	function *dedupInfixesAcrossInfixes(
 		span: Span,
 		infixFn: (nfx: Infix) => IterableIterator<InfixSpan>)
 	{
-		const identifiers: string[] = [];
+		const terms: string[] = [];
 			
 		for (const infix of span.infixes)
 		{
@@ -672,31 +677,12 @@ namespace Truth
 			for (const infixSpan of infixSpans)
 			{
 				const text = infixSpan.boundary.subject.toString();
-				if (identifiers.includes(text))
+				if (terms.includes(text))
 				{
 					yield infixSpan;
 				}
-				else identifiers.push(text);
+				else terms.push(text);
 			}
-		}
-	}
-	
-	/**
-	 * Yields when successive equivalent instances are discovered
-	 * in the specified iterator.
-	 */
-	function *dedup<T>(
-		iterator: IterableIterator<T>,
-		equalityFn: (a: T, b: T) => boolean)
-	{
-		const yielded: T[] = [];
-		
-		for (const item of iterator)
-		{
-			if (yielded.includes(item))
-				yield item;
-			else
-				yielded.push(item);
 		}
 	}
 	
@@ -704,7 +690,7 @@ namespace Truth
 	 * Performs a quick and dirty check to see if the infix is referencing
 	 * a list, by looking to see if it has the list operator. A full check needs
 	 * to perform type inspection to see if any of the types that correspond
-	 * to the identifiers specified are actually lists.
+	 * to the terms specified are actually lists.
 	 */
 	function *expedientListCheck(side: InfixSpan[])
 	{

@@ -10,6 +10,7 @@ namespace Truth
 		/** */
 		constructor(private readonly program: Program)
 		{
+			/*
 			program.on(CauseUriReferenceAdd, data =>
 			{
 				if (data.uri.ext === UriExtension.js)
@@ -21,13 +22,13 @@ namespace Truth
 				if (data.uri.ext === UriExtension.js)
 					this.detachAgent(data.uri, data.statement);
 			});
+			*/
 		}
 		
 		/** */
-		private async attachAgent(uri: Uri, statement: Statement | null)
+		private async attachAgent(uri: KnownUri, statement: Statement | null)
 		{
-			const uriText = uri.toStoreString();
-			const existingCacheSet = this.cache.get(uriText);
+			const existingCacheSet = this.cache.get(uri);
 			const reference = statement || this.program;
 			
 			if (existingCacheSet)
@@ -77,21 +78,20 @@ namespace Truth
 			
 			this.program.cause(new CauseAgentAttach(uri, scope));
 			const set = new Set<Statement | Program>([reference]);
-			this.cache.set(uriText, set);
+			this.cache.set(uri, set);
 		}
 		
 		/** */
-		private detachAgent(uri: Uri, statement: Statement | null)
+		private detachAgent(uri: KnownUri, statement: Statement | null)
 		{
-			const uriText = uri.toStoreString();
-			const existingCacheSet = this.cache.get(uriText);
+			const existingCacheSet = this.cache.get(uri);
 			if (!existingCacheSet)
 				return;
 			
 			existingCacheSet.delete(statement || this.program);
 			if (existingCacheSet.size === 0)
 			{
-				this.cache.delete(uriText);
+				this.cache.delete(uri);
 				this.program.cause(new CauseAgentDetach(uri));
 			}
 		}
@@ -118,7 +118,7 @@ namespace Truth
 		 * file, to account for the discrepencies introduced by wrapping JavaScript
 		 * source code in a new Function() constructor.
 		 */
-		private maybeAdjustSourceMap(sourceUri: Uri, sourceCode: string)
+		private maybeAdjustSourceMap(sourceUri: KnownUri, sourceCode: string)
 		{
 			// We can't do any of this source map mutation without Node.JS
 			// access right now. Maybe this will change in the future.
@@ -170,7 +170,10 @@ namespace Truth
 			const prefix = ";".repeat(this.sourceMapLineOffset + 1);
 			
 			const pathModule = require("path") as typeof import("path");
-			const basePath = sourceUri.toStoreString(true);
+			
+			// Should actually be .toString() without a file.
+			debugger;
+			const basePath = sourceUri.toString();
 			sourceMap.mappings = prefix + sourceMap.mappings;
 			
 			if (sourceMap.sources instanceof Array)
@@ -261,7 +264,7 @@ namespace Truth
 		 * This array is used to reference count / garbage collect
 		 * the attached agents.
 		 */
-		private readonly cache = new Map<string, Set<Statement | Program>>();
+		private readonly cache = new Map<KnownUri, Set<Statement | Program>>();
 	}
 	
 	declare function atob(input: string): string;

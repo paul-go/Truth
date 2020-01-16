@@ -8,6 +8,24 @@ namespace Truth
 	export class Misc
 	{
 		/**
+		 * Returns a value from the specified Map. In the case when the key
+		 * has not been entered into the Map, it's added to the map via the
+		 * the function that computes a fallback value.
+		 */
+		static get<K, V>(map: Map<K, V>, key: K, fallbackFn: () => V): V
+		static get<K extends object, V>(map: WeakMap<K, V>, key: K, fallbackFn: () => V): V
+		static get<K extends object, V>(map: WeakMap<K, V>, key: K, fallbackFn: () => V): V
+		{
+			const value = map.get(key);
+			if (value !== void 0)
+				return value;
+			
+			const fallbackValue = fallbackFn();
+			map.set(key, fallbackValue);
+			return fallbackValue;
+		}
+		
+		/**
 		 * Compresses the number sequence into a reasonably unique 53-bit hash number.
 		 * The hash is commutative in that the sequences [1, 2, 3] and [3, 2, 1] should result
 		 * in the same number.

@@ -4,10 +4,9 @@ namespace Truth
 	/**
 	 * This example demonstrates fragmented types
 	 */
-	function coverLanguageFragmentation()
+	async function coverLanguageFragmentation()
 	{
-		return new FullCover().try(`
-			
+		const [doc] = await createLanguageCover(`
 			A, B, C
 			
 			Class
@@ -16,7 +15,14 @@ namespace Truth
 				Property : C
 			
 			SubClass : Class
-				Property ~ A, B, C
+				Property
 		`);
+		
+		const [tA, tB, tC, tClassProperty] = typesOf(doc, "A", "B", "C", ["Class", "Property"]);
+		return [
+			() => tClassProperty.is(tA),
+			() => tClassProperty.is(tB),
+			() => tClassProperty.is(tC)
+		];
 	}
 }

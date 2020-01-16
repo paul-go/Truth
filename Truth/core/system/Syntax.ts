@@ -13,7 +13,14 @@ namespace Truth
 		joint = ":",
 		list = "...",
 		escapeChar = "\\",
-		comment = "//"
+		comment = "//",
+		
+		// Constants used in URI parsing
+		retractingUriPrefix = "../",
+		relativeUriPrefix = "./",
+		httpPrefix = "http://",
+		httpsPrefix = "https://",
+		truthExtension = ".truth"
 	}
 	
 	/**
@@ -25,7 +32,7 @@ namespace Truth
 		current = ".",
 		componentSeparator = "/",
 		typeSeparator = "//",
-		protocolRelative = "//",
+		protocolSeparator = "//",
 		indexerStart = "[",
 		indexerEnd = "]",
 	}

@@ -54,19 +54,52 @@ namespace Truth
 		
 		/**
 		 * Returns an array that contains all faults retained by this FaultService,
-		 * sorted in the order that they exist in the program.
+		 * sorted in the order that they exist in the program, optionally filtered
+		 * by the document specified.
 		 */
-		each()
+		each(document?: Document)
 		{
-			return [
+			let faults = [
 				...this.foregroundAutoFrame.faults.values(),
 				...this.foregroundManualFrame.faults.values()
 			]
 				.map(faultMap => [...faultMap.values()])
-				.reduce((a, b) => a.concat(b), [])
-				.sort((a, b) => a.document === b.document ?
-					a.line - b.line :
-					a.document.sourceUri.toStoreString() < b.document.sourceUri.toStoreString() ? -1 : 1);
+				.reduce((a, b) => a.concat(b), []);
+			
+			if (document)
+				faults = faults.filter(v => v.document === document);
+			
+			return faults.sort(this.compareFaults);
+		}
+		
+		/**
+		 * @internal
+		 * Compares two fault instances, and returns a number that is suitable
+		 * as a return value for the callback function passed to JavaScript's
+		 * Array.sort() method.
+		 * 
+		 * Returns 0 in the case when the faults appear to be equivalent.
+		 */
+		compareFaults(a: Fault, b: Fault)
+		{
+			if (a.document !== b.document)
+				return a.document.uri.toString() < b.document.uri.toString() ? -1 : 1;
+			
+			if (a.line !== b.line)
+				return b.line - a.line;
+			
+			// When the faults exist on the same line, the ordering is based on 
+			// the starting offset of the reported fault's range. This should cause
+			// Statement faults to always be ordered before Span and InfixSpan
+			// faults.
+			const offsetDelta = b.range[0] - a.range[0];
+			if (offsetDelta !== 0)
+				return offsetDelta;
+			
+			// If there are multiple faults reported on the same span, the ordering
+			// is based on the internal fault code. If the faults are the same, 0 is
+			// returned, and the faults are considered to be equivalent.
+			return b.type.code - a.type.code;
 		}
 		
 		/**
@@ -131,50 +164,6 @@ namespace Truth
 			0);
 		}
 		private manualRefreshQueued = false;
-		
-		/**
-		 * @returns A boolean value indicating whether this FaultService retains a fault
-		 * that is similar to the specified fault (meaning that it has the same code and source).
-		 * 
-		 * @param faultType The type of fault being inspected.
-		 * @param inDocument Optional parameter to restrict the inspection to a particular Document.
-		 * @param atLine A number specifying a 1-based line number at which to inspect.
-		 */
-		has(faultType: Readonly<FaultType>, inDocument?: Document, atLine = -1)
-		{
-			for (const retainedFault of this.each())
-			{
-				if (retainedFault.type.code !== faultType.code)
-					continue;
-				
-				if (!inDocument)
-					return true;
-				
-				if (retainedFault.document !== inDocument)
-					continue;
-				
-				if (atLine < 0 || retainedFault.line === atLine)
-					return true;
-			}
-			
-			return false;
-		}
-		
-		/**
-		 * @returns A boolean value indicating whether the faults that have been
-		 * reported to this FaultService are equal to the set of similarFaults provided.
-		 */
-		hasOnly(...similarFaults: [Readonly<FaultType>, Document?, number?][])
-		{
-			if (similarFaults.length !== this.count)
-				return false;
-			
-			for (const check of similarFaults)
-				if (!this.has(...check))
-					return false;
-			
-			return true;
-		}
 		
 		/**
 		 * @returns An array of Fault objects that have been reported

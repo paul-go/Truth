@@ -33,9 +33,10 @@ namespace Truth
 		}
 		
 		/**
+		 * @internal
 		 * Stores a string representation of this Span, useful for debugging.
 		 */
-		private readonly name: string;
+		private readonly name: string | undefined;
 		
 		/**
 		 * Gets the Infixes stored within this Span, in the case when

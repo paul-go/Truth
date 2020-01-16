@@ -27,7 +27,7 @@ namespace Truth
 			source: Span | InfixSpan,
 			successors: readonly Successor[])
 		{
-			if (!(source.boundary.subject instanceof Identifier))
+			if (!(source.boundary.subject instanceof Term))
 				throw Exception.unknownState();
 			
 			const successorNodes = successors
@@ -37,7 +37,7 @@ namespace Truth
 			if (successorNodes.length !== successors.length)
 				throw Exception.unknownState();
 			
-			this.identifier = source.boundary.subject;
+			this.term = source.boundary.subject;
 			this._fragments = [source];
 			this._successors = successors.slice();
 		}
@@ -153,7 +153,7 @@ namespace Truth
 			for (const source of this.fragments)
 			{
 				const sub = source.boundary.subject;
-				return sub instanceof Identifier && sub.isList;
+				return sub instanceof Term && sub.isList;
 			}
 			
 			return false;
@@ -193,7 +193,7 @@ namespace Truth
 		 * 
 		 * The *-overlay kinds have not yet been implemented.
 		 */
-		readonly identifier: Identifier;
+		readonly term: Term;
 		
 		/**
 		 * Gets a value that indicates the specific part of the
@@ -229,7 +229,7 @@ namespace Truth
 		toString()
 		{
 			return [
-				"Value=" + this.identifier,
+				"Value=" + this.term,
 				"Predecessors=" + this.predecessor.name,
 				"Successors=" + this.successors
 					.map(n => n.node.name + " << " + n.longitude)

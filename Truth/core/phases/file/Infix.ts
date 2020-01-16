@@ -22,17 +22,17 @@ namespace Truth
 			
 			/** 
 			 * Stores the Bounds object that marks out the positions
-			 * of the identifiers in the Infix that are located before
+			 * of the terms in the Infix that are located before
 			 * any Joint operator.
 			 */
-			readonly lhs: BoundaryGroup<Identifier>,
+			readonly lhs: BoundaryGroup<Term>,
 			
 			/**
 			 * Stores the Bounds object that marks out the positions
-			 * of the identifiers in the Infix that are located after
+			 * of the terms in the Infix that are located after
 			 * any Joint operator.
 			 */
-			readonly rhs: BoundaryGroup<Identifier>,
+			readonly rhs: BoundaryGroup<Term>,
 			
 			/** */
 			readonly flags: InfixFlags)
@@ -84,7 +84,7 @@ namespace Truth
 				this.isNominal ? InfixSyntax.nominalEnd :
 				InfixSyntax.end;
 			
-			const join = (spans: BoundaryGroup<Identifier>) =>
+			const join = (spans: BoundaryGroup<Term>) =>
 				Array.from(spans)
 					.map(entry => entry.subject)
 					.join(Syntax.combinator + Syntax.space);

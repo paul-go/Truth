@@ -2,10 +2,23 @@
 namespace Truth
 {
 	/**
-	 * Stakes out starting and ending character positions
-	 * of subjects within a given region.
+	 * A marking object that stakes out a starting and ending
+	 * character offset within a statement, signifying the
+	 * boundary of a particular subject.
 	 */
-	export class BoundaryGroup<TSubject>
+	export class Boundary<TSubject extends Subject>
+	{
+		constructor(
+			readonly offsetStart: number,
+			readonly offsetEnd: number,
+			readonly subject: TSubject)
+		{ }
+	}
+	
+	/**
+	 * Groups together a series of related Boundary objects.
+	 */
+	export class BoundaryGroup<TSubject extends Subject>
 	{
 		/** */
 		constructor(boundaries: Boundary<TSubject>[])
@@ -57,15 +70,5 @@ namespace Truth
 		
 		/** */
 		private readonly entries: readonly Boundary<TSubject>[];
-	}
-	
-	/** */
-	export class Boundary<TSubject>
-	{
-		constructor(
-			readonly offsetStart: number,
-			readonly offsetEnd: number,
-			readonly subject: TSubject)
-		{ }
 	}
 }
