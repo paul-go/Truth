@@ -2,100 +2,102 @@
 namespace Truth
 {
 	/**
-	 * Removes the indentation common to every line in the specified, 
-	 * so that Truth source code can be processed as if
-	 * there isn't a universal indent applied to every line.
+	 * 
 	 */
-	export function outdent(literals: TemplateStringsArray, ...placeholders: string[])
+	export async function createLanguageCover(): 
+		Promise<[Program]>;
+	/**
+	 * 
+	 */
+	export async function createLanguageCover(sourceA: string): 
+		Promise<[Document, Program]>;
+	/**
+	 * 
+	 */
+	export async function createLanguageCover(sourceA: string, sourceB: string): 
+		Promise<[Document, Document, Program]>;
+	/**
+	 * 
+	 */
+	export async function createLanguageCover(sourceA: string, sourceB: string, sourceC: string): 
+		Promise<[Document, Document, Document, Program]>;
+	
+	export async function createLanguageCover(sourceA?: string, sourceB?: string, sourceC?: string)
 	{
-		let result = "";
+		const program = new Program();
+		const documents: Document[] = [];
 		
-		for (let i = -1; ++i < placeholders.length;)
-			result += literals[i] + placeholders[i];
-		
-		result += literals[literals.length - 1];
-		const lines = result.split("\n");
-		
-		// Remove all leading whitespace-only lines.
-		while (lines.length && lines[0].trim() === "")
-			lines.shift();
-		
-		// Cut off whitespace-only trailing lines
-		while (lines[lines.length - 1].trim() === "")
-			lines.pop();
-		
-		// Find the first non whitespace line with the least amount 
-		// of indent, and use it as the universal indent trimmer.
-		let minIndent = Number.MAX_SAFE_INTEGER;
-		
-		for (let i = -1; ++i < lines.length;)
+		if (typeof sourceA === "string")
 		{
-			const line = lines[i];
-			if (line.trim() === "")
-				continue;
+			const docA = await program.addDocument(outdent`${sourceA}`);
+			if (docA instanceof Error)
+			{
+				debugger;
+				throw docA;
+			}
 			
-			const size = line.length - line.replace(/^\s*/, "").length;
-			if (size < minIndent)
-				minIndent = size;
+			documents.push(docA);
 		}
 		
-		// Slice off the left side of the string.
-		if (minIndent > 0 && minIndent !== Number.MAX_SAFE_INTEGER)
-			for (let i = -1; ++i < lines.length;)
-				lines[i] = lines[i].slice(minIndent);
+		if (typeof sourceB === "string")
+		{
+			const docB = await program.addDocument(outdent`${sourceB}`);
+			if (docB instanceof Error)
+			{
+				debugger;
+				throw docB;
+			}
+			
+			documents.push(docB);
+		}
 		
-		return lines.join("\n");
+		if (typeof sourceC === "string")
+		{
+			const docC = await program.addDocument(outdent`${sourceC}`);
+			if (docC instanceof Error)
+			{
+				debugger;
+				throw docC;
+			}
+			
+			documents.push(docC);
+		}
+		
+		return [...documents, program];
 	}
 	
 	/**
-	 * Tests that a fault extending from the specified Fault constructor
-	 * has been reported in the program or document, at the specified
-	 * line. If the Fault constructor relates to a SpanFault, an offset
-	 * must be specified that refers to the position of the span in the
-	 * statement.
+	 * Extracts one or more types from the specified document, at the given paths.
+	 * An error is thrown in the case when any of the paths specified do not correspond
+	 * to a type.
 	 */
-	export function hasFault(
-		container: Program | Document,
-		faultCode: number,
-		line: number,
-		offset?: number)
+	export function typesOf(document: Document, ...typePaths: (string | string[])[]): Type[]
 	{
-		const program = container instanceof Program ?
-			container :
-			container.program;
+		const out: (Type | null)[] = [];
+		const paths = typePaths.map(v => typeof v === "string" ? [v] : v);
+		let hasError = false;
 		
-		const targetDoc = container instanceof Program ?
-			null :
-			container;
-		
-		const isStatementFault = offset === undefined;
-		const spanPos = offset || 0;
-		
-		for (const fault of program.faults.each())
+		for (const path of paths)
 		{
-			if (fault.type.code !== faultCode)
-				continue;
+			const type = document.query(...path);
+			if (type === null)
+				hasError = true;
 			
-			if (isStatementFault && fault.source instanceof Statement)
-				if (!targetDoc || targetDoc === fault.source.document)
-					if (fault.source === fault.source.document.read(line))
-						return { message: () => "", pass: true };
-			
-			if (!isStatementFault && fault.source instanceof Span)
-				if (!targetDoc || targetDoc === fault.source.statement.document)
-					if (fault.source.statement === fault.source.statement.document.read(line))
-						if (fault.source.statement.spans.indexOf(fault.source) === spanPos)
-							return { message: () => "", pass: true };
+			out.push(type);
 		}
 		
-		const name = Faults.nameOf(faultCode);
+		if (hasError)
+		{
+			const errorLines = ["No type found at paths:"];
+			
+			for (let i = -1; ++i < out.length;)
+				if (out[i] === null)
+					errorLines.push("\t" + paths[i].join("/"));
+			
+			throw new Error(errorLines.join("\n"));
+		}
 		
-		return {
-			message: isStatementFault ?
-				() => `Statement at line ${line} does not have a ${name}.` :
-				() => `Span at line ${line}, offset ${offset}) does not have a ${name}.`,
-			pass: false
-		};
+		return out as Type[];
 	}
 	
 	/**
@@ -134,5 +136,51 @@ namespace Truth
 			return `Expected:\n${exp}\nRecieved:${rcv}`;
 		
 		return true;
+	}
+	
+	/**
+	 * Removes the indentation common to every line in the specified, 
+	 * so that Truth source code can be processed as if
+	 * there isn't a universal indent applied to every line.
+	 */
+	export function outdent(literals: TemplateStringsArray, ...placeholders: string[])
+	{
+		let result = "";
+		
+		for (let i = -1; ++i < placeholders.length;)
+			result += literals[i] + placeholders[i];
+		
+		result += literals[literals.length - 1];
+		const lines = result.split("\n");
+		
+		// Remove all leading whitespace-only lines.
+		while (lines.length && lines[0].trim() === "")
+			lines.shift();
+		
+		// Cut off whitespace-only trailing lines
+		while (lines.length && lines[lines.length - 1].trim() === "")
+			lines.pop();
+		
+		// Find the first non whitespace line with the least amount 
+		// of indent, and use it as the universal indent trimmer.
+		let minIndent = Number.MAX_SAFE_INTEGER;
+		
+		for (let i = -1; ++i < lines.length;)
+		{
+			const line = lines[i];
+			if (line.trim() === "")
+				continue;
+			
+			const size = line.length - line.replace(/^\s*/, "").length;
+			if (size < minIndent)
+				minIndent = size;
+		}
+		
+		// Slice off the left side of the string.
+		if (minIndent > 0 && minIndent !== Number.MAX_SAFE_INTEGER)
+			for (let i = -1; ++i < lines.length;)
+				lines[i] = lines[i].slice(minIndent);
+		
+		return lines.join("\n");
 	}
 }

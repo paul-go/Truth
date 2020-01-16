@@ -2,7 +2,7 @@
 namespace Truth
 {
 	/**
-	 * A class that marks out the location of an infix Identifer within
+	 * A class that marks out the location of an infix term within
 	 * it's containing Infix, it's containing Span, and then it's containing
 	 * Statement, Document, and Program.
 	 */
@@ -11,7 +11,7 @@ namespace Truth
 		constructor(
 			readonly containingSpan: Span,
 			readonly containingInfix: Infix,
-			readonly boundary: Boundary<Identifier>)
+			readonly boundary: Boundary<Term>)
 		{ }
 		
 		/**

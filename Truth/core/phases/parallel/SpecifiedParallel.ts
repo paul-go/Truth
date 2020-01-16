@@ -15,7 +15,7 @@ namespace Truth
 			container: SpecifiedParallel | null,
 			cruft: CruftCache)
 		{
-			super(node.uri, container);
+			super(node.phrase, container);
 			this.node = node;
 			this.cruft = cruft;
 			
@@ -453,7 +453,7 @@ namespace Truth
 		 */
 		parallels: SpecifiedParallel[];
 		
-		/** Stores whether the identifier is an alias (matched by a pattern). */
+		/** Stores whether the term is an alias (matched by a pattern). */
 		aliased: boolean;
 	}
 }

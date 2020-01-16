@@ -8,10 +8,9 @@
  * to the parser.
  */
 
-/*
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse1()
 	{
 		return createLineCover("", {
 			whitespace: true,
@@ -19,20 +18,20 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse2()
 	{
 		return createLineCover("Backslash\\", {
 			emit: "Backslash\\"
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse3()
 	{
 		return createLineCover("A,B: C,D", {
 			emit: "A, B : C, D",
@@ -40,20 +39,20 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse4()
 	{
 		return createLineCover("\\A", {
 			emit: "A"
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse5()
 	{
 		return createLineCover("A:B: C", {
 			emit: "A:B : C",
@@ -61,10 +60,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse6()
 	{
 		return createLineCover("Refresh:", {
 			refresh: true,
@@ -72,10 +71,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse7()
 	{
 		return createLineCover("Refresh : ", {
 			refresh: true,
@@ -83,20 +82,20 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse8()
 	{
 		return createLineCover("R, E, F, R, E, S, H :", {
 			refresh: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse9()
 	{
 		return createLineCover("TabSpcTabSpc\t \t : \t TabSpc", {
 			annotations: "TabSpc",
@@ -104,10 +103,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse10()
 	{
 		return createLineCover(": Anon1, Anon2", {
 			annotations: ["Anon1", "Anon2"],
@@ -115,10 +114,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse11()
 	{
 		return createLineCover("\t:\tAnon", {
 			annotations: ["Anon"],
@@ -126,20 +125,20 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse12()
 	{
 		return createLineCover("\t\t", {
 			emit: "\t\t"
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse13()
 	{
 		return createLineCover(" \t ", {
 			emit: "\t\t\t"
@@ -151,265 +150,90 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse14()
 	{
 		return createLineCover("/x.truth", {
-			uri: {
-				protocol: "file:",
-				retractionCount: 0,
-				isRelative: false,
-				stores: [],
-				file: "x.truth",
-				ext: ".truth",
-				types: []
-			}
+			uri: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
-	{
-		return createLineCover("/x.truth.js", {
-			uri: {
-				protocol: "file:",
-				retractionCount: 0,
-				isRelative: false,
-				stores: [],
-				file: "x.truth.js",
-				ext: ".truth.js",
-				types: []
-			}
-		});
-	}
-}
-		
-namespace Truth
-{
-	function coverLineParse()
-	{
-		return createLineCover("/x.truth.wasm", {
-			uri: {
-				protocol: "file:",
-				retractionCount: 0,
-				isRelative: false,
-				stores: [],
-				file: "x.truth.wasm",
-				ext: ".truth.wasm",
-				types: []
-			}
-		});
-	}
-}
-		
-namespace Truth
-{
-	function coverLineParse()
+	function coverLineParse15()
 	{
 		return createLineCover("./file-with-unknown-extension.txt", {
 			uri: undefined
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse16()
 	{
 		return createLineCover("./path/file.truth", {
-			uri: {
-				protocol: "?",
-				retractionCount: 0,
-				isRelative: true,
-				stores: ["path"],
-				file: "file.truth",
-				ext: ".truth",
-				types: []
-			}	
+			uri: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse17()
 	{
 		return createLineCover("../../path/file.truth", {
-			uri: {
-				protocol: "?",
-				retractionCount: 2,
-				isRelative: true,
-				stores: ["path"],
-				file: "file.truth",
-				ext: ".truth",
-				types: []
-			}
+			uri: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse18()
 	{
 		return createLineCover("http://path/to/file.truth", {
-			uri: {
-				protocol: "http:",
-				retractionCount: 0,
-				isRelative: false,
-				stores: ["path", "to"],
-				file: "file.truth",
-				ext: ".truth",
-				types: []
-			}
+			uri: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse19()
 	{
 		return createLineCover("http://127.0.0.1:8000/file.truth", {
-			uri: {
-				protocol: "http:",
-				retractionCount: 0,
-				isRelative: false,
-				stores: ["127.0.0.1:8000"],
-				file: "file.truth",
-				ext: ".truth",
-				types: []
-			}
+			uri: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse20()
 	{
 		return createLineCover("http://127.0.0.1:800099/file.truth", {
 			uri: undefined
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse21()
 	{
 		return createLineCover("http://127.0.0.1:8000XYZ/file.truth", {
 			uri: undefined
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse22()
 	{
 		return createLineCover("/absolute/file.truth", {
-			uri: {
-				protocol: "file:",
-				retractionCount: 0,
-				isRelative: false,
-				stores: ["absolute"],
-				file: "file.truth",
-				ext: ".truth",
-				types: []
-			}
-		});
-	}
-}
-		
-namespace Truth
-{
-	function coverLineParse()
-	{
-		return createLineCover("//protocol/relative/file.truth", {
-			uri: {
-				protocol: "?",
-				retractionCount: 0,
-				isRelative: false,
-				stores: ["protocol", "relative"],
-				file: "file.truth",
-				ext: ".truth",
-				types: []
-			}
-		});
-	}
-}
-		
-namespace Truth
-{
-	function coverLineParse()
-	{
-		return createLineCover("/Users/x.truth//type/path/type", {
-			uri: {
-				protocol: "file:",
-				retractionCount: 0,
-				isRelative: false,
-				stores: ["Users"],
-				file: "x.truth",
-				ext: ".truth",
-				types: ["type", "path", "type"]
-			}
-		});
-	}
-}
-		
-namespace Truth
-{
-	function coverLineParse()
-	{
-		return createLineCover("/Users/x.truth//type/%2Fpattern%20here/type", {
-			uri: {
-				protocol: "file:",
-				retractionCount: 0,
-				isRelative: false,
-				stores: ["Users"],
-				file: "x.truth",
-				ext: ".truth",
-				types: ["type", "/pattern here", "type"]
-			}
-		});
-	}
-}
-		
-namespace Truth
-{
-	function coverLineParse()
-	{
-		return createLineCover("/Users/x.truth//type/[1]/Anonymous", {
-			uri: {
-				protocol: "file:",
-				retractionCount: 0,
-				isRelative: false,
-				stores: ["Users"],
-				file: "x.truth",
-				ext: ".truth",
-				types: ["type", "1", "Anonymous"]
-			}
-		});
-	}
-}
-		
-namespace Truth
-{
-	function coverLineParse()
-	{
-		return createLineCover("http://abc.xyz/file.truth//type/path/here", {
-			uri: {
-				protocol: "http:",
-				retractionCount: 0,
-				isRelative: false,
-				stores: ["abc.xyz"],
-				file: "file.truth",
-				ext: ".truth",
-				types: ["type", "path", "here"]
-			},
-			emit: "http://abc.xyz/file.truth//type/path/here"
+			uri: true
 		});
 	}
 }
@@ -418,47 +242,47 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse23()
 	{
 		return createLineCover("//", {
 			comment: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse24()
 	{
 		return createLineCover("\t//", {
 			comment: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse25()
 	{
 		return createLineCover(" //", {
 			comment: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse26()
 	{
 		return createLineCover("// ", {
 			comment: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse27()
 	{
 		return createLineCover("// :", {
 			comment: true
@@ -470,7 +294,7 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse28()
 	{
 		return createLineCover("D\\: E: F", {
 			emit: "D\\: E : F",
@@ -478,20 +302,20 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse29()
 	{
 		return createLineCover("\\ SpaceThenEscape", {
 			emit: "\tSpaceThenEscape"
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse30()
 	{
 		return createLineCover("\\ \\ I'm : Drunk", {
 			emit: "\t\tI'm : Drunk",
@@ -499,10 +323,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse31()
 	{
 		return createLineCover("\\\t \\ \\\tEsc-Tab-Spc-Esc-Spc-Esc-Tab", {
 			emit: "\t\t\t\tEsc-Tab-Spc-Esc-Spc-Esc-Tab"
@@ -514,27 +338,27 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse32()
 	{
 		return createLineCover("/", {
 			unparsable: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse33()
 	{
 		return createLineCover("/ :", {
 			unparsable: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse34()
 	{
 		return createLineCover("\\/", {
 			emit: "\\/",
@@ -543,10 +367,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse35()
 	{
 		return createLineCover("A, /, B : C, /, D", {
 			emit: "A, \\/, B : C, /, D",
@@ -555,10 +379,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse36()
 	{
 		return createLineCover("/, A, B", {
 			// Why is this unparsable?
@@ -571,37 +395,37 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse37()
 	{
 		return createLineCover("🐇 : Bunny", {
 			emit: "🐇 : Bunny"
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse38()
 	{
 		return createLineCover("🐇, 🐇 : 🐇, 🐇", {
 			emit: "🐇, 🐇 : 🐇, 🐇"
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse39()
 	{
 		return createLineCover("Σ, 🐇, ★ : Sigma, Bunny, Star", {
 			emit: "Σ, 🐇, ★ : Sigma, Bunny, Star"
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse40()
 	{
 		return createLineCover("\u{1F407} : NotBunny", {
 			emit: "\u{1F407} : NotBunny"
@@ -613,7 +437,7 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse41()
 	{
 		return createLineCover("A : B\\", {
 			emit: "A : B\\",
@@ -621,10 +445,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse42()
 	{
 		return createLineCover(":::", {
 			emit: ":: :",
@@ -633,10 +457,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse43()
 	{
 		return createLineCover("::\\: :", {
 			emit: "::: :",
@@ -645,10 +469,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse44()
 	{
 		return createLineCover(":: :\\:", {
 			emit: ": : ::",
@@ -661,7 +485,7 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse45()
 	{
 		return createLineCover("X,,,", {
 			emit: "X",
@@ -669,20 +493,20 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse46()
 	{
 		return createLineCover(",", {
 			unparsable: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse47()
 	{
 		return createLineCover(", A, B : C, D", {
 			unparsable: true
@@ -694,7 +518,7 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse48()
 	{
 		return createLineCover("/total/ : X", {
 			annotations: "X",
@@ -703,10 +527,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse49()
 	{
 		return createLineCover("/partial : X", {
 			annotations: "X",
@@ -715,10 +539,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse50()
 	{
 		return createLineCover("/partial-with-escaped-delimiter\\/ : X", {
 			annotations: "X",
@@ -727,10 +551,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse51()
 	{
 		return createLineCover("/partial/with/slashes : X", {
 			annotations: "X",
@@ -739,10 +563,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse52()
 	{
 		return createLineCover("\\/non-pattern/ : X", {
 			annotations: "X",
@@ -752,10 +576,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse53()
 	{
 		return createLineCover("/foo/, : X", {
 			partial: true,
@@ -764,10 +588,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse54()
 	{
 		return createLineCover("/foo/, bar : X", {
 			partial: true,
@@ -781,7 +605,7 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse55()
 	{
 		return createLineCover("/[A-Z]/ : X", {
 			annotations: "X",
@@ -791,10 +615,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse56()
 	{
 		return createLineCover("/[A-Z\\d]/ : X", {
 			annotations: "X",
@@ -804,10 +628,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse57()
 	{
 		return createLineCover("/[A\\tB] : X", {
 			annotations: "X",
@@ -817,10 +641,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse58()
 	{
 		return createLineCover("/[\\t-\\\\]/ : X", {
 			annotations: "X",
@@ -830,10 +654,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse59()
 	{
 		return createLineCover("/-[\\t-\\\\]-/ : X", {
 			annotations: "X",
@@ -847,7 +671,7 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse60()
 	{
 		return createLineCover("/\\u{1F407}/", {
 			total: true,
@@ -856,10 +680,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse61()
 	{
 		return createLineCover("/\\uFFFF🐇 : X", {
 			partial: true,
@@ -868,10 +692,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse62()
 	{
 		return createLineCover("/\\u{FFFF🐇 : X", {
 			partial: true,
@@ -880,10 +704,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse63()
 	{
 		return createLineCover("/\\u{Thai}", {
 			partial: true,
@@ -897,7 +721,7 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse64()
 	{
 		return createLineCover("/\\d+ : X", {
 			annotations: "X",
@@ -906,10 +730,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse65()
 	{
 		return createLineCover("/x\\d* : X", {
 			annotations: "X",
@@ -918,10 +742,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse66()
 	{
 		return createLineCover("/x\\d{0} : X", {
 			annotations: "X",
@@ -931,10 +755,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse67()
 	{
 		return createLineCover("/\\d{3,} : X", {
 			annotations: "X",
@@ -944,10 +768,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse68()
 	{
 		return createLineCover("/\\d{3,6} : X", {
 			annotations: "X",
@@ -962,7 +786,7 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse69()
 	{
 		return createLineCover("/\\d{,3} : X", {
 			annotations: "X",
@@ -972,10 +796,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse70()
 	{
 		return createLineCover("/\\d{x,} : X", {
 			annotations: "X",
@@ -984,10 +808,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse71()
 	{
 		return createLineCover("/\\d{} : X", {
 			annotations: "X",
@@ -996,10 +820,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse72()
 	{
 		return createLineCover("/\\d{ } : X", {
 			annotations: "X",
@@ -1013,7 +837,7 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse73()
 	{
 		return createLineCover("/(A|B) : X", {
 			annotations: "X",
@@ -1023,10 +847,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse74()
 	{
 		return createLineCover("/(A||B) : X", {
 			annotations: "X",
@@ -1036,10 +860,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse75()
 	{
 		return createLineCover("/(A|B|C|D) : X", {
 			annotations: "X",
@@ -1048,10 +872,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse76()
 	{
 		return createLineCover("/([0-5]|[a-c]|[e-f]) : X", {
 			annotations: "X",
@@ -1060,10 +884,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse77()
 	{
 		return createLineCover("/([0-5]*|[a-c]+|[e-f]{2}) : X", {
 			annotations: "X",
@@ -1078,7 +902,7 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse78()
 	{
 		return createLineCover("/(\\+)", {
 			partial: true,
@@ -1091,7 +915,7 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse79()
 	{
 		return createLineCover("/</Pat/> : X", {
 			partial: true,
@@ -1100,10 +924,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse80()
 	{
 		return createLineCover("/< : Port> : X", {
 			partial: true,
@@ -1112,10 +936,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse81()
 	{
 		return createLineCover("/<Pop> : X", {
 			partial: true,
@@ -1124,10 +948,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse82()
 	{
 		return createLineCover("/<Pop1, Pop2> : X", {
 			partial: true,
@@ -1136,10 +960,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse83()
 	{
 		return createLineCover("/==<A, B : C, D>==<E, F : G, H>==/ : X, Y, Z", {
 			total: true,
@@ -1153,10 +977,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse84()
 	{
 		return createLineCover("/<Pop1, Pop2 : A, B> : X", {
 			partial: true,
@@ -1165,10 +989,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse85()
 	{
 		return createLineCover("/<<Nom>> : X", {
 			partial: true,
@@ -1177,10 +1001,10 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse86()
 	{
 		return createLineCover("/==(<These>|<Arent>|<Infixes>)== : X", {
 			infixes: [],
@@ -1188,34 +1012,33 @@ namespace Truth
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse87()
 	{
 		return createLineCover("/==<InfixWithStar>*== : X", {
 			unparsable: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse88()
 	{
 		return createLineCover("/==<InfixWithPlus>+== : X", {
 			unparsable: true
 		});
 	}
 }
-		
+
 namespace Truth
 {
-	function coverLineParse()
+	function coverLineParse89()
 	{
 		return createLineCover("/==<InfixWithRange>{1,2}== : X", {
 			unparsable: true
 		});
 	}
 }
-*/

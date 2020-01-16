@@ -3,7 +3,7 @@ namespace Truth
 {
 	async function coverGetAncestryWithStatement()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 				B
 					C
@@ -11,14 +11,11 @@ namespace Truth
 							E
 		`);
 		
-		if (doc instanceof Error)
-			throw doc;
-		
-		const ancestryAtA = Not.null(doc.getAncestry(doc.read(0)));
-		const ancestryAtB = Not.null(doc.getAncestry(doc.read(1)));
-		const ancestryAtC = Not.null(doc.getAncestry(doc.read(2)));
-		const ancestryAtD = Not.null(doc.getAncestry(doc.read(3)));
-		const ancestryAtE = Not.null(doc.getAncestry(doc.read(4)));
+		const ancestryAtA = Not.null(doc.getAncestry(doc.read(1)));
+		const ancestryAtB = Not.null(doc.getAncestry(doc.read(2)));
+		const ancestryAtC = Not.null(doc.getAncestry(doc.read(3)));
+		const ancestryAtD = Not.null(doc.getAncestry(doc.read(4)));
+		const ancestryAtE = Not.null(doc.getAncestry(doc.read(5)));
 		
 		return [
 			() => hasContent(ancestryAtA, ""),
@@ -45,7 +42,7 @@ namespace Truth
 	
 	async function coverGetAncestryWithNumber()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 				B
 					C
@@ -53,10 +50,7 @@ namespace Truth
 							E
 		`);
 		
-		if (doc instanceof Error)
-			throw doc;
-		
-		const ancestry = doc.getAncestry(3);
+		const ancestry = doc.getAncestry(4);
 		
 		return [
 			() => hasContent(ancestry, `
@@ -69,18 +63,15 @@ namespace Truth
 
 	async function coverGetParentWithStatement()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 				B
 					C
 		`);
 		
-		if (doc instanceof Error)
-			throw doc;
-		
-		const smtA = doc.read(0);
-		const smtB = doc.read(1);
-		const smtC = doc.read(2);
+		const smtA = doc.read(1);
+		const smtB = doc.read(2);
+		const smtC = doc.read(3);
 		const smtBParent = doc.getParent(smtB);
 		const smtCParent = doc.getParent(smtC);
 		
@@ -92,17 +83,14 @@ namespace Truth
 
 	async function coverGetParentWithNumber()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 				B
 					C
 		`);
 		
-		if (doc instanceof Error)
-			throw doc;
-		
-		const smtA = doc.read(0);
-		const smtBParent = doc.getParent(1);
+		const smtA = doc.read(1);
+		const smtBParent = doc.getParent(2);
 		
 		return [
 			() => smtBParent === smtA
@@ -111,7 +99,7 @@ namespace Truth
 
 	async function coverGetParentWithTopLevelStatement()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 			// 
 			B
@@ -119,12 +107,9 @@ namespace Truth
 			C
 		`);
 		
-		if (doc instanceof Error)
-			throw doc;
-		
-		const parentA = doc.getParent(0);
-		const parentB = doc.getParent(2);
-		const parentC = doc.getParent(4);
+		const parentA = doc.getParent(1);
+		const parentB = doc.getParent(3);
+		const parentC = doc.getParent(5);
 		
 		return [
 			() => parentA === doc,
@@ -135,11 +120,8 @@ namespace Truth
 
 	async function coverGetParentFromPositionWithEmptyDocument()
 	{
-		const doc = await Truth.parse("");
-		if (doc instanceof Error)
-			throw doc;
-		
-		const parent = doc.getParentFromPosition(0, 0);
+		const [doc] = await createLanguageCover("");
+		const parent = doc.getParentFromPosition(1, 0);
 		
 		return [
 			() => parent === doc
@@ -148,7 +130,7 @@ namespace Truth
 
 	async function coverGetParentFromPositionOnEmptyLine()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 				B
 					C
@@ -157,9 +139,6 @@ namespace Truth
 				E
 					F
 		`);
-		
-		if (doc instanceof Error)
-			throw doc;
 		
 		const a = doc.read(0);
 		const b = doc.read(1);
@@ -181,19 +160,16 @@ namespace Truth
 	
 	async function coverGetParentFromPositionOnNonEmptyLine()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 				B
 					C
 						D
 		`);
 		
-		if (doc instanceof Error)
-			throw doc;
-		
-		const a = doc.read(0);
-		const b = doc.read(1);
-		const c = doc.read(2);
+		const a = doc.read(1);
+		const b = doc.read(2);
+		const c = doc.read(3);
 		
 		const parentOfB = doc.getParentFromPosition(4, 1);
 		const parentOfC = doc.getParentFromPosition(4, 2);
@@ -208,15 +184,12 @@ namespace Truth
 	
 	async function coverGetParentFromPositionReturningContainingDocument()
 	{
-		const doc = await Truth.parse(`
+		const [doc] = await createLanguageCover(`
 			A
 				B
 					C
 						D
 		`);
-		
-		if (doc instanceof Error)
-			throw doc;
 		
 		const container = doc.getParentFromPosition(3, 0);
 		return [
@@ -226,7 +199,7 @@ namespace Truth
 	
 	async function coverGetSiblingsOnTopLevelStatement()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 					A
 				B
 			C
@@ -234,10 +207,7 @@ namespace Truth
 					E
 		`);
 		
-		if (doc instanceof Error)
-			throw doc;
-		
-		const c = doc.read(2);
+		const c = doc.read(3);
 		const siblings = doc.getSiblings(c);
 		
 		return () => hasContent(siblings, outdent`
@@ -249,7 +219,7 @@ namespace Truth
 	
 	async function coverGetSiblingsOnNestedStatement()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 				
 				B
@@ -263,10 +233,7 @@ namespace Truth
 				H
 		`);
 		
-		if (doc instanceof Error)
-			throw doc;
-		
-		const c = doc.read(4);
+		const c = doc.read(5);
 		const siblings = doc.getSiblings(c);
 		
 		return () => hasContent(siblings, outdent`
@@ -278,16 +245,13 @@ namespace Truth
 	
 	async function coverGetSiblingsOnTopLevelNoopStatement()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 			//
 			B
 		`);
 		
-		if (doc instanceof Error)
-			throw doc;
-		
-		const cmt = doc.read(1);
+		const cmt = doc.read(2);
 		const siblings = doc.getSiblings(cmt);
 		
 		return () => siblings === null;
@@ -295,7 +259,7 @@ namespace Truth
 	
 	async function coverGetSiblingsOnNestedNoopStatement()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 				B
 				//
@@ -305,26 +269,20 @@ namespace Truth
 			D
 		`);
 		
-		if (doc instanceof Error)
-			throw doc;
-		
-		const siblings = doc.getSiblings(3);
+		const siblings = doc.getSiblings(4);
 		return () => siblings === null;
 	}
 	
 	async function coverGetChildrenOnEmptyDocument()
 	{
-		const doc = await Truth.parse("\t".repeat(5));
-		if (doc instanceof Error)
-			throw doc;
-		
+		const [doc] = await createLanguageCover("\t".repeat(5));
 		const children = doc.getChildren();
 		return () => hasContent(children, "");
 	}
 	
 	async function coverGetChildrenOnNonEmptyDocument()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 						B
 							//
@@ -339,100 +297,99 @@ namespace Truth
 			F
 		`);
 		
-		if (doc instanceof Error)
-			throw doc;
-		
-		const smtA = doc.read(0);
-		const smtB = doc.read(1);
-		const smtC = doc.read(8);
-		const smtD = doc.read(9);
-		const smtE = doc.read(10);
+		const smtA = doc.read(1);
+		const smtB = doc.read(2);
+		const smtC = doc.read(9);
+		const smtD = doc.read(10);
+		const smtE = doc.read(11);
 		const children = doc.getChildren(smtA);
 		
-		return () => children.join() === [smtB, smtC, smtD, smtE].join();
+		return [
+			() => children[0] === smtB,
+			() => children[1] === smtC,
+			() => children[2] === smtD,
+			() => children[3] === smtE,
+		]
 	}
 	
 	async function coverGetChildrenOnTopLevelStatement()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
 	async function coverGetChildrenOnNestedStatement()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
 	async function coverGetChildrenOnNestedNoopStatement()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
 	async function coverHasDescendents()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
 	async function coverHasDescendentsOnNonEmptyDocument()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
 	async function coverHasDescendentsOnTopLevelStatement()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
 	async function coverHasDescendentsOnNestedStatement()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
 	async function coverHasDescendentsOnNestedNoopStatement()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
 	async function coverHasDescendentsOnStatementAtNumericPosition()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
 	async function coverGetStatementIndex()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
 	async function coverGetNotes()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 				// **
 				// **
 				B
 		`);
-		
-		if (doc instanceof Error)
-			throw doc;
 		
 		const notes = doc.getNotes(3);
 		return () => notes.join() === ["**", "**"].join();
@@ -440,13 +397,10 @@ namespace Truth
 	
 	async function coverGetNotesWhenNoneAvailable()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 			B
 		`);
-		
-		if (doc instanceof Error)
-			throw doc;
 		
 		const notes = doc.getNotes(2).join("");
 		
@@ -457,13 +411,10 @@ namespace Truth
 	
 	async function coverGetNotesOnCommentLine()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			// ***
 			// ***
 		`);
-		
-		if (doc instanceof Error)
-			throw doc;
 		
 		const notes = doc.getNotes(1).join("");
 		
@@ -474,14 +425,11 @@ namespace Truth
 	
 	async function coverReadOnLineFromPossiblePositions()
 	{
-		const doc = await Truth.parse(outdent`
+		const [doc] = await createLanguageCover(`
 			A
 			B
 			C
 		`);
-		
-		if (doc instanceof Error)
-			throw doc;
 		
 		const aFromZero = doc.read(0);
 		const aFromNegative = doc.read(-3);

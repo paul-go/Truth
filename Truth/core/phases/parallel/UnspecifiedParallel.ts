@@ -11,10 +11,10 @@ namespace Truth
 		 * Invoked by ParallelCache. Do not call.
 		 */
 		constructor(
-			uri: Uri,
+			phrase: Phrase,
 			container: Parallel | null)
 		{
-			super(uri, container);
+			super(phrase, container);
 		}
 		
 		/**

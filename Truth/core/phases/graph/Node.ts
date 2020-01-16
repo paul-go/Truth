@@ -27,40 +27,42 @@ namespace Truth
 				declaration : 
 				declaration.containingSpan;
 			
-			this.container = container;
 			this.document = span.statement.document;
 			this.stamp = this.document.version;
+			
 			this._declarations = new Set([declaration]);
+			if (this._declarations.size === 0)
+				throw Exception.unknownState();
+			
 			this.subject = declaration.boundary.subject;
 			this.name = SubjectSerializer.forInternal(this.subject);
 			
 			this.isListIntrinsic = 
-				this.subject instanceof Identifier &&
+				this.subject instanceof Term &&
 				this.subject.isList;
 			
-			const containerTypePath = container !== null ?
-				this.containment.slice().reverse().map(n => n.name) :
-				[];
-			
-			this.typePath = containerTypePath.concat(this.name);
-			
-			if (this.declarations.size === 0)
-				throw Exception.unknownState();
-			
-			if (!this.container)
+			if (container)
 			{
-				this.addRootNode(this);
-				return this;
+				this.container = container;
+				this.phrase = container.phrase.forward(this.subject);
+				container._contents.set(this.subject, this);
+				
+				// This appears to need to be brought back in the case
+				// when the code below is uncommented.
+				/// return this;
 			}
-			
-			this.container._contents.set(this.name, this);
+			else
+			{
+				this.phrase = this.document.phrase.forward(this.subject);
+				this.addRootNode(this);
+			}
 			
 			///if (!(declaration instanceof Span))
 			///	return this;
 			///
-			///const identifier = declaration.boundary.subject;
+			///const term = declaration.boundary.subject;
 			///
-			///if (!(identifier instanceof Identifier))
+			///if (!(term instanceof Term))
 			///	return this;
 			///
 			///const containerPattern = (() =>
@@ -74,8 +76,8 @@ namespace Truth
 			///	return this;
 			///
 			///for (const nfx of containerPattern.getInfixes(InfixFlags.population))
-			///	for (const ident of nfx.lhs.eachSubject())
-			///		if (ident.fullName === identifier.fullName)
+			///	for (const term of nfx.lhs.eachSubject())
+			///		if (term.fullName === term.fullName)
 			///			//return (this.containerInfix = nfx), this;
 			///			return this;
 		}
@@ -89,9 +91,9 @@ namespace Truth
 			{
 				const map = Node.rootNodes.get(this.document);
 				if (map)
-					map.delete(this.name);
+					map.delete(this.subject);
 			}
-			else this.container._contents.delete(this.name);
+			else this.container._contents.delete(this.subject);
 			
 			for (const ib of this._inbounds)
 				ib.removeSuccessor(this);
@@ -139,7 +141,7 @@ namespace Truth
 		}
 		
 		/** */
-		readonly container: Node | null;
+		readonly container: Node | null = null;
 		
 		/**
 		 * In the case when this node is a direct descendent of a
@@ -154,7 +156,7 @@ namespace Truth
 			if (this.container !== null)
 				if (this.container.subject instanceof Pattern)
 					for (const nfx of this.container.subject.getInfixes(flag))
-						for (const ident of nfx.lhs.eachSubject())
+						for (const term of nfx.lhs.eachSubject())
 							return nfx;
 			
 			return null;
@@ -167,6 +169,9 @@ namespace Truth
 		readonly subject: Subject;
 		
 		/** */
+		readonly phrase: Phrase;
+		
+		/** * /
 		get uri()
 		{
 			// Because the URI of the document can change, we need to 
@@ -182,6 +187,7 @@ namespace Truth
 		
 		private lastUri: Uri | null = null;
 		private readonly typePath: readonly string[];
+		*/
 		
 		/** Stores the document that contains this Node. */
 		readonly document: Document;
@@ -205,7 +211,7 @@ namespace Truth
 		{
 			for (const ob of this.outbounds)
 				for (const source of ob.fragments)
-					if (source.boundary.subject instanceof Identifier)
+					if (source.boundary.subject instanceof Term)
 						if (source.boundary.subject.isList)
 							return true;
 			
@@ -228,10 +234,10 @@ namespace Truth
 		 */
 		get intrinsicExtrinsicBridge(): Node | null
 		{
-			if (this.subject instanceof Identifier)
+			if (this.subject instanceof Term)
 				for (const adjacent of this.adjacents.values())
-					if (adjacent.subject instanceof Identifier)
-						if (adjacent.subject.typeName === this.subject.typeName)
+					if (adjacent.subject instanceof Term)
+						if (adjacent.subject === this.subject)
 							if (adjacent.subject.isList !== this.isListIntrinsic)
 								return adjacent;
 			
@@ -318,7 +324,7 @@ namespace Truth
 		{
 			return this._contents;
 		}
-		private readonly _contents = new Map<string, Node>();
+		private readonly _contents = new Map<Subject, Node>();
 		
 		/**
 		 * Gets a readonly name of Nodes that are adjacent
@@ -332,10 +338,10 @@ namespace Truth
 			
 			// Filter this node out of the result set, because
 			// Nodes cannot be adjacent to themselves.
-			const out = new Map<string, Node>();
-			for (const [name, node] of adjacentNodes)
+			const out = new Map<Subject, Node>();
+			for (const [subject, node] of adjacentNodes)
 				if (node !== this)
-					out.set(name, node);
+					out.set(subject, node);
 			
 			return out;
 		}
@@ -361,12 +367,12 @@ namespace Truth
 			if (!(this.subject instanceof Pattern))
 				return this._portabilityTargets = [];
 			
-			const identifierArrays = this.subject
+			const termArrays = this.subject
 				.getInfixes(InfixFlags.portability)
 				.map(nfx => Object.freeze(Array.from(nfx.rhs.eachSubject())
-					.map(ident => ident.typeName)));
+					.map(term => term.textContent)));
 			
-			return this._portabilityTargets = Object.freeze(identifierArrays);
+			return this._portabilityTargets = Object.freeze(termArrays);
 		}
 		private _portabilityTargets: readonly (readonly string[])[] | null = null;
 		
@@ -468,12 +474,12 @@ namespace Truth
 					if (existingTuple !== undefined)
 					{
 						const existingStmt = existingTuple[0];
-						const existingStmtIdx = existingTuple[1];
+						const existingStmtLineNum = existingTuple[1];
 						
-						if (lineNum < existingStmtIdx)
+						if (lineNum < existingStmtLineNum)
 						{
 							existingTuple[0] = existingStmt;
-							existingTuple[1] = existingStmtIdx;
+							existingTuple[1] = existingStmtLineNum;
 						}
 					}
 					else
@@ -552,8 +558,8 @@ namespace Truth
 		 */
 		addEdgeFragment(fragment: Span | InfixSpan)
 		{
-			const identifier = fragment.boundary.subject;
-			if (!(identifier instanceof Identifier))
+			const term = fragment.boundary.subject;
+			if (!(term instanceof Term))
 				throw Exception.unknownState();
 			
 			// If the input source is "alone", it means that it refers to
@@ -581,7 +587,7 @@ namespace Truth
 			// This works whether the edge is for a type or pattern.
 			const existingEdge = this._outbounds.find(edge =>
 			{
-				return edge.identifier.typeName === identifier.typeName;
+				return edge.term.singular === term.singular;
 			});
 			
 			if (existingEdge)
@@ -597,9 +603,9 @@ namespace Truth
 					const successorNode = 
 						level.container !== null && 
 						level.container !== this &&
-						level.container.name === identifier.typeName ?
+						level.container.subject === term ?
 							level.container :
-							level.adjacents.get(identifier.typeName);
+							level.adjacents.get(term);
 					
 					if (successorNode !== undefined)
 					{
@@ -655,17 +661,17 @@ namespace Truth
 		 */
 		addEdgeSuccessor(successorNode: Node)
 		{
-			const identifier = successorNode.subject as Identifier;
-			if (!(identifier instanceof Identifier))
+			const term = successorNode.subject as Term;
+			if (!(term instanceof Term))
 				throw Exception.unknownState();
 			
 			for (const ob of this.outbounds)
 			{
-				if (ob.identifier.typeName !== successorNode.name)
+				if (ob.term !== successorNode.subject)
 					continue;
 				
-				const scsrLong = successorNode.uri.types.length;
-				const predLong = ob.predecessor.uri.types.length;
+				const scsrLong = successorNode.phrase.length;
+				const predLong = ob.predecessor.phrase.length;
 				ob.addSuccessor(successorNode, predLong - scsrLong);
 				successorNode._inbounds.add(ob);
 			}
@@ -745,7 +751,7 @@ namespace Truth
 			
 			const ob = this.outbounds.length;
 			const ib = this.inbounds.size;
-			const path = includePath ? this.uri.types.join("/") + " " : "";
+			const path = includePath ? this.phrase.toString() + " " : "";
 			
 			const simple = [
 				path,
@@ -775,12 +781,12 @@ namespace Truth
 			const existingSet = Node.rootNodes.get(node.document);
 			if (existingSet)
 			{
-				existingSet.set(node.name, node);
+				existingSet.set(node.subject, node);
 			}
 			else
 			{
-				const map = new Map<string, Node>();
-				map.set(node.name, node);
+				const map = new Map<Subject, Node>();
+				map.set(node.subject, node);
 				Node.rootNodes.set(node.document, map);
 			}
 		}
@@ -791,7 +797,7 @@ namespace Truth
 			const existingSet = Node.rootNodes.get(node.document);
 			if (existingSet)
 			{
-				existingSet.delete(node.name);
+				existingSet.delete(node.subject);
 				
 				// This is somewhat redundant as the set
 				// is likely going to be GC'd away anyway in
@@ -805,13 +811,13 @@ namespace Truth
 		private getRootNodes(fromDocument?: Document)
 		{
 			const fromDoc = fromDocument || this.document;
-			const out = Node.rootNodes.get(fromDoc) || new Map<string, Node>();
+			const out = Node.rootNodes.get(fromDoc) || new Map<Subject, Node>();
 			return HigherOrder.copy(out);
 		}
 		
 		/** */
-		private static rootNodes = new WeakMap<Document, Map<string, Node>>();
+		private static rootNodes = new WeakMap<Document, Map<Subject, Node>>();
 	}
 
-	type NodeMap = ReadonlyMap<string, Node>;
+	type NodeMap = ReadonlyMap<Subject, Node>;
 }

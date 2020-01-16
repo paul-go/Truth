@@ -17,17 +17,20 @@ namespace Truth
 		 * @internal
 		 * Constructs one or more Type objects from the specified location.
 		 */
-		static construct(uri: Uri, program: Program): Type | null;
+		static construct(phrase: Phrase, program: Program): Type | null;
 		static construct(spine: Spine, program: Program): Type;
-		static construct(param: Uri | Spine, program: Program): Type | null
+		static construct(param: Phrase | Spine, program: Program): Type | null
 		{
-			const uri = Uri.clone(param);
-			if (uri.types.length === 0)
+			const phrase = param instanceof Phrase ?
+				param :
+				Phrase.fromSpine(param);
+			
+			if (!phrase || phrase.length === 0)
 				return null;
 			
-			if (TypeCache.has(uri, program))
+			if (TypeCache.has(phrase, program))
 			{
-				const cached = TypeCache.get(uri, program);
+				const cached = TypeCache.get(phrase, program);
 				
 				// If the cached type exists, but hasn't been compiled yet,
 				// we can't return it, we need to compile it first.
@@ -57,10 +60,10 @@ namespace Truth
 				return stored.worker;
 			})();
 			
-			const parallel = worker.drill(uri);
+			const parallel = worker.drill(phrase);
 			if (parallel === null)
 			{
-				TypeCache.set(uri, program, null);
+				TypeCache.set(phrase, program, null);
 				return null;
 			}
 			
@@ -76,9 +79,9 @@ namespace Truth
 			
 			for (const currentParallel of parallelLineage)
 			{
-				if (TypeCache.has(currentParallel.uri, program))
+				if (TypeCache.has(currentParallel.phrase, program))
 				{
-					const existingType = TypeCache.get(currentParallel.uri, program);
+					const existingType = TypeCache.get(currentParallel.phrase, program);
 					if (existingType instanceof TypeProxy)
 						throw Exception.unknownState();
 					
@@ -90,7 +93,7 @@ namespace Truth
 				else
 				{
 					const type: Type = new Type(currentParallel, lastType, program);
-					TypeCache.set(currentParallel.uri, program, type);
+					TypeCache.set(currentParallel.phrase, program, type);
 					lastType = type;
 				}
 			}
@@ -110,7 +113,7 @@ namespace Truth
 			
 			for (const node of program.graph.readRoots(document))
 			{
-				const type = this.construct(node.uri, program);
+				const type = this.construct(node.phrase, program);
 				if (type !== null)
 					roots.push(type);
 			}
@@ -130,19 +133,19 @@ namespace Truth
 			program: Program)
 		{
 			this.private = new TypePrivate(program, seed);
-			this.name = seed.uri.types[seed.uri.types.length - 1].value;
-			this.uri = seed.uri;
+			this.name = seed.phrase.terminal.toString();
+			this.phrase = seed.phrase;
 			this.container = container;
 			
 			this.private.parallels = new TypeProxyArray(
 				seed.getParallels().map(edge =>
-					new TypeProxy(edge.uri, program)));
+					new TypeProxy(edge.phrase, program)));
 			
 			const getBases = (sp: SpecifiedParallel) =>
 			{
 				const bases = Array.from(sp.eachBase());
 				return bases.map(entry => 
-					new TypeProxy(entry.base.node.uri, program));
+					new TypeProxy(entry.base.node.phrase, program));
 			};
 			
 			if (seed instanceof SpecifiedParallel)
@@ -178,7 +181,7 @@ namespace Truth
 			{
 				const sub = seed.node.subject;
 				this.isPattern = sub instanceof Pattern;
-				this.isUri = sub instanceof Uri;
+				this.isUri = sub instanceof KnownUri;
 				this.isAnonymous = sub instanceof Anon;
 				this.isSpecified = true;
 				this.isFresh = seed.getParallels().length === 0;
@@ -196,7 +199,7 @@ namespace Truth
 		 * Stores the URI that specifies where this Type was
 		 * found in the document.
 		 */
-		readonly uri: Uri;
+		readonly phrase: Phrase;
 		
 		/**
 		 * Stores a reference to the type, as it's defined in it's
@@ -245,7 +248,7 @@ namespace Truth
 				return this.private.contents;
 			
 			this.private.throwOnDirty();
-			const containedNames: string[] = [];
+			const containedSubs: Subject[] = [];
 			
 			// Dig through the parallel graph recursively, and at each parallel,
 			// dig through the base graph recursively, and collect all the names
@@ -253,15 +256,15 @@ namespace Truth
 			for (const { type: parallelType } of this.iterate(t => t.parallels, true))
 				for (const { type: baseType } of parallelType.iterate(t => t.bases, true))
 					if (baseType.private.seed instanceof SpecifiedParallel)
-						for (const name of baseType.private.seed.node.contents.keys())
-							if (!containedNames.includes(name))
-								containedNames.push(name);
+						for (const subject of baseType.private.seed.node.contents.keys())
+							if (!containedSubs.includes(subject))
+								containedSubs.push(subject);
 			
-			const contents = containedNames
-				.map(containedName =>
+			const contents = containedSubs
+				.map(containedSub =>
 				{
-					const maybeContainedUri = this.uri.extendType(containedName);
-					return Type.construct(maybeContainedUri, this.private.program);
+					const maybeContainedPhrase = this.phrase.forward(containedSub);
+					return Type.construct(maybeContainedPhrase, this.private.program);
 				})
 				.filter((t): t is Type => t !== null);
 			
@@ -351,8 +354,8 @@ namespace Truth
 				return this.private.derivations = Object.freeze([]);
 			
 			const derivations = Array.from(this.private.seed.node.inbounds)
-				.map(ib => ib.predecessor.uri)
-				.map(uri => Type.construct(uri, this.private.program))
+				.map(ib => ib.predecessor.phrase)
+				.map(phrase => Type.construct(phrase, this.private.program))
 				.filter((t): t is Type => t instanceof Type)
 				.filter(type => type.bases.includes(this));
 			
@@ -374,10 +377,10 @@ namespace Truth
 				return this.private.adjacents = this.container.contents.filter(t => t !== this);
 			
 			const program = this.private.program;
-			const document = Not.null(program.getDocumentByUri(this.uri));
+			const document = Not.null(program.getDocumentByUri(this.phrase.containingUri));
 			const roots = Array.from(this.private.program.graph.readRoots(document));
 			const adjacents = roots
-				.map(node => Type.construct(node.uri, program))
+				.map(node => Type.construct(node.phrase, program))
 				.filter((t): t is Type => t !== null && t !== this);
 			
 			return this.private.adjacents = Object.freeze(adjacents);
@@ -408,7 +411,7 @@ namespace Truth
 				
 				const applicablePatternsBasesLabels =
 					applicablePatternTypes.map(p => p.bases
-						.map(b => b.uri.toString())
+						.map(b => b.phrase.toString())
 						.join(Syntax.terminal));
 				
 				for (let i = -1; ++i < applicablePatternTypes.length;)
@@ -443,7 +446,7 @@ namespace Truth
 			{
 				for (const { edge, aliased } of sp.eachBase())
 					if (aliased)
-						aliases.push(edge.identifier.toString());
+						aliases.push(edge.term.toString());
 			};
 			
 			if (this.private.seed instanceof SpecifiedParallel)
@@ -488,8 +491,8 @@ namespace Truth
 				for (const { edge, aliased } of sp.eachBase())
 					values.push({
 						aliased,
-						value: edge.identifier.toString(),
-						base: Type.construct(edge.predecessor.uri, this.private.program)
+						value: edge.term.toString(),
+						base: Type.construct(edge.predecessor.phrase, this.private.program)
 					});
 			};
 			

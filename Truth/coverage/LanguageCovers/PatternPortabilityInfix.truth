@@ -1,5 +1,5 @@
 //
-// Portability Infixes are used to mark a region of a pattern
+// Portability Infixes are used to mark an area of a pattern
 // in a way that allows conforming data applied to subtypes
 // to be recognized by their bases. Hence, it establishes data 
 // "portability" between types and their bases.

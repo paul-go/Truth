@@ -25,6 +25,8 @@ namespace Truth
 		 * @returns The content read. In the case when no
 		 * match could be found, an empty string is returned.
 		 */
+		read<S extends string>(token?: S): S | ""
+		read(): string
 		read(token?: string)
 		{
 			if (!token)

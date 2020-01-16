@@ -214,6 +214,12 @@ namespace Truth
 		}
 		
 		/** */
+		static statementNotInDocument()
+		{
+			return error("The specified statement does not exist within this document.");
+		}
+		
+		/** */
 		static cannotRefresh()
 		{
 			return error(`
