@@ -7,34 +7,6 @@ namespace Truth
 	export class NodeIndex
 	{
 		/**
-		 * Enumerates through all Node instances stored
-		 * in the index.
-		 */
-		*eachNode()
-		{
-			for (const node of this.phraseToNodeMap.values())
-				yield node;
-		}
-		
-		/**
-		 * Gets the number of nodes stored in the index.
-		 */
-		get count()
-		{
-			return this.phraseToNodeMap.size;
-		}
-		
-		/**
-		 * Updates the index, establishing a cached relationship
-		 * between the specified uri and the specified node.
-		 */
-		set(phrase: Phrase, node: Node)
-		{
-			this.phraseToNodeMap.set(phrase, node);
-			this.update(node);
-		}
-		
-		/** 
 		 * Updates the index by refreshing in the set of terms
 		 * that are associated with the specified node.
 		 */
@@ -78,12 +50,6 @@ namespace Truth
 			this.nodesToTermsMap.set(node, presentTerms);
 		}
 		
-		/** */
-		getNodeByPhrase(phrase: Phrase)
-		{
-			return this.phraseToNodeMap.get(phrase) || null;
-		}
-		
 		/**
 		 * @returns An array that contains the nodes that are associated
 		 * with the specified term that exist at or below the specified
@@ -101,10 +67,6 @@ namespace Truth
 		 */
 		delete(deadNode: Node)
 		{
-			for (const [uri, node] of this.phraseToNodeMap)
-				if (node === deadNode)
-					this.phraseToNodeMap.delete(uri);
-			
 			const existingTerms = this.nodesToTermsMap.get(deadNode);
 			if (existingTerms === undefined)
 				return;
@@ -144,12 +106,6 @@ namespace Truth
 		}
 		
 		/**
-		 * Stores a map of all nodes that have been loaded into the program,
-		 * indexed by the Phrase that references them.
-		 */
-		private readonly phraseToNodeMap = new Map<Phrase, Node>();
-		
-		/**
 		 * Stores a map which is indexed by a unique term, and which as
 		 * values that are the nodes that use that term, either as a declaration
 		 * or an annotation.
@@ -174,23 +130,7 @@ namespace Truth
 		 */
 		toString()
 		{
-			if (this.phraseToNodeMap.size === 0)
-				return "(empty)";
-			
-			const out: string[] = [];
-			const keys = Array.from(this.phraseToNodeMap.keys())
-				.map(ph => ph.toString());
-			
-			const values = Array.from(this.phraseToNodeMap.values());
-			
-			for (let i = -1; ++i < keys.length;)
-			{
-				const key = keys[i];
-				const value = values[i].toString(false);
-				out.push(`${key}\n\t${value}\n`);
-			}
-			
-			out.push("(Term Cache)");
+			const out = ["(Term Cache)"];
 			
 			for (const [term, nodes] of this.termToNodesMap)
 			{

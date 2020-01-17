@@ -56,6 +56,9 @@ namespace Truth
 				this.addRootNode(this);
 			}
 			
+			// Performance shortcut. See notes in "associatedNode".
+			this.phrase.associatedNode = this;
+			
 			///if (!(declaration instanceof Span))
 			///	return this;
 			///
@@ -99,6 +102,9 @@ namespace Truth
 			
 			function recurse(node: Node)
 			{
+				if (node.phrase.associatedNode === node)
+					node.phrase.associatedNode = null;
+				
 				for (const edge of node._outbounds)
 					node.disposeEdge(edge);
 				

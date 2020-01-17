@@ -24,27 +24,28 @@ namespace Truth
 		{
 			if (this.excavated.has(from))
 				return;
-				
+			
 			this.excavated.add(from);
 			const queue: SpecifiedParallel[] = [];
 			
-			const processNodes = (iterator: IterableIterator<Node>) =>
+			if (from instanceof Document)
 			{
-				for (const node of iterator)
+				for (const phrase of Phrase.rootsOf(from))
+				{
+					const drilledParallel = this.drillFromNode(phrase.associatedNode);
+					if (drilledParallel !== null)
+						queue.push(drilledParallel);
+				}
+			}
+			else for (const currentParallel of queue)
+			{
+				for (const node of currentParallel.node.contents.values())
 				{
 					const drilledParallel = this.drillFromNode(node);
 					if (drilledParallel !== null)
 						queue.push(drilledParallel);
 				}
-			};
-			
-			if (from instanceof Document)
-				processNodes(this.program.graph.readRoots(from));
-			else
-				queue.push(from);
-			
-			for (const currentParallel of queue)
-				processNodes(currentParallel.node.contents.values());
+			}
 		}
 		
 		/** */
@@ -71,10 +72,9 @@ namespace Truth
 				throw Exception.invalidArgument();
 			
 			const ancestry = directive.ancestry;
-			const sourceDoc = directive.containingDocument;
-			const surfaceNode = this.program.graph.read(
-				sourceDoc,
-				ancestry[0].terminal);
+			const surfaceNode = directive.containingDocument.phrase
+				.forward(ancestry[0].terminal)
+				.associatedNode;
 			
 			if (surfaceNode === null)
 				return null;
@@ -499,12 +499,12 @@ namespace Truth
 				current = current.container;
 			}
 			
-			for (const root of this.program.graph.readRoots(srcParallel.node.document))
-				if (root.subject instanceof Pattern)
-					if (!discoveredPatternNodes.has(root))
+			for (const phrase of Phrase.rootsOf(srcParallel.node.document))
+				if (phrase.terminal instanceof Pattern)
+					if (!discoveredPatternNodes.has(phrase.associatedNode))
 						yield {
-							pattern: root.subject,
-							patternParallel: yieldable(root)
+							pattern: phrase.terminal,
+							patternParallel: yieldable(phrase.associatedNode)
 						};
 		}
 		

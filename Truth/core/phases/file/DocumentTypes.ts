@@ -100,7 +100,7 @@ namespace Truth
 	
 	/**
 	 * @internal
-	 * A type that describes a Statement object with a non-null .uri value.
+	 * A type that describes a Statement object with a non-null .uri field.
 	 */
 	export type UriStatement = Statement & { readonly uri: KnownUri; };
 	

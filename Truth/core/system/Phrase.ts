@@ -37,6 +37,16 @@ namespace Truth
 			return current;
 		}
 		
+		/**
+		 * @internal
+		 */
+		static *rootsOf(document: Document): IterableIterator<AssociatedPhrase>
+		{
+			for (const phrase of document.phrase.forwardings.values())
+				if (phrase.associatedNode !== null)
+					yield phrase as AssociatedPhrase;
+		}
+		
 		/** */
 		private constructor(
 			parent: Phrase | null,
@@ -158,5 +168,24 @@ namespace Truth
 		{
 			return this.subjects.map(sub => sub.toString()).join("/");
 		}
+		
+		/**
+		 * @internal
+		 * For reasons related to performance and architectural simplicity,
+		 * a reference to the Node to which this Phrase is associated is
+		 * stored here. This is so that we can avoid managing a separate
+		 * index to manage the relationship between these two objects.
+		 * Phrases are created before their associated Node, and so in this
+		 * case, this field is null.
+		 * 
+		 * This field should only be assigned from within the Node class.
+		 */
+		associatedNode: Node | null = null;
 	}
+	
+	/**
+	 * @internal
+	 * A type that describes a Phrase object with a non-null .associatedNode field.
+	 */
+	export type AssociatedPhrase = Phrase & { readonly associatedNode: Node; };
 }

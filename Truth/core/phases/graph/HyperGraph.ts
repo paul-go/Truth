@@ -55,29 +55,6 @@ namespace Truth
 		}
 		
 		/**
-		 * Reads a root Node corresponding to the specified subject
-		 * from the specified document.
-		 */
-		read(document: Document, subject: Subject): Node | null
-		{
-			const phrase = document.phrase.forward(subject);
-			return this.nodeIndex.getNodeByPhrase(phrase);
-		}
-		
-		/**
-		 * @returns An array containing the node objects
-		 * that are defined at the root level of the specified
-		 * document.
-		 */
-		*readRoots(document: Document)
-		{
-			for (const node of this.nodeIndex.eachNode())
-				if (node.container === null)
-					if (node.document === document)
-						yield node;
-		}
-		
-		/**
 		 * Handles a document-level exclusion, which is the removal 
 		 * of a section of Spans within a document, or possibly the
 		 * entire document itself.
@@ -94,13 +71,7 @@ namespace Truth
 				{
 					const associatedNodes = new Set(declaration
 						.factor()
-						.map(spine =>
-						{
-							const phrase = Phrase.fromSpine(spine);
-							return phrase ?
-								this.nodeIndex.getNodeByPhrase(phrase) :
-								null;
-						})
+						.map(spine => Phrase.fromSpine(spine)?.associatedNode)
 						.filter((n): n is Node => n instanceof Node));
 					
 					for (const associatedNode of associatedNodes)
@@ -156,10 +127,7 @@ namespace Truth
 				if (phrase.length === 0)
 					throw Exception.invalidArgument();
 				
-				return (
-					affectedNodes.get(phrase) ||
-					this.nodeIndex.getNodeByPhrase(phrase) ||
-					null);
+				return affectedNodes.get(phrase) || phrase.associatedNode;
 			};
 			
 			// It's important that these declarations are enumerated
@@ -415,7 +383,7 @@ namespace Truth
 			for (const affectedNode of affectedNodes.values())
 			{
 				affectedNode.sortOutbounds();
-				const cachedNode = this.nodeIndex.getNodeByPhrase(affectedNode.phrase);
+				const cachedNode = affectedNode.phrase.associatedNode;
 				
 				if (cachedNode)
 				{
@@ -424,21 +392,9 @@ namespace Truth
 					
 					this.nodeIndex.update(affectedNode);
 				}
-				else
-				{
-					this.nodeIndex.set(affectedNode.phrase, affectedNode);
-				}
 				
 				this.sanitize(affectedNode);
 			}
-		}
-		
-		/** */
-		private log()
-		{
-			console.log("---- INTERNAL GRAPH REPRESENTATION ----");
-			for (const node of this.nodeIndex.eachNode())
-				console.log(node.toString(true));
 		}
 		
 		/**

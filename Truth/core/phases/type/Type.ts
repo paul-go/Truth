@@ -112,9 +112,9 @@ namespace Truth
 		{
 			const roots: Type[] = [];
 			
-			for (const node of document.program.graph.readRoots(document))
+			for (const phrase of Phrase.rootsOf(document))
 			{
-				const type = this.construct(node.phrase);
+				const type = this.construct(phrase);
 				if (type !== null)
 					roots.push(type);
 			}
@@ -377,10 +377,10 @@ namespace Truth
 				return this.private.adjacents = this.container.contents.filter(t => t !== this);
 			
 			const document = this.phrase.containingDocument;
-			const roots = Array.from(this.private.program.graph.readRoots(document));
+			const roots = Array.from(Phrase.rootsOf(document));
 			
 			const adjacents = roots
-				.map(node => Type.construct(node.phrase))
+				.map(phrase => Type.construct(phrase))
 				.filter((t): t is Type => t !== null && t !== this);
 			
 			return this.private.adjacents = Object.freeze(adjacents);
