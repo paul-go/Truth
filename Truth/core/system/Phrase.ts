@@ -39,6 +39,8 @@ namespace Truth
 		
 		/**
 		 * @internal
+		 * Iterates through the first-level phrases of the specified document,
+		 * skipping over the phrases that don't have an associated node.
 		 */
 		static *rootsOf(document: Document): IterableIterator<AssociatedPhrase>
 		{
