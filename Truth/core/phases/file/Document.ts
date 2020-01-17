@@ -1383,6 +1383,58 @@ namespace Truth
 		}
 		
 		/**
+		 * (Not implemented)
+		 * 
+		 * Updates this document's sourceUri with the new URI specified.
+		 * The value specified may be a relative URI, in which case, the final
+		 * URI will be made relative to this document.
+		 * 
+		 * @throws An error in the case when a document has been loaded
+		 * into the Program that is already associated with the URI specified,
+		 * or when the value specified could not be parsed.
+		 */
+		updateUri(newValue: string)
+		{
+			const newUri = KnownUri.fromString(newValue, this._uri);
+			if (newUri === null)
+				throw Exception.invalidUri(newValue);
+			
+			const existing = this.program.getDocumentByUri(newUri);
+			if (existing)
+				throw Exception.uriAlreadyExists();
+			
+			if (newUri.protocol !== this._uri.protocol)
+				throw Exception.uriProtocolsMustMatch();
+			
+			const wasUri = this._uri;
+			this._uri = newUri;
+			
+			for (const doc of this.program.documents)
+				doc.didUpdateUri(this, wasUri);
+		}
+		
+		/** */
+		private didUpdateUri(affectedDoc: Document, was: KnownUri)
+		{
+			const newlyBrokenRaw: Reference[] = [];
+			const newlyTargetedRaw: Reference[] = [];
+			
+			for (const ref of this.referencesRaw)
+			{
+				if (ref.statement.uri === was)
+					newlyBrokenRaw.push(ref);
+				
+				else if (ref.statement.uri === affectedDoc._uri)
+					newlyTargetedRaw.push(ref);
+			}
+			
+			if (newlyBrokenRaw.length + newlyTargetedRaw.length === 0)
+				return;
+			
+			throw Exception.notImplemented();
+		}
+		
+		/**
 		 * Stores the Reference objects that are having some impact 
 		 * on this document's relationship structure. 
 		 */
