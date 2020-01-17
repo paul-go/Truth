@@ -86,7 +86,7 @@ namespace Truth
 			
 			// This code skips by any Parallel instances that have already
 			// been constructed. The real work begins when we get to
-			// the first point in the URI where there is no constructed
+			// the first point in the Phrase where there is no constructed
 			// Parallel instance.
 			for (const phrase of ancestry)
 			{
@@ -115,8 +115,8 @@ namespace Truth
 		
 		/**
 		 * An entrypoint into the drill function that operates
-		 * on a Node instead of a Uri. Essentially, this method
-		 * calls "drillFromUri()" safely (meaning that it detects
+		 * on a Node instead of a Phrase. Essentially, this method
+		 * calls "drillFromPhrase()" safely (meaning that it detects
 		 * circular invokations, and returns null in these cases).
 		 */
 		private drillFromNode(node: Node)
@@ -539,10 +539,10 @@ namespace Truth
 					}
 				}
 				
-				const nextUri = zenith.phrase.forward(targetSubject);
+				const nextPhrase = zenith.phrase.forward(targetSubject);
 				return (
-					this.parallels.get(nextUri) ||
-					this.parallels.create(nextUri));
+					this.parallels.get(nextPhrase) ||
+					this.parallels.create(nextPhrase));
 			};
 			
 			/**
