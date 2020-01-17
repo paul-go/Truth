@@ -11,9 +11,9 @@ namespace Truth
 		 * @internal
 		 * Creates a new root phrase.
 		 */
-		static new(uri: KnownUri)
+		static new(containingDocument: Document)
 		{
-			return new Phrase(null, uri, Term.void, 0);
+			return new Phrase(null, containingDocument, Term.void, 0);
 		}
 		
 		/**
@@ -43,7 +43,7 @@ namespace Truth
 			/**
 			 * 
 			 */
-			readonly containingUri: KnownUri,
+			readonly containingDocument: Document,
 			/**
 			 * 
 			 */
@@ -83,7 +83,7 @@ namespace Truth
 			return Misc.get(
 				this.forwardings,
 				subject,
-				() => new Phrase(this, this.containingUri, subject, this.length + 1));
+				() => new Phrase(this, this.containingDocument, subject, this.length + 1));
 		}
 		
 		/**

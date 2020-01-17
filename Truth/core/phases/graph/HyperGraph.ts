@@ -15,7 +15,7 @@ namespace Truth
 		/** @internal */
 		constructor(private readonly program: Program)
 		{
-			this.nodeIndex = new NodeIndex(this.program);
+			this.nodeIndex = new NodeIndex();
 			
 			if (HyperGraph.disabled)
 				return;
@@ -145,31 +145,21 @@ namespace Truth
 			
 			// Stores all the nodes that have been affected by a new
 			// fragment either being added or removed from it.
-			const affectedNodes: Node[] = [];
-			
-			// Stores a subset of the affectedNodes array. Contains
-			// only the nodes that are at the outer-most level of depth
-			// within the node set (not necessarily the document root).
-			const affectedNodesApexes: Node[] = [];
+			const affectedNodes = new Map<Phrase, Node>();
 			
 			/**
 			 * @returns The containing node that
-			 * corresponds to the specified URI.
+			 * corresponds to the specified phrase.
 			 */ 
 			const findNode = (phrase: Phrase) =>
 			{
 				if (phrase.length === 0)
 					throw Exception.invalidArgument();
 				
-				const existingNode = affectedNodes.find(node => node.phrase === phrase);
-				if (existingNode)
-					return existingNode;
-				
-				const cachedNode = this.nodeIndex.getNodeByPhrase(phrase);
-				if (cachedNode)
-					return cachedNode;
-				
-				return null;
+				return (
+					affectedNodes.get(phrase) ||
+					this.nodeIndex.getNodeByPhrase(phrase) ||
+					null);
 			};
 			
 			// It's important that these declarations are enumerated
@@ -272,6 +262,11 @@ namespace Truth
 				}
 			}
 			
+			// Stores a subset of the affectedNodes array. Contains
+			// only the nodes that are at the outer-most level of depth
+			// within the node set (not necessarily the document root).
+			const affectedNodesApexes: Node[] = [];
+			
 			// The following block populates the appropriate Nodes
 			// in the graph with the new Span objects that were sent
 			// in through the "root" parameter. New Node objects
@@ -285,7 +280,11 @@ namespace Truth
 						const nodeAtPhrase = findNode(phrase);
 						if (nodeAtPhrase)
 						{
-							affectedNodes.push(nodeAtPhrase);
+							// We add the phrase to the table of affected nodes,
+							// to handle the case when it was extracted from the
+							// cache.
+							// This seems a bit broken, investigation is likely needed.
+							affectedNodes.set(phrase, nodeAtPhrase);
 							nodeAtPhrase.addDeclaration(declaration);
 							continue;
 						}
@@ -300,7 +299,7 @@ namespace Truth
 						// Note that when creating a Node, it's
 						// automatically bound to it's container.
 						const newNode = new Node(container, declaration);
-						affectedNodes.push(newNode);
+						affectedNodes.set(phrase, newNode);
 						
 						// Populate the topMostAffectedNodes array, 
 						// which is needed to find the nodes that are
@@ -313,9 +312,9 @@ namespace Truth
 						else
 						{
 							// If we've encountered a node that is higher
-							// than the level of depth defined in the nodes currently
-							// in the affectedNodesApexes array.
-							const highestDepth = affectedNodes[0].phrase.length;
+							// than the level of depth defined in the nodes
+							// currently in the affectedNodesApexes array.
+							const highestDepth = affectedNodesApexes[0].phrase.length;
 							const nodeDepth = newNode.phrase.length;
 							
 							if (nodeDepth < highestDepth)
@@ -334,7 +333,7 @@ namespace Truth
 			// all new nodes need to be created and positioned
 			// in the graph before new "HyperEdge spans" can be added,
 			// because doing this causes resolution to occur.
-			for (const node of affectedNodes)
+			for (const node of affectedNodes.values())
 				for (const declaration of node.declarations)
 				{
 					if (declaration instanceof Span)
@@ -413,7 +412,7 @@ namespace Truth
 			}
 			
 			// Populate nodeCache with any newly created nodes.
-			for (const affectedNode of affectedNodes)
+			for (const affectedNode of affectedNodes.values())
 			{
 				affectedNode.sortOutbounds();
 				const cachedNode = this.nodeIndex.getNodeByPhrase(affectedNode.phrase);

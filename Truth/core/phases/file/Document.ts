@@ -95,7 +95,8 @@ namespace Truth
 		{
 			super();
 			this.program = program;
-			this.phrase = Phrase.new(sourceUri);
+			this._uri = sourceUri;
+			this.phrase = Phrase.new(this);
 		}
 		
 		/** @internal */
@@ -110,28 +111,11 @@ namespace Truth
 		/**
 		 * Stores the URI from where this document was loaded.
 		 */
-		get uri()
+		get uri(): KnownUri
 		{
-			return this.phrase.containingUri;
+			return this._uri;
 		}
-		
-		/**
-		 * Updates this Document's sourceUri with the new URI specified.
-		 * 
-		 * Note: Setting this method can break other documents that are 
-		 * referring to this document via a URI. Use with caution.
-		 * 
-		 * @throws An error in the case when a document has been loaded
-		 * into the Program that is already associated with the URI specified.
-		 */
-		updateUri(newUri: KnownUri)
-		{
-			const existing = this.program.getDocumentByUri(newUri);
-			if (existing)
-				throw Exception.cannotAssignUri();
-			
-			debugger;
-		}
+		private _uri: KnownUri;
 		
 		/**
 		 * @internal

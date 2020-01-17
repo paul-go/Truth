@@ -35,7 +35,6 @@ namespace Truth
 				throw Exception.unknownState();
 			
 			this.subject = declaration.boundary.subject;
-			this.name = SubjectSerializer.forInternal(this.subject);
 			
 			this.isListIntrinsic = 
 				this.subject instanceof Term &&
@@ -153,41 +152,29 @@ namespace Truth
 		{
 			const flag = InfixFlags.population;
 			
-			if (this.container !== null)
-				if (this.container.subject instanceof Pattern)
-					for (const nfx of this.container.subject.getInfixes(flag))
-						for (const term of nfx.lhs.eachSubject())
-							return nfx;
+			if (this.container?.subject instanceof Pattern)
+				for (const nfx of this.container.subject.getInfixes(flag))
+					if (nfx.lhs.length > 0)
+						return nfx;
 			
 			return null;
 		}
 		
-		/** */
-		readonly name: string;
+		/**
+		 * @internal
+		 * Gets a text representation of this Node's subject,
+		 * for debugging purposes only.
+		 */
+		get name()
+		{
+			return SubjectSerializer.forInternal(this.subject);
+		}
 		
 		/** */
 		readonly subject: Subject;
 		
 		/** */
 		readonly phrase: Phrase;
-		
-		/** * /
-		get uri()
-		{
-			// Because the URI of the document can change, we need to 
-			// make sure it's not hard coded into the node instance.
-			const outUri = this.document.sourceUri.extendType(this.typePath);
-			
-			if (this.lastUri !== null)
-				if (outUri.equals(this.lastUri))
-					return this.lastUri;
-			
-			return this.lastUri = outUri;
-		}
-		
-		private lastUri: Uri | null = null;
-		private readonly typePath: readonly string[];
-		*/
 		
 		/** Stores the document that contains this Node. */
 		readonly document: Document;

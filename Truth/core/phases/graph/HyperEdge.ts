@@ -228,11 +228,13 @@ namespace Truth
 		 */
 		toString()
 		{
+			const print = (sub: Subject) => SubjectSerializer.forInternal(sub);
+			
 			return [
 				"Value=" + this.term,
-				"Predecessors=" + this.predecessor.name,
+				"Predecessors=" + print(this.predecessor.subject),
 				"Successors=" + this.successors
-					.map(n => n.node.name + " << " + n.longitude)
+					.map(n => print(n.node.subject) + " << " + n.longitude)
 					.join(", "),
 				"Sources=" + Array.from(this.fragments)
 					.map(src => src.boundary.subject).join(", "),

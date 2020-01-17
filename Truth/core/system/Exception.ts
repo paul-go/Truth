@@ -170,12 +170,21 @@ namespace Truth
 		}
 		
 		/** */
-		static cannotAssignUri()
+		static uriAlreadyExists()
 		{
 			return error(`
 				Cannot assign this URI to this document, because
 				another document is already loaded in the program
 				with the Uri specified.`);
+		}
+		
+		/** */
+		static uriProtocolsMustMatch()
+		{
+			return error(`
+				Cannot assign this URI to this document, because
+				it's protocol differs from the URI current assigned 
+				to this document`);
 		}
 		
 		/** */

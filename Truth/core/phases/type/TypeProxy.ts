@@ -7,9 +7,7 @@ namespace Truth
 	export class TypeProxy
 	{
 		/** */
-		constructor(
-			private readonly phrase: Phrase,
-			private readonly program: Program)
+		constructor(private readonly phrase: Phrase)
 		{ }
 		
 		/** */
@@ -18,7 +16,7 @@ namespace Truth
 			if (this.compiledType !== undefined)
 				return this.compiledType;
 			
-			return this.compiledType = Type.construct(this.phrase, this.program);
+			return this.compiledType = Type.construct(this.phrase);
 		}
 		
 		/** */

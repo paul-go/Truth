@@ -71,11 +71,7 @@ namespace Truth
 				throw Exception.invalidArgument();
 			
 			const ancestry = directive.ancestry;
-			
-			const sourceDoc = this.program.getDocumentByUri(directive.containingUri);
-			if (sourceDoc === null)
-				throw Exception.documentNotLoaded();
-			
+			const sourceDoc = directive.containingDocument;
 			const surfaceNode = this.program.graph.read(
 				sourceDoc,
 				ancestry[0].terminal);

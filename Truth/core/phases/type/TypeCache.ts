@@ -12,28 +12,29 @@ namespace Truth
 	export class TypeCache
 	{
 		/** */
-		static has(phrase: Phrase, program: Program)
+		static has(phrase: Phrase)
 		{
-			const cache = this.getCache(program);
+			const cache = this.getCache(phrase.containingDocument.program);
 			return cache.map.has(phrase);
 		}
 		
 		/** */
-		static get(phrase: Phrase, program: Program)
+		static get(phrase: Phrase)
 		{
+			const program = phrase.containingDocument.program;
 			const cache = this.getCache(program);
 			if (cache.map.has(phrase))
 				return Not.undefined(cache.map.get(phrase));
 			
-			const proxy = new TypeProxy(phrase, program);
-			this.set(phrase, program, proxy);
+			const proxy = new TypeProxy(phrase);
+			this.set(phrase, proxy);
 			return proxy;
 		}
 		
 		/** */
-		static set(phrase: Phrase, program: Program, type: TCachedType): TCachedType
+		static set(phrase: Phrase, type: TCachedType): TCachedType
 		{
-			const cache = this.getCache(program);
+			const cache = this.getCache(phrase.containingDocument.program);
 			cache.map.set(phrase, type);
 			return type;
 		}

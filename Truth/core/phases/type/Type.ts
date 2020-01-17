@@ -17,9 +17,9 @@ namespace Truth
 		 * @internal
 		 * Constructs one or more Type objects from the specified location.
 		 */
-		static construct(phrase: Phrase, program: Program): Type | null;
-		static construct(spine: Spine, program: Program): Type;
-		static construct(param: Phrase | Spine, program: Program): Type | null
+		static construct(phrase: Phrase): Type | null;
+		static construct(spine: Spine): Type;
+		static construct(param: Phrase | Spine): Type | null
 		{
 			const phrase = param instanceof Phrase ?
 				param :
@@ -28,15 +28,17 @@ namespace Truth
 			if (!phrase || phrase.length === 0)
 				return null;
 			
-			if (TypeCache.has(phrase, program))
+			if (TypeCache.has(phrase))
 			{
-				const cached = TypeCache.get(phrase, program);
+				const cached = TypeCache.get(phrase);
 				
 				// If the cached type exists, but hasn't been compiled yet,
 				// we can't return it, we need to compile it first.
 				if (cached === null || cached instanceof Type)
 					return cached as Type;
 			}
+			
+			const program = phrase.containingDocument.program;
 			
 			const worker = (() =>
 			{
@@ -63,7 +65,7 @@ namespace Truth
 			const parallel = worker.drill(phrase);
 			if (parallel === null)
 			{
-				TypeCache.set(phrase, program, null);
+				TypeCache.set(phrase, null);
 				return null;
 			}
 			
@@ -79,9 +81,9 @@ namespace Truth
 			
 			for (const currentParallel of parallelLineage)
 			{
-				if (TypeCache.has(currentParallel.phrase, program))
+				if (TypeCache.has(currentParallel.phrase))
 				{
-					const existingType = TypeCache.get(currentParallel.phrase, program);
+					const existingType = TypeCache.get(currentParallel.phrase);
 					if (existingType instanceof TypeProxy)
 						throw Exception.unknownState();
 					
@@ -92,8 +94,8 @@ namespace Truth
 				}
 				else
 				{
-					const type: Type = new Type(currentParallel, lastType, program);
-					TypeCache.set(currentParallel.phrase, program, type);
+					const type: Type = new Type(currentParallel, lastType);
+					TypeCache.set(currentParallel.phrase, type);
 					lastType = type;
 				}
 			}
@@ -108,12 +110,11 @@ namespace Truth
 		 */
 		static constructRoots(document: Document)
 		{
-			const program = document.program;
 			const roots: Type[] = [];
 			
-			for (const node of program.graph.readRoots(document))
+			for (const node of document.program.graph.readRoots(document))
 			{
-				const type = this.construct(node.phrase, program);
+				const type = this.construct(node.phrase);
 				if (type !== null)
 					roots.push(type);
 			}
@@ -129,23 +130,22 @@ namespace Truth
 		 */
 		private constructor(
 			seed: Parallel,
-			container: Type | null,
-			program: Program)
+			container: Type | null)
 		{
-			this.private = new TypePrivate(program, seed);
+			this.private = new TypePrivate(seed);
 			this.name = seed.phrase.terminal.toString();
 			this.phrase = seed.phrase;
 			this.container = container;
 			
 			this.private.parallels = new TypeProxyArray(
 				seed.getParallels().map(edge =>
-					new TypeProxy(edge.phrase, program)));
+					new TypeProxy(edge.phrase)));
 			
 			const getBases = (sp: SpecifiedParallel) =>
 			{
 				const bases = Array.from(sp.eachBase());
 				return bases.map(entry => 
-					new TypeProxy(entry.base.node.phrase, program));
+					new TypeProxy(entry.base.node.phrase));
 			};
 			
 			if (seed instanceof SpecifiedParallel)
@@ -264,7 +264,7 @@ namespace Truth
 				.map(containedSub =>
 				{
 					const maybeContainedPhrase = this.phrase.forward(containedSub);
-					return Type.construct(maybeContainedPhrase, this.private.program);
+					return Type.construct(maybeContainedPhrase);
 				})
 				.filter((t): t is Type => t !== null);
 			
@@ -355,7 +355,7 @@ namespace Truth
 			
 			const derivations = Array.from(this.private.seed.node.inbounds)
 				.map(ib => ib.predecessor.phrase)
-				.map(phrase => Type.construct(phrase, this.private.program))
+				.map(phrase => Type.construct(phrase))
 				.filter((t): t is Type => t instanceof Type)
 				.filter(type => type.bases.includes(this));
 			
@@ -376,11 +376,11 @@ namespace Truth
 			if (this.container)
 				return this.private.adjacents = this.container.contents.filter(t => t !== this);
 			
-			const program = this.private.program;
-			const document = Not.null(program.getDocumentByUri(this.phrase.containingUri));
+			const document = this.phrase.containingDocument;
 			const roots = Array.from(this.private.program.graph.readRoots(document));
+			
 			const adjacents = roots
-				.map(node => Type.construct(node.phrase, program))
+				.map(node => Type.construct(node.phrase))
 				.filter((t): t is Type => t !== null && t !== this);
 			
 			return this.private.adjacents = Object.freeze(adjacents);
@@ -492,7 +492,7 @@ namespace Truth
 					values.push({
 						aliased,
 						value: edge.term.toString(),
-						base: Type.construct(edge.predecessor.phrase, this.private.program)
+						base: Type.construct(edge.predecessor.phrase)
 					});
 			};
 			
@@ -721,11 +721,15 @@ namespace Truth
 	 */
 	class TypePrivate
 	{
-		constructor(
-			readonly program: Program,
-			readonly seed: Parallel)
+		constructor(readonly seed: Parallel)
 		{
-			this.stamp = program.version;
+			this.stamp = this.program.version;
+		}
+		
+		/** */
+		get program()
+		{
+			return this.seed.phrase.containingDocument.program;
 		}
 		
 		/** */

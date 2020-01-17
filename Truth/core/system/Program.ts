@@ -319,7 +319,7 @@ namespace Truth
 				return Type.constructRoots(document);
 			
 			const phrase = document.phrase.forwardDeep(typePath);
-			return Type.construct(phrase, this);
+			return Type.construct(phrase);
 		}
 		
 		/**
@@ -353,7 +353,7 @@ namespace Truth
 					const types = parent.declarations
 						.map(decl => decl.factor())
 						.reduce((spines, s) => spines.concat(s), [])
-						.map(spine => Type.construct(spine, this));
+						.map(spine => Type.construct(spine));
 					
 					return new ProgramInspectionResult(position, zone, types, statement, null);
 				}
@@ -375,7 +375,7 @@ namespace Truth
 					
 					const types = decl
 						.factor()
-						.map(spine => Type.construct(spine, this));
+						.map(spine => Type.construct(spine));
 					
 					return new ProgramInspectionResult(position, zone, types, statement, decl);
 				}
@@ -387,7 +387,7 @@ namespace Truth
 						throw Exception.unknownState();
 					
 					const spine = statement.declarations[0].factor()[0];
-					const type = Type.construct(spine, this);
+					const type = Type.construct(spine);
 					const annoText = anno.boundary.subject.toString();
 					const base = type.bases.filter(b => b.name === annoText);
 					base.push(type);
@@ -398,7 +398,7 @@ namespace Truth
 				{
 					const anno = statement.getAnnotation(offset);
 					const spine = statement.declarations[0].factor()[0];
-					const type = Type.construct(spine, this);
+					const type = Type.construct(spine);
 					return new ProgramInspectionResult(position, zone, [type], statement, anno);
 				}
 			}
@@ -452,7 +452,7 @@ namespace Truth
 			if (!statement.isDisposed)
 				for (const decl of statement.declarations)
 					decl.factor().map(spine => 
-						Type.construct(spine, this));
+						Type.construct(spine));
 		}
 		
 		/** */

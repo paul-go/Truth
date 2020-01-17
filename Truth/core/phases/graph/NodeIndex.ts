@@ -6,33 +6,6 @@ namespace Truth
 	 */
 	export class NodeIndex
 	{
-		/** */
-		constructor(program: Program)
-		{
-			/*DEAD
-			program.on(CauseDocumentUriChange, data =>
-			{
-				// Update the entire cache when the URI of any document changes.
-				const newUriStore = data.newUri.retractTypeTo(0);
-				const entries = Array.from(this.phraseToNodeMap.entries());
-				
-				for (const [oldUriText, node] of entries)
-				{
-					if (node.document !== data.document)
-						continue;
-					
-					const oldUri = Not.null(Uri.tryParse(oldUriText));
-					const newUriText = newUriStore
-						.extendType(oldUri.types.map(t => t.value))
-						.toString();
-					
-					this.phraseToNodeMap.delete(oldUriText);
-					this.phraseToNodeMap.set(newUriText, node);
-				}
-			});
-			*/
-		}
-		
 		/**
 		 * Enumerates through all Node instances stored
 		 * in the index.
