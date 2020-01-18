@@ -414,7 +414,7 @@ namespace Truth
 			
 			// Stores the indent value that causes the loop
 			// to terminate when reached.
-			const minIndent = statement?.indent || 0;
+			const minIndent = statement ? statement.indent : -1;
 			let maxIndent = Number.MAX_SAFE_INTEGER;
 			
 			// Start the iteration 1 position after the statement
