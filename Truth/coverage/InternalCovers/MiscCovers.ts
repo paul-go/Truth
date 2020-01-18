@@ -7,23 +7,28 @@ namespace Truth
 			word
 			/[A-Z]{3} : word
 			
+			number
+			/\d+ : number
+			
 			struct
-				a : word
-				b : word
+				w : word
+				n : number
 			
 			s1 : struct
-				a : ABC
-				b : CBA
+				w : ABC
+				n : CBA
 			
 			s2 : struct
-				a : XYZ
-				b : ZYX
+				w : XYZ
+				n : 123
 		`);
 		
-		const [struct, s1a, s2a] = typesOf(doc,
+		const [struct, s1w, s1n, s2w, s2n] = typesOf(doc,
 			"struct",
-			["s1", "a"],
-			["s2", "a"]
+			["s1", "w"],
+			["s1", "n"],
+			["s2", "w"],
+			["s2", "n"]
 		);
 		
 		const isInerrant = program.verify();
@@ -33,7 +38,7 @@ namespace Truth
 		
 		return [
 			() => isInerrant,
-			() => s1a.value === "ABC",
+			() => s1w.value === "ABC",
 		];
 	}
 }

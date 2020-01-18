@@ -6,7 +6,7 @@ namespace Truth
 		const code = `
 			Type
 			Standard, Product, Number, Class, Hole Size, Finish, Grade, Material : Type
-			Thread Type, Drive Type, Head Style, System of Measurement : Type
+			Thread Type, Drive Type, Head Style, Som : Type
 			Decimal, Fraction : Number
 			
 			mm, n-mm^2 : Decimal
@@ -38,10 +38,10 @@ namespace Truth
 			
 			Slot : Drive Type
 			
-			Metric, Inch : System of Measurement
+			Metric, Inch : Som
 			
-			Machine Screw : Product
-				System of Measurement : System of Measurement
+			ms : Product
+				Som : Som
 				Hole Size : Hole Size
 				Head Height : Range
 				Head Diameter : Range
@@ -55,8 +55,8 @@ namespace Truth
 				Tensile Strength : Number
 				Length : Number
 			
-			Metric Machine Screw : Machine Screw
-				System of Measurement : Metric
+			mms : ms
+				Som : Metric
 				Hole Size : Metric Hole Size
 				Head Height : Range
 					Min : mm
@@ -197,8 +197,8 @@ namespace Truth
 					Min : 400
 					Max : 600
 			
-			Inch Machine Screw : Machine Screw
-				System of Measurement : Inch
+			Inch ms : ms
+				Som : Inch
 				Hole Size : Inch Hole Size
 				Head Height : Range
 					Min : in
@@ -209,127 +209,127 @@ namespace Truth
 				Thread Pitch : Decimal
 				Length : in
 			
-			1-64 Machine Screw : Inch Machine Screw
+			1-64 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 1
 				Thread Pitch : 64
 			
-			2-56 Machine Screw : Inch Machine Screw
+			2-56 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 2
 				Thread Pitch : 56
 			
-			3-48 Machine Screw : Inch Machine Screw
+			3-48 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 3
 				Thread Pitch : 48
 			
-			4-40 Machine Screw : Inch Machine Screw
+			4-40 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 4
 				Thread Pitch : 40
 			
-			5-40 Machine Screw : Inch Machine Screw
+			5-40 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 5
 				Thread Pitch : 40
 			
-			6-32 Machine Screw : Inch Machine Screw
+			6-32 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 6
 				Thread Pitch : 32
 			
-			8-32 Machine Screw : Inch Machine Screw
+			8-32 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 8
 				Thread Pitch : 32
 			
-			10-24 Machine Screw : Inch Machine Screw
+			10-24 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 10
 				Thread Pitch : 24
 			
-			12-24 Machine Screw : Inch Machine Screw
+			12-24 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 12
 				Thread Pitch : 24
 			
-			1/4-20 Machine Screw : Inch Machine Screw
+			1/4-20 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 1/4
 				Thread Pitch : 20
 			
-			5/16-18 Machine Screw : Inch Machine Screw
+			5/16-18 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 5/16
 				Thread Pitch : 18
 			
-			3/8-16 Machine Screw : Inch Machine Screw
+			3/8-16 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 3/8
 				Thread Pitch : 16
 			
-			7/16-14 Machine Screw : Inch Machine Screw
+			7/16-14 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 7/16
 				Thread Pitch : 14
 			
-			1/2-13 Machine Screw : Inch Machine Screw
+			1/2-13 ms : Inch ms
 				Thread Type : UNC
 				Hole Size : 1/2
 				Thread Pitch : 13
 			
-			0-80 Machine Screw : Inch Machine Screw
+			0-80 ms : Inch ms
 				Thread Type : UNF
 				Hole Size : 0
 				Thread Pitch : 80
 			
-			1-72 Machine Screw : Inch Machine Screw
+			1-72 ms : Inch ms
 				Thread Type : UNF
 				Hole Size : 1
 				Thread Pitch : 72
 			
-			2-64 Machine Screw : Inch Machine Screw
+			2-64 ms : Inch ms
 				Thread Type : UNF
 				Hole Size : 2
 				Thread Pitch : 64
 			
-			3-56 Machine Screw : Inch Machine Screw
+			3-56 ms : Inch ms
 				Thread Type : UNF
 				Hole Size : 3
 				Thread Pitch : 56
 			
-			4-48 Machine Screw : Inch Machine Screw
+			4-48 ms : Inch ms
 				Thread Type : UNF
 				Hole Size : 4
 				Thread Pitch : 48
 			
-			6-40 Machine Screw : Inch Machine Screw
+			6-40 ms : Inch ms
 				Thread Type : UNF
 				Hole Size : 6
 				Thread Pitch : 40
 			
-			8-36 Machine Screw : Inch Machine Screw
+			8-36 ms : Inch ms
 				Thread Type : UNF
 				Hole Size : 8
 				Thread Pitch : 36
 			
-			10-32 Machine Screw : Inch Machine Screw
+			10-32 ms : Inch ms
 				Thread Type : UNF
 				Hole Size : 10
 				Thread Pitch : 32
 			
-			1/4-28 Machine Screw : Inch Machine Screw
+			1/4-28 ms : Inch ms
 				Thread Type : UNF
 				Hole Size : 1/4
 				Thread Pitch : 28
 			
-			4-36 Machine Screw : Inch Machine Screw
+			4-36 ms : Inch ms
 				Thread Type : NS
 				Hole Size : 4
 				Thread Pitch : 36
 			
-			ASME B18.6.3 : Standard, Inch Machine Screw
+			ASME B18.6.3 : Standard, Inch ms
 			
 			ASME B18.6.3 Round : ASME B18.6.3
 				Head Style : Round
@@ -502,3301 +502,3301 @@ namespace Truth
 					Max : .355
 					Min : .332
 			
-			MS-1013 : 0-80 Machine Screw, ASME B18.6.3 Round 0
+			MS-1013 : 0-80 ms, ASME B18.6.3 Round 0
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/2
 			
-			380-789 : 1-72 Machine Screw, ASME B18.6.3 Round 1
+			380-789 : 1-72 ms, ASME B18.6.3 Round 1
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/16
 			
-			MS-457 : 1-64 Machine Screw, ASME B18.6.3 Round 1
+			MS-457 : 1-64 ms, ASME B18.6.3 Round 1
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 1/4
 			
-			MS-458 : 1-64 Machine Screw, ASME B18.6.3 Round 1
+			MS-458 : 1-64 ms, ASME B18.6.3 Round 1
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 1/2
 			
-			1467 : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			1467 : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/4
 			
-			380-779 : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			380-779 : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3 1/4
 			
-			380-F08-1N : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			380-F08-1N : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 1 1/4
 			
-			380-F24-2K : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			380-F24-2K : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 1 3/4
 			
-			380-F57-1C : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			380-F57-1C : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 5
 			
-			380-F77-1X : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			380-F77-1X : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3
 			
-			871 : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			871 : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1
 			
-			MS-1021 : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			MS-1021 : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 6
 			
-			MS-1097 : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			MS-1097 : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 4
 			
-			MS-1117 : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			MS-1117 : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 2
 			
-			MS-1118 : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			MS-1118 : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 2 1/4
 			
-			MS-1119 : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			MS-1119 : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 2 1/2
 			
-			MS-390 : 1/4-28 Machine Screw, ASME B18.6.3 Round 1/4
+			MS-390 : 1/4-28 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/4
 			
-			MS-73 : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			MS-73 : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/8
 			
-			MS-75 : 1/4-20 Machine Screw, ASME B18.6.3 Round 1/4
+			MS-75 : 1/4-20 ms, ASME B18.6.3 Round 1/4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 1/2
 			
-			1027 : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			1027 : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 7/8
 			
-			1028 : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			1028 : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/2
 			
-			1028-A : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			1028-A : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 5/16
 			
-			1484 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			1484 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 7/8
 			
-			380-131 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			380-131 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 4 1/4
 			
-			380-807 : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			380-807 : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 4 1/2
 			
-			380-F18-1Y : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			380-F18-1Y : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 2 1/2
 			
-			380-F21-1C : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			380-F21-1C : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 6
 			
-			380-F25-1W : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			380-F25-1W : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 1
 			
-			380-F49-1W : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			380-F49-1W : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 5/16
 			
-			380-F63-1W : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			380-F63-1W : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 3/8
 			
-			380-F70-1Y : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			380-F70-1Y : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/4
 			
-			380-F72-1N : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			380-F72-1N : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 1/4
 			
-			B-1467 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			B-1467 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/8
 			
-			B-1506 : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			B-1506 : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 1/2
 			
-			MS-1005 : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			MS-1005 : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 1/4
 			
-			MS-1080 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			MS-1080 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 1/4
 			
-			MS-1093 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			MS-1093 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 4
 			
-			MS-1094 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			MS-1094 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 5
 			
-			MS-1158 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			MS-1158 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 3/16
 			
-			MS-12 : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			MS-12 : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 2
 			
-			MS-1204 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			MS-1204 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 2 1/4
 			
-			MS-13 : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			MS-13 : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 2 1/2
 			
-			MS-14 : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			MS-14 : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3
 			
-			MS-15 : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			MS-15 : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 4
 			
-			MS-180 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			MS-180 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 5/8
 			
-			MS-192 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			MS-192 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/2
 			
-			MS-275 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			MS-275 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 1 3/8
 			
-			MS-414 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			MS-414 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3
 			
-			MS-61 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			MS-61 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1
 			
-			MS-63 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			MS-63 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 1 1/2
 			
-			MS-64 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			MS-64 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 3/4
 			
-			MS-65 : 10-24 Machine Screw, ASME B18.6.3 Round 10
+			MS-65 : 10-24 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 2
 			
-			MS-66 : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			MS-66 : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/4
 			
-			MS-67 : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			MS-67 : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 5/8
 			
-			MS-68 : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			MS-68 : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/4
 			
-			MS-69 : 10-32 Machine Screw, ASME B18.6.3 Round 10
+			MS-69 : 10-32 ms, ASME B18.6.3 Round 10
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 3/4
 			
-			1032 : 12-24 Machine Screw, ASME B18.6.3 Round 12
+			1032 : 12-24 ms, ASME B18.6.3 Round 12
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/2
 			
-			1032-A : 12-24 Machine Screw, ASME B18.6.3 Round 12
+			1032-A : 12-24 ms, ASME B18.6.3 Round 12
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/8
 			
-			1153 : 12-24 Machine Screw, ASME B18.6.3 Round 12
+			1153 : 12-24 ms, ASME B18.6.3 Round 12
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 3/4
 			
-			2077-A : 12-24 Machine Screw, ASME B18.6.3 Round 12
+			2077-A : 12-24 ms, ASME B18.6.3 Round 12
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 5/8
 			
-			380-796 : 12-24 Machine Screw, ASME B18.6.3 Round 12
+			380-796 : 12-24 ms, ASME B18.6.3 Round 12
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 1/4
 			
-			380-797 : 12-24 Machine Screw, ASME B18.6.3 Round 12
+			380-797 : 12-24 ms, ASME B18.6.3 Round 12
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 1/2
 			
-			380-F07-1C : 12-24 Machine Screw, ASME B18.6.3 Round 12
+			380-F07-1C : 12-24 ms, ASME B18.6.3 Round 12
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 7/8
 			
-			380-F20-1Y : 12-24 Machine Screw, ASME B18.6.3 Round 12
+			380-F20-1Y : 12-24 ms, ASME B18.6.3 Round 12
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 1
 			
-			MS-71 : 12-24 Machine Screw, ASME B18.6.3 Round 12
+			MS-71 : 12-24 ms, ASME B18.6.3 Round 12
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 3/4
 			
-			MS-72 : 12-24 Machine Screw, ASME B18.6.3 Round 12
+			MS-72 : 12-24 ms, ASME B18.6.3 Round 12
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 2
 			
-			380-F04-1A : 2-56 Machine Screw, ASME B18.6.3 Round 2
+			380-F04-1A : 2-56 ms, ASME B18.6.3 Round 2
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 3/4
 			
-			380-F09-1T : 2-56 Machine Screw, ASME B18.6.3 Round 2
+			380-F09-1T : 2-56 ms, ASME B18.6.3 Round 2
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 1/2
 			
-			380-F12-1K : 2-56 Machine Screw, ASME B18.6.3 Round 2
+			380-F12-1K : 2-56 ms, ASME B18.6.3 Round 2
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 3/16
 			
-			380-F13-1W : 2-56 Machine Screw, ASME B18.6.3 Round 2
+			380-F13-1W : 2-56 ms, ASME B18.6.3 Round 2
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 5/8
 			
-			380-F19-1C : 2-56 Machine Screw, ASME B18.6.3 Round 2
+			380-F19-1C : 2-56 ms, ASME B18.6.3 Round 2
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 1
 			
-			B-1515 : 2-56 Machine Screw, ASME B18.6.3 Round 2
+			B-1515 : 2-56 ms, ASME B18.6.3 Round 2
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/4
 			
-			B-1516 : 2-56 Machine Screw, ASME B18.6.3 Round 2
+			B-1516 : 2-56 ms, ASME B18.6.3 Round 2
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/8
 			
-			MS-35 : 2-56 Machine Screw, ASME B18.6.3 Round 2
+			MS-35 : 2-56 ms, ASME B18.6.3 Round 2
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 1/8
 			
-			MS-37 : 2-56 Machine Screw, ASME B18.6.3 Round 2
+			MS-37 : 2-56 ms, ASME B18.6.3 Round 2
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 5/16
 			
-			MS-264 : 3-48 Machine Screw, ASME B18.6.3 Round 3
+			MS-264 : 3-48 ms, ASME B18.6.3 Round 3
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 1/4
 			
-			MS-265 : 3-48 Machine Screw, ASME B18.6.3 Round 3
+			MS-265 : 3-48 ms, ASME B18.6.3 Round 3
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 5/8
 			
-			MS-266 : 3-56 Machine Screw, ASME B18.6.3 Round 3
+			MS-266 : 3-56 ms, ASME B18.6.3 Round 3
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/4
 			
-			MS-359 : 3-48 Machine Screw, ASME B18.6.3 Round 3
+			MS-359 : 3-48 ms, ASME B18.6.3 Round 3
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 1
 			
-			MS-401 : 3-56 Machine Screw, ASME B18.6.3 Round 3
+			MS-401 : 3-56 ms, ASME B18.6.3 Round 3
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/8
 			
-			380-787 : 3/8-16 Machine Screw, ASME B18.6.3 Round 3/8
+			380-787 : 3/8-16 ms, ASME B18.6.3 Round 3/8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 3/4
 			
-			380-806 : 3/8-16 Machine Screw, ASME B18.6.3 Round 3/8
+			380-806 : 3/8-16 ms, ASME B18.6.3 Round 3/8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/2
 			
-			380-808 : 3/8-16 Machine Screw, ASME B18.6.3 Round 3/8
+			380-808 : 3/8-16 ms, ASME B18.6.3 Round 3/8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 4
 			
-			380-F40-1M : 3/8-16 Machine Screw, ASME B18.6.3 Round 3/8
+			380-F40-1M : 3/8-16 ms, ASME B18.6.3 Round 3/8
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 2 1/2
 			
-			380-F50-1K : 3/8-16 Machine Screw, ASME B18.6.3 Round 3/8
+			380-F50-1K : 3/8-16 ms, ASME B18.6.3 Round 3/8
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 2
 			
-			380-F75-1W : 3/8-16 Machine Screw, ASME B18.6.3 Round 3/8
+			380-F75-1W : 3/8-16 ms, ASME B18.6.3 Round 3/8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3
 			
-			MS-1104 : 3/8-16 Machine Screw, ASME B18.6.3 Round 3/8
+			MS-1104 : 3/8-16 ms, ASME B18.6.3 Round 3/8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 5
 			
-			MS-1105 : 3/8-16 Machine Screw, ASME B18.6.3 Round 3/8
+			MS-1105 : 3/8-16 ms, ASME B18.6.3 Round 3/8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 6
 			
-			MS-365 : 3/8-16 Machine Screw, ASME B18.6.3 Round 3/8
+			MS-365 : 3/8-16 ms, ASME B18.6.3 Round 3/8
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 1
 			
-			MS-385 : 3/8-16 Machine Screw, ASME B18.6.3 Round 3/8
+			MS-385 : 3/8-16 ms, ASME B18.6.3 Round 3/8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 1/2
 			
-			380-F02-1M : 4-40 Machine Screw, ASME B18.6.3 Round 4
+			380-F02-1M : 4-40 ms, ASME B18.6.3 Round 4
 				Material : Low Carbon Steel
 				Finish : Clear Trivalent Plated
 				Drive Type : Slot
 				Length : 5/8
 			
-			380-F10-1N : 4-40 Machine Screw, ASME B18.6.3 Round 4
+			380-F10-1N : 4-40 ms, ASME B18.6.3 Round 4
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 3/8
 			
-			380-F11-1T : 4-40 Machine Screw, ASME B18.6.3 Round 4
+			380-F11-1T : 4-40 ms, ASME B18.6.3 Round 4
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 3/16
 			
-			380-F26-1M : 4-40 Machine Screw, ASME B18.6.3 Round 4
+			380-F26-1M : 4-40 ms, ASME B18.6.3 Round 4
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 1/4
 			
-			380-F33-1K : 4-40 Machine Screw, ASME B18.6.3 Round 4
+			380-F33-1K : 4-40 ms, ASME B18.6.3 Round 4
 				Material : Low Carbon Steel
 				Finish : Zinc Trivalent
 				Drive Type : Slot
 				Length : 1 1/2
 			
-			380-F52-1M : 4-36 Machine Screw, ASME B18.6.3 Round 4
+			380-F52-1M : 4-36 ms, ASME B18.6.3 Round 4
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 3/8
 			
-			380-F53-1X : 4-40 Machine Screw, ASME B18.6.3 Round 4
+			380-F53-1X : 4-40 ms, ASME B18.6.3 Round 4
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 1
 			
-			B-411 : 4-40 Machine Screw, ASME B18.6.3 Round 4
+			B-411 : 4-40 ms, ASME B18.6.3 Round 4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/2
 			
-			MS-1189 : 4-40 Machine Screw, ASME B18.6.3 Round 4
+			MS-1189 : 4-40 ms, ASME B18.6.3 Round 4
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 2
 			
-			MS-44 : 4-40 Machine Screw, ASME B18.6.3 Round 4
+			MS-44 : 4-40 ms, ASME B18.6.3 Round 4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/8
 			
-			MS-46 : 4-40 Machine Screw, ASME B18.6.3 Round 4
+			MS-46 : 4-40 ms, ASME B18.6.3 Round 4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 5/16
 			
-			MS-49 : 4-40 Machine Screw, ASME B18.6.3 Round 4
+			MS-49 : 4-40 ms, ASME B18.6.3 Round 4
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/4
 			
-			MS-50 : 4-40 Machine Screw, ASME B18.6.3 Round 4
+			MS-50 : 4-40 ms, ASME B18.6.3 Round 4
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 1 1/4
 			
-			MS-1016 : 5-40 Machine Screw, ASME B18.6.3 Round 5
+			MS-1016 : 5-40 ms, ASME B18.6.3 Round 5
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 5/8
 			
-			MS-1307 : 5-40 Machine Screw, ASME B18.6.3 Round 5
+			MS-1307 : 5-40 ms, ASME B18.6.3 Round 5
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 3/16
 			
-			MS-268 : 5-40 Machine Screw, ASME B18.6.3 Round 5
+			MS-268 : 5-40 ms, ASME B18.6.3 Round 5
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 1/4
 			
-			MS-269 : 5-40 Machine Screw, ASME B18.6.3 Round 5
+			MS-269 : 5-40 ms, ASME B18.6.3 Round 5
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/2
 			
-			MS-270 : 5-40 Machine Screw, ASME B18.6.3 Round 5
+			MS-270 : 5-40 ms, ASME B18.6.3 Round 5
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 1
 			
-			380-F48-1K : 5/16-18 Machine Screw, ASME B18.6.3 Round 5/16
+			380-F48-1K : 5/16-18 ms, ASME B18.6.3 Round 5/16
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 2 1/2
 			
-			380-F54-1A : 5/16-18 Machine Screw, ASME B18.6.3 Round 5/16
+			380-F54-1A : 5/16-18 ms, ASME B18.6.3 Round 5/16
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 2 1/4
 			
-			380-F78-1A : 5/16-18 Machine Screw, ASME B18.6.3 Round 5/16
+			380-F78-1A : 5/16-18 ms, ASME B18.6.3 Round 5/16
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 1/2
 			
-			380-F88-1M : 5/16-18 Machine Screw, ASME B18.6.3 Round 5/16
+			380-F88-1M : 5/16-18 ms, ASME B18.6.3 Round 5/16
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1
 			
-			MS-1099 : 5/16-18 Machine Screw, ASME B18.6.3 Round 5/16
+			MS-1099 : 5/16-18 ms, ASME B18.6.3 Round 5/16
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 4
 			
-			MS-1100 : 5/16-18 Machine Screw, ASME B18.6.3 Round 5/16
+			MS-1100 : 5/16-18 ms, ASME B18.6.3 Round 5/16
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 5
 			
-			MS-1101 : 5/16-18 Machine Screw, ASME B18.6.3 Round 5/16
+			MS-1101 : 5/16-18 ms, ASME B18.6.3 Round 5/16
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 6
 			
-			MS-1120 : 5/16-18 Machine Screw, ASME B18.6.3 Round 5/16
+			MS-1120 : 5/16-18 ms, ASME B18.6.3 Round 5/16
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/8
 			
-			MS-1166 : 5/16-18 Machine Screw, ASME B18.6.3 Round 5/16
+			MS-1166 : 5/16-18 ms, ASME B18.6.3 Round 5/16
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 1/4
 			
-			MS-382 : 5/16-18 Machine Screw, ASME B18.6.3 Round 5/16
+			MS-382 : 5/16-18 ms, ASME B18.6.3 Round 5/16
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 2
 			
-			MS-387 : 5/16-18 Machine Screw, ASME B18.6.3 Round 5/16
+			MS-387 : 5/16-18 ms, ASME B18.6.3 Round 5/16
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/2
 			
-			MS-484 : 5/16-18 Machine Screw, ASME B18.6.3 Round 5/16
+			MS-484 : 5/16-18 ms, ASME B18.6.3 Round 5/16
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate
 				Drive Type : Slot
 				Length : 3
 			
-			MS-76 : 5/16-18 Machine Screw, ASME B18.6.3 Round 5/16
+			MS-76 : 5/16-18 ms, ASME B18.6.3 Round 5/16
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/4
 			
-			380-768 : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			380-768 : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 4
 			
-			380-F22-1N : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			380-F22-1N : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 1/2
 			
-			380-F36-1C : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			380-F36-1C : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 3/16
 			
-			380-F37-1W : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			380-F37-1W : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 1/4
 			
-			380-F41-1X : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			380-F41-1X : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 2 1/2
 			
-			380-F42-1A : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			380-F42-1A : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 1 1/4
 			
-			380-F69-1C : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			380-F69-1C : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 1 1/2
 			
-			786 : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			786 : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 5/16
 			
-			786A : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			786A : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1
 			
-			B-1499 : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			B-1499 : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 3/4
 			
-			B-1509 : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			B-1509 : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/8
 			
-			MS-271 : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			MS-271 : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 7/8
 			
-			MS-3 : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			MS-3 : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 2
 			
-			MS-53 : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			MS-53 : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 7/16
 			
-			MS-54 : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			MS-54 : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 5/8
 			
-			MS-55 : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			MS-55 : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 3/4
 			
-			MS-7 : 6-32 Machine Screw, ASME B18.6.3 Round 6
+			MS-7 : 6-32 ms, ASME B18.6.3 Round 6
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3
 			
-			1042 : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			1042 : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3/4
 			
-			380-F01-1K : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			380-F01-1K : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 2 1/4
 			
-			380-F05-1P : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			380-F05-1P : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 3/8
 			
-			380-F23-1T : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			380-F23-1T : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Trivalent Zinc Plated
 				Drive Type : Slot
 				Length : 4
 			
-			380-F83-1C : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			380-F83-1C : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 1/2
 			
-			380-F89-1X : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			380-F89-1X : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 1/4
 			
-			785 : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			785 : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/2
 			
-			785A : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			785A : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 5/16
 			
-			B-1500 : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			B-1500 : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1
 			
-			B-1502 : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			B-1502 : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1 3/4
 			
-			B-1503 : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			B-1503 : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 2
 			
-			MS-10 : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			MS-10 : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 3
 			
-			MS-1244 : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			MS-1244 : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 7/8
 			
-			MS-274 : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			MS-274 : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 3/16
 			
-			MS-368 : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			MS-368 : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 5
 			
-			MS-57 : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			MS-57 : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Plated
 				Drive Type : Slot
 				Length : 1/4
 			
-			MS-58 : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			MS-58 : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 5/8
 			
-			MS-9 : 8-32 Machine Screw, ASME B18.6.3 Round 8
+			MS-9 : 8-32 ms, ASME B18.6.3 Round 8
 				Material : Low Carbon Steel
 				Finish : Zinc Chromate Plated
 				Drive Type : Slot
 				Length : 2 1/2
 			
-			382-577 : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-577 : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-166 : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-166 : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-579 : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-579 : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-580 : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-580 : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-581 : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-581 : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-583 : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-583 : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-584 : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-584 : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-585 : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-585 : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-491 : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-491 : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 3
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-492 : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-492 : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-493 : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-493 : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-494 : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-494 : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-495 : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-495 : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-496 : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-496 : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-497 : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-497 : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-498 : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-498 : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 14
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-499 : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-499 : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-468 : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-468 : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 18
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-500 : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-500 : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-501 : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-501 : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-502 : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-502 : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-503 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-503 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-504 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-504 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-078 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-078 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-285 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-285 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-079 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-079 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-263 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-263 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-505 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-505 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-506 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-506 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 18
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-507 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-507 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-508 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-508 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 22
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-509 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-509 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-510 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-510 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-511 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-511 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-512 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-512 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-513 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-513 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-514 : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-514 : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-515 : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-515 : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-516 : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-516 : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-264 : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-264 : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-517 : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-517 : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-518 : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-518 : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-519 : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-519 : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-520 : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-520 : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-521 : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-521 : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-522 : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-522 : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-523 : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-523 : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-524 : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-524 : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-525 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-525 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-526 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-526 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-527 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-527 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-106 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-106 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-528 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-528 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-107 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-107 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-529 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-529 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-265 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-265 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-266 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-266 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-530 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-530 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-531 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-531 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-B03-1T : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-B03-1T : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-533 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-533 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-534 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-534 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-535 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-535 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-536 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-536 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-537 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-537 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-538 : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-538 : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-120 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-120 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-121 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-121 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-122 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-122 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-602 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-602 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-267 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-267 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-539 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-539 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 18
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-123 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-123 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-272 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-272 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-540 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-540 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-541 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-541 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-542 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-542 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-543 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-543 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-273 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-273 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-545 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-545 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-546 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-546 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-547 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-547 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-548 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-548 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-549 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-549 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 90
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-550 : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-550 : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 100
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-551 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-551 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-137 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-137 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-552 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-552 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-138 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-138 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-553 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-553 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-139 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-139 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-554 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-554 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-603 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-603 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-268 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-268 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-556 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-556 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-557 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-557 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-558 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-558 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-559 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-559 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-560 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-560 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-561 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-561 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-562 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-562 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 90
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-563 : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-563 : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 100
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-564 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-564 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-565 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-565 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-153 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-153 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-566 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-566 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-155 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-155 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-567 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-567 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-568 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-568 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-569 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-569 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-269 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-269 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-570 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-570 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-270 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-270 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-571 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-571 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-572 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-572 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-573 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-573 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-574 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-574 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 90
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-575 : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-575 : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 100
 				Finish : Zinc Plated
 				Grade : 1018
 			
 			
-			382-577X : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-577X : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-166X : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-166X : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-579X : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-579X : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-580X : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-580X : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-581X : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-581X : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-583X : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-583X : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-584X : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-584X : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-585X : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-585X : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-491X : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-491X : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 3
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-492X : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-492X : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-493X : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-493X : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-494X : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-494X : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-495X : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-495X : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-496X : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-496X : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-497X : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-497X : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-498X : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-498X : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 14
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-499X : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-499X : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-468X : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-468X : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 18
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-500X : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-500X : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-501X : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-501X : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-502X : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-502X : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-503X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-503X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-504X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-504X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-078X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-078X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-285X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-285X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-079X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-079X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-263X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-263X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-505X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-505X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-506X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-506X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 18
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-507X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-507X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-508X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-508X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 22
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-509X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-509X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-510X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-510X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-511X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-511X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-512X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-512X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-513X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-513X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-514X : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-514X : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-515X : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-515X : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-516X : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-516X : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-264X : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-264X : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-517X : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-517X : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-518X : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-518X : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-519X : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-519X : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-520X : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-520X : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-521X : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-521X : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-522X : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-522X : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-523X : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-523X : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-524X : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-524X : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-525X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-525X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-526X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-526X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-527X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-527X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-106X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-106X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-528X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-528X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-107X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-107X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-529X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-529X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-265X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-265X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-266X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-266X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-530X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-530X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-531X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-531X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-B03-1TX : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-B03-1TX : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-533X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-533X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-534X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-534X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-535X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-535X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-536X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-536X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-537X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-537X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-538X : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-538X : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-120X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-120X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-121X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-121X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-122X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-122X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-602X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-602X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-267X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-267X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-539X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-539X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 18
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-123X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-123X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-272X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-272X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-540X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-540X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-541X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-541X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-542X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-542X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-543X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-543X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-273X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-273X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-545X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-545X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-546X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-546X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-547X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-547X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-548X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-548X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-549X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-549X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 90
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-550X : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-550X : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 100
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-551X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-551X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-137X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-137X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-552X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-552X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-138X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-138X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-553X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-553X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-139X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-139X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-554X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-554X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-603X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-603X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-268X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-268X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-556X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-556X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-557X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-557X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-558X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-558X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-559X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-559X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-560X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-560X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-561X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-561X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-562X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-562X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 90
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-563X : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-563X : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 100
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-564X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-564X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-565X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-565X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-153X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-153X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-566X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-566X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-155X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-155X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-567X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-567X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-568X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-568X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-569X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-569X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-269X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-269X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-570X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-570X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-270X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-270X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-571X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-571X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-572X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-572X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-573X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-573X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-574X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-574X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 90
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-575X : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-575X : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 100
 				Finish : Zinc Plated
 				Grade : 1018
 			
 			
-			382-577Y : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-577Y : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-166Y : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-166Y : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-579Y : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-579Y : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-580Y : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-580Y : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-581Y : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-581Y : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-583Y : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-583Y : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-584Y : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-584Y : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-585Y : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-585Y : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-491Y : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-491Y : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 3
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-492Y : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-492Y : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-493Y : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-493Y : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-494Y : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-494Y : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-495Y : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-495Y : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-496Y : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-496Y : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-497Y : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-497Y : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-498Y : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-498Y : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 14
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-499Y : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-499Y : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-468Y : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-468Y : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 18
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-500Y : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-500Y : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-501Y : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-501Y : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-502Y : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-502Y : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-503Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-503Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-504Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-504Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-078Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-078Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-285Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-285Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-079Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-079Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-263Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-263Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-505Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-505Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-506Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-506Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 18
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-507Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-507Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-508Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-508Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 22
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-509Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-509Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-510Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-510Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-511Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-511Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-512Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-512Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-513Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-513Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-514Y : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-514Y : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-515Y : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-515Y : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-516Y : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-516Y : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-264Y : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-264Y : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-517Y : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-517Y : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-518Y : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-518Y : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-519Y : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-519Y : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-520Y : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-520Y : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-521Y : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-521Y : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-522Y : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-522Y : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-523Y : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-523Y : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-524Y : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-524Y : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-525Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-525Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-526Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-526Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-527Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-527Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-106Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-106Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-528Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-528Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-107Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-107Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-529Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-529Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-265Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-265Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-266Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-266Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-530Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-530Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-531Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-531Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-B03-1TY : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-B03-1TY : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-533Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-533Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-534Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-534Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-535Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-535Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-536Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-536Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-537Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-537Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-538Y : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-538Y : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-120Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-120Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-121Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-121Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-122Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-122Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-602Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-602Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-267Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-267Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-539Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-539Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 18
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-123Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-123Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-272Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-272Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-540Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-540Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-541Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-541Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-542Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-542Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-543Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-543Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-273Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-273Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-545Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-545Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-546Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-546Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-547Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-547Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-548Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-548Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-549Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-549Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 90
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-550Y : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-550Y : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 100
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-551Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-551Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-137Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-137Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-552Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-552Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-138Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-138Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-553Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-553Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-139Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-139Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-554Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-554Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-603Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-603Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-268Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-268Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-556Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-556Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-557Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-557Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-558Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-558Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-559Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-559Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-560Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-560Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-561Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-561Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-562Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-562Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 90
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-563Y : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-563Y : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 100
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-564Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-564Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-565Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-565Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-153Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-153Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-566Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-566Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-155Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-155Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-567Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-567Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-568Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-568Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-569Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-569Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-269Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-269Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-570Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-570Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-270Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-270Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-571Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-571Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-572Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-572Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-573Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-573Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-574Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-574Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 90
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-575Y : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-575Y : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 100
 				Finish : Zinc Plated
 				Grade : 1018
 			
 			
-			382-577Z : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-577Z : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-166Z : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-166Z : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-579Z : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-579Z : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-580Z : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-580Z : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-581Z : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-581Z : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-583Z : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-583Z : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-584Z : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-584Z : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-585Z : Metric Machine Screw, ISO 1580 M10, ISO 898-1 4.8
+			382-585Z : mms, ISO 1580 M10, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-491Z : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-491Z : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 3
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-492Z : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-492Z : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-493Z : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-493Z : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-494Z : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-494Z : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-495Z : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-495Z : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-496Z : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-496Z : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-497Z : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-497Z : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-498Z : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-498Z : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 14
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-499Z : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-499Z : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-468Z : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-468Z : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 18
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-500Z : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-500Z : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-501Z : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-501Z : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-502Z : Metric Machine Screw, ISO 1580 M2.5, ISO 898-1 4.8
+			382-502Z : mms, ISO 1580 M2.5, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-503Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-503Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-504Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-504Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-078Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-078Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-285Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-285Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-079Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-079Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-263Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-263Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-505Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-505Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-506Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-506Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 18
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-507Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-507Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-508Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-508Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 22
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-509Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-509Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-510Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-510Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-511Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-511Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-512Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-512Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-513Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-513Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-514Z : Metric Machine Screw, ISO 1580 M3, ISO 898-1 4.8
+			382-514Z : mms, ISO 1580 M3, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-515Z : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-515Z : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-516Z : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-516Z : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-264Z : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-264Z : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-517Z : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-517Z : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-518Z : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-518Z : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-519Z : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-519Z : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-520Z : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-520Z : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-521Z : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-521Z : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-522Z : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-522Z : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-523Z : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-523Z : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-524Z : Metric Machine Screw, ISO 1580 M3.5, ISO 898-1 4.8
+			382-524Z : mms, ISO 1580 M3.5, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-525Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-525Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 4
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-526Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-526Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 5
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-527Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-527Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-106Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-106Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-528Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-528Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-107Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-107Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-529Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-529Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-265Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-265Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-266Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-266Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-530Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-530Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-531Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-531Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-B03-1TZ : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-B03-1TZ : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-533Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-533Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-534Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-534Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-535Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-535Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-536Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-536Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-537Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-537Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-538Z : Metric Machine Screw, ISO 1580 M4, ISO 898-1 4.8
+			382-538Z : mms, ISO 1580 M4, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-120Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-120Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 6
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-121Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-121Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-122Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-122Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-602Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-602Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-267Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-267Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-539Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-539Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 18
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-123Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-123Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-272Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-272Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-540Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-540Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-541Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-541Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-542Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-542Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-543Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-543Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-273Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-273Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-545Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-545Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-546Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-546Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-547Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-547Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-548Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-548Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-549Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-549Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 90
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-550Z : Metric Machine Screw, ISO 1580 M5, ISO 898-1 4.8
+			382-550Z : mms, ISO 1580 M5, ISO 898-1 4.8
 				Length : 100
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-551Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-551Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 8
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-137Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-137Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-552Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-552Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-138Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-138Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-553Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-553Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-139Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-139Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-554Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-554Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-603Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-603Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-268Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-268Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-556Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-556Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-557Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-557Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-558Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-558Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-559Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-559Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-560Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-560Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-561Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-561Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-562Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-562Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 90
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-563Z : Metric Machine Screw, ISO 1580 M6, ISO 898-1 4.8
+			382-563Z : mms, ISO 1580 M6, ISO 898-1 4.8
 				Length : 100
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-564Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-564Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 10
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-565Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-565Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 12
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-153Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-153Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 16
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-566Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-566Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 20
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-155Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-155Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 25
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-567Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-567Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 30
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-568Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-568Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 35
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-569Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-569Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 40
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-269Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-269Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 45
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-570Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-570Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 50
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-270Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-270Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 55
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-571Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-571Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 60
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-572Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-572Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 70
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-573Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-573Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 80
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-574Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-574Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 90
 				Finish : Zinc Plated
 				Grade : 1018
 			
-			382-575Z : Metric Machine Screw, ISO 1580 M8, ISO 898-1 4.8
+			382-575Z : mms, ISO 1580 M8, ISO 898-1 4.8
 				Length : 100
 				Finish : Zinc Plated
 				Grade : 1018
