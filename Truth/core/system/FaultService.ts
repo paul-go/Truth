@@ -86,20 +86,20 @@ namespace Truth
 				return a.document.uri.toString() < b.document.uri.toString() ? -1 : 1;
 			
 			if (a.line !== b.line)
-				return b.line - a.line;
+				return a.line - b.line;
 			
 			// When the faults exist on the same line, the ordering is based on 
 			// the starting offset of the reported fault's range. This should cause
 			// Statement faults to always be ordered before Span and InfixSpan
 			// faults.
-			const offsetDelta = b.range[0] - a.range[0];
+			const offsetDelta = a.range[0] - b.range[0];
 			if (offsetDelta !== 0)
 				return offsetDelta;
 			
 			// If there are multiple faults reported on the same span, the ordering
 			// is based on the internal fault code. If the faults are the same, 0 is
 			// returned, and the faults are considered to be equivalent.
-			return b.type.code - a.type.code;
+			return a.type.code - b.type.code;
 		}
 		
 		/**
