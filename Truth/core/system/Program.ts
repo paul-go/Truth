@@ -412,8 +412,7 @@ namespace Truth
 		 * a result of the verification. If no documents loaded into this program
 		 * has been edited since the last verification, verification is not re-attempted.
 		 * 
-		 * @returns An entrypoint into performing analysis of the Types that
-		 * have been defined in this program.
+		 * @returns A boolean value that indicates whether the verification passed.
 		 */
 		verify()
 		{

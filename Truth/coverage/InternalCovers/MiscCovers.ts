@@ -1,28 +1,39 @@
 
 namespace Truth
 {
-	/**
-	 * This example demonstrates a fault being generated
-	 * as a result of an attempt at circular inheritance, but
-	 * done in a way that transcends multiple levels of 
-	 * abstraction through the use of entanglements.
-	 */
-	async function coverEntanglementCircularInheritance()
+	async function coverSimpleTypeCheck()
 	{
-		const [doc] = await createLanguageCover(`
-			Thing
+		const [doc, program] = await createLanguageCover(`
+			word
+			/[A-Z]{3} : word
 			
-			Class
-				Property : Thing
-				Field : Property
-				
-			SubClass : Class
-				Field
-				Property : Field #203;
+			struct
+				a : word
+				b : word
+			
+			s1 : struct
+				a : ABC
+				b : CBA
+			
+			s2 : struct
+				a : XYZ
+				b : ZYX
 		`);
 		
+		const [struct, s1a, s2a] = typesOf(doc,
+			"struct",
+			["s1", "a"],
+			["s2", "a"]
+		);
+		
+		const isInerrant = program.verify();
+		
+		for (const fault of program.faults.each())
+			console.log(fault.toString());
+		
 		return [
-			() => true // ??	
+			() => isInerrant,
+			() => s1a.value === "ABC",
 		];
 	}
 }
