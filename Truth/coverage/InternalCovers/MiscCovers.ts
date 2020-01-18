@@ -4,31 +4,48 @@ namespace Truth
 	async function coverSimpleTypeCheck()
 	{
 		const [doc, program] = await createLanguageCover(`
-			word
-			/[A-Z]{3} : word
-			
 			number
-			/\d+ : number
-			
+			/\\d+ : number
+			decimal : number
 			struct
-				w : word
 				n : number
-			
 			s1 : struct
-				w : ABC
-				n : CBA
-			
-			s2 : struct
-				w : XYZ
-				n : 123
+				n : 1
 		`);
 		
-		const [struct, s1w, s1n, s2w, s2n] = typesOf(doc,
-			"struct",
-			["s1", "w"],
-			["s1", "n"],
-			["s2", "w"],
-			["s2", "n"]
+		const [s1n] = typesOf(doc,
+			["s1", "n"]
+		);
+		
+		const isInerrant = program.verify();
+		
+		for (const fault of program.faults.each())
+			console.log(fault.toString());
+		
+		console.log(doc.toString(true));
+		
+		return [
+			() => isInerrant,
+			() => s1n.value === "123"
+		];
+	}
+	
+	async function coverThirdLevelValue()
+	{
+		const [doc, program] = await createLanguageCover(`
+			number
+			/\\d+ : number
+			decimal : number
+			struct
+				n
+					min : number
+			s1 : struct
+				n
+					min : 3
+		`);
+		
+		const [s1n] = typesOf(doc,
+			["s1", "n", "min"]
 		);
 		
 		const isInerrant = program.verify();
@@ -38,7 +55,7 @@ namespace Truth
 		
 		return [
 			() => isInerrant,
-			() => s1w.value === "ABC",
-		];
+			() => s1n.value === "3"
+		];		
 	}
 }
