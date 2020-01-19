@@ -60,8 +60,8 @@
 // Phases / Parallel Representation
 /// <reference path="./Phases/Parallel/ConstructionWorker.ts" />
 /// <reference path="./Phases/Parallel/Parallel.ts" />
-/// <reference path="./Phases/Parallel/SpecifiedParallel.ts" />
-/// <reference path="./Phases/Parallel/UnspecifiedParallel.ts" />
+/// <reference path="./Phases/Parallel/ExplicitParallel.ts" />
+/// <reference path="./Phases/Parallel/ImplicitParallel.ts" />
 /// <reference path="./Phases/Parallel/CruftCache.ts" />
 /// <reference path="./Phases/Parallel/ParallelCache.ts" />
 /// <reference path="./Phases/Parallel/Contract.ts" />

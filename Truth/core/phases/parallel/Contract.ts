@@ -7,16 +7,16 @@ namespace Truth
 	export class Contract
 	{
 		/** */
-		constructor(sourceParallel: SpecifiedParallel)
+		constructor(sourceParallel: ExplicitParallel)
 		{
 			const recurse = (srcParallel: Parallel) =>
 			{
-				if (srcParallel instanceof UnspecifiedParallel)
+				if (srcParallel instanceof ImplicitParallel)
 				{
 					for (const nestedParallel of srcParallel.getParallels())
 						recurse(nestedParallel);
 				}
-				else if (srcParallel instanceof SpecifiedParallel)
+				else if (srcParallel instanceof ExplicitParallel)
 				{
 					for (const { base } of srcParallel.eachBase())
 						this._unsatisfiedConditions.add(base);
@@ -30,24 +30,24 @@ namespace Truth
 		}
 		
 		/**
-		 * Computes whether the input SpecifiedParallel is a more derived
-		 * type of the SpecifiedParallel that corresponds to this Contract.
+		 * Computes whether the input ExplicitParallel is a more derived
+		 * type of the ExplicitParallel that corresponds to this Contract.
 		 * 
 		 * @returns A number that indicates the number of conditions that
-		 * were satisfied as a result of adding the provided SpecifiedParallel
+		 * were satisfied as a result of adding the provided ExplicitParallel
 		 * to the Contract.
 		 */
-		trySatisfyCondition(foreignParallel: SpecifiedParallel)
+		trySatisfyCondition(foreignParallel: ExplicitParallel)
 		{
 			if (this.allConditions.length === 0)
 				return 0;
 			
-			const foreignParallelBases = new Set<SpecifiedParallel>();
+			const foreignParallelBases = new Set<ExplicitParallel>();
 			foreignParallelBases.add(foreignParallel);
 			
 			let satisfied = 0;
 			
-			const addForeignParallelBases = (srcParallel: SpecifiedParallel) =>
+			const addForeignParallelBases = (srcParallel: ExplicitParallel) =>
 			{
 				for (const { base } of srcParallel.eachBase())
 					addForeignParallelBases(base);
@@ -73,17 +73,17 @@ namespace Truth
 		}
 		
 		/** */
-		get unsatisfiedConditions(): ReadonlySet<SpecifiedParallel>
+		get unsatisfiedConditions(): ReadonlySet<ExplicitParallel>
 		{
 			return this._unsatisfiedConditions;
 		}
-		private readonly _unsatisfiedConditions = new Set<SpecifiedParallel>();
+		private readonly _unsatisfiedConditions = new Set<ExplicitParallel>();
 		
 		/**
 		 * Stores an array containing the parallels that any supplied
 		 * parallel must have in it's base graph in order to be deemed
 		 * compliant.
 		 */
-		private readonly allConditions: readonly SpecifiedParallel[];
+		private readonly allConditions: readonly ExplicitParallel[];
 	}
 }

@@ -4,7 +4,7 @@ namespace Truth
 	/**
 	 * 
 	 */
-	export class SpecifiedParallel extends Parallel
+	export class ExplicitParallel extends Parallel
 	{
 		/**
 		 * @internal
@@ -12,7 +12,7 @@ namespace Truth
 		 */
 		constructor(
 			node: Node,
-			container: SpecifiedParallel | null,
+			container: ExplicitParallel | null,
 			cruft: CruftCache)
 		{
 			super(node.phrase, container);
@@ -24,7 +24,7 @@ namespace Truth
 		
 		/**
 		 * Stores the Node instance that corresponds to this
-		 * SpecifiedParallel instance.
+		 * ExplicitParallel instance.
 		 */
 		readonly node: Node;
 		
@@ -64,7 +64,7 @@ namespace Truth
 		
 		/**
 		 * Performs a shallow traversal on the non-cruft bases
-		 * defined directly on this SpecifiedParallel.
+		 * defined directly on this ExplicitParallel.
 		 */
 		*eachBase()
 		{
@@ -79,7 +79,7 @@ namespace Truth
 		 * 
 		 */
 		private addBaseEntry(
-			base: SpecifiedParallel,
+			base: ExplicitParallel,
 			edge: HyperEdge,
 			aliased: boolean)
 		{
@@ -111,10 +111,10 @@ namespace Truth
 		
 		/**
 		 * @returns A boolean value that indicates whether the provided
-		 * SpecifiedParallel instance exists somewhere, possibly nested,
+		 * ExplicitParallel instance exists somewhere, possibly nested,
 		 * in the base graph of this instance.
 		 */
-		hasBase(testBase: SpecifiedParallel)
+		hasBase(testBase: ExplicitParallel)
 		{
 			const queue = Array.from(this.eachBase()).map(e => e.base);
 			
@@ -133,14 +133,14 @@ namespace Truth
 		}
 		
 		/**
-		 * Attempts to add the provided SpecifiedParallel as a base of
+		 * Attempts to add the provided ExplicitParallel as a base of
 		 * this instance. If the addition of the new base would not generate
 		 * any critical faults, it is added. Otherwise, it's marked as cruft.
 		 * 
 		 * @returns A boolean value that indicates whether the base
 		 * was added successfully.
 		 */
-		tryAddLiteralBase(base: SpecifiedParallel, via: HyperEdge)
+		tryAddLiteralBase(base: ExplicitParallel, via: HyperEdge)
 		{
 			if (this._bases.has(via))
 				throw Exception.unknownState();
@@ -176,12 +176,12 @@ namespace Truth
 		}
 		
 		/**
-		 * Attempts to indirectly apply a base to this SpecifiedParallel via an alias
+		 * Attempts to indirectly apply a base to this ExplicitParallel via an alias
 		 * and edge.
 		 * 
 		 * @param patternParallelCandidates The pattern-containing
-		 * SpecifiedParallel instance whose bases should be applied to this
-		 * SpecifiedParallel, if the provided alias is a match.
+		 * ExplicitParallel instance whose bases should be applied to this
+		 * ExplicitParallel, if the provided alias is a match.
 		 * 
 		 * @param viaEdge The HyperEdge in which the alias was found.
 		 * 
@@ -192,7 +192,7 @@ namespace Truth
 		 * successfully.
 		 */
 		tryAddAliasedBase(
-			patternParallelCandidates: SpecifiedParallel[],
+			patternParallelCandidates: ExplicitParallel[],
 			viaEdge: HyperEdge,
 			viaAlias: string)
 		{
@@ -277,7 +277,7 @@ namespace Truth
 				.reduce((a, b) => a.concat(b), [])
 				.filter((v, i, a) => a.indexOf(v) === i);
 			
-			// Reminder: the SpecifiedParallels in the basesDeep array
+			// Reminder: the ExplicitParallels in the basesDeep array
 			// are expected to be fully processed by the time we get to
 			// this method. It should be safe to touch them.
 			
@@ -353,13 +353,13 @@ namespace Truth
 		{
 			return this._intrinsicExtrinsicBridge;
 		}
-		private _intrinsicExtrinsicBridge: SpecifiedParallel | null = null;
+		private _intrinsicExtrinsicBridge: ExplicitParallel | null = null;
 		
 		/**
-		 * Establishes a bridge between this SpecifiedParallel and the
+		 * Establishes a bridge between this ExplicitParallel and the
 		 * one provided. 
 		 */
-		createIntrinsicExtrinsicBridge(parallel: SpecifiedParallel)
+		createIntrinsicExtrinsicBridge(parallel: ExplicitParallel)
 		{
 			if (this._intrinsicExtrinsicBridge !== null)
 				throw Exception.unknownState();
@@ -394,7 +394,7 @@ namespace Truth
 		/**
 		 * 
 		 */
-		private comparePatternTo(other: SpecifiedParallel)
+		private comparePatternTo(other: ExplicitParallel)
 		{
 			
 		}
@@ -412,8 +412,8 @@ namespace Truth
 		}
 		
 		/**
-		 * Gets the Pattern instance that resides inside this SpecifiedParallel,
-		 * or null in the case when this SpecifiedParallel does not have an
+		 * Gets the Pattern instance that resides inside this ExplicitParallel,
+		 * or null in the case when this ExplicitParallel does not have an
 		 * inner Pattern.
 		 */
 		get pattern(): Pattern | null
@@ -436,12 +436,12 @@ namespace Truth
 	
 	/**
 	 * A type that describes an entry in the bases map
-	 * of a SpecifiedParallel.
+	 * of a ExplicitParallel.
 	 */
 	interface IBaseEntry
 	{
 		/**
-		 * Stores the set of SpecifiedParallels that caused the base to be constructed.
+		 * Stores the set of ExplicitParallels that caused the base to be constructed.
 		 * Note that a base entry can have multiple parallels in the case when the base
 		 * is actually a pattern with two equally viable matches in scope, and no contract
 		 * being imposed, for example:
@@ -451,7 +451,7 @@ namespace Truth
 		 * 
 		 * Value : pattern ~ A, B
 		 */
-		parallels: SpecifiedParallel[];
+		parallels: ExplicitParallel[];
 		
 		/** Stores whether the term is an alias (matched by a pattern). */
 		aliased: boolean;

@@ -17,16 +17,16 @@ namespace Truth
 		
 		/**
 		 * Constructs the corresponding Parallel instances for
-		 * all specified types that exist within the provided Document,
-		 * or below the provided SpecifiedParallel.
+		 * all explicit types that exist within the provided Document,
+		 * or below the provided ExplicitParallel.
 		 */
-		excavate(from: Document | SpecifiedParallel)
+		excavate(from: Document | ExplicitParallel)
 		{
 			if (this.excavated.has(from))
 				return;
 			
 			this.excavated.add(from);
-			const queue: SpecifiedParallel[] = [];
+			const queue: ExplicitParallel[] = [];
 			
 			if (from instanceof Document)
 			{
@@ -49,7 +49,7 @@ namespace Truth
 		}
 		
 		/** */
-		private readonly excavated = new WeakSet<SpecifiedParallel | Document>();
+		private readonly excavated = new WeakSet<ExplicitParallel | Document>();
 		
 		/**
 		 * Constructs the fewest possible Parallel instances
@@ -144,7 +144,7 @@ namespace Truth
 			if (drillResult === null)
 				throw Exception.unknownState();
 			
-			if (!(drillResult instanceof SpecifiedParallel))
+			if (!(drillResult instanceof ExplicitParallel))
 				throw Exception.unknownState();
 			
 			return drillResult;
@@ -168,10 +168,10 @@ namespace Truth
 			// handled.
 			if (seed.container === null)
 			{
-				if (!(seed instanceof SpecifiedParallel))
+				if (!(seed instanceof ExplicitParallel))
 					throw Exception.unknownState();
 				
-				this.rakeSpecifiedParallel(seed);
+				this.rakeExplicitParallel(seed);
 			}
 			else this.rakeParallelGraph(seed);
 			
@@ -180,22 +180,22 @@ namespace Truth
 		
 		/**
 		 * Recursive function that digs through the parallel graph,
-		 * and rakes all SpecifiedParallels that are discovered.
+		 * and rakes all ExplicitParallels that are discovered.
 		 */
 		private rakeParallelGraph(par: Parallel)
 		{
 			for (const edgePar of par.getParallels())
 				this.rakeParallelGraph(edgePar);
 			
-			if (par instanceof SpecifiedParallel)
-				this.rakeSpecifiedParallel(par);
+			if (par instanceof ExplicitParallel)
+				this.rakeExplicitParallel(par);
 		}
 		
 		/**
 		 * Splitter method that rakes both a pattern and a non-pattern
-		 * containing SpecifiedParallel.
+		 * containing ExplicitParallel.
 		 */
-		private rakeSpecifiedParallel(par: SpecifiedParallel)
+		private rakeExplicitParallel(par: ExplicitParallel)
 		{
 			if (this.rakedParallels.has(par))
 				return par;
@@ -220,7 +220,7 @@ namespace Truth
 		 * True circular base detection is therefore handled at a future
 		 * point in the pipeline.
 		 */
-		private rakeBaseGraph(srcParallel: SpecifiedParallel)
+		private rakeBaseGraph(srcParallel: ExplicitParallel)
 		{
 			if (srcParallel.pattern)
 				throw Exception.unknownState();
@@ -255,7 +255,7 @@ namespace Truth
 						if (baseParallel === null)
 							continue;
 						
-						this.rakeSpecifiedParallel(baseParallel);
+						this.rakeExplicitParallel(baseParallel);
 						
 						// There are cases when an entire parallel needs to be
 						// "excavated", meaning that the Parallel's entire subtree
@@ -290,7 +290,7 @@ namespace Truth
 					// of this compiler will allow other agents to hook into this
 					// process and augment the resolution strategy.
 					
-					const candidatePatternPars: SpecifiedParallel[] = [];
+					const candidatePatternPars: ExplicitParallel[] = [];
 					
 					for (const { patternParallel } of this.ascend(srcParallel))
 					{
@@ -332,15 +332,15 @@ namespace Truth
 		
 		/**
 		 * Finds the set of bases that should be applied to the provided
-		 * pattern-containing SpecifiedParallel instance, and attempts
+		 * pattern-containing ExplicitParallel instance, and attempts
 		 * to have them applied.
 		 */
-		private rakePatternBases(patternParallel: SpecifiedParallel)
+		private rakePatternBases(patternParallel: ExplicitParallel)
 		{
 			if (!patternParallel.pattern)
 				throw Exception.unknownState();
 			
-			const bases = new Map<SpecifiedParallel, HyperEdge>();
+			const bases = new Map<ExplicitParallel, HyperEdge>();
 			const obs = patternParallel.node.outbounds;
 			const nameOf = (edge: HyperEdge) =>
 				SubjectSerializer.forInternal(edge.fragments[0]);
@@ -450,7 +450,7 @@ namespace Truth
 		
 		/**
 		 * A generator function that works its way upwards, starting at the
-		 * provided SpecifiedParallel. The function yields the series of
+		 * provided ExplicitParallel. The function yields the series of
 		 * Parallels that contain Patterns that are visible to the provided
 		 * srcParallel. The bases of these parallels have not necessarily
 		 * been applied.
@@ -459,7 +459,7 @@ namespace Truth
 		 * that were yielded closer to the beginning take prescedence over
 		 * the ones yielded at the end.
 		 */
-		private *ascend(srcParallel: SpecifiedParallel)
+		private *ascend(srcParallel: ExplicitParallel)
 		{
 			const discoveredPatternNodes = new Set<Node>();
 			
@@ -472,13 +472,13 @@ namespace Truth
 					this.parallels.create(patternNode, this.cruft));
 			};
 			
-			function *recurse(current: SpecifiedParallel): 
+			function *recurse(current: ExplicitParallel): 
 				IterableIterator<IPatternParallel>
 			{
 				for (const { base } of current.eachBase())
 					yield *recurse(base);
 				
-				if (current instanceof SpecifiedParallel)
+				if (current instanceof ExplicitParallel)
 					for (const node of current.node.contents.values())
 						if (node.subject instanceof Pattern)
 							if (!discoveredPatternNodes.has(node))
@@ -493,7 +493,7 @@ namespace Truth
 			// are adjacent to srcParallel, because we reach back into the
 			// adjacents from the container.
 			for (let current = srcParallel.container;
-				current instanceof SpecifiedParallel;)
+				current instanceof ExplicitParallel;)
 			{
 				yield *recurse(current);
 				current = current.container;
@@ -520,13 +520,13 @@ namespace Truth
 		private descend(zenith: Parallel, targetSubject: Subject)
 		{
 			/**
-			 * @returns A new Parallel (either being a SpecifiedParallel
-			 * or an UnspecifiedParallel instance), that corresponds to
+			 * @returns A new Parallel (either being a ExplicitParallel
+			 * or an ImplicitParallel instance), that corresponds to
 			 * the specified zenith parallel.
 			 */
 			const descendOne = (zenith: Parallel): Parallel =>
 			{
-				if (zenith instanceof SpecifiedParallel)
+				if (zenith instanceof ExplicitParallel)
 				{
 					const nextNode = zenith.node.contents.get(targetSubject);
 					if (nextNode)
@@ -549,12 +549,12 @@ namespace Truth
 			 * @returns A boolean value that indicates whether the act
 			 * of descending from the specified Parallel to the typeName
 			 * passed to the containing method is going to result in a
-			 * SpecifiedParallel instance.
+			 * ExplicitParallel instance.
 			 */
-			function canDescendToSpecified(parallel: Parallel)
+			function canDescendToExplicit(parallel: Parallel)
 			{
 				return (
-					parallel instanceof SpecifiedParallel &&
+					parallel instanceof ExplicitParallel &&
 					parallel.node.contents.has(targetSubject));
 			}
 			
@@ -571,7 +571,7 @@ namespace Truth
 				yield par;
 			}
 			
-			function *recurseBases(par: SpecifiedParallel): IterableIterator<Parallel>
+			function *recurseBases(par: ExplicitParallel): IterableIterator<Parallel>
 			{
 				for (const { base } of par.eachBase())
 					yield *recurseBases(base);
@@ -583,7 +583,7 @@ namespace Truth
 			{
 				for (const parallelEdge of recurseParallels(par))
 				{
-					if (parallelEdge instanceof SpecifiedParallel)
+					if (parallelEdge instanceof ExplicitParallel)
 						for (const baseEdge of recurseBases(parallelEdge))
 							yield baseEdge;
 					
@@ -595,7 +595,7 @@ namespace Truth
 			// the zenith, and produces a set of Parallels to prune from the
 			// descension process. The Parallels that end up getting pruned
 			// are the ones that, if unpruned, would result in a layer that
-			// has UnspecifiedParallels that shouldn't actually exist. For
+			// has ImplicitParallels that shouldn't actually exist. For
 			// example, consider the following document:
 			//
 			// Class
@@ -603,7 +603,7 @@ namespace Truth
 			// SubClass : Class
 			// 	Child
 			// 
-			// "Class" should not have an UnspecifiedParallel called "Child",
+			// "Class" should not have an ImplicitParallel called "Child",
 			// because that was introduced in the derived "SubClass" type.
 			// And so this algorithm stakes out cut off points so that we don't
 			// blindly just descend all Parallels in the layer.
@@ -612,21 +612,21 @@ namespace Truth
 			const pruneParallelsFollowFn = (par: Parallel) =>
 			{
 				const upperParallels = par.getParallels().slice();
-				if (par instanceof SpecifiedParallel)
+				if (par instanceof ExplicitParallel)
 					for (const { base } of par.eachBase())
 						upperParallels.push(base);
 				
 				return upperParallels;
 			};
 			
-			const hasSpecifiedContents = Misc.reduceRecursive(
+			const hasExplicitContents = Misc.reduceRecursive(
 				zenith,
 				pruneParallelsFollowFn,
 				(current, results: readonly boolean[]) =>
 				{
 					const prune = 
 						results.every(result => !result) &&
-						!canDescendToSpecified(current);
+						!canDescendToExplicit(current);
 					
 					if (prune)
 						prunedParallels.add(current);
@@ -637,14 +637,14 @@ namespace Truth
 			// In the case when the method is attempting to descend
 			// to a level where there are no nodes whose name match
 			// the type name specified (i.e. the whole layer would be 
-			// unspecified parallels), null is returned because a descend
+			// implicit parallels), null is returned because a descend
 			// wouldn't make sense.
-			if (!hasSpecifiedContents)
+			if (!hasExplicitContents)
 				return null;
 			
 			const descendParallelsFollowFn = (par: Parallel) =>
 			{
-				if (!(par instanceof SpecifiedParallel))
+				if (!(par instanceof ExplicitParallel))
 					return [];
 				
 				const bases = Array.from(par.eachBase())
@@ -679,8 +679,8 @@ namespace Truth
 		 * Reports any faults that can occur during this process.
 		 */
 		private verifyDescend(
-			zenithParallel: SpecifiedParallel,
-			descendParallel: SpecifiedParallel)
+			zenithParallel: ExplicitParallel,
+			descendParallel: ExplicitParallel)
 		{
 			if (descendParallel.node.subject instanceof Anon)
 				if (zenithParallel.isListIntrinsic)
@@ -710,9 +710,9 @@ namespace Truth
 	interface IPatternParallel
 	{
 		readonly pattern: Pattern;
-		readonly patternParallel: SpecifiedParallel;
+		readonly patternParallel: ExplicitParallel;
 	}
 	
 	/** */
-	export type TBaseTable = ReadonlyMap<SpecifiedParallel, HyperEdge>;
+	export type TBaseTable = ReadonlyMap<ExplicitParallel, HyperEdge>;
 }

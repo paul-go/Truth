@@ -4,7 +4,7 @@ namespace Truth
 	/**
 	 * 
 	 */
-	export class UnspecifiedParallel extends Parallel
+	export class ImplicitParallel extends Parallel
 	{
 		/**
 		 * @internal

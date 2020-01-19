@@ -141,33 +141,33 @@ namespace Truth
 				seed.getParallels().map(edge =>
 					new TypeProxy(edge.phrase)));
 			
-			const getBases = (sp: SpecifiedParallel) =>
+			const getBases = (ep: ExplicitParallel) =>
 			{
-				const bases = Array.from(sp.eachBase());
+				const bases = Array.from(ep.eachBase());
 				return bases.map(entry => 
 					new TypeProxy(entry.base.node.phrase));
 			};
 			
-			if (seed instanceof SpecifiedParallel)
+			if (seed instanceof ExplicitParallel)
 			{
 				this.private.bases = new TypeProxyArray(getBases(seed));
 			}
-			else if (seed instanceof UnspecifiedParallel)
+			else if (seed instanceof ImplicitParallel)
 			{
 				const queue: Parallel[] = [seed];
-				const specifiedParallels: SpecifiedParallel[] = [];
+				const explicitParallels: ExplicitParallel[] = [];
 				
 				for (let i = -1; ++i < queue.length;)
 				{
 					const current = queue[i];
-					if (current instanceof UnspecifiedParallel)
+					if (current instanceof ImplicitParallel)
 						queue.push(...current.getParallels());
 					
-					else if (current instanceof SpecifiedParallel)
-						specifiedParallels.push(current);
+					else if (current instanceof ExplicitParallel)
+						explicitParallels.push(current);
 				}
 				
-				const bases = specifiedParallels
+				const bases = explicitParallels
 					.map(par => getBases(par))
 					.reduce((a, b) => a.concat(b), [])
 					.filter((v, i, a) => a.indexOf(v) === i);
@@ -177,13 +177,13 @@ namespace Truth
 			
 			this.isList = false;
 			
-			if (seed instanceof SpecifiedParallel)
+			if (seed instanceof ExplicitParallel)
 			{
 				const sub = seed.node.subject;
 				this.isPattern = sub instanceof Pattern;
 				this.isUri = sub instanceof KnownUri;
 				this.isAnonymous = sub instanceof Anon;
-				this.isSpecified = true;
+				this.isExplicit = true;
 				this.isFresh = seed.getParallels().length === 0;
 			}
 		}
@@ -255,7 +255,7 @@ namespace Truth
 			// that are found.
 			for (const { type: parallelType } of this.iterate(t => t.parallels, true))
 				for (const { type: baseType } of parallelType.iterate(t => t.bases, true))
-					if (baseType.private.seed instanceof SpecifiedParallel)
+					if (baseType.private.seed instanceof ExplicitParallel)
 						for (const subject of baseType.private.seed.node.contents.keys())
 							if (!containedSubs.includes(subject))
 								containedSubs.push(subject);
@@ -350,7 +350,7 @@ namespace Truth
 			
 			this.private.throwOnDirty();
 			
-			if (!(this.private.seed instanceof SpecifiedParallel))
+			if (!(this.private.seed instanceof ExplicitParallel))
 				return this.private.derivations = Object.freeze([]);
 			
 			const derivations = Array.from(this.private.seed.node.inbounds)
@@ -442,20 +442,20 @@ namespace Truth
 			this.private.throwOnDirty();
 			const aliases: string[] = [];
 			
-			const extractAlias = (sp: SpecifiedParallel) =>
+			const extractAlias = (ep: ExplicitParallel) =>
 			{
-				for (const { edge, aliased } of sp.eachBase())
+				for (const { edge, aliased } of ep.eachBase())
 					if (aliased)
 						aliases.push(edge.term.toString());
 			};
 			
-			if (this.private.seed instanceof SpecifiedParallel)
+			if (this.private.seed instanceof ExplicitParallel)
 			{
 				extractAlias(this.private.seed);
 			}
-			else if (this.private.seed instanceof UnspecifiedParallel)
+			else if (this.private.seed instanceof ImplicitParallel)
 			{
-				const queue: UnspecifiedParallel[] = [this.private.seed];
+				const queue: ImplicitParallel[] = [this.private.seed];
 				
 				for (let i = -1; ++i < queue.length;)
 				{
@@ -463,10 +463,10 @@ namespace Truth
 					
 					for (const parallel of current.getParallels())
 					{
-						if (parallel instanceof SpecifiedParallel)
+						if (parallel instanceof ExplicitParallel)
 							extractAlias(parallel);
 						
-						else if (parallel instanceof UnspecifiedParallel)
+						else if (parallel instanceof ImplicitParallel)
 							queue.push(parallel);
 					}
 				}
@@ -486,9 +486,9 @@ namespace Truth
 			this.private.throwOnDirty();
 			const values: { value: string, base: Type | null, aliased: boolean }[] = [];
 			
-			const extractType = (sp: SpecifiedParallel) =>
+			const extractType = (ep: ExplicitParallel) =>
 			{
-				for (const { edge, aliased } of sp.eachBase())
+				for (const { edge, aliased } of ep.eachBase())
 					values.push({
 						aliased,
 						value: edge.term.toString(),
@@ -496,13 +496,13 @@ namespace Truth
 					});
 			};
 			
-			if (this.private.seed instanceof SpecifiedParallel)
+			if (this.private.seed instanceof ExplicitParallel)
 			{
 				extractType(this.private.seed);
 			}
-			else if (this.private.seed instanceof UnspecifiedParallel)
+			else if (this.private.seed instanceof ImplicitParallel)
 			{
-				const queue: UnspecifiedParallel[] = [this.private.seed];
+				const queue: ImplicitParallel[] = [this.private.seed];
 				
 				for (let i = -1; ++i < queue.length;)
 				{
@@ -510,10 +510,10 @@ namespace Truth
 					
 					for (const parallel of current.getParallels())
 					{
-						if (parallel instanceof SpecifiedParallel)
+						if (parallel instanceof ExplicitParallel)
 							extractType(parallel);
 						
-						else if (parallel instanceof UnspecifiedParallel)
+						else if (parallel instanceof ImplicitParallel)
 							queue.push(parallel);
 					}
 				}
@@ -558,7 +558,7 @@ namespace Truth
 		 * Stores a value that indicates if this Type was directly specified
 		 * in the document, or if it's existence was inferred.
 		 */
-		readonly isSpecified: boolean = false;
+		readonly isExplicit: boolean = false;
 		
 		/** */
 		readonly isAnonymous: boolean = false;

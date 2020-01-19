@@ -10,8 +10,8 @@ namespace Truth
 	{
 		/** */
 		constructor(
-			private readonly targetParallel: SpecifiedParallel,
-			private readonly proposedBase: SpecifiedParallel,
+			private readonly targetParallel: ExplicitParallel,
+			private readonly proposedBase: ExplicitParallel,
 			private readonly proposedEdge: HyperEdge,
 			private readonly cruft: CruftCache) { }
 		
@@ -49,7 +49,7 @@ namespace Truth
 		{
 			const circularEdgePaths: HyperEdge[][] = [];
 			const recurse = (
-				srcBase: SpecifiedParallel,
+				srcBase: ExplicitParallel,
 				path: HyperEdge[]) =>
 			{
 				for (const { base, edge } of this.basesOf(srcBase))
@@ -94,7 +94,7 @@ namespace Truth
 		private _foundCruft = false;
 		
 		/** */
-		private *basesOf(par: SpecifiedParallel)
+		private *basesOf(par: ExplicitParallel)
 		{
 			for (const { base, edge } of par.eachBase())
 				yield { base, edge };

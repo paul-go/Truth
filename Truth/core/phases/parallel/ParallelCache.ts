@@ -16,8 +16,8 @@ namespace Truth
 		 * @throw In the case when a ParallelType corresponding to the
 		 * input was already created.
 		 */
-		create(node: Node, cruft: CruftCache): SpecifiedParallel;
-		create(phrase: Phrase): UnspecifiedParallel;
+		create(node: Node, cruft: CruftCache): ExplicitParallel;
+		create(phrase: Phrase): ImplicitParallel;
 		create(key: Node | Phrase, cruft?: CruftCache)
 		{
 			if (this.has(key))
@@ -43,22 +43,22 @@ namespace Truth
 			})();
 			
 			if (key instanceof Phrase)
-				return save(new UnspecifiedParallel(key, container));
+				return save(new ImplicitParallel(key, container));
 			
-			if (!(container instanceof SpecifiedParallel) && container !== null)
+			if (!(container instanceof ExplicitParallel) && container !== null)
 				throw Exception.unknownState();
 			
 			if (cruft === undefined)
 				throw Exception.unknownState();
 			
-			const outPar = new SpecifiedParallel(key, container, cruft);
+			const outPar = new ExplicitParallel(key, container, cruft);
 			if (key.intrinsicExtrinsicBridge === null)
 				return save(outPar);
 			
 			if (this.has(key.intrinsicExtrinsicBridge))
 				throw Exception.unknownState();
 			
-			const bridgePar = new SpecifiedParallel(
+			const bridgePar = new ExplicitParallel(
 				key.intrinsicExtrinsicBridge,
 				container,
 				cruft);
@@ -69,7 +69,7 @@ namespace Truth
 		
 		/** */
 		get(key: Phrase): Parallel | undefined;
-		get(key: Node): SpecifiedParallel | undefined;
+		get(key: Node): ExplicitParallel | undefined;
 		get(key: Node | Phrase)
 		{
 			const keyVal = this.getKeyVal(key);
@@ -77,7 +77,7 @@ namespace Truth
 			
 			if (key instanceof Node)
 				if (out !== undefined)
-					if (!(out instanceof SpecifiedParallel))
+					if (!(out instanceof ExplicitParallel))
 						throw Exception.unknownState();
 			
 			return out;
