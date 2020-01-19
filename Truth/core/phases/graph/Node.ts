@@ -2,6 +2,7 @@
 namespace Truth
 {
 	/**
+	 * @internal
 	 * A class that represents a single Node contained within
 	 * the Program's Graph. Nodes are long-lived, referentially
 	 * significant objects that persist between edit frames.
@@ -18,7 +19,6 @@ namespace Truth
 	 */
 	export class Node
 	{
-		/** @internal */
 		constructor(
 			container: Node | null,
 			declaration: Span | InfixSpan)

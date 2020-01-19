@@ -2,6 +2,7 @@
 namespace Truth
 {
 	/**
+	 * @internal
 	 * A HyperEdge connects an origin predecessor Node to a series of
 	 * successor Nodes. From graph theory, a "hyper edge" is different
 	 * from an "edge" in that it can have many successors:
@@ -244,7 +245,7 @@ namespace Truth
 	}
 	
 	/**
-	 * 
+	 * @internal
 	 */
 	export class Successor
 	{
@@ -263,6 +264,7 @@ namespace Truth
 	}
 	
 	/**
+	 * @internal
 	 * Indicates the place in a statement where a HyperEdge starts.
 	 * (HyperEdges can start either at the statement level, or within
 	 * various kinds of infixes.)

@@ -2,17 +2,18 @@
 namespace Truth
 {
 	/**
-	 * 
+	 * @internal
+	 * Stores a representation of a Truth program in a graph
+	 * format, which lays the foundation for type analysis.
 	 */
 	export class HyperGraph
 	{
 		/**
-		 * @internal
 		 * Test-only field used to disable the functions of the Graph.
 		 */
 		static disabled: boolean | undefined;
 		
-		/** @internal */
+		/** */
 		constructor(private readonly program: Program)
 		{
 			this.nodeIndex = new NodeIndex();
@@ -458,7 +459,7 @@ namespace Truth
 	}
 	
 	/**
-	 * 
+	 * @internal
 	 */
 	class GraphTransaction
 	{
