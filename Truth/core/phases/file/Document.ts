@@ -104,7 +104,8 @@ namespace Truth
 		
 		/**
 		 * @internal
-		 * Stores the root phrase associated with this document (with an empty terms array).
+		 * Stores the root phrase associated with this document
+		 * (with an empty terms array).
 		 */
 		readonly phrase: Phrase;
 		
