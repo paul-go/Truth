@@ -242,13 +242,13 @@ namespace Truth
 		 * one. In the case when this type is a list type, this array does
 		 * not include the list's intrinsic types.
 		 */
-		get contents()
+		get inners()
 		{
-			if (this.private.contents !== null)
-				return this.private.contents;
+			if (this.private.inners !== null)
+				return this.private.inners;
 			
 			this.private.throwOnDirty();
-			const containedSubs: Subject[] = [];
+			const innerSubs: Subject[] = [];
 			
 			// Dig through the parallel graph recursively, and at each parallel,
 			// dig through the base graph recursively, and collect all the names
@@ -257,18 +257,18 @@ namespace Truth
 				for (const { type: baseType } of parallelType.iterate(t => t.bases, true))
 					if (baseType.private.seed instanceof ExplicitParallel)
 						for (const subject of baseType.private.seed.node.contents.keys())
-							if (!containedSubs.includes(subject))
-								containedSubs.push(subject);
+							if (!innerSubs.includes(subject))
+								innerSubs.push(subject);
 			
-			const contents = containedSubs
-				.map(containedSub =>
+			const inners = innerSubs
+				.map(innerSub =>
 				{
-					const maybeContainedPhrase = this.phrase.forward(containedSub);
-					return Type.construct(maybeContainedPhrase);
+					const maybeInnerPhrase = this.phrase.forward(innerSub);
+					return Type.construct(maybeInnerPhrase);
 				})
 				.filter((t): t is Type => t !== null);
 			
-			return this.private.contents = Object.freeze(contents);
+			return this.private.inners = Object.freeze(inners);
 		}
 		
 		/**
@@ -277,13 +277,13 @@ namespace Truth
 		 * one. In the case when this type is not a list type, this array
 		 * is empty.
 		 */
-		get contentsIntrinsic()
+		get innersIntrinsic()
 		{
-			if (this.private.contentsIntrinsic !== null)
-				return this.private.contentsIntrinsic;
+			if (this.private.innersIntrinsic !== null)
+				return this.private.innersIntrinsic;
 			
 			if (!this.isList)
-				return this.private.contentsIntrinsic = Object.freeze([]);
+				return this.private.innersIntrinsic = Object.freeze([]);
 			
 			this.private.throwOnDirty();
 			
@@ -323,6 +323,7 @@ namespace Truth
 		
 		/**
 		 * @internal
+		 * Not implemented.
 		 */
 		get subordinates()
 		{
@@ -374,7 +375,7 @@ namespace Truth
 			this.private.throwOnDirty();
 			
 			if (this.container)
-				return this.private.adjacents = this.container.contents.filter(t => t !== this);
+				return this.private.adjacents = this.container.inners.filter(t => t !== this);
 			
 			const document = this.phrase.containingDocument;
 			const roots = Array.from(Phrase.rootsOf(document));
@@ -663,7 +664,7 @@ namespace Truth
 			
 			for (const typeName of typePath)
 			{
-				const nextType = this.contents.find(type => type.name === typeName);
+				const nextType = this.inners.find(type => type.name === typeName);
 				if (!nextType)
 					break;
 				
@@ -688,17 +689,17 @@ namespace Truth
 		
 		/**
 		 * Checks whether the specified type is in this Type's
-		 * `.contents` property, either directly, or indirectly via
-		 * the parallel graphs of the `.contents` Types.
+		 * `.inners` property, either directly, or indirectly via
+		 * the parallel graphs of the `.inners` Types.
 		 */
 		has(type: Type)
 		{
-			if (this.contents.includes(type))
+			if (this.inners.includes(type))
 				return true;
 			
-			for (const containedType of this.contents)
-				if (type.name === containedType.name)
-					for (const parallel of containedType.iterate(t => t.parallels))
+			for (const innerType of this.inners)
+				if (type.name === innerType.name)
+					for (const parallel of innerType.iterate(t => t.parallels))
 						if (parallel.type === type)
 							return true;
 			
@@ -736,10 +737,10 @@ namespace Truth
 		readonly stamp: VersionStamp;
 		
 		/** */
-		contents: readonly Type[] | null = null;
+		inners: readonly Type[] | null = null;
 		
 		/** */
-		contentsIntrinsic: readonly Type[] | null = null;
+		innersIntrinsic: readonly Type[] | null = null;
 		
 		/** */
 		bases: TypeProxyArray | null = null;
