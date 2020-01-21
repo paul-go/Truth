@@ -90,10 +90,6 @@ namespace Truth
 				003 : Product
 					Name: "Test3"
 					Size: 123
-				
-				004 : Product
-					Name: "Test4"
-					Size: 123
 		`);
 		
 		await doc.edit(mutator =>
