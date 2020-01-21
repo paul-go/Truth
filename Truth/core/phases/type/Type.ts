@@ -135,7 +135,7 @@ namespace Truth
 			this.private = new TypePrivate(seed);
 			this.name = seed.phrase.terminal.toString();
 			this.phrase = seed.phrase;
-			this.container = container;
+			this.outer = container;
 			
 			this.private.parallels = new TypeProxyArray(
 				seed.getParallels().map(edge =>
@@ -196,10 +196,10 @@ namespace Truth
 		readonly name: string;
 		
 		/**
-		 * Stores the URI that specifies where this Type was
+		 * Stores the phrase that specifies where this Type was
 		 * found in the document.
 		 */
-		readonly phrase: Phrase;
+		private readonly phrase: Phrase;
 		
 		/**
 		 * Stores a reference to the type, as it's defined in it's
@@ -235,7 +235,7 @@ namespace Truth
 		 * Stores the Type that contains this Type, or null in
 		 * the case when this Type is top-level.
 		 */
-		readonly container: Type | null;
+		readonly outer: Type | null;
 		
 		/**
 		 * Stores the array of types that are contained directly by this
@@ -374,8 +374,8 @@ namespace Truth
 			
 			this.private.throwOnDirty();
 			
-			if (this.container)
-				return this.private.adjacents = this.container.inners.filter(t => t !== this);
+			if (this.outer)
+				return this.private.adjacents = this.outer.inners.filter(t => t !== this);
 			
 			const document = this.phrase.containingDocument;
 			const roots = Array.from(Phrase.rootsOf(document));
@@ -404,7 +404,7 @@ namespace Truth
 			// that matches a particular set of types in the type scope.
 			const patternMap = new Map<string, Type>();
 			
-			for (const { type } of this.iterate(t => t.container))
+			for (const { type } of this.iterate(t => t.outer))
 			{
 				const applicablePatternTypes = type.adjacents
 					.filter(t => t.isPattern)
