@@ -528,7 +528,7 @@ namespace Truth
 				return Math.min(param, len) - 1;
 			
 			if (param < 0)
-				return Math.max(len - param, 1);
+				return Math.max(len + param, 1);
 			
 			throw Exception.unknownState();
 		}

@@ -58,4 +58,51 @@ namespace Truth
 			() => s1n.value === "3"
 		];		
 	}
+	
+	async function coverInsertsAtEndOfDocument()
+	{
+		const [doc] = await createLanguageCover(`
+			any
+			object : any
+			string : any
+			number : any
+			bigint : any
+			boolean : any
+
+			/".+" : string
+			/(\+|-)?(([1-9]\d{0,17})|([1-8]\d{18})|(9[01]\d{17})) : number
+			/(0|([1-9][0-9]*)) : bigint
+			/(true|false) : boolean
+
+			Product
+				Name: string
+				Size: number
+
+			data
+				001 : Product
+					Name: "Test"
+					Size: 1234
+					
+				002 : Product
+					Name: "Test"
+					Size: 123
+				
+				003 : Product
+					Name: "Test3"
+					Size: 123
+				
+				004 : Product
+					Name: "Test4"
+					Size: 123
+		`);
+		
+		await doc.edit(mutator =>
+		{
+			mutator.insert("	004 : Product", -1);
+			mutator.insert("		Name : \"Test4\"", -1);
+			mutator.insert("		Size : 123", -1);
+		});
+		
+		return () => true;
+	}
 }
