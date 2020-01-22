@@ -1,27 +1,37 @@
 
 namespace Truth
 {
-	/** */
-	export class UriReader
+	/**
+	 * An interface for an object that provides URI-reading functionality.
+	 */
+	export interface IUriReader
 	{
 		/**
 		 * Attempts to read the contents of the given URI.
 		 * If an error is generated while trying to read a file 
 		 * at the specified location, the errors is returned.
 		 */
-		async tryRead(uri: KnownUri)
-		{
-			const uriText = uri.toString();
-			
-			if (uri.protocol === UriProtocol.file)
-				return await readFileUri(uriText);
-			
-			else if (uri.protocol === UriProtocol.http ||
-				uri.protocol === UriProtocol.https)
-				return await readWebUri(uriText);
-			
-			throw Exception.notImplemented();
-		}
+		tryRead(uri: KnownUri): Promise<string | Error>;
+	}
+	
+	/** @internal */
+	export function createDefaultUriReader(): IUriReader
+	{
+		return {
+			tryRead: async (uri: KnownUri) =>
+			{
+				const uriText = uri.toString();
+				
+				if (uri.protocol === UriProtocol.file)
+					return await readFileUri(uriText);
+				
+				else if (uri.protocol === UriProtocol.http ||
+					uri.protocol === UriProtocol.https)
+					return await readWebUri(uriText);
+				
+				throw Exception.notImplemented();
+			}
+		};
 	}
 	
 	/**

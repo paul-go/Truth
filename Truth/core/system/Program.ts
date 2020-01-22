@@ -13,7 +13,7 @@ namespace Truth
 		constructor()
 		{
 			this._version = VersionStamp.next();
-			this.reader = new UriReader();
+			this.reader = Truth.createDefaultUriReader();
 			
 			// The ordering of these instantations is relevant,
 			// because it reflects the order in which each of
@@ -73,11 +73,11 @@ namespace Truth
 		 * are referenced within uri-containing statements within
 		 * Truth documents.
 		 */
-		setReader(reader: UriReader)
+		setReader(reader: IUriReader)
 		{
 			this.reader = reader;
 		}
-		private reader: UriReader;
+		private reader: IUriReader;
 		
 		/**
 		 * Adds a document to this program with the specified sourceText.
