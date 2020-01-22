@@ -508,7 +508,7 @@ namespace Truth
 		 * number. 
 		 * 
 		 * The number returned is upper-bounded by the length of
-		 * the document, and lower-bounded by 1.
+		 * the statements array, and lower-bounded by 1.
 		 * 
 		 * Negative line numbers refer to positions starting from the
 		 * last statement in the document.
@@ -716,7 +716,8 @@ namespace Truth
 				},
 				insert: (text: string, at = -1) =>
 				{
-					const idx = this.getIndex(at);
+					const len = this.statements.length;
+					const idx = at > len ? len : this.getIndex(at);
 					calls.push(new InsertCall(new Statement(this, text), idx));
 					hasInsert = true;
 				},
@@ -770,13 +771,9 @@ namespace Truth
 				const doInsert = (call: InsertCall) =>
 				{
 					if (call.at >= this.statements.length)
-					{
 						this.statements.push(call.smt);
-					}
 					else
-					{
 						this.statements.splice(call.at, 0, call.smt);
-					}
 					
 					if (call.smt.uri)
 						addedUriSmts.push(call.smt as UriStatement);

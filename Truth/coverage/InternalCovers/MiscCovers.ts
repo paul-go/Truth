@@ -101,4 +101,23 @@ namespace Truth
 		
 		return () => true;
 	}
+	
+	async function coverEditAtomic()
+	{
+		const [doc] = await createLanguageCover(`abc`);
+		
+		await doc.editAtomic([
+			{
+				range: {
+					startLineNumber: 1,
+					startColumn: 3,
+					endColumn: 3,
+					endLineNumber: 1
+				},
+				text: "\n"
+			}
+		]);
+		
+		return () => true;
+	}
 }
