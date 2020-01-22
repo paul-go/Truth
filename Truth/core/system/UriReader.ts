@@ -34,9 +34,7 @@ namespace Truth
 		};
 	}
 	
-	/**
-	 * 
-	 */
+	/** */
 	async function readFileUri(path: string, opts = "utf8")
 	{
 		return new Promise<string | Error>(resolve =>
@@ -50,9 +48,7 @@ namespace Truth
 		});
 	}
 	
-	/**
-	 * Provides browser-style fetch functionality.
-	 */
+	/** */
 	async function readWebUri(url: string): Promise<string | Error>
 	{
 		if (typeof fetch === "function")
