@@ -158,8 +158,9 @@ namespace Truth
 			}
 			
 			const breadthFirstOrganizer: MultiMap<string, IBreadthFirstEntry>[] = [];
+			const iteratorArray = Array.from(iterator);
 			
-			for (const { level, statement } of iterator)
+			for (const { level, statement } of iteratorArray)
 			{
 				// Possibly append a bunch of empty multi-maps
 				// at the end of the organizer, so that we don't
@@ -176,7 +177,7 @@ namespace Truth
 				// Foo
 				// 	[Cruft]    <=== Will correspond to an empty multi-map
 				// 		Bar
-				//
+				// 
 				// Or, it will end up with a populated multi-map in the case
 				// when there is another statement at [Cruft]'s level of depth.
 				// Either way, there are no spans that need to be added from

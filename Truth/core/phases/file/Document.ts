@@ -405,24 +405,27 @@ namespace Truth
 		getChildren(statement?: Statement)
 		{
 			const children: Statement[] = [];
-			
-			let idx = statement ?
-				this.statements.indexOf(statement) :
-				0;
-			
-			if (idx < 0)
-				throw Exception.statementNotInDocument();
+			let idx = 0;
 			
 			// Stores the indent value that causes the loop
 			// to terminate when reached.
-			const minIndent = statement ? statement.indent : -1;
+			let minIndent = -1;
 			let maxIndent = Number.MAX_SAFE_INTEGER;
 			
-			// Start the iteration 1 position after the statement
-			// specified, so that we're always passing through
-			// potential children.
+			if (statement)
+			{
+				idx = this.statements.indexOf(statement);
+				
+				if (idx < 0)
+					throw Exception.statementNotInDocument();
+				
+				// Start the iteration 1 position after the statement
+				// specified, so that we're always passing through
+				// potential children.
+				minIndent = statement.indent + 1;
+			}
 			
-			while (++idx < this.statements.length)
+			for (; idx < this.statements.length; idx++)
 			{
 				const smt = this.statements[idx];
 				

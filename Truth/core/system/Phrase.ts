@@ -126,7 +126,7 @@ namespace Truth
 		{
 			return this._subjects ?
 				this._subjects :
-				this._subjects = this._ancestry.map(ph => ph.terminal);
+				this._subjects = [...this._ancestry.map(ph => ph.terminal), this.terminal];
 		}
 		private _subjects: readonly Subject[] | null = null;
 		
