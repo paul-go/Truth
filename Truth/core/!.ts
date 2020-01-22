@@ -13,6 +13,7 @@
 // System
 /// <reference path="./System/AbstractClass.ts" />
 /// <reference path="./System/Program.ts" />
+/// <reference path="./System/ProgramInspectionResult.ts" />
 /// <reference path="./System/AgentCache.ts" />
 /// <reference path="./System/Cause.ts" />
 /// <reference path="./System/Exception.ts" />

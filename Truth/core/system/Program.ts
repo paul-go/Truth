@@ -353,7 +353,8 @@ namespace Truth
 					const types = parent.declarations
 						.map(decl => decl.factor())
 						.reduce((spines, s) => spines.concat(s), [])
-						.map(spine => Type.construct(spine));
+						.map(spine => Type.construct(spine))
+						.filter((type): type is Type => !!type);
 					
 					return new ProgramInspectionResult(position, zone, types, statement, null);
 				}
@@ -375,7 +376,8 @@ namespace Truth
 					
 					const types = decl
 						.factor()
-						.map(spine => Type.construct(spine));
+						.map(spine => Type.construct(spine))
+						.filter((type): type is Type => !!type);
 					
 					return new ProgramInspectionResult(position, zone, types, statement, decl);
 				}
@@ -387,10 +389,15 @@ namespace Truth
 						throw Exception.unknownState();
 					
 					const spine = statement.declarations[0].factor()[0];
+					let base: Type[] | null = null;
+					
 					const type = Type.construct(spine);
-					const annoText = anno.boundary.subject.toString();
-					const base = type.bases.filter(b => b.name === annoText);
-					base.push(type);
+					if (type)
+					{
+						const annoText = anno.boundary.subject.toString();
+						base = type.bases.filter(b => b.name === annoText);
+						base.push(type);
+					}
 					
 					return new ProgramInspectionResult(position, zone, base, statement, anno);
 				}
@@ -399,7 +406,9 @@ namespace Truth
 					const anno = statement.getAnnotation(offset);
 					const spine = statement.declarations[0].factor()[0];
 					const type = Type.construct(spine);
-					return new ProgramInspectionResult(position, zone, [type], statement, anno);
+					const foundObject = type ? [type] : null;
+					
+					return new ProgramInspectionResult(position, zone, foundObject, statement, anno);
 				}
 			}
 			
@@ -517,56 +526,4 @@ namespace Truth
 	 * Describes a place in the program where a Cause is attached.
 	 */
 	export type AttachmentScope = Program | Document | Type;
-	
-	/**
-	 * Marks a specific line and offset within a Truth document.
-	 */
-	export interface Position 
-	{
-		line: number;
-		offset: number;
-	}
-	
-	/**
-	 * Stores the details about a precise location in a Document.
-	 */
-	export class ProgramInspectionResult
-	{
-		/** @internal */
-		constructor(
-			/**
-			 * Stores the location of the inspection point within a Document.
-			 */
-			readonly position: Position,
-			
-			/**
-			 * Stores the zone of the statement found at the specified location.
-			 */
-			readonly zone: StatementZone,
-			
-			/**
-			 * Stores the compilation object that most closely represents
-			 * what was found at the specified location. Stores null in the
-			 * case when the specified location contains an object that
-			 * has been marked as cruft (the statement and span fields
-			 * are still populated in this case).
-			 */
-			readonly foundObject: Document | Type[] | null,
-			
-			/**
-			 * Stores the Statement found at the specified location.
-			 */
-			readonly statement: Statement,
-			
-			/**
-			 * Stores the Span found at the specified location, or
-			 * null in the case when no Span was found, such as if
-			 * the specified location is whitespace or a comment.
-			 */
-			readonly span: Span | null = null)
-		{
-			if (Array.isArray(foundObject) && foundObject.length === 0)
-				this.foundObject = null;
-		}
-	}
 }

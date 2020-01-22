@@ -23,6 +23,7 @@ namespace Truth
 		{
 			const program = phrase.containingDocument.program;
 			const cache = this.getCache(program);
+			
 			if (cache.map.has(phrase))
 				return Not.undefined(cache.map.get(phrase));
 			

@@ -30,7 +30,7 @@ namespace Truth
 			{
 				if (!(vert instanceof Span))
 					return null;
-					
+				
 				current = current.forward(vert.boundary.subject);
 			}
 			
@@ -126,7 +126,7 @@ namespace Truth
 		{
 			return this._subjects ?
 				this._subjects :
-				this._subjects = [...this._ancestry.map(ph => ph.terminal), this.terminal];
+				this._subjects = this.ancestry.map(ph => ph.terminal);
 		}
 		private _subjects: readonly Subject[] | null = null;
 		
@@ -145,14 +145,14 @@ namespace Truth
 		 */
 		get ancestry(): Phrase[]
 		{
-			if (this._ancestry.length === 0)
+			if (this._ancestry === null)
 			{
+				this._ancestry = [];
 				let current: Phrase = this;
 				
-				// If the phrase has no parent, then it's a phrase
-				// that is owned by a document with no subjects.
-				// These aren't included in the ancestry.
-				while (current.parent !== current)
+				// The ancestry never includes the 0-length phrase
+				// attached to a document, and always includes itself.
+				while (current.length > 0)
 				{
 					this._ancestry.unshift(current);
 					current = current.parent;
@@ -161,7 +161,7 @@ namespace Truth
 			
 			return this._ancestry;
 		}
-		private _ancestry: Phrase[] = [];
+		private _ancestry: (Phrase[] | null) = null;
 		
 		/**
 		 * 

@@ -18,7 +18,7 @@ namespace Truth
 		 * Constructs one or more Type objects from the specified location.
 		 */
 		static construct(phrase: Phrase): Type | null;
-		static construct(spine: Spine): Type;
+		static construct(spine: Spine): Type | null;
 		static construct(param: Phrase | Spine): Type | null
 		{
 			const phrase = param instanceof Phrase ?
@@ -34,8 +34,8 @@ namespace Truth
 				
 				// If the cached type exists, but hasn't been compiled yet,
 				// we can't return it, we need to compile it first.
-				if (cached === null || cached instanceof Type)
-					return cached as Type;
+				if (!(cached instanceof TypeProxy))
+					return cached;
 			}
 			
 			const program = phrase.containingDocument.program;
