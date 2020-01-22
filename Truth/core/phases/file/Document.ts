@@ -254,9 +254,9 @@ namespace Truth
 		
 		/**
 		 * @returns An array of Statement objects that represent
-		 * ancestry of the specified statement. If the specified
-		 * statement is not in this document, the returned value
-		 * is null.
+		 * ancestry of the specified statement, or 1-based line number. 
+		 * If the specified statement is not in this document, the
+		 * returned value is null.
 		 */
 		getAncestry(statement: Statement | number)
 		{
@@ -713,7 +713,8 @@ namespace Truth
 					if (count > 0)
 					{
 						const idx = this.getIndex(at);
-						calls.push(new DeleteCall(idx, count));
+						
+						calls.push(new DeleteCall(idx + 1, idx, count));
 						hasDelete = true;
 					}
 				},
@@ -721,7 +722,7 @@ namespace Truth
 				{
 					const len = this.statements.length;
 					const idx = at > len ? len : this.getIndex(at);
-					calls.push(new InsertCall(new Statement(this, text), idx));
+					calls.push(new InsertCall(new Statement(this, text), idx + 1, idx));
 					hasInsert = true;
 				},
 				update: (text: string, at = -1) =>
@@ -729,7 +730,7 @@ namespace Truth
 					if (this.read(at).sourceText !== text)
 					{
 						const idx = this.getIndex(at);
-						calls.push(new UpdateCall(new Statement(this, text), idx));
+						calls.push(new UpdateCall(new Statement(this, text), idx + 1, idx));
 						hasUpdate = true;
 					}
 				}
@@ -758,7 +759,7 @@ namespace Truth
 				
 				const doDelete = (call: DeleteCall) =>
 				{
-					const smts = this.statements.splice(call.at, call.count);
+					const smts = this.statements.splice(call.idx, call.count);
 					
 					for (const smt of smts)
 					{
@@ -773,10 +774,10 @@ namespace Truth
 				
 				const doInsert = (call: InsertCall) =>
 				{
-					if (call.at >= this.statements.length)
+					if (call.idx >= this.statements.length)
 						this.statements.push(call.smt);
 					else
-						this.statements.splice(call.at, 0, call.smt);
+						this.statements.splice(call.idx, 0, call.smt);
 					
 					if (call.smt.uri)
 						addedUriSmts.push(call.smt as UriStatement);
@@ -784,11 +785,11 @@ namespace Truth
 				
 				const doUpdate = (call: UpdateCall) =>
 				{
-					const existing = this.statements[call.at];
+					const existing = this.statements[call.idx];
 					if (existing.uri)
 						deletedUriSmts.push(existing as UriStatement);
 					
-					this.statements[call.at] = call.smt;
+					this.statements[call.idx] = call.smt;
 					if (call.smt.uri)
 						addedUriSmts.push(call.smt as UriStatement);
 					
@@ -807,12 +808,12 @@ namespace Truth
 						// that would be overridden in a following call.
 						const updateCallsTyped = calls as UpdateCall[];
 						const updateCalls = updateCallsTyped
-							.sort((a, b) => a.at - b.at)
-							.filter((call, i) => i >= calls.length - 1 || call.at !== calls[i + 1].at);
+							.sort((a, b) => a.idx - b.idx)
+							.filter((call, i) => i >= calls.length - 1 || call.idx !== calls[i + 1].idx);
 						
-						const oldStatements = updateCalls.map(c => this.statements[c.at]);
+						const oldStatements = updateCalls.map(c => this.statements[c.idx]);
 						const newStatements = updateCalls.map(c => c.smt);
-						const indexes = Object.freeze(updateCalls.map(c => c.at));
+						const indexes = Object.freeze(updateCalls.map(c => c.idx));
 						
 						const noStructuralChanges = oldStatements.every((oldSmt, idx) =>
 						{
@@ -868,7 +869,7 @@ namespace Truth
 						{
 							for (let i = -1; ++i < deleteCall.count;)
 							{
-								const deadSmt = this.statements[deleteCall.at + i];
+								const deadSmt = this.statements[deleteCall.idx + i];
 								if (this.hasDescendants(deadSmt))
 								{
 									deadStatements.length = 0;
@@ -941,15 +942,15 @@ namespace Truth
 				{
 					if (call instanceof DeleteCall)
 					{
-						const deletedStatement = this.statements[call.at];
+						const deletedStatement = this.statements[call.idx];
 						if (deletedStatement.isNoop)
 							continue;
 						
-						const parent = this.getParent(call.at);
+						const parent = this.getParent(call.line);
 						
 						if (parent instanceof Statement)
 						{
-							invalidatedParents.set(call.at, parent);
+							invalidatedParents.set(call.line, parent);
 						}
 						else if (parent instanceof Document)
 						{
@@ -967,19 +968,19 @@ namespace Truth
 						}
 						else if (call instanceof UpdateCall)
 						{
-							const oldStatement = this.statements[call.at];
+							const oldStatement = this.statements[call.idx];
 							
 							if (oldStatement.isNoop && call.smt.isNoop)
 								continue;
 						}
 						
 						const parent = this.getParentFromPosition(
-							call.at,
+							call.line,
 							call.smt.indent);
 						
 						if (parent instanceof Statement)
 						{
-							invalidatedParents.set(call.at, parent);
+							invalidatedParents.set(call.line, parent);
 						}
 						else if (parent === this)
 						{
@@ -1003,9 +1004,9 @@ namespace Truth
 				// other invalidated parent in the invalidatedParents array.
 				const invalidatedAncestries: Statement[][] = [];
 				
-				for (const at of invalidatedParents.keys())
+				for (const line of invalidatedParents.keys())
 				{
-					const ancestry = this.getAncestry(at);
+					const ancestry = this.getAncestry(line);
 					if (ancestry)
 						invalidatedAncestries.push(ancestry);
 				}

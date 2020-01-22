@@ -80,19 +80,31 @@ namespace Truth
 	/** @internal */
 	export class InsertCall 
 	{
-		constructor(readonly smt: Statement, readonly at: number) { }
+		constructor(
+			readonly smt: Statement,
+			readonly line: number,
+			readonly idx: number)
+		{ }
 	}
 	
 	/** @internal */
 	export class UpdateCall
 	{
-		constructor(readonly smt: Statement, readonly at: number) { }
+		constructor(
+			readonly smt: Statement,
+			readonly line: number,
+			readonly idx: number)
+		{ }
 	}
 	
 	/** @internal */
 	export class DeleteCall
 	{
-		constructor(readonly at: number, readonly count: number) { }
+		constructor(
+			readonly line: number,
+			readonly idx: number,
+			readonly count: number)
+		{ }
 	}
 	
 	/** @internal */

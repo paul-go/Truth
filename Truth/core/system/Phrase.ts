@@ -53,7 +53,8 @@ namespace Truth
 		private constructor(
 			parent: Phrase | null,
 			/**
-			 * 
+			 * Stores a reference to the Document that ultimately
+			 * contains this Phrase.
 			 */
 			readonly containingDocument: Document,
 			/**
@@ -61,7 +62,7 @@ namespace Truth
 			 */
 			readonly terminal: Subject,
 			/**
-			 * 
+			 * Stores the number of subjects in this Phrase.
 			 */
 			readonly length: number)
 		{
