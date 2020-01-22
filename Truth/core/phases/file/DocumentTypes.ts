@@ -60,7 +60,7 @@ namespace Truth
 		readonly startLineNumber: number;
 		
 		/**
-		 * Stores the 1-based column on which the range starts in line
+		 * Stores the 0-based column on which the range starts in line
 		 * `startLineNumber`.
 		 */
 		readonly startColumn: number;
@@ -71,7 +71,7 @@ namespace Truth
 		readonly endLineNumber: number;
 		
 		/**
-		 * Stores the 1-based column on which the range ends in line
+		 * Stores the 0-based column on which the range ends in line
 		 * `endLineNumber`.
 		 */
 		readonly endColumn: number;
