@@ -53,6 +53,11 @@ namespace Truth
 				}
 				else this.include(data.document);
 			});
+			
+			program.on(CauseEditComplete, data =>
+			{
+				this.activeTransactions.delete(data.document);
+			});
 		}
 		
 		/**
@@ -63,10 +68,12 @@ namespace Truth
 		private exclude(root: Document | Statement)
 		{
 			const { document, iterator } = this.methodSetup(root);
-			const txn = new GraphTransaction();
+			const txn = this.getTransaction(root);
+			const entries = Array.from(iterator);
+			
 			///const maybeDestabilizedEdges: HyperEdge[] = [];
 			
-			for (const { statement } of iterator)
+			for (const { statement } of entries)
 			{
 				for (const declaration of statement.declarations)
 				{
@@ -113,7 +120,7 @@ namespace Truth
 		private include(root: Document | Statement)
 		{
 			const { document, iterator } = this.methodSetup(root);
-			const txn = this.activeTransactions.get(document);
+			const txn = this.getTransaction(document);
 			
 			// Stores all the nodes that have been affected by a new
 			// fragment either being added or removed from it.
@@ -139,17 +146,17 @@ namespace Truth
 			// makes breadth-first traversal easy.
 			// 
 			// The breadthFirstOrganizer has 3 levels of organization:
-			//
+			// 
 			// (1) An array of multi-maps which correspond to a single
 			// level of depth in the hierarchy being traversed (which
 			// could possibly extend across multiple localities in the
 			// document).
-			//
+			// 
 			// (2) A multi-map, that is keyed by a serialized representation
 			// of one single spine found in the hierarchy, and whose
 			// values are...
-			//
-			// (3) A unique Span object that corresponds to a unqiue
+			// 
+			// (3) A unique Span object that corresponds to a unique
 			// occurence of a subject in the document.
 			interface IBreadthFirstEntry
 			{
@@ -444,6 +451,25 @@ namespace Truth
 		private readonly nodeIndex: NodeIndex;
 		
 		/**
+		 * Returns the GraphTransaction associated with the specified source object.
+		 * A new GraphTransaction is created in the case when no match active 
+		 * transaction is available, or when the active transaction is from a previous
+		 * version of the document.
+		 */
+		private getTransaction(source: Document | Statement)
+		{
+			const doc = source.class === Class.document ?
+				source :
+				source.document;
+			
+			let txn = this.activeTransactions.get(doc);
+			if (!txn || doc.version.newerThan(txn.version))
+				this.activeTransactions.set(doc, txn = new GraphTransaction(doc.version));
+			
+			return txn;
+		}
+		
+		/**
 		 * Stores a GraphTransaction instance in the case
 		 * when an edit transaction is underway.
 		 */
@@ -464,6 +490,8 @@ namespace Truth
 	 */
 	class GraphTransaction
 	{
+		constructor(readonly version: VersionStamp) { }
+		
 		/**
 		 * Stores an array of Nodes that no longer have any
 		 * underlying Span objects, due to their removal in

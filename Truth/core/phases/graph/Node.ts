@@ -730,42 +730,6 @@ namespace Truth
 		}
 		
 		/** */
-		toString(includePath = true)
-		{
-			const decls = Array.from(this.declarations);
-			const spans = decls.filter((s): s is Span => s instanceof Span);
-			const anchors = decls.filter((a): a is InfixSpan => a instanceof InfixSpan);
-			
-			const spansText = spans.map(s => SubjectSerializer.forInternal(s)).join(", ");
-			const anchorText = anchors.map(a => SubjectSerializer.forInternal(a)).join(", ");
-			
-			const ob = this.outbounds.length;
-			const ib = this.inbounds.size;
-			const path = includePath ? this.phrase.toString() + " " : "";
-			
-			const simple = [
-				path,
-				spansText.length ? "spans=" + spansText : "",
-				anchorText.length ? "anchor=" + anchorText : "",
-				"out=" + ob,
-				"in=" + ib
-			].filter(s => s.trim()).join(", ");
-			
-			const fmt = (str: string) => str.split("\n").map(s => "\t\t" + s).join("\n");
-			const obsVerbose = this.outbounds
-				.map(ob => fmt(ob.toString()));
-			
-			const ibsVerbose = Array.from(this.inbounds.values())
-				.map(ib => fmt(ib.toString()));
-			
-			const verbose = 
-				"\n\tOuts:\n" + obsVerbose.join("\n\n") +
-				"\n\tIns:\n" + ibsVerbose.join("\n\n");
-			
-			return simple + verbose;
-		}
-		
-		/** */
 		private addRootNode(node: Node)
 		{
 			const existingSet = Node.rootNodes.get(node.document);
@@ -807,6 +771,56 @@ namespace Truth
 		
 		/** */
 		private static rootNodes = new WeakMap<Document, Map<Subject, Node>>();
+		
+		/** * /
+		static toDebug()
+		{
+			for (const map of this.rootNodes.values())
+			{
+				for (const [subject, node] of map.entries())
+				{
+					console.log(subject.toString());
+					console.log(node.toString());
+					console.log("-----------------------------");
+				}
+			}
+		}*/
+		
+		/** */
+		toString(includePath = true)
+		{
+			const decls = Array.from(this.declarations);
+			const spans = decls.filter((s): s is Span => s instanceof Span);
+			const anchors = decls.filter((a): a is InfixSpan => a instanceof InfixSpan);
+			
+			const spansText = spans.map(s => SubjectSerializer.forInternal(s)).join(", ");
+			const anchorText = anchors.map(a => SubjectSerializer.forInternal(a)).join(", ");
+			
+			const ob = this.outbounds.length;
+			const ib = this.inbounds.size;
+			const path = includePath ? this.phrase.toString() + " " : "";
+			
+			const simple = [
+				path,
+				spansText.length ? "spans=" + spansText : "",
+				anchorText.length ? "anchor=" + anchorText : "",
+				"out=" + ob,
+				"in=" + ib
+			].filter(s => s.trim()).join(", ");
+			
+			const fmt = (str: string) => str.split("\n").map(s => "\t\t" + s).join("\n");
+			const obsVerbose = this.outbounds
+				.map(ob => fmt(ob.toString()));
+			
+			const ibsVerbose = Array.from(this.inbounds.values())
+				.map(ib => fmt(ib.toString()));
+			
+			const verbose = 
+				"\n\tOuts:\n" + obsVerbose.join("\n\n") +
+				"\n\tIns:\n" + ibsVerbose.join("\n\n");
+			
+			return simple + verbose;
+		}
 	}
 
 	type NodeMap = ReadonlyMap<Subject, Node>;
