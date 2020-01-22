@@ -13,6 +13,7 @@ namespace Truth
 		constructor()
 		{
 			this._version = VersionStamp.next();
+			this.reader = new UriReader();
 			
 			// The ordering of these instantations is relevant,
 			// because it reflects the order in which each of
@@ -67,6 +68,18 @@ namespace Truth
 		}
 		
 		/**
+		 * Override the default UriReader used by the program.
+		 * This reader is used to load the contents of files that 
+		 * are referenced within uri-containing statements within
+		 * Truth documents.
+		 */
+		setReader(reader: UriReader)
+		{
+			this.reader = reader;
+		}
+		private reader: UriReader;
+		
+		/**
 		 * Adds a document to this program with the specified sourceText.
 		 * The URI for the document is an auto-generated, auto-incrementing
 		 * number.
@@ -102,7 +115,7 @@ namespace Truth
 			
 			let sourceText = await (async () =>
 			{
-				const readResult = await UriReader.tryRead(uri);
+				const readResult = await this.reader.tryRead(uri);
 				if (readResult instanceof Error)
 					return readResult;
 				

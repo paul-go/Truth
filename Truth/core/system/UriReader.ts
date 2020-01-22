@@ -2,7 +2,7 @@
 namespace Truth
 {
 	/** */
-	export const UriReader = new class UriReader
+	export class UriReader
 	{
 		/**
 		 * Attempts to read the contents of the given URI.
@@ -11,27 +11,25 @@ namespace Truth
 		 */
 		async tryRead(uri: KnownUri)
 		{
+			const uriText = uri.toString();
+			
 			if (uri.protocol === UriProtocol.file)
-				return await readFile(uri.toString());
+				return await readFileUri(uriText);
 			
 			else if (uri.protocol === UriProtocol.http ||
 				uri.protocol === UriProtocol.https)
-				return await fetchFn(uri);
+				return await readWebUri(uriText);
 			
 			throw Exception.notImplemented();
 		}
-	}();
+	}
 	
-	/** */
-	const fileExists = (path: string) =>
-		new Promise<boolean>((resolve, reject) =>
-		{
-			Fs.module.exists(path, resolve);
-		});
-	
-	/** */
-	const readFile = (path: string, opts = "utf8") =>
-		new Promise<string | Error>(resolve =>
+	/**
+	 * 
+	 */
+	async function readFileUri(path: string, opts = "utf8")
+	{
+		return new Promise<string | Error>(resolve =>
 		{
 			Fs.module.readFile(path, opts, (error, data) =>
 			{
@@ -40,24 +38,13 @@ namespace Truth
 					data || "");
 			});
 		});
-	
-	/** */
-	const writeFile = (path: string, data: string, opts = "utf8") =>
-		new Promise<null | Error>(resolve =>
-		{
-			Fs.module.writeFile(path, data, opts, error =>
-			{
-				resolve(error || null);
-			});
-		});
+	}
 	
 	/**
 	 * Provides browser-style fetch functionality.
 	 */
-	async function fetchFn(uri: KnownUri): Promise<string | Error>
+	async function readWebUri(url: string): Promise<string | Error>
 	{
-		const url = uri.toString();
-		
 		if (typeof fetch === "function")
 		{
 			try
@@ -83,8 +70,8 @@ namespace Truth
 			type GetFn = HttpGet | HttpsGet;
 			
 			const getFn: GetFn = 
-				uri.protocol === UriProtocol.https ? require("https").get :
-				uri.protocol === UriProtocol.http ? require("http").get :
+				url.startsWith("https:") ? require("https").get :
+				url.startsWith("http:") ? require("http").get :
 				null;
 			
 			if (getFn === null)

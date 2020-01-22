@@ -25,7 +25,7 @@ namespace Truth
 			*/
 		}
 		
-		/** */
+		/** * /
 		private async attachAgent(uri: KnownUri, statement: Statement | null)
 		{
 			const existingCacheSet = this.cache.get(uri);
@@ -81,7 +81,7 @@ namespace Truth
 			this.cache.set(uri, set);
 		}
 		
-		/** */
+		/** * /
 		private detachAgent(uri: KnownUri, statement: Statement | null)
 		{
 			const existingCacheSet = this.cache.get(uri);
