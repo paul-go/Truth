@@ -709,20 +709,23 @@ namespace Truth
 				{
 					if (count > 0)
 					{
-						calls.push(new DeleteCall(at, count));
+						const idx = this.getIndex(at);
+						calls.push(new DeleteCall(idx, count));
 						hasDelete = true;
 					}
 				},
 				insert: (text: string, at = -1) =>
 				{
-					calls.push(new InsertCall(new Statement(this, text), at));
+					const idx = this.getIndex(at);
+					calls.push(new InsertCall(new Statement(this, text), idx));
 					hasInsert = true;
 				},
 				update: (text: string, at = -1) =>
 				{
 					if (this.read(at).sourceText !== text)
 					{
-						calls.push(new UpdateCall(new Statement(this, text), at));
+						const idx = this.getIndex(at);
+						calls.push(new UpdateCall(new Statement(this, text), idx));
 						hasUpdate = true;
 					}
 				}
@@ -749,13 +752,9 @@ namespace Truth
 					hasInsert && hasDelete ||
 					hasUpdate && hasDelete;
 				
-				const toIdx = (call: TCallType) =>
-					this.getIndex(call.at);
-				
 				const doDelete = (call: DeleteCall) =>
 				{
-					const idx = toIdx(call);
-					const smts = this.statements.splice(idx, call.count);
+					const smts = this.statements.splice(call.at, call.count);
 					
 					for (const smt of smts)
 					{
@@ -776,8 +775,7 @@ namespace Truth
 					}
 					else
 					{
-						const idx = toIdx(call);
-						this.statements.splice(idx, 0, call.smt);
+						this.statements.splice(call.at, 0, call.smt);
 					}
 					
 					if (call.smt.uri)
@@ -786,12 +784,11 @@ namespace Truth
 				
 				const doUpdate = (call: UpdateCall) =>
 				{
-					const idx = toIdx(call);
-					const existing = this.statements[idx];
+					const existing = this.statements[call.at];
 					if (existing.uri)
 						deletedUriSmts.push(existing as UriStatement);
 					
-					this.statements[idx] = call.smt;
+					this.statements[call.at] = call.smt;
 					if (call.smt.uri)
 						addedUriSmts.push(call.smt as UriStatement);
 					
@@ -945,15 +942,13 @@ namespace Truth
 				// In the majority of cases, this will only be one single statement object.
 				for (const call of calls)
 				{
-					const idx = this.getIndex(call.at);
-					
 					if (call instanceof DeleteCall)
 					{
-						const deletedStatement = this.statements[idx];
+						const deletedStatement = this.statements[call.at];
 						if (deletedStatement.isNoop)
 							continue;
 						
-						const parent = this.getParent(idx);
+						const parent = this.getParent(call.at);
 						
 						if (parent instanceof Statement)
 						{
@@ -975,7 +970,7 @@ namespace Truth
 						}
 						else if (call instanceof UpdateCall)
 						{
-							const oldStatement = this.statements[idx];
+							const oldStatement = this.statements[call.at];
 							
 							if (oldStatement.isNoop && call.smt.isNoop)
 								continue;
