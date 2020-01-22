@@ -58,11 +58,12 @@ namespace Truth
 			 */
 			readonly containingDocument: Document,
 			/**
-			 * 
+			 * Stores the subject that exists at the end of this phrase.
 			 */
 			readonly terminal: Subject,
 			/**
-			 * Stores the number of subjects in this Phrase.
+			 * Stores the number of subjects in this Phrase. This value
+			 * is equivalent to the length of this Phrase's ancestry. 
 			 */
 			readonly length: number)
 		{
@@ -81,7 +82,8 @@ namespace Truth
 		readonly parent: Phrase;
 		
 		/**
-		 * 
+		 * Returns a reference to the phrase that is 1 subject shorter than
+		 * this one (counting from the end).
 		 */
 		back()
 		{
@@ -89,7 +91,7 @@ namespace Truth
 		}
 		
 		/**
-		 * 
+		 * Returns a reference to the phrase that is extended by the subject specified.
 		 */
 		forward(subject: Subject)
 		{
@@ -100,7 +102,7 @@ namespace Truth
 		}
 		
 		/**
-		 * 
+		 * Returns a reference to the phrase that is extended by the array of subjects specified.
 		 */
 		forwardDeep(path: readonly (string | Subject)[])
 		{
