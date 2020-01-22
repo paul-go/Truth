@@ -409,20 +409,26 @@ namespace Truth
 			
 			// Stores the indent value that causes the loop
 			// to terminate when reached.
-			let minIndent = -1;
+			let stopIndent = -1;
+			
+			// Stores the indent value the indicates the maximum
+			// value at which a statement is still considered to be
+			// a child. This value can retract as the algorithm is
+			// operating to deal with bizarre (but valid) indentation.
 			let maxIndent = Number.MAX_SAFE_INTEGER;
 			
 			if (statement)
 			{
 				idx = this.statements.indexOf(statement);
-				
 				if (idx < 0)
 					throw Exception.statementNotInDocument();
+				
+				stopIndent = statement.indent;
 				
 				// Start the iteration 1 position after the statement
 				// specified, so that we're always passing through
 				// potential children.
-				minIndent = statement.indent + 1;
+				idx++;
 			}
 			
 			for (; idx < this.statements.length; idx++)
@@ -437,9 +443,7 @@ namespace Truth
 				if (smt.indent < maxIndent)
 					maxIndent = smt.indent;
 				
-				// If we've reached the end of a series of a
-				// statement locality.
-				if (smt.indent <= minIndent)
+				if (smt.indent <= stopIndent)
 					break;
 				
 				if (smt.indent <= maxIndent)
