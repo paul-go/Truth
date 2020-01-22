@@ -805,8 +805,6 @@ namespace Truth
 					{
 						// Sort the update calls by their index, and prune updates
 						// that would be overridden in a following call.
-						//! Remove this unnecessary variable once we can do that
-						//! without ESLint complaining (unnecessary brackets).
 						const updateCallsTyped = calls as UpdateCall[];
 						const updateCalls = updateCallsTyped
 							.sort((a, b) => a.at - b.at)
@@ -930,7 +928,6 @@ namespace Truth
 				
 				// Stores an array of statements whose descendant statements
 				// should be invalidated. 
-				//const invalidatedParents: { at: number; parent: Statement; }[] = [];
 				const invalidatedParents = new Map<number, Statement>();
 				
 				// Stores a value indicating whether the entire document
