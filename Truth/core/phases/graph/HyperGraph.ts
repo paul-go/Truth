@@ -490,7 +490,14 @@ namespace Truth
 	 */
 	class GraphTransaction
 	{
-		constructor(readonly version: VersionStamp) { }
+		constructor(
+			/**
+			 * Stores the version of a document to which this GraphTransaction
+			 * is applied. GraphTransactions are expected to operate on documents
+			 * within the time frame of a single version. If a document's version
+			 * changes, the GraphTransaction is no longer applicable.
+			 */
+			readonly version: VersionStamp) { }
 		
 		/**
 		 * Stores an array of Nodes that no longer have any
