@@ -134,8 +134,8 @@ namespace Reflex
 			return this;
 		}
 		
-		private readonly returners: ((now: T, was: T) => T)[] = [];
-		private readonly watchers: ((now: T, was: T) => void)[] = [];
+		protected readonly returners: ((now: T, was: T) => T)[] = [];
+		protected readonly watchers: ((now: T, was: T) => void)[] = [];
 	}
 	
 	/**
