@@ -682,13 +682,18 @@ namespace Reflex
 			
 			const levelDown = (source: ArrayForce<T>) =>
 			{
-				const fo = ArrayForce.create(source.snapshot().flatMap(v => v instanceof ArrayForce ? v.snapshot() : v));
+				const fo = ArrayForce
+					.create(source.snapshot()
+					.flatMap(v => v instanceof ArrayForce ?
+						v.snapshot() : 
+						v));
+				
 				const numberMap = new Map<number, number[]>();
 				
 				Core.ForceUtil.attachForce(source.added, (item: T[], index: number) =>
 				{
 					const id = source.positions[index];
-					const indexes = item.map(x => fo.root.push(x));
+					const indexes = item.map(v => fo.root.push(v));
 					
 					numberMap.set(id, indexes);
 					fo.positions.splice(index, 0, ...indexes);
