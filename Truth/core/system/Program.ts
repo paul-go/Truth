@@ -113,7 +113,7 @@ namespace Truth
 			if (existingDoc)
 				return existingDoc;
 			
-			let sourceText = await (async () =>
+			const sourceText = await (async () =>
 			{
 				const readResult = await this.reader.tryRead(uri);
 				if (readResult instanceof Error)
