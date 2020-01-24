@@ -39,6 +39,7 @@ namespace Truth
 	{
 		return new Promise<string | Error>(resolve =>
 		{
+			path = decodeURI(path);
 			Fs.module.readFile(path, opts, (error, data) =>
 			{
 				resolve(error && error.errno ?

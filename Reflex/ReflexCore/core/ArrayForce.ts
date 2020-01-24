@@ -71,10 +71,31 @@ namespace Reflex
 				});
 			}
 			
+			const reload = (newValue: T | null, oldValue: T | null) => 
+			{
+				for (const watchFn of this.watchers.slice())
+					watchFn(newValue, oldValue);
+			}
+			
 			Core.ForceUtil.attachForce(this.root.changed, () => 
 			{
 				this.executeFilter();
 				this.executeSort();
+			});
+			
+			Core.ForceUtil.attachForce(this.added, (item: T) =>
+			{
+				reload(item, null);
+			});
+			
+			Core.ForceUtil.attachForce(this.removed, (item: T) =>
+			{
+				reload(null, item);
+			});
+				
+			Core.ForceUtil.attachForce(this.moved, (e1: T, e2: T) =>
+			{
+				reload(e1, e2);
 			});
 		}
 		
@@ -586,7 +607,7 @@ namespace Reflex
 		/** */
 		flatMap<U, This = undefined>(
 			callback: (this: This, value: T, index: number, array: T[]) => U | readonly U[], 
-			thisArg?: This | undefined): U[]
+			thisArg?: This | undefined): ArrayForce<U>
 		{
 			return (<ArrayForce<U>>this.map(callback, thisArg)).flat();
 		}
@@ -661,7 +682,7 @@ namespace Reflex
 			
 			const levelDown = (source: ArrayForce<T>) =>
 			{
-				const fo = ArrayForce.create(source.snapshot().flat());
+				const fo = ArrayForce.create(source.snapshot().flatMap(v => v instanceof ArrayForce ? v.snapshot() : v));
 				const numberMap = new Map<number, number[]>();
 				
 				Core.ForceUtil.attachForce(source.added, (item: T[], index: number) =>
