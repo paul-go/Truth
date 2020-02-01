@@ -458,7 +458,7 @@ namespace Truth
 				for (const src of edge.fragments.values())
 				{
 					const smt = src.statement;
-					const lineNum = smt.document.getLineNumber(smt);
+					const lineNum = smt.document.lineNumberOf(smt);
 					const existingTuple = edgeLookup.get(edge);
 					
 					if (existingTuple !== undefined)

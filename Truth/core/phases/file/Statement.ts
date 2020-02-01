@@ -348,7 +348,7 @@ namespace Truth
 				return -1;
 			
 			return this.document instanceof Document ?
-				this.document.getLineNumber(this) :
+				this.document.lineNumberOf(this) :
 				-1;
 		}
 		

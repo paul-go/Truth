@@ -132,7 +132,7 @@ namespace Truth
 		 * Stores the complete list of the Document's statements,
 		 * sorted in the order that they appear in the file.
 		 */
-		private readonly statements: Statement[] = [];
+		private readonly statements = new Array1Based<Statement>();
 		
 		/** A reference to the instance of the Compiler that owns this Document. */
 		readonly program: Program;
@@ -266,20 +266,19 @@ namespace Truth
 			if (smt.indent === 0)
 				return [];
 			
-			let idx = this.getIndex(statement);
+			let pos = this.statements.posOf(smt);
 			
-			if (idx < 0)
+			if (pos < 0)
 				return null;
 			
-			if (idx === 0)
+			if (pos < 2)
 				return [];
 			
 			const ancestry = [smt];
 			let indentToBeat = smt.indent;
 			
-			do
+			for (const currentStatement of this.statements.enumerateBackward(pos))
 			{
-				const currentStatement = this.statements[idx];
 				if (currentStatement.isNoop)
 					continue;
 				
@@ -292,7 +291,6 @@ namespace Truth
 				if (currentStatement.indent === 0)
 					break;
 			}
-			while (idx-- > 0);
 			
 			return ancestry.slice(0, -1);
 		}
@@ -317,26 +315,25 @@ namespace Truth
 			if (smt.indent === 0)
 				return this;
 			
-			let idx = this.getIndex(statement);
+			let pos = this.statements.posOf(smt);
 			
-			if (idx < 0)
+			if (pos < 0)
 				return null;
 			
-			if (idx === 0)
+			// Simple optimization
+			if (pos < 2)
 				return this;
 			
 			const indentToBeat = smt.indent;
 			
-			do
+			for (const currentStatement of this.statements.enumerateBackward(pos))
 			{
-				const currentStatement = this.statements[idx];
 				if (currentStatement.isNoop)
 					continue;
 				
 				if (currentStatement.indent < indentToBeat)
 					return currentStatement;
 			}
-			while (idx-- > 0);
 			
 			// If a parent statement wasn't found, then the
 			// input statement is top-level, and a reference
@@ -345,7 +342,7 @@ namespace Truth
 		}
 		
 		/**
-		 * @returns The Statement that would act as the parent  if a statement where to be
+		 * @returns The Statement that would act as the parent if a statement where to be
 		 * inserted at the specified virtual position in the document. If an inserted statement
 		 * would be top-level, a reference to this document object is returned.
 		 */
@@ -357,12 +354,9 @@ namespace Truth
 				this.statements.length === 0)
 				return this;
 			
-			for (let idx = this.getIndex(lineNumber) + 1; idx--;)
-			{
-				const currentStatement = this.statements[idx];
-				if (!currentStatement.isNoop && currentStatement.indent < lineOffset)
-					return currentStatement;
-			}
+			for (const smt of this.statements.enumerateBackward(lineNumber))
+				if (!smt.isNoop && smt.indent < lineOffset)
+					return smt;
 			
 			return this;
 		}
@@ -405,7 +399,7 @@ namespace Truth
 		getChildren(statement?: Statement)
 		{
 			const children: Statement[] = [];
-			let idx = 0;
+			let pos = 1;
 			
 			// Stores the indent value that causes the loop
 			// to terminate when reached.
@@ -419,8 +413,8 @@ namespace Truth
 			
 			if (statement)
 			{
-				idx = this.statements.indexOf(statement);
-				if (idx < 0)
+				pos = this.statements.posOf(statement);
+				if (pos < 0)
 					throw Exception.statementNotInDocument();
 				
 				stopIndent = statement.indent;
@@ -428,13 +422,11 @@ namespace Truth
 				// Start the iteration 1 position after the statement
 				// specified, so that we're always passing through
 				// potential children.
-				idx++;
+				pos++;
 			}
 			
-			for (; idx < this.statements.length; idx++)
+			for (const smt of this.statements.enumerateForward(pos))
 			{
-				const smt = this.statements[idx];
-				
 				if (smt.isNoop)
 					continue;
 				
@@ -464,26 +456,25 @@ namespace Truth
 		{
 			if (statement === null)
 			{
-				for (let idx = -1; ++idx < this.statements.length;)
-					if (!this.statements[idx].isNoop)
+				for (const smt of this.statements.enumerateForward())
+					if (!smt.isNoop)
 						return true;
 			}
 			else
 			{
 				const smt = statement instanceof Statement ?
 					statement : 
-					this.statements[statement];
+					this.statements.get(statement);
 				
 				if (smt.isNoop)
 					return false;
 				
 				let idx = statement instanceof Statement ?
-					this.statements.indexOf(statement) :
+					this.statements.posOf(statement) :
 					statement;
 				
-				while (++idx < this.statements.length)
+				for (const currentStatement of this.statements.enumerateForward(idx + 1))
 				{
-					const currentStatement = this.statements[idx];
 					if (currentStatement.isNoop)
 						continue;
 					
@@ -499,45 +490,9 @@ namespace Truth
 		 * the document, relying on caching when available. If the statement
 		 * does not exist in the document, the returned value is -1.
 		 */
-		getLineNumber(statement: Statement)
+		lineNumberOf(statement: Statement)
 		{
-			const idx = this.statements.indexOf(statement);
-			return idx < 0 ? -1 : idx + 1;
-		}
-		
-		/**
-		 * Returns the 0-based index of the specified statement in this
-		 * document's array of statements.
-		 */
-		private getIndex(statement: Statement | number): number;
-		/**
-		 * Returns a 0-based index that corresponds to the specified line
-		 * number. 
-		 * 
-		 * The number returned is upper-bounded by the length of
-		 * the statements array, and lower-bounded by 1.
-		 * 
-		 * Negative line numbers refer to positions starting from the
-		 * last statement in the document.
-		 */
-		private getIndex(lineNumber: Statement | number): number;
-		private getIndex(param: Statement | number)
-		{
-			if (param instanceof Statement)
-				return this.statements.indexOf(param);
-			
-			const len = this.statements.length;
-			
-			if (len === 0 || param === 0)
-				return 0;
-			
-			if (param > 0)
-				return Math.min(param, len) - 1;
-			
-			if (param < 0)
-				return Math.max(len + param, 1);
-			
-			throw Exception.unknownState();
+			return this.statements.posOf(statement);
 		}
 		
 		/** 
@@ -552,17 +507,15 @@ namespace Truth
 			if (smt.isNoop)
 				return [];
 			
-			const lineNum = this.getLineNumber(smt);
+			const lineNum = this.lineNumberOf(smt);
 			if (lineNum < 1)
 				return [];
 			
 			const commentLines: string[] = [];
 			const requiredIndent = smt.indent;
 			
-			for (let num = lineNum; num--;)
+			for (const currentStatement of this.statements.enumerateBackward(lineNum))
 			{
-				const currentStatement = this.statements[num];
-				
 				if (currentStatement.isWhitespace)
 					continue;
 				
@@ -655,13 +608,13 @@ namespace Truth
 					return 0;
 				
 				if (statement instanceof Statement)
-					return this.statements.indexOf(statement);
+					return this.statements.posOf(statement);
 				
 				return statement;
 			})();
 			
-			for (let i = startIdx; i < this.statements.length; i++)
-				yield this.statements[i];
+			for (const smt of this.statements.enumerateForward(startIdx))
+				yield smt;
 		}
 		
 		/**
@@ -670,8 +623,7 @@ namespace Truth
 		 */
 		read(lineNumber: number)
 		{
-			const idx = this.getIndex(lineNumber);
-			return this.statements[idx];
+			return this.statements.get(lineNumber);
 		}
 		
 		/**
@@ -712,29 +664,24 @@ namespace Truth
 			let hasUpdate = false;
 			
 			editFn({
-				delete: (at = -1, count = 1) =>
+				delete: (pos = -1, count = 1) =>
 				{
 					if (count > 0)
 					{
-						const idx = this.getIndex(at);
-						
-						calls.push(new DeleteCall(idx + 1, idx, count));
+						calls.push(new DeleteCall(pos, count));
 						hasDelete = true;
 					}
 				},
-				insert: (text: string, at = -1) =>
+				insert: (text: string, pos = -1) =>
 				{
-					const len = this.statements.length;
-					const idx = at > len ? len : this.getIndex(at);
-					calls.push(new InsertCall(new Statement(this, text), idx + 1, idx));
+					calls.push(new InsertCall(new Statement(this, text), pos));
 					hasInsert = true;
 				},
-				update: (text: string, at = -1) =>
+				update: (text: string, pos = -1) =>
 				{
-					if (this.read(at).sourceText !== text)
+					if (this.read(pos).sourceText !== text)
 					{
-						const idx = this.getIndex(at);
-						calls.push(new UpdateCall(new Statement(this, text), idx + 1, idx));
+						calls.push(new UpdateCall(new Statement(this, text), pos));
 						hasUpdate = true;
 					}
 				}
@@ -763,8 +710,7 @@ namespace Truth
 				
 				const doDelete = (call: DeleteCall) =>
 				{
-					const smts = this.statements.splice(call.idx, call.count);
-					
+					const smts = this.statements.splice(call.pos, call.count);
 					for (const smt of smts)
 					{
 						smt.dispose();
@@ -778,10 +724,7 @@ namespace Truth
 				
 				const doInsert = (call: InsertCall) =>
 				{
-					if (call.idx >= this.statements.length)
-						this.statements.push(call.smt);
-					else
-						this.statements.splice(call.idx, 0, call.smt);
+					this.statements.splice(call.pos, 0, call.smt);
 					
 					if (call.smt.uri)
 						addedUriSmts.push(call.smt as UriStatement);
@@ -789,11 +732,11 @@ namespace Truth
 				
 				const doUpdate = (call: UpdateCall) =>
 				{
-					const existing = this.statements[call.idx];
+					const existing = this.statements.get(call.pos);
 					if (existing.uri)
 						deletedUriSmts.push(existing as UriStatement);
 					
-					this.statements[call.idx] = call.smt;
+					this.statements.set(call.pos, call.smt);
 					if (call.smt.uri)
 						addedUriSmts.push(call.smt as UriStatement);
 					
@@ -812,12 +755,12 @@ namespace Truth
 						// that would be overridden in a following call.
 						const updateCallsTyped = calls as UpdateCall[];
 						const updateCalls = updateCallsTyped
-							.sort((a, b) => a.idx - b.idx)
-							.filter((call, i) => i >= calls.length - 1 || call.idx !== calls[i + 1].idx);
+							.sort((a, b) => a.pos - b.pos)
+							.filter((call, i) => i >= calls.length - 1 || call.pos !== calls[i + 1].pos);
 						
-						const oldStatements = updateCalls.map(c => this.statements[c.idx]);
+						const oldStatements = updateCalls.map(c => this.statements.get(c.pos));
 						const newStatements = updateCalls.map(c => c.smt);
-						const indexes = Object.freeze(updateCalls.map(c => c.idx));
+						const indexes = Object.freeze(updateCalls.map(c => c.pos));
 						
 						const noStructuralChanges = oldStatements.every((oldSmt, idx) =>
 						{
@@ -873,7 +816,7 @@ namespace Truth
 						{
 							for (let i = -1; ++i < deleteCall.count;)
 							{
-								const deadSmt = this.statements[deleteCall.idx + i];
+								const deadSmt = this.statements.get(deleteCall.pos + i);
 								if (this.hasDescendants(deadSmt))
 								{
 									deadStatements.length = 0;
@@ -946,15 +889,15 @@ namespace Truth
 				{
 					if (call instanceof DeleteCall)
 					{
-						const deletedStatement = this.statements[call.idx];
+						const deletedStatement = this.statements.get(call.pos);
 						if (deletedStatement.isNoop)
 							continue;
 						
-						const parent = this.getParent(call.line);
+						const parent = this.getParent(call.pos);
 						
 						if (parent instanceof Statement)
 						{
-							invalidatedParents.set(call.line, parent);
+							invalidatedParents.set(call.pos, parent);
 						}
 						else if (parent instanceof Document)
 						{
@@ -972,19 +915,19 @@ namespace Truth
 						}
 						else if (call instanceof UpdateCall)
 						{
-							const oldStatement = this.statements[call.idx];
+							const oldStatement = this.statements.get(call.pos);
 							
 							if (oldStatement.isNoop && call.smt.isNoop)
 								continue;
 						}
 						
 						const parent = this.getParentFromPosition(
-							call.line,
+							call.pos,
 							call.smt.indent);
 						
 						if (parent instanceof Statement)
 						{
-							invalidatedParents.set(call.line, parent);
+							invalidatedParents.set(call.pos, parent);
 						}
 						else if (parent === this)
 						{
@@ -1045,7 +988,6 @@ namespace Truth
 				// descendants of the specified set of parent statements.
 				this.program.cause(new CauseInvalidate(this, parents, indexes));
 				
-				
 				const deletedStatements: Statement[] = [];
 				
 				// Perform the document mutations.
@@ -1080,7 +1022,7 @@ namespace Truth
 			// no disposed statements left hanging around in the document
 			// after the edit transaction has completed.
 			if ("DEBUG")
-				for (const smt of this.statements)
+				for (const smt of this.statements.enumerateForward())
 					if (smt.isDisposed)
 						throw Exception.unknownState();
 			
@@ -1301,7 +1243,7 @@ namespace Truth
 					throw Exception.unknownState();
 			
 			const toReferenceTuples = (refs: Reference[]) =>
-				refs.map(v => [this.getLineNumber(v.statement), v] as [number, Reference]);
+				refs.map(v => [this.lineNumberOf(v.statement), v] as [number, Reference]);
 			
 			const rawRefsProposed = [
 				...toReferenceTuples(rawRefsExisting),
@@ -1527,7 +1469,7 @@ namespace Truth
 			
 			if (keepOriginalFormatting)
 			{
-				for (const statement of this.statements)
+				for (const statement of this.statements.enumerateForward())
 					lines.push(statement.sourceText);
 			}
 			else for (const { statement, level } of this.eachDescendant())

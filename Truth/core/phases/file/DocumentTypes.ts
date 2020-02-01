@@ -82,8 +82,7 @@ namespace Truth
 	{
 		constructor(
 			readonly smt: Statement,
-			readonly line: number,
-			readonly idx: number)
+			readonly pos: number)
 		{ }
 	}
 	
@@ -92,8 +91,7 @@ namespace Truth
 	{
 		constructor(
 			readonly smt: Statement,
-			readonly line: number,
-			readonly idx: number)
+			readonly pos: number)
 		{ }
 	}
 	
@@ -101,8 +99,7 @@ namespace Truth
 	export class DeleteCall
 	{
 		constructor(
-			readonly line: number,
-			readonly idx: number,
+			readonly pos: number,
 			readonly count: number)
 		{ }
 	}
