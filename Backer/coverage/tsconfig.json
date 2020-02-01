@@ -1,0 +1,14 @@
+{
+	"extends": "../../tsconfig.standard.json",
+	"compilerOptions": {
+		"outFile": "../build/backer.coverage.js"
+	},
+	"include": [
+		"**/*.ts"
+	],
+	"references": [
+		{ "path": "../../Truth/core" },
+		{ "path": "../../Reflex/ReflexCore/core" },
+		{ "path": "../core" }
+	]
+}

@@ -1,0 +1,28 @@
+{
+	"compilerOptions": {
+		"composite": true,
+		"module": "system",
+		"target": "es2017",
+		"inlineSourceMap": true,
+		"inlineSources": true,
+		"strict": true,
+		"baseUrl": "./",
+		"rootDir": ".",
+		"declaration": true,
+		"declarationMap": true,
+		"stripInternal": true,
+		"incremental": true,
+		"lib": [
+			"dom",
+			"esnext",
+			"esnext.array",
+			"esnext.asynciterable"
+		],
+		"outFile": "./build/unused.js"
+	},
+	"exclude": [
+		"**/build/**/*.ts",
+		"**/bundle/**/*.ts",
+		"**/make.ts"
+	]
+}

@@ -2,16 +2,6 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Debug Reflex ML From Browser",
-			"type": "chrome",
-			"request": "launch",
-			"url": "http://127.0.0.1:7117",
-			"webRoot": "${workspaceRoot}",
-			"timeout": 30000,
-			"smartStep": true,
-			"sourceMaps": true
-		},
-		{
 			"name": "Debug Reflex Core Makets Script",
 			"type": "node",
 			"request": "launch",
@@ -20,6 +10,16 @@
 			"args": [
 				"publish"
 			]
+		},
+		{
+			"name": "Debug Reflex ML From Browser",
+			"type": "chrome",
+			"request": "launch",
+			"url": "http://127.0.0.1:10001/??${workspaceFolder}/ReflexML/coverage",
+			"webRoot": "${workspaceRoot}",
+			"timeout": 30000,
+			"smartStep": true,
+			"sourceMaps": true
 		},
 		{
 			"name": "Debug Reflex ML Makets Script",
@@ -42,7 +42,7 @@
 			]
 		},
 		{
-			"name": "Debug Reflex SS Tests",
+			"name": "Debug Reflex SS Coverage",
 			"type": "chrome",
 			"request": "launch",
 			"url": "http://127.0.0.1:7071",
@@ -57,7 +57,7 @@
 			"request": "launch",
 			"program": "${workspaceRoot}/ReflexSS.Emitter/build/reflex-ss-emitter.js",
 			"args": [
-				"./ReflexSS/source"
+				"./ReflexSS/core"
 			],
 			"smartStep": true,
 			"sourceMaps": true

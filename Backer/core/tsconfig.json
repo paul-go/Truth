@@ -1,0 +1,15 @@
+{
+	"extends": "../../tsconfig.standard.json",
+	"compilerOptions": {
+		"declaration": true,
+		"stripInternal": true,
+		"outFile": "../build/backer.js"
+	},
+	"include": [
+		"**/*.ts"
+	],
+	"references": [
+		{ "path": "../../Truth/core" },
+		{ "path": "../../Reflex/ReflexCore/core" }
+	]
+}

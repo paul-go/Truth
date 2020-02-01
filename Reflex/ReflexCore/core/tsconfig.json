@@ -1,0 +1,10 @@
+{
+	"extends": "../../../tsconfig.standard.json",
+	"compilerOptions": {
+		"outFile": "../build/reflex-core.js"
+	},
+	"include": [
+		"../../tsconst.ts",
+		"**/*.ts"
+	]
+}

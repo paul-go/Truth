@@ -1,9 +1,9 @@
 {
-	"extends": "../tsconfig.composite.json",
+	"extends": "../../tsconfig.standard.json",
 	"compilerOptions": {
-		"outFile": "../build/truth-test-quick.js"
+		"outFile": "../build/truth.quick.js"
 	},
 	"references": [
-		{ "path": "../source", "prepend": true }
+		{ "path": "../core", "prepend": true }
 	]
 }

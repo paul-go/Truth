@@ -1,35 +1,8 @@
 {
-	"compilerOptions": {
-		"composite": true,
-		"module": "system",
-		"target": "esnext",
-		"inlineSourceMap": true,
-		"inlineSources": true,
-		"strict": true,
-		"rootDir": ".",
-		"declaration": true,
-		"declarationMap": true,
-		"stripInternal": false,
-		"incremental": true,
-		"lib": [
-			"dom",
-			"esnext",
-			"esnext.array",
-			"esnext.asynciterable"
-		],
-		"outFile": "./build/backer.js"
-	},
-	"exclude": [
-		"**/build/**/*.ts",
-		"**/bundle/**/*.ts",
-		"**/make.ts",
-		"node_modules/**/*.ts"
-	],
+	"files": [],
+	"include": [],
 	"references": [
-		{ "path": "../Truth/source" },
-		{ "path": "../Reflex/ReflexCore" }
-	],
-	"moduless": {
-		"port": "7561"
-	}
+		{ "path": "core" },
+		{ "path": "coverage" }
+	]
 }

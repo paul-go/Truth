@@ -1,0 +1,7 @@
+{
+	"extends": "../../tsconfig.standard.json",
+	"compilerOptions": {
+		"outFile": "../build/truth.js",
+		"stripInternal": false
+	}
+}
