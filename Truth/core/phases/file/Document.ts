@@ -1015,7 +1015,7 @@ namespace Truth
 					this, 
 					Array.from(invalidatedParents.values()),
 					Array.from(invalidatedParents.keys())
-				));				
+				));
 			})();
 			
 			// Perform a debug-time check to be sure that there are
