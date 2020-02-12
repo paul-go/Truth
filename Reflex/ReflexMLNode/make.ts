@@ -4,7 +4,7 @@ make.on(async () =>
 {
 	console.log("TODO: Run makets on ReflexCore");
 	console.log("TODO: Run makets on ReflexML");
-	await make.typescript("./tsconfig.json");
+	await make.typescript("./core/tsconfig.json");
 });
 
 make.on("bundle", "publish", async () =>

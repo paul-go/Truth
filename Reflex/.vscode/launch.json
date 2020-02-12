@@ -1,6 +1,32 @@
 {
 	"version": "0.2.0",
 	"configurations": [
+		
+		// Configuration for Node.js-based projects
+		{
+			"name": "Debug Reflex ML Node",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/ReflexMLNode/build/reflex-ml-node.js",
+			"args": [
+				"./ReflexSS/core"
+			],
+			"smartStep": true,
+			"sourceMaps": true
+		},
+		{
+			"name": "Debug Reflex SS Emitter",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/ReflexSSEmitter/build/reflex-ss-emitter.js",
+			"args": [
+				"./ReflexSS/core"
+			],
+			"smartStep": true,
+			"sourceMaps": true
+		},
+		
+		// Configuration for debugging Makets scripts
 		{
 			"name": "Debug Reflex Core Makets Script",
 			"type": "node",
@@ -10,16 +36,6 @@
 			"args": [
 				"publish"
 			]
-		},
-		{
-			"name": "Debug Reflex ML From Browser",
-			"type": "chrome",
-			"request": "launch",
-			"url": "http://127.0.0.1:10001/??${workspaceFolder}/ReflexML/coverage",
-			"webRoot": "${workspaceRoot}",
-			"timeout": 30000,
-			"smartStep": true,
-			"sourceMaps": true
 		},
 		{
 			"name": "Debug Reflex ML Makets Script",
@@ -40,27 +56,6 @@
 			"args": [
 				"publish"
 			]
-		},
-		{
-			"name": "Debug Reflex SS Coverage",
-			"type": "chrome",
-			"request": "launch",
-			"url": "http://127.0.0.1:7071",
-			"webRoot": "${workspaceRoot}",
-			"timeout": 30000,
-			"smartStep": true,
-			"sourceMaps": true
-		},
-		{
-			"name": "Debug Reflex SS Emitter",
-			"type": "node",
-			"request": "launch",
-			"program": "${workspaceRoot}/ReflexSS.Emitter/build/reflex-ss-emitter.js",
-			"args": [
-				"./ReflexSS/core"
-			],
-			"smartStep": true,
-			"sourceMaps": true
 		}
 	]
 }

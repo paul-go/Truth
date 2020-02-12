@@ -6,6 +6,7 @@
 		{ "path": "./ReflexML/core" },
 		{ "path": "./ReflexML/coverage" },
 		{ "path": "./ReflexMLNode/core" },
+		{ "path": "./ReflexMLNode/coverage" },
 		{ "path": "./ReflexSS/core" },
 		{ "path": "./ReflexSS/coverage" },
 		{ "path": "./ReflexSSEmitter/core" }

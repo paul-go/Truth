@@ -7,13 +7,7 @@ make.on(() =>
 
 make.on("build", async () =>
 {
-	await make.typescript("./tsconfig.json");
-});
-
-make.on("test", () =>
-{
-	make.typescriptWatcher("../ReflexCore/tsconfig.json");
-	make.typescriptWatcher("./tsconfig.test.json");
+	await make.typescript("./core/tsconfig.json");
 });
 
 make.on("bundle", "publish", async () =>

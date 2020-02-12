@@ -2,7 +2,7 @@
 
 make.on(async () =>
 {
-	await make.typescript("./tsconfig.json");
+	await make.typescript("./core/tsconfig.json");
 });
 
 make.on("publish", "bundle", async () =>
