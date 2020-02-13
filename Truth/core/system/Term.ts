@@ -57,7 +57,6 @@ namespace Truth
 			
 			const listTok = Syntax.list;
 			const tokLen = listTok.length;
-			
 			const isList = textContent.length > tokLen + 1 && textContent.slice(-tokLen) === listTok;
 			
 			this.singular = isList && !forceSingular ?

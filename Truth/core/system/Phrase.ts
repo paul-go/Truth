@@ -4,6 +4,11 @@ namespace Truth
 	/**
 	 * A chain of Subjects that form a path to a particular
 	 * location within a Document.
+	 * 
+	 * The lifetime of a Phrase is pinned (directly or indirectly)
+	 * to the lifetime of a Document. A Document object as a
+	 * reference to a root-level Phrase, and Phrase objects are
+	 * then store references to their nested Phrase children.
 	 */
 	export class Phrase extends AbstractClass
 	{
