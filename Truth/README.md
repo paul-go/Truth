@@ -4,22 +4,22 @@
 
 Truth is a method for classifying conscious understanding. It does so by providing the human a computationally-aware method of indicating _what things are_ ("is-a" relationships), and what they have ("has-a" relationships). Through these declarations of existence, a body of information is gradually formed that is guaranteed to be devoid of inaccuracies and falsehoods.
 
-Truth was not constructed by fiat. It's characteristics are not a mere convenient recipe designed to address some transient need. Rather, it's a design that was uncovered through ontological and epistemological reasoning, and refined through intense scrutiny. Because of this, many of the rules can be intuited without reading any documentation, but by simply walking through the line of reasoning intellectually.
+Truth was not constructed by fiat. It's characteristics are not a mere convenient recipe designed to address some transient need. Rather, it's a design that was uncovered through ontological and epistemological reasoning, and refined through intense scrutiny. Because of this, many of the rules can be intuited without reading any documentation, and instead by simply walking through the line of reasoning intellectually.
 
 In Truth, there is no inherent distinction between structure and data, nor is there is no concept of a binary class/instance relationship. Everything is a treated as an abstract *Type*. Structural constraints are imposed simply by establishing an is-a relationship between two types.
 
-**Truth is not** a system for expressing computation. Truth is immutable, stateless, universal, unconditional and timeless. Therefore, writing Truth is not to be considered an act of *programming*. 
+**Truth is not a system for expressing computation**. Truth is immutable, stateless, unconditional and timeless. Therefore, writing Truth is not to be considered an act of *programming*.
 
 ## Language Overview
 
-In the beginning, Truth is formless and empty. There exists absolutely nothing–no strings, numbers, or data types of any kind. There are no keywords or built-in framework. The main component of the system is the `:` operator, called the *Joint*, which loosely translates to "is a kind of":
+In the beginning, Truth is formless and empty. There exists absolutely nothing–no strings, numbers, or data types of any kind. There are no keywords or built-in framework. The main construct is the `:`, called the *Joint*, which loosely translates to "is a kind of":
 
 ```
 Plant
 Tree : Plant
 ```
 
-Separate lines in Truth are like sentences, each being a separate statement of existence. And so in English, the above Truth translates to "There exists what we call Plant. There also exists what we call Tree, and Tree is a kind of Plant".
+Separate lines in Truth are like sentences, each being a separate statement of existence. And so in English, the above Truth translates to "There exists what we call Plant. There also exists what we call Tree, which is a kind of Plant".
 
 *Has-a* relationships are expressed through indentation. The indentation pattern is infinitely recursive, allowing statements to be nested as many levels as necessary.
 
