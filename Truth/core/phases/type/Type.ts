@@ -202,6 +202,35 @@ namespace Truth
 		private readonly phrase: Phrase;
 		
 		/**
+		 * Stores an array of Statement objects that are responsible
+		 * for the initiation of this type. In the case when this Type
+		 * object represents a path that is implicitly defined, the
+		 * array is empty. For example, given the following document:
+		 * 
+		 * ```
+		 * Class
+		 * 	Field
+		 * SubClass : Class
+		 * ```
+		 * 
+		 * The type at path SubClass/Field is an implicit type, and
+		 * therefore, although a valid type object, has no phyisical
+		 * statements associated.
+		 */
+		get statements()
+		{
+			this.private.throwOnDirty();
+			
+			if (this.private.statements !== null)
+				return this.private.statements;
+			
+			if (!(this.private.seed instanceof ExplicitParallel))
+				return this.private.statements = Object.freeze([]);
+			
+			return this.private.statements = this.private.seed.node.statements.slice();
+		}
+		
+		/**
 		 * Stores a reference to the type, as it's defined in it's
 		 * next most applicable type.
 		 */
@@ -735,6 +764,9 @@ namespace Truth
 		
 		/** */
 		readonly stamp: VersionStamp;
+		
+		/** */
+		statements: readonly Statement[] | null = null;
 		
 		/** */
 		inners: readonly Type[] | null = null;
