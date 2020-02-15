@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Truth is a method for classifying conscious understanding. It does so by providing the human a computationally-aware method of indicating _what things are_ ("is-a" relationships), and what they have ("has-a" relationships). Through these declarations of existence, a body of information is gradually formed that is guaranteed to be devoid of inaccuracies or falsehoods.
+Truth is a method for classifying conscious understanding. It does so by providing the human a computationally-aware method of indicating _what things are_ ("is-a" relationships), and what they have ("has-a" relationships). Through these declarations of existence, a body of information is gradually formed that is guaranteed to be devoid of inaccuracies and falsehoods.
 
 Truth was not constructed by fiat. It's characteristics are not a mere convenient recipe designed to address some transient need. Rather, it's a design that was uncovered through ontological and epistemological reasoning, and refined through intense scrutiny. Because of this, many of the rules can be intuited without reading any documentation, but by simply walking through the line of reasoning intellectually.
 
