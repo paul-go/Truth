@@ -605,7 +605,7 @@ namespace Truth
 			const startIdx = (() =>
 			{
 				if (!statement)
-					return 0;
+					return 1;
 				
 				if (statement instanceof Statement)
 					return this.statements.posOf(statement);

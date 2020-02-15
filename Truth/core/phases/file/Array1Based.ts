@@ -95,11 +95,7 @@ namespace Truth
 				return len - 1;
 			
 			if (pos === 0)
-			{
-				console.log("hello");
-				debugger;
 				throw Exception.invalidArgument();
-			}
 			
 			return pos - 1;
 		}
