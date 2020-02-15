@@ -602,7 +602,7 @@ namespace Truth
 		 */
 		*eachStatement(statement?: Statement | number)
 		{
-			const startIdx = (() =>
+			const startPos = (() =>
 			{
 				if (!statement)
 					return 1;
@@ -613,7 +613,7 @@ namespace Truth
 				return statement;
 			})();
 			
-			for (const smt of this.statements.enumerateForward(startIdx))
+			for (const smt of this.statements.enumerateForward(startPos))
 				yield smt;
 		}
 		
