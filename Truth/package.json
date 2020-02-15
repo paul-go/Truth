@@ -23,10 +23,6 @@
 		"bundle": "makets bundle",
 		"publish": "makets publish"
 	},
-	"eslintIgnore": [
-		"**/node_modules/**/*.ts",
-		"**/*.d.ts"
-	],
 	"devDependencies": {
 		"@types/node": "^10.12.18"
 	}
