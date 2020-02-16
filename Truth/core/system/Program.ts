@@ -113,20 +113,48 @@ namespace Truth
 			if (existingDoc)
 				return existingDoc;
 			
-			const sourceText = await (async () =>
+			const promises = this.queue.get(uri);
+			if (promises)
 			{
-				const readResult = await this.reader.tryRead(uri);
-				if (readResult instanceof Error)
-					return readResult;
+				return new Promise<Document | Error>(resolve =>
+				{
+					promises.push(resolve as any);
+				});
+			}
+			
+			// The problem with this design is that I don't know if the 
+			// resolve function is going to be called synchronously.
+			// If it is, this code structure will probably work.
+			
+			return new Promise<Document | Error>(async resolve =>
+			{
+				this.queue.set(uri, [resolve]);
 				
-				return readResult;
-			})();
+				const sourceText = await (async () =>
+				{
+					const readResult = await this.reader.tryRead(uri);
+					if (readResult instanceof Error)
+						return readResult;
+					
+					return readResult;
+				})();
 			
-			if (sourceText instanceof Error)
-				return sourceText;
-			
-			return await Document.new(this, uri, sourceText, d => this.saveDocument(d));
+				if (sourceText instanceof Error)
+					return sourceText;
+				
+				const docOrError = await Document.new(this, uri, sourceText, d => this.saveDocument(d));
+				const resolveFns = this.queue.get(uri);
+				if (resolveFns)
+				{
+					this.queue.delete(uri);
+					for (const resolveFn of resolveFns)
+						resolveFn(docOrError);
+				}
+			});
 		}
+		
+		/** */
+		private readonly queue = new Map<KnownUri, ((resolved: Document | Error) => void)[]>();
 		
 		/**
 		 * Adds the specified document to the internal list of documents.
@@ -191,7 +219,7 @@ namespace Truth
 			if (scope instanceof Type)
 				throw Exception.notImplemented();
 			
-			const results: { uri: KnownUri | null; scope: AttachmentScope }[] = [];
+			const results: { uri: KnownUri | null; scope: AttachmentScope; }[] = [];
 			const push = (ca: CauseAttachment) =>
 				results.push({ uri: ca.uri, scope: ca.scope });
 			
