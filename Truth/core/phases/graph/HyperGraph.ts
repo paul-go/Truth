@@ -121,6 +121,11 @@ namespace Truth
 		{
 			const { document, iterator } = this.methodSetup(root);
 			const txn = this.getTransaction(document);
+			
+			// The first step is to collect all the Phrase objects in the invalidated area,
+			// and the Spans and InfixSpans that are associated with that Phrase. The
+			// data structure here is a MultiMap, to the correspondence is 
+			// 1 Phrase to N Spans.
 			const phraseSpansMap = new MultiMap<Phrase, (Span | InfixSpan)>();
 			
 			for (const { statement } of iterator)
@@ -150,14 +155,13 @@ namespace Truth
 			if (phraseSpansMap.size === 0)
 				return;
 			
-			// It's important that these declarations are enumerated
-			// in breadth-first order, so that deeper nodes have a 
-			// container that they can reference during construction
-			// time. Before node construction can happen, the new 
-			// Spans need to be organized in a data structure that 
-			// makes breadth-first traversal easy.
-			// This data structure stores the items of the Phrase -> Spans
-			// map, sorted by the length of the Phrase.
+			// It's important that the Phrases are enumerated in breadth-first
+			// order. For example, this means that all Phrases with a length of 2
+			// (such as Object / Density) must be evaluated before all Phrases
+			// with a length of 3 (such as Object / Density / Tolerance). This is
+			// because in order to construct a 3rd-level Node, we have to 
+			// guarantee that it's outer 2nd-level node was fully constructed,
+			// otherwise, the 3rd-level node will have nowhere to connect.
 			const newAreaSorted = 
 				Array.from(phraseSpansMap.entries())
 					.sort((a, b) => a[0].length - b[0].length);
