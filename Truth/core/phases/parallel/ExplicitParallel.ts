@@ -166,10 +166,8 @@ namespace Truth
 				return false;
 			
 			if (this.baseCount > 0)
-			{
 				if (sanitizer.detectListDimensionalityConflict())
 					return false;
-			}
 			
 			this.addBaseEntry(base, via, false);
 			return true;

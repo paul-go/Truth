@@ -172,11 +172,13 @@ namespace Truth
 		private _ancestry: (Phrase[] | null) = null;
 		
 		/**
-		 * 
+		 * Returns a string representation of this Phrase, suitable for debugging purposes.
 		 */
 		toString()
 		{
-			return this.subjects.map(sub => sub.toString()).join("/");
+			const uri = this.containingDocument.uri.toString();
+			const path = this.subjects.map(sub => sub.toString()).join("/");
+			return uri + "//" + path;
 		}
 		
 		/**
