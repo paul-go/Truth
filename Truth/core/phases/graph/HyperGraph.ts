@@ -150,8 +150,6 @@ namespace Truth
 			if (phraseSpansMap.size === 0)
 				return;
 			
-			console.log("Including: " + document.uri.toString());
-			
 			// It's important that these declarations are enumerated
 			// in breadth-first order, so that deeper nodes have a 
 			// container that they can reference during construction
