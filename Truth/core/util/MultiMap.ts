@@ -91,6 +91,12 @@ namespace Truth
 		}
 		
 		/** */
+		get size()
+		{
+			return this.map.size;
+		}
+		
+		/** */
 		private map = new Map<TKey, TVal[]>();
 	}
 }

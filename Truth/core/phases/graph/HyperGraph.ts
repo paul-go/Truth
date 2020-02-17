@@ -121,10 +121,57 @@ namespace Truth
 		{
 			const { document, iterator } = this.methodSetup(root);
 			const txn = this.getTransaction(document);
+			const phraseSpansMap = new MultiMap<Phrase, (Span | InfixSpan)>();
+			
+			for (const { statement } of iterator)
+			{
+				for (const decl of statement.declarations)
+				{
+					for (const spine of decl.factor())
+					{
+						const phrase = Phrase.fromSpine(spine);
+						if (!phrase)
+							continue;
+						
+						phraseSpansMap.add(phrase, decl);
+						
+						// If the declaration has population infixes, these
+						// need to be added to the map as though they
+						// were regular declarations.
+						for (const popInfix of decl.infixes.filter(nfx => nfx.isPopulation))
+							for (const infixSpan of decl.eachDeclarationForInfix(popInfix))
+								phraseSpansMap.add(
+									phrase.forward(infixSpan.boundary.subject),
+									infixSpan);
+					}
+				}
+			}
+			
+			if (phraseSpansMap.size === 0)
+				return;
+			
+			console.log("Including: " + document.uri.toString());
+			
+			// It's important that these declarations are enumerated
+			// in breadth-first order, so that deeper nodes have a 
+			// container that they can reference during construction
+			// time. Before node construction can happen, the new 
+			// Spans need to be organized in a data structure that 
+			// makes breadth-first traversal easy.
+			// This data structure stores the items of the Phrase -> Spans
+			// map, sorted by the length of the Phrase.
+			const newAreaSorted = 
+				Array.from(phraseSpansMap.entries())
+					.sort((a, b) => a[0].length - b[0].length);
 			
 			// Stores all the nodes that have been affected by a new
 			// fragment either being added or removed from it.
 			const affectedNodes = new Map<Phrase, Node>();
+			
+			// Stores a subset of the affectedNodes array. Contains
+			// only the nodes that are at the outer-most level of depth
+			// within the node set (not necessarily the document root).
+			const affectedNodesApexes: Node[] = [];
 			
 			/**
 			 * @returns The containing node that
@@ -138,168 +185,58 @@ namespace Truth
 				return affectedNodes.get(phrase) || phrase.associatedNode;
 			};
 			
-			// It's important that these declarations are enumerated
-			// in breadth-first order, so that deeper nodes have a 
-			// container that they can reference during construction
-			// time. Before node construction can happen, the new 
-			// Spans need to be organized in a data structure that 
-			// makes breadth-first traversal easy.
-			// 
-			// The breadthFirstOrganizer has 3 levels of organization:
-			// 
-			// (1) An array of multi-maps which correspond to a single
-			// level of depth in the hierarchy being traversed (which
-			// could possibly extend across multiple localities in the
-			// document).
-			// 
-			// (2) A multi-map, that is keyed by a serialized representation
-			// of one single spine found in the hierarchy, and whose
-			// values are...
-			// 
-			// (3) A unique Span object that corresponds to a unique
-			// occurence of a subject in the document.
-			interface IBreadthFirstEntry
-			{
-				phrase: Phrase;
-				declaration: Span | InfixSpan;
-			}
-			
-			const breadthFirstOrganizer: MultiMap<string, IBreadthFirstEntry>[] = [];
-			const iteratorArray = Array.from(iterator);
-			
-			for (const { level, statement } of iteratorArray)
-			{
-				// Possibly append a bunch of empty multi-maps
-				// at the end of the organizer, so that we don't
-				// access an uninitialized index down below.
-				while (breadthFirstOrganizer.length < level + 1)
-					breadthFirstOrganizer.push(new MultiMap<string, IBreadthFirstEntry>());
-				
-				// In the case when the current statement has been deemed
-				// as cruft, it's OK to just continue, because the breadth-first
-				// organizer will end up with an empty multi-map in the case
-				// when the portion of the hierarchy being traversed looks 
-				// like:
-				// 
-				// Foo
-				// 	[Cruft]    <=== Will correspond to an empty multi-map
-				// 		Bar
-				// 
-				// Or, it will end up with a populated multi-map in the case
-				// when there is another statement at [Cruft]'s level of depth.
-				// Either way, there are no spans that need to be added from
-				// statements marked as cruft. The traversal will still reach
-				// the crufty statement's contents, causing the spines to still
-				// be computed.
-				if (statement.isCruft)
-					continue;
-				
-				const multiMap = breadthFirstOrganizer[level];
-				
-				for (const decl of statement.declarations)
-				{
-					for (const spine of decl.factor())
-					{
-						const phrase = Phrase.fromSpine(spine);
-						if (!phrase)
-							continue;
-						
-						const typeNames = spine.vertebrae.map(v => v.toString(true));
-						const entry: IBreadthFirstEntry = {
-							phrase,
-							declaration: decl
-						};
-						
-						multiMap.add(typeNames.join(Syntax.terminal), entry);
-						
-						// If the declaration has population infixes, these
-						// need to be added to the map as though they
-						// were regular declarations.
-						
-						const popInfixes = decl.infixes.filter(nfx => nfx.isPopulation);
-						if (popInfixes.length === 0)
-							continue;
-						
-						for (const infix of popInfixes)
-						{
-							for (const infixSpan of decl.eachDeclarationForInfix(infix))
-							{
-								const nfxText = SubjectSerializer.forInternal(infixSpan);
-								const nfx = infixSpan.boundary.subject;
-								const infixSpineParts = typeNames.concat(nfxText);
-								const entry: IBreadthFirstEntry = {
-									phrase: phrase.forward(nfx),
-									declaration: infixSpan
-								};
-								
-								multiMap.add(infixSpineParts.join(Syntax.terminal), entry);
-							}
-						}
-					}
-				}
-			}
-			
-			// Stores a subset of the affectedNodes array. Contains
-			// only the nodes that are at the outer-most level of depth
-			// within the node set (not necessarily the document root).
-			const affectedNodesApexes: Node[] = [];
-			
 			// The following block populates the appropriate Nodes
 			// in the graph with the new Span objects that were sent
 			// in through the "root" parameter. New Node objects
 			// are created if necessary.
-			for (const multiMap of breadthFirstOrganizer)
+			for (const [phrase, declarations] of newAreaSorted)
 			{
-				for (const entry of multiMap.values())
+				for (const declaration of declarations)
 				{
-					for (const { phrase, declaration } of entry)
+					const nodeAtPhrase = findNode(phrase);
+					if (nodeAtPhrase)
 					{
-						const nodeAtPhrase = findNode(phrase);
-						if (nodeAtPhrase)
-						{
-							// We add the phrase to the table of affected nodes,
-							// to handle the case when it was extracted from the
-							// cache.
-							// This seems a bit broken, investigation is likely needed.
-							affectedNodes.set(phrase, nodeAtPhrase);
-							nodeAtPhrase.addDeclaration(declaration);
-							continue;
-						}
+						// We add the phrase to the table of affected nodes,
+						// to handle the case when it was extracted from the
+						// cache.
+						affectedNodes.set(phrase, nodeAtPhrase);
+						nodeAtPhrase.addDeclaration(declaration);
+						continue;
+					}
+					
+					const container = phrase.length > 1 ?
+						findNode(phrase.back()) :
+						null;
+					
+					if (phrase.length > 1 && container === null)
+						throw Exception.unknownState();
+					
+					// Note that when creating a Node, it's
+					// automatically bound to it's container.
+					const newNode = new Node(container, declaration);
+					affectedNodes.set(phrase, newNode);
+					
+					// Populate the affectedNodesApexes array, 
+					// which is needed to find the nodes that are
+					// affected by the change, but are not located
+					// directly within the patch.
+					if (affectedNodesApexes.length === 0)
+					{
+						affectedNodesApexes.push(newNode);
+					}
+					else
+					{
+						// If we've encountered a node that is higher
+						// than the level of depth defined in the nodes
+						// currently in the affectedNodesApexes array.
+						const highestDepth = affectedNodesApexes[0].phrase.length;
+						const nodeDepth = newNode.phrase.length;
 						
-						const container = phrase.length > 1 ?
-							findNode(phrase.back()) :
-							null;
+						if (nodeDepth < highestDepth)
+							affectedNodesApexes.length = 0;
 						
-						if (phrase.length > 1 && container === null)
-							throw Exception.unknownState();
-						
-						// Note that when creating a Node, it's
-						// automatically bound to it's container.
-						const newNode = new Node(container, declaration);
-						affectedNodes.set(phrase, newNode);
-						
-						// Populate the topMostAffectedNodes array, 
-						// which is needed to find the nodes that are
-						// affected by the change, but are not located
-						// directly within the patch.
-						if (affectedNodesApexes.length === 0)
-						{
+						if (nodeDepth <= highestDepth)
 							affectedNodesApexes.push(newNode);
-						}
-						else
-						{
-							// If we've encountered a node that is higher
-							// than the level of depth defined in the nodes
-							// currently in the affectedNodesApexes array.
-							const highestDepth = affectedNodesApexes[0].phrase.length;
-							const nodeDepth = newNode.phrase.length;
-							
-							if (nodeDepth < highestDepth)
-								affectedNodesApexes.length = 0;
-							
-							if (nodeDepth <= highestDepth)
-								affectedNodesApexes.push(newNode);
-						}
 					}
 				}
 			}

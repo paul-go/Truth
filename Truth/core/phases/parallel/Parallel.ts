@@ -67,5 +67,13 @@ namespace Truth
 			if (!this._parallels.includes(parallel))
 				this._parallels.push(parallel);
 		}
+		
+		/**
+		 * Returns a string representation of this Parallel, suitable for debugging purposes.
+		 */
+		toString()
+		{
+			return this.phrase.toString();
+		}
 	}
 }
