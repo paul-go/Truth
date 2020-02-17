@@ -772,20 +772,6 @@ namespace Truth
 		/** */
 		private static rootNodes = new WeakMap<Document, Map<Subject, Node>>();
 		
-		/** * /
-		static toDebug()
-		{
-			for (const map of this.rootNodes.values())
-			{
-				for (const [subject, node] of map.entries())
-				{
-					console.log(subject.toString());
-					console.log(node.toString());
-					console.log("-----------------------------");
-				}
-			}
-		}*/
-		
 		/** */
 		toString(includePath = true)
 		{

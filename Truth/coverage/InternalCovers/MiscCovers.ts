@@ -19,11 +19,6 @@ namespace Truth
 		
 		const isInerrant = program.verify();
 		
-		for (const fault of program.faults.each())
-			console.log(fault.toString());
-		
-		console.log(doc.toString(true));
-		
 		return [
 			() => isInerrant,
 			() => s1n.value === "123"
@@ -49,9 +44,6 @@ namespace Truth
 		);
 		
 		const isInerrant = program.verify();
-		
-		for (const fault of program.faults.each())
-			console.log(fault.toString());
 		
 		return [
 			() => isInerrant,
