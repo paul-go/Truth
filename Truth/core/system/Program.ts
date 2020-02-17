@@ -99,8 +99,21 @@ namespace Truth
 		 * Adds a document to this program, by loading it from the specified
 		 * URI. In the case when there has already been a document loaded
 		 * from the URI specified, this pre-loaded document is returned.
+		 * 
+		 * @param documentUri The URI that will represent the source 
+		 * location of the loaded document.
+		 * 
+		 * @param sourceText The source text to load into the document
+		 * by default. If omitted, the source text will be loaded from the
+		 * the URI specified in the `documentUri`  argument.
+		 * 
+		 * Use this argument when the source text of the document being
+		 * added has already been loaded into a string by another means,
+		 * or when more control of the actual loaded content is required.
 		 */
-		async addDocumentFromUri(documentUri: string | KnownUri)
+		async addDocumentFromUri(
+			documentUri: string | KnownUri,
+			sourceText?: string)
 		{
 			const uri = typeof documentUri === "string" ?
 				KnownUri.fromString(documentUri) :
@@ -130,19 +143,29 @@ namespace Truth
 			{
 				this.queue.set(uri, [resolve]);
 				
-				const sourceText = await (async () =>
+				if (sourceText === undefined)
 				{
-					const readResult = await this.reader.tryRead(uri);
-					if (readResult instanceof Error)
+					const loadedSourceText = await (async () =>
+					{
+						const readResult = await this.reader.tryRead(uri);
+						if (readResult instanceof Error)
+							return readResult;
+						
 						return readResult;
-					
-					return readResult;
-				})();
-			
-				if (sourceText instanceof Error)
-					return sourceText;
+					})();
 				
-				const docOrError = await Document.new(this, uri, sourceText, d => this.saveDocument(d));
+					if (loadedSourceText instanceof Error)
+						return loadedSourceText;
+					
+					sourceText = loadedSourceText;
+				}
+				
+				const docOrError = await Document.new(
+					this,
+					uri,
+					sourceText,
+					d => this.saveDocument(d));
+				
 				const resolveFns = this.queue.get(uri);
 				if (resolveFns)
 				{
@@ -466,12 +489,22 @@ namespace Truth
 		 */
 		verify()
 		{
+			if (this.lastFullVerify && !this.version.newerThan(this.lastFullVerify))
+				return this.lastFullVerifyResult;
+			
 			for (const doc of this.documents)
 				for (const { statement } of doc.eachDescendant())
 					this.verifyAssociatedDeclarations(statement);
 			
-			return this.finalizeVerification();
+			this.lastFullVerify = this.version;
+			return this.lastFullVerifyResult = this.finalizeVerification();
 		}
+		
+		/** Stores the version of this program when the last full verification occured. */
+		private lastFullVerify: VersionStamp | null = null;
+		
+		/** Stores the result produced from the last full verification. */
+		private lastFullVerifyResult = true;
 		
 		/**
 		 * Performs verification on the parts of the document that have
