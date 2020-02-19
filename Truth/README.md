@@ -6,7 +6,7 @@ Truth is a method for classifying conscious understanding. It does so by providi
 
 Truth was not constructed by fiat. It's characteristics are not a mere convenient recipe designed to address some transient need. Rather, it's a design that was uncovered through ontological and epistemological reasoning, and refined through intense scrutiny. Because of this, many of the rules can be intuited without reading any documentation, and instead by simply walking through the line of reasoning intellectually.
 
-In Truth, there is no inherent distinction between structure and data, nor is there a concept of a binary class/instance relationship. Everything is an abstract *Type*. Constraints are imposed simply by establishing is-a relationships between types.
+In Truth, there is no inherent distinction between structure and data, nor is there a concept of a binary class/instance relationship. Everything is an abstract *Type*. Constraints are introduced by establishing is-a relationships between types.
 
 **Truth is not a system for expressing computation**. Truth is immutable, stateless, unconditional and timeless. Therefore, writing Truth is not to be considered an act of *programming*.
 
