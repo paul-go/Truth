@@ -123,8 +123,8 @@ namespace Truth
 			const txn = this.getTransaction(document);
 			
 			// The first step is to collect all the Phrase objects in the invalidated area,
-			// and the Spans and InfixSpans that are associated with that Phrase. The
-			// data structure here is a MultiMap, to the correspondence is 
+			// and the Spans and InfixSpans that are associated with that Phrase.
+			// The data structure here is a MultiMap, to the correspondence is
 			// 1 Phrase to N Spans.
 			const phraseSpansMap = new MultiMap<Phrase, (Span | InfixSpan)>();
 			
