@@ -186,7 +186,7 @@ namespace Truth
 		readonly document: Document;
 		
 		/** */
-		readonly stamp: VersionStamp;
+		private readonly stamp: VersionStamp;
 		
 		/**
 		 * Stores whether this Node has been explicitly defined as
@@ -367,6 +367,8 @@ namespace Truth
 		private _portabilityTargets: readonly (readonly Term[])[] | null = null;
 		
 		/**
+		 * @deprecated
+		 * 
 		 * @returns A set of nodes that are matched by
 		 * patterns of adjacent nodes.
 		 * 

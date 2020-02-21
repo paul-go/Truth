@@ -298,7 +298,6 @@ namespace Truth
 						continue;
 					
 					const terms = this.nodeIndex.getAssociatedTerms(scsrNode);
-					
 					for (const term of terms)
 					{
 						const predecessors = this.nodeIndex.getNodesByTerm(term);

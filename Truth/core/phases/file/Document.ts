@@ -762,6 +762,9 @@ namespace Truth
 						const newStatements = updateCalls.map(c => c.smt);
 						const indexes = Object.freeze(updateCalls.map(c => c.pos));
 						
+						// Stores whether the indents of all updated statements are the
+						// same, and that there wasn't been any statements change from
+						// being a no-op to not.
 						const noStructuralChanges = oldStatements.every((oldSmt, idx) =>
 						{
 							const newSmt = newStatements[idx];

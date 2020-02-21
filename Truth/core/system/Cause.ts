@@ -89,30 +89,6 @@ namespace Truth
 		{ super(); }
 	}
 	
-	/** Abstract cause class for the resolution causes */
-	export abstract class CauseResolve extends Cause<IResolutionReturn>
-	{
-		constructor(
-			readonly program: Program,
-			readonly spine: Spine)
-		{ super(); }
-	}
-	
-	/** Output for resolution hooks */
-	export interface IResolutionReturn
-	{
-		readonly resolves: boolean;
-	}
-	
-	/** A cause that runs before the compiler is about to resolve a term. */
-	export class CauseBeforeResolve extends CauseResolve { }
-	
-	/** A cause that runs after the compiler has resolved a term. */
-	export class CauseAfterResolve extends CauseResolve { }
-	
-	/** A cause that runs when the compiler is unable to resolve a term. */
-	export class CauseNotResolved extends CauseResolve { }
-	
 	/** */
 	export class CauseInvalidate extends Cause
 	{
