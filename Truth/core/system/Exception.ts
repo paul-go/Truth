@@ -26,9 +26,10 @@ namespace Truth
 		}
 		
 		/** */
-		static unknownState()
+		static unknownState(customMessage?: string)
 		{
-			return error("An unknown state has been reached in the program.");
+			return error("An unknown state has been reached in the program." + 
+				customMessage ? " Custom error message was:\n" + customMessage : "");
 		}
 		
 		/** */

@@ -34,6 +34,8 @@ namespace Truth
 				this.exclude(data.document);
 			});
 			
+			/*
+			TODO
 			program.on(CauseInvalidate, data =>
 			{
 				if (data.parents.length > 0)
@@ -58,6 +60,7 @@ namespace Truth
 			{
 				this.activeTransactions.delete(data.document);
 			});
+			*/
 		}
 		
 		/**
@@ -72,7 +75,8 @@ namespace Truth
 			const entries = Array.from(iterator);
 			
 			///const maybeDestabilizedEdges: HyperEdge[] = [];
-			
+			/*
+			TODO
 			for (const { statement } of entries)
 			{
 				for (const declaration of statement.declarations)
@@ -98,7 +102,7 @@ namespace Truth
 					}
 				}
 			}
-			
+			*/
 			///for (const edge of maybeDestabilizedEdges)
 			///	if (edge.successors.every(scsr => txn.destabilizedNodes.includes(scsr.node)))
 			///		txn.destablizedEdges.push(edge);
@@ -128,6 +132,8 @@ namespace Truth
 			// 1 Phrase to N Spans.
 			const phraseSpansMap = new MultiMap<Phrase, (Span | InfixSpan)>();
 			
+			/*
+			TODO
 			for (const { statement } of iterator)
 			{
 				for (const decl of statement.declarations)
@@ -151,7 +157,7 @@ namespace Truth
 					}
 				}
 			}
-			
+			*/
 			if (phraseSpansMap.size === 0)
 				return;
 			

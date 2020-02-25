@@ -78,15 +78,33 @@ namespace Truth
 		 */
 		splice(pos: number, deleteCount: number, ...items: T[])
 		{
-			return this.items.splice(this.toZeroBased(pos), deleteCount, ...items);
+			if (pos >= this.items.length)
+			{
+				if (deleteCount > 0)
+				{
+					const deleted = this.items.slice(-deleteCount);
+					this.items.length -= deleteCount;
+					this.items.push(...items);
+					return deleted;
+				}
+				
+				this.items.push(...items);
+				return [];
+			}
+			
+			return this.items.splice(pos - 1, deleteCount, ...items);
 		}
 		
 		/**
-		 * Converts a 1-based position into a 0-based index.
+		 * Converts a 1-based position into a bounded 0-based index.
 		 */
 		private toZeroBased(pos: number)
 		{
+			if (pos === 0)
+				throw Exception.invalidArgument();
+			
 			const len = this.items.length;
+			pos--;
 			
 			if (pos < 0)
 				return Math.max(0, len - pos);
@@ -94,10 +112,7 @@ namespace Truth
 			if (pos > len)
 				return len - 1;
 			
-			if (pos === 0)
-				throw Exception.invalidArgument();
-			
-			return pos - 1;
+			return pos;
 		}
 		
 		/** */

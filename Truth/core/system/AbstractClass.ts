@@ -31,7 +31,10 @@ namespace Truth
 		Statement | 
 		Reference |
 		Phrase |
-		Term;
+		Term | 
+		KnownUri | 
+		Pattern |
+		Fork;
 	
 	/**
 	 * A const enum to uniquely identify each domain object in the system.
@@ -42,6 +45,9 @@ namespace Truth
 		statement,
 		reference,
 		phrase,
-		term
+		term,
+		knownUri,
+		pattern,
+		fork
 	}
 }

@@ -22,7 +22,6 @@
 /// <reference path="./System/Syntax.ts" />
 /// <reference path="./System/FaultService.ts" />
 /// <reference path="./System/Faults.ts" />
-/// <reference path="./System/Phrase.ts" />
 /// <reference path="./System/Term.ts" />
 /// <reference path="./System/VersionStamp.ts" />
 
@@ -34,22 +33,25 @@
 /// <reference path="./Fsm/Fsm.ts" />
 /// <reference path="./Fsm/FsmTranslator.ts" />
 
-// Phases / File Representation
-/// <reference path="./Phases/File/Document.ts" />
-/// <reference path="./Phases/File/DocumentTypes.ts" />
-/// <reference path="./Phases/File/CycleDetector.ts" />
-/// <reference path="./Phases/File/LineParser.ts" />
-/// <reference path="./Phases/File/Anon.ts" />
-/// <reference path="./Phases/File/Line.ts" />
-/// <reference path="./Phases/File/Boundary.ts" />
-/// <reference path="./Phases/File/Statement.ts" />
-/// <reference path="./Phases/File/Pattern.ts" />
-/// <reference path="./Phases/File/PatternPrecompiler.ts" />
-/// <reference path="./Phases/File/RegexTypes.ts" />
-/// <reference path="./Phases/File/Infix.ts" />
-/// <reference path="./Phases/File/Span.ts" />
-/// <reference path="./Phases/File/Spine.ts" />
-/// <reference path="./Phases/File/Subject.ts" />
+// Phases / Document Representation
+/// <reference path="./Phases/Document/Document.ts" />
+/// <reference path="./Phases/Document/DocumentTypes.ts" />
+/// <reference path="./Phases/Document/CycleDetector.ts" />
+/// <reference path="./Phases/Document/LineParser.ts" />
+/// <reference path="./Phases/Document/Anon.ts" />
+/// <reference path="./Phases/Document/Line.ts" />
+/// <reference path="./Phases/Document/Boundary.ts" />
+/// <reference path="./Phases/Document/Statement.ts" />
+/// <reference path="./Phases/Document/Pattern.ts" />
+/// <reference path="./Phases/Document/PatternPrecompiler.ts" />
+/// <reference path="./Phases/Document/RegexTypes.ts" />
+/// <reference path="./Phases/Document/Infix.ts" />
+/// <reference path="./Phases/Document/Span.ts" />
+/// <reference path="./Phases/Document/Spine.ts" />
+/// <reference path="./Phases/Document/Subject.ts" />
+
+// Phases / Intermedia Representation
+/// <reference path="./Phases/Intermediate/Phrase.ts" />
 
 // Phases / Graph Representation
 /// <reference path="./Phases/Graph/HyperGraph.ts" />

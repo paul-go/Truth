@@ -32,7 +32,9 @@ namespace Truth
 			{
 				for (const phrase of Phrase.rootsOf(from))
 				{
-					const drilledParallel = this.drillFromNode(phrase.associatedNode);
+					debugger;
+					// TODO
+					const drilledParallel = this.drillFromNode("phrase.associatedNode" as any);
 					if (drilledParallel !== null)
 						queue.push(drilledParallel);
 				}
@@ -72,9 +74,13 @@ namespace Truth
 				throw Exception.invalidArgument();
 			
 			const ancestry = directive.ancestry;
+			const surfacePhrase = directive.ancestry[0];
+			
 			const surfaceNode = directive.containingDocument.phrase
-				.forward(ancestry[0].terminal)
-				.associatedNode;
+				.peek(surfacePhrase.terminal, surfacePhrase.clarifierKey);
+			
+			// TODO (below)
+			debugger;
 			
 			if (surfaceNode === null)
 				return null;
@@ -82,7 +88,7 @@ namespace Truth
 			let typeIdx = 0;
 			let lastSeed = 
 				this.parallels.get(directive.back()) ||
-				this.rake(this.parallels.create(surfaceNode, this.cruft));
+				this.rake(this.parallels.create(surfaceNode as any, this.cruft));
 			
 			// This code skips by any Parallel instances that have already
 			// been constructed. The real work begins when we get to
@@ -232,6 +238,7 @@ namespace Truth
 				
 				const possibilities = hyperEdge.successors
 					.filter(scsr => !this.cruft.has(scsr.node))
+					// Convert this to just use the length of the phrase directly.
 					.sort((a, b) => a.longitude - b.longitude);
 				
 				if (possibilities.length > 0)
@@ -498,13 +505,14 @@ namespace Truth
 				yield *recurse(current);
 				current = current.container;
 			}
-			
+			// TODO
+			debugger;
 			for (const phrase of Phrase.rootsOf(srcParallel.node.document))
 				if (phrase.terminal instanceof Pattern)
-					if (!discoveredPatternNodes.has(phrase.associatedNode))
+					if (!discoveredPatternNodes.has("phrase.associatedNode" as any))
 						yield {
 							pattern: phrase.terminal,
-							patternParallel: yieldable(phrase.associatedNode)
+							patternParallel: yieldable("phrase.associatedNode" as any)
 						};
 		}
 		
@@ -538,8 +546,12 @@ namespace Truth
 						return out;
 					}
 				}
-				
+				/*
+				TODO
 				const nextPhrase = zenith.phrase.forward(targetSubject);
+				*/
+				debugger;
+				const nextPhrase = null as any;
 				return (
 					this.parallels.get(nextPhrase) ||
 					this.parallels.create(nextPhrase));

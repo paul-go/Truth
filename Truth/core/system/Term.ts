@@ -39,10 +39,17 @@ namespace Truth
 		private static readonly cache = new Map<string, Term>();
 		
 		/**
-		 * Stores an empty-string term, which is used as a marker term
+		 * Stores a significant empty-string term, which is used as a marker term
 		 * to represent what is eventually presented as an anonymous type.
 		 */
 		static readonly void = Term.from("");
+		
+		/**
+		 * Stores a significant empty string term, which is used as a marker term
+		 * to represent a full statement that has been marked as as cruft (meaning
+		 * that the statement is unparsable).
+		 */
+		static readonly cruft = Term.from("");
 		
 		/** */
 		private constructor(

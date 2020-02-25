@@ -48,6 +48,8 @@ namespace Truth
 			this.graph = new HyperGraph(this);
 			this.cycleDetector = new CycleDetector(this);
 			
+			/*
+			TODO
 			this.on(CauseRevalidate, data =>
 			{
 				for (let i = this.unverifiedStatements.length; i-- > 0;)
@@ -58,6 +60,7 @@ namespace Truth
 					if (!statement.isCruft)
 						this.unverifiedStatements.push(statement);
 			});
+			*/
 			
 			this.faults = new FaultService(this);
 			
@@ -382,8 +385,10 @@ namespace Truth
 			if (typePath.length === 0)
 				return Type.constructRoots(document);
 			
-			const phrase = document.phrase.forwardDeep(typePath);
-			return Type.construct(phrase);
+			const phrase = Phrase.fromPathComponents(document, typePath);
+			return phrase ?
+				Type.construct(phrase) :
+				null;
 		}
 		
 		/**
@@ -415,9 +420,8 @@ namespace Truth
 						return new ProgramInspectionResult(position, zone, parent, statement);
 					
 					const types = parent.declarations
-						.map(decl => decl.factor())
-						.reduce((spines, s) => spines.concat(s), [])
-						.map(spine => Type.construct(spine))
+						.flatMap(decl => Phrase.fromSpan(decl))
+						.map(phrase => Type.construct(phrase))
 						.filter((type): type is Type => !!type);
 					
 					return new ProgramInspectionResult(position, zone, types, statement, null);
@@ -438,14 +442,16 @@ namespace Truth
 					if (!decl)
 						throw Exception.unknownState();
 					
-					const types = decl
-						.factor()
-						.map(spine => Type.construct(spine))
+					const types = Phrase.fromSpan(decl)
+						.map(phrase => Type.construct(phrase))
 						.filter((type): type is Type => !!type);
 					
 					return new ProgramInspectionResult(position, zone, types, statement, decl);
 				}
 				// 
+				
+				/*
+				TODO
 				case StatementZone.annotation:
 				{
 					const anno = statement.getAnnotation(offset);
@@ -474,6 +480,7 @@ namespace Truth
 					
 					return new ProgramInspectionResult(position, zone, foundObject, statement, anno);
 				}
+				*/
 			}
 			
 			return new ProgramInspectionResult(position, zone, null, statement, null);
@@ -489,6 +496,10 @@ namespace Truth
 		 */
 		verify()
 		{
+			return true;
+			
+			/*
+			TODO
 			if (this.lastFullVerify && !this.version.newerThan(this.lastFullVerify))
 				return this.lastFullVerifyResult;
 			
@@ -498,6 +509,7 @@ namespace Truth
 			
 			this.lastFullVerify = this.version;
 			return this.lastFullVerifyResult = this.finalizeVerification();
+			*/
 		}
 		
 		/** Stores the version of this program when the last full verification occured. */
@@ -518,6 +530,8 @@ namespace Truth
 		 */
 		reverify()
 		{
+			return true;
+			
 			for (const doc of this.unverifiedDocuments)
 				for (const { statement } of doc.eachDescendant())
 					this.verifyAssociatedDeclarations(statement);
@@ -533,8 +547,7 @@ namespace Truth
 		{
 			if (!statement.isDisposed)
 				for (const decl of statement.declarations)
-					decl.factor().map(spine => 
-						Type.construct(spine));
+					Phrase.fromSpan(decl).map(phrase => Type.construct(phrase));
 		}
 		
 		/** */

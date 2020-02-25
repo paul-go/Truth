@@ -2,12 +2,13 @@
 namespace Truth
 {
 	/**
+	 * @internal
 	 * A class that manages an array of Span objects that
 	 * represent a specific spine of declarations, starting at
 	 * a document, passing through a series of spans,
 	 * and ending at a tip span.
 	 */
-	export class Spine
+	export class SpineOld
 	{
 		/** */
 		constructor(vertebrae: (Span | Statement)[])

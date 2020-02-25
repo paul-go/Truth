@@ -26,9 +26,7 @@ namespace Truth
 			const uriStatements: UriStatement[] = [];
 			
 			const topLevelStatements: Statement[] = [];
-			const topLevelStatementIndexes: number[] = [];
 			let maxIndent = Number.MAX_SAFE_INTEGER;
-			let lineNumber = 0;
 			
 			for (const statementText of this.readLines(sourceText))
 			{
@@ -42,7 +40,6 @@ namespace Truth
 				else if (smt.indent <= maxIndent && !smt.isNoop)
 				{
 					topLevelStatements.push(smt);
-					topLevelStatementIndexes.push(++lineNumber);
 					maxIndent = smt.indent;
 				}
 			}
@@ -55,12 +52,11 @@ namespace Truth
 			
 			if (uriStatements.length > 0)
 				await doc.updateReferences([], uriStatements);
+
+			Phrase.createRecursive(topLevelStatements);
 			
-			program.cause(new CauseRevalidate(
-				doc,
-				topLevelStatements,
-				topLevelStatementIndexes
-			));
+			if ("DEBUG")
+				Debug.printPhrases(doc, true);
 			
 			return doc;
 		}
@@ -760,7 +756,6 @@ namespace Truth
 						
 						const oldStatements = updateCalls.map(c => this.statements.get(c.pos));
 						const newStatements = updateCalls.map(c => c.smt);
-						const indexes = Object.freeze(updateCalls.map(c => c.pos));
 						
 						// Stores whether the indents of all updated statements are the
 						// same, and that there wasn't been any statements change from
@@ -779,26 +774,14 @@ namespace Truth
 								newStatements.some(smt => !smt.isNoop);
 							
 							if (hasOpStatements)
-							{
-								// Tell subscribers to blow away all the old statements.
-								this.program.cause(new CauseInvalidate(
-									this,
-									oldStatements,
-									indexes));
-							}
+								Phrase.destroyRecursive(oldStatements);
 							
 							// Run the actual mutations
 							for (const updateCall of updateCalls)
 								doUpdate(updateCall);
 							
 							if (hasOpStatements)
-							{
-								// Tell subscribers what changed
-								this.program.cause(new CauseRevalidate(
-									this, 
-									newStatements,
-									indexes));
-							}
+								Phrase.createRecursive(newStatements);
 							
 							return;
 						}
@@ -840,20 +823,10 @@ namespace Truth
 							// An edit transaction can be avoided completely in the case
 							// when the only statements that were deleted were noops.
 							if (hasOpStatements)
-								this.program.cause(new CauseInvalidate(
-									this,
-									deadStatements,
-									deadIndexes));
+								Phrase.destroyRecursive(deadStatements);
 							
 							// Run the actual mutations
 							deleteCalls.forEach(doDelete);
-							
-							// Run an empty revalidation hook, to comply with the
-							// rule that for every invalidation hook, there is always a
-							// corresponding revalidation hook.
-							if (hasOpStatements)
-								this.program.cause(new CauseRevalidate(this, [], []));
-							
 							return;
 						}
 					}
@@ -919,7 +892,6 @@ namespace Truth
 						else if (call instanceof UpdateCall)
 						{
 							const oldStatement = this.statements.get(call.pos);
-							
 							if (oldStatement.isNoop && call.smt.isNoop)
 								continue;
 						}
@@ -984,12 +956,9 @@ namespace Truth
 					}
 				}
 				
-				const parents = mustInvalidateDoc ? [] : Array.from(invalidatedParents.values());
-				const indexes = mustInvalidateDoc ? [] : Array.from(invalidatedParents.keys());
-				
-				// Notify observers of the Invalidate hook to invalidate the
-				// descendants of the specified set of parent statements.
-				this.program.cause(new CauseInvalidate(this, parents, indexes));
+				Phrase.destroyRecursive(mustInvalidateDoc ?
+					this :
+					Array.from(invalidatedParents.values()));
 				
 				const deletedStatements: Statement[] = [];
 				
@@ -1012,22 +981,21 @@ namespace Truth
 						if (deletedStatement === parentStatement)
 							invalidatedParents.delete(at);
 				
-				// Notify observers of the Revalidate hook to update the
-				// descendants of the specified set of parent statements.
-				this.program.cause(new CauseRevalidate(
-					this, 
-					Array.from(invalidatedParents.values()),
-					Array.from(invalidatedParents.keys())
-				));
+				Phrase.createRecursive(Array.from(invalidatedParents.values()));
 			})();
 			
 			// Perform a debug-time check to be sure that there are
 			// no disposed statements left hanging around in the document
 			// after the edit transaction has completed.
 			if ("DEBUG")
+			{
 				for (const smt of this.statements.enumerateForward())
 					if (smt.isDisposed)
 						throw Exception.unknownState();
+				
+				Debug.printDocument(this);
+				Debug.printPhrases(this, true);
+			}
 			
 			// Clean out any type cache
 			this._types = null;
@@ -1466,19 +1434,26 @@ namespace Truth
 		/**
 		 * Returns a formatted version of the Document.
 		 */
-		toString(keepOriginalFormatting?: boolean)
+		toString(keepOriginalFormatting?: boolean, showLineNumbers?: boolean)
 		{
 			const lines: string[] = [];
+			const maxDigits = (this.statements.length + 1).toString().length;
+			const digitSuffix = " ".repeat(maxDigits);
+			
+			const add = (text: string) =>
+				lines.push(showLineNumbers ? 
+					(digitSuffix + (lines.length + 1).toString()).slice(maxDigits) + "|" + text :
+					text);
 			
 			if (keepOriginalFormatting)
 			{
 				for (const statement of this.statements.enumerateForward())
-					lines.push(statement.sourceText);
+					add(statement.sourceText);
 			}
 			else for (const { statement, level } of this.eachDescendant())
 			{
 				const indent = Syntax.tab.repeat(level);
-				lines.push(indent + statement.toString());
+				add(indent + statement.toString());
 			}
 			
 			return lines.join("\n");

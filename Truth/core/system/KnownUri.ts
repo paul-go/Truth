@@ -7,7 +7,7 @@ namespace Truth
 	 * to unique URLs, so that equality of two Uris can be tested
 	 * by doing a simple referential comparison.
 	 */
-	export class KnownUri
+	export class KnownUri extends AbstractClass
 	{
 		/**
 		 * @internal
@@ -52,9 +52,14 @@ namespace Truth
 		/** */
 		private constructor(private readonly innerUrl: URL)
 		{
+			super();
+			
 			// Generates an error if the URL isn't from a known protocol.
 			this.protocol;
 		}
+		
+		/** @internal */
+		readonly class = Class.knownUri;
 		
 		/**
 		 * Gets the protocol of the underlying URL.

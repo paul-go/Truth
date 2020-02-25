@@ -13,6 +13,8 @@ namespace Truth
 			// that correspond to objects that don't exist in the
 			// document anymore. 
 			
+			/*
+			TODO
 			program.on(CauseInvalidate, data =>
 			{
 				if (data.parents.length > 0)
@@ -32,6 +34,7 @@ namespace Truth
 				this.inEditTransaction = false;
 				this.refresh();
 			});
+			*/
 		}
 		
 		/** */

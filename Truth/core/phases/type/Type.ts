@@ -17,13 +17,10 @@ namespace Truth
 		 * @internal
 		 * Constructs one or more Type objects from the specified location.
 		 */
-		static construct(phrase: Phrase): Type | null;
-		static construct(spine: Spine): Type | null;
-		static construct(param: Phrase | Spine): Type | null
+		static construct(phrase: Phrase): Type | null
 		{
-			const phrase = param instanceof Phrase ?
-				param :
-				Phrase.fromSpine(param);
+			if (2 + 2 === 4)
+				return null;
 			
 			if (!phrase || phrase.length === 0)
 				return null;
@@ -277,7 +274,7 @@ namespace Truth
 				return this.private.inners;
 			
 			this.private.throwOnDirty();
-			const innerSubs: Subject[] = [];
+			const innerSubjects: Subject[] = [];
 			
 			// Dig through the parallel graph recursively, and at each parallel,
 			// dig through the base graph recursively, and collect all the names
@@ -286,18 +283,15 @@ namespace Truth
 				for (const { type: baseType } of parallelType.iterate(t => t.bases, true))
 					if (baseType.private.seed instanceof ExplicitParallel)
 						for (const subject of baseType.private.seed.node.contents.keys())
-							if (!innerSubs.includes(subject))
-								innerSubs.push(subject);
+							if (!innerSubjects.includes(subject))
+								innerSubjects.push(subject);
 			
-			const inners = innerSubs
-				.map(innerSub =>
-				{
-					const maybeInnerPhrase = this.phrase.forward(innerSub);
-					return Type.construct(maybeInnerPhrase);
-				})
+			const innerTypes = innerSubjects
+				.flatMap(subject => this.phrase.peek(subject))
+				.map(phrase => Type.construct(phrase))
 				.filter((t): t is Type => t !== null);
 			
-			return this.private.inners = Object.freeze(inners);
+			return this.private.inners = Object.freeze(innerTypes);
 		}
 		
 		/**

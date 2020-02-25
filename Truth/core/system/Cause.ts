@@ -89,47 +89,6 @@ namespace Truth
 		{ super(); }
 	}
 	
-	/** */
-	export class CauseInvalidate extends Cause
-	{
-		constructor(
-			/**
-			 * A reference to the Document object in which the Invalidation occured.
-			 */
-			readonly document: Document,
-			/**
-			 * An array of statements whose descendants should be invalidated.
-			 * If the array is empty, the entire document should be invalidated.
-			 */
-			readonly parents: readonly Statement[],
-			/**
-			 * An array of indexes whose length is the same as the parents field,
-			 * that represents the index of each parent within the document.
-			 */
-			readonly indexes: readonly number[])
-		{ super(); }
-	}
-	
-	/** */
-	export class CauseRevalidate extends Cause
-	{
-		constructor(
-			/**
-			 * A reference to the Document object in which the Revalidation will occur.
-			 */
-			readonly document: Document,
-			/**
-			 * An array of statements whose descendants should be revalidated.
-			 */
-			readonly parents: readonly Statement[],
-			/**
-			 * An array of indexes whose length is the same as the parents field,
-			 * that represents the index of each parent within the document.
-			 */
-			readonly indexes: readonly number[])
-		{ super(); }
-	}
-	
 	/** A cause that runs when a document edit transaction has completed. */
 	export class CauseEditComplete extends Cause
 	{

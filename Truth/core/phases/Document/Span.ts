@@ -27,9 +27,10 @@ namespace Truth
 			 */
 			readonly boundary: Boundary<Subject>)
 		{
-			this.name = 
-				SubjectSerializer.forInternal(boundary) + 
-				` (${boundary.offsetStart}, ${boundary.offsetEnd})`;
+			if ("DEBUG")
+				this.name = 
+					SubjectSerializer.forInternal(boundary) + 
+					` (${boundary.offsetStart}, ${boundary.offsetEnd})`;
 		}
 		
 		/**
@@ -119,26 +120,58 @@ namespace Truth
 		private _ancestry: readonly Statement[] | null = null;
 		
 		/**
+		 * Gets a boolean value that indicates whether this Span is considered
+		 * object-level cruft, and should therefore be ignored during type analysis.
+		 */
+		get isCruft()
+		{
+			return this.statement.cruftObjects.has(this);
+		}
+		
+		/**
+		 * @internal
+		 * Gets a boolean values that indicates whether this Span was used
+		 * as a cruft marker in order to indicate a faulty statement in a Spine.
+		 */
+		get isCruftMarker()
+		{
+			return this.boundary.subject === Term.cruft;
+		}
+		
+		/**
+		 * @internal
+		 * Returns an array of spines that this span "seeds". Span S is
+		 * said to "seed" a spine in the case when there is a path of
+		 * spans through a statement ancestry that terminates at S.
+		 */
+		get spines(): readonly Spine[]
+		{
+			return this._spines || (this._spines = this.factor());
+		}
+		private _spines: readonly Spine[] | null = null;
+		
+		/**
 		 * Splits apart the groups subjects specified in the containing
-		 * statement's ancestry, and generates a series of spines, 
+		 * statement's ancestry, and generates a series of Spines, 
 		 * each indicating a separate pathway of declarations through
 		 * the ancestry that reach the location in the document
-		 * referenced by this global span object.
+		 * referenced by this Span.
 		 * 
-		 * The generated spines are referentially opaque. Running this
-		 * method on the same Span object always returns the same
-		 * Spine instance.
+		 * For example, given the following Truth:
+		 * ```
+		 * A, B
+		 * 	C
+		 * ```
+		 * The span at C would seed 2 spines, the first being A/C,
+		 * and the second being B/C.
 		 */
-		factor(): readonly Spine[]
+		private factor(): readonly Spine[]
 		{
-			if (this.factoredSpines)
-				return this.factoredSpines;
-			
 			if (this.isCruft || this.statement.isCruft)
-				return this.factoredSpines = Object.freeze([]);
+				return [];
 			
 			if (this.ancestry.length === 0)
-				return this.factoredSpines = Object.freeze([new Spine([this])]);
+				return [[this]];
 			
 			// We need to factor the ancestry. This means we're taking the
 			// specified ancestry path, and splitting where any has-a side unions
@@ -146,7 +179,7 @@ namespace Truth
 			// It's possible to have statements in the span path in the case
 			// when the statement has been deemed as cruft, and therefore,
 			// is impossible to extract any spans from it.
-			const factoredSpanPaths: (Span | Statement)[][] = [];
+			const factoredSpanPaths: Span[][] = [];
 			
 			// An array of arrays. The first dimension corresponds to a statement. 
 			// The second dimension stores the declaration spans themselves.
@@ -156,8 +189,8 @@ namespace Truth
 			const ancestryLengths = ancestryMatrix.map(span => span.length);
 			
 			// Multiplying together the number of spans in each statement will
-			// give the total number of unique spines that will be produced.
-			const numSpines = ancestryLengths.reduce((a, b) => a * b, 1);
+			// give the total number of unique phrases that will be produced.
+			const numPhrases = ancestryLengths.reduce((a, b) => a * b, 1);
 			
 			// Start with an array of 0's, whose length matches the number
 			// of statements in the ancestry. Each number in this array will be 
@@ -166,7 +199,7 @@ namespace Truth
 			// the progression of numbers will run through all indexes required to
 			// perform a full factorization of the terms in the ancestry. This array
 			// tells the algorithm which indexes in ancestryMatrix to pull when
-			// constructing a spine.
+			// constructing a phrase.
 			const cherryPickIndexes = ancestryLengths.map(() => 0);
 			
 			// Stores the position in cherryPickIndexes that we're currently
@@ -174,10 +207,10 @@ namespace Truth
 			// the target position is >= the number of terms at that position.
 			let targetIncLevel = 0;
 			
-			for (let i = -1; ++i < numSpines;)
+			for (let i = -1; ++i < numPhrases;)
 			{
 				// Do an insertion at the indexes specified by insertionIndexes
-				const spanPath: (Span | Statement)[] = [];
+				const spanPath: Span[] = [];
 				
 				// Cherry pick a series of terms from the ancestry terms,
 				// according to the index set we're currently on.
@@ -186,14 +219,16 @@ namespace Truth
 					const statement = this.ancestry[level];
 					if (statement.isCruft)
 					{
-						spanPath.push(statement);
+						spanPath.push(new Span(
+							statement,
+							new Boundary(0, 0, Term.cruft)));
+						
 						continue;
 					}
 					
 					const spansForStatement = ancestryMatrix[level];
 					const spanIndex = cherryPickIndexes[level];
 					const span = spansForStatement[spanIndex];
-					
 					if (!span)
 						throw Exception.unknownState();
 					
@@ -201,7 +236,7 @@ namespace Truth
 				}
 				
 				// The tip span specified in the method arguments
-				// is added at the end of all generated span paths.
+				// is added at the end of all generated subject paths.
 				spanPath.push(this);
 				factoredSpanPaths.push(spanPath);
 				
@@ -215,21 +250,7 @@ namespace Truth
 				cherryPickIndexes[targetIncLevel]++;
 			}
 			
-			return this.factoredSpines = 
-				Object.freeze(factoredSpanPaths.map(spanPath => 
-					new Spine(spanPath)));
-		}
-		
-		/**  */
-		private factoredSpines: readonly Spine[] | null = null;
-		
-		/**
-		 * Gets a boolean value that indicates whether this Span is considered
-		 * object-level cruft, and should therefore be ignored during type analysis.
-		 */
-		get isCruft()
-		{
-			return this.statement.cruftObjects.has(this);
+			return factoredSpanPaths;
 		}
 		
 		/**
@@ -247,4 +268,7 @@ namespace Truth
 				sub.toString();
 		}
 	}
+	
+	/** @internal */
+	export type Spine = readonly Span[];
 }

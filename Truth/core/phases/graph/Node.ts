@@ -40,6 +40,8 @@ namespace Truth
 				this.subject instanceof Term &&
 				this.subject.isList;
 			
+			/*
+			TODO
 			if (container)
 			{
 				this.container = container;
@@ -55,9 +57,9 @@ namespace Truth
 				this.phrase = this.document.phrase.forward(this.subject);
 				this.addRootNode(this);
 			}
-			
 			// Performance shortcut. See notes in "associatedNode".
 			this.phrase.associatedNode = this;
+			*/
 			
 			///if (!(declaration instanceof Span))
 			///	return this;
@@ -180,7 +182,7 @@ namespace Truth
 		readonly subject: Subject;
 		
 		/** */
-		readonly phrase: Phrase;
+		readonly phrase: Phrase = null as any;
 		
 		/** Stores the document that contains this Node. */
 		readonly document: Document;
