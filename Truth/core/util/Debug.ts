@@ -16,9 +16,9 @@ namespace Truth
 		/**
 		 * Logs all phrases associated with the specified document to a table.
 		 */
-		printPhrases(document: Document, includeClarifiers = false)
+		printPhrases(document: Document, includeClarifiers = false, includeInflations = false)
 		{
-			type Row = { phrase: string, clarifiers?: string };
+			type Row = { phrase: string, clarifiers?: string, inflations?: number };
 			const rows: Row[] = [];
 			
 			for (const phrase of document.phrase.eachDescendant())
@@ -28,6 +28,9 @@ namespace Truth
 				
 				if (includeClarifiers)
 					row.clarifiers = phrase.clarifiers.map(term => term.toString()).join();
+				
+				if (includeInflations)
+					row.inflations = phrase.inflationSize;
 			}
 			
 			console.table(rows);

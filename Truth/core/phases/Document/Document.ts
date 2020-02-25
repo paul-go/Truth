@@ -56,7 +56,7 @@ namespace Truth
 			Phrase.createRecursive(topLevelStatements);
 			
 			if ("DEBUG")
-				Debug.printPhrases(doc, true);
+				Debug.printPhrases(doc, true, true);
 			
 			return doc;
 		}
@@ -994,7 +994,7 @@ namespace Truth
 						throw Exception.unknownState();
 				
 				Debug.printDocument(this);
-				Debug.printPhrases(this, true);
+				Debug.printPhrases(this, true, true);
 			}
 			
 			// Clean out any type cache

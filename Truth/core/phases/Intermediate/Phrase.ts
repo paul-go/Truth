@@ -18,7 +18,7 @@ namespace Truth
 		 */
 		static new(containingDocument: Document)
 		{
-			return new Phrase(null, containingDocument, Term.void, 0, [], "");
+			return new Phrase(null, containingDocument, [], "");
 		}
 		
 		/**
@@ -32,11 +32,11 @@ namespace Truth
 				throw new Error("This probably shouldn't be available.");
 			}
 			
-			const phrases: Phrase[] = [];
-			
 			for (const span of this.enumerate(root))
-				phrases.push(...Phrase.fromSpan(span));
+				for (const phrase of Phrase.fromSpan(span))
+					phrase.deflate(span);
 			
+			/*
 			// This algorithm creates a list of phrases whose context
 			// should be disposed, sorted in an order that would like this:
 			// 
@@ -66,6 +66,7 @@ namespace Truth
 			
 			for (const phrase of phrases)
 				phrase.dispose();
+			*/
 		}
 		
 		/**
@@ -74,7 +75,8 @@ namespace Truth
 		static createRecursive(statements: readonly Statement[])
 		{
 			for (const span of this.enumerate(statements))
-				Phrase.fromSpan(span);
+				for (const phrase of Phrase.fromSpan(span))
+					phrase.inflate(span);
 		}
 		
 		/** */
@@ -111,20 +113,17 @@ namespace Truth
 		{
 			const phrases: Phrase[] = [];
 			const root = span.statement.document.phrase;
-			const doc = span.statement.document;
 			
 			for (const spine of span.spines)
 			{
 				let current = root;
 				
-				for (const span of spine)
+				for (const spineSpan of spine)
 				{
-					if (span.isCruftMarker)
+					if (spineSpan.isCruftMarker)
 						continue;
 					
-					const subject = span.boundary.subject;
-					
-					const clarifiers = span.statement.annotations
+					const clarifiers = spineSpan.statement.annotations
 						.map(span => span.boundary.subject)
 						.filter((subject): subject is Term => subject instanceof Term);
 					
@@ -135,14 +134,10 @@ namespace Truth
 							.sort((a, b) => a - b)
 							.join();
 					
-					let next = current.forwardings.get(subject, clarifierKey);
-					if (!next)
-					{
-						next = new Phrase(current, doc, subject, this.length + 1, clarifiers, clarifierKey);
-						current.forwardings.set(subject, clarifierKey, next);
-					}
-					
-					current = next;
+					const subject = spineSpan.boundary.subject;
+					current = 
+						current.forwardings.get(subject, clarifierKey) ||
+						new Phrase(current, spineSpan, clarifiers, clarifierKey);
 				}
 				
 				if (current !== root)
@@ -198,20 +193,7 @@ namespace Truth
 		/** */
 		private constructor(
 			parent: Phrase | null,
-			/**
-			 * Stores a reference to the Document that ultimately
-			 * contains this Phrase.
-			 */
-			readonly containingDocument: Document,
-			/**
-			 * Stores the subject that exists at the end of this phrase.
-			 */
-			readonly terminal: Subject,
-			/**
-			 * Stores the number of subjects in this Phrase. This value
-			 * is equivalent to the length of this Phrase's ancestry. 
-			 */
-			readonly length: number,
+			inflator: Document | Span,
 			/**
 			 * Stores the list of terms that exist on the right-side of the
 			 * statement (or statements) that caused this Phrase to come
@@ -226,6 +208,18 @@ namespace Truth
 		{
 			super();
 			this.parent = parent || this;
+			this.length = this.parent === this ? 0 : this.parent.length + 1;
+			
+			this.containingDocument = inflator instanceof Document ? 
+				inflator : 
+				inflator.statement.document;
+			
+			this.terminal = inflator instanceof Document ?
+				Term.void :
+				inflator.boundary.subject;
+			
+			if (parent)
+				parent.forwardings.set(this.terminal, clarifierKey, this);
 		}
 		
 		/** */
@@ -237,6 +231,78 @@ namespace Truth
 		 * is root-level, this field stores a self-reference.
 		 */
 		readonly parent: Phrase;
+		
+		/**
+		 * Stores a reference to the Document that ultimately
+		 * contains this Phrase.
+		 */
+		readonly containingDocument: Document;
+		
+		/**
+		 * Gets a read-only array of Statement objects from which this Phrase
+		 * is composed.
+		 */
+		get statements()
+		{
+			if (this._statements !== null)
+				return this._statements;
+			
+			const statements = new Set<Statement>();
+			
+			for (const span of this.inflatingSpans)
+				statements.add(span.statement);
+			
+			return this._statements = Array.from(statements);
+		}
+		private _statements: readonly Statement[] | null = null;
+		
+		/**
+		 * Stores the subject that exists at the end of this phrase.
+		 */
+		readonly terminal: Subject;
+		
+		/**
+		 * Stores the number of subjects in this Phrase. This value
+		 * is equivalent to the length of this Phrase's ancestry. 
+		 */
+		readonly length: number;
+		
+		/**
+		 * Stores a table of nested phrases, keyed in 2 dimensions, firstly by the
+		 * Phrases terminating subject, and secondly by the Phrase's clarifierKey,
+		 * (a hash of the phrase's associated annotations).
+		 */
+		private readonly forwardings = new Map3D<Subject, string, Phrase>();
+		
+		/**
+		 * 
+		 */
+		private inflate(span: Span)
+		{
+			this.inflatingSpans.add(span);
+		}
+		
+		/**
+		 * 
+		 */
+		private deflate(span: Span)
+		{
+			this.inflatingSpans.delete(span);
+			if (this.inflatingSpans.size === 0)
+				this.dispose();
+		}
+		
+		private readonly inflatingSpans = new Set<Span>();
+		
+		/**
+		 * @internal
+		 * Gets a number that indicates the number of Spans that are contributing
+		 * the necessary existence of the Phrase.
+		 */
+		get inflationSize()
+		{
+			return this.inflatingSpans.size;
+		}
 		
 		/**
 		 * Returns a reference to the phrase that is 1 subject shorter than
@@ -301,9 +367,6 @@ namespace Truth
 			yield* recurse(this);
 		}
 		
-		/** */
-		private readonly forwardings = new Map3D<Subject, string, Phrase>();
-		
 		/**
 		 * Gets an array containing the subjects that compose this phrase.
 		 * Note that if only the number of subjects is required, the .length
@@ -362,10 +425,6 @@ namespace Truth
 		 * This field should only be assigned from within the Node class.
 		 */
 		associatedNode: Node | null = null;
-		
-		//
-		//
-		//
 		
 		/**
 		 * @internal
@@ -467,6 +526,7 @@ namespace Truth
 			this._outbounds = null;
 			this._ancestry = null;
 			this._subjects = null;
+			this._statements = null;
 		}
 		
 		/**
