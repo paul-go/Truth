@@ -145,7 +145,7 @@ namespace Truth
 		 * the type at the URI specified, or null in the case when no type
 		 * could be found.
 		 */
-		query(...typePath: string[]): Type | null
+		query(...typePath: string[])
 		{
 			return this.program.query(this, ...typePath);
 		}
@@ -178,7 +178,7 @@ namespace Truth
 			faultType: SpanFaultType,
 			line: number,
 			termIndex: number): boolean;
-		
+		/** */
 		hasFault(faultType: Readonly<FaultType>, line: number, termIndex = -1)
 		{
 			const comp = termIndex < 0 ?
@@ -204,6 +204,7 @@ namespace Truth
 		 * has exactly the faults specified (no more, no less).
 		 */
 		hasFaults(...expectations: TComparisonFault[]): boolean
+		/** */
 		hasFaults(...expectations: TComparisonFault[])
 		{
 			const faultsReported = Array.from(this.program.faults.each(this));

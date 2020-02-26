@@ -350,7 +350,7 @@ namespace Truth
 			const bases = new Map<ExplicitParallel, HyperEdge>();
 			const obs = patternParallel.node.outbounds;
 			const nameOf = (edge: HyperEdge) =>
-				SubjectSerializer.forInternal(edge.fragments[0]);
+				Subject.serializeInternal(edge.fragments[0]);
 			
 			for (let i = -1; ++i < obs.length;)
 			{

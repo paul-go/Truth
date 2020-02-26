@@ -189,6 +189,14 @@ namespace Truth
 		}
 		
 		/** */
+		static invalidOperationOnHypotheticalPhrase()
+		{
+			return error(`
+				Cannot perform this operation on a Phrase, because it refers
+				to an area of a document that only exists hypothetically.`);
+		}
+		
+		/** */
 		static nonEmptyDocument()
 		{
 			return error("Cannot call this method on a non-empty document.");
@@ -221,6 +229,12 @@ namespace Truth
 		static documentNotLoaded()
 		{
 			return error("This document has not been loaded into the current program.");
+		}
+		
+		/** */
+		static documentContainsInvalidHomograph()
+		{
+			return error("An invalid homograph was detected at the location specified.");
 		}
 		
 		/** */

@@ -29,7 +29,7 @@ namespace Truth
 		{
 			if ("DEBUG")
 				this.name = 
-					SubjectSerializer.forInternal(boundary) + 
+					Subject.serializeInternal(boundary) + 
 					` (${boundary.offsetStart}, ${boundary.offsetEnd})`;
 		}
 		

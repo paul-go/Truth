@@ -175,7 +175,7 @@ namespace Truth
 		 */
 		get name()
 		{
-			return SubjectSerializer.forInternal(this.subject);
+			return Subject.serializeInternal(this.subject);
 		}
 		
 		/** */
@@ -783,8 +783,8 @@ namespace Truth
 			const spans = decls.filter((s): s is Span => s instanceof Span);
 			const anchors = decls.filter((a): a is InfixSpan => a instanceof InfixSpan);
 			
-			const spansText = spans.map(s => SubjectSerializer.forInternal(s)).join(", ");
-			const anchorText = anchors.map(a => SubjectSerializer.forInternal(a)).join(", ");
+			const spansText = spans.map(s => Subject.serializeInternal(s)).join(", ");
+			const anchorText = anchors.map(a => Subject.serializeInternal(a)).join(", ");
 			
 			const ob = this.outbounds.length;
 			const ib = this.inbounds.size;

@@ -2,40 +2,44 @@
 namespace Truth
 {
 	/**
+	 * Aliases a type that is or contains a Subject.
+	 */
+	export type SubjectContainer = Span | InfixSpan | Boundary<Subject> | Subject;
+	
+	/**
 	 * A type alias that refers to the kinds of objects that exist 
 	 * at the bottom of a Statement's abstract syntax tree.
 	 */
 	export type Subject = Term | Pattern | KnownUri;
 	
-	/** Aliases a type that is or contains a Subject. */
-	export type SubjectContainer = Span | InfixSpan | Boundary<Subject> | Subject;
-	
-	/** */
-	export class SubjectSerializer
+	/**
+	 * Utility methods that apply to all Subject instances.
+	 */
+	export namespace Subject
 	{
 		/**
 		 * Universal method for serializing a subject to a string,
 		 * useful for debugging and supporting tests.
 		 */
-		static forExternal(
+		export function serializeExternal(
 			target: SubjectContainer,
 			escapeStyle: TermEscapeKind = TermEscapeKind.none)
 		{
-			const subject = this.resolveSubject(target);
-			return this.serialize(subject, escapeStyle, false);
+			const subject = resolveSubject(target);
+			return serialize(subject, escapeStyle, false);
 		}
 		
 		/**
 		 * Serializes a subject, or a known subject containing object for internal use.
 		 */
-		static forInternal(target: SubjectContainer)
+		export function serializeInternal(target: SubjectContainer)
 		{
-			const subject = this.resolveSubject(target);
-			return this.serialize(subject, TermEscapeKind.none, true);
+			const subject = resolveSubject(target);
+			return serialize(subject, TermEscapeKind.none, true);
 		}
 		
 		/** */
-		private static resolveSubject(target: SubjectContainer): Subject
+		function resolveSubject(target: SubjectContainer): Subject
 		{
 			return target instanceof Boundary ? target.subject :
 				target instanceof Span ? target.boundary.subject :
@@ -44,7 +48,7 @@ namespace Truth
 		}
 		
 		/** */
-		private static serialize(
+		function serialize(
 			subject: SubjectContainer,
 			escapeStyle: TermEscapeKind,
 			includeHash: boolean)

@@ -371,11 +371,13 @@ namespace Truth
 		 * @param document The document to query.
 		 * @param typePath The type path within the document to search.
 		 * 
-		 * @returns A fully constructed Type instance that corresponds to
-		 * the type at the URI specified, or null in the case when no type
-		 * could be found.
+		 * @returns An array containing the top-level types that are
+		 * defined within the specified document. The array is empty in the
+		 * case when no type could be constructed from the path specified.
+		 * The array may have multiple items in the case when a homograph
+		 * was detected at the root of the document.
 		 */
-		query(document: Document, ...typePath: string[]): Type | null;
+		query(document: Document, ...typePath: string[]): readonly Type[];
 		query(document: Document, ...typePath: string[]):
 			readonly Type[] | Type | null
 		{
@@ -385,10 +387,13 @@ namespace Truth
 			if (typePath.length === 0)
 				return Type.constructRoots(document);
 			
-			const phrase = Phrase.fromPathComponents(document, typePath);
-			return phrase ?
-				Type.construct(phrase) :
-				null;
+			const phrases = Phrase.fromPathComponents(document, typePath);
+			if (typeof phrases === "number")
+				throw Exception.documentContainsInvalidHomograph();
+			
+			return phrases
+				.map(phrase => Type.construct(phrase))
+				.filter((phrase): phrase is Type => !!phrase);
 		}
 		
 		/**

@@ -18,7 +18,100 @@ namespace Truth
 		 */
 		static new(containingDocument: Document)
 		{
-			return new Phrase(null, containingDocument, [], "");
+			return new Phrase(containingDocument);
+		}
+		
+		/**
+		 * Finds a possible Phrase object, which is identified by an phrase path
+		 * string.
+		 * 
+		 * @returns The existing Phrase found at the phrase path specified, or
+		 * null in the case when the path specified refers to a non-existent
+		 * phrase, to the path refers to a Phrase that has cruft somewhere in
+		 * it's ancestry.
+		 */
+		static fromPath(
+			containingDocument: Document,
+			encodedPhrasePath: string): Phrase | null
+		{
+			debugger;
+			return null;
+		}
+		
+		/**
+		 * Returns an array of Phrase objects that refer to the (potentially hypothetical) areas
+		 * in a document. The returned array will contain multiple Phrase objects in the case
+		 * when the first term in the path is a member of a homograph. In order to restrict the
+		 * returned array to a single item, a non-empty array should be provided in the clarifier
+		 * argument in order to disambiguate.
+		 * 
+		 * Returns an empty array in the case when the case when the provided path of subjects
+		 * argument is a zero-length array, or the first term in the path refers to a non-existent
+		 * area of the target document.
+		 * 
+		 * Returns a number in the case when a homograph was detected at some point beyond
+		 * the first level. The number indicates the index of the path at which the homograph
+		 * was detected (this should be considered an error).
+		 */
+		static fromPathComponents(
+			targetDocument: Document,
+			path: string[],
+			clarifier: string[] = []): Phrase[] | number
+		{
+			if (path.length === 0)
+				return [];
+			
+			// In order to make this method work with patterns, 
+			// pathSubjects needs to be an array of subjects, or there
+			// needs to be some easy way to turn these into subjects.
+			
+			const clarifierKey = this.getClarifierKey(clarifier);
+			const pathTerms = path.map(v => Term.from(v));
+			const firstTerm = pathTerms.shift()!;
+			
+			const rootPhrases = clarifierKey ?
+				targetDocument.phrase.peek(firstTerm, clarifierKey) :
+				targetDocument.phrase.peek(firstTerm);
+			
+			if (rootPhrases.length === 0)
+				return [];
+			
+			const outPhrases: Phrase[] = [];
+			
+			for (const rootPhrase of rootPhrases)
+			{
+				let currentPhrase = rootPhrase;
+				
+				for (const pathTerm of pathTerms)
+				{
+					const phrases = currentPhrase.peek(pathTerm);
+					
+					if (phrases.length === 1)
+					{
+						currentPhrase = phrases[0];
+					}
+					else if (phrases.length === 0)
+					{
+						currentPhrase = new Phrase(currentPhrase, pathTerm);
+					}
+					else return currentPhrase.length;
+				}
+				
+				outPhrases.push(currentPhrase);
+			}
+			
+			return outPhrases;
+		}
+		
+		/**
+		 * @internal
+		 * Iterates through the first-level phrases of the specified document,
+		 * skipping over the phrases that don't have an associated node.
+		 */
+		static *rootsOf(document: Document): IterableIterator<Phrase>
+		{
+			for (const [subject, clarifier, phrase] of document.phrase.forwardings)
+				yield phrase;
 		}
 		
 		/**
@@ -35,38 +128,6 @@ namespace Truth
 			for (const span of this.enumerate(root))
 				for (const phrase of Phrase.fromSpan(span))
 					phrase.deflate(span);
-			
-			/*
-			// This algorithm creates a list of phrases whose context
-			// should be disposed, sorted in an order that would like this:
-			// 
-			// A/B/C
-			// A/B/D
-			// A/B
-			// A
-			// X/Y/Z
-			// X/Y/W
-			// X/Y
-			phrases.sort((a, b) =>
-			{
-				if (b.length !== a.length)
-					return b.length - a.length;
-				
-				for (let i = -1; ++i < a.length;)
-				{
-					const idA = a.subjects[i].id;
-					const idB = b.subjects[i].id;
-					
-					if (idA !== idB)
-						return idB - idA;
-				}
-				
-				return 0;
-			});
-			
-			for (const phrase of phrases)
-				phrase.dispose();
-			*/
 		}
 		
 		/**
@@ -124,17 +185,11 @@ namespace Truth
 						continue;
 					
 					const clarifiers = spineSpan.statement.annotations
-						.map(span => span.boundary.subject)
-						.filter((subject): subject is Term => subject instanceof Term);
+						.map(span => span.boundary.subject as Term);
 					
-					const clarifierKey = clarifiers.length === 0 ?
-						"" :
-						clarifiers
-							.map(t => t.id)
-							.sort((a, b) => a - b)
-							.join();
-					
+					const clarifierKey = this.getClarifierKey(clarifiers);
 					const subject = spineSpan.boundary.subject;
+					
 					current = 
 						current.forwardings.get(subject, clarifierKey) ||
 						new Phrase(current, spineSpan, clarifiers, clarifierKey);
@@ -148,82 +203,96 @@ namespace Truth
 		}
 		
 		/**
-		 * Finds a possible Phrase object, which is identified by an phrase path
-		 * string.
-		 * 
-		 * @returns The existing Phrase found at the phrase path specified, or
-		 * null in the case when the path specified refers to a non-existent
-		 * phrase, to the path refers to a Phrase that has cruft somewhere in
-		 * it's ancestry.
+		 * Returns a clarification key from the specified set of strings or Terms,
+		 * which are annotations in some statement. The clarification key is
+		 * a single string of comma-separated terms. For example:
+		 * ```
+		 * A : B, C
+		 * ```
+		 * Given the above statement, the clarification key for A would be "B,C".
 		 */
-		static fromPath(
-			containingDocument: Document,
-			encodedPhrasePath: string): Phrase | null
+		private static getClarifierKey(clarifiers: (string | Term)[])
 		{
-			debugger;
-			return null;
+			return clarifiers.length === 0 ?
+				"" :
+				clarifiers
+					.map(v => v instanceof Term ? v.id : Term.from(v).id)
+					.sort((a, b) => a - b)
+					.join();
 		}
 		
 		/**
-		 * @returns The existing Phrase found at the phrase path specified, or
-		 * null in the case when the path specified refers to a non-existent
-		 * phrase, to the path refers to a Phrase that has cruft somewhere in
-		 * it's ancestry.
+		 * Create a top-level, zero-length Phrase that sits at the root of a document.
 		 */
-		static fromPathComponents(
-			containingDocument: Document,
-			pathComponents: string[]): Phrase | null
-		{
-			// This is going to require clarifiers in the case when there are homographs.
-			debugger;
-			return null;
-		}
-		
+		private constructor(containingDocument: Document)
 		/**
-		 * @internal
-		 * Iterates through the first-level phrases of the specified document,
-		 * skipping over the phrases that don't have an associated node.
+		 * Create an L > 0 length Phrase that represents a path to an explicit area of the
+		 * document (meaning, an area that isn't explicitly backed by a span).
 		 */
-		static *rootsOf(document: Document): IterableIterator<Phrase>
-		{
-			for (const [subject, clarifier, phrase] of document.phrase.forwardings)
-				yield phrase;
-		}
-		
-		/** */
-		private constructor(
-			parent: Phrase | null,
-			inflator: Document | Span,
-			/**
-			 * Stores the list of terms that exist on the right-side of the
-			 * statement (or statements) that caused this Phrase to come
-			 * into being.
-			 */
-			readonly clarifiers: readonly Term[],
-			/**
-			 * Stores a string that can be used as a hash that corresponds
-			 * to a unique set of clarifier terms.
-			 */
-			readonly clarifierKey: string)
+		private constructor(parent: Phrase, inflator: Span, clarifiers: Term[], clarifierKey: string)
+		/**
+		 * Create an L > 0 length Phrase that represents a path to a hypothetical area of the
+		 * document (meaning, an area that is suggested to be valid through inheritance).
+		 */
+		private constructor(parent: Phrase, subject: Subject)
+		private constructor(a: Document | Phrase, b?: Span | Subject, c?: Term[], d?: string)
 		{
 			super();
-			this.parent = parent || this;
-			this.length = this.parent === this ? 0 : this.parent.length + 1;
 			
-			this.containingDocument = inflator instanceof Document ? 
-				inflator : 
-				inflator.statement.document;
+			this.terminal = Term.void;
+			this.clarifiers = [];
+			this.clarifierKey = "";
+			this.isHypothetical = false;
 			
-			this.terminal = inflator instanceof Document ?
-				Term.void :
-				inflator.boundary.subject;
-			
-			if (parent)
-				parent.forwardings.set(this.terminal, clarifierKey, this);
+			// First overload
+			if (a instanceof Document)
+			{
+				this.containingDocument = a;
+				this.parent = this;
+				this.length = 0;
+			}
+			else
+			{
+				this.containingDocument = a.containingDocument;
+				this.parent = a;
+				this.length = a.length + 1;
+				
+				// Second overload
+				if (b instanceof Span)
+				{
+					this.terminal = b.boundary.subject;
+					this.clarifiers = c || [];
+					this.clarifierKey = d || "";
+					this.parent.forwardings.set(this.terminal, this.clarifierKey, this);
+					this.inflatingSpans.add(b);
+				}
+				// Third overload
+				else if (b)
+				{
+					this.isHypothetical = true;
+					this.terminal = b;
+					// Its important that in the case when we're creating a phrase that
+					// refers to a hypothetical area, this phrase isn't added to the
+					// forwardings table. These phrases should be seen as transient.
+				}
+			}
 		}
 		
 		/** */
 		readonly class = Class.phrase;
+		
+		/**
+		 * Stores the list of terms that exist on the right-side of the
+		 * statement (or statements) that caused this Phrase to come
+		 * into being.
+		 */
+		readonly clarifiers: readonly Term[];
+		
+		/**
+		 * Stores a string that can be used as a hash that corresponds
+		 * to a unique set of clarifier terms.
+		 */
+		readonly clarifierKey: string;
 		
 		/**
 		 * Stores a reference to the Phrase object that contains exactly one
@@ -239,6 +308,13 @@ namespace Truth
 		readonly containingDocument: Document;
 		
 		/**
+		 * Stores whether this Phrase represents a path to an hypothetical area of the
+		 * document (meaning, an area that is suggested to be valid through
+		 * inheritance).
+		 */
+		readonly isHypothetical: boolean;
+		
+		/**
 		 * Gets a read-only array of Statement objects from which this Phrase
 		 * is composed.
 		 */
@@ -246,6 +322,9 @@ namespace Truth
 		{
 			if (this._statements !== null)
 				return this._statements;
+			
+			if (this.isHypothetical)
+				return this._statements = [];
 			
 			const statements = new Set<Statement>();
 			
@@ -318,13 +397,13 @@ namespace Truth
 		 * in the case when such a phrase has been added to the internal forwarding
 		 * table.
 		 */
-		peek(subject: Subject): Phrase[];
-		peek(subject: Subject, clarifierKey: string): Phrase | null;
-		peek(subject: Subject, clarifierKey?: string)
+		peek(subject: Subject, clarifierKey?: string): Phrase[]
 		{
-			return clarifierKey === void 0 ?
-				this.forwardings.get(subject) :
-				this.forwardings.get(subject, clarifierKey) || null;
+			if (clarifierKey === undefined)
+				return this.forwardings.get(subject);
+			
+			const result = this.forwardings.get(subject, clarifierKey);
+			return result ? [result] : [];
 		}
 		
 		/**
@@ -334,7 +413,8 @@ namespace Truth
 		 */
 		peekDeep(path: readonly (string | Subject)[])
 		{
-			// This method needs some way to perform clarifiers.
+			// This method needs to deal with clarifiers
+			debugger;
 			
 			let current: Phrase = this;
 			
@@ -342,10 +422,10 @@ namespace Truth
 			{
 				const subject = typeof item === "string" ? Term.from(item) : item;
 				const peeked = current.peek(subject, "");
-				if (peeked === null)
+				if (peeked.length !== 1)
 					return null;
 				
-				current = peeked;
+				current = peeked[0];
 			}
 			
 			return current;
@@ -433,7 +513,7 @@ namespace Truth
 		 */
 		get name()
 		{
-			return SubjectSerializer.forInternal(this.terminal);
+			return Subject.serializeInternal(this.terminal);
 		}
 		
 		/**
@@ -489,6 +569,9 @@ namespace Truth
 		{
 			if (this._outbounds !== null)
 				return this._outbounds;
+			
+			if (this.isHypothetical)
+				throw Exception.invalidOperationOnHypotheticalPhrase();
 			
 			const forks: Fork[] = [];
 			const globalAncestry = this.ancestry.slice();

@@ -577,7 +577,7 @@ namespace Truth
 			{
 				return spans
 					.filter(sp => !(sp.boundary.subject instanceof Anon))
-					.map(sp => SubjectSerializer.forExternal(sp, escStyle))
+					.map(sp => Subject.serializeExternal(sp, escStyle))
 					.join(Syntax.combinator + Syntax.space);
 			};
 			

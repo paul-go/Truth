@@ -229,7 +229,7 @@ namespace Truth
 		 */
 		toString()
 		{
-			const print = (sub: Subject) => SubjectSerializer.forInternal(sub);
+			const print = (sub: Subject) => Subject.serializeInternal(sub);
 			
 			return [
 				"Value=" + this.term,
