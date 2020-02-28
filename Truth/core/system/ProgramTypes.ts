@@ -81,7 +81,7 @@ namespace Truth
 		 */
 		readonly text: string;
 	}
-		
+	
 	/**
 	 * An interface that represents an edit to a document.
 	 */

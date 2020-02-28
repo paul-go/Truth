@@ -86,11 +86,11 @@ namespace Truth
 			/(\+|-)?(([1-9]\d{0,17})|([1-8]\d{18})|(9[01]\d{17})) : number
 			/(0|([1-9][0-9]*)) : bigint
 			/(true|false) : boolean
-
+			
 			Product
 				Name: string
 				Size: number
-
+			
 			data
 				001 : Product
 					Name: "Test"

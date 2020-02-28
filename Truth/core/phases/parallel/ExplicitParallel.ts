@@ -290,7 +290,7 @@ namespace Truth
 				Reimplementing this code requires a clearer understanding of:
 				- Pattern homographs (can we have these?)
 				- Is there a way how we can work around not having the inbounds?
-				- How we could potentiall find the "inbounds" in this case without
+				- How we could potentially find the "inbounds" in this case without
 				having to resort to implementing these in the Phrases
 				
 				const basesDeepSprawl = basesDeep
