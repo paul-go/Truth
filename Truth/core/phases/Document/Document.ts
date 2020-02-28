@@ -737,8 +737,8 @@ namespace Truth
 						if (smt.isDisposed)
 							throw Exception.unknownState();
 					
-					Debug.printDocument(this);
-					Debug.printPhrases(this, true, true);
+					//Debug.printDocument(this);
+					//Debug.printPhrases(this, true, true);
 				}
 				
 				this._types = null;
@@ -986,8 +986,8 @@ namespace Truth
 				deletePhrases()
 				{
 					Phrase.deleteRecursive(mustInvalidateDoc ?
-						self :
-						Array.from(invalidatedParents.values()));
+						Array.from(invalidatedParents.values()) :
+						self.getChildren());
 				},
 				updateDocument()
 				{

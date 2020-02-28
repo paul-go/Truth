@@ -136,15 +136,9 @@ namespace Truth
 		/**
 		 * @internal
 		 */
-		static deleteRecursive(root: Document | readonly Statement[])
+		static deleteRecursive(statements: readonly Statement[])
 		{
-			if (root instanceof Document)
-			{
-				debugger;
-				throw new Error("This probably shouldn't be available.");
-			}
-			
-			for (const span of this.enumerate(root))
+			for (const span of this.enumerate(statements))
 				for (const phrase of Phrase.fromSpan(span))
 					phrase.deflate(span);
 		}
@@ -685,17 +679,32 @@ namespace Truth
 			if (this.isHypothetical)
 				throw Exception.invalidOperationOnHypotheticalPhrase();
 			
+			if (this.isRoot)
+				return this._outbounds = [];
+			
 			const forks: Fork[] = [];
-			const globalAncestry = this.ancestry.slice();
+			
+			// The ancestry property returns an ancestry of phrases that
+			// includes the current phrase, which we don't want to include
+			// in the upward peeking process that follows.
+			const peekAncestry = this.ancestry.slice(0, -1);
+			
+			// The global ancestry should include the root phrase, because
+			// it's direct children should be included in the peeking process.
+			// The root may be found in different locations depending on
+			// whether this phrase is top-level.
+			peekAncestry.length === 0 ?
+				peekAncestry.unshift(this.parent) :
+				peekAncestry.unshift(peekAncestry[0].parent);
 			
 			for (const doc of this.containingDocument.traverseDependencies())
-				globalAncestry.unshift(doc.phrase);
+				peekAncestry.unshift(doc.phrase);
 			
 			for (const term of this.clarifiers)
 			{
 				const successors: Phrase[] = [];
 				
-				for (const ancestorPhrase of this.ancestry)
+				for (const ancestorPhrase of peekAncestry)
 				{
 					const phrases = ancestorPhrase.peek(term);
 					successors.unshift(...phrases);
