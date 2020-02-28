@@ -387,8 +387,7 @@ namespace Truth
 		//# Mutation related members
 		
 		/** 
-		 * Starts an edit transaction that may affect any document
-		 * loaded into this program, in the specified callback function.
+		 * Starts an edit transaction in the specified callback function.
 		 * Edit transactions are used to synchronize changes made in
 		 * an underlying file, typically done by a user in a text editing
 		 * environment. System-initiated changes such as automated
@@ -470,8 +469,13 @@ namespace Truth
 		}
 		
 		/**
-		 * Executes a complete edit transaction, that may affect any
-		 * document loaded into this program.
+		 * Executes a complete edit transaction, applying the series
+		 * of edits specified in the `edits` parameter. 
+		 * 
+		 * @returns A promise that resolves any external document
+		 * references added during the edit operation have been resolved.
+		 * If no such references were added, a promise is returned that
+		 * resolves immediately.
 		 */
 		async editAtomic(edits: IProgramEdit[])
 		{
