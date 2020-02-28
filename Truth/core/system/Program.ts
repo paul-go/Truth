@@ -215,9 +215,18 @@ namespace Truth
 		 * @returns An array containing the top-level types that are
 		 * defined within the specified document.
 		 */
-		queryAll(document: Document): readonly Type[]
+		queryAll(document: Document): Type[]
 		{
-			return Type.constructRoots(document);
+			const roots: Type[] = [];
+			
+			for (const phrase of Phrase.rootsOf(document))
+			{
+				const type = Type.construct(phrase);
+				if (type !== null)
+					roots.push(type);
+			}
+			
+			return roots;
 		}
 		
 		/**

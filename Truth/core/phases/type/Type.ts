@@ -97,25 +97,6 @@ namespace Truth
 			return lastType;
 		}
 		
-		/**
-		 * @internal
-		 * Constructs the invisible root-level Type object that corresponds
-		 * to the specified document.
-		 */
-		static constructRoots(document: Document)
-		{
-			const roots: Type[] = [];
-			
-			for (const phrase of Phrase.rootsOf(document))
-			{
-				const type = this.construct(phrase);
-				if (type !== null)
-					roots.push(type);
-			}
-			
-			return Object.freeze(roots);
-		}
-		
 		/** */
 		private static parallelContextMap = new WeakMap<Program, IStoredContext>();
 		

@@ -48,7 +48,7 @@ namespace Truth
 				return par;
 			};
 			
-			const container = Not.undefined(this.get(phrase.parent));
+			const container = this.get(phrase.parent) || null;
 			
 			if (phrase.isHypothetical)
 				return save(new ImplicitParallel(phrase, container));
