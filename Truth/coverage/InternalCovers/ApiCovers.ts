@@ -9,8 +9,10 @@ namespace Truth
 				Field
 		`);
 		
-		const targetTypes = program.query(doc, "Class", "Field");
-		const targetStatements = targetType?.statements || [];
+		const targetType = program.query(doc, "Class", "Field");
+		const targetStatements = targetType instanceof Type ?
+			targetType.statements :
+			[];
 		
 		return [
 			() => targetType instanceof Type,
@@ -29,7 +31,9 @@ namespace Truth
 		`);
 		
 		const targetType = program.query(doc, "SubClass", "Field");
-		const targetStatements = targetType?.statements || [];
+		const targetStatements = targetType instanceof Type ?
+			targetType.statements :
+			[];
 		
 		return [
 			() => targetType instanceof Type,

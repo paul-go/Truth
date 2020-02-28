@@ -635,6 +635,48 @@ namespace Truth
 		}
 		
 		/**
+		 * Starts an edit transaction in the specified callback function.
+		 * Edit transactions are used to synchronize changes made in
+		 * an underlying file, typically done by a user in a text editing
+		 * environment. System-initiated changes such as automated
+		 * fixes, refactors, or renames do not go through this pathway.
+		 * 
+		 * @param editFn The callback function in which to perform
+		 * document mutation operations.
+		 * 
+		 * @returns A promise that resolves any external document
+		 * references added during the edit operation have been resolved.
+		 * If no such references were added, a promise is returned that
+		 * resolves immediately.
+		 */
+		async edit(editFn: (mutator: IDocumentMutator) => void)
+		{
+			return this.program.edit(programMutator =>
+			{
+				return editFn({
+					insert: (text: string, at: number) => programMutator.insert(this, text, at),
+					update: (text: string, at: number) => programMutator.update(this, text, at),
+					delete: (at: number, count?: number) => programMutator.delete(this, at, count)
+				});
+			});
+		}
+		
+		/**
+		 * Executes a complete edit transaction, that may affect any
+		 * document loaded into this program.
+		 */
+		async editAtomic(edits: IDocumentEdit[])
+		{
+			const programEdits = edits.map(ed => ({
+				document: this,
+				range: ed.range,
+				text: ed.text
+			}));
+			
+			return this.program.editAtomic(programEdits);
+		}
+		
+		/**
 		 * @internal
 		 */
 		createMutationTask(edits: TEdit[]): IDocumentMutationTask | null

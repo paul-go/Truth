@@ -53,13 +53,6 @@
 // Phases / Intermedia Representation
 /// <reference path="./Phases/Intermediate/Phrase.ts" />
 
-// Phases / Graph Representation
-/// <reference path="./Phases/Graph/HyperGraph.ts" />
-/// <reference path="./Phases/Graph/Node.ts" />
-/// <reference path="./Phases/Graph/NodeIndex.ts" />
-/// <reference path="./Phases/Graph/HyperEdge.ts" />
-/// <reference path="./Phases/Graph/InfixSpan.ts" />
-
 // Phases / Parallel Representation
 /// <reference path="./Phases/Parallel/ConstructionWorker.ts" />
 /// <reference path="./Phases/Parallel/Parallel.ts" />
