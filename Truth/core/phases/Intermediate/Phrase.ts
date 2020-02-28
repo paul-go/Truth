@@ -155,10 +155,8 @@ namespace Truth
 		static createRecursive(statements: readonly Statement[])
 		{
 			for (const span of this.enumerate(statements))
-				Phrase.fromSpan(span);
-			
-				//for (const phrase of Phrase.fromSpan(span))
-				//	phrase.inflate(span);
+				for (const phrase of Phrase.fromSpan(span))
+					phrase.inflate(span);
 		}
 		
 		/** */
@@ -189,7 +187,8 @@ namespace Truth
 		 * @internal
 		 * Returns all Phrase objects that are terminated by the specified Span.
 		 * The phrases are created and added to the internal forwarding table
-		 * in the case when they're missing.
+		 * in the case when they're missing. Phrases created thought this method
+		 * are considered non-hypothetical.
 		 */
 		static fromSpan(span: Span)
 		{
@@ -284,7 +283,6 @@ namespace Truth
 					this.clarifiers = c || [];
 					this.clarifierKey = d || "";
 					this.parent.forwardings.set(this.terminal, this.clarifierKey, this);
-					this.inflatingSpans.add(b);
 				}
 				// Third overload
 				else if (b)
@@ -403,6 +401,14 @@ namespace Truth
 		 * is equivalent to the length of this Phrase's ancestry. 
 		 */
 		readonly length: number;
+		
+		/**
+		 * 
+		 */
+		private inflate(inflatingSpan: Span)
+		{
+			this.inflatingSpans.add(inflatingSpan);
+		}
 		
 		/**
 		 * Removes the specified "inflating span" from the phrase.
