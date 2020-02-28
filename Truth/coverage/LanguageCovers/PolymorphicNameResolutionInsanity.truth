@@ -19,10 +19,13 @@ Container2
 	Printer : Device
 	
 	Container2 : Container1
-		Property : Mouse (like Animal)
+		// (like Animal)
+		Property : Mouse
 	
 	Container3 : Container1
 		Property : Animal, Device
 	
 	Container4 : Container3
-		Property : Mouse, Mouse (like Animal, like Device)
+		// (like Animal, like Device)
+		Property : Mouse, Mouse
+		

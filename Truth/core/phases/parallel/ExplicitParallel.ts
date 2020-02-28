@@ -11,22 +11,18 @@ namespace Truth
 		 * Invoked by ParallelCache. Do not call.
 		 */
 		constructor(
-			node: Node,
+			phrase: Phrase,
 			container: ExplicitParallel | null,
 			cruft: CruftCache)
 		{
-			super(node.phrase, container);
-			this.node = node;
-			this.cruft = cruft;
+			super(phrase, container);
 			
-			node.document.program.faults.inform(node);
+			if (phrase.isHypothetical)
+				throw Exception.unknownState();
+			
+			this.cruft = cruft;
+			phrase.containingDocument.program.faults.inform(phrase);
 		}
-		
-		/**
-		 * Stores the Node instance that corresponds to this
-		 * ExplicitParallel instance.
-		 */
-		readonly node: Node;
 		
 		/** */
 		get isContractSatisfied()
@@ -68,26 +64,26 @@ namespace Truth
 		 */
 		*eachBase()
 		{
-			for (const [edge, baseEntry] of this._bases)
-				if (!this.cruft.has(edge))
+			for (const [fork, baseEntry] of this._bases)
+				if (!this.cruft.has(fork))
 					for (const base of baseEntry.parallels)
-						yield { base, edge, aliased: baseEntry.aliased };
+						yield { base, fork, aliased: baseEntry.aliased };
 		}
-		private readonly _bases = new Map<HyperEdge, IBaseEntry>();
+		private readonly _bases = new Map<Fork, IBaseEntry>();
 		
 		/**
 		 * 
 		 */
 		private addBaseEntry(
 			base: ExplicitParallel,
-			edge: HyperEdge,
+			fork: Fork,
 			aliased: boolean)
 		{
-			const existing = this._bases.get(edge);
+			const existing = this._bases.get(fork);
 			if (existing)
 				existing.parallels.push(base);
 			else
-				this._bases.set(edge, { parallels: [base], aliased });
+				this._bases.set(fork, { parallels: [base], aliased });
 		}
 		
 		/**
@@ -140,7 +136,7 @@ namespace Truth
 		 * @returns A boolean value that indicates whether the base
 		 * was added successfully.
 		 */
-		tryAddLiteralBase(base: ExplicitParallel, via: HyperEdge)
+		tryAddLiteralBase(base: ExplicitParallel, via: Fork)
 		{
 			if (this._bases.has(via))
 				throw Exception.unknownState();
@@ -175,13 +171,13 @@ namespace Truth
 		
 		/**
 		 * Attempts to indirectly apply a base to this ExplicitParallel via an alias
-		 * and edge.
+		 * and a fork.
 		 * 
 		 * @param patternParallelCandidates The pattern-containing
 		 * ExplicitParallel instance whose bases should be applied to this
 		 * ExplicitParallel, if the provided alias is a match.
 		 * 
-		 * @param viaEdge The HyperEdge in which the alias was found.
+		 * @param viaFork The Fork in which the alias was found.
 		 * 
 		 * @param viaAlias The string to test against the parallel embedded
 		 * within patternParallelCandidates.
@@ -191,10 +187,10 @@ namespace Truth
 		 */
 		tryAddAliasedBase(
 			patternParallelCandidates: ExplicitParallel[],
-			viaEdge: HyperEdge,
+			viaFork: Fork,
 			viaAlias: string)
 		{
-			if (this._bases.has(viaEdge))
+			if (this._bases.has(viaFork))
 				throw Exception.unknownState();
 			
 			const chosenParallels = patternParallelCandidates.slice();
@@ -247,7 +243,7 @@ namespace Truth
 						if (this.contract.trySatisfyCondition(chosenParallel) === 0)
 							continue;
 					
-					this.addBaseEntry(chosenParallel, viaEdge, true);
+					this.addBaseEntry(chosenParallel, viaFork, true);
 					wasAdded = true;
 				}
 			}
@@ -281,30 +277,43 @@ namespace Truth
 			
 			if (basesDeep.length > 0)
 			{
-				const basesNodes = bases.map(b => b.node);
+				const basesPhrases = bases.map(b => b.phrase);
 				
-				// Finds all pattern nodes that have an edge that points
+				// Finds all pattern nodes that have a fork that points
 				// to at least one of the bases in the basesDeep array.
+				// This is to prepare for the comparison of pattern
+				// subset and superset comparisons.
+				
+				/*
+				TODO:
+				
+				Reimplementing this code requires a clearer understanding of:
+				- Pattern homographs (can we have these?)
+				- Is there a way how we can work around not having the inbounds?
+				- How we could potentiall find the "inbounds" in this case without
+				having to resort to implementing these in the Phrases
+				
 				const basesDeepSprawl = basesDeep
-					.map(b => Array.from(b.node.inbounds))
+					.map(b => Array.from(b.phrase.inbounds) as Fork[])
 					.reduce((a, b) => a.concat(b), [])
 					.map(inb => inb.predecessor)
 					.filter((v, i, a) => a.indexOf(v) === i)
-					.filter(node => node.subject instanceof Pattern)
-					.filter(node => node.outbounds
-						.filter(ob => ob.successors.length === 0)
-						.map(ob => ob.successors[0].node)
-						.every(node => basesNodes.includes(node)));
+					.filter(phrase => phrase.terminal instanceof Pattern)
+					.filter(phrase => phrase.outbounds
+						.filter(obFork => obFork.successors.length === 0)
+						.map(okFork => okFork.successors[0])
+						.every(node => basesPhrases.includes(node)));
 				
 				const basesDeepSprawlPatterns = basesDeepSprawl
-					.map(n => n.subject)
+					.map(phrase => phrase.terminal)
 					.filter((s): s is Pattern => s instanceof Pattern);
+				*/
 				
 				/**
 				 * At this point, we need to test every single one of the 
 				 * patterns in basesDeepSprawlPatterns against this
-				 * this.node.subject to make sure the two patterns are
-				 * compliant.
+				 * this.phrase.terminal to make sure the two patterns
+				 * are compliant.
 				 * 
 				 * If they're not compliant, we need to start marking
 				 * bases as cruft until they are.
@@ -323,8 +332,8 @@ namespace Truth
 			 */
 			
 			// Here we're just adding all the bases regardless of whether
-			// or not any of the associated edges were marked as cruft.
-			// The other enumerators skip over cruft edges, so this likely
+			// or not any of the associated forks were marked as cruft.
+			// The other enumerators skip over crufty forks, so this likely
 			// isn't a problem, and it keeps it consistent with the way the
 			// rest of the system works.
 			for (const [base, via] of baseTable)
@@ -338,12 +347,6 @@ namespace Truth
 		get baseCount()
 		{
 			return this._bases.size;
-		}
-		
-		/** */
-		get isListIntrinsic()
-		{
-			return this.node.isListIntrinsic;
 		}
 		
 		/** */
@@ -365,7 +368,7 @@ namespace Truth
 			if (parallel._intrinsicExtrinsicBridge !== null)
 				throw Exception.unknownState();
 			
-			if (parallel.node.isListIntrinsic === this.node.isListIntrinsic)
+			if (parallel.phrase.isListIntrinsic === this.phrase.isListIntrinsic)
 				throw Exception.unknownState();
 			
 			this._intrinsicExtrinsicBridge = parallel;
@@ -380,10 +383,10 @@ namespace Truth
 			// This is purposely only returning the dimensionality of
 			// the first base. There is a guarantee that all dimensionalities
 			// will be the same here.
-			for (const { base, edge } of this.eachBase())
+			for (const { base, fork } of this.eachBase())
 			{
 				const initialDim = base.getListDimensionality();
-				return edge.isList ? initialDim + 1 : initialDim;
+				return fork.term.isList ? initialDim + 1 : initialDim;
 			}
 			
 			return 0;
@@ -416,8 +419,8 @@ namespace Truth
 		 */
 		get pattern(): Pattern | null
 		{
-			return this.node.subject instanceof Pattern ?
-				this.node.subject :
+			return this.phrase.terminal instanceof Pattern ?
+				this.phrase.terminal :
 				null;
 		}
 		
@@ -454,4 +457,7 @@ namespace Truth
 		/** Stores whether the term is an alias (matched by a pattern). */
 		aliased: boolean;
 	}
+		
+	/** @internal */
+	export type TBaseTable = ReadonlyMap<ExplicitParallel, Fork>;
 }

@@ -19,9 +19,6 @@ namespace Truth
 		 */
 		static construct(phrase: Phrase): Type | null
 		{
-			if (2 + 2 === 4)
-				return null;
-			
 			if (!phrase || phrase.length === 0)
 				return null;
 			
@@ -142,7 +139,7 @@ namespace Truth
 			{
 				const bases = Array.from(ep.eachBase());
 				return bases.map(entry => 
-					new TypeProxy(entry.base.node.phrase));
+					new TypeProxy(entry.base.phrase));
 			};
 			
 			if (seed instanceof ExplicitParallel)
@@ -176,7 +173,7 @@ namespace Truth
 			
 			if (seed instanceof ExplicitParallel)
 			{
-				const sub = seed.node.subject;
+				const sub = seed.phrase.terminal;
 				this.isPattern = sub instanceof Pattern;
 				this.isUri = sub instanceof KnownUri;
 				this.isAnonymous = sub instanceof Anon;
@@ -224,7 +221,7 @@ namespace Truth
 			if (!(this.private.seed instanceof ExplicitParallel))
 				return this.private.statements = Object.freeze([]);
 			
-			return this.private.statements = this.private.seed.node.statements.slice();
+			return this.private.statements = this.private.seed.phrase.statements.slice();
 		}
 		
 		/**
@@ -274,7 +271,7 @@ namespace Truth
 				return this.private.inners;
 			
 			this.private.throwOnDirty();
-			const innerSubjects: Subject[] = [];
+			const innerSubjects = new Set<Subject>();
 			
 			// Dig through the parallel graph recursively, and at each parallel,
 			// dig through the base graph recursively, and collect all the names
@@ -282,11 +279,10 @@ namespace Truth
 			for (const { type: parallelType } of this.iterate(t => t.parallels, true))
 				for (const { type: baseType } of parallelType.iterate(t => t.bases, true))
 					if (baseType.private.seed instanceof ExplicitParallel)
-						for (const subject of baseType.private.seed.node.contents.keys())
-							if (!innerSubjects.includes(subject))
-								innerSubjects.push(subject);
+						for (const subject of baseType.private.seed.phrase.peekSubjects())
+							innerSubjects.add(subject);
 			
-			const innerTypes = innerSubjects
+			const innerTypes = Array.from(innerSubjects)
 				.flatMap(subject => this.phrase.peek(subject))
 				.map(phrase => Type.construct(phrase))
 				.filter((t): t is Type => t !== null);
@@ -367,7 +363,7 @@ namespace Truth
 		 * The types that derive from this one as a result of the use of
 		 * an alias are excluded from this array.
 		 */
-		get derivations()
+		get derivations(): readonly Type[]
 		{
 			if (this.private.derivations !== null)
 				return this.private.derivations;
@@ -377,13 +373,22 @@ namespace Truth
 			if (!(this.private.seed instanceof ExplicitParallel))
 				return this.private.derivations = Object.freeze([]);
 			
-			const derivations = Array.from(this.private.seed.node.inbounds)
-				.map(ib => ib.predecessor.phrase)
+			/*
+			TODO:
+			The way how this would be implemented would be by storing all of the phrases
+			that have a particular annotation as cached data, somewhere in the phrase
+			representation. Then, we can construct all types from these phrases, and
+			return the ones that have the this type in it's bases.
+			
+			const derivations = (Array.from(this.private.seed.phrase.inbounds) as Fork[])
+				.map(ibFork => ibFork.predecessor)
 				.map(phrase => Type.construct(phrase))
 				.filter((t): t is Type => t instanceof Type)
 				.filter(type => type.bases.includes(this));
 			
 			return this.private.derivations = Object.freeze(derivations);
+			*/
+			return this.private.derivations = Object.freeze([]);
 		}
 		
 		/**
@@ -468,9 +473,9 @@ namespace Truth
 			
 			const extractAlias = (ep: ExplicitParallel) =>
 			{
-				for (const { edge, aliased } of ep.eachBase())
+				for (const { fork, aliased } of ep.eachBase())
 					if (aliased)
-						aliases.push(edge.term.toString());
+						aliases.push(fork.term.toString());
 			};
 			
 			if (this.private.seed instanceof ExplicitParallel)
@@ -512,11 +517,11 @@ namespace Truth
 			
 			const extractType = (ep: ExplicitParallel) =>
 			{
-				for (const { edge, aliased } of ep.eachBase())
+				for (const { fork, aliased } of ep.eachBase())
 					values.push({
 						aliased,
-						value: edge.term.toString(),
-						base: Type.construct(edge.predecessor.phrase)
+						value: fork.term.toString(),
+						base: Type.construct(fork.predecessor)
 					});
 			};
 			

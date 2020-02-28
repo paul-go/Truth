@@ -10,9 +10,9 @@ namespace Truth
 	{
 		/** */
 		constructor(
-			private readonly targetParallel: ExplicitParallel,
-			private readonly proposedBase: ExplicitParallel,
-			private readonly proposedEdge: HyperEdge,
+			private readonly sourceParallel: ExplicitParallel,
+			private readonly proposedBaseParallel: ExplicitParallel,
+			private readonly viaFork: Fork,
 			private readonly cruft: CruftCache) { }
 		
 		/**
@@ -25,7 +25,7 @@ namespace Truth
 		 */
 		detectListFragmentConflicts()
 		{
-			const sources = this.proposedEdge.fragments;
+			const sources = this.viaFork.predecessor.annotations;
 			if (sources.length === 0)
 				return false;
 			
@@ -47,24 +47,24 @@ namespace Truth
 		/** */
 		detectCircularReferences()
 		{
-			const circularEdgePaths: HyperEdge[][] = [];
+			const circularForkPaths: Fork[][] = [];
 			const recurse = (
 				srcBase: ExplicitParallel,
-				path: HyperEdge[]) =>
+				path: Fork[]) =>
 			{
-				for (const { base, edge } of this.basesOf(srcBase))
+				for (const { base, fork } of this.basesOf(srcBase))
 				{
-					if (path.includes(edge))
-						circularEdgePaths.push(path.slice());
+					if (path.includes(fork))
+						circularForkPaths.push(path.slice());
 					else
-						recurse(base, path.concat(edge));
+						recurse(base, path.concat(fork));
 				}
 			};
 			
-			for (const { base, edge } of this.basesOf(this.targetParallel))
+			for (const { base } of this.basesOf(this.sourceParallel))
 				recurse(base, []);
 			
-			for (const item of circularEdgePaths)
+			for (const item of circularForkPaths)
 				for (const circularEdge of item)
 					this.addFault(circularEdge, Faults.CircularTypeReference);
 			
@@ -74,14 +74,14 @@ namespace Truth
 		/** */
 		detectListDimensionalityConflict()
 		{
-			const targetDim = this.targetParallel.getListDimensionality();
+			const targetDim = this.sourceParallel.getListDimensionality();
 			
 			const proposedDim = 
-				this.proposedBase.getListDimensionality() +
-				(this.proposedEdge.isList ? 1 : 0);
+				this.proposedBaseParallel.getListDimensionality() +
+				(this.viaFork.term.isList ? 1 : 0);
 			
 			if (targetDim !== proposedDim)
-				this.addFault(this.proposedEdge, Faults.ListDimensionalDiscrepancyFault);
+				this.addFault(this.viaFork, Faults.ListDimensionalDiscrepancyFault);
 			
 			return this.foundCruft;
 		}
@@ -96,11 +96,11 @@ namespace Truth
 		/** */
 		private *basesOf(par: ExplicitParallel)
 		{
-			for (const { base, edge } of par.eachBase())
-				yield { base, edge };
+			for (const { base, fork } of par.eachBase())
+				yield { base, fork };
 			
-			if (this.targetParallel === par)
-				yield { base: this.proposedBase, edge: this.proposedEdge };
+			if (this.sourceParallel === par)
+				yield { base: this.proposedBaseParallel, fork: this.viaFork };
 		}
 		
 		/** */

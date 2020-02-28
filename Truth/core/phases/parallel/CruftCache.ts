@@ -16,10 +16,17 @@ namespace Truth
 		 */
 		add(cruft: TCruft, relevantFaultType: FaultType)
 		{
-			const faultSources: readonly TFaultSource[] =
-				cruft instanceof Node ? cruft.statements : 
-				cruft instanceof HyperEdge ? cruft.fragments :
-				[cruft];
+			let faultSources: readonly TFaultSource[];
+			
+			if (cruft instanceof Phrase)
+				faultSources = cruft.statements;
+			
+			else if (cruft instanceof Fork)
+				faultSources = cruft.predecessor.annotations
+					.filter(span => span.boundary.subject === cruft.predecessor.terminal);
+			
+			else
+				faultSources = [cruft];
 			
 			for (const faultSrc of faultSources)
 			{
@@ -45,5 +52,5 @@ namespace Truth
 	}
 	
 	/** */
-	export type TCruft = TFaultSource | Node | HyperEdge;
+	export type TCruft = TFaultSource | Phrase | Fork;
 }

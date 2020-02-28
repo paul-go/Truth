@@ -21,16 +21,19 @@ namespace Truth
 			type Row = { phrase: string, clarifiers?: string, inflations?: number };
 			const rows: Row[] = [];
 			
-			for (const phrase of document.phrase.eachDescendant())
+			for (const phrases of document.phrase.peekRecursive())
 			{
-				const row: Row = { phrase: phrase.toString() };
-				rows.push(row);
-				
-				if (includeClarifiers)
-					row.clarifiers = phrase.clarifiers.map(term => term.toString()).join();
-				
-				if (includeInflations)
-					row.inflations = phrase.inflationSize;
+				for (const phrase of phrases)
+				{
+					const row: Row = { phrase: phrase.toString() };
+					rows.push(row);
+					
+					if (includeClarifiers)
+						row.clarifiers = phrase.clarifiers.map(term => term.toString()).join();
+					
+					if (includeInflations)
+						row.inflations = phrase.inflationSize;
+				}
 			}
 			
 			console.table(rows);

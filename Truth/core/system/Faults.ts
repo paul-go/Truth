@@ -504,6 +504,11 @@ namespace Truth
 			"Patterns with nominal infixes require an input that is " +
 			"a subtype of the type specified, not the type itself."),
 		
+		/** */
+		NthLevelHomograph: createFault<Span>(
+			601,
+			"Homographs may not be defined beyond the first level."),
+		
 		//# Parse errors
 		
 		/** */

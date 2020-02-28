@@ -40,23 +40,37 @@ namespace Truth
 		
 		/**
 		 * Returns an array of Phrase objects that refer to the (potentially hypothetical) areas
-		 * in a document. The returned array will contain multiple Phrase objects in the case
-		 * when the first term in the path is a member of a homograph. In order to restrict the
-		 * returned array to a single item, a non-empty array should be provided in the clarifier
-		 * argument in order to disambiguate.
+		 * in the specified document. The returned array will contain multiple Phrase objects
+		 * in the case when the first term in the path is a member of a homograph. In order to
+		 * restrict the returned array to a single item, a non-empty array should be provided
+		 * in the clarifier argument in order to disambiguate.
 		 * 
 		 * Returns an empty array in the case when the case when the provided path of subjects
-		 * argument is a zero-length array, or the first term in the path refers to a non-existent
-		 * area of the target document.
+		 * argument is a zero-length array, the first term in the path refers to a non-existent area
+		 * of the target document, or when a homograph was detected at some point beyond the
+		 * first level.
 		 * 
 		 * Returns a number in the case when a homograph was detected at some point beyond
 		 * the first level. The number indicates the index of the path at which the homograph
 		 * was detected (this should be considered an error).
 		 */
+		static fromPathComponents(document: Document, path: string[]): Phrase[]
+		/**
+		 * Returns the Phrase object that refers to the (potentially hypothetical) area in the
+		 * specified document.
+		 * 
+		 * Returns null in the case when a homograph was detected at some point beyond
+		 * the first level. 
+		 */
 		static fromPathComponents(
-			targetDocument: Document,
+			document: Document,
 			path: string[],
-			clarifier: string[] = []): Phrase[] | number
+			clarifier: string[]): Phrase | null
+		/** */
+		static fromPathComponents(
+			document: Document,
+			path: string[],
+			clarifier: string[] = [])
 		{
 			if (path.length === 0)
 				return [];
@@ -70,8 +84,8 @@ namespace Truth
 			const firstTerm = pathTerms.shift()!;
 			
 			const rootPhrases = clarifierKey ?
-				targetDocument.phrase.peek(firstTerm, clarifierKey) :
-				targetDocument.phrase.peek(firstTerm);
+				document.phrase.peek(firstTerm, clarifierKey) :
+				document.phrase.peek(firstTerm);
 			
 			if (rootPhrases.length === 0)
 				return [];
@@ -92,10 +106,15 @@ namespace Truth
 					}
 					else if (phrases.length === 0)
 					{
+						// Now moving into the hypothetical phrase territory...
 						currentPhrase = new Phrase(currentPhrase, pathTerm);
 					}
-					else return currentPhrase.length;
+					// Invalid homograph detected
+					else return clarifier.length === 0 ? null : [];
 				}
+				
+				if (clarifierKey)
+					return currentPhrase;
 				
 				outPhrases.push(currentPhrase);
 			}
@@ -117,7 +136,7 @@ namespace Truth
 		/**
 		 * @internal
 		 */
-		static destroyRecursive(root: Document | readonly Statement[])
+		static deleteRecursive(root: Document | readonly Statement[])
 		{
 			if (root instanceof Document)
 			{
@@ -136,8 +155,10 @@ namespace Truth
 		static createRecursive(statements: readonly Statement[])
 		{
 			for (const span of this.enumerate(statements))
-				for (const phrase of Phrase.fromSpan(span))
-					phrase.inflate(span);
+				Phrase.fromSpan(span);
+			
+				//for (const phrase of Phrase.fromSpan(span))
+				//	phrase.inflate(span);
 		}
 		
 		/** */
@@ -242,7 +263,6 @@ namespace Truth
 			this.terminal = Term.void;
 			this.clarifiers = [];
 			this.clarifierKey = "";
-			this.isHypothetical = false;
 			
 			// First overload
 			if (a instanceof Document)
@@ -276,6 +296,9 @@ namespace Truth
 					// forwardings table. These phrases should be seen as transient.
 				}
 			}
+			
+			if (!this.isHypothetical)
+				this.containingDocument.program.queueVerification(this);
 		}
 		
 		/** */
@@ -302,6 +325,14 @@ namespace Truth
 		readonly parent: Phrase;
 		
 		/**
+		 * Gets whether this phrase is a zero-length, top-level phrase.
+		 */
+		get isRoot()
+		{
+			return this.parent === this;
+		}
+		
+		/**
 		 * Stores a reference to the Document that ultimately
 		 * contains this Phrase.
 		 */
@@ -312,11 +343,13 @@ namespace Truth
 		 * document (meaning, an area that is suggested to be valid through
 		 * inheritance).
 		 */
-		readonly isHypothetical: boolean;
+		readonly isHypothetical: boolean = false;
 		
 		/**
 		 * Gets a read-only array of Statement objects from which this Phrase
-		 * is composed.
+		 * is composed. This array will have a length > 1 in the case when the
+		 * Phrase is composed from a fragmented type. In other cases, the
+		 * length of the array will be 1.
 		 */
 		get statements()
 		{
@@ -336,6 +369,31 @@ namespace Truth
 		private _statements: readonly Statement[] | null = null;
 		
 		/**
+		 * Gets a read-only array of declaration-side Span objects from which
+		 * this Phrase is composed.
+		 */
+		get declarations(): readonly Span[]
+		{
+			return Array.from(this.inflatingSpans);
+		}
+		
+		/**
+		 * Gets a read-only array of annotation-side Span objects that exist
+		 * on the right side of the statement that contains the declaration
+		 * that influenced the creation of this phrase.
+		 */
+		get annotations(): readonly Span[]
+		{
+			const result = new Set<Span>();
+			
+			for (const inflatingSpan of this.inflatingSpans)
+				for (const span of inflatingSpan.statement.annotations)
+					result.add(span);
+			
+			return Array.from(result);
+		}
+		
+		/**
 		 * Stores the subject that exists at the end of this phrase.
 		 */
 		readonly terminal: Subject;
@@ -347,30 +405,22 @@ namespace Truth
 		readonly length: number;
 		
 		/**
-		 * Stores a table of nested phrases, keyed in 2 dimensions, firstly by the
-		 * Phrases terminating subject, and secondly by the Phrase's clarifierKey,
-		 * (a hash of the phrase's associated annotations).
+		 * Removes the specified "inflating span" from the phrase.
+		 * The necessity of the existence of a non-hypothetical Phrase
+		 * is predicated on whether it's backed by one or more Spans,
+		 * meaning, it has some physical representation in the underlying
+		 * document. Phrases are therefore disposed at the time when
+		 * all it's inflating spans are no longer present in the document.
 		 */
-		private readonly forwardings = new Map3D<Subject, string, Phrase>();
-		
-		/**
-		 * 
-		 */
-		private inflate(span: Span)
+		private deflate(inflatingSpan: Span)
 		{
-			this.inflatingSpans.add(span);
-		}
-		
-		/**
-		 * 
-		 */
-		private deflate(span: Span)
-		{
-			this.inflatingSpans.delete(span);
+			if (this.isHypothetical)
+				throw Exception.unknownState();
+			
+			this.inflatingSpans.delete(inflatingSpan);
 			if (this.inflatingSpans.size === 0)
 				this.dispose();
 		}
-		
 		private readonly inflatingSpans = new Set<Span>();
 		
 		/**
@@ -384,18 +434,21 @@ namespace Truth
 		}
 		
 		/**
-		 * Returns a reference to the phrase that is 1 subject shorter than
-		 * this one (counting from the end).
+		 * Stores a table of nested phrases, keyed in 2 dimensions, firstly by the
+		 * Phrases terminating subject, and secondly by the Phrase's clarifierKey,
+		 * (a hash of the phrase's associated annotations).
 		 */
-		back()
-		{
-			return this.parent || this;
-		}
+		private readonly forwardings = new Map3D<Subject, string, Phrase>();
 		
 		/**
-		 * Returns a reference to the phrase that is extended by the subject specified,
+		 * Returns a reference to the phrases that are extended by the subject specified,
 		 * in the case when such a phrase has been added to the internal forwarding
 		 * table.
+		 * 
+		 * An array must be returned from this method rather than a singular Phrase
+		 * object, because the phrase structure may have a nested homograph. Although
+		 * these are invalid, the phrase structure must still be capable of representing
+		 * these.
 		 */
 		peek(subject: Subject, clarifierKey?: string): Phrase[]
 		{
@@ -407,20 +460,60 @@ namespace Truth
 		}
 		
 		/**
+		 * 
+		 */
+		*peekMany()
+		{
+			for (const key of this.forwardings.keys())
+				yield this.forwardings.get(key);
+		}
+		
+		/**
+		 * 
+		 */
+		peekSubjects()
+		{
+			return this.forwardings.keys();
+		}
+		
+		/**
+		 * 
+		 */
+		*peekRecursive()
+		{
+			function *recurse(phrase: Phrase): IterableIterator<Phrase[]>
+			{
+				for (const subject of phrase.forwardings.keys())
+				{
+					const subPhrases = phrase.forwardings.get(subject);
+					if (subPhrases.length > 0)
+						yield subPhrases;
+					
+					for (const subPhrase of subPhrases)
+						yield* recurse(subPhrase);
+				}
+			}
+			
+			yield* recurse(this);
+		}
+		
+		/**
+		 * @deprecated
 		 * Returns a reference to the phrase that is extended by the array of subjects
 		 * specified, or null in the case when the subject path specified does not exist
 		 * in the internal forwarding table.
 		 */
 		peekDeep(path: readonly (string | Subject)[])
 		{
-			// This method needs to deal with clarifiers
 			debugger;
-			
 			let current: Phrase = this;
 			
 			for (const item of path)
 			{
-				const subject = typeof item === "string" ? Term.from(item) : item;
+				const subject = typeof item === "string" ?
+					Term.from(item) :
+					item;
+				
 				const peeked = current.peek(subject, "");
 				if (peeked.length !== 1)
 					return null;
@@ -429,22 +522,6 @@ namespace Truth
 			}
 			
 			return current;
-		}
-		
-		/**
-		 * 
-		 */
-		*eachDescendant()
-		{
-			function *recurse(phrase: Phrase): IterableIterator<Phrase>
-			{
-				yield phrase;
-				
-				for (const [subject, clarifier, subPhrase] of phrase.forwardings)
-					yield* recurse(subPhrase);	
-			}
-			
-			yield* recurse(this);
 		}
 		
 		/**
@@ -495,20 +572,7 @@ namespace Truth
 		
 		/**
 		 * @internal
-		 * For reasons related to performance and architectural simplicity,
-		 * a reference to the Node to which this Phrase is associated is
-		 * stored here. This is so that we can avoid managing a separate
-		 * index to manage the relationship between these two objects.
-		 * Phrases are created before their associated Node, and so in this
-		 * case, this field is null.
-		 * 
-		 * This field should only be assigned from within the Node class.
-		 */
-		associatedNode: Node | null = null;
-		
-		/**
-		 * @internal
-		 * Gets a text representation of this Node's subject,
+		 * Gets a text representation of this Phrase's subject,
 		 * for debugging purposes only.
 		 */
 		get name()
@@ -517,27 +581,21 @@ namespace Truth
 		}
 		
 		/**
-		 * 
+		 * In the case when this PhraseContext is a direct descendent of
+		 * a another PhraseContext that represents a pattern, and that
+		 * pattern has population infixes, and this PhraseContext directly
+		 * corresponds to one of those infixes, this property gets a
+		 * reference to said corresponding infix.
 		 */
-		get container()
+		get parentInfix()
 		{
-			debugger;
-			return this.parent;
-		}
-		
-		/**
-		 * In the case when this PhraseContext is a direct descendent of a
-		 * another PhraseContext that represents a pattern, and that pattern
-		 * has population infixes, and this PhraseContext directly corresponds
-		 * to one of those infixes, this property gets a reference to said
-		 * corresponding infix.
-		 */
-		get containerInfix()
-		{
+			if (this.isRoot)
+				return null;
+			
 			const flag = InfixFlags.population;
 			
-			if (this.container?.terminal instanceof Pattern)
-				for (const nfx of this.container.terminal.getInfixes(flag))
+			if (this.parent.terminal instanceof Pattern)
+				for (const nfx of this.parent.terminal.getInfixes(flag))
 					if (nfx.lhs.length > 0)
 						return nfx;
 			
@@ -545,7 +603,7 @@ namespace Truth
 		}
 		
 		/** */
-		get isListIntrisic()
+		get isListIntrinsic()
 		{
 			return this.terminal instanceof Term && this.terminal.isList;
 		}
@@ -559,6 +617,54 @@ namespace Truth
 		get isListExtrinsic()
 		{
 			return this.clarifiers.some(term => term.isList);
+		}
+		
+		/**
+		 * Gets a reference to the "opposite side of the list".
+		 * 
+		 * If this Phrase represents a list intrinsic type, this property gets
+		 * a reference to the Phrase that represents the corresponding
+		 * extrinsic side.
+		 * 
+		 * If this Phrase represents anything that *isn't* a list intrinsic type,
+		 * the property gets a reference to the Phrase that represents the
+		 * corresponding intrinsic side (whether the node is a list or not).
+		 * 
+		 * Gets null in the case when there is no corresponding list intrinsic
+		 * or extrinsic Phrase to connect.
+		 */
+		get intrinsicExtrinsicBridge(): Phrase | null
+		{
+			if (this.terminal instanceof Term)
+				for (const adjacent of this.adjacents)
+					if (adjacent.terminal instanceof Term)
+						if (adjacent.terminal === this.terminal)
+							if (adjacent.terminal.isList !== this.isListIntrinsic)
+								return adjacent;
+			
+			return null;
+		}
+		
+		/**
+		 * Gets an array of phrases that exist "beside" this phrase, 
+		 * at the same level of depth.
+		 */
+		private get adjacents()
+		{
+			if (this.isRoot)
+				return [];
+			
+			// Note: It's important that this property does not return a cached
+			// value, because there is no notification when adjacent phrases
+			// are added and removed from the forwarding table, and so there
+			// would be no way to know when to clear a cached value.
+			
+			const out: Phrase[] = [];
+			for (const [subject, key, phrase] of this.parent.forwardings)
+				if (phrase !== this)
+					out.push(phrase);
+			
+			return out;
 		}
 		
 		/**
@@ -589,7 +695,7 @@ namespace Truth
 					successors.unshift(...phrases);
 				}
 				
-				forks.push(new Fork(this,  successors));
+				forks.push(new Fork(this, successors, term));
 			}
 			
 			return this._outbounds = forks;
@@ -610,7 +716,20 @@ namespace Truth
 			this._ancestry = null;
 			this._subjects = null;
 			this._statements = null;
+			this._isDisposed = true;
+			
+			this.containingDocument.program.cancelVerification(this);
 		}
+		
+		/**
+		 * Gets whether the phrase has been removed from it's parent's
+		 * forwarding table.
+		 */
+		get isDisposed()
+		{
+			return this._isDisposed;
+		}
+		private _isDisposed = false;
 		
 		/**
 		 * Returns a string representation of this Phrase, suitable for debugging purposes.
@@ -632,10 +751,4 @@ namespace Truth
 			return prefix + parts.join("/");
 		}
 	}
-	
-	/**
-	 * @internal
-	 * A type that describes a Phrase object with a non-null .associatedNode field.
-	 */
-	export type AssociatedPhrase = Phrase & { readonly associatedNode: Node; };
 }

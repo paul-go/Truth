@@ -2,13 +2,34 @@
 namespace Truth
 {
 	/**
-	 * 
+	 * @internal
 	 */
 	export class ParallelCache
 	{
 		/**
-		 * Creates a Parallel instance from the specified Node or
-		 * Uri instance. 
+		 * 
+		 */
+		createExplicit(phrase: Phrase, cruft: CruftCache)
+		{
+			if (phrase.isHypothetical)
+				throw Exception.unknownState();
+			
+			return this.innerCreate(phrase, cruft) as ExplicitParallel;
+		}
+		
+		/**
+		 * 
+		 */
+		createImplicit(phrase: Phrase)
+		{
+			if (!phrase.isHypothetical)
+				throw Exception.unknownState();
+			
+			return this.innerCreate(phrase) as ImplicitParallel;
+		}
+		
+		/**
+		 * Creates an implicit or explicit parallel, and stores it in the cache.
 		 * 
 		 * @throws In the case when all containing ParallelTypes to have
 		 * not been created beforehand.
@@ -16,34 +37,21 @@ namespace Truth
 		 * @throw In the case when a ParallelType corresponding to the
 		 * input was already created.
 		 */
-		create(node: Node, cruft: CruftCache): ExplicitParallel;
-		create(phrase: Phrase): ImplicitParallel;
-		create(key: Node | Phrase, cruft?: CruftCache)
+		private innerCreate(phrase: Phrase, cruft?: CruftCache)
 		{
-			if (this.has(key))
+			if (this.has(phrase) || phrase.isRoot)
 				throw Exception.unknownState();
 			
-			const save = (par: Parallel) =>
+			const save = (par: ExplicitParallel | ImplicitParallel) =>
 			{
-				const keyVal = this.getKeyVal(key);
-				this.parallels.set(keyVal, par);
+				this.parallels.set(phrase, par);
 				return par;
 			};
 			
-			const container = (() =>
-			{
-				if (key instanceof Node)
-					return key.container !== null ?
-						Not.undefined(this.get(key.container)) :
-						null;
-				
-				return key.length > 1 ?
-					Not.undefined(this.get(key.back())) :
-					null;
-			})();
+			const container = Not.undefined(this.get(phrase.parent));
 			
-			if (key instanceof Phrase)
-				return save(new ImplicitParallel(key, container));
+			if (phrase.isHypothetical)
+				return save(new ImplicitParallel(phrase, container));
 			
 			if (!(container instanceof ExplicitParallel) && container !== null)
 				throw Exception.unknownState();
@@ -51,15 +59,15 @@ namespace Truth
 			if (cruft === undefined)
 				throw Exception.unknownState();
 			
-			const outPar = new ExplicitParallel(key, container, cruft);
-			if (key.intrinsicExtrinsicBridge === null)
+			const outPar = new ExplicitParallel(phrase, container, cruft);
+			if (phrase.intrinsicExtrinsicBridge === null)
 				return save(outPar);
 			
-			if (this.has(key.intrinsicExtrinsicBridge))
+			if (this.has(phrase.intrinsicExtrinsicBridge))
 				throw Exception.unknownState();
 			
 			const bridgePar = new ExplicitParallel(
-				key.intrinsicExtrinsicBridge,
+				phrase.intrinsicExtrinsicBridge,
 				container,
 				cruft);
 			
@@ -67,39 +75,36 @@ namespace Truth
 			return save(outPar);
 		}
 		
-		/** */
-		get(key: Phrase): Parallel | undefined;
-		get(key: Node): ExplicitParallel | undefined;
-		get(key: Node | Phrase)
+		/** Gets the Parallel associated with the specified Phrase. */
+		get(phrase: Phrase)
 		{
-			const keyVal = this.getKeyVal(key);
-			const out = this.parallels.get(keyVal);
+			return this.parallels.get(phrase);
+		}
+		
+		/** Gets the ExplicitParallel associated with the specified Phrase.  */
+		getExplicit(phrase: Phrase)
+		{
+			if (phrase.isHypothetical)
+				throw Exception.invalidArgument();
 			
-			if (key instanceof Node)
-				if (out !== undefined)
-					if (!(out instanceof ExplicitParallel))
-						throw Exception.unknownState();
-			
-			return out;
+			const parallel = this.parallels.get(phrase);
+			if (parallel instanceof ImplicitParallel)
+				throw Exception.unknownState();
+				
+			return parallel;
 		}
 		
 		/** */
-		has(key: Node | Phrase)
+		has(key: Phrase)
 		{
-			return this.parallels.has(this.getKeyVal(key));
-		}
-		
-		/** */
-		private getKeyVal(key: Node | Phrase)
-		{
-			return key instanceof Node ? key.phrase : key;
+			return this.parallels.has(key);
 		}
 		
 		/**
 		 * Stores a map of all Parallel objects that have been constructed,
 		 * keyed by the Phrase to which they correspond.
 		 */
-		private readonly parallels = new Map<Phrase, Parallel>();
+		private readonly parallels = new Map<Phrase, ExplicitParallel | ImplicitParallel>();
 		
 		/** */
 		get debug()

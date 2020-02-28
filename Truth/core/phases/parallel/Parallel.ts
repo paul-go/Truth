@@ -2,7 +2,7 @@
 namespace Truth
 {
 	/**
-	 * 
+	 * 
 	 */
 	export abstract class Parallel
 	{

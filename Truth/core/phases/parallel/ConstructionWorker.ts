@@ -6,6 +6,10 @@ namespace Truth
 	 * A worker class that handles the construction of networks
 	 * of Parallel instances, which are eventually transformed
 	 * into type objects.
+	 * 
+	 * Instances of ConstructionWorker are held by the static side
+	 * of the Type class, and they're lifetime is equal to a single 
+	 * version of the containing Program.
 	 */
 	export class ConstructionWorker
 	{
@@ -32,18 +36,20 @@ namespace Truth
 			{
 				for (const phrase of Phrase.rootsOf(from))
 				{
-					debugger;
-					// TODO
-					const drilledParallel = this.drillFromNode("phrase.associatedNode" as any);
+					const drilledParallel = this.drillNonHypotheticalPhrase(phrase);
 					if (drilledParallel !== null)
 						queue.push(drilledParallel);
 				}
 			}
 			else for (const currentParallel of queue)
 			{
-				for (const node of currentParallel.node.contents.values())
+				for (const phrases of currentParallel.phrase.peekMany())
 				{
-					const drilledParallel = this.drillFromNode(node);
+					if (phrases.length > 1)
+						throw Exception.unexpectedHomograph();
+					
+					const phrase = phrases[0];
+					const drilledParallel = this.drillNonHypotheticalPhrase(phrase);
 					if (drilledParallel !== null)
 						queue.push(drilledParallel);
 				}
@@ -59,13 +65,16 @@ namespace Truth
 		 */
 		drill(directive: Phrase)
 		{
-			const result = this.drillFromPhrase(directive);
+			const result = this.drillFromSurface(directive);
 			this.drillQueue.length = 0;
 			return result;
 		}
 		
-		/** */
-		private drillFromPhrase(directive: Phrase)
+		/**
+		 * Proceeds with the drilling operation, beginning at the top-most ancestor
+		 * of the phrase provided, and descending downward.
+		 */
+		private drillFromSurface(directive: Phrase)
 		{
 			if (this.parallels.has(directive))
 				return Not.undefined(this.parallels.get(directive));
@@ -76,19 +85,30 @@ namespace Truth
 			const ancestry = directive.ancestry;
 			const surfacePhrase = directive.ancestry[0];
 			
-			const surfaceNode = directive.containingDocument.phrase
+			/*
+			TODO
+			Is this where we should be managing homographs?
+			Or do you need to pass in a clarified directive phrase before
+			this is even started?
+			Or should we deal with the situation where an unclarified phrase
+			is provided?
+			
+			// The surface phrases are the 1-length phrases that 
+			const surfacePhrases = directive.containingDocument.phrase
 				.peek(surfacePhrase.terminal, surfacePhrase.clarifierKey);
 			
-			// TODO (below)
-			debugger;
-			
-			if (surfaceNode === null)
+			if (surfacePhrases.length === 0)
 				return null;
+			
+			// Homographs not yet implemented.
+			if (surfacePhrases.length > 1)
+				throw Exception.notImplemented();
+			*/
 			
 			let typeIdx = 0;
 			let lastSeed = 
-				this.parallels.get(directive.back()) ||
-				this.rake(this.parallels.create(surfaceNode as any, this.cruft));
+				this.parallels.get(directive.parent) ||
+				this.rake(this.parallels.createExplicit(surfacePhrase, this.cruft));
 			
 			// This code skips by any Parallel instances that have already
 			// been constructed. The real work begins when we get to
@@ -125,28 +145,31 @@ namespace Truth
 		 * calls "drillFromPhrase()" safely (meaning that it detects
 		 * circular invokations, and returns null in these cases).
 		 */
-		private drillFromNode(node: Node)
+		private drillNonHypotheticalPhrase(phrase: Phrase)
 		{
+			if (phrase.isHypothetical)
+				throw Exception.unknownState();
+			
 			// Circular drilling is only a problem if we're
 			// drilling on the same level.
 			const dq = this.drillQueue;
 			
 			if (dq.length === 0)
 			{
-				dq.push(node);
+				dq.push(phrase);
 			}
-			else if (dq[0].container === node.container)
+			else if (dq[0].parent === phrase.parent)
 			{
-				if (dq.includes(node))
+				if (dq.includes(phrase))
 					return null;
 			}
 			else
 			{
 				dq.length = 0;
-				dq.push(node);
+				dq.push(phrase);
 			}
 			
-			const drillResult = this.drillFromPhrase(node.phrase);
+			const drillResult = this.drillFromSurface(phrase);
 			if (drillResult === null)
 				throw Exception.unknownState();
 			
@@ -157,7 +180,7 @@ namespace Truth
 		}
 		
 		/** A call queue used to prevent circular drilling. */
-		private readonly drillQueue: Node[] = [];
+		private readonly drillQueue: Phrase[] = [];
 		
 		/**
 		 * "Raking" a Parallel is the process of deeply traversing it's
@@ -231,15 +254,14 @@ namespace Truth
 			if (srcParallel.pattern)
 				throw Exception.unknownState();
 			
-			for (const hyperEdge of srcParallel.node.outbounds)
+			for (const fork of srcParallel.phrase.outbounds)
 			{
-				if (this.cruft.has(hyperEdge))
+				if (this.cruft.has(fork))
 					continue;
 				
-				const possibilities = hyperEdge.successors
-					.filter(scsr => !this.cruft.has(scsr.node))
-					// Convert this to just use the length of the phrase directly.
-					.sort((a, b) => a.longitude - b.longitude);
+				const possibilities = fork.successors
+					.filter(successor => !this.cruft.has(successor))
+					.sort((a, b) => a.length - b.length);
 				
 				if (possibilities.length > 0)
 				{
@@ -251,10 +273,9 @@ namespace Truth
 					// conditions on the contract to be satisfied. Or, in the case
 					// when there are no conditions on the contract, the node
 					// that is the closest ancestor is used.
-					for (const possibleScsr of possibilities)
+					for (const possibleSuccessor of possibilities)
 					{
-						const possibleNode = possibleScsr.node;
-						const baseParallel = this.drillFromNode(possibleNode);
+						const baseParallel = this.drillNonHypotheticalPhrase(possibleSuccessor);
 						
 						// baseParallel will be null in the case when a circular
 						// relationship has been detected (and quitting is
@@ -279,13 +300,13 @@ namespace Truth
 							this.excavate(baseParallel);
 						}
 						
-						if (!srcParallel.tryAddLiteralBase(baseParallel, hyperEdge))
+						if (!srcParallel.tryAddLiteralBase(baseParallel, fork))
 							continue;
 						
-						if (this.handledHyperEdges.has(hyperEdge))
+						if (this.handledForks.has(fork))
 							throw Exception.unknownState();
 						
-						this.handledHyperEdges.add(hyperEdge);
+						this.handledForks.add(fork);
 						continue;
 					}
 				}
@@ -293,8 +314,8 @@ namespace Truth
 				{
 					// At this point, we've discovered an annotation that we're
 					// going to try to resolve as an alias. If this doesn't work,
-					// the edge will be marked as cruft. Possibly a future version
-					// of this compiler will allow other agents to hook into this
+					// the fork will be marked as cruft. Possibly a future version
+					// of this compiler will allow other systems to hook into this
 					// process and augment the resolution strategy.
 					
 					const candidatePatternPars: ExplicitParallel[] = [];
@@ -307,29 +328,22 @@ namespace Truth
 					
 					if (candidatePatternPars.length > 0)
 					{
-						const terms = hyperEdge.fragments
-							.map(src => src.boundary.subject)
-							.filter((v): v is Term => v instanceof Term);
+						const alias = fork.term.textContent;
 						
-						if (terms.length === 0)
-							continue;
-						
-						const alias = terms[0].textContent;
-						
-						if (srcParallel.tryAddAliasedBase(candidatePatternPars, hyperEdge, alias))
+						if (srcParallel.tryAddAliasedBase(candidatePatternPars, fork, alias))
 						{
-							this.handledHyperEdges.add(hyperEdge);
+							this.handledForks.add(fork);
 							continue;
 						}
 					}
 					
-					if (!this.handledHyperEdges.has(hyperEdge))
-						this.cruft.add(hyperEdge, Faults.UnresolvedAnnotation);
+					if (!this.handledForks.has(fork))
+						this.cruft.add(fork, Faults.UnresolvedAnnotation);
 				}
 			}
 			
 			if (!srcParallel.isContractSatisfied)
-				for (const smt of srcParallel.node.statements)
+				for (const smt of srcParallel.phrase.statements)
 					this.program.faults.report(new Fault(
 						Faults.ContractViolation,
 						smt));
@@ -347,19 +361,19 @@ namespace Truth
 			if (!patternParallel.pattern)
 				throw Exception.unknownState();
 			
-			const bases = new Map<ExplicitParallel, HyperEdge>();
-			const obs = patternParallel.node.outbounds;
-			const nameOf = (edge: HyperEdge) =>
-				Subject.serializeInternal(edge.fragments[0]);
+			const bases = new Map<ExplicitParallel, Fork>();
+			const obs = patternParallel.phrase.outbounds;
+			const nameOf = (fork: Fork) =>
+				Subject.serializeInternal(fork.term);
 			
 			for (let i = -1; ++i < obs.length;)
 			{
-				const hyperEdge = obs[i];
+				const fork = obs[i];
 				
-				if (this.cruft.has(hyperEdge))
+				if (this.cruft.has(fork))
 					continue;
 				
-				const len = hyperEdge.successors.length;
+				const len = fork.successors.length;
 				
 				// Because resolving pattern bases has non-polymorphic behavior, 
 				// we can get away with checking for these faults here without going
@@ -367,23 +381,23 @@ namespace Truth
 				
 				if (len === 0)
 				{
-					this.cruft.add(hyperEdge, Faults.UnresolvedAnnotation);
+					this.cruft.add(fork, Faults.UnresolvedAnnotation);
 					continue;
 				}
 				
-				if (obs.findIndex(e => nameOf(e) === nameOf(hyperEdge)) !== i)
+				if (obs.findIndex(e => nameOf(e) === nameOf(fork)) !== i)
 				{
-					this.cruft.add(hyperEdge, Faults.IgnoredAnnotation);
+					this.cruft.add(fork, Faults.IgnoredAnnotation);
 					continue;
 				}
 				
 				if (len > 1)
 					throw Exception.unknownState();
 				
-				const baseNode = hyperEdge.successors[0].node;
-				const baseParallel = this.drillFromNode(baseNode);
+				const basePhrase = fork.successors[0];
+				const baseParallel = this.drillNonHypotheticalPhrase(basePhrase);
 				if (baseParallel !== null)
-					bases.set(baseParallel, hyperEdge);
+					bases.set(baseParallel, fork);
 			}
 			
 			// Circular bases still need to be checked. It's unclear how and
@@ -405,8 +419,8 @@ namespace Truth
 						if (baseA.hasBase(baseB))
 							this.cruft.add(via, Faults.IgnoredAnnotation);
 			
-			const pattern = patternParallel.node.subject as Pattern;
-			const span = patternParallel.node.declarations.values().next().value as Span;
+			const pattern = patternParallel.phrase.terminal as Pattern;
+			const span = patternParallel.phrase.declarations.values().next().value as Span;
 			const portInfixes = pattern.getInfixes(InfixFlags.portability);
 			
 			if (portInfixes.length > 0)
@@ -468,31 +482,39 @@ namespace Truth
 		 */
 		private *ascend(srcParallel: ExplicitParallel)
 		{
-			const discoveredPatternNodes = new Set<Node>();
+			const discoveredPatternPhrases = new Set<Phrase>();
 			
-			const yieldable = (patternNode: Node) =>
+			const yieldable = (patternPhrase: Phrase) =>
 			{
-				discoveredPatternNodes.add(patternNode);
+				discoveredPatternPhrases.add(patternPhrase);
 				
 				return Not.null(
-					this.parallels.get(patternNode) ||
-					this.parallels.create(patternNode, this.cruft));
+					this.parallels.getExplicit(patternPhrase) ||
+					this.parallels.createExplicit(patternPhrase, this.cruft));
 			};
 			
-			function *recurse(current: ExplicitParallel): 
-				IterableIterator<IPatternParallel>
+			function *recurse(current: ExplicitParallel): IterableIterator<IPatternParallel>
 			{
 				for (const { base } of current.eachBase())
 					yield *recurse(base);
 				
 				if (current instanceof ExplicitParallel)
-					for (const node of current.node.contents.values())
-						if (node.subject instanceof Pattern)
-							if (!discoveredPatternNodes.has(node))
+				{
+					for (const phrases of current.phrase.peekMany())
+					{
+						if (phrases.length !== 1)
+							throw Exception.unexpectedHomograph();
+						
+						const phrase = phrases[0];
+						
+						if (phrase.terminal instanceof Pattern)
+							if (!discoveredPatternPhrases.has(phrase))
 								yield {
-									pattern: node.subject,
-									patternParallel: yieldable(node)
+									pattern: phrase.terminal,
+									patternParallel: yieldable(phrase)
 								};
+					}
+				}
 			}
 			
 			// The process starts at the container of the current parallel,
@@ -505,21 +527,20 @@ namespace Truth
 				yield *recurse(current);
 				current = current.container;
 			}
-			// TODO
-			debugger;
-			for (const phrase of Phrase.rootsOf(srcParallel.node.document))
+			
+			for (const phrase of Phrase.rootsOf(srcParallel.phrase.containingDocument))
 				if (phrase.terminal instanceof Pattern)
-					if (!discoveredPatternNodes.has("phrase.associatedNode" as any))
+					if (!discoveredPatternPhrases.has(phrase))
 						yield {
 							pattern: phrase.terminal,
-							patternParallel: yieldable("phrase.associatedNode" as any)
+							patternParallel: yieldable(phrase)
 						};
 		}
 		
 		/**
 		 * Used for safety purposes to catch unexpected behavior.
 		 */
-		private readonly handledHyperEdges = new WeakSet<HyperEdge>();
+		private readonly handledForks = new WeakSet<Fork>();
 		
 		/**
 		 * Constructs and returns a new seed Parallel from the specified
@@ -536,25 +557,34 @@ namespace Truth
 			{
 				if (zenith instanceof ExplicitParallel)
 				{
-					const nextNode = zenith.node.contents.get(targetSubject);
-					if (nextNode)
+					const nextPhrases = zenith.phrase.peek(targetSubject);
+					
+					if (nextPhrases.length === 0)
+						throw Exception.unknownState();
+					
+					if (nextPhrases.length > 1)
+						throw Exception.unexpectedHomograph();
+					
+					const nextPhrase = nextPhrases[0];
+					if (nextPhrase)
 					{
-						const out = this.parallels.get(nextNode) ||
-							this.parallels.create(nextNode, this.cruft);
+						const out = 
+							this.parallels.getExplicit(nextPhrase) ||
+							this.parallels.createExplicit(nextPhrase, this.cruft);
 						
 						this.verifyDescend(zenith, out);
 						return out;
 					}
 				}
-				/*
-				TODO
-				const nextPhrase = zenith.phrase.forward(targetSubject);
-				*/
-				debugger;
-				const nextPhrase = null as any;
+				
+				const nextPhrases = zenith.phrase.peek(targetSubject);
+				if (nextPhrases.length !== 1)
+					throw Exception.unknownState();
+				
+				const nextPhrase = nextPhrases[0];
 				return (
 					this.parallels.get(nextPhrase) ||
-					this.parallels.create(nextPhrase));
+					this.parallels.createImplicit(nextPhrase));
 			};
 			
 			/**
@@ -567,7 +597,7 @@ namespace Truth
 			{
 				return (
 					parallel instanceof ExplicitParallel &&
-					parallel.node.contents.has(targetSubject));
+					parallel.phrase.peek(targetSubject).length > 0)
 			}
 			
 			//
@@ -589,18 +619,6 @@ namespace Truth
 					yield *recurseBases(base);
 				
 				yield par;
-			}
-			
-			function *recurse(par: Parallel): IterableIterator<Parallel>
-			{
-				for (const parallelEdge of recurseParallels(par))
-				{
-					if (parallelEdge instanceof ExplicitParallel)
-						for (const baseEdge of recurseBases(parallelEdge))
-							yield baseEdge;
-					
-					yield parallelEdge;
-				}
 			}
 			
 			// The following algorithm performs a recursive reduction on
@@ -694,11 +712,11 @@ namespace Truth
 			zenithParallel: ExplicitParallel,
 			descendParallel: ExplicitParallel)
 		{
-			if (descendParallel.node.subject instanceof Anon)
-				if (zenithParallel.isListIntrinsic)
+			if (descendParallel.phrase.terminal instanceof Anon)
+				if (zenithParallel.phrase.isListIntrinsic)
 					this.program.faults.report(new Fault(
 						Faults.AnonymousInListIntrinsic,
-						descendParallel.node.statements[0]));
+						descendParallel.phrase.statements[0]));
 		}
 		
 		/** */
@@ -724,7 +742,4 @@ namespace Truth
 		readonly pattern: Pattern;
 		readonly patternParallel: ExplicitParallel;
 	}
-	
-	/** */
-	export type TBaseTable = ReadonlyMap<ExplicitParallel, HyperEdge>;
 }

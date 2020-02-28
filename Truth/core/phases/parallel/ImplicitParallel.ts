@@ -15,6 +15,9 @@ namespace Truth
 			container: Parallel | null)
 		{
 			super(phrase, container);
+			
+			if (!phrase.isHypothetical)
+				throw Exception.unknownState();
 		}
 		
 		/**

@@ -57,6 +57,21 @@ namespace Truth
 		}
 		
 		/** */
+		keys(): TKey1[]
+		keys(key1: TKey1): TKey2[]
+		keys(key1?: TKey1)
+		{
+			if (key1 === undefined)
+				return Array.from(this.map.keys());
+			
+			const subMap  = this.map.get(key1);
+			if (subMap)
+				return Array.from(subMap.keys());
+			
+			return [];
+		}
+		
+		/** */
 		private readonly map = new Map<TKey1, Map<TKey2, TVal>>();
 	}
 }

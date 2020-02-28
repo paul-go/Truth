@@ -9,7 +9,7 @@ namespace Truth
 				Field
 		`);
 		
-		const targetType = program.query(doc, "Class", "Field");
+		const targetTypes = program.query(doc, "Class", "Field");
 		const targetStatements = targetType?.statements || [];
 		
 		return [

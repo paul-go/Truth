@@ -213,7 +213,7 @@ namespace Truth
 					}
 					
 					const container = phrase.length > 1 ?
-						findNode(phrase.back()) :
+						findNode(phrase.parent) :
 						null;
 					
 					if (phrase.length > 1 && container === null)

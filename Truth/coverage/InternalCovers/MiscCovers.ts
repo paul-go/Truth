@@ -1,6 +1,27 @@
 
 namespace Truth
 {
+	async function coverAaa()
+	{
+		// Temporary cover function
+		
+		const program = new Truth.Program();
+		const document = await program.addDocument(`
+			device
+			animal
+			mouse : device
+			mouse : animal
+			
+			person
+				pet : animal
+			
+			bob : person
+				pet : mouse
+		`);
+		
+		return () => true;
+	}
+	
 	async function coverSimpleTypeCheck()
 	{
 		const [doc, program] = await createLanguageCover(`

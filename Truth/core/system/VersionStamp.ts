@@ -2,7 +2,8 @@
 namespace Truth
 {
 	/**
-	 * Infinite incremental counter.
+	 * Infinite incremental counter, used for logical clock
+	 * value comparisons.
 	 */
 	export class VersionStamp
 	{

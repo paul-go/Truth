@@ -7,53 +7,32 @@ namespace Truth
 	 */
 	export class FaultService
 	{
-		constructor(private readonly program: Program)
+		constructor(private readonly program: Program) { }
+		
+		/**
+		 * @internal
+		 */
+		async executeTransaction(transactionFn: () => Promise<void>)
 		{
-			// Listen for invalidations and clear out any faults
-			// that correspond to objects that don't exist in the
-			// document anymore. 
-			
-			/*
-			TODO
-			program.on(CauseInvalidate, data =>
-			{
-				if (data.parents.length > 0)
-				{
-					for (const smt of data.parents)
-						for (const { statement } of smt.document.eachDescendant(smt, true))
-							this.removeStatementFaults(statement);
-				}
-				else for (const { statement } of data.document.eachDescendant())
-					this.removeStatementFaults(statement);
-				
-				this.inEditTransaction = true;
-			});
-			
-			program.on(CauseEditComplete, () =>
-			{
-				this.inEditTransaction = false;
-				this.refresh();
-			});
-			*/
+			this.inEditTransaction = true;
+			await transactionFn();
+			this.inEditTransaction = false;
+			this.refresh();
+		}
+		
+		/**
+		 * @internal
+		 * Clear out any faults that correspond to sources that
+		 * no longer exist in their containing document. 
+		 */
+		prune()
+		{
+			this.backgroundManualFrame.prune();
+			this.backgroundAutoFrame.prune();
 		}
 		
 		/** */
 		private inEditTransaction = false;
-		
-		/**
-		 * Removes all faults associated with the specified statement.
-		 */
-		private removeStatementFaults(statement: Statement)
-		{
-			this.backgroundManualFrame.removeSource(statement);
-			this.backgroundAutoFrame.removeSource(statement);
-			
-			for (const span of statement.allSpans)
-				this.backgroundAutoFrame.removeSource(span);
-			
-			for (const infixSpan of statement.infixSpans)
-				this.backgroundAutoFrame.removeSource(infixSpan);
-		}
 		
 		/**
 		 * Returns an array that contains all faults retained by this FaultService,
@@ -211,18 +190,21 @@ namespace Truth
 		/**
 		 * @internal
 		 * Used internally to inform the FaultService that type-level fault
-		 * analysis is being done on the provided Node. This is necessary
+		 * analysis is being done on the provided phrase. This is necessary
 		 * because type-level faults do not live beyond a single edit frame,
-		 * so the FaultService needs to know which Nodes were analyzed
+		 * so the FaultService needs to know which phrases were analyzed
 		 * so that newly rectified faults can be cleared out.
 		 * 
 		 * When this method is called, any faults corresponding to the
-		 * specified Node are cleared out, and are only added back in if
+		 * specified phrase are cleared out, and are only added back in if
 		 * they were re-detected during this edit transaction.
 		 */
-		inform(node: Node)
+		inform(phrase: Phrase)
 		{
-			const smts = node.statements.filter(smt => !smt.isDisposed);
+			if (phrase.isHypothetical)
+				throw Exception.invalidArgument();
+			
+			const smts = phrase.statements.filter(smt => !smt.isDisposed);
 			
 			// Clear out any statement-level faults that touch the node
 			for (const smt of smts)
@@ -376,6 +358,24 @@ namespace Truth
 			if (source instanceof Statement)
 				for (const cruftObject of source.cruftObjects)
 					this.faults.delete(cruftObject);
+		}
+		
+		/**
+		 * Removes the faults from this frame that correspond to 
+		 * sources that have been removed from their containing
+		 * document.
+		 */
+		prune()
+		{
+			for (const source of this.faults.keys())
+			{
+				const smt = source instanceof Statement ?
+					source :
+					source.statement;
+				
+				if (smt.isDisposed)
+					this.faults.delete(source);
+			}
 		}
 		
 		/** */

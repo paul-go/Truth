@@ -238,6 +238,12 @@ namespace Truth
 		}
 		
 		/** */
+		static unexpectedHomograph()
+		{
+			return error("Homographs are not handled.");
+		}
+		
+		/** */
 		static statementNotInDocument()
 		{
 			return error("The specified statement does not exist within this document.");

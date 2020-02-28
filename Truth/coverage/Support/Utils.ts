@@ -80,10 +80,15 @@ namespace Truth
 		for (const path of paths)
 		{
 			const type = document.query(...path);
-			if (type === null)
+			if (type instanceof Type)
+			{
+				out.push(type);
+			}
+			else
+			{
 				hasError = true;
-			
-			out.push(type);
+				out.push(null);
+			}
 		}
 		
 		if (hasError)
