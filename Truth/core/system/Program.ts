@@ -181,7 +181,7 @@ namespace Truth
 			});
 		}
 		
-		/** */
+		/** Stores a queue of documents to resolve. */
 		private readonly queue = new Map<KnownUri, ((resolved: Document | Error) => void)[]>();
 		
 		/**

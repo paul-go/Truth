@@ -2,19 +2,32 @@
 namespace Truth
 {
 	/**
-	 * A chain of Subjects that form a path to a particular
-	 * location within a Document.
+	 * A chain of subjects that form a path to a particular location within a Document.
 	 * 
-	 * The lifetime of a Phrase is pinned (directly or indirectly)
-	 * to the lifetime of a Document. A Document object as a
-	 * reference to a root-level Phrase, and Phrase objects are
-	 * then store references to their nested Phrase children.
+	 * The lifetime of a Phrase is pinned (directly or indirectly) to the lifetime of a Document.
+	 * A Document object as a reference to a root-level Phrase, and Phrase objects are then
+	 * store references to their nested Phrase children.
+	 * 
+	 * Phrases can be either "hypothetical" or "non-hypothetical". A non-hypothetical phrase
+	 * is one that is supported by a Span object that represents a region of text that was typed
+	 * directly into the document. A hypothetical phrase is one that refers to some path in
+	 * the document that wasn't entered by the user, and therefore only exists hypothetically.
+	 * Determining whether an actual type is present at the hypothetical location requires
+	 * invoking the type checker.
+	 * 
+	 * Because non-hypothetical phrases are supported by one or more physical spans, Phrases
+	 * therefore have a concept of being "inflated" and "deflated" by backing spans. This is
+	 * a kind of reference counting mechanism. Phrases are instantiated at the time when the
+	 * first supporting span makes an appearance, and are disposed at the time when the last
+	 * one is removed.
 	 */
 	export class Phrase extends AbstractClass
 	{
 		/**
 		 * @internal
-		 * Creates a new root phrase.
+		 * Creates a new root 0-length phrase, which should only ever
+		 * be attached to a document object. Root phrases act as the
+		 * gateway from a document into it's nested phrase structure.
 		 */
 		static new(containingDocument: Document)
 		{
@@ -34,8 +47,15 @@ namespace Truth
 			containingDocument: Document,
 			encodedPhrasePath: string): Phrase | null
 		{
-			debugger;
-			return null;
+			/*
+			TODO
+			This method is going to require the use of a custom phrase path string parser.
+			This is so that types may be referred to through a kind of custom URI structure.
+			This could be a simple path/to/the/type, but the first term of the path will
+			require the ability to parse a clarifier, to allow for disambiguating between a
+			possible homograph.
+			*/
+			throw Exception.notImplemented();
 		}
 		
 		/**
@@ -135,8 +155,10 @@ namespace Truth
 		
 		/**
 		 * @internal
+		 * Deflates the phrases that correspond to statements specified in
+		 * the array, and their descendents.
 		 */
-		static deleteRecursive(statements: readonly Statement[])
+		static deflateRecursive(statements: readonly Statement[])
 		{
 			for (const span of this.enumerate(statements))
 				for (const phrase of Phrase.fromSpan(span))
@@ -145,15 +167,20 @@ namespace Truth
 		
 		/**
 		 * @internal
+		 * Inflates the phrases that correspond to statements specified in
+		 * the array, and their descendent statements.
 		 */
-		static createRecursive(statements: readonly Statement[])
+		static inflateRecursive(statements: readonly Statement[])
 		{
 			for (const span of this.enumerate(statements))
 				for (const phrase of Phrase.fromSpan(span))
 					phrase.inflate(span);
 		}
 		
-		/** */
+		/**
+		 * Performs a deep enumeration of the statements provided in
+		 * the array, as well as their descendent statements.
+		 */
 		private static *enumerate(statements: readonly Statement[])
 		{
 			if (statements.length === 0)
@@ -397,7 +424,7 @@ namespace Truth
 		readonly length: number;
 		
 		/**
-		 * 
+		 * Inflates this phrase with the span provided.
 		 */
 		private inflate(inflatingSpan: Span)
 		{
@@ -405,12 +432,8 @@ namespace Truth
 		}
 		
 		/**
-		 * Removes the specified "inflating span" from the phrase.
-		 * The necessity of the existence of a non-hypothetical Phrase
-		 * is predicated on whether it's backed by one or more Spans,
-		 * meaning, it has some physical representation in the underlying
-		 * document. Phrases are therefore disposed at the time when
-		 * all it's inflating spans are no longer present in the document.
+		 * Deflates this phrase with the span provided,
+		 * and triggers the disposal operation if necessary.
 		 */
 		private deflate(inflatingSpan: Span)
 		{
@@ -460,7 +483,9 @@ namespace Truth
 		}
 		
 		/**
-		 * 
+		 * Enumerates through the non-hypothetical phrases that extend from this
+		 * one, yielding phrase arrays that correspond to the series of homographic
+		 * phrases that extend from a subject.
 		 */
 		*peekMany()
 		{
@@ -469,7 +494,8 @@ namespace Truth
 		}
 		
 		/**
-		 * 
+		 * Returns an array containing the subjects that link to the non-hypothetical
+		 * phrases that extend from this phrase.
 		 */
 		peekSubjects()
 		{
@@ -477,7 +503,9 @@ namespace Truth
 		}
 		
 		/**
-		 * 
+		 * Performs a recursive traversal through the non-hypothetical phrases that
+		 * extend from this one, yielding phrase arrays that correspond to the series
+		 * of homographic phrases that extend from a subject.
 		 */
 		*peekRecursive()
 		{

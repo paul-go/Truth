@@ -53,7 +53,7 @@ namespace Truth
 			if (uriStatements.length > 0)
 				await doc.updateReferences([], uriStatements);
 
-			Phrase.createRecursive(topLevelStatements);
+			Phrase.inflateRecursive(topLevelStatements);
 			
 			if ("DEBUG")
 				Debug.printPhrases(doc, true, true);
@@ -678,6 +678,8 @@ namespace Truth
 		
 		/**
 		 * @internal
+		 * Computes a mutation task to be carried out in order for this document
+		 * to be edited, potentially in tandem with other documents.
 		 */
 		createMutationTask(edits: TEdit[]): IDocumentMutationTask | null
 		{
@@ -786,7 +788,7 @@ namespace Truth
 							deletePhrases()
 							{
 								if (hasOpStatements)
-									Phrase.deleteRecursive(oldStatements);
+									Phrase.deflateRecursive(oldStatements);
 							},
 							updateDocument()
 							{
@@ -796,7 +798,7 @@ namespace Truth
 							createPhrases()
 							{
 								if (hasOpStatements)
-									Phrase.createRecursive(newStatements);
+									Phrase.inflateRecursive(newStatements);
 							},
 							finalize
 						};
@@ -842,7 +844,7 @@ namespace Truth
 								// An edit transaction can be avoided completely in the case
 								// when the only statements that were deleted were noops.
 								if (hasOpStatements)
-									Phrase.deleteRecursive(deadStatements);
+									Phrase.deflateRecursive(deadStatements);
 							},
 							updateDocument()
 							{
@@ -985,7 +987,7 @@ namespace Truth
 			return {
 				deletePhrases()
 				{
-					Phrase.deleteRecursive(mustInvalidateDoc ?
+					Phrase.deflateRecursive(mustInvalidateDoc ?
 						Array.from(invalidatedParents.values()) :
 						self.getChildren());
 				},
@@ -1014,7 +1016,7 @@ namespace Truth
 				},
 				createPhrases()
 				{
-					Phrase.createRecursive(Array.from(invalidatedParents.values()));
+					Phrase.inflateRecursive(Array.from(invalidatedParents.values()));
 				},
 				finalize
 			};

@@ -5,9 +5,8 @@ namespace Truth
 	 * An alias for a tuple used to construct faults that are used by a Document's
 	 * .hasFaults method in order to check for the existence of a particular fault.
 	 * 
-	 * The schema of the tuple is [Fault type, line number
-	 * 
-	 * In the case when the fault type is an InfixSpan, 
+	 * TODO: How does this structure handle the case when the fault type is an 
+	 * InfixSpan?
 	 */
 	export type TComparisonFault = 
 		[StatementFaultType, number] | 

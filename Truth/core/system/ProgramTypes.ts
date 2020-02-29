@@ -129,7 +129,11 @@ namespace Truth
 		readonly endColumn: number;
 	}
 	
-	/** @internal */
+	/**
+	 * @internal
+	 * A class used by the mutation system to represent an insert 
+	 * of a line within a document.
+	 */
 	export class InsertEdit
 	{
 		constructor(
@@ -142,7 +146,11 @@ namespace Truth
 		readonly document: Document;
 	}
 	
-	/** @internal */
+	/**
+	 * @internal
+	 * A class used by the mutation system to represent an update
+	 * to a line within a document.
+	 */
 	export class UpdateEdit
 	{
 		constructor(
@@ -155,7 +163,11 @@ namespace Truth
 		readonly document: Document;
 	}
 	
-	/** @internal */
+	/**
+	 * @internal
+	 * A class used by the mutation system to represent a deletion
+	 * of a line within a document.
+	 */
 	export class DeleteEdit
 	{
 		constructor(
