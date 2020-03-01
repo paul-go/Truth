@@ -275,7 +275,7 @@ namespace Truth
 		 * Create an L > 0 length Phrase that represents a path to a hypothetical area of the
 		 * document (meaning, an area that is suggested to be valid through inheritance).
 		 */
-		private constructor(parent: Phrase, subject: Subject)
+		private constructor(parent: Phrase, terminal: Subject)
 		private constructor(a: Document | Phrase, b?: Span | Subject, c?: Term[], d?: string)
 		{
 			super();

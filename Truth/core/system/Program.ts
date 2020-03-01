@@ -678,7 +678,7 @@ namespace Truth
 		 */
 		queueVerification(target: Phrase)
 		{
-			// Avoid queuing the target phrase in the case one of the 
+			// Avoid queueing the target phrase in the case one of the 
 			// phrase's ancestors have already been queued.
 			//
 			// I'm pretty sure this is wrong ... you want this to go the
