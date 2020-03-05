@@ -15,34 +15,23 @@ namespace Truth
 			this._version = VersionStamp.next();
 			this.reader = Truth.createDefaultUriReader();
 			
-			// Is this still relevant?
-			this.on(CauseDocumentCreate, data =>
+			this.on("documentCreate", doc =>
 			{
-				this.queueVerification(data.document.phrase);
+				this.queueVerification(doc.phrase);
 			});
 			
-			// Is this still relevant?
-			this.on(CauseDocumentDelete, data =>
+			this.on("documentDelete", doc =>
 			{
-				for (const phrases of data.document.phrase.peekRecursive())
+				for (const phrases of doc.phrase.peekRecursive())
 					for (const phrase of phrases)
 						this.cancelVerification(phrase);
 			});
 			
-			this.on(CauseDocumentUriChange, () =>
+			this.on("documentUriChange", () =>
 			{
 				this._version = VersionStamp.next();
 			});
 			
-			this.on(CauseAgentDetach, data =>
-			{
-				for (const [cause, attachments] of this.causes)
-					for (const attachment of attachments)
-						if (attachment.uri && attachment.uri === data.uri)
-							this.causes.delete(cause, attachment);
-			});
-			
-			this.agentCache = new AgentCache(this);
 			this.cycleDetector = new CycleDetector(this);
 			this.faults = new FaultService(this);
 		}
@@ -178,6 +167,9 @@ namespace Truth
 					for (const resolveFn of resolveFns)
 						resolveFn(docOrError);
 				}
+				
+				if (docOrError instanceof Document)
+					this.emit("documentCreate", docOrError);
 			});
 		}
 		
@@ -714,164 +706,70 @@ namespace Truth
 		 */
 		private readonly verificationQueue = new Set<Phrase>();
 		
-		
-		//# Everything below this point is from the former cause design,
-		//# or is agent-related.
-		
-		
-		/** @internal */
-		private readonly agentCache: AgentCache;
+		//# Event related members
 		
 		/**
-		 * Probes the program and returns an array containing information
-		 * about the callbacks that will be triggered if a cause of the specified
-		 * type is broadcasted. Essentially, this method answers the question, 
-		 * "Who is listening for Causes of type X?".
-		 * 
-		 * If no agents have attached to the specified type, an empty array
-		 * is returned.
+		 * Attaches a callback function that will be called in response
+		 * to the specified program event.
 		 */
-		probe(causeType: new (...args: any[]) => any, scope: AttachmentScope = this)
+		on<K extends keyof ProgramEventMap>(
+			eventName: K,
+			handler: ProgramEventMap[K]): ProgramEventMap[K]
 		{
-			if (scope instanceof Type)
-				throw Exception.notImplemented();
-			
-			const results: { uri: KnownUri | null; scope: AttachmentScope; }[] = [];
-			const push = (ca: CauseAttachment) =>
-				results.push({ uri: ca.uri, scope: ca.scope });
-			
-			for (const [causeTypeKey, attachments] of this.causes)
-				if (causeType === causeTypeKey)
-					for (const ca of attachments)
-						if (scope === ca.scope || 
-							scope instanceof Program && ca.scope instanceof Document)
-							push(ca);
-			
-			return results;
+			this.handlers.add(eventName, handler);
+			return handler;
 		}
 		
 		/**
-		 * 
+		 * Removes a callback function previously attached to this Program
+		 * instance, through the specified event name.
 		 */
-		on<T extends Cause<any>>(
-			causeType: new (...args: any[]) => T,
-			fn: (data: TCauseData<T>) => TCauseReturn<T>,
-			scope?: Document | Type): void
-		{
-			const info = getHolderInfo(this);
-			const usingScope: AttachmentScope = scope || info.scope || this;
-			const ca = new CauseAttachment(info.uri, fn, usingScope);
-			this.causes.add(causeType, ca);
-		}
-		
+		off<K extends keyof ProgramEventMap>(
+			eventName: K,
+			handler: ProgramEventMap[K]): ProgramEventMap[K];
 		/**
-		 * Progates the specified Cause object to all subscribers that
-		 * are listening for causes of object's type. 
-		 * 
-		 * @param cause A reference to the Cause instance to broadcast.
-		 * 
-		 * @param filter An optional array of Uri instances that
-		 * specify the origin from where an agent that is attached
-		 * to the cause must loaded in order to be delivered the
-		 * cause instance.
-		 * 
-		 * @returns An object that stores information about the
-		 * cause results that were returned, and the URI of the 
-		 * agent that produced the result. In the case when the
-		 * agent was attached programmatically, the URI value 
-		 * will be null.
+		 * Removes a callback function previously attached to this Program
+		 * instance, through any event name.
 		 */
-		cause<R>(cause: Cause<R>, ...filters: KnownUri[])
+		off<K extends keyof ProgramEventMap>(
+			handler: ProgramEventMap[K]): ProgramEventMap[K]
+		/** */
+		off<K extends keyof ProgramEventMap>(
+			maybeEventName: K | ProgramEventMap[K],
+			handler?: ProgramEventMap[K])
 		{
-			const causeType = cause.constructor as typeof Cause;
-			const attachmentsAll = this.causes.get(causeType) || [];
-			const attachments = attachmentsAll.filter(attachment =>
-			{
-				if (filters.length === 0)
-					return true;
-				
-				const otherUri = attachment.uri;
-				if (otherUri === null)
-					return true;
-				
-				return filters.find(uri => uri === otherUri);
-			});
+			const handlerFn = typeof handler === "function" ?
+				handler :
+				maybeEventName as ProgramEventMap[K];
 			
-			if (attachments.length === 0)
-				return [];
+			if (handler)
+				this.handlers.delete(maybeEventName as string, handlerFn);
 			
-			const result: { from: KnownUri | null; returned: R }[] = [];
+			else for (const [eventName] of this.handlers)
+				this.handlers.delete(eventName, handlerFn);
 			
-			for (const attachment of attachments)
-			{
-				const returned: R = attachment.callback(cause);
-				if (returned !== null && returned !== undefined)
-					result.push({ from: attachment.uri, returned });
-			}
-			
-			return result;
-		}
-		
-		/** @internal */
-		private readonly causes = new MultiMap<typeof Cause, CauseAttachment>();
-		
-		/**
-		 * Augments the global scope of the agents attached to this
-		 * program with a variable whose name and value are specified
-		 * in the arguments to this method. (Note that this only affects
-		 * agents that are attached *after* this call has been made.)
-		 */
-		augment(name: string, value: object)
-		{
-			this.agentCache.augment(name, value);
+			return handlerFn;
 		}
 		
 		/**
 		 * @internal
-		 * Stores information about the agent that holds the reference
-		 * to this Program instance. The property is undefined in the
-		 * case when the instance is not held by an agent.
-		 * 
-		 * This value is applied through the Misc.patch() function, which
-		 * uses a Proxy object to provide 
+		 * Emits an event with the specified parameters to all callback functions
+		 * attached to this Program instance via the on() method.
 		 */
-		readonly instanceHolder?: {
-			uri: KnownUri;
-			scope: AttachmentScope;
+		emit<K extends keyof ProgramEventMap>(
+			eventName: K,
+			...params: Parameters<ProgramEventMap[K]>)
+		{
+			const functions = this.handlers.get(eventName);
+			if (functions)
+				for (const fn of functions)
+					fn(...params);
 		}
-	}
-	
-	/**
-	 * Gets information about the object that holds 
-	 * the specified Program instance.
-	 */
-	function getHolderInfo(program: Program)
-	{
-		const ih = program.instanceHolder;
 		
-		return {
-			uri: ih ? ih.uri : null,
-			scope: <AttachmentScope>(ih ? ih.scope : program)
-		};
+		/**
+		 * A MultiMap of all event handlers attached to this Program instance,
+		 * keyed by the name of the event to which the handler is attached.
+		 */
+		private readonly handlers = new MultiMap<string, (...args: any[]) => void>();
 	}
-	
-	/**
-	 * @internal
-	 * Stores information about the attachment
-	 * of a cause callback function.
-	 */
-	class CauseAttachment
-	{
-		/** */
-		constructor(
-			readonly uri: KnownUri | null,
-			readonly callback: (data: any) => any,
-			readonly scope: AttachmentScope)
-		{ }
-	}
-	
-	/**
-	 * Describes a place in the program where a Cause is attached.
-	 */
-	export type AttachmentScope = Program | Document | Type;
 }

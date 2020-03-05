@@ -256,9 +256,9 @@ namespace Truth
 			}
 			
 			if (autoChanged || manualChanged)
-				this.program.cause(new CauseFaultChange(
+				this.program.emit("faultChange",
 					autoAdded.concat(manualAdded),
-					autoRemoved.concat(manualRemoved)));
+					autoRemoved.concat(manualRemoved));
 		}
 		
 		/** */

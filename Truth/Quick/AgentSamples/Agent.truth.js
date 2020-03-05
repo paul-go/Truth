@@ -1,7 +1,0 @@
-"use strict";
-/// <reference path="../../Build/Release/truth-compiler.d.ts" />
-/// <reference path="editor.d.ts" />
-program.on(Truth.CauseEditComplete, data => {
-    console.log("edit complete from hook.");
-});
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiQWdlbnQudHJ1dGguanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJBZ2VudC50cnV0aC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO0FBQUEsdURBQXVEO0FBQ3ZELG9DQUFvQztBQUVwQyxPQUFPLENBQUMsRUFBRSxDQUFDLEtBQUssQ0FBQyxpQkFBaUIsRUFBRSxJQUFJLENBQUMsRUFBRTtJQUUxQyxPQUFPLENBQUMsR0FBRyxDQUFDLDBCQUEwQixDQUFDLENBQUM7QUFDekMsQ0FBQyxDQUFDLENBQUMiLCJzb3VyY2VzQ29udGVudCI6WyIvLy8gPHJlZmVyZW5jZSBwYXRoPVwiLi4vLi4vQnVpbGQvUmVsZWFzZS90cnV0aC5kLnRzXCIgLz5cbi8vLyA8cmVmZXJlbmNlIHBhdGg9XCJlZGl0b3IuZC50c1wiIC8+XG5cbnByb2dyYW0ub24oVHJ1dGguQ2F1c2VFZGl0Q29tcGxldGUsIGRhdGEgPT5cbntcblx0Y29uc29sZS5sb2coXCJlZGl0IGNvbXBsZXRlIGZyb20gaG9vay5cIik7XG59KTtcbiJdfQ==
