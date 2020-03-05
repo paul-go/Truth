@@ -17,60 +17,308 @@ namespace Truth
 		readonly stamp = VersionStamp.next();
 		
 		/**
-		 * 
+		 * @internal
+		 * Generator function that yields all statements
+		 * (unparsed lines) of the given source text. 
 		 */
-		constructor(document: Document, text: string)
+		static *readFromSource(
+			targetDocument: Document,
+			sourceText: string)
+		{
+			const options = createDefaultParseOptions(targetDocument);
+			
+			if (sourceText.length === 0)
+				return;
+			
+			const end = sourceText.length - 1;
+			let statementStart = 0;
+			
+			for (let cursor = -1;;)
+			{
+				if (cursor >= end)
+				{
+					const smtText = sourceText.slice(statementStart);
+					yield new Statement(targetDocument, smtText, options);
+					return;
+				}
+				
+				cursor++;
+				
+				if (sourceText[cursor] === Syntax.terminal)
+				{
+					const smtText = sourceText.slice(statementStart, cursor);
+					yield new Statement(targetDocument, smtText, options);
+					statementStart = cursor + 1;
+				}
+			}
+		}
+		
+		/**
+		 * @internal
+		 */
+		static *readFromScript(
+			targetDocument: Document,
+			sourceObject: SourceObject)
+		{
+			const options = createDefaultParseOptions(targetDocument);
+			
+			function *recurse(sourceObject: SourceObject, depth: number):
+				IterableIterator<Statement>
+			{
+				// Methods can only be defined at the second level of depth and
+				// higher in the object structure provided.
+				const hasMethods = 
+					depth > 0 &&
+					Object.values(sourceObject).some(v => typeof v === "function");
+				
+				for (const [declaration, rightSide] of Object.entries(sourceObject))
+				{
+					const values: any[] = (Array.isArray(rightSide) ? rightSide : [rightSide]);
+					const annotations = values
+						.filter(v =>
+							v !== "" &&
+							v !== null &&
+							v !== void 0 &&
+							v === v &&
+							typeof v !== "object")
+						.map(v => String(v));
+					
+					const inners = values.filter(v => !!v && typeof v === "object");
+					
+					const statementText = 
+						Syntax.tab.repeat(depth) + declaration + 
+						Syntax.space + Syntax.joint + Syntax.space +
+						annotations.join(Syntax.combinator);
+					
+					yield Statement.new(
+						targetDocument,
+						statementText,
+						options,
+						inners);
+					
+					for (const innerObject of inners)
+						yield *recurse(innerObject, depth + 1);
+				}
+			};
+			
+			yield *recurse(sourceObject, 0);
+		}
+		
+		/**
+		 * @internal
+		 * Creates a temporary statement that will not be attached to any document,
+		 * and will not report any faults.
+		 */
+		static newTemporary(statementText: string, options: IParserOptions)
+		{
+			return new Statement(null, statementText, options);
+		}
+		
+		/**
+		 * @internal
+		 * Creates a new statement object, using the private constructor.
+		 */
+		static new(
+			document: Document,
+			statementText: string,
+			options: IParserOptions = createDefaultParseOptions(document),
+			methods: SourceObjectMethods[] = [])
+		{
+			return new Statement(document, statementText, options, methods);
+		}
+		
+		/** */
+		private constructor(
+			document: Document | null,
+			statementText: string,
+			options: IParserOptions,
+			methods: SourceObjectMethods[] = [])
 		{
 			super();
+			this.methods = methods;
 			
-			const line = LineParser.parse(text, {
-				readPatterns: true,
-				readUris: true,
-				assumedUri: document.uri
-			});
+			// This is where the parsing of a statement begins.
+			// The algorithm used is some kind of quasi-recusive descent with
+			// lookheads and backtracking in some places to make the logic easier
+			// to follow. Technically, it's probably some mash-up of LL(k) & LALR.
+			// Maybe if I blew 4 years of my life in some silly Comp Sci program
+			// instead of dropping out of high school I could say for sure.
 			
-			this.document = document;
-			this.sourceText = line.sourceText;
-			this.sum = line.sum;
-			this.indent = line.indent;
-			this.flags = line.flags;
-			this.jointPosition = line.jointPosition;
+			const scanner = new Scanner(statementText);
+			const indent = scanner.readWhitespace();
+			const declarationEntries: Boundary<Subject>[] = [];
+			const annotationEntries: Boundary<Term>[] = [];
+			let flags = StatementFlags.none;
+			let jointPosition = -1;
+			let sum = "";
+			let faultType: StatementFaultType | null = null;
 			
-			this.allDeclarations = Object.freeze(Array.from(line.declarations)
-				.map(boundary => new Span(this, boundary)));
+			const shouldFinalize = (() =>
+			{
+				if (!scanner.more())
+				{
+					flags |= StatementFlags.isWhitespace;
+					return false;
+				}
+				
+				const markBegin = scanner.position;
+				if (scanner.read(Syntax.comment))
+				{
+					if (!scanner.more() || scanner.read(Syntax.space) || scanner.read(Syntax.tab))
+					{
+						flags |= StatementFlags.isComment;
+						return false;
+					}
+					
+					scanner.position = markBegin;
+				}
+				
+				const unparsableFaultType = (() =>
+				{
+					if (scanner.read(Syntax.combinator))
+						return Faults.StatementBeginsWithComma;
+					
+					if (scanner.read(Syntax.list))
+						return Faults.StatementBeginsWithEllipsis;
+					
+					const esc = Syntax.escapeChar;
+					
+					if (scanner.read(esc + Syntax.space) || scanner.read(esc + Syntax.tab))
+						return Faults.StatementBeginsWithEscapedSpace;
+					
+					if (scanner.readThenTerminal(esc))
+						return Faults.StatementContainsOnlyEscapeCharacter;
+					
+					return null;
+				})();
+				
+				if (unparsableFaultType)
+				{
+					flags |= StatementFlags.isCruft;
+					faultType = unparsableFaultType;
+					return false;
+				}
+				
+				const markBeforeUri = scanner.position;
+				const uri = Parser.maybeParseUri(scanner, options);
+				if (uri)
+				{
+					flags |= StatementFlags.hasUri;
+					declarationEntries.push(new Boundary(
+						markBeforeUri,
+						scanner.position,
+						uri));
+					
+					return true;
+				}
+				
+				const markBeforePattern = scanner.position;
+				const pattern = Parser.maybeParsePattern(scanner, options);
+				
+				if (Parser.isFault(pattern))
+				{
+					flags |= StatementFlags.isCruft;
+					faultType = pattern;
+					return false;
+				}
+				
+				if (pattern)
+				{
+					flags |= StatementFlags.hasPattern;
+					flags |= pattern.isTotal ?
+						StatementFlags.hasTotalPattern :
+						StatementFlags.hasPartialPattern;
+					
+					declarationEntries.push(new Boundary(
+						markBeforePattern,
+						scanner.position,
+						pattern));
+					
+					return true;
+				}
+				
+				for (const boundsEntry of Parser.parseDeclarations(scanner, []))
+					declarationEntries.push(boundsEntry);
+				
+				return true;
+			})();
 			
-			this.allAnnotations = Object.freeze(Array.from(line.annotations)
-				.map(boundary => new Span(this, boundary)));
+			if (shouldFinalize)
+			{
+				jointPosition = Parser.maybeParseJoint(scanner);
+				
+				const readResult = Parser.readAnnotations(scanner, []);
+				sum = readResult.raw.trim();
+				
+				for (const boundsEntry of readResult.annotations)
+					annotationEntries.push(boundsEntry);
+				
+				if (jointPosition > -1)
+				{
+					const dLen = declarationEntries.length;
+					const aLen = readResult.annotations.length;
+					
+					if (dLen === 0)
+					{
+						declarationEntries.unshift(new Boundary(
+							jointPosition,
+							jointPosition,
+							Term.void));
+						
+						if (aLen === 0)
+							flags |= StatementFlags.isVacuous;
+					}
+					else if (aLen === 0)
+					{
+						flags |= StatementFlags.isRefresh;
+					}
+				}
+			}
+			
+			// It must be possible to create a statement without a document
+			// in order to support tests. This should not occur in the non-test
+			// flow of the system.
+			this.document = document || (null as any);
+			this.sourceText = statementText;
+			this.sum = sum;
+			this.indent = indent;
+			this.flags = flags;
+			this.jointPosition = jointPosition;
+			
+			const allDeclarations: Span[] = this.allDeclarations = [];
+			for (const boundary of declarationEntries)
+				allDeclarations.push(new Span(this, boundary));
+			
+			const allAnnotations: Span[] = this.allAnnotations = [];
+			for (const boundary of annotationEntries)
+				allAnnotations.push(new Span(this, boundary));
 			
 			const faults: Fault[] = [];
 			const cruftObjects = new Set<Statement | Span | InfixSpan>();
 			
-			if (line.faultType !== null)
-				faults.push(new Fault(line.faultType, this));
-			
-			for (const fault of this.eachParseFault())
+			if (document)
 			{
-				if (fault.type.severity === FaultSeverity.error)
-					cruftObjects.add(fault.source);
+				if (faultType !== null)
+					faults.push(new Fault(faultType, this));
 				
-				faults.push(fault);
-			}
+				for (const fault of this.eachParseFault())
+				{
+					if (fault.type.severity === FaultSeverity.error)
+						cruftObjects.add(fault.source);
+					
+					faults.push(fault);
+				}
 			
-			for (const fault of faults)
-				// Check needed to support the unit tests, the feed
-				// fake document objects into the statement constructor.
-				if (document.program && document.program.faults)
-					document.program.faults.report(fault);
+				for (const fault of faults)
+					// Check needed to support the unit tests, the feed
+					// fake document objects into the statement constructor.
+					if (document.program && document.program.faults)
+						document.program.faults.report(fault);
+			}
 			
 			this.cruftObjects = cruftObjects;
 			this.faults = Object.freeze(faults);
-			
-			this.programStamp = document.program ?
-				document.program.version :
-				VersionStamp.next();
 		}
-		
-		readonly programStamp: VersionStamp;
 		
 		/**
 		 * 
@@ -136,7 +384,7 @@ namespace Truth
 				if (this.allDeclarations.length === 0)
 					return null;
 				
-				const hp = LineFlags.hasPattern;
+				const hp = StatementFlags.hasPattern;
 				if ((this.flags & hp) !== hp)
 					return null;
 				
@@ -239,7 +487,7 @@ namespace Truth
 		 */
 		get isRefresh()
 		{
-			const f = LineFlags.isRefresh;
+			const f = StatementFlags.isRefresh;
 			return (this.flags & f) === f;
 		}
 		
@@ -249,7 +497,7 @@ namespace Truth
 		 */
 		get isVacuous()
 		{
-			const f = LineFlags.isVacuous;
+			const f = StatementFlags.isVacuous;
 			return (this.flags & f) === f;
 		}
 		
@@ -258,7 +506,7 @@ namespace Truth
 		 */
 		get isComment()
 		{
-			const f = LineFlags.isComment;
+			const f = StatementFlags.isComment;
 			return (this.flags & f) === f;
 		}
 		
@@ -268,7 +516,7 @@ namespace Truth
 		 */
 		get isWhitespace()
 		{
-			const f = LineFlags.isWhitespace;
+			const f = StatementFlags.isWhitespace;
 			return (this.flags & f) === f;
 		}
 		
@@ -289,7 +537,7 @@ namespace Truth
 		 */
 		get isDisposed()
 		{
-			const f = LineFlags.isDisposed;
+			const f = StatementFlags.isDisposed;
 			return (this.flags & f) === f;
 		}
 		
@@ -299,7 +547,7 @@ namespace Truth
 		 */
 		get isCruft()
 		{
-			const f = LineFlags.isCruft;
+			const f = StatementFlags.isCruft;
 			return (this.flags & f) === f;
 		}
 		
@@ -312,14 +560,14 @@ namespace Truth
 		 */
 		get uri()
 		{
-			const f = LineFlags.hasUri;
+			const f = StatementFlags.hasUri;
 			return (this.flags & f) === f ?
 				this.declarations[0].boundary.subject as KnownUri :
 				null;
 		}
 		
 		/** @internal */
-		private flags = LineFlags.none;
+		private flags = StatementFlags.none;
 		
 		/** Stores a list of the parse-related faults that were detected on this Statement. */
 		readonly faults: readonly Fault[];
@@ -466,11 +714,20 @@ namespace Truth
 		
 		/**
 		 * @internal
+		 * Stores an array of SourceObjectMethods objects that were defined
+		 * as being in correspondence with this statement.  In the case when
+		 * this Statement was not generated from a scripted document, the
+		 * stored value is an empty aray.
+		 */
+		readonly methods: readonly SourceObjectMethods[];
+		
+		/**
+		 * @internal
 		 * Marks the statement as being removed from it's containing document.
 		 */
 		dispose()
 		{
-			this.flags = this.flags | LineFlags.isDisposed;
+			this.flags = this.flags | StatementFlags.isDisposed;
 		}
 		
 		/**
@@ -639,6 +896,25 @@ namespace Truth
 	}
 	
 	/**
+	 * A bit field enumeration used to efficiently store
+	 * meta data about a Line (or a Statement) object.
+	 */
+	export enum StatementFlags
+	{
+		none = 0,
+		isRefresh = 1,
+		isVacuous = 2,
+		isComment = 4,
+		isWhitespace = 8,
+		isDisposed = 16,
+		isCruft = 32,
+		hasUri = 64,
+		hasTotalPattern = 128,
+		hasPartialPattern = 256,
+		hasPattern = 512
+	}
+	
+	/**
 	 * Yields faults on infix spans in the case when a term
 	 * exists multiple times within the same infix.
 	 */
@@ -672,7 +948,7 @@ namespace Truth
 		infixFn: (nfx: Infix) => IterableIterator<InfixSpan>)
 	{
 		const subjects = new Set<Subject>();
-			
+		
 		for (const infix of span.infixes)
 		{
 			const infixSpans = Array.from(infixFn(infix));
@@ -704,5 +980,17 @@ namespace Truth
 		for (const nfxSpan of side)
 			if (nfxSpan.boundary.subject.isList)
 				yield new Fault(Faults.InfixUsingListOperator, nfxSpan);
+	}
+	
+	/**
+	 * 
+	 */
+	function createDefaultParseOptions(doc: Document): IParserOptions
+	{
+		return {
+			assumedUri: doc.uri,
+			readPatterns: true,
+			readUris: true
+		};
 	}
 }

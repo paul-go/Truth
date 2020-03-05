@@ -27,7 +27,7 @@ namespace Truth
 				
 				else if (uri.protocol === UriProtocol.http ||
 					uri.protocol === UriProtocol.https)
-					return await readWebUri(uriText);
+					return await readHttpUri(uriText);
 				
 				throw Exception.notImplemented();
 			}
@@ -50,7 +50,7 @@ namespace Truth
 	}
 	
 	/** */
-	async function readWebUri(url: string): Promise<string | Error>
+	async function readHttpUri(url: string): Promise<string | Error>
 	{
 		if (typeof fetch === "function")
 		{

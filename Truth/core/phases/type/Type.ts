@@ -716,6 +716,14 @@ namespace Truth
 		}
 		
 		/**
+		 * 
+		 */
+		fold()
+		{
+			// TODO
+		}
+		
+		/**
 		 * @internal
 		 * Internal object that stores the private members
 		 * of the Type object. Do not use.

@@ -73,7 +73,7 @@ namespace Truth
 		private _version: VersionStamp;
 		
 		/**
-		 * Override the default UriReader used by the program.
+		 * Override the default IUriReader used by the program.
 		 * This reader is used to load the contents of files that 
 		 * are referenced within uri-containing statements within
 		 * Truth documents.
@@ -108,9 +108,9 @@ namespace Truth
 		 * @param documentUri The URI that will represent the source 
 		 * location of the loaded document.
 		 * 
-		 * @param sourceText The source text to load into the document
-		 * by default. If omitted, the source text will be loaded from the
-		 * the URI specified in the `documentUri`  argument.
+		 * @param source The source text or source object to load into
+		 * the document by default. If omitted, the source will be loaded
+		 * from the the URI specified in the `documentUri`  argument.
 		 * 
 		 * Use this argument when the source text of the document being
 		 * added has already been loaded into a string by another means,
@@ -118,7 +118,7 @@ namespace Truth
 		 */
 		async addDocumentFromUri(
 			documentUri: string | KnownUri,
-			sourceText?: string)
+			source?: string | SourceObject)
 		{
 			const uri = typeof documentUri === "string" ?
 				KnownUri.fromString(documentUri) :
@@ -140,35 +140,35 @@ namespace Truth
 				});
 			}
 			
-			// The problem with this design is that I don't know if the 
-			// resolve function is going to be called synchronously.
-			// If it is, this code structure will probably work.
-			
 			return new Promise<Document | Error>(async resolve =>
 			{
 				this.queue.set(uri, [resolve]);
 				
-				if (sourceText === undefined)
+				if (source === undefined)
 				{
-					const loadedSourceText = await (async () =>
+					if (uri.extension === Extension.truth)
 					{
-						const readResult = await this.reader.tryRead(uri);
-						if (readResult instanceof Error)
-							return readResult;
+						const loadedSourceText = await this.reader.tryRead(uri);
+						if (loadedSourceText instanceof Error)
+							return loadedSourceText;
 						
-						return readResult;
-					})();
-				
-					if (loadedSourceText instanceof Error)
-						return loadedSourceText;
-					
-					sourceText = loadedSourceText;
+						source = loadedSourceText;
+					}
+					else if (uri.extension === Extension.script)
+					{
+						const loadedSourceObject = await Script.import(uri);
+						if (loadedSourceObject instanceof Error)
+							return loadedSourceObject;
+						
+						source = loadedSourceObject;
+					}
+					else throw Exception.invalidArgument();
 				}
 				
 				const docOrError = await Document.new(
 					this,
 					uri,
-					sourceText,
+					source,
 					d => this.saveDocument(d));
 				
 				const resolveFns = this.queue.get(uri);
@@ -430,14 +430,14 @@ namespace Truth
 				},
 				insert: (doc: Document, text: string, pos = -1) =>
 				{
-					edits.push(new InsertEdit(new Statement(doc, text), pos));
+					edits.push(new InsertEdit(Statement.new(doc, text), pos));
 					documentsEdited.add(doc);
 				},
 				update: (doc: Document, text: string, pos = -1) =>
 				{
 					if (doc.read(pos).sourceText !== text)
 					{
-						edits.push(new UpdateEdit(new Statement(doc, text), pos));
+						edits.push(new UpdateEdit(Statement.new(doc, text), pos));
 						documentsEdited.add(doc);
 					}
 				}

@@ -111,8 +111,7 @@ namespace Truth
 		 */
 		get line()
 		{
-			const smt = this.statement;
-			return smt.document.lineNumberOf(smt);
+			return this.statement.line;
 		}
 		
 		/**

@@ -45,41 +45,39 @@ namespace Truth
 		}
 		
 		/** */
-		static agentNotRead()
+		static scriptMissing(rawUri: string)
 		{
-			return error(`
-				Cannot instantiate an agent of this type,
-				added. See agents.add.`);
+			return error(`Could not load a script from ${rawUri}`);
 		}
 		
 		/** */
-		static agentMissing(rawUri: string)
-		{
-			return error(`Could not load an agent from the URI ${rawUri}`);
-		}
-		
-		/** */
-		static agentImportError(agentUri: string, errorText: string)
+		static scriptLoadError(agentUri: string, errorText: string)
 		{
 			return error(`
-				An error occured while trying to evaluate the agent at "${agentUri}".
+				An error occured while trying to evaluate the script at "${agentUri}".
 				The error message returned was: ${errorText}`);
 		}
 		
 		/** */
-		static agentInvalid(rawUri: string)
+		static scriptInvalid(rawUri?: string)
 		{
 			return error(`
-				The code file at ${rawUri} does not export a function. Consider looking
-				at the documention and examples for the proper way to stucture an
-				agent code file.`);
+				The ${rawUri ? "code file at " + rawUri : "script"} does not conform
+				to the expected format. Consider looking at the documention and
+				examples for the proper way to stucture a code file.`);
 		}
 		
 		/** */
-		static noRemoteAgents()
+		static scriptsAreImmutable()
+		{
+			return error(`Cannot call this method on a document generated from a script.`);
+		}
+		
+		/** */
+		static noRemoteScripts()
 		{
 			return error(`
-				Agents cannot be loaded from remote URIs in this context.
+				Scripts cannot be loaded from remote URIs in this context.
 				(Most likely, this code is running in Node.js where the loading
 				of remote code is a security risk).`);
 		}
@@ -99,12 +97,6 @@ namespace Truth
 		}
 		
 		/** */
-		static invalidUriRetraction()
-		{
-			return error("URI contains too few path segments to perform this retraction.");
-		}
-		
-		/** */
 		static invalidUri(rawUri?: string)
 		{
 			return error("Invalid URI" + (typeof rawUri === "string" ? ": " + rawUri : ""));
@@ -114,51 +106,6 @@ namespace Truth
 		static uriNotSupported()
 		{
 			return error("URIs of this type are not supported.");
-		}
-		
-		/** */
-		static cannotMakeAbsolute()
-		{
-			return error(`
-				Cannot make this URI absolute because no 
-				process or window object could be found`);
-		}
-		
-		/** */
-		static absoluteUriExpected()
-		{
-			return error(`This method expects an absolute URI to be specified.`);
-		}
-		
-		/** */
-		static mustSpecifyVia()
-		{
-			return error(`
-				Must specify the "via" argument because the parsed URI 
-				was found to be relative`);
-		}
-		
-		/** */
-		static viaCannotBeRelative()
-		{
-			return error(`URI instances specified in the "via" argument must not be relative`);
-		}
-		
-		/** */
-		static invalidTypePath()
-		{
-			return error(`
-				One or more of the types in the specified type path are invalid,
-				because they contain either leading or trailing whitespace, or
-				is an empty string.`);
-		}
-		
-		/** */
-		static invalidExtension(requiredExtension: string)
-		{
-			return error(`
-				This method requires URIs that have the 
-				".${requiredExtension}" extension.`);
 		}
 		
 		/** */

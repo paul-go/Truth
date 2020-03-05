@@ -17,7 +17,11 @@ namespace Truth
 		 */
 		static createMemoryUri(number: number)
 		{
-			const uriText = UriProtocol.memory + "//memory/" + number + ".truth";
+			const uriText = 
+				UriProtocol.memory + 
+				"//memory/" + number + 
+				Extension.truth;
+			
 			return Misc.get(this.cache, uriText, () => new KnownUri(new URL(uriText)));
 		}
 		
@@ -53,7 +57,6 @@ namespace Truth
 		private constructor(private readonly innerUrl: URL)
 		{
 			super();
-			
 			// Generates an error if the URL isn't from a known protocol.
 			this.protocol;
 		}
@@ -67,6 +70,22 @@ namespace Truth
 		get protocol(): UriProtocol
 		{
 			return Not.null(UriProtocol.resolve(this.innerUrl.protocol));
+		}
+		
+		/**
+		 * Gets the kind of extension that was extracted from the URI path.
+		 */
+		get extension()
+		{
+			const path = this.innerUrl.pathname;
+			
+			if (path.endsWith(Extension.truth))
+				return Extension.truth;
+			
+			if (path.endsWith(Extension.script))
+				return Extension.script;
+			
+			return Extension.unknown;
 		}
 		
 		/**

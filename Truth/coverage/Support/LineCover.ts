@@ -6,19 +6,20 @@ namespace Truth
 	 * a single line of Truth.
 	 */
 	export function createLineCover(
-		source: string,
+		statementText: string,
 		expected: ILineCoverExpectation)
 	{
-		let parsedLine: Line | null = null;
-		const options: ILineParserOptions = {
+		const options: IParserOptions = {
 			assumedUri: Not.null(KnownUri.fromString(UriProtocol.memory + "//0.truth")),
 			readPatterns: true,
 			readUris: true
 		};
 		
+		let statement: Statement | null = null;
+		
 		try
 		{
-			parsedLine = LineParser.parse(source, options);
+			statement = Statement.newTemporary(statementText, options);
 		}
 		catch (e)
 		{
@@ -26,46 +27,38 @@ namespace Truth
 			return e;
 		}
 		
-		if (parsedLine === null)
+		if (statement === null)
 		{
 			if (expected.unparsable)
 				return () => expected.unparsable;
 			
 			debugger;
-			return new Error("Line should not be parsable: " + source);
+			return new Error("Line should not be parsable: " + statementText);
 		}
-		
-		const flagMissing = (flag: LineFlags) => (parsedLine!.flags & flag) !== flag;
 		
 		const verifiers: (() => any)[] = [];
 		
-		if (expected.refresh && flagMissing(LineFlags.isRefresh))
+		if (expected.refresh && statement.isRefresh)
 		{
 			debugger;
-			return fail("Line should have the refresh flag: " + source);
+			return fail("Line should have the refresh flag: " + statementText);
 		}
 		
-		if (expected.refresh && flagMissing(LineFlags.isRefresh))
+		if (expected.comment && statement.isComment)
 		{
 			debugger;
-			return fail("Line should have the refresh flag: " + source);
+			return fail("Line should have the comment flag: " + statementText);
 		}
 		
-		if (expected.comment && flagMissing(LineFlags.isComment))
+		if (expected.whitespace && statement.isWhitespace)
 		{
 			debugger;
-			return fail("Line should have the comment flag: " + source);
+			return fail("Line should have the whitespace flag: " + statementText);
 		}
 		
-		if (expected.whitespace && flagMissing(LineFlags.isWhitespace))
-		{
-			debugger;
-			return fail("Line should have the whitespace flag: " + source);
-		}
+		const first = statement.declarations[0].boundary.subject;
 		
-		const first = parsedLine.declarations.first();
-		
-		if (expected.uri === undefined && !!first && first.subject instanceof KnownUri)
+		if (expected.uri === undefined && !!first && first instanceof KnownUri)
 		{
 			debugger;
 			return fail("Line should not have parsed as a URI.");
@@ -73,37 +66,25 @@ namespace Truth
 		
 		if (expected.uri !== undefined)
 		{
-			if (flagMissing(LineFlags.hasUri))
+			if (expected.uri && !statement.uri)
 			{
 				debugger;
-				return fail("Line should have the hasUri flag: " + source);
+				return fail("Statement should have been parsed as a URI: " + statementText);
 			}
-			else if (first !== null && first.subject instanceof KnownUri)
+			else if (first !== null && first instanceof KnownUri)
 			{
-				verifiers.push(() => first.subject instanceof KnownUri);
+				verifiers.push(() => first instanceof KnownUri);
 			}
 			else
 			{
 				debugger;
-				return fail("No URI found at line: " + source);
+				return fail("No URI found at line: " + statementText);
 			}
-		}
-		
-		if (expected.total && flagMissing(LineFlags.hasTotalPattern))
-		{
-			debugger;
-			return fail("Line should have the total pattern flag: " + source);
-		}
-		
-		if (expected.partial && flagMissing(LineFlags.hasPartialPattern))
-		{
-			debugger;
-			return fail("Line should have the partial pattern flag: " + source);
 		}
 		
 		if (expected.joint !== undefined)
 		{
-			if (parsedLine.jointPosition !== expected.joint)
+			if (statement.jointPosition !== expected.joint)
 			{
 				debugger;
 				return fail("Joint expected at position: " + expected.joint);
@@ -113,24 +94,12 @@ namespace Truth
 		if (expected.emit !== undefined)
 		{
 			const fakeDocument = <Document>{};
-			let statement: Statement | null = null;
+			const statementStr = statement.toString(true);
 			
-			try
-			{
-				statement = new Statement(fakeDocument, parsedLine.sourceText);
-			}
-			catch (e)
+			if (expected.emit !== statementStr)
 			{
 				debugger;
-			}
-			finally
-			{
-				const statementStr = statement === null ? null : statement.toString(true);
-				if (expected.emit !== statementStr)
-				{
-					debugger;
-					return fail("Statement did not parse or emit correctly: " + expected.emit);
-				}
+				return fail("Statement did not parse or emit correctly: " + expected.emit);
 			}
 		}
 		
@@ -144,11 +113,7 @@ namespace Truth
 				[expected.noMatch] :
 				expected.noMatch;
 			
-			const firstDecl = (() =>
-			{
-				const first = parsedLine.declarations.first();
-				return first ? first.subject : null;
-			})();
+			const firstDecl = statement.declarations[0]?.boundary.subject;
 			
 			try
 			{
@@ -182,12 +147,7 @@ namespace Truth
 		
 		if (expected.infixes !== undefined)
 		{
-			const firstDecl = (() =>
-			{
-				const first = parsedLine.declarations.first();
-				return first ? first.subject : null;
-			})();
-			
+			const firstDecl = statement.declarations[0]?.boundary.subject;
 			if (firstDecl instanceof Pattern)
 			{
 				const infixes = firstDecl.units.filter((u): u is Infix => u instanceof Infix);
@@ -287,7 +247,8 @@ namespace Truth
 		
 		if (expected.annotations !== undefined)
 		{
-			const actualAnnos = Array.from(parsedLine.annotations.eachSubject())
+			const actualAnnos = Array.from(statement.annotations)
+				.map(span => span.boundary.subject)
 				.filter((anno): anno is Term => !!anno)
 				.map(anno => anno.toString());
 			
@@ -344,16 +305,6 @@ namespace Truth
 		 * Indicates whether or not the statement should be found to
 		 * have a URI as it's sole declaration.
 		 */
-		uriz?: {
-			protocol: string;
-			stores: string[];
-			types: string[];
-			file: string;
-			retractionCount: number;
-			isRelative: boolean;
-			ext: string;
-		};
-		
 		uri?: boolean;
 		
 		/**

@@ -217,6 +217,61 @@ namespace Truth
 			}
 		}
 		
+		/**
+		 * Gets a reference to the globalThis value, with a fallback.
+		 */
+		static get global(): any
+		{
+			if (typeof globalThis === "object")
+				return globalThis;
+			
+			if (typeof window === "object")
+				return window;
+			
+			throw Exception.unsupportedPlatform();
+		}
+		
+		/**
+		 * Makes a guess about the JavaScript environment in which this
+		 * code is running, based on checking for the existence of common
+		 * identifiers.
+		 */
+		static guessEnvironment()
+		{
+			if (typeof require === "function" &&
+				typeof require.cache === "object" &&
+				typeof process === "object")
+				return ScriptEnvironment.node;
+			
+			if (typeof WorkerGlobalScope !== "undefined" && 
+				self instanceof WorkerGlobalScope)
+				return ScriptEnvironment.worker;
+			
+			if (typeof window === "object" &&
+				typeof window.document === "object" &&
+				typeof document === "object" &&
+				typeof document.createElement === "function")
+				return ScriptEnvironment.browser;
+			
+			if (typeof Deno === "object")
+				return ScriptEnvironment.deno;
+			
+			return ScriptEnvironment.unknown;
+		}
+		
 		private constructor() {}
+	}
+	
+	declare var Deno: any;
+	declare var WorkerGlobalScope: any;
+	
+	/** @internal */
+	export const enum ScriptEnvironment
+	{
+		unknown,
+		browser,
+		worker,
+		node,
+		deno
 	}
 }

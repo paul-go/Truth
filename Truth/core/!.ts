@@ -6,7 +6,6 @@
 /// <reference path="./Util/Hash.ts" />
 /// <reference path="./Util/HigherOrder.ts" />
 /// <reference path="./Util/Not.ts" />
-/// <reference path="./Util/Parser.ts" />
 /// <reference path="./Util/UnicodeBlocks.ts" />
 /// <reference path="./Util/Misc.ts" />
 
@@ -37,7 +36,7 @@
 /// <reference path="./Phases/Document/Document.ts" />
 /// <reference path="./Phases/Document/DocumentTypes.ts" />
 /// <reference path="./Phases/Document/CycleDetector.ts" />
-/// <reference path="./Phases/Document/LineParser.ts" />
+/// <reference path="./Phases/Document/Parser.ts" />
 /// <reference path="./Phases/Document/Anon.ts" />
 /// <reference path="./Phases/Document/Line.ts" />
 /// <reference path="./Phases/Document/Boundary.ts" />

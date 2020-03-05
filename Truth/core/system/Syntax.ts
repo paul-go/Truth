@@ -19,34 +19,18 @@ namespace Truth
 		retractingUriPrefix = "../",
 		relativeUriPrefix = "./",
 		httpPrefix = "http://",
-		httpsPrefix = "https://",
-		truthExtension = ".truth"
+		httpsPrefix = "https://"
 	}
 	
 	/**
-	 * 
+	 * An enumeration that stores the kinds of extensions
+	 * that are understood by the parser.
 	 */
-	export const enum UriSyntax
-	{
-		retract = "..",
-		current = ".",
-		componentSeparator = "/",
-		typeSeparator = "//",
-		protocolSeparator = "//",
-		indexerStart = "[",
-		indexerEnd = "]",
-	}
-	
-	/**
-	 * A constant enumerations that stores the valid extensions
-	 * that must be present in a parsable URI.
-	 */
-	export const enum UriExtension
+	export const enum Extension
 	{
 		unknown = "",
 		truth = ".truth",
-		js = ".truth.js",
-		wasm = ".truth.wasm"
+		script = ".truth.js"
 	}
 	
 	/**
@@ -118,6 +102,7 @@ namespace Truth
 	{
 		const vals = Object.values(RegexSyntaxKnownSet) as string[];
 		
+		/** */
 		export function resolve(value: string): RegexSyntaxKnownSet | null
 		{
 			const idx = vals.indexOf(value);

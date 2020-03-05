@@ -2,13 +2,13 @@
 namespace Truth
 {
 	/**
-	 * A general parsing utility class that provides consumption
+	 * A general scanning utility class that provides consumption
 	 * methods that operate over a given input.
 	 */
-	export class Parser
+	export class Scanner
 	{
 		/**
-		 * Constructs a new Parser object that operates over
+		 * Constructs a new Scanner object that operates over
 		 * the specified input string, optionally starting at the
 		 * specified position.
 		 */
@@ -182,38 +182,5 @@ namespace Truth
 		
 		/** */
 		private readonly input: string;
-		
-		
-		//
-		// DEAD
-		//
-		
-		/**
-		 * 
-		 */
-		private atRealBackslash()
-		{
-			const esc = Syntax.escapeChar;
-			return this.input.substr(this._position, 2) === esc + esc;
-		}
-		
-		/**
-		 * @deprecated
-		 * @returns A boolean value that indicates whether an
-		 * escape character exists behind the current character.
-		 * The algorithm used is respective of sequences of
-		 * multiple escape characters.
-		 */
-		private escaped()
-		{
-			let escaped = false;
-			let backtrackPos = this._position;
-			
-			while (--backtrackPos >= 0)
-				if (this.input[backtrackPos] === Syntax.escapeChar)
-					escaped = !escaped;
-			
-			return escaped;
-		}
 	}
 }

@@ -19,28 +19,39 @@ namespace Truth
 		static async new(
 			program: Program,
 			fromUri: KnownUri,
-			sourceText: string,
+			source: string | SourceObject,
 			saveFn: (doc: Document) => void): Promise<Document | Error>
 		{
 			const doc = new Document(program, fromUri);
 			const uriStatements: UriStatement[] = [];
-			
 			const topLevelStatements: Statement[] = [];
 			let maxIndent = Number.MAX_SAFE_INTEGER;
 			
-			for (const statementText of this.readLines(sourceText))
+			const iterator = (() =>
 			{
-				const smt = new Statement(doc, statementText)
-				doc.statements.push(smt);
+				if (fromUri.extension === Extension.truth)
+					if (typeof source === "string")
+						return Statement.readFromSource(doc, source);
 				
-				if (smt.uri)
+				if (fromUri.extension === Extension.script)
+					if (typeof source === "object")
+						return Statement.readFromScript(doc, source);
+				
+				throw Exception.unknownState();
+			})();
+			
+			for (const statement of iterator)
+			{
+				doc.statements.push(statement);
+				
+				if (statement.uri)
 				{
-					uriStatements.push(smt as UriStatement);
+					uriStatements.push(statement as UriStatement);
 				}
-				else if (smt.indent <= maxIndent && !smt.isNoop)
+				else if (statement.indent <= maxIndent && !statement.isNoop)
 				{
-					topLevelStatements.push(smt);
-					maxIndent = smt.indent;
+					topLevelStatements.push(statement);
+					maxIndent = statement.indent;
 				}
 			}
 			
@@ -59,31 +70,6 @@ namespace Truth
 				Debug.printPhrases(doc, true, true);
 			
 			return doc;
-		}
-		
-		/**
-		 * Generator function that yields all statements (unparsed lines)
-		 * of the given source text. 
-		 */
-		private static *readLines(source: string)
-		{
-			let cursor = -1;
-			let statementStart = 0;
-			const char = () => source[cursor];
-			
-			for (;;)
-			{
-				if (cursor >= source.length - 1)
-					return yield source.slice(statementStart);
-				
-				cursor++;
-				
-				if (char() === Syntax.terminal)
-				{
-					yield source.slice(statementStart, cursor);
-					statementStart = cursor + 1;
-				}
-			}
 		}
 		
 		/** */
@@ -106,13 +92,21 @@ namespace Truth
 		readonly phrase: Phrase;
 		
 		/**
-		 * Stores the URI from where this document was loaded.
+		 * Gets the URI from where this document was loaded.
 		 */
 		get uri(): KnownUri
 		{
 			return this._uri;
 		}
 		private _uri: KnownUri;
+		
+		/**
+		 * Gets whether this document was generated from a script.
+		 */
+		get isScripted()
+		{
+			return this._uri.extension === Extension.script;
+		}
 		
 		/**
 		 * @internal
@@ -651,6 +645,9 @@ namespace Truth
 		 */
 		async edit(editFn: (mutator: IDocumentMutator) => void)
 		{
+			if (this.isScripted)
+				throw Exception.scriptsAreImmutable();
+			
 			return this.program.edit(programMutator =>
 			{
 				return editFn({
@@ -667,6 +664,9 @@ namespace Truth
 		 */
 		async editAtomic(edits: IDocumentEdit[])
 		{
+			if (this.isScripted)
+				throw Exception.scriptsAreImmutable();
+			
 			const programEdits = edits.map(ed => ({
 				document: this,
 				range: ed.range,
@@ -683,6 +683,9 @@ namespace Truth
 		 */
 		createMutationTask(edits: TEdit[]): IDocumentMutationTask | null
 		{
+			if (this.isScripted)
+				throw Exception.scriptsAreImmutable();
+			
 			const deletedUriSmts: UriStatement[] = [];
 			const addedUriSmts: UriStatement[] = [];
 			const hasInsert = edits.some(ed => ed instanceof InsertEdit);
@@ -1295,7 +1298,7 @@ namespace Truth
 			const self = this;
 			const yielded: Document[] = [];
 			
-			function* recurse(doc: Document): IterableIterator<Document>
+			function *recurse(doc: Document): IterableIterator<Document>
 			{
 				if (doc === self)
 					return;
@@ -1307,11 +1310,11 @@ namespace Truth
 				}
 				
 				for (const dependency of doc._dependencies)
-					yield* recurse(dependency);
+					yield *recurse(dependency);
 			};
 			
 			for (const dependency of this._dependencies)
-				yield* recurse(dependency);
+				yield *recurse(dependency);
 		}
 		
 		/**

@@ -518,11 +518,11 @@ namespace Truth
 						yield subPhrases;
 					
 					for (const subPhrase of subPhrases)
-						yield* recurse(subPhrase);
+						yield *recurse(subPhrase);
 				}
 			}
 			
-			yield* recurse(this);
+			yield *recurse(this);
 		}
 		
 		/**
