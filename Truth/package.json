@@ -2,15 +2,15 @@
 	"name": "truth",
 	"version": "0.5.11",
 	"description": "Verify and analyze code and data in the Truth format",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Truebase-com/TruthStack"
-	},
-	"bugs": {
-		"url": "https://github.com/Truebase-com/TruthStack/issues"
-	},
 	"author": "Truebase",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/paul-go/truth"
+	},
+	"bugs": {
+		"url": "https://github.com/paul-go/truth/issues"
+	},
 	"keywords": [
 		"Truth",
 		"language",
@@ -18,11 +18,6 @@
 		"verification",
 		"compiler"
 	],
-	"scripts": {
-		"build": "makets build",
-		"bundle": "makets bundle",
-		"publish": "makets publish"
-	},
 	"devDependencies": {
 		"@types/node": "^10.12.18"
 	}
