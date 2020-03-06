@@ -1,22 +1,24 @@
 {
-	"name": "truthstack",
-	"version": "1.0.0",
+	"name": "truth",
+	"version": "0.5.11",
+	"description": "Verify and analyze code and data in the Truth format",
 	"author": "Truebase",
-	"license": "ISC",
-	"description": "This repository hosts the collection of tools and libraries that compose the Truth technology stack.",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Truebase-com/TruthStack.git"
+		"url": "https://github.com/paul-go/truth"
 	},
 	"bugs": {
-		"url": "https://github.com/Truebase-com/TruthStack/issues"
+		"url": "https://github.com/paul-go/truth/issues"
 	},
-	"scripts": {
-		"init": "sh ./Install.sh"
-	},
+	"keywords": [
+		"Truth",
+		"language",
+		"data",
+		"verification",
+		"compiler"
+	],
 	"devDependencies": {
-		"@types/node": "^12.7.11",
-		"makets": "^1.0.12",
-		"typescript": "^3.6.4"
+		"@types/node": "^10.12.18"
 	}
 }
