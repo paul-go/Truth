@@ -428,7 +428,21 @@ namespace Truth
 		 */
 		private inflate(inflatingSpan: Span)
 		{
+			// We need to check to see if this inflation is simply reinflating
+			// an already-existing phrase. See the comments in the .dispose()
+			// method for further information.
+			const doc = this.containingDocument;
+			const key = getDisposalKey(doc, this.terminal);
+			const isReinflating = 
+				this.inflatingSpans.size === 0 &&
+				disposalQueue.has(key);
+			
 			this.inflatingSpans.add(inflatingSpan);
+			
+			if (!isReinflating)
+			{
+				setTimeout(() => doc.program.emit("declare", this.terminal.toString(), doc));
+			}
 		}
 		
 		/**
@@ -760,8 +774,32 @@ namespace Truth
 			this._subjects = null;
 			this._statements = null;
 			this._isDisposed = true;
-			
 			this.containingDocument.program.cancelVerification(this);
+			
+			if (this.length === 1)
+			{
+				// The "undeclare" event is only emitted in the case when the phrase
+				// is disposed for good, and is not simply going to be recreated again
+				// in the current turn of the event loop. Therefore, we need to check
+				// to see if the phrase is still gone in the following turn before emitting
+				// the event. During a typical edit transaction, the invalidated parts of
+				// the phrase structure are removed before the new phrases are added,
+				// so the deferral to setTimeout is done primarily as a safety precaution.
+				const doc = this.containingDocument;
+				const terminal = this.terminal;
+				const clarifier = this.clarifierKey;
+				const key = getDisposalKey(doc, terminal);
+				disposalQueue.add(key);
+				
+				setTimeout(() =>
+				{
+					disposalQueue.delete(key);
+					
+					const existing = doc.phrase.peek(terminal, clarifier);
+					if (existing.length === 0)
+						doc.program.emit("undeclare", terminal.toString(), doc);
+				});
+			}
 		}
 		
 		/**
@@ -794,4 +832,23 @@ namespace Truth
 			return prefix + parts.join("/");
 		}
 	}
+	
+	/**
+	 * Creates a well-formed string from the specified document and terminal,
+	 * suitable for insertion into the disposal queue.
+	 */
+	function getDisposalKey(document: Document, terminal: Subject)
+	{
+		return terminal.toString() + Syntax.terminal + document.id;
+	}
+	
+	/**
+	 * Stores a set of disposal keys, which are used to indicate the disposal status
+	 * of a phrase. The purpose of the disposal queue is to limit the times when the
+	 * "declare" and "undeclare" events are emitted. These events should only be
+	 * emitted when a top-level phrase has actually been disposed or created, 
+	 * in the sense that it's removal or creation wasn't a temporary operation that
+	 * will be reversed by the end of the turn of the event loop.
+	 */
+	const disposalQueue = new Set<string>();
 }
