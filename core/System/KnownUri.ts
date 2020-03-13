@@ -30,13 +30,18 @@ namespace Truth
 		 * of the URI specified, or null in the case when the text value specified
 		 * could not be parsed as a URI.
 		 */
-		static fromString(uriText: string, base?: KnownUri)
+		static fromString(uriText: string, base?: KnownUri | string)
 		{
 			let mergedUrl: URL | null = null;
 			
 			try
 			{
-				mergedUrl = new URL(uriText, base ? base.innerUrl : void 0);
+				const baseUrl =
+					typeof base === "string" ? base :
+					base instanceof KnownUri ? base.innerUrl :
+					void 0;
+				
+				mergedUrl = new URL(uriText, baseUrl);
 			}
 			catch (e) { }
 			
@@ -86,6 +91,17 @@ namespace Truth
 				return Extension.script;
 			
 			return Extension.unknown;
+		}
+		
+		/**
+		 * Gets the file name specified in the URI, or an empty string in the
+		 * case when no file name was specified.
+		 */
+		get fileName()
+		{
+			const path = this.innerUrl.pathname;
+			const last = path.split("/").filter(s => !!s).reverse()[0] || "";
+			return /\.[a-z]+$/i.test(last) ? last : "";
 		}
 		
 		/**

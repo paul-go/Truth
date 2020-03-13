@@ -13,7 +13,29 @@ namespace Truth
 		sourcePathOrUri: string,
 		targetProgram = new Program())
 	{
-		return await targetProgram.addDocumentFromUri(sourcePathOrUri);
+		let uri = KnownUri.fromString(sourcePathOrUri);
+		if (!uri)
+		{
+			const env = Misc.guessEnvironment();
+			
+			if (env === ScriptEnvironment.browser)
+			{
+				uri = KnownUri.fromString(sourcePathOrUri, window.location.href);
+			}
+			else if (env === ScriptEnvironment.node)
+			{
+				const pathRequire = require("path") as typeof import("path");
+				let path = sourcePathOrUri;
+				
+				if (!pathRequire.isAbsolute(path))
+					path = pathRequire.join(process.cwd(), path);
+				
+				uri = KnownUri.fromString("file://" + path);
+			}
+			else throw Exception.unsupportedPlatform();
+		}
+		
+		return await targetProgram.addDocumentFromUri(uri!);
 	}
 	
 	/**
