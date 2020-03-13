@@ -23,7 +23,7 @@ namespace Truth
 			
 			else if (cruft instanceof Fork)
 				faultSources = cruft.predecessor.annotations
-					.filter(span => span.boundary.subject === cruft.predecessor.terminal);
+					.filter(span => span.boundary.subject === cruft.term);
 			
 			else
 				faultSources = [cruft];
