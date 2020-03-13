@@ -2,6 +2,25 @@
 namespace Truth
 {
 	/**
+	 * Options object passed to the Program constructor.
+	 */
+	export interface IProgramOptions
+	{
+		/**
+		 * A boolean value that indicates whether or
+		 */
+		autoVerify?: boolean;
+	}
+	
+	/**
+	 * Refers to a set of phrases within a program. Valid options are:
+	 * "marked" - Refers to the phrases that were explicitly edited by the user
+	 * "affected" - Refers to the phrases that were possibly affected by an edit
+	 * "included" - Refers to all phrases in all documents loaded into the program.
+	 */
+	export type ProgramVerificationScope = "marked" | "affected" | "included";
+	
+	/**
 	 * Represents an interface for creating a batch of mutation operations,
 	 * that may apply to any document within a program.
 	 */

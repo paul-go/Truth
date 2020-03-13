@@ -160,7 +160,7 @@ namespace Truth
 		 */
 		static deflateRecursive(statements: readonly Statement[])
 		{
-			for (const span of this.enumerate(statements))
+			for (const span of this.enumerateStatements(statements))
 				for (const phrase of Phrase.fromSpan(span))
 					phrase.deflate(span);
 		}
@@ -172,7 +172,7 @@ namespace Truth
 		 */
 		static inflateRecursive(statements: readonly Statement[])
 		{
-			for (const span of this.enumerate(statements))
+			for (const span of this.enumerateStatements(statements))
 				for (const phrase of Phrase.fromSpan(span))
 					phrase.inflate(span);
 		}
@@ -181,7 +181,7 @@ namespace Truth
 		 * Performs a deep enumeration of the statements provided in
 		 * the array, as well as their descendent statements.
 		 */
-		private static *enumerate(statements: readonly Statement[])
+		private static *enumerateStatements(statements: readonly Statement[])
 		{
 			if (statements.length === 0)
 				return;
@@ -317,7 +317,7 @@ namespace Truth
 			}
 			
 			if (!this.isHypothetical)
-				this.containingDocument.program.queueVerification(this);
+				this.containingDocument.program.markPhrase(this);
 		}
 		
 		/** */
@@ -774,7 +774,7 @@ namespace Truth
 			this._subjects = null;
 			this._statements = null;
 			this._isDisposed = true;
-			this.containingDocument.program.cancelVerification(this);
+			this.containingDocument.program.unmarkPhrase(this);
 			
 			if (this.length === 1)
 			{

@@ -22,9 +22,11 @@ namespace Truth
 			if (!phrase || phrase.length === 0)
 				return null;
 			
-			if (TypeCache.has(phrase))
+			const cache = phrase.containingDocument.program.typeCache;
+			
+			if (cache.has(phrase))
 			{
-				const cached = TypeCache.get(phrase);
+				const cached = cache.get(phrase);
 				
 				// If the cached type exists, but hasn't been compiled yet,
 				// we can't return it, we need to compile it first.
@@ -59,7 +61,7 @@ namespace Truth
 			const parallel = worker.drill(phrase);
 			if (parallel === null)
 			{
-				TypeCache.set(phrase, null);
+				cache.set(phrase, null);
 				return null;
 			}
 			
@@ -75,9 +77,9 @@ namespace Truth
 			
 			for (const currentParallel of parallelLineage)
 			{
-				if (TypeCache.has(currentParallel.phrase))
+				if (cache.has(currentParallel.phrase))
 				{
-					const existingType = TypeCache.get(currentParallel.phrase);
+					const existingType = cache.get(currentParallel.phrase);
 					if (existingType instanceof TypeProxy)
 						throw Exception.unknownState();
 					
@@ -89,7 +91,7 @@ namespace Truth
 				else
 				{
 					const type: Type = new Type(currentParallel, lastType);
-					TypeCache.set(currentParallel.phrase, type);
+					cache.set(currentParallel.phrase, type);
 					lastType = type;
 				}
 			}
@@ -778,7 +780,7 @@ namespace Truth
 		aliases: readonly string[] | null = null;
 		
 		/** */
-		values: readonly { value: string; base: Type | null; aliased: boolean }[] | null = null;
+		values: readonly { value: string; base: Type | null; aliased: boolean; }[] | null = null;
 		
 		/** */
 		superordinates: readonly Type[] | null = null;

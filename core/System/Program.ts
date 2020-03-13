@@ -10,21 +10,22 @@ namespace Truth
 		 * Creates a new Program, into which Documents may
 		 * be added, and verified.
 		 */
-		constructor()
+		constructor(options?: IProgramOptions)
 		{
+			this.options = options || { autoVerify: true };
 			this._version = VersionStamp.next();
 			this.reader = Truth.createDefaultUriReader();
 			
 			this.on("documentCreate", doc =>
 			{
-				this.queueVerification(doc.phrase);
+				this.markPhrase(doc.phrase);
 			});
 			
 			this.on("documentDelete", doc =>
 			{
 				for (const phrases of doc.phrase.peekRecursive())
 					for (const phrase of phrases)
-						this.cancelVerification(phrase);
+						this.unmarkPhrase(phrase);
 			});
 			
 			this.on("documentUriChange", () =>
@@ -34,7 +35,11 @@ namespace Truth
 			
 			this.cycleDetector = new CycleDetector(this);
 			this.faults = new FaultService(this);
+			this.typeCache = new TypeCache(this);
 		}
+		
+		/** @internal */
+		private readonly options: IProgramOptions;
 		
 		/** @internal */
 		readonly cycleDetector: CycleDetector;
@@ -387,88 +392,6 @@ namespace Truth
 		
 		//# Mutation related members
 		
-		/** 
-		 * Starts an edit transaction in the specified callback function.
-		 * Edit transactions are used to synchronize changes made in
-		 * an underlying file, typically done by a user in a text editing
-		 * environment. System-initiated changes such as automated
-		 * fixes, refactors, or renames do not go through this pathway.
-		 * 
-		 * @param editFn The callback function in which to perform
-		 * document mutation operations.
-		 * 
-		 * @returns A promise that resolves any external document
-		 * references added during the edit operation have been resolved.
-		 * If no such references were added, a promise is returned that
-		 * resolves immediately.
-		 */
-		async edit(editFn: (mutator: IProgramMutator) => void)
-		{
-			if (this.inEdit)
-				throw Exception.doubleTransaction();
-			
-			this.inEdit = true;
-			const edits: TEdit[] = [];
-			const documentsEdited = new Set<Document>();
-			
-			editFn({
-				delete: (doc: Document, pos = -1, count = 1) =>
-				{
-					if (count > 0)
-					{
-						edits.push(new DeleteEdit(doc, pos, count));
-						documentsEdited.add(doc);
-					}
-				},
-				insert: (doc: Document, text: string, pos = -1) =>
-				{
-					edits.push(new InsertEdit(Statement.new(doc, text), pos));
-					documentsEdited.add(doc);
-				},
-				update: (doc: Document, text: string, pos = -1) =>
-				{
-					if (doc.read(pos).sourceText !== text)
-					{
-						edits.push(new UpdateEdit(Statement.new(doc, text), pos));
-						documentsEdited.add(doc);
-					}
-				}
-			});
-			
-			if (edits.length > 0)
-			{
-				const tasks: IDocumentMutationTask[] = [];
-				
-				for (const doc of documentsEdited)
-				{
-					const task = doc.createMutationTask(edits.filter(ed => ed.document));
-					if (task)
-						tasks.push(task);
-				}
-				
-				this.faults.executeTransaction(async () =>
-				{
-					for (const task of tasks)
-						task.deletePhrases();
-					
-					for (const task of tasks)
-						task.updateDocument();
-					
-					this.faults.prune();
-					
-					for (const task of tasks)
-						task.createPhrases();
-					
-					for await (const task of tasks)
-						await task.finalize();
-				});
-				
-				this._version = VersionStamp.next();
-			}
-			
-			this.inEdit = false;
-		}
-		
 		/**
 		 * Executes a complete edit transaction, applying the series
 		 * of edits specified in the `edits` parameter. 
@@ -598,6 +521,93 @@ namespace Truth
 			});
 		}
 		
+		/** 
+		 * Starts an edit transaction in the specified callback function.
+		 * Edit transactions are used to synchronize changes made in
+		 * an underlying file, typically done by a user in a text editing
+		 * environment. System-initiated changes such as automated
+		 * fixes, refactors, or renames do not go through this pathway.
+		 * 
+		 * @param editFn The callback function in which to perform
+		 * document mutation operations.
+		 * 
+		 * @returns A promise that resolves any external document
+		 * references added during the edit operation have been resolved.
+		 * If no such references were added, a promise is returned that
+		 * resolves immediately.
+		 */
+		async edit(editFn: (mutator: IProgramMutator) => void)
+		{
+			if (this.inEdit)
+				throw Exception.doubleTransaction();
+			
+			this.inEdit = true;
+			const edits: TEdit[] = [];
+			const documentsEdited = new Set<Document>();
+			
+			editFn({
+				delete: (doc: Document, pos = -1, count = 1) =>
+				{
+					if (count > 0)
+					{
+						edits.push(new DeleteEdit(doc, pos, count));
+						documentsEdited.add(doc);
+					}
+				},
+				insert: (doc: Document, text: string, pos = -1) =>
+				{
+					edits.push(new InsertEdit(Statement.new(doc, text), pos));
+					documentsEdited.add(doc);
+				},
+				update: (doc: Document, text: string, pos = -1) =>
+				{
+					if (doc.read(pos).sourceText !== text)
+					{
+						edits.push(new UpdateEdit(Statement.new(doc, text), pos));
+						documentsEdited.add(doc);
+					}
+				}
+			});
+			
+			if (edits.length > 0)
+			{
+				this.quitVerificationLoop();
+				
+				const tasks: IDocumentMutationTask[] = [];
+				
+				for (const doc of documentsEdited)
+				{
+					const task = doc.createMutationTask(edits.filter(ed => ed.document));
+					if (task)
+						tasks.push(task);
+				}
+				
+				this.faults.executeTransaction(async () =>
+				{
+					for (const task of tasks)
+						task.deletePhrases();
+					
+					for (const task of tasks)
+						task.updateDocument();
+					
+					this.faults.prune();
+					
+					for (const task of tasks)
+						task.createPhrases();
+					
+					for await (const task of tasks)
+						await task.finalize();
+				});
+				
+				this._version = VersionStamp.next();
+				
+				if (this.options.autoVerify && this.markedPhrases.size > 0)
+					this.awaitVerification();
+			}
+			
+			this.inEdit = false;
+		}
+		
 		/**
 		 * A state variable that stores whether an
 		 * edit transaction is currently underway.
@@ -605,6 +615,132 @@ namespace Truth
 		private inEdit = false;
 		
 		//# Verification related members
+		
+		/**
+		 * Returns a promise that resolves when the verification queue 
+		 * reaches the state specified in the scope parameter.
+		 */
+		async awaitVerification(scope: ProgramVerificationScope = "included"): Promise<void>
+		{
+			const p1 = this.markedPromise;
+			if (p1)
+				await new Promise(resolve => p1.then(resolve));
+			else
+				await this.verifyMarked();
+			
+			if (scope === "marked")
+				return;
+			
+			const p2 = this.affectedPromise;
+			if (p2)
+				await new Promise(resolve => p2.then(resolve));
+			else
+				await this.verifyAffectedOrIncluded("affected");
+			
+			if (scope === "affected")
+				return;
+			
+			const p3 = this.includedPromise;
+			if (p3)
+				await new Promise(resolve => p3.then(resolve));
+			else
+				await this.verifyAffectedOrIncluded("included");
+			
+			this.finalizeVerification();
+		}
+		
+		/** */
+		private async verifyMarked()
+		{
+			return this.markedPromise = new Promise(resolve =>
+			{
+				const next = () =>
+				{
+					if (this.markedPhrases.size === 0)
+					{
+						this.markedPromise = null;
+						return resolve();
+					}
+					
+					const nextPhrase: Phrase = this.markedPhrases.values().next().value;
+					this.markedPhrases.delete(nextPhrase);
+					Type.construct(nextPhrase);
+					this.nextVerificationTimeout = setTimeout(next, 0);
+				};
+				
+				next();
+			});
+		}
+		
+		/** */
+		private async verifyAffectedOrIncluded(scope: "affected" | "included")
+		{
+			const maxConstructionsPerTurn = 50;
+			let constructionCount = 0;
+			const affectedDocuments = (() =>
+			{
+				if (scope === "included")
+					return this._documents.slice();
+				
+				const docs = new Set<Document>();
+				
+				for (const markedDoc of this.markedDocuments)
+					for (const doc of markedDoc.dependents)
+						docs.add(doc);
+				
+				return Array.from(docs);
+			})();
+			
+			return this.affectedPromise = new Promise(resolve =>
+			{
+				const next = async () =>
+				{
+					const nextDoc = affectedDocuments.pop();
+					if (!nextDoc)
+					{
+						this.affectedPromise = null;
+						return resolve();
+					}
+					
+					for (const phrases of nextDoc.phrase.peekRecursive())
+					{
+						for await (const phrase of phrases)
+						{
+							// Make sure we don't run too many verifications in the current thread,
+							// without yielding to other processes.
+							constructionCount++;
+							if (constructionCount % maxConstructionsPerTurn === 0)
+								await new Promise(r => setTimeout(r, 0));
+							
+							Type.construct(phrase);
+						}
+					}
+					
+					resolve();
+				};
+				
+				next();
+			});
+		}
+		
+		/** */
+		private quitVerificationLoop()
+		{
+			if (this.nextVerificationTimeout !== null)
+			{
+				clearTimeout(this.nextVerificationTimeout);
+				this.nextVerificationTimeout = null;
+			}
+			
+			this.markedPromise = null;
+			this.affectedPromise = null;
+			this.includedPromise = null;
+		}
+		
+		private markedPromise: Promise<void> | null = null;
+		private affectedPromise: Promise<void> | null = null;
+		private includedPromise: Promise<void> | null = null;
+		private nextVerificationTimeout: NodeJS.Timeout | null = null;
 		
 		/**
 		 * Performs a full verification of all documents loaded into the program.
@@ -638,54 +774,21 @@ namespace Truth
 		/** Stores the result produced from the last full verification. */
 		private lastFullVerifyResult = true;
 		
-		/**
-		 * Performs verification on the parts of the document that have
-		 * not been verified since the last call to this method. Once this
-		 * method has completed, any detected faults will be available
-		 * by using the methods located in the `.faults` property of this
-		 * instance.
-		 * 
-		 * @returns A boolean value that indicates whether verification
-		 * completed without detecting any faults in this Program.
-		 */
-		verifyIncremental()
-		{
-			for (const phrase of this.verificationQueue)
-				if (!phrase.isDisposed)
-					Type.construct(phrase);
-			
-			return this.finalizeVerification();
-		}
-		
 		/** */
 		private finalizeVerification()
 		{
 			this.faults.refresh();
-			this.verificationQueue.clear();
+			this.markedPhrases.clear();
 			return this.faults.count === 0;
 		}
 		
 		/**
 		 * @internal
 		 */
-		queueVerification(target: Phrase)
+		markPhrase(target: Phrase)
 		{
-			// Avoid queueing the target phrase in the case one of the 
-			// phrase's ancestors have already been queued.
-			//
-			// I'm pretty sure this is wrong ... you want this to go the
-			// other way ... ie. you don't queue a phrase if there is
-			// already a more deeply nested phrase in the queue,
-			// and this can't really be determined quickly.
-			//
-			// TODO
-			
-			if (false)
-				for (const targetPhraseAncestor of target.ancestry)
-					if (this.verificationQueue.has(targetPhraseAncestor))
-						return;
-			
-			this.verificationQueue.add(target);
+			this.markedPhrases.add(target);
+			this.markedDocuments.maybeAdd(target.containingDocument);
 		}
 		
 		/**
@@ -695,16 +798,37 @@ namespace Truth
 		 * @returns A boolean value indicating whether the phrase
 		 * was in the verification queue before being removed.
 		 */
-		cancelVerification(target: Phrase)
+		unmarkPhrase(target: Phrase)
 		{
-			return this.verificationQueue.delete(target);
+			this.markedPhrases.delete(target);
+			this.markedDocuments.maybeDelete(target.containingDocument);
 		}
 		
 		/**
 		 * Stores an unsorted set of Phrases associated with any document
 		 * in the program that have been queued for verification.
 		 */
-		private readonly verificationQueue = new Set<Phrase>();
+		private readonly markedPhrases = new Set<Phrase>();
+		
+		/**
+		 * 
+		 */
+		private readonly markedDocuments = new ReferenceCountedSet<Document>();
+		
+		//# Lookup related members
+		
+		/**
+		 * 
+		 */
+		lookup(term: string)
+		{
+			this.lookup(term);
+		}
+		
+		/**
+		 * @internal
+		 */
+		readonly typeCache: TypeCache;
 		
 		//# Event related members
 		
