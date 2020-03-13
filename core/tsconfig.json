@@ -1,4 +1,5 @@
 {
+	"name": "Truth",
 	"extends": "../tsconfig.standard.json",
 	"compilerOptions": {
 		"outFile": "../build/truth.js",
