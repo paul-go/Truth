@@ -815,14 +815,14 @@ namespace Truth
 		 */
 		private readonly markedDocuments = new ReferenceCountedSet<Document>();
 		
-		//# Lookup related members
+		//# Lookup  related members
 		
 		/**
 		 * 
 		 */
 		lookup(term: string)
 		{
-			this.lookup(term);
+			return this.typeCache.lookup(term);
 		}
 		
 		/**
