@@ -93,20 +93,6 @@ namespace Truth
 		}
 		
 		/**
-		 * 
-		 */
-		static calculatePowerset<T>(array: T[]): T[][]
-		{
-			const result: T[][] = [[]];
-					
-			for (let i = 0; i < array.length; i++)
-				for (let n = 0; n < result.length; n++)
-					result.push(result[n].concat(array[i]));
-			
-			return result;
-		}
-		
-		/**
 		 * @returns Whether the items of the first set object form
 		 * a subset (not a proper subset) of the items of the second
 		 * set.
