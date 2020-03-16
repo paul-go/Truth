@@ -60,15 +60,18 @@ namespace Truth
 			forceSingular: boolean)
 		{
 			super();
+			this.singular = this;
 			this.hash = this.tryExtractHash(textContent);
 			
 			const listTok = Syntax.list;
 			const tokLen = listTok.length;
 			const isList = textContent.length > tokLen + 1 && textContent.slice(-tokLen) === listTok;
 			
-			this.singular = isList && !forceSingular ?
-				Term.internalFrom(textContent.slice(0, -tokLen), true) :
-				this;
+			if (isList && !forceSingular)
+			{
+				this.textContent = textContent.slice(0, -tokLen);
+				this.singular = Term.internalFrom(this.textContent, true);
+			}
 		}
 		
 		/** */
