@@ -748,7 +748,10 @@ namespace Truth
 				
 				for (const ancestorPhrase of peekAncestry)
 				{
-					const phrases = ancestorPhrase.peek(term);
+					// In no cases should an outbound be established between this phrase
+					// and itself. Statements such as "A : A" refer to the "A" in a higher-level
+					// scope.
+					const phrases = ancestorPhrase.peek(term).filter(ph => ph !== this);
 					successors.unshift(...phrases);
 				}
 				
