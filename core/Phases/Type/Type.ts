@@ -375,8 +375,9 @@ namespace Truth
 		}
 		
 		/**
-		 * Gets an array that contains the that share the same containing
-		 * type as this one.
+		 * Gets an array that contains the Types that share the same 
+		 * containing type (as represented in the .container property)
+		 * as this one.
 		 */
 		get adjacents()
 		{
