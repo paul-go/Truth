@@ -3806,7 +3806,7 @@ namespace Truth
 		const profileName = "Truth Document Load";
 		console.time(profileName);
 		await program.addDocument(code);
-		program.verify();
+		await program.await();
 		console.timeEnd(profileName);
 		console;
 	}

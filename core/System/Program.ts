@@ -602,7 +602,10 @@ namespace Truth
 				this._version = VersionStamp.next();
 				
 				if (this.options.autoVerify && this.markedPhrases.size > 0)
-					this.verify();
+				{
+					this._verificationStage = VerificationStage.none;
+					this.await();
+				}
 			}
 			
 			this.inEdit = false;
@@ -626,39 +629,44 @@ namespace Truth
 		private _verificationStage = VerificationStage.none;
 		
 		/**
-		 * Returns a promise that resolves when the verification queue 
-		 * reaches the state specified in the scope parameter.
-		 */
-		async awaitVerification(stage = VerificationStage.included): Promise<void>
-		{
-			if (stage <= this._verificationStage)
-				return;
-			
-			if (stage === VerificationStage.marked)
-				return new Promise(r => this.markedResolveFns.push(r));
-			
-			if (stage === VerificationStage.affected)
-				return new Promise(r => this.affectedResolveFns.push(r));
-			
-			if (stage === VerificationStage.included)
-				return new Promise(r => this.includedResolveFns.push(r));
-		}
-		
-		/**
-		 * Performs a full verification of all documents loaded into the program.
-		 * This Program's .faults field is populated with any faults generated as
-		 * a result of the verification. If no documents loaded into this program
-		 * have been edited since the last verification, no verification is attempted.
+		 * Returns a promise that resolves when this program's verification stage
+		 * has reached the stage specified.
 		 * 
-		 * @returns A boolean value that indicates whether the verification passed.
+		 * This method will launch a verification cycle in the case when the program
+		 * contains unverified information, and no other verification cycle has been
+		 * launched.
+		 * 
+		 * When the returned promise resolves, this Program's .faults field will be
+		 * populated with any faults generated as a result of the verification.
 		 */
-		async verify()
+		async await(resolveStage = VerificationStage.done): Promise<void>
 		{
-			// If there is already a verification process underway, then return
-			// a new promise that resolves when the verification process is 
-			// complete.
-			if (this._verificationStage !== VerificationStage.none)
-				return new Promise(r => this.includedResolveFns.push(r));
+			// If the verification stage is already past the point of the stage
+			// specified in the argument, we can resolve the promise immediately.
+			if (resolveStage <= this._verificationStage)
+				return Promise.resolve();
+			
+			// If there is already a verification cycle underway, then return
+			// a new promise that resolves when the verification cycle has
+			// reached the stage specified
+			if (this.verificationStage > VerificationStage.none)
+			{
+				switch (resolveStage)
+				{
+					case VerificationStage.marked:
+						return new Promise(r => this.markedResolveFns.push(r));
+					
+					case VerificationStage.affected:
+						return new Promise(r => this.affectedResolveFns.push(r));
+					
+					case VerificationStage.included:
+						return new Promise(r => this.includedResolveFns.push(r));
+				}
+			}
+			
+			// At this point, it has been determined that no verification
+			// cycle is underway, and so one needs to be launched.
+			this._verificationStage = VerificationStage.marked;
 			
 			const massResolve = (resolveFns: (() => void)[]) =>
 			{
@@ -668,8 +676,6 @@ namespace Truth
 				for (const fn of fns)
 					fn();
 			};
-			
-			this._verificationStage = VerificationStage.none;
 			
 			// Run "marked" verifications
 			await new Promise(resolve =>
@@ -688,11 +694,14 @@ namespace Truth
 				next();
 			});
 			
-			this._verificationStage = VerificationStage.marked;
+			// Indicate that the system has now begun to work on
+			// the affected set of phrases.
+			this._verificationStage = VerificationStage.affected;
+			
 			massResolve(this.markedResolveFns);
 			this.finalizeVerification();
 			
-			// Shared code betweeen "affected" and "included" verifications
+			// Shared code between "affected" and "included" verifications
 			const maxConstructionsPerTurn = 50;
 			
 			const affectedDocuments = (() =>
@@ -745,7 +754,7 @@ namespace Truth
 				verifyDocuments(affectedDocuments, resolve);
 			});
 			
-			this._verificationStage = VerificationStage.affected;
+			this._verificationStage = VerificationStage.included;
 			massResolve(this.affectedResolveFns);
 			this.finalizeVerification();
 			
@@ -755,9 +764,9 @@ namespace Truth
 				verifyDocuments(includedDocuments, resolve);
 			});
 			
-			this._verificationStage = VerificationStage.included;
+			this._verificationStage = VerificationStage.done;
 			massResolve(this.includedResolveFns);
-			return this.finalizeVerification();
+			this.finalizeVerification();
 		}
 		
 		/** */

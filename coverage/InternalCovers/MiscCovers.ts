@@ -38,7 +38,7 @@ namespace Truth
 			["s1", "n"]
 		);
 		
-		const isInerrant = program.verify();
+		const isInerrant = await program.await();
 		
 		return [
 			() => isInerrant,
@@ -64,7 +64,7 @@ namespace Truth
 			["s1", "n", "min"]
 		);
 		
-		const isInerrant = program.verify();
+		const isInerrant = await program.await();
 		
 		return [
 			() => isInerrant,

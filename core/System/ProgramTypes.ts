@@ -13,12 +13,14 @@ namespace Truth
 	}
 	
 	/**
-	 * An enumeration that refers to the stages of verification
-	 * of the program.
+	 * An enumeration that refers to the stages of a Program's verification cycle.
 	 */
 	export const enum VerificationStage
 	{
-		/** */
+		/**
+		 * Refers to the stage before verification has not begin, but where the
+		 * containing program has unverified information.
+		 */
 		none = 0,
 		/**
 		 * Refers to the areas of the program that were explicitly modified via a call
@@ -32,7 +34,11 @@ namespace Truth
 		/**
 		 * Refers to all area of the program.
 		 */
-		included = 3
+		included = 3,
+		/**
+		 * Refers to the stage where verification is complete.
+		 */
+		done = 4
 	}
 	
 	/**
