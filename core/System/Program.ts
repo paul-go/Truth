@@ -571,7 +571,7 @@ namespace Truth
 			
 			if (edits.length > 0)
 			{
-				this.quitVerificationLoop();
+				this.cancelVerification();
 				
 				const tasks: IDocumentMutationTask[] = [];
 				
@@ -602,7 +602,7 @@ namespace Truth
 				this._version = VersionStamp.next();
 				
 				if (this.options.autoVerify && this.markedPhrases.size > 0)
-					this.runVerification();
+					this.verify();
 			}
 			
 			this.inEdit = false;
@@ -635,20 +635,31 @@ namespace Truth
 				return;
 			
 			if (stage === VerificationStage.marked)
-				return new Promise(resolve => this.markedResolveFns.push(resolve));
+				return new Promise(r => this.markedResolveFns.push(r));
 			
 			if (stage === VerificationStage.affected)
-				return new Promise(resolve => this.affectedResolveFns.push(resolve));
+				return new Promise(r => this.affectedResolveFns.push(r));
 			
 			if (stage === VerificationStage.included)
-				return new Promise(resolve => this.includedResolveFns.push(resolve));
+				return new Promise(r => this.includedResolveFns.push(r));
 		}
 		
 		/**
+		 * Performs a full verification of all documents loaded into the program.
+		 * This Program's .faults field is populated with any faults generated as
+		 * a result of the verification. If no documents loaded into this program
+		 * have been edited since the last verification, no verification is attempted.
 		 * 
+		 * @returns A boolean value that indicates whether the verification passed.
 		 */
-		private async runVerification()
+		async verify()
 		{
+			// If there is already a verification process underway, then return
+			// a new promise that resolves when the verification process is 
+			// complete.
+			if (this._verificationStage !== VerificationStage.none)
+				return new Promise(r => this.includedResolveFns.push(r));
+			
 			const massResolve = (resolveFns: (() => void)[]) =>
 			{
 				const fns = resolveFns.slice();
@@ -683,15 +694,16 @@ namespace Truth
 			
 			// Shared code betweeen "affected" and "included" verifications
 			const maxConstructionsPerTurn = 50;
-			let constructionCount = 0;
 			
 			const affectedDocuments = (() =>
 			{
 				const docs = new Set<Document>();
 				
 				for (const markedDoc of this.markedDocuments)
-					for (const doc of markedDoc.dependents)
-						docs.add(doc);
+					Misc.reduceRecursive(
+						markedDoc,
+						doc => doc.dependents,
+						doc => docs.add(doc));
 				
 				return Array.from(docs);
 			})();
@@ -701,26 +713,27 @@ namespace Truth
 			
 			const verifyDocuments = (docs: Document[], resolve: () => void) =>
 			{
-				const next = async () =>
+				const allPhrases: Phrase[] = [];
+				
+				for (const doc of docs)
+					for (const phrases of doc.phrase.peekRecursive())
+						allPhrases.push(...phrases);
+				
+				if (allPhrases.length === 0)
+					return resolve();
+				
+				const next = () =>
 				{
-					const nextDoc = docs.pop();
-					if (!nextDoc)
+					const phrases = allPhrases.slice(-maxConstructionsPerTurn);
+					allPhrases.length = Math.max(0, allPhrases.length - maxConstructionsPerTurn);
+					
+					for (const phrase of phrases)
+						Type.construct(phrase);
+					
+					if (allPhrases.length === 0)
 						return resolve();
 					
-					for (const phrases of nextDoc.phrase.peekRecursive())
-					{
-						for await (const phrase of phrases)
-						{
-							// Make sure we don't run too many verifications in the current thread,
-							// without yielding to other processes.
-							constructionCount++;
-							if (constructionCount % maxConstructionsPerTurn === 0)
-								await new Promise(r => 
-									this.nextVerificationTimeout = setTimeout(next, 0));
-							
-							Type.construct(phrase);
-						}
-					}
+					this.nextVerificationTimeout = setTimeout(next, 0);
 				};
 				
 				next();
@@ -744,11 +757,11 @@ namespace Truth
 			
 			this._verificationStage = VerificationStage.included;
 			massResolve(this.includedResolveFns);
-			this.finalizeVerification();
+			return this.finalizeVerification();
 		}
 		
 		/** */
-		private quitVerificationLoop()
+		private cancelVerification()
 		{
 			if (this.nextVerificationTimeout !== null)
 			{
@@ -757,43 +770,6 @@ namespace Truth
 			}
 		}
 		
-		private readonly markedResolveFns: (() => void)[] = [];
-		private readonly affectedResolveFns: (() => void)[] = [];
-		private readonly includedResolveFns: (() => void)[] = [];
-		private nextVerificationTimeout: NodeJS.Timeout | null = null;
-		
-		/**
-		 * Performs a full verification of all documents loaded into the program.
-		 * This Program's .faults field is populated with any faults generated as
-		 * a result of the verification. If no documents loaded into this program
-		 * have been edited since the last verification, no verification is attempted.
-		 * 
-		 * @returns A boolean value that indicates whether the verification passed.
-		 */
-		verify(targetDocument?: Document)
-		{
-			if (this.lastFullVerify && !this.version.newerThan(this.lastFullVerify))
-				return this.lastFullVerifyResult;
-			
-			const documents = targetDocument ?
-				[targetDocument] :
-				this.documents;
-			
-			for (const doc of documents)
-				for (const phrases of doc.phrase.peekRecursive())
-					for (const phrase of phrases)
-						Type.construct(phrase);
-			
-			this.lastFullVerify = this.version;
-			return this.lastFullVerifyResult = this.finalizeVerification();
-		}
-		
-		/** Stores the version of this program when the last full verification occured. */
-		private lastFullVerify: VersionStamp | null = null;
-		
-		/** Stores the result produced from the last full verification. */
-		private lastFullVerifyResult = true;
-		
 		/** */
 		private finalizeVerification()
 		{
@@ -801,6 +777,11 @@ namespace Truth
 			this.markedPhrases.clear();
 			return this.faults.count === 0;
 		}
+		
+		private readonly markedResolveFns: (() => void)[] = [];
+		private readonly affectedResolveFns: (() => void)[] = [];
+		private readonly includedResolveFns: (() => void)[] = [];
+		private nextVerificationTimeout: NodeJS.Timeout | null = null;
 		
 		/**
 		 * @internal
