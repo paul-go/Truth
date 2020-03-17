@@ -26,6 +26,7 @@ namespace Truth
 			return this.compiledArray = Object.freeze(out);
 		}
 		
+		/** */
 		private compiledArray: readonly Type[] | undefined = undefined;
 	}
 }
