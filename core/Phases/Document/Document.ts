@@ -128,16 +128,21 @@ namespace Truth
 		readonly program: Program;
 		
 		/**
-		 * Queries this document for the root-level types.
+		 * Queries this document for the type that exists within it,
+		 * at the specified type path.
 		 * 
-		 * @param uri The URI of the document to query. If the URI contains
-		 * a type path, it is factored into the search.
+		 * @param typePath The type path to search.
 		 * 
-		 * @param typePath The type path within the document to search.
+		 * @returns In the case when a single Type was detected that
+		 * corresponds to the specified type path, this Type object is
+		 * returned.
 		 * 
-		 * @returns A fully constructed Type instance that corresponds to
-		 * the type at the URI specified, or null in the case when no type
-		 * could be found.
+		 * In the case when a homograph was detected in the type path, a
+		 * number representing the number of members in the homograph
+		 * is returned.
+		 * 
+		 * In the case when no type could be constructed from the specified
+		 * type path, 0 is returned.
 		 */
 		query(...typePath: string[])
 		{

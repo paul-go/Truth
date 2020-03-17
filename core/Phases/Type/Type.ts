@@ -518,31 +518,31 @@ namespace Truth
 		 * computed by searching across the entire program and
 		 * finding other types that reference this type in some way.
 		 */
-		async usages()
+		async inbounds()
 		{
 			await this.private.program.awaitVerification();
 			const that = this;
 			
-			return this.private.usages || (this.private.usages = {
+			return this.private.inbounds || (this.private.inbounds = {
 				
 				/** (Documentation found in TypePrivate.) */
 				get bases(): readonly Type[]
 				{
-					if (that.private.basesUsages)
-						return that.private.basesUsages;
+					if (that.private.inboundBases)
+						return that.private.inboundBases;
 					
 					const ibs = that.private.program.typeCache.getInboundBases(that);
-					return that.private.basesUsages = ibs;
+					return that.private.inboundBases = ibs;
 				},
 				
 				/** (Documentation found in TypePrivate.) */
 				get parallels()
 				{
-					if (that.private.usageParallels)
-						return that.private.usageParallels;
+					if (that.private.inboundParallels)
+						return that.private.inboundParallels;
 					
 					const ibs = that.private.program.typeCache.getInboundParallels(that);
-					return that.private.usageParallels = ibs;
+					return that.private.inboundParallels = ibs;
 				}
 			});
 		}
@@ -796,7 +796,7 @@ namespace Truth
 		adjacents: readonly Type[] | null = null;
 		
 		/** */
-		usages: {
+		inbounds: {
 			/**
 			 * Gets the array of types that have this type as a base.
 			 * Types that derive from this one as a result of the use
@@ -812,10 +812,10 @@ namespace Truth
 		} | null = null;
 		
 		/** */
-		basesUsages: readonly Type[] | null = null;
+		inboundBases: readonly Type[] | null = null;
 		
 		/** */
-		usageParallels: readonly Type[] | null = null;
+		inboundParallels: readonly Type[] | null = null;
 		
 		/** */
 		throwOnDirty()
