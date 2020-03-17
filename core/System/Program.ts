@@ -602,7 +602,7 @@ namespace Truth
 				this._version = VersionStamp.next();
 				
 				if (this.options.autoVerify && this.markedPhrases.size > 0)
-					this.awaitVerification();
+					this.runVerification();
 			}
 			
 			this.inEdit = false;
@@ -617,50 +617,56 @@ namespace Truth
 		//# Verification related members
 		
 		/**
+		 * Gets the program's verification stage.
+		 */
+		get verificationStage()
+		{
+			return this._verificationStage;
+		}
+		private _verificationStage = VerificationStage.none;
+		
+		/**
 		 * Returns a promise that resolves when the verification queue 
 		 * reaches the state specified in the scope parameter.
 		 */
-		async awaitVerification(scope: ProgramVerificationScope = "included"): Promise<void>
+		async awaitVerification(stage = VerificationStage.included): Promise<void>
 		{
-			const p1 = this.markedPromise;
-			if (p1)
-				await new Promise(resolve => p1.then(resolve));
-			else
-				await this.verifyMarked();
-			
-			if (scope === "marked")
+			if (stage <= this._verificationStage)
 				return;
 			
-			const p2 = this.affectedPromise;
-			if (p2)
-				await new Promise(resolve => p2.then(resolve));
-			else
-				await this.verifyAffectedOrIncluded("affected");
+			if (stage === VerificationStage.marked)
+				return new Promise(resolve => this.markedResolveFns.push(resolve));
 			
-			if (scope === "affected")
-				return;
+			if (stage === VerificationStage.affected)
+				return new Promise(resolve => this.affectedResolveFns.push(resolve));
 			
-			const p3 = this.includedPromise;
-			if (p3)
-				await new Promise(resolve => p3.then(resolve));
-			else
-				await this.verifyAffectedOrIncluded("included");
-			
-			this.finalizeVerification();
+			if (stage === VerificationStage.included)
+				return new Promise(resolve => this.includedResolveFns.push(resolve));
 		}
 		
-		/** */
-		private async verifyMarked()
+		/**
+		 * 
+		 */
+		private async runVerification()
 		{
-			return this.markedPromise = new Promise(resolve =>
+			const massResolve = (resolveFns: (() => void)[]) =>
+			{
+				const fns = resolveFns.slice();
+				resolveFns.length = 0;
+				
+				for (const fn of fns)
+					fn();
+			};
+			
+			this._verificationStage = VerificationStage.none;
+			
+			// Run "marked" verifications
+			await new Promise(resolve =>
 			{
 				const next = () =>
 				{
 					if (this.markedPhrases.size === 0)
-					{
-						this.markedPromise = null;
 						return resolve();
-					}
 					
 					const nextPhrase: Phrase = this.markedPhrases.values().next().value;
 					this.markedPhrases.delete(nextPhrase);
@@ -670,18 +676,17 @@ namespace Truth
 				
 				next();
 			});
-		}
-		
-		/** */
-		private async verifyAffectedOrIncluded(scope: "affected" | "included")
-		{
+			
+			this._verificationStage = VerificationStage.marked;
+			massResolve(this.markedResolveFns);
+			this.finalizeVerification();
+			
+			// Shared code betweeen "affected" and "included" verifications
 			const maxConstructionsPerTurn = 50;
 			let constructionCount = 0;
+			
 			const affectedDocuments = (() =>
 			{
-				if (scope === "included")
-					return this._documents.slice();
-				
 				const docs = new Set<Document>();
 				
 				for (const markedDoc of this.markedDocuments)
@@ -691,16 +696,16 @@ namespace Truth
 				return Array.from(docs);
 			})();
 			
-			return this.affectedPromise = new Promise(resolve =>
+			const includedDocuments = this._documents.slice()
+				.filter(doc => !affectedDocuments.includes(doc));
+			
+			const verifyDocuments = (docs: Document[], resolve: () => void) =>
 			{
 				const next = async () =>
 				{
-					const nextDoc = affectedDocuments.pop();
+					const nextDoc = docs.pop();
 					if (!nextDoc)
-					{
-						this.affectedPromise = null;
 						return resolve();
-					}
 					
 					for (const phrases of nextDoc.phrase.peekRecursive())
 					{
@@ -710,17 +715,36 @@ namespace Truth
 							// without yielding to other processes.
 							constructionCount++;
 							if (constructionCount % maxConstructionsPerTurn === 0)
-								await new Promise(r => setTimeout(r, 0));
+								await new Promise(r => 
+									this.nextVerificationTimeout = setTimeout(next, 0));
 							
 							Type.construct(phrase);
 						}
 					}
-					
-					resolve();
 				};
 				
 				next();
+			}
+			
+			// Run "affected" verifications
+			await new Promise(resolve =>
+			{
+				verifyDocuments(affectedDocuments, resolve);
 			});
+			
+			this._verificationStage = VerificationStage.affected;
+			massResolve(this.affectedResolveFns);
+			this.finalizeVerification();
+			
+			// Run "included" verifications
+			await new Promise(resolve =>
+			{
+				verifyDocuments(includedDocuments, resolve);
+			});
+			
+			this._verificationStage = VerificationStage.included;
+			massResolve(this.includedResolveFns);
+			this.finalizeVerification();
 		}
 		
 		/** */
@@ -731,15 +755,11 @@ namespace Truth
 				clearTimeout(this.nextVerificationTimeout);
 				this.nextVerificationTimeout = null;
 			}
-			
-			this.markedPromise = null;
-			this.affectedPromise = null;
-			this.includedPromise = null;
 		}
 		
-		private markedPromise: Promise<void> | null = null;
-		private affectedPromise: Promise<void> | null = null;
-		private includedPromise: Promise<void> | null = null;
+		private readonly markedResolveFns: (() => void)[] = [];
+		private readonly affectedResolveFns: (() => void)[] = [];
+		private readonly includedResolveFns: (() => void)[] = [];
 		private nextVerificationTimeout: NodeJS.Timeout | null = null;
 		
 		/**

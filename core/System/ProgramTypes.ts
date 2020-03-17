@@ -13,12 +13,27 @@ namespace Truth
 	}
 	
 	/**
-	 * Refers to a set of phrases within a program. Valid options are:
-	 * "marked" - Refers to the phrases that were explicitly edited by the user
-	 * "affected" - Refers to the phrases that were possibly affected by an edit
-	 * "included" - Refers to all phrases in all documents loaded into the program.
+	 * An enumeration that refers to the stages of verification
+	 * of the program.
 	 */
-	export type ProgramVerificationScope = "marked" | "affected" | "included";
+	export const enum VerificationStage
+	{
+		/** */
+		none = 0,
+		/**
+		 * Refers to the areas of the program that were explicitly modified via a call
+		 * to Program.edit()
+		 */
+		marked = 1,
+		/**
+		 * Refers to the areas of the program that were possibly affected by an edit. 
+		 */
+		affected = 2,
+		/**
+		 * Refers to all area of the program.
+		 */
+		included = 3
+	}
 	
 	/**
 	 * Represents an interface for creating a batch of mutation operations,
