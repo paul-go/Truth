@@ -208,36 +208,6 @@ namespace Truth
 		}
 		
 		/**
-		 * Stores a reference to the type, as it's defined in it's
-		 * next most applicable type.
-		 */
-		get parallels()
-		{
-			this.private.throwOnDirty();
-			return Not.null(this.private.parallels).maybeCompile();
-		}
-		
-		/**
-		 * Stores a reference to the parallel roots of this type.
-		 * The parallel roots are the endpoints found when
-		 * traversing upward through the parallel graph.
-		 */
-		get parallelRoots()
-		{
-			this.private.throwOnDirty();
-			
-			if (this.private.parallelRoots !== null)
-				return this.private.parallelRoots;
-			
-			const roots: Type[] = [];
-			for (const { type } of this.iterate(t => t.parallels))
-				if (type !== this && type.parallels.length === 0)
-					roots.push(type);
-			
-			return this.private.parallelRoots = Object.freeze(roots);
-		}
-		
-		/**
 		 * Stores the Type that contains this Type, or null in
 		 * the case when this Type is top-level.
 		 */
@@ -304,7 +274,66 @@ namespace Truth
 			if (this.private.bases === null)
 				throw Exception.unknownState();
 			
-			return this.private.bases.maybeCompile();
+			const bases = this.private.bases.maybeCompile();
+			this.private.program.typeCache.addInboundBases(this, bases);
+			return bases;
+		}
+		
+		/**
+		 * Stores a reference to the type, as it's defined in it's
+		 * next most applicable type.
+		 */
+		get parallels()
+		{
+			this.private.throwOnDirty();
+			const parallels = Not.null(this.private.parallels).maybeCompile();
+			this.private.program.typeCache.addInboundParallels(this, parallels);
+			return parallels;
+		}
+		
+		/**
+		 * Stores a reference to the parallel roots of this type.
+		 * The parallel roots are the endpoints found when
+		 * traversing upward through the parallel graph.
+		 */
+		get parallelRoots()
+		{
+			this.private.throwOnDirty();
+			
+			if (this.private.parallelRoots !== null)
+				return this.private.parallelRoots;
+			
+			const roots: Type[] = [];
+			for (const { type } of this.iterate(t => t.parallels))
+				if (type !== this && type.parallels.length === 0)
+					roots.push(type);
+			
+			return this.private.parallelRoots = Object.freeze(roots);
+		}
+		
+		/**
+		 * Gets an array that contains the Types that share the same 
+		 * containing type (as represented in the .container property)
+		 * as this one.
+		 */
+		get adjacents()
+		{
+			if (this.private.adjacents !== null)
+				return this.private.adjacents;
+			
+			this.private.throwOnDirty();
+			
+			if (this.outer)
+				return this.private.adjacents = this.outer.inners.filter(t => t !== this);
+			
+			const document = this.phrase.containingDocument;
+			const roots = Array.from(Phrase.rootsOf(document));
+			
+			const adjacents = roots
+				.map(phrase => Type.construct(phrase))
+				.filter((t): t is Type => t !== null && t !== this);
+			
+			return this.private.adjacents = Object.freeze(adjacents);
 		}
 		
 		/**
@@ -337,66 +366,6 @@ namespace Truth
 			
 			// eslint-disable-next-line no-unreachable
 			return this.private.subordinates = Object.freeze([]);
-		}
-		
-		/**
-		 * Gets an array that contains the types that derive from the 
-		 * this Type instance.
-		 * 
-		 * The types that derive from this one as a result of the use of
-		 * an alias are excluded from this array.
-		 */
-		get derivations(): readonly Type[]
-		{
-			if (this.private.derivations !== null)
-				return this.private.derivations;
-			
-			this.private.throwOnDirty();
-			
-			if (!(this.private.seed instanceof ExplicitParallel))
-				return this.private.derivations = Object.freeze([]);
-			
-			/*
-			TODO:
-			The way how this would be implemented would be by storing all of the phrases
-			that have a particular annotation as cached data, somewhere in the phrase
-			representation. Then, we can construct all types from these phrases, and
-			return the ones that have the this type in it's bases.
-			
-			const derivations = (Array.from(this.private.seed.phrase.inbounds) as Fork[])
-				.map(ibFork => ibFork.predecessor)
-				.map(phrase => Type.construct(phrase))
-				.filter((t): t is Type => t instanceof Type)
-				.filter(type => type.bases.includes(this));
-			
-			return this.private.derivations = Object.freeze(derivations);
-			*/
-			return this.private.derivations = Object.freeze([]);
-		}
-		
-		/**
-		 * Gets an array that contains the Types that share the same 
-		 * containing type (as represented in the .container property)
-		 * as this one.
-		 */
-		get adjacents()
-		{
-			if (this.private.adjacents !== null)
-				return this.private.adjacents;
-			
-			this.private.throwOnDirty();
-			
-			if (this.outer)
-				return this.private.adjacents = this.outer.inners.filter(t => t !== this);
-			
-			const document = this.phrase.containingDocument;
-			const roots = Array.from(Phrase.rootsOf(document));
-			
-			const adjacents = roots
-				.map(phrase => Type.construct(phrase))
-				.filter((t): t is Type => t !== null && t !== this);
-			
-			return this.private.adjacents = Object.freeze(adjacents);
 		}
 		
 		/**
@@ -542,6 +511,40 @@ namespace Truth
 		get value()
 		{
 			return this.aliases.length > 0 ? this.aliases[0] : null;
+		}
+		
+		/**
+		 * Stores information about the properties of a type that are
+		 * computed by searching across the entire program and
+		 * finding other types that reference this type in some way.
+		 */
+		async usages()
+		{
+			await this.private.program.awaitVerification();
+			const that = this;
+			
+			return this.private.usages || (this.private.usages = {
+				
+				/** (Documentation found in TypePrivate.) */
+				get bases(): readonly Type[]
+				{
+					if (that.private.basesUsages)
+						return that.private.basesUsages;
+					
+					const ibs = that.private.program.typeCache.getInboundBases(that);
+					return that.private.basesUsages = ibs;
+				},
+				
+				/** (Documentation found in TypePrivate.) */
+				get parallels()
+				{
+					if (that.private.usageParallels)
+						return that.private.usageParallels;
+					
+					const ibs = that.private.program.typeCache.getInboundParallels(that);
+					return that.private.usageParallels = ibs;
+				}
+			});
 		}
 		
 		/**
@@ -790,10 +793,29 @@ namespace Truth
 		subordinates: readonly Type[] | null = null;
 		
 		/** */
-		derivations: readonly Type[] | null = null;
+		adjacents: readonly Type[] | null = null;
 		
 		/** */
-		adjacents: readonly Type[] | null = null;
+		usages: {
+			/**
+			 * Gets the array of types that have this type as a base.
+			 * Types that derive from this one as a result of the use
+			 * of an alias are excluded from this array.
+			 */
+			readonly bases: readonly Type[];
+			
+			/**
+			 * Gets an array that contains the types that have this type
+			 * as a parallel.
+			 */
+			readonly parallels: readonly Type[];
+		} | null = null;
+		
+		/** */
+		basesUsages: readonly Type[] | null = null;
+		
+		/** */
+		usageParallels: readonly Type[] | null = null;
 		
 		/** */
 		throwOnDirty()
