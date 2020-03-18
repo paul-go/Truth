@@ -62,9 +62,6 @@
 
 // Phases / Type Representation
 /// <reference path="./Phases/Type/Type.ts" />
-/// <reference path="./Phases/Type/TypeProxy.ts" />
-/// <reference path="./Phases/Type/TypeProxyArray.ts" />
-/// <reference path="./Phases/Type/TypeCache.ts" />
 
 // Node compatibility
 if (typeof module !== "undefined" && module.exports)

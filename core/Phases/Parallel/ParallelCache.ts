@@ -100,6 +100,12 @@ namespace Truth
 			return this.parallels.has(key);
 		}
 		
+		/** */
+		clear()
+		{
+			this.parallels.clear();
+		}
+		
 		/**
 		 * Stores a map of all Parallel objects that have been constructed,
 		 * keyed by the Phrase to which they correspond.

@@ -20,6 +20,16 @@ namespace Truth
 		}
 		
 		/**
+		 * Resets all memory within this ConstructionWorker instance.
+		 */
+		reset()
+		{
+			this.cruft.clear();
+			this.parallels.clear();
+			this.rakedParallels = new WeakSet();
+		}
+		
+		/**
 		 * Constructs the corresponding Parallel instances for
 		 * all explicit types that exist within the provided Document,
 		 * or below the provided ExplicitParallel.
@@ -730,7 +740,7 @@ namespace Truth
 		 * This set may include both pattern and non-patterns Parallels,
 		 * (even though their raking processes are completely different).
 		 */
-		private readonly rakedParallels = new WeakSet<Parallel>();
+		private rakedParallels = new WeakSet<Parallel>();
 		
 		/** */
 		private readonly cruft: CruftCache;

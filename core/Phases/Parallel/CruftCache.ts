@@ -47,6 +47,14 @@ namespace Truth
 			return this.cruft.has(source);
 		}
 		
+		/**
+		 * Removes all cruft objects stored within this cache.
+		 */
+		clear()
+		{
+			this.cruft.clear();
+		}
+		
 		/** Stores a set of objects that have been marked as cruft. */
 		private readonly cruft = new Set<TCruft>();
 	}

@@ -5,12 +5,20 @@ namespace Truth
 	export class Exception
 	{
 		/** */
-		static objectDirty()
+		static typeDirty(type: Type)
 		{
 			return error(`
 				Cannot call this method or access this property,
 				because the document has changed since it
-				was created.`);
+				was created. Affected type is: ` + type.name);
+		}
+		
+		/** */
+		static unseededType()
+		{
+			return error(`
+				Cannot access this member on this type,
+				because it hasn't yes been compiled.`);
 		}
 		
 		/** */

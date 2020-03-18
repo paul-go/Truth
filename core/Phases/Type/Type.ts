@@ -1,18 +1,20 @@
 
 namespace Truth
 {
-	/** */
-	interface IStoredContext
-	{
-		version: VersionStamp;
-		worker: ConstructionWorker;
-	}
-	
 	/**
 	 * A class that represents a fully constructed type within the program.
 	 */
 	export class Type
 	{
+		/**
+		 * @internal
+		 */
+		static lookup(name: string, program: Program)
+		{
+			const context = this.contexts.get(program);
+			return context?.typesForTerms.get(name.toLocaleLowerCase()) || [];
+		}
+		
 		/** 
 		 * @internal
 		 * Constructs one or more Type objects from the specified location.
@@ -22,148 +24,170 @@ namespace Truth
 			if (!phrase || phrase.length === 0)
 				return null;
 			
-			const cache = phrase.containingDocument.program.typeCache;
+			const context = this.getContext(phrase);
 			
-			if (cache.has(phrase))
-			{
-				const cached = cache.get(phrase);
-				
-				// If the cached type exists, but hasn't been compiled yet,
-				// we can't return it, we need to compile it first.
-				if (!(cached instanceof TypeProxy))
-					return cached;
-			}
+			// If the cached type exists, but hasn't been compiled yet,
+			// we can't return it, we need to compile it first.
+			const existingType = this.fromPhrase(phrase);
+			if (existingType.seed)
+				return existingType;
 			
-			const program = phrase.containingDocument.program;
+			const parallel = context.worker.drill(phrase);
 			
-			const worker = (() =>
-			{
-				const stored = this.parallelContextMap.get(program);
-				if (stored === undefined)
-				{
-					const newStored: IStoredContext = {
-						version: program.version,
-						worker: new ConstructionWorker(program)
-					};
-					
-					this.parallelContextMap.set(program, newStored);
-					return newStored.worker;
-				}
-				else if (program.version.newerThan(stored.version))
-				{
-					stored.version = program.version;
-					stored.worker = new ConstructionWorker(program);
-				}
-				
-				return stored.worker;
-			})();
-			
-			const parallel = worker.drill(phrase);
+			// The drilling procedure can return a null value for the parallel
+			// if an attempt is made to dril into some non-existent location
+			// area of a document.
 			if (parallel === null)
 			{
-				cache.set(phrase, null);
+				// Previously, this code was marking the phrase as invalid.
+				// Should we continue to do this?
 				return null;
 			}
 			
-			const parallelLineage = [parallel];
+			const parallelContainment = [parallel];
 			
 			for (let currentParallel = parallel.container; currentParallel !== null;)
 			{
-				parallelLineage.unshift(currentParallel);
+				parallelContainment.unshift(currentParallel);
 				currentParallel = currentParallel.container;
 			}
 			
 			let lastType: Type | null = null;
 			
-			for (const currentParallel of parallelLineage)
+			for (const seed of parallelContainment)
 			{
-				if (cache.has(currentParallel.phrase))
+				const type = this.fromPhrase(seed.phrase);
+				if (type.seed)
 				{
-					const existingType = cache.get(currentParallel.phrase);
-					if (existingType instanceof TypeProxy)
-						throw Exception.unknownState();
-					
-					if (existingType === null)
-						throw Exception.unknownState();
-					
-					lastType = existingType;
-				}
-				else
-				{
-					const type: Type = new Type(currentParallel, lastType);
-					cache.set(currentParallel.phrase, type);
 					lastType = type;
+					continue;
 				}
+				
+				// Warning to developers running the debuggers:
+				// This area of the function can cause recursion,
+				// feeding back into this method.
+				
+				type.seed = seed;
+				type._container = lastType;
+				type._parallels = seed.getParallels().map(p => Type.fromPhrase(p.phrase));
+				
+				if (seed instanceof ExplicitParallel)
+				{
+					type._bases = this.basesOf(seed);
+				}
+				else if (seed instanceof ImplicitParallel)
+				{
+					const queue: Parallel[] = [seed];
+					const explicitParallels: ExplicitParallel[] = [];
+					
+					for (let i = -1; ++i < queue.length;)
+					{
+						const current = queue[i];
+						if (current instanceof ImplicitParallel)
+							queue.push(...current.getParallels());
+						
+						else if (current instanceof ExplicitParallel)
+							explicitParallels.push(current);
+					}
+					
+					type._bases = explicitParallels
+						.map(par => this.basesOf(par))
+						.reduce((a, b) => a.concat(b), [])
+						.filter((v, i, a) => a.indexOf(v) === i);
+				}
+				else throw Exception.unknownState();
+				
+				if (seed instanceof ExplicitParallel)
+				{
+					const sub = seed.phrase.terminal;
+					
+					if (sub instanceof Pattern)
+						type.flags |= Flags.isPattern;
+					
+					if (sub instanceof KnownUri)
+						type.flags |= Flags.isUri;
+					
+					if (sub instanceof Anon)
+						type.flags |= Flags.isAnonymous;
+					
+					if (seed.getParallels().length === 0)
+						type.flags |= Flags.isFresh;
+					
+					type.flags |= Flags.isExplicit
+				}
+				
+				for (const base of type._bases)
+					context.inboundBases.add(base, type);
+				
+				for (const parallel of type._parallels)
+					context.inboundParallels.add(parallel, type);
+				
+				lastType = type;
 			}
 			
 			return lastType;
 		}
 		
 		/** */
-		private static parallelContextMap = new WeakMap<Program, IStoredContext>();
+		private static basesOf(ep: ExplicitParallel)
+		{
+			const bases = Array.from(ep.eachBase());
+			return bases.map(entry => Type.fromPhrase(entry.base.phrase));
+		}
 		
 		/**
+		 * Returns the Type object that corresponds to the specified phrase,
+		 * or constructs a new type when no corresponding phrase object
+		 * could be found.
+		 */
+		private static fromPhrase(phrase: Phrase)
+		{
+			const context = this.getContext(phrase);
+			return context.typesForPhrases.get(phrase) || (() =>
+			{
+				const type = new Type(phrase);
+				context.typesForPhrases.set(phrase, type);
+				return type;
+			})();
+		}
+		
+		/** 
 		 * 
 		 */
-		private constructor(
-			seed: Parallel,
-			container: Type | null)
+		private static getContext(fromPhrase: Phrase)
 		{
-			this.private = new TypePrivate(seed);
-			this.name = seed.phrase.terminal.toString();
-			this.phrase = seed.phrase;
-			this.outer = container;
+			const program = fromPhrase.containingDocument.program;
+			let context = this.contexts.get(program);
 			
-			this.private.parallels = new TypeProxyArray(
-				seed.getParallels().map(edge =>
-					new TypeProxy(edge.phrase)));
-			
-			const getBases = (ep: ExplicitParallel) =>
+			if (context === undefined)
 			{
-				const bases = Array.from(ep.eachBase());
-				return bases.map(entry => 
-					new TypeProxy(entry.base.phrase));
-			};
-			
-			if (seed instanceof ExplicitParallel)
-			{
-				this.private.bases = new TypeProxyArray(getBases(seed));
+				context = new Context(program);
+				this.contexts.set(program, context);
 			}
-			else if (seed instanceof ImplicitParallel)
+			else if (program.version.newerThan(context.version))
 			{
-				const queue: Parallel[] = [seed];
-				const explicitParallels: ExplicitParallel[] = [];
-				
-				for (let i = -1; ++i < queue.length;)
-				{
-					const current = queue[i];
-					if (current instanceof ImplicitParallel)
-						queue.push(...current.getParallels());
-					
-					else if (current instanceof ExplicitParallel)
-						explicitParallels.push(current);
-				}
-				
-				const bases = explicitParallels
-					.map(par => getBases(par))
-					.reduce((a, b) => a.concat(b), [])
-					.filter((v, i, a) => a.indexOf(v) === i);
-				
-				this.private.bases = new TypeProxyArray(bases);
+				context.reset(program);
 			}
 			
-			this.isList = false;
-			
-			if (seed instanceof ExplicitParallel)
-			{
-				const sub = seed.phrase.terminal;
-				this.isPattern = sub instanceof Pattern;
-				this.isUri = sub instanceof KnownUri;
-				this.isAnonymous = sub instanceof Anon;
-				this.isExplicit = true;
-				this.isFresh = seed.getParallels().length === 0;
-			}
+			return context;
 		}
+		
+		/** */
+		private static contexts = new WeakMap<Program, Context>();
+		
+		/** */
+		private constructor(phrase: Phrase)
+		{
+			this.phrase = phrase;
+			this.name = phrase.terminal.toString();
+			
+			this.context = Type.getContext(phrase);
+			const term = this.name.toLocaleLowerCase();
+			this.context.typesForTerms.add(term, this);
+		}
+		
+		/** @internal */
+		private readonly context: Context;
 		
 		/**
 		 * Stores a text representation of the name of the type,
@@ -177,6 +201,13 @@ namespace Truth
 		 * found in the document.
 		 */
 		private readonly phrase: Phrase;
+		
+		/**
+		 * Stores the seed Parallel that is the primary source of information
+		 * for the construction of this type. In the case when this field is null,
+		 * it can be assumed that the type has not been compiled.
+		 */
+		private seed: Parallel | null = null;
 		
 		/**
 		 * Stores an array of Statement objects that are responsible
@@ -196,71 +227,90 @@ namespace Truth
 		 */
 		get statements()
 		{
-			this.private.throwOnDirty();
+			guard(this, this.seed);
 			
-			if (this.private.statements !== null)
-				return this.private.statements;
+			if (this._statements !== null)
+				return this._statements;
 			
-			if (!(this.private.seed instanceof ExplicitParallel))
-				return this.private.statements = Object.freeze([]);
-			
-			return this.private.statements = this.private.seed.phrase.statements.slice();
+			return this._statements = this.seed instanceof ImplicitParallel ?
+				this.seed.phrase.statements.slice() :
+				Object.freeze([]);
 		}
+		private _statements: readonly Statement[] | null = null;
 		
 		/**
 		 * Stores the Type that contains this Type, or null in
 		 * the case when this Type is top-level.
 		 */
-		readonly outer: Type | null;
+		get container(): Type | null
+		{
+			guard(this, this.seed);
+			return this._container;
+		}
+		private _container: Type | null = null;
 		
 		/**
 		 * Stores the array of types that are contained directly by this
 		 * one. In the case when this type is a list type, this array does
 		 * not include the list's intrinsic types.
 		 */
-		get inners()
+		get containees()
 		{
-			if (this.private.inners !== null)
-				return this.private.inners;
+			if (this._containees !== null)
+				return this._containees;
 			
-			this.private.throwOnDirty();
+			guard(this, this.seed);
 			const innerSubjects = new Set<Subject>();
 			
 			// Dig through the parallel graph recursively, and at each parallel,
 			// dig through the base graph recursively, and collect all the names
 			// that are found.
 			for (const { type: parallelType } of this.iterate(t => t.parallels, true))
+			{
 				for (const { type: baseType } of parallelType.iterate(t => t.bases, true))
-					if (baseType.private.seed instanceof ExplicitParallel)
-						for (const subject of baseType.private.seed.phrase.peekSubjects())
+				{
+					// baseType should always be seeded, however these checks
+					// are in place to guard against any possibility of this not being
+					// the case.
+					let base: Type | null = baseType;
+					if (!base.seed)
+						base = Type.construct(baseType.phrase);
+					
+					if (!base)
+						continue;
+					
+					if (baseType.seed instanceof ExplicitParallel)
+						for (const subject of baseType.seed.phrase.peekSubjects())
 							innerSubjects.add(subject);
-			
+				}
+			}
+				
 			const innerTypes = Array.from(innerSubjects)
 				.flatMap(subject => this.phrase.peek(subject))
 				.map(phrase => Type.construct(phrase))
 				.filter((t): t is Type => t !== null);
 			
-			return this.private.inners = Object.freeze(innerTypes);
+			return this._containees = Object.freeze(innerTypes);
 		}
+		private _containees: readonly Type[] | null = null;
 		
 		/**
-		 * @internal
 		 * Stores the array of types that are contained directly by this
 		 * one. In the case when this type is not a list type, this array
 		 * is empty.
 		 */
-		get innersIntrinsic()
+		get containeesIntrinsic()
 		{
-			if (this.private.innersIntrinsic !== null)
-				return this.private.innersIntrinsic;
+			if (this._containeesIntrinsic !== null)
+				return this._containeesIntrinsic;
 			
-			if (!this.isList)
-				return this.private.innersIntrinsic = Object.freeze([]);
+			if (!this.isListIntrinsic && !this.isListExtrinsic)
+				return this._containeesIntrinsic = Object.freeze([]);
 			
-			this.private.throwOnDirty();
-			
+			guard(this, this.seed);
 			throw Exception.notImplemented();
 		}
+		private _containeesIntrinsic: readonly Type[] | null = null;
 		
 		/**
 		 * Stores the array of types from which this type extends.
@@ -269,15 +319,10 @@ namespace Truth
 		 */
 		get bases(): readonly Type[]
 		{
-			this.private.throwOnDirty();
-			
-			if (this.private.bases === null)
-				throw Exception.unknownState();
-			
-			const bases = this.private.bases.maybeCompile();
-			this.private.program.typeCache.addInboundBases(this, bases);
-			return bases;
+			guard(this, this.seed);
+			return this._bases;
 		}
+		private _bases: readonly Type[] = [];
 		
 		/**
 		 * Stores a reference to the type, as it's defined in it's
@@ -285,11 +330,10 @@ namespace Truth
 		 */
 		get parallels()
 		{
-			this.private.throwOnDirty();
-			const parallels = Not.null(this.private.parallels).maybeCompile();
-			this.private.program.typeCache.addInboundParallels(this, parallels);
-			return parallels;
+			guard(this, this.seed);
+			return this._parallels;
 		}
+		private _parallels: readonly Type[] = [];
 		
 		/**
 		 * Stores a reference to the parallel roots of this type.
@@ -298,18 +342,19 @@ namespace Truth
 		 */
 		get parallelRoots()
 		{
-			this.private.throwOnDirty();
+			if (this._parallelRoots !== null)
+				return this._parallelRoots;
 			
-			if (this.private.parallelRoots !== null)
-				return this.private.parallelRoots;
+			guard(this, this.seed);
 			
 			const roots: Type[] = [];
 			for (const { type } of this.iterate(t => t.parallels))
 				if (type !== this && type.parallels.length === 0)
 					roots.push(type);
 			
-			return this.private.parallelRoots = Object.freeze(roots);
+			return this._parallelRoots = Object.freeze(roots);
 		}
+		private _parallelRoots: readonly Type[] | null = null;
 		
 		/**
 		 * Gets an array that contains the Types that share the same 
@@ -318,13 +363,13 @@ namespace Truth
 		 */
 		get adjacents()
 		{
-			if (this.private.adjacents !== null)
-				return this.private.adjacents;
+			if (this._adjacents !== null)
+				return this._adjacents;
 			
-			this.private.throwOnDirty();
+			guard(this, this.seed);
 			
-			if (this.outer)
-				return this.private.adjacents = this.outer.inners.filter(t => t !== this);
+			if (this.container)
+				return this._adjacents = this.container.containees.filter(t => t !== this);
 			
 			const document = this.phrase.containingDocument;
 			const roots = Array.from(Phrase.rootsOf(document));
@@ -333,8 +378,9 @@ namespace Truth
 				.map(phrase => Type.construct(phrase))
 				.filter((t): t is Type => t !== null && t !== this);
 			
-			return this.private.adjacents = Object.freeze(adjacents);
+			return this._adjacents = Object.freeze(adjacents);
 		}
+		private _adjacents: readonly Type[] | null = null;
 		
 		/**
 		 * @internal
@@ -342,15 +388,15 @@ namespace Truth
 		 */
 		get superordinates()
 		{
-			if (this.private.superordinates !== null)
-				return this.private.superordinates;
+			if (this._superordinates !== null)
+				return this._superordinates;
 			
-			this.private.throwOnDirty();
 			throw Exception.notImplemented();
 			
 			// eslint-disable-next-line no-unreachable
-			return this.private.superordinates = Object.freeze([]);
+			return this._superordinates = Object.freeze([]);
 		}
+		private _superordinates: readonly Type[] | null = null;
 		
 		/**
 		 * @internal
@@ -358,25 +404,23 @@ namespace Truth
 		 */
 		get subordinates()
 		{
-			if (this.private.subordinates !== null)
-				return this.private.subordinates;
+			if (this._subordinates !== null)
+				return this._subordinates;
 			
-			this.private.throwOnDirty();
 			throw Exception.notImplemented();
 			
 			// eslint-disable-next-line no-unreachable
-			return this.private.subordinates = Object.freeze([]);
+			return this._subordinates = Object.freeze([]);
 		}
+		private _subordinates: readonly Type[] | null = null;
 		
 		/**
 		 * Gets an array that contains the patterns that resolve to this type.
 		 */
 		get patterns()
 		{
-			if (this.private.patterns !== null)
-				return this.private.patterns;
-			
-			this.private.throwOnDirty();
+			if (this._patterns !== null)
+				return this._patterns;
 			
 			// Stores a map whose keys are a concatenation of the Uris of all
 			// the bases that are matched by a particular pattern, and whose
@@ -385,7 +429,7 @@ namespace Truth
 			// that matches a particular set of types in the type scope.
 			const patternMap = new Map<string, Type>();
 			
-			for (const { type } of this.iterate(t => t.outer))
+			for (const { type } of this.iterate(t => t.container))
 			{
 				const applicablePatternTypes = type.adjacents
 					.filter(t => t.isPattern)
@@ -405,8 +449,9 @@ namespace Truth
 			}
 			
 			const out = Array.from(patternMap.values());
-			return this.private.patterns = Object.freeze(out);
+			return this._patterns = Object.freeze(out);
 		}
+		private _patterns: readonly Type[] | null = null;
 		
 		/**
 		 * Gets an array that contains the raw string values representing
@@ -418,10 +463,9 @@ namespace Truth
 		 */
 		get aliases()
 		{
-			if (this.private.aliases !== null)
-				return this.private.aliases;
+			if (this._aliases !== null)
+				return this._aliases;
 			
-			this.private.throwOnDirty();
 			const aliases: string[] = [];
 			
 			const extractAlias = (ep: ExplicitParallel) =>
@@ -431,13 +475,13 @@ namespace Truth
 						aliases.push(fork.term.toString());
 			};
 			
-			if (this.private.seed instanceof ExplicitParallel)
+			if (this.seed instanceof ExplicitParallel)
 			{
-				extractAlias(this.private.seed);
+				extractAlias(this.seed);
 			}
-			else if (this.private.seed instanceof ImplicitParallel)
+			else if (this.seed instanceof ImplicitParallel)
 			{
-				const queue: ImplicitParallel[] = [this.private.seed];
+				const queue: ImplicitParallel[] = [this.seed];
 				
 				for (let i = -1; ++i < queue.length;)
 				{
@@ -454,18 +498,18 @@ namespace Truth
 				}
 			}
 			
-			return this.private.aliases = aliases;
+			return this._aliases = aliases;
 		}
+		private _aliases: readonly string[] | null = null;
 		
 		/**
 		 * 
 		 */
 		get values()
 		{
-			if (this.private.values !== null)
-				return this.private.values;
+			if (this._values !== null)
+				return this._values;
 			
-			this.private.throwOnDirty();
 			const values: { value: string, base: Type | null, aliased: boolean }[] = [];
 			
 			const extractType = (ep: ExplicitParallel) =>
@@ -478,13 +522,13 @@ namespace Truth
 					});
 			};
 			
-			if (this.private.seed instanceof ExplicitParallel)
+			if (this.seed instanceof ExplicitParallel)
 			{
-				extractType(this.private.seed);
+				extractType(this.seed);
 			}
-			else if (this.private.seed instanceof ImplicitParallel)
+			else if (this.seed instanceof ImplicitParallel)
 			{
-				const queue: ImplicitParallel[] = [this.private.seed];
+				const queue: ImplicitParallel[] = [this.seed];
 				
 				for (let i = -1; ++i < queue.length;)
 				{
@@ -501,8 +545,13 @@ namespace Truth
 				}
 			}
 			
-			return this.private.values = values;
+			return this._values = values;
 		}
+		private _values: readonly { 
+			value: string;
+			base: Type | null;
+			aliased: boolean;
+		}[] | null = null;
 		
 		/**
 		 * Gets the first alias stored in the .values array, or null if the
@@ -514,55 +563,37 @@ namespace Truth
 		}
 		
 		/**
-		 * Stores information about the properties of a type that are
-		 * computed by searching across the entire program and
-		 * finding other types that reference this type in some way.
+		 * Iterates through each type that has this type as a base.
+		 * Types that derive from this one as a result of the use
+		 * of an alias are excluded from this array.
 		 */
-		async inbounds()
+		async *eachInboundBase()
 		{
-			await this.private.program.awaitVerification();
-			const that = this;
+			guard(this, this.seed);
+			const context = Type.getContext(this.phrase);
+			await context.program.await();
+			const types = context.inboundBases.get(this);
 			
-			return this.private.inbounds || (this.private.inbounds = {
-				
-				/** (Documentation found in TypePrivate.) */
-				get bases(): readonly Type[]
-				{
-					if (that.private.inboundBases)
-						return that.private.inboundBases;
-					
-					const ibs = that.private.program.typeCache.getInboundBases(that);
-					return that.private.inboundBases = ibs;
-				},
-				
-				/** (Documentation found in TypePrivate.) */
-				get parallels()
-				{
-					if (that.private.inboundParallels)
-						return that.private.inboundParallels;
-					
-					const ibs = that.private.program.typeCache.getInboundParallels(that);
-					return that.private.inboundParallels = ibs;
-				}
-			});
+			if (types)
+				for (const type of types)
+					yield type;
 		}
 		
 		/**
-		 * Stores whether this type represents the intrinsic
-		 * side of a list.
+		 * Iterates through each type in the program that have 
+		 * this type as a parallel.
 		 */
-		readonly isListIntrinsic: boolean = false;
-		
-		/**
-		 * Stores whether this type represents the extrinsic
-		 * side of a list.
-		 */
-		readonly isListExtrinsic: boolean = false;
-		
-		/**
-		 * Stores whether this Type instance has no annotations applied to it.
-		 */
-		readonly isFresh: boolean = false;
+		async *eachInboundParallel()
+		{
+			guard(this, this.seed);
+			const context = Type.getContext(this.phrase);
+			await context.program.await();
+			const types = context.inboundParallels.get(this);
+			
+			if (types)
+				for (const type of types)
+					yield type;
+		}
 		
 		/** */
 		get isOverride() { return this.parallels.length > 0; }
@@ -571,22 +602,40 @@ namespace Truth
 		get isIntroduction() { return this.parallels.length === 0; }
 		
 		/**
-		 * Stores a value that indicates if this Type was directly specified
-		 * in the document, or if it's existence was inferred.
+		 * Gets whether this type represents the intrinsic
+		 * side of a list.
 		 */
-		readonly isExplicit: boolean = false;
+		get isListIntrinsic() { return (this.flags & Flags.isListIntrinsic) === Flags.isListIntrinsic; }
+		
+		/**
+		 * Gets whether this type represents the extrinsic
+		 * side of a list.
+		 */
+		get isListExtrinsic() { return (this.flags & Flags.isListExtrinsic) === Flags.isListExtrinsic; }
+		
+		/**
+		 * Gets whether this Type instance has no annotations applied to it.
+		 */
+		get isFresh() { return (this.flags & Flags.isFresh) === Flags.isFresh; }
+		
+		/**
+		 * Gets whether this Type was directly specified in the document,
+		 * or if it's existence was inferred.
+		 */
+		get isExplicit() { return (this.flags & Flags.isExplicit) === Flags.isExplicit; }
+		
+		/**
+		 * Gets whether this type is an anonymous type.
+		 */
+		get isAnonymous() { return (this.flags & Flags.isAnonymous) === Flags.isAnonymous; }
 		
 		/** */
-		readonly isAnonymous: boolean = false;
+		get isPattern() { return (this.flags & Flags.isPattern) === Flags.isPattern; }
 		
 		/** */
-		readonly isPattern: boolean = false;
+		get isUri() { return (this.flags & Flags.isUri) === Flags.isUri; }
 		
-		/** */
-		readonly isUri: boolean = false;
-		
-		/** */
-		readonly isList: boolean = false;
+		private flags = 0;
 		
 		/**
 		 * Gets a boolean value that indicates whether this Type
@@ -595,7 +644,7 @@ namespace Truth
 		 */
 		get isDirty()
 		{
-			return this.private.program.version.newerThan(this.private.stamp);
+			return this.context.program.version.newerThan(this.context.version);
 		}
 		
 		/**
@@ -679,7 +728,7 @@ namespace Truth
 			
 			for (const typeName of typePath)
 			{
-				const nextType = this.inners.find(type => type.name === typeName);
+				const nextType = this.containees.find(type => type.name === typeName);
 				if (!nextType)
 					break;
 				
@@ -709,10 +758,10 @@ namespace Truth
 		 */
 		has(type: Type)
 		{
-			if (this.inners.includes(type))
+			if (this.containees.includes(type))
 				return true;
 			
-			for (const innerType of this.inners)
+			for (const innerType of this.containees)
 				if (type.name === innerType.name)
 					for (const parallel of innerType.iterate(t => t.parallels))
 						if (parallel.type === type)
@@ -722,106 +771,138 @@ namespace Truth
 		}
 		
 		/**
-		 * 
+		 * Recursively invokes any fold() method provided by
+		 * computed types nested within this type.
 		 */
 		fold()
 		{
-			// TODO
+			throw Exception.notImplemented();
 		}
 		
 		/**
-		 * @internal
-		 * Internal object that stores the private members
-		 * of the Type object. Do not use.
+		 * Returns a string representation of this type, suitable for
+		 * debugging purposes.
 		 */
-		private readonly private: TypePrivate;
+		toString()
+		{
+			if ("DEBUG")
+			{
+				const phrasesOf = (types: readonly Type[]) => types.map(t => t.phrase);
+				const lines: string[] = [];
+				const write = (
+					group: string,
+					values: readonly Type[] | readonly Phrase[] | readonly string[]) =>
+				{
+					lines.push("");
+					lines.push(group);
+					
+					for (const value of values)
+					{
+						const textValue = 
+							value instanceof Type ? value.phrase.toString() :
+							value instanceof Phrase ? value.toString() :
+							value;
+						
+						lines.push("  " + textValue);
+					}
+				}
+				
+				write(".phrase", [this.phrase]);
+				write(".container", this.container ? [this.container.phrase] : []);
+				write(".containees", this.containees);
+				write(".bases", this.bases);
+				write(".parallels", this.parallels);
+				write(".adjacents", this.adjacents);
+				write(".patterns", this.patterns);
+				write(".aliases", this.aliases);
+				
+				lines.shift();
+				return lines.join("\n");
+			}
+			
+			return this.phrase.toString();
+		}
 	}
 	
 	/**
-	 * @internal
-	 * A hidden class that stores the private information of
-	 * a Type instance, used to mitigate the risk of low-rank
-	 * developers from getting themselves into trouble.
+	 * Ensures whether properties in the type object may be accessed.
 	 */
-	class TypePrivate
+	function guard(type: Type, seed: Parallel | null): asserts seed is Parallel
 	{
-		constructor(readonly seed: Parallel)
+		if (seed === null)
+			throw Exception.unseededType();
+		
+		if (type.isDirty)
+			throw Exception.typeDirty(type);
+	}
+	
+	/**
+	 * Stores supporting information for Type objects.
+	 * The information stored in this class must have the same lifetime as
+	 * the program object that contains the type, rather than the type itself.
+	 */
+	class Context
+	{
+		/** */
+		constructor(readonly program: Program)
 		{
-			this.stamp = this.program.version;
+			this.worker = new ConstructionWorker(program);
+			this._version = program.version;
+		}
+		
+		/**
+		 * Clears out all information in this context.
+		 * This method should be called when the program is modified,
+		 * and the cached information is therefore no longer valid.
+		 */
+		reset(program: Program)
+		{
+			this.typesForPhrases.clear();
+			this.typesForTerms.clear();
+			this.inboundBases.clear();
+			this.inboundParallels.clear();
+			this.worker.reset();
+			this._version = program.version;
 		}
 		
 		/** */
-		get program()
+		get version()
 		{
-			return this.seed.phrase.containingDocument.program;
+			return this._version;
 		}
+		private _version: VersionStamp;
 		
 		/** */
-		readonly stamp: VersionStamp;
+		readonly worker: ConstructionWorker;
 		
 		/** */
-		statements: readonly Statement[] | null = null;
+		readonly typesForPhrases = new Map<Phrase, Type>();
 		
 		/** */
-		inners: readonly Type[] | null = null;
+		readonly typesForTerms = new MultiMap<string, Type>();
 		
-		/** */
-		innersIntrinsic: readonly Type[] | null = null;
+		/**
+		 * Stores a cache of the inbound bases of each constructed type.
+		 * This MultiMap is constructed progressively as more types are constructed.
+		 */
+		readonly inboundBases = new SetMap<Type, Type>();
 		
-		/** */
-		bases: TypeProxyArray | null = null;
-		
-		/** */
-		parallels: TypeProxyArray | null = null;
-		
-		/** */
-		parallelRoots: readonly Type[] | null = null;
-		
-		/** */
-		patterns: readonly Type[] | null = null;
-		
-		/** */
-		aliases: readonly string[] | null = null;
-		
-		/** */
-		values: readonly { value: string; base: Type | null; aliased: boolean; }[] | null = null;
-		
-		/** */
-		superordinates: readonly Type[] | null = null;
-		
-		/** */
-		subordinates: readonly Type[] | null = null;
-		
-		/** */
-		adjacents: readonly Type[] | null = null;
-		
-		/** */
-		inbounds: {
-			/**
-			 * Gets the array of types that have this type as a base.
-			 * Types that derive from this one as a result of the use
-			 * of an alias are excluded from this array.
-			 */
-			readonly bases: readonly Type[];
-			
-			/**
-			 * Gets an array that contains the types that have this type
-			 * as a parallel.
-			 */
-			readonly parallels: readonly Type[];
-		} | null = null;
-		
-		/** */
-		inboundBases: readonly Type[] | null = null;
-		
-		/** */
-		inboundParallels: readonly Type[] | null = null;
-		
-		/** */
-		throwOnDirty()
-		{
-			if (this.program.version.newerThan(this.stamp))
-				throw Exception.objectDirty();
-		}
+		/**
+		 * Stores a cache of the inbound parallels of each constructed type.
+		 * This MultiMap is constructed progressively as more types are constructed.
+		 */
+		readonly inboundParallels = new SetMap<Type, Type>();
+	}
+	
+	/** */
+	const enum Flags
+	{
+		isListIntrinsic = 0,
+		isListExtrinsic = 1,
+		isFresh = 2,
+		isExplicit = 3,
+		isAnonymous = 4,
+		isPattern = 5,
+		isUri = 6
 	}
 }

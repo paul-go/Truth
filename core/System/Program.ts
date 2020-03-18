@@ -35,7 +35,6 @@ namespace Truth
 			
 			this.cycleDetector = new CycleDetector(this);
 			this.faults = new FaultService(this);
-			this.typeCache = new TypeCache(this);
 		}
 		
 		/** @internal */
@@ -832,13 +831,8 @@ namespace Truth
 		 */
 		lookup(term: string)
 		{
-			return this.typeCache.lookup(term);
+			return Type.lookup(term, this);
 		}
-		
-		/**
-		 * @internal
-		 */
-		readonly typeCache: TypeCache;
 		
 		//# Event related members
 		

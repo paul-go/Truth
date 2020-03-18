@@ -80,6 +80,12 @@ namespace Truth
 		}
 		
 		/** */
+		clear()
+		{
+			this.map.clear();
+		}
+		
+		/** */
 		values()
 		{
 			return this.map.values();
