@@ -391,6 +391,96 @@ namespace Truth
 		
 		//# Mutation related members
 		
+		/** 
+		 * Starts an edit transaction in the specified callback function.
+		 * Edit transactions are used to synchronize changes made in
+		 * an underlying file, typically done by a user in a text editing
+		 * environment. System-initiated changes such as automated
+		 * fixes, refactors, or renames do not go through this pathway.
+		 * 
+		 * @param editFn The callback function in which to perform
+		 * document mutation operations.
+		 * 
+		 * @returns A promise that resolves any external document
+		 * references added during the edit operation have been resolved.
+		 * If no such references were added, a promise is returned that
+		 * resolves immediately.
+		 */
+		async edit(editFn: (mutator: IProgramMutator) => void)
+		{
+			if (this.inEdit)
+				throw Exception.doubleTransaction();
+			
+			this.inEdit = true;
+			const edits: TEdit[] = [];
+			const documentsEdited = new Set<Document>();
+			
+			editFn({
+				insert: (doc: Document, text: string, pos = -1) =>
+				{
+					edits.push(new InsertEdit(Statement.new(doc, text), pos));
+					documentsEdited.add(doc);
+				},
+				update: (doc: Document, text: string, pos = -1) =>
+				{
+					if (doc.read(pos).sourceText !== text)
+					{
+						edits.push(new UpdateEdit(Statement.new(doc, text), pos));
+						documentsEdited.add(doc);
+					}
+				},
+				delete: (doc: Document, pos = -1, count = 1) =>
+				{
+					if (count > 0)
+					{
+						edits.push(new DeleteEdit(doc, pos, count));
+						documentsEdited.add(doc);
+					}
+				}
+			});
+			
+			if (edits.length > 0)
+			{
+				this.cancelVerification();
+				
+				const tasks: IDocumentMutationTask[] = [];
+				
+				for (const doc of documentsEdited)
+				{
+					const task = doc.createMutationTask(edits.filter(ed => ed.document));
+					if (task)
+						tasks.push(task);
+				}
+				
+				this.faults.executeTransaction(async () =>
+				{
+					for (const task of tasks)
+						task.deletePhrases();
+					
+					for (const task of tasks)
+						task.updateDocument();
+					
+					this.faults.prune();
+					
+					for (const task of tasks)
+						task.createPhrases();
+					
+					for await (const task of tasks)
+						await task.finalize();
+				});
+				
+				this._version = VersionStamp.next();
+				
+				if (this.options.autoVerify && this.markedPhrases.size > 0)
+				{
+					this._verificationStage = VerificationStage.none;
+					this.await();
+				}
+			}
+			
+			this.inEdit = false;
+		}
+		
 		/**
 		 * Executes a complete edit transaction, applying the series
 		 * of edits specified in the `edits` parameter. 
@@ -409,7 +499,17 @@ namespace Truth
 					if (!editInfo.range)
 						throw new TypeError("No range included.");
 					
+					const segments = editInfo.text.split("\n");
 					const doc = editInfo.document;
+					
+					if (doc.length === 0)
+					{
+						for (const segment of segments)
+							statements.insert(doc, segment);
+						
+						return;
+					}
+					
 					const startLine = editInfo.range.startLineNumber;
 					const endLine = editInfo.range.endLineNumber;
 					
@@ -422,7 +522,6 @@ namespace Truth
 					const prefixSegment = startLineText.slice(0, startChar);
 					const suffixSegment = endLineText.slice(endChar);
 					
-					const segments = editInfo.text.split("\n");
 					const pastCount = endLine - startLine + 1;
 					const presentCount = segments.length;
 					const deltaCount = presentCount - pastCount;
@@ -437,7 +536,7 @@ namespace Truth
 								prefixSegment + editInfo.text + suffixSegment, 
 								startLine);
 						}
-						else 
+						else
 						{
 							statements.update(doc, prefixSegment + segments[0], startLine);
 							
@@ -518,96 +617,6 @@ namespace Truth
 						statements.insert(doc, insertLines[i], startLine + i);
 				}
 			});
-		}
-		
-		/** 
-		 * Starts an edit transaction in the specified callback function.
-		 * Edit transactions are used to synchronize changes made in
-		 * an underlying file, typically done by a user in a text editing
-		 * environment. System-initiated changes such as automated
-		 * fixes, refactors, or renames do not go through this pathway.
-		 * 
-		 * @param editFn The callback function in which to perform
-		 * document mutation operations.
-		 * 
-		 * @returns A promise that resolves any external document
-		 * references added during the edit operation have been resolved.
-		 * If no such references were added, a promise is returned that
-		 * resolves immediately.
-		 */
-		async edit(editFn: (mutator: IProgramMutator) => void)
-		{
-			if (this.inEdit)
-				throw Exception.doubleTransaction();
-			
-			this.inEdit = true;
-			const edits: TEdit[] = [];
-			const documentsEdited = new Set<Document>();
-			
-			editFn({
-				delete: (doc: Document, pos = -1, count = 1) =>
-				{
-					if (count > 0)
-					{
-						edits.push(new DeleteEdit(doc, pos, count));
-						documentsEdited.add(doc);
-					}
-				},
-				insert: (doc: Document, text: string, pos = -1) =>
-				{
-					edits.push(new InsertEdit(Statement.new(doc, text), pos));
-					documentsEdited.add(doc);
-				},
-				update: (doc: Document, text: string, pos = -1) =>
-				{
-					if (doc.read(pos).sourceText !== text)
-					{
-						edits.push(new UpdateEdit(Statement.new(doc, text), pos));
-						documentsEdited.add(doc);
-					}
-				}
-			});
-			
-			if (edits.length > 0)
-			{
-				this.cancelVerification();
-				
-				const tasks: IDocumentMutationTask[] = [];
-				
-				for (const doc of documentsEdited)
-				{
-					const task = doc.createMutationTask(edits.filter(ed => ed.document));
-					if (task)
-						tasks.push(task);
-				}
-				
-				this.faults.executeTransaction(async () =>
-				{
-					for (const task of tasks)
-						task.deletePhrases();
-					
-					for (const task of tasks)
-						task.updateDocument();
-					
-					this.faults.prune();
-					
-					for (const task of tasks)
-						task.createPhrases();
-					
-					for await (const task of tasks)
-						await task.finalize();
-				});
-				
-				this._version = VersionStamp.next();
-				
-				if (this.options.autoVerify && this.markedPhrases.size > 0)
-				{
-					this._verificationStage = VerificationStage.none;
-					this.await();
-				}
-			}
-			
-			this.inEdit = false;
 		}
 		
 		/**

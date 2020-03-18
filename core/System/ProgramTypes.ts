@@ -49,25 +49,43 @@ namespace Truth
 	{
 		/**
 		 * Inserts a statement at the given position, and returns the inserted Statement
-		 * object. Negative numbers insert statements starting from the end of the
-		 * document. The statementText argument is expected to be one single line of text.
+		 * object.
+		 * 
+		 * @param document A reference to the document in which to insert a statement.
+		 * @param statementText The text content of the statement, expected to be a single
+		 * line of text.
+		 * @param at The 1-based position in the document at which to insert the statement.
+		 * Negative numbers insert statements starting from the end of the document. If the
+		 * argument is omitted, the statement is appended at the end of the document.
 		 */
-		insert(document: Document, statementText: string, at: number): void;
+		insert(document: Document, statementText: string, at?: number): void;
 		
 		/**
 		 * Replaces a statement at the given position, and returns the replaced
-		 * Statement object. Negative numbers insert statements starting from
-		 * the end of the document. The statementText argument is expected to
-		 * be one single line of text.
+		 * Statement object. 
+		 * 
+		 * @param document A reference to the document in which to update a statement.
+		 * @param statementText The text content of the statement, expected to be a single
+		 * line of text.
+		 * @param at The 1-based position in the document of the statement to update.
+		 * Negative numbers insert statements starting from the end of the document. If the
+		 * argument is omitted, the statement is appended at the end of the document.
 		 */
-		update(document: Document, statementText: string, at: number): void;
+		update(document: Document, statementText: string, at?: number): void;
 		
 		/** 
 		 * Deletes a statement at the given position, and returns the deleted
-		 * Statement object. Negative numbers delete Statement objects
-		 * starting from the end of the document.
+		 * Statement object.
+		 * 
+		 * @param document A reference to the document in which to update a statement.
+		 * @param at The 1-based position in the document of the statement to update.
+		 * Negative numbers insert statements starting from the end of the document. If the
+		 * argument is omitted, the statement is appended at the end of the document.
+		 * @param count The number of statements to remove from the document at the
+		 * location specified in the `at` argument. If the argument is omitted, the value is
+		 * assumed to be 1.
 		 */
-		delete(document: Document, at: number, count?: number): void;
+		delete(document: Document, at?: number, count?: number): void;
 	}
 	
 	/**

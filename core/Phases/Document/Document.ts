@@ -616,10 +616,23 @@ namespace Truth
 		/**
 		 * Reads the Statement at the given 1-based line number.
 		 * Negative numbers read Statement starting from the end of the document.
+		 * 
+		 * @throws An exception in the case when this document has no statements.
 		 */
 		read(lineNumber: number)
 		{
+			if (this.statements.length === 0)
+				throw Exception.documentEmptyCannotRead();
+			
 			return this.statements.get(lineNumber);
+		}
+		
+		/**
+		 * Gets the number of statements in this document.
+		 */
+		get length()
+		{
+			return this.statements.length;
 		}
 		
 		/**

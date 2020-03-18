@@ -173,6 +173,13 @@ namespace Truth
 		}
 		
 		/** */
+		static documentEmptyCannotRead()
+		{
+			return error(`
+				Cannot read from this document because it contains no statements.`);
+		}
+		
+		/** */
 		static documentAlreadyLoaded()
 		{
 			return error(`
