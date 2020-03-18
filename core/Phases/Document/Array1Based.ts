@@ -78,7 +78,7 @@ namespace Truth
 		 */
 		splice(pos: number, deleteCount: number, ...items: T[])
 		{
-			if (pos >= this.items.length)
+			if (pos > this.items.length)
 			{
 				if (deleteCount > 0)
 				{

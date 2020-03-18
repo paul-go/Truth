@@ -513,8 +513,10 @@ namespace Truth
 					const startLine = editInfo.range.startLineNumber;
 					const endLine = editInfo.range.endLineNumber;
 					
-					const startChar = editInfo.range.startColumn;
-					const endChar = editInfo.range.endColumn;
+					// Convert these to 0-based, because the incoming 
+					// column data is 1-based.
+					const startChar = editInfo.range.startColumn - 1;
+					const endChar = editInfo.range.endColumn - 1;
 					
 					const startLineText = doc.read(startLine).sourceText;
 					const endLineText = doc.read(endLine).sourceText;
