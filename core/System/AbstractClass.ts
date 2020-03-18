@@ -30,6 +30,7 @@ namespace Truth
 		Document | 
 		Statement | 
 		Reference |
+		Span | 
 		Phrase |
 		Term | 
 		KnownUri | 
@@ -44,6 +45,7 @@ namespace Truth
 		document,
 		statement,
 		reference,
+		span,
 		phrase,
 		term,
 		knownUri,

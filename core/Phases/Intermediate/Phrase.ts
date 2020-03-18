@@ -316,6 +316,8 @@ namespace Truth
 				}
 			}
 			
+			this.outboundsVersion = this.containingDocument.program.version;
+			
 			if (!this.isHypothetical)
 				this.containingDocument.program.markPhrase(this);
 		}
@@ -715,6 +717,17 @@ namespace Truth
 		 */
 		get outbounds()
 		{
+			// Do a cache clear if necessary
+			if (this.outboundsVersion)
+			{
+				const currentVersion = this.containingDocument.program.version;
+				if (currentVersion.newerThan(this.outboundsVersion))
+				{
+					this._outbounds = null;
+					this.outboundsVersion = currentVersion;
+				}
+			}
+			
 			if (this._outbounds !== null)
 				return this._outbounds;
 			
@@ -765,6 +778,12 @@ namespace Truth
 			return this._outbounds = forks;
 		}
 		private _outbounds: Fork[] | null = null;
+		
+		/**
+		 * Stores the version of the containing program when the outbounds
+		 * array was computed, used as a cache clearing indicator.
+		 */
+		private outboundsVersion: VersionStamp;
 		
 		/**
 		 * @internal

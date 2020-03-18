@@ -209,7 +209,7 @@ namespace Truth
 			// Clear out any statement-level faults that touch the node
 			for (const smt of smts)
 				this.backgroundAutoFrame.removeSource(smt);
-				
+			
 			// Clear out any span-level faults that touch the node
 			const spans = smts
 				.map(smt => smt.spans)

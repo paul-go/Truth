@@ -709,8 +709,8 @@ namespace Truth
 			// Indicate that the system has now begun to work on
 			// the affected set of phrases.
 			this._verificationStage = VerificationStage.marked;
+			this.faults.refresh();
 			massResolve(this.markedResolveFns);
-			this.finalizeVerification();
 			
 			// Shared code between "affected" and "included" verifications
 			const maxConstructionsPerTurn = 50;
@@ -766,8 +766,8 @@ namespace Truth
 			});
 			
 			this._verificationStage = VerificationStage.affected;
+			this.faults.refresh();
 			massResolve(this.affectedResolveFns);
-			this.finalizeVerification();
 			
 			// Run "included" verifications
 			await new Promise(resolve =>
@@ -776,8 +776,8 @@ namespace Truth
 			});
 			
 			this._verificationStage = VerificationStage.included;
+			this.faults.refresh();
 			massResolve(this.includedResolveFns);
-			this.finalizeVerification();
 			
 			// Reset the verification stage back to its initial value.
 			this._verificationStage = VerificationStage.none;
@@ -793,13 +793,6 @@ namespace Truth
 				clearTimeout(this.nextVerificationTimeout);
 				this.nextVerificationTimeout = null;
 			}
-		}
-		
-		/** */
-		private finalizeVerification()
-		{
-			this.faults.refresh();
-			this.markedPhrases.clear();
 		}
 		
 		private readonly startedResolveFns: (() => void)[] = [];

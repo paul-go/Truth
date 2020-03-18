@@ -4,7 +4,7 @@ namespace Truth
 	/**
 	 * A class that represents a position in a statement.
 	 */
-	export class Span
+	export class Span extends AbstractClass
 	{
 		/**
 		 * @internal
@@ -27,11 +27,16 @@ namespace Truth
 			 */
 			readonly boundary: Boundary<Subject>)
 		{
+			super();
+			
 			if ("DEBUG")
 				this.name = 
 					Subject.serializeInternal(boundary) + 
 					` (${boundary.offsetStart}, ${boundary.offsetEnd})`;
 		}
+		
+		/** */
+		readonly class = Class.span;
 		
 		/**
 		 * @internal
