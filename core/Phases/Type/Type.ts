@@ -787,7 +787,6 @@ namespace Truth
 		{
 			if ("DEBUG")
 			{
-				const phrasesOf = (types: readonly Type[]) => types.map(t => t.phrase);
 				const lines: string[] = [];
 				const write = (
 					group: string,
