@@ -87,7 +87,7 @@ namespace Truth
 		/** */
 		clear()
 		{
-			this.clear();
+			this.map.clear();
 		}
 		
 		/** */
