@@ -472,10 +472,7 @@ namespace Truth
 				this._version = VersionStamp.next();
 				
 				if (this.options.autoVerify && this.markedPhrases.size > 0)
-				{
-					this._verificationStage = VerificationStage.none;
 					this.await();
-				}
 			}
 			
 			this.inEdit = false;
@@ -649,7 +646,7 @@ namespace Truth
 		 * When the returned promise resolves, this Program's .faults field will be
 		 * populated with any faults generated as a result of the verification.
 		 */
-		async await(resolveStage = VerificationStage.done): Promise<void>
+		async await(resolveStage = VerificationStage.included): Promise<void>
 		{
 			// If the verification stage is already past the point of the stage
 			// specified in the argument, we can resolve the promise immediately.
@@ -663,6 +660,9 @@ namespace Truth
 			{
 				switch (resolveStage)
 				{
+					case VerificationStage.started:
+						return new Promise(r => this.startedResolveFns.push(r));
+					
 					case VerificationStage.marked:
 						return new Promise(r => this.markedResolveFns.push(r));
 					
@@ -676,7 +676,6 @@ namespace Truth
 			
 			// At this point, it has been determined that no verification
 			// cycle is underway, and so one needs to be launched.
-			this._verificationStage = VerificationStage.marked;
 			
 			const massResolve = (resolveFns: (() => void)[]) =>
 			{
@@ -686,6 +685,9 @@ namespace Truth
 				for (const fn of fns)
 					fn();
 			};
+			
+			this._verificationStage = VerificationStage.started;
+			massResolve(this.startedResolveFns);
 			
 			// Run "marked" verifications
 			await new Promise(resolve =>
@@ -706,8 +708,7 @@ namespace Truth
 			
 			// Indicate that the system has now begun to work on
 			// the affected set of phrases.
-			this._verificationStage = VerificationStage.affected;
-			
+			this._verificationStage = VerificationStage.marked;
 			massResolve(this.markedResolveFns);
 			this.finalizeVerification();
 			
@@ -764,7 +765,7 @@ namespace Truth
 				verifyDocuments(affectedDocuments, resolve);
 			});
 			
-			this._verificationStage = VerificationStage.included;
+			this._verificationStage = VerificationStage.affected;
 			massResolve(this.affectedResolveFns);
 			this.finalizeVerification();
 			
@@ -774,14 +775,19 @@ namespace Truth
 				verifyDocuments(includedDocuments, resolve);
 			});
 			
-			this._verificationStage = VerificationStage.done;
+			this._verificationStage = VerificationStage.included;
 			massResolve(this.includedResolveFns);
 			this.finalizeVerification();
+			
+			// Reset the verification stage back to its initial value.
+			this._verificationStage = VerificationStage.none;
 		}
 		
 		/** */
 		private cancelVerification()
 		{
+			this._verificationStage = VerificationStage.none;
+			
 			if (this.nextVerificationTimeout !== null)
 			{
 				clearTimeout(this.nextVerificationTimeout);
@@ -794,9 +800,9 @@ namespace Truth
 		{
 			this.faults.refresh();
 			this.markedPhrases.clear();
-			return this.faults.count === 0;
 		}
 		
+		private readonly startedResolveFns: (() => void)[] = [];
 		private readonly markedResolveFns: (() => void)[] = [];
 		private readonly affectedResolveFns: (() => void)[] = [];
 		private readonly includedResolveFns: (() => void)[] = [];

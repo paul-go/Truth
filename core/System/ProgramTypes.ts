@@ -23,22 +23,25 @@ namespace Truth
 		 */
 		none = 0,
 		/**
-		 * Refers to the areas of the program that were explicitly modified via a call
-		 * to Program.edit()
+		 * Refers to the stage where no verification has completed, 
+		 * but a verification process has launched.
 		 */
-		marked = 1,
+		started = 1,
 		/**
-		 * Refers to the areas of the program that were possibly affected by an edit. 
+		 * Refers to the stage where the areas of the program that were
+		 * explicitly modified via a call to Program.edit() have been verified.
 		 */
-		affected = 2,
+		marked = 2,
 		/**
-		 * Refers to all area of the program.
+		 * Refers to the stage where the areas of the program that were
+		 * possibly affected by an edit have been verified. 
 		 */
-		included = 3,
+		affected = 3,
 		/**
-		 * Refers to the stage where verification is complete.
+		 * Refers to the final stage where the areas of the program that
+		 * could not have been affected by an edit have been verified.
 		 */
-		done = 4
+		included = 4
 	}
 	
 	/**
