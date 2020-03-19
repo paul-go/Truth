@@ -878,7 +878,7 @@ namespace Truth
 			{
 				for (const document of documents)
 					for (const type of document.types)
-						yield { document, type };
+						yield { type, document };
 				
 				return;
 			}
@@ -893,7 +893,7 @@ namespace Truth
 						queue.push(...type.containees);
 					
 					if (minLevelFilter <= type.level)
-						yield type;
+						yield { type, document };
 				}
 			}
 		}
