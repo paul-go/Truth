@@ -210,7 +210,7 @@ namespace Truth
 		private seed: Parallel | null = null;
 		
 		/**
-		 * Stores an array of Statement objects that are responsible
+		 * Gets an array of Statement objects that are responsible
 		 * for the initiation of this type. In the case when this Type
 		 * object represents a path that is implicitly defined, the
 		 * array is empty. For example, given the following document:
@@ -239,7 +239,16 @@ namespace Truth
 		private _statements: readonly Statement[] | null = null;
 		
 		/**
-		 * Stores the Type that contains this Type, or null in
+		 * Gets the level of containment of this type. 
+		 * Types defined at the top of a document have a level of 1.
+		 */
+		get level()
+		{
+			return this.phrase.length;
+		}
+		
+		/**
+		 * Gets the Type that contains this Type, or null in
 		 * the case when this Type is top-level.
 		 */
 		get container(): Type | null
@@ -250,7 +259,7 @@ namespace Truth
 		private _container: Type | null = null;
 		
 		/**
-		 * Stores the array of types that are contained directly by this
+		 * Gets the array of types that are contained directly by this
 		 * one. In the case when this type is a list type, this array does
 		 * not include the list's intrinsic types.
 		 */
@@ -295,7 +304,7 @@ namespace Truth
 		private _containees: readonly Type[] | null = null;
 		
 		/**
-		 * Stores the array of types that are contained directly by this
+		 * Gets the array of types that are contained directly by this
 		 * one. In the case when this type is not a list type, this array
 		 * is empty.
 		 */
@@ -313,7 +322,7 @@ namespace Truth
 		private _containeesIntrinsic: readonly Type[] | null = null;
 		
 		/**
-		 * Stores the array of types from which this type extends.
+		 * Gets the array of types from which this type extends.
 		 * If this Type extends from a pattern, it is included in this
 		 * array.
 		 */
@@ -325,7 +334,7 @@ namespace Truth
 		private _bases: readonly Type[] = [];
 		
 		/**
-		 * Stores a reference to the type, as it's defined in it's
+		 * Gets a reference to the type, as it's defined in it's
 		 * next most applicable type.
 		 */
 		get parallels()
@@ -336,7 +345,7 @@ namespace Truth
 		private _parallels: readonly Type[] = [];
 		
 		/**
-		 * Stores a reference to the parallel roots of this type.
+		 * Gets a reference to the parallel roots of this type.
 		 * The parallel roots are the endpoints found when
 		 * traversing upward through the parallel graph.
 		 */
