@@ -20,17 +20,18 @@ namespace Truth
 		"undeclare": (name: string, document: Document) => void;
 		
 		/**
-		 * An event that triggers when a top-level 
+		 * An event that triggers when a document is created.
 		 */
 		"documentCreate": (document: Document) => void;
 		
 		/**
-		 * 
+		 * An event that triggers when a document is deleted.
 		 */
 		"documentDelete": (document: Document) => void;
 		
 		/**
-		 * 
+		 * An event that triggers when the URI associated with document
+		 * is modified (typically via some rename operation).
 		 */
 		"documentUriChange": (document: Document) => void;
 		
@@ -39,5 +40,11 @@ namespace Truth
 		 * detected within the program have changed.
 		 */
 		"faultChange": (faultsAdded: Fault[], faultsRemoved: Fault[]) => void;
+		
+		/**
+		 * An event that triggers any time the system has completed
+		 * a full verification cycle of a program.
+		 */
+		"verificationComplete": (program: Program) => void;
 	}
 }

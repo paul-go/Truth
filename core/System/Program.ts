@@ -781,6 +781,8 @@ namespace Truth
 			
 			// Reset the verification stage back to its initial value.
 			this._verificationStage = VerificationStage.none;
+			
+			this.emit("verificationComplete", this);
 		}
 		
 		/** */
@@ -842,6 +844,84 @@ namespace Truth
 		lookup(term: string)
 		{
 			return Type.lookup(term, this);
+		}
+		
+		/**
+		 * Iterates through all types defined within this program.
+		 * 
+		 * @param minLevelFilter An optional minimum level of depth
+		 * (inclusive) at which to yield types.
+		 * @param maxLevelFilter An optional The maximum level of
+		 * depth (inclusive) at which to yield types. Negative numbers
+		 * indicate no maximum.
+		 * @param documentFilter An optional document, or set of
+		 * documents whose types should be yielded.
+		 */
+		*scan(
+			minLevelFilter = 1,
+			maxLevelFilter = -1,
+			documentFilter?: Document | Document[])
+		{
+			if (maxLevelFilter < minLevelFilter)
+				return;
+			
+			if (maxLevelFilter < 0)
+				maxLevelFilter = Number.MAX_SAFE_INTEGER;
+			
+			const documents = 
+				documentFilter instanceof Document ? [documentFilter] :
+				Array.isArray(documentFilter) ? documentFilter :
+				this.eachDocument();
+			
+			// Optimization
+			if (minLevelFilter === 1 && maxLevelFilter === 1)
+			{
+				for (const document of documents)
+					for (const type of document.types)
+						yield { document, type };
+				
+				return;
+			}
+			
+			for (const document of documents)
+			{
+				const queue = document.types.slice();
+				
+				for (const type of queue)
+				{
+					if (type.level <= maxLevelFilter)
+						queue.push(...type.containees);
+					
+					if (minLevelFilter <= type.level)
+						yield type;
+				}
+			}
+		}
+		
+		/**
+		 * Recurses through all documents loaded into this program,
+		 * in topological order.
+		 */
+		private *eachDocument()
+		{
+			const visited = new Set<Document>();
+			
+			function *recurse(doc: Document): IterableIterator<Document>
+			{
+				for (const dep of doc.dependencies)
+				{
+					if (!(visited.has(dep)))
+					{
+						visited.add(dep);
+						yield *recurse(dep)
+					}
+				}
+				
+				yield doc;
+			}
+			
+			for (const doc of this._documents)
+				yield *recurse(doc);
 		}
 		
 		//# Event related members
