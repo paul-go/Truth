@@ -228,7 +228,7 @@ namespace Truth
 			for (const chosenParallel of chosenParallels)
 			{
 				// Just as a reminder -- pattern-containing parallels don't come
-				// into this method ... only the aliases that might match them.
+				// into this method–only the ones with aliases that might match them.
 				if (this.pattern || !chosenParallel.pattern)
 					throw Exception.unknownState();
 				

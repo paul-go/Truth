@@ -511,23 +511,31 @@ namespace Truth
 		private _aliases: readonly string[] | null = null;
 		
 		/**
-		 * 
+		 * Gets a table of information aobut the keywords that are 
+		 * associated with this type, in the order in which they occur
+		 * within the document. A keyword is either the string
+		 * representation of a type, or an alias string. The base that
+		 * is associated with each word value can be used to
+		 * disambiguate between literal and aliased types.
 		 */
-		get values()
+		get keywords()
 		{
-			if (this._values !== null)
-				return this._values;
+			if (this._keywords !== null)
+				return this._keywords;
 			
-			const values: { value: string, base: Type | null, aliased: boolean }[] = [];
+			const keywords: { word: string, base: Type; }[] = [];
 			
 			const extractType = (ep: ExplicitParallel) =>
 			{
-				for (const { fork, aliased } of ep.eachBase())
-					values.push({
-						aliased,
-						value: fork.term.toString(),
-						base: Type.construct(fork.predecessor)
-					});
+				for (const { fork } of ep.eachBase())
+				{
+					const base = Type.construct(fork.predecessor);
+					if (base)
+					{
+						const word = fork.term.toString();
+						keywords.push({ word, base });
+					}
+				}
 			};
 			
 			if (this.seed instanceof ExplicitParallel)
@@ -553,22 +561,23 @@ namespace Truth
 				}
 			}
 			
-			return this._values = values;
+			return this._keywords = keywords;
 		}
-		private _values: readonly { 
-			value: string;
-			base: Type | null;
-			aliased: boolean;
-		}[] | null = null;
+		private _keywords: readonly { word: string; base: Type; }[] | null = null;
 		
 		/**
-		 * Gets the first alias stored in the .values array, or null if the
-		 * values array is empty.
+		 * Gets a string representation of the entire annotation side of this type.
 		 */
 		get value()
 		{
-			return this.aliases.length > 0 ? this.aliases[0] : null;
+			if (this._value !== null)
+				return this._value;
+			
+			return this._value = this.keywords
+				.map(({ word }) => word)
+				.join(Syntax.combinator + " ");
 		}
+		private _value: string | null = null;
 		
 		/**
 		 * Iterates through each type that has this type as a base.
