@@ -466,9 +466,8 @@ namespace Truth
 		 * Gets an array that contains the raw string values representing
 		 * the type aliases with which this type has been annotated.
 		 * 
-		 * If this type is unspecified, the parallel graph is searched,
-		 * and any applicable type aliases will be present in the returned
-		 * array.
+		 * If this type is implicit, the parallel graph is searched, and any
+		 * applicable type aliases will be present in the returned array.
 		 */
 		get aliases()
 		{

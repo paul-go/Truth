@@ -32,6 +32,6 @@ MyContainer : Container
 	R : Red
 	L : Lavendar
 	
-	// These verifications need to be able to reference unspecified types
+	// These verifications need to be able to reference implicit types
 	~ ClassChild : ClassBottom
 		~ Side : Left, L, Lavendar, Right, R, Red

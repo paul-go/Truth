@@ -17,7 +17,7 @@ ClassL2 : ClassL1
 	// technically it derives from the Number type defined in
 	// ClassL1. 
 	//
-	// The "unspecified types can't be used as bases" rule 
+	// The "implicit types can't be used as bases" rule 
 	// still applies to annotations within infixes (see below), 
 	// so if we want to extend the set of of names that can
 	// match the Number type within this scope, we need

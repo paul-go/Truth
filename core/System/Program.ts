@@ -841,9 +841,9 @@ namespace Truth
 		/**
 		 * 
 		 */
-		lookup(term: string)
+		lookup(keyword: string)
 		{
-			return Type.lookup(term, this);
+			return Type.lookup(keyword, this);
 		}
 		
 		/**

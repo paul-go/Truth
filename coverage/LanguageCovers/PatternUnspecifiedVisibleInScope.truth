@@ -1,5 +1,5 @@
 // 
-// This example demonstrates that the "unspecified types
+// This example demonstrates that the "implicit types
 // cannot be used as bases" rule doesn't apply to aliases.
 // Patterns are represented at the type-scope level, not
 // the node-scope level.
