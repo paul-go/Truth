@@ -66,8 +66,8 @@ namespace Truth
 
 			Phrase.inflateRecursive(topLevelStatements);
 			
-			if ("DEBUG")
-				Debug.printPhrases(doc, true, true);
+			// if ("DEBUG")
+			//	Debug.printPhrases(doc, true, true);
 			
 			return doc;
 		}
