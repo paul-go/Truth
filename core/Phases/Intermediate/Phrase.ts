@@ -480,6 +480,24 @@ namespace Truth
 		private readonly forwardings = new Map3D<Subject, string, Phrase>();
 		
 		/**
+		 * Returns a reference to the phrases that are extended by the subject specified.
+		 * In the case when such a phrase has not been added to the internal forwarding
+		 * table, a new hypothetical phrase is created and returned in a single-item array.
+		 * 
+		 * An array must be returned from this method rather than a singular Phrase
+		 * object, because the phrase structure may have a nested homograph. Although
+		 * these are invalid, the phrase structure must still be capable of representing
+		 * these.
+		 */
+		forward(subject: Subject)
+		{
+			const result = this.forwardings.get(subject);
+			return result.length > 0 ?
+				result :
+				[new Phrase(this, subject)];
+		}
+		
+		/**
 		 * Returns a reference to the phrases that are extended by the subject specified,
 		 * in the case when such a phrase has been added to the internal forwarding
 		 * table.

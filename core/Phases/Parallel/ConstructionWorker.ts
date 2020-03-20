@@ -558,83 +558,23 @@ namespace Truth
 		 */
 		private descend(zenith: Parallel, targetSubject: Subject)
 		{
-			/**
-			 * @returns A new Parallel (either being a ExplicitParallel
-			 * or an ImplicitParallel instance), that corresponds to
-			 * the specified zenith parallel.
-			 */
-			const descendOne = (zenith: Parallel): Parallel =>
+			function followParallelsFn(par: Parallel)
 			{
-				if (zenith instanceof ExplicitParallel)
-				{
-					const nextPhrases = zenith.phrase.peek(targetSubject);
-					
-					if (nextPhrases.length === 0)
-						throw Exception.unknownState();
-					
-					if (nextPhrases.length > 1)
-						throw Exception.unexpectedHomograph();
-					
-					const nextPhrase = nextPhrases[0];
-					if (nextPhrase)
-					{
-						const out = 
-							this.parallels.getExplicit(nextPhrase) ||
-							this.parallels.createExplicit(nextPhrase, this.cruft);
-						
-						this.verifyDescend(zenith, out);
-						return out;
-					}
-				}
+				const upperParallels = par.getParallels().slice();
+				if (par instanceof ExplicitParallel)
+					for (const { base } of par.eachBase())
+						upperParallels.push(base);
 				
-				const nextPhrases = zenith.phrase.peek(targetSubject);
-				if (nextPhrases.length !== 1)
-					throw Exception.unknownState();
-				
-				const nextPhrase = nextPhrases[0];
-				return (
-					this.parallels.get(nextPhrase) ||
-					this.parallels.createImplicit(nextPhrase));
+				return upperParallels;
 			};
 			
-			/**
-			 * @returns A boolean value that indicates whether the act
-			 * of descending from the specified Parallel to the typeName
-			 * passed to the containing method is going to result in a
-			 * ExplicitParallel instance.
-			 */
-			function canDescendToExplicit(parallel: Parallel)
-			{
-				return (
-					parallel instanceof ExplicitParallel &&
-					parallel.phrase.peek(targetSubject).length > 0)
-			}
-			
-			//
-			// TODO: These functions can probably be replaced with
-			// a call to Misc.reduceRecursive()
-			//
-			
-			function *recurseParallels(par: Parallel): IterableIterator<Parallel>
-			{
-				for (const parEdge of par.getParallels())
-					yield *recurseParallels(parEdge);
-				
-				yield par;
-			}
-			
-			function *recurseBases(par: ExplicitParallel): IterableIterator<Parallel>
-			{
-				for (const { base } of par.eachBase())
-					yield *recurseBases(base);
-				
-				yield par;
-			}
+			const hasExplicitContents = followParallelsFn(zenith)
+				.some(p => p instanceof ExplicitParallel);
 			
 			// The following algorithm performs a recursive reduction on
 			// the zenith, and produces a set of Parallels to prune from the
 			// descension process. The Parallels that end up getting pruned
-			// are the ones that, if unpruned, would result in a layer that
+			// are the ones that, if unpruned, would result in a level that
 			// has ImplicitParallels that shouldn't actually exist. For
 			// example, consider the following document:
 			//
@@ -646,27 +586,17 @@ namespace Truth
 			// "Class" should not have an ImplicitParallel called "Child",
 			// because that was introduced in the derived "SubClass" type.
 			// And so this algorithm stakes out cut off points so that we don't
-			// blindly just descend all Parallels in the layer.
+			// blindly just descend all Parallels in the level.
 			const prunedParallels = new Set<Parallel>();
 			
-			const pruneParallelsFollowFn = (par: Parallel) =>
-			{
-				const upperParallels = par.getParallels().slice();
-				if (par instanceof ExplicitParallel)
-					for (const { base } of par.eachBase())
-						upperParallels.push(base);
-				
-				return upperParallels;
-			};
-			
-			const hasExplicitContents = Misc.reduceRecursive(
+			Misc.reduceRecursive(
 				zenith,
-				pruneParallelsFollowFn,
+				followParallelsFn,
 				(current, results: readonly boolean[]) =>
 				{
 					const prune = 
 						results.every(result => !result) &&
-						!canDescendToExplicit(current);
+						!this.canDescendToExplicit(current, targetSubject);
 					
 					if (prune)
 						prunedParallels.add(current);
@@ -676,7 +606,7 @@ namespace Truth
 			
 			// In the case when the method is attempting to descend
 			// to a level where there are no nodes whose name match
-			// the type name specified (i.e. the whole layer would be 
+			// the type name specified (i.e. the whole level would be 
 			// implicit parallels), null is returned because a descend
 			// wouldn't make sense.
 			if (!hasExplicitContents)
@@ -703,7 +633,7 @@ namespace Truth
 				descendParallelsFollowFn,
 				(current, nested: readonly Parallel[]) =>
 				{
-					const nextPar = descendOne(current);
+					const nextPar = this.descendOne(current, targetSubject);
 					
 					for (const edge of nested)
 						nextPar.addParallel(edge);
@@ -712,6 +642,56 @@ namespace Truth
 				});
 			
 			return seed;
+		}
+		
+		/**
+		 * @returns A new ExplicitParallel or ImplicitParallel instance
+		 * that corresponds to the specified zenith parallel.
+		 */
+		private descendOne(zenith: Parallel, targetSubject: Subject)
+		{
+			const nextPhrases = zenith.phrase.forward(targetSubject);
+			
+			if (nextPhrases.length === 0)
+				throw Exception.unknownState();
+			
+			// TODO: We probably need to instead report a fault here
+			// to indicate that homographs are only valid at the surface.
+			if (nextPhrases.length > 1)
+				throw Exception.unexpectedHomograph();
+			
+			const nextPhrase = nextPhrases[0];
+			
+			// In the case when we're descending from an ExplicitParallel (which
+			// would be backed by a non-hypothetical phrase) to another phrase
+			// that is also non-hypothetical, we need to run some verifications
+			// on this decend operation which could generate faults.
+			if (zenith instanceof ExplicitParallel && !nextPhrase.isHypothetical)
+			{
+				const out = 
+					this.parallels.getExplicit(nextPhrase) ||
+					this.parallels.createExplicit(nextPhrase, this.cruft);
+					
+				this.verifyDescend(zenith, out);
+				return out;
+			}
+			
+			return (
+				this.parallels.get(nextPhrase) ||
+				this.parallels.createImplicit(nextPhrase));
+		}
+		
+		/**
+		 * @returns A boolean value that indicates whether the act
+		 * of descending from the specified Parallel to the typeName
+		 * passed to the containing method would result in a
+		 * ExplicitParallel instance.
+		 */
+		private canDescendToExplicit(parallel: Parallel, targetSubject: Subject)
+		{
+			return (
+				parallel instanceof ExplicitParallel &&
+				parallel.phrase.peek(targetSubject).length > 0);
 		}
 		
 		/**
