@@ -14,14 +14,6 @@ namespace Truth
 			readonly phrase: Phrase,
 			readonly container: Parallel | null)
 		{
-			if ("DEBUG")
-			{
-				this.name = phrase.toString();
-			
-				if (this.name.startsWith("/"))
-					this.name = unescape(this.name);
-			}
-			
 			if (container !== null)
 				container._contents.set(phrase.terminal, this);
 		}
@@ -31,7 +23,14 @@ namespace Truth
 		 * Stores a string representation of this Parallel,
 		 * useful for debugging purposes.
 		 */
-		readonly name: string | undefined;
+		get name()
+		{
+			let out = this.phrase.toString();
+			
+			return out.startsWith("/") ?
+				unescape(out) :
+				out;
+		}
 		
 		/**
 		 * Stores a version number for this instance,
