@@ -76,7 +76,7 @@ namespace Truth
 		/**
 		 * Performs a standard Array.splice() call on the array.
 		 */
-		splice(pos: number, deleteCount: number, ...items: T[])
+		splice(pos: number, deleteCount: number, ...items: T[]): readonly T[]
 		{
 			if (pos > this.items.length)
 			{

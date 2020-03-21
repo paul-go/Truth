@@ -111,7 +111,7 @@ namespace Truth
 	 * into lines, and the common indentation in the lines of the specified
 	 * string is removed.
 	 */
-	export function hasContent(statements: Statement[] | null, expected: string)
+	export function hasContent(statements: readonly Statement[] | null, expected: string)
 	{
 		if (!Array.isArray(statements))
 			return "Expected an array of statement objects, but recieved a non-array.";

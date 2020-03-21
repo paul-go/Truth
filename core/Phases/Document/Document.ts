@@ -254,7 +254,7 @@ namespace Truth
 		 * If the specified statement is not in this document, the
 		 * returned value is null.
 		 */
-		getAncestry(statement: Statement | number)
+		getAncestry(statement: Statement | number): readonly Statement[] | null
 		{
 			const smt = this.toStatement(statement);
 			
@@ -497,7 +497,7 @@ namespace Truth
 		 * statement. Whitespace lines are ignored. If the specified
 		 * statement is a no-op, an empty array is returned.
 		 */
-		getNotes(statement: Statement | number)
+		getNotes(statement: Statement | number): readonly string[]
 		{
 			const smt = this.toStatement(statement);
 			if (smt.isNoop)
@@ -971,7 +971,7 @@ namespace Truth
 			// parents, and splices invalidated parents out of the 
 			// array in the case when the parent is parented by some
 			// other invalidated parent in the invalidatedParents array.
-			const invalidatedAncestries: Statement[][] = [];
+			const invalidatedAncestries: (readonly Statement[])[] = [];
 			
 			for (const line of invalidatedParents.keys())
 			{

@@ -612,7 +612,7 @@ namespace Truth
 			if (!hasExplicitContents)
 				return null;
 			
-			const descendParallelsFollowFn = (par: Parallel) =>
+			const descendParallelsFollowFn = (par: Parallel): readonly Parallel[] =>
 			{
 				if (!(par instanceof ExplicitParallel))
 					return [];
