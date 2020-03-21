@@ -552,10 +552,13 @@ namespace Truth
 							};
 			}
 			
-			const startingDoc = srcParallel.phrase.containingDocument;
-			yieldSurfacePatternsOfDocument(startingDoc);
+			// Be sure to yield the surface patterns of the document that
+			// corresponds to srcParallel before moving upward to it's
+			// dependency documents.
+			const originDoc = srcParallel.phrase.containingDocument;
+			yieldSurfacePatternsOfDocument(originDoc);
 			
-			for (const doc of startingDoc.traverseDependencies())
+			for (const doc of originDoc.traverseDependencies())
 				yieldSurfacePatternsOfDocument(doc);
 		}
 		
