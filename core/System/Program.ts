@@ -711,8 +711,6 @@ namespace Truth
 							break;
 					}
 					
-					console.log(this.markedPhrases.size);
-					
 					if (this.markedPhrases.size === 0)
 						resolve();
 					else
