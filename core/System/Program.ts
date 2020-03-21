@@ -689,18 +689,34 @@ namespace Truth
 			this._verificationStage = VerificationStage.started;
 			massResolve(this.startedResolveFns);
 			
+			// In this early implementation, it's necessary to ensure that the system
+			// only constructs a limited number of types in each turn of the event loop,
+			// so that the thread is not blocked during the entire verification process.
+			// At some point, the compiler should be running itself inside a Worker
+			// so that it doesn't need to worry about blocking.
+			const maxConstructionsPerTurn = 1000;
+			
 			// Run "marked" verifications
 			await new Promise(resolve =>
 			{
 				const next = () =>
 				{
-					if (this.markedPhrases.size === 0)
-						return resolve();
+					let i = maxConstructionsPerTurn;
+					for (const nextPhrase of this.markedPhrases)
+					{
+						this.markedPhrases.delete(nextPhrase);
+						Type.construct(nextPhrase);
+						
+						if (--i === 0)
+							break;
+					}
 					
-					const nextPhrase: Phrase = this.markedPhrases.values().next().value;
-					this.markedPhrases.delete(nextPhrase);
-					Type.construct(nextPhrase);
-					this.nextVerificationTimeout = setTimeout(next, 0);
+					console.log(this.markedPhrases.size);
+					
+					if (this.markedPhrases.size === 0)
+						resolve();
+					else
+						this.nextVerificationTimeout = setTimeout(next, 0);
 				};
 				
 				next();
@@ -711,9 +727,6 @@ namespace Truth
 			this._verificationStage = VerificationStage.marked;
 			this.faults.refresh();
 			massResolve(this.markedResolveFns);
-			
-			// Shared code between "affected" and "included" verifications
-			const maxConstructionsPerTurn = 50;
 			
 			const affectedDocuments = (() =>
 			{

@@ -47,26 +47,28 @@ namespace Truth
 		}
 		
 		/** */
-		get(key1: TKey1): TVal[];
+		get(key1: TKey1): readonly TVal[];
 		get(key1: TKey1, key2: TKey2): TVal | undefined;
 		get(key1: TKey1, key2?: TKey2)
 		{
 			return key2 === undefined ?
-				Array.from(this.map.get(key1)?.values() || []) :
+				// TODO: We shouldn't be creating a new array here every time this is
+				// returned. Instead, this should be cached as an array within the system.
+				Array.from(this.map.get(key1)?.values() || []) as readonly TVal[] :
 				this.map.get(key1)?.get(key2);
 		}
 		
 		/** */
-		keys(): TKey1[]
-		keys(key1: TKey1): TKey2[]
+		keys(): IterableIterator<TKey1>;
+		keys(key1: TKey1): IterableIterator<TKey2>;
 		keys(key1?: TKey1)
 		{
 			if (key1 === undefined)
-				return Array.from(this.map.keys());
+				return this.map.keys();
 			
 			const subMap  = this.map.get(key1);
 			if (subMap)
-				return Array.from(subMap.keys());
+				return subMap.keys();
 			
 			return [];
 		}
