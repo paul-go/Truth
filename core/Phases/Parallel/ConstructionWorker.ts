@@ -236,14 +236,8 @@ namespace Truth
 		 */
 		private rakeExplicitParallel(par: ExplicitParallel)
 		{
-			if (this.rakedParallels.has(par))
-				return par;
-			
-			this.rakedParallels.add(par);
-			
-			if (par.pattern)
-				this.rakePatternBases(par);
-			else
+			par.pattern ?
+				this.rakePatternBases(par) :
 				this.rakeBaseGraph(par);
 		}
 		
@@ -263,6 +257,11 @@ namespace Truth
 		{
 			if (srcParallel.pattern)
 				throw Exception.unknownState();
+			
+			if (this.rakedParallels.has(srcParallel))
+				return;
+			
+			this.rakedParallels.add(srcParallel);
 			
 			for (const fork of srcParallel.phrase.outbounds)
 			{
@@ -371,6 +370,11 @@ namespace Truth
 			if (!patternParallel.pattern)
 				throw Exception.unknownState();
 			
+			if (this.rakedParallels.has(patternParallel))
+				return;
+			
+			this.rakedParallels.add(patternParallel);
+			
 			const bases = new Map<ExplicitParallel, Fork>();
 			const obs = patternParallel.phrase.outbounds;
 			const nameOf = (fork: Fork) =>
@@ -476,7 +480,7 @@ namespace Truth
 			if (bases.size === 0)
 				return;
 			
-			patternParallel.tryApplyPatternBases(bases);
+			patternParallel.tryAddBasesToPattern(bases);
 		}
 		
 		/**

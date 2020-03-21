@@ -87,8 +87,8 @@ namespace Truth
 		}
 		
 		/**
-		 * Performs a deep traversal on the non-cruft bases
-		 * defined on this Parallel.
+		 * Performs a deep traversal on the graph of non-cruft bases
+		 * that are connected to this ExplicitParallel.
 		 */
 		*eachBaseDeep()
 		{
@@ -203,10 +203,9 @@ namespace Truth
 				
 				nextCandidate: for (const candidate of patternParallelCandidates)
 				{
-					const entries = Array.from(candidate._bases.values());
-					const candidateBases = entries
-						.map(e => e.parallels)
-						.reduce((a, b) => a.concat(b), []);
+					const candidateBases: ExplicitParallel[]  = [];
+					for (const entry of candidate._bases.values())
+						candidateBases.push(...entry.parallels);
 					
 					if (candidateBases.length < maxMatchCount)
 						continue;
@@ -253,12 +252,13 @@ namespace Truth
 		}
 		
 		/**
-		 * Attempts to apply a set of bases to a pattern-containing parallel.
+		 * Attempts to apply a set of bases to this ExplicitParallel,
+		 * which must be a parallel that represents a pattern.
 		 * 
 		 * @example
 		 * /pattern : This, Function, Adds, These
 		 */
-		tryApplyPatternBases(baseTable: TBaseTable)
+		tryAddBasesToPattern(baseTable: TBaseTable)
 		{
 			const bases = Array.from(baseTable.keys());
 			
