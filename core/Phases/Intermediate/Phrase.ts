@@ -74,7 +74,7 @@ namespace Truth
 		 * the first level. The number indicates the index of the path at which the homograph
 		 * was detected (this should be considered an error).
 		 */
-		static fromPathComponents(document: Document, path: string[]): Phrase[]
+		static fromPathComponents(document: Document, path: string[]): readonly Phrase[]
 		/**
 		 * Returns the Phrase object that refers to the (potentially hypothetical) area in the
 		 * specified document.
@@ -93,7 +93,7 @@ namespace Truth
 			clarifier: string[] = [])
 		{
 			if (path.length === 0)
-				return [];
+				return [] as readonly Phrase[];
 			
 			// In order to make this method work with patterns, 
 			// pathSubjects needs to be an array of subjects, or there
@@ -107,7 +107,7 @@ namespace Truth
 				document.phrase.peek(firstTerm, clarifierKey) :
 				document.phrase.peek(firstTerm);
 			
-			if (rootPhrases.length === 0)
+			if (!rootPhrases || rootPhrases.length === 0)
 				return [];
 			
 			const outPhrases: Phrase[] = [];
@@ -120,14 +120,14 @@ namespace Truth
 				{
 					const phrases = currentPhrase.peek(pathTerm);
 					
-					if (phrases.length === 1)
-					{
-						currentPhrase = phrases[0];
-					}
-					else if (phrases.length === 0)
+					if (!phrases || phrases.length === 0)
 					{
 						// Now moving into the hypothetical phrase territory...
 						currentPhrase = new Phrase(currentPhrase, pathTerm);
+					}
+					else if (phrases.length === 1)
+					{
+						currentPhrase = phrases[0];
 					}
 					// Invalid homograph detected
 					else return clarifier.length === 0 ? null : [];
@@ -149,8 +149,9 @@ namespace Truth
 		 */
 		static *rootsOf(document: Document): IterableIterator<Phrase>
 		{
-			for (const [subject, clarifier, phrase] of document.phrase.forwardings)
-				yield phrase;
+			if (document.phrase._forwardings)
+				for (const [subject, clarifier, phrase] of document.phrase._forwardings)
+					yield phrase;
 		}
 		
 		/**
@@ -230,10 +231,11 @@ namespace Truth
 					
 					const clarifierKey = this.getClarifierKey(clarifiers);
 					const subject = spineSpan.boundary.subject;
+					const forwardPhrases = current.getForwarding(subject, clarifierKey);
 					
-					current = 
-						current.forwardings.get(subject, clarifierKey) ||
-						new Phrase(current, spineSpan, clarifiers, clarifierKey);
+					current = forwardPhrases.length === 0 ?
+						new Phrase(current, spineSpan, clarifiers, clarifierKey) :
+						forwardPhrases[0];
 				}
 				
 				if (current !== root)
@@ -303,17 +305,18 @@ namespace Truth
 					this.terminal = b.boundary.subject;
 					this.clarifiers = c || [];
 					this.clarifierKey = d || "";
-					this.parent.forwardings.set(this.terminal, this.clarifierKey, this);
 				}
 				// Third overload
 				else if (b)
 				{
 					this.isHypothetical = true;
 					this.terminal = b;
-					// Its important that in the case when we're creating a phrase that
-					// refers to a hypothetical area, this phrase isn't added to the
-					// forwardings table. These phrases should be seen as transient.
 				}
+				
+				// Hypothetical phrases are still added to the forwarding table, 
+				// because otherwise they will keep being instantiated over and
+				// over again, causing unnecessary strain on the garbage collector.
+				this.parent.setForwarding(this.terminal, this.clarifierKey, this);
 			}
 			
 			this.outboundsVersion = this.containingDocument.program.version;
@@ -473,13 +476,6 @@ namespace Truth
 		}
 		
 		/**
-		 * Stores a table of nested phrases, keyed in 2 dimensions, firstly by the
-		 * Phrases terminating subject, and secondly by the Phrase's clarifierKey,
-		 * (a hash of the phrase's associated annotations).
-		 */
-		private readonly forwardings = new Map3D<Subject, string, Phrase>();
-		
-		/**
 		 * Returns a reference to the phrases that are extended by the subject specified.
 		 * In the case when such a phrase has not been added to the internal forwarding
 		 * table, a new hypothetical phrase is created and returned in a single-item array.
@@ -491,8 +487,8 @@ namespace Truth
 		 */
 		forward(subject: Subject)
 		{
-			const result = this.forwardings.get(subject);
-			return result.length > 0 ?
+			const result = this.getForwarding(subject);
+			return result && result.length > 0 ?
 				result :
 				[new Phrase(this, subject)];
 		}
@@ -507,13 +503,12 @@ namespace Truth
 		 * these are invalid, the phrase structure must still be capable of representing
 		 * these.
 		 */
-		peek(subject: Subject, clarifierKey?: string): Phrase[]
+		peek(subject: Subject, clarifierKey?: string): readonly Phrase[]
 		{
 			if (clarifierKey === undefined)
-				return this.forwardings.get(subject);
+				return this.getForwarding(subject);
 			
-			const result = this.forwardings.get(subject, clarifierKey);
-			return result ? [result] : [];
+			return this.getForwarding(subject, clarifierKey) || [];
 		}
 		
 		/**
@@ -523,17 +518,20 @@ namespace Truth
 		 */
 		*peekMany()
 		{
-			for (const key of this.forwardings.keys())
-				yield this.forwardings.get(key);
+			for (const subject of this.eachForwardingSubject())
+				yield this.peek(subject);
 		}
 		
 		/**
 		 * Returns an array containing the subjects that link to the non-hypothetical
 		 * phrases that extend from this phrase.
 		 */
-		peekSubjects()
+		*peekSubjects()
 		{
-			return this.forwardings.keys();
+			if (this._forwardings)
+				for (const [subject, clarifieKey, phrase] of this._forwardings)
+					if (!phrase.isHypothetical)
+						yield subject;
 		}
 		
 		/**
@@ -543,11 +541,11 @@ namespace Truth
 		 */
 		*peekRecursive()
 		{
-			function *recurse(phrase: Phrase): IterableIterator<Phrase[]>
+			function *recurse(phrase: Phrase): IterableIterator<readonly Phrase[]>
 			{
-				for (const subject of phrase.forwardings.keys())
+				for (const subject of phrase.eachForwardingSubject())
 				{
-					const subPhrases = phrase.forwardings.get(subject);
+					const subPhrases = phrase.getForwarding(subject);
 					if (subPhrases.length > 0)
 						yield subPhrases;
 					
@@ -557,33 +555,6 @@ namespace Truth
 			}
 			
 			yield *recurse(this);
-		}
-		
-		/**
-		 * @deprecated
-		 * Returns a reference to the phrase that is extended by the array of subjects
-		 * specified, or null in the case when the subject path specified does not exist
-		 * in the internal forwarding table.
-		 */
-		peekDeep(path: readonly (string | Subject)[])
-		{
-			debugger;
-			let current: Phrase = this;
-			
-			for (const item of path)
-			{
-				const subject = typeof item === "string" ?
-					Term.from(item) :
-					item;
-				
-				const peeked = current.peek(subject, "");
-				if (peeked.length !== 1)
-					return null;
-				
-				current = peeked[0];
-			}
-			
-			return current;
 		}
 		
 		/**
@@ -711,7 +682,7 @@ namespace Truth
 		 * Gets an array of phrases that exist "beside" this phrase, 
 		 * at the same level of depth.
 		 */
-		private get adjacents()
+		private get adjacents(): readonly Phrase[]
 		{
 			if (this.isRoot)
 				return [];
@@ -722,7 +693,8 @@ namespace Truth
 			// would be no way to know when to clear a cached value.
 			
 			const out: Phrase[] = [];
-			for (const [subject, key, phrase] of this.parent.forwardings)
+			
+			for (const phrase of this.parent.eachForwardingPhrase())
 				if (phrase !== this)
 					out.push(phrase);
 			
@@ -812,7 +784,7 @@ namespace Truth
 			if (this.parent === this)
 				throw Exception.unknownState();
 			
-			this.parent.forwardings.delete(this.terminal, this.clarifierKey);
+			this.parent.deleteForwarding(this.terminal, this.clarifierKey);
 			this._outbounds = null;
 			this._ancestry = null;
 			this._subjects = null;
@@ -855,6 +827,61 @@ namespace Truth
 			return this._isDisposed;
 		}
 		private _isDisposed = false;
+		
+		/** */
+		private getForwarding(subject: Subject, clarifierKey?: string): readonly Phrase[]
+		{
+			if (this._forwardings === null)
+				return [];
+			
+			if (clarifierKey)
+			{
+				const result = this._forwardings.get(subject, clarifierKey);
+				return result ? [result] : [];
+			}
+			
+			return this._forwardings.get(subject);
+		}
+		
+		/** */
+		private setForwarding(subject: Subject, clarifierKey: string, phrase: Phrase)
+		{
+			if (this._forwardings === null)
+				this._forwardings = new Map3D();
+			
+			this._forwardings.set(subject, clarifierKey, phrase);
+		}
+		
+		/** */
+		private deleteForwarding(subject: Subject, clarifierKey: string)
+		{
+			return this._forwardings ?
+				this._forwardings.delete(subject, clarifierKey) :
+				false;
+		}
+		
+		/** */
+		private *eachForwardingPhrase()
+		{
+			if (this._forwardings)
+				for (const [subject, key, phrase] of this._forwardings)
+					yield phrase;
+		}
+		
+		/** */
+		private *eachForwardingSubject()
+		{
+			if (this._forwardings)
+				for (const subject of this._forwardings.keys())
+					yield subject;
+		}
+		
+		/**
+		 * Stores a table of nested phrases, keyed in 2 dimensions, firstly by the
+		 * Phrases terminating subject, and secondly by the Phrase's clarifierKey,
+		 * (a hash of the phrase's associated annotations).
+		 */
+		private _forwardings: Map3D<Subject, string, Phrase> | null = null;
 		
 		/**
 		 * Returns a string representation of this Phrase, suitable for debugging purposes.
