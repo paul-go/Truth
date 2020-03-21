@@ -173,27 +173,27 @@ namespace Truth
 		 * Attempts to indirectly apply a base to this ExplicitParallel via an alias
 		 * and a fork.
 		 * 
-		 * @param patternParallelCandidates The pattern-containing
+		 * @param patternParallelsInScope The pattern-containing
 		 * ExplicitParallel instance whose bases should be applied to this
-		 * ExplicitParallel, if the provided alias is a match.
+		 * ExplicitParallel, if the provided alias is a match. (!!WRONG!!)
 		 * 
 		 * @param viaFork The Fork in which the alias was found.
 		 * 
 		 * @param viaAlias The string to test against the parallel embedded
-		 * within patternParallelCandidates.
+		 * within patternParallelsInScope.
 		 * 
 		 * @returns A boolean value that indicates whether a base was added
 		 * successfully.
 		 */
 		tryAddAliasedBase(
-			patternParallelCandidates: ExplicitParallel[],
+			patternParallelsInScope: ExplicitParallel[],
 			viaFork: Fork,
 			viaAlias: string)
 		{
 			if (this._bases.has(viaFork))
 				throw Exception.unknownState();
 			
-			const chosenParallels = patternParallelCandidates.slice();
+			const chosenParallels = patternParallelsInScope.slice();
 			const conditions = this.contract.unsatisfiedConditions;
 			const beganWithConditions = conditions.size > 0;
 			
@@ -201,7 +201,7 @@ namespace Truth
 			{
 				let maxMatchCount = 1;
 				
-				nextCandidate: for (const candidate of patternParallelCandidates)
+				nextCandidate: for (const candidate of patternParallelsInScope)
 				{
 					const candidateBases: ExplicitParallel[]  = [];
 					for (const entry of candidate._bases.values())
