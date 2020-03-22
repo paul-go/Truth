@@ -327,15 +327,15 @@ namespace Truth
 					// of this compiler will allow other systems to hook into this
 					// process and augment the resolution strategy.
 					
-					const patternParallelsInScope: ExplicitParallel[] = [];
+					const patternParallelsInScope = new Set<ExplicitParallel>();
 					
 					for (const { patternParallel } of this.ascend(srcParallel))
 					{
 						this.rakePatternBases(patternParallel);
-						patternParallelsInScope.push(patternParallel);
+						patternParallelsInScope.add(patternParallel);
 					}
 					
-					if (patternParallelsInScope.length > 0)
+					if (patternParallelsInScope.size > 0)
 					{
 						const alias = fork.term.textContent;
 						
@@ -556,10 +556,10 @@ namespace Truth
 			// corresponds to srcParallel before moving upward to it's
 			// dependency documents.
 			const originDoc = srcParallel.phrase.containingDocument;
-			yieldSurfacePatternsOfDocument(originDoc);
+			yield *yieldSurfacePatternsOfDocument(originDoc);
 			
 			for (const doc of originDoc.traverseDependencies())
-				yieldSurfacePatternsOfDocument(doc);
+				yield *yieldSurfacePatternsOfDocument(doc);
 		}
 		
 		/**
