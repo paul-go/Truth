@@ -17,10 +17,10 @@
 
 Numeric
 Integer : Numeric
-/\d+/ : Integer
+/\d+ : Integer
 
 SignedInteger : Integer
-/(+|-)< : Integer>/ : SignedInteger
+/(+|-)< : Integer> : SignedInteger
 
 Class
 	A : Integer

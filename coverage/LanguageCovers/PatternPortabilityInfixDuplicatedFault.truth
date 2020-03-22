@@ -5,6 +5,6 @@
 //
 
 Number
-/\d+/ : Number
+/\d+ : Number
 Decimal : Number
-#418; /< : Number>\.< : Number>/ : Decimal
+#418; /< : Number>\.< : Number> : Decimal

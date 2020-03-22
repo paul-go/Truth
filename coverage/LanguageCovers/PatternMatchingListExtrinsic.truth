@@ -6,9 +6,9 @@
 
 Numeric
 Integer : Numeric
-/\d+/ : Integer
+/\d+ : Integer
 
-/IntegerList/ : Integer...
+/IntegerList : Integer...
 
 Class
 	Numerics : Numeric...

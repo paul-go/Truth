@@ -1,6 +1,6 @@
 //
 // This example demonstrates "Bounded Contravariance", an idea that
-// appears to be unique to the Truth language.
+// appears to be unique Truth.
 // 
 // Given the example below, if patterns were to be invariant, you'd get an 
 // error on Value. Because you asked for a MyFavouriteNumber, but "2.5"
@@ -12,7 +12,7 @@
 //
 
 Number
-/\d+/ : Number
+/\d+ : Number
 MyFavouriteNumber : Number
 ​
 Class

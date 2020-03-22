@@ -6,9 +6,9 @@
 // 
 
 Letters
-/\w+/ : Letters
+/\w+ : Letters
 
 Numbers
-\d+/ : Numbers
+\d+ : Numbers
 
-/< : Letters>; < : Numbers>/ : Letters, Numbers
+/< : Letters>; < : Numbers> : Letters, Numbers

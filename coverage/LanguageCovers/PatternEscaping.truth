@@ -5,5 +5,5 @@
 //
 
 EscapeZilla
-/\<\/\:\/\>/ : EscapeZilla
+/\<\/\:\/\> : EscapeZilla
 Type : </:/> ~ EscapeZilla

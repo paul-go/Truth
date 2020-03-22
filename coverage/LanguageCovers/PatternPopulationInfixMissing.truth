@@ -5,9 +5,9 @@
 // 
 
 Number
-/\d+/ : Number
+/\d+ : Number
 
-#422; /<High> - <Low>/ : Range
+#422; /<High> - <Low> : Range
 
 Range
 	Box
@@ -23,4 +23,4 @@ Foo
 	A
 	B
 
-#422; /<Unknown>!/ : Foo
+#422; /<Unknown>! : Foo

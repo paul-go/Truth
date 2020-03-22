@@ -5,9 +5,9 @@
 //
 
 Number
-/\d+/ : Number
+/\d+ : Number
 
-/<High> - <Low>/ : Range
+/<High> - <Low> : Range
 
 Range
 	High : Number

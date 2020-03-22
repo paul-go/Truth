@@ -6,7 +6,7 @@
 //
 
 Number
-/\d+/ : Number
+/\d+ : Number
 
 FootNote
 

@@ -8,11 +8,11 @@
 
 Foo
 	Pattern
-	/\d+/ : Pattern
+	/\d+ : Pattern
 
 Bar
 	Pattern
-	/\w+/ : Pattern
+	/\w+ : Pattern
 
 Abc
 	Pattern

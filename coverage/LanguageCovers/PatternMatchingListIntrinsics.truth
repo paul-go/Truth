@@ -3,7 +3,7 @@
 //
 
 Integer
-/\d+/ : Integer
+/\d+ : Integer
 
 Item
 List : Item...
@@ -11,7 +11,7 @@ List...
 	MinSize : Integer
 	MaxSize : Integer
 	
-/List[<MinSize> .. <MaxSize>]/ : List
+/List[<MinSize> .. <MaxSize>] : List
 
 Class
 	Value : List

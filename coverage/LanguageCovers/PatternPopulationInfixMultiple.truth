@@ -5,10 +5,10 @@
 
 Numeric
 Integer : Numeric
-/\d+/ : Integer
+/\d+ : Integer
 
 Decimal : Numeric
 	Left : Integer
 	Right : Integer
 
-/<Left>.<Right>/ : Decimal
+/<Left>.<Right> : Decimal

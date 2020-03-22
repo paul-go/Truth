@@ -5,14 +5,14 @@
 //
 
 Number
-/\d+/ : Number
+/\d+ : Number
 
 Range
 	Low : Number
 	High : Number
 	SomeNum : Number
 
-/<Low> - <High>/ : Range
+/<Low> - <High> : Range
 	SomeNum : 10
 
 MyRange : 2 - 3
