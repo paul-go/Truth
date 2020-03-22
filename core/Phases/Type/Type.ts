@@ -295,7 +295,7 @@ namespace Truth
 			}
 				
 			const innerTypes = Array.from(innerSubjects)
-				.flatMap(subject => this.phrase.peek(subject))
+				.flatMap(subject => this.phrase.forward(subject))
 				.map(phrase => Type.construct(phrase))
 				.filter((t): t is Type => t !== null);
 			
