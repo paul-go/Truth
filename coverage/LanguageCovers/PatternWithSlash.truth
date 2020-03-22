@@ -5,7 +5,7 @@
 //
 
 Value
-/Foo/Bar/ : Value
+/Foo/Bar : Value
 
 Class
 	V : Value

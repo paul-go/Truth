@@ -9,10 +9,10 @@
 
 FaultDueToDerivation
 	Number
-	/\d+/ : Number
+	/\d+ : Number
 
 	Currency : Number
-	/$< : Number>/ : Currency
+	/$< : Number> : Currency
 
 	Product
 		Quantity : Number
@@ -27,10 +27,10 @@ FaultDueToDerivation
 
 NoFault
 	Number
-	/\d+/ : Number
+	/\d+ : Number
 
 	Currency : Number
-	/$< : Number>/ : Currency
+	/$< : Number> : Currency
 	
 	Product
 		Quantity : Number

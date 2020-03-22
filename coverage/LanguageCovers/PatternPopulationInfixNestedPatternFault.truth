@@ -6,6 +6,6 @@
 
 Foo
 	Nested
-	/\d+/ : Nested
+	/\d+ : Nested
 
-#422; /<Nested>/ : Foo
+#422; /<Nested> : Foo

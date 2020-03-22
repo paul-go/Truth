@@ -12,6 +12,6 @@ Lionhead : Rabbit
 Set
 	Type
 
-/Set\<<<Type>>/>/ : Set
+/Set\<<<Type>>/> : Set
 
 Value : Set<Animal> #527;

@@ -327,19 +327,19 @@ namespace Truth
 					// of this compiler will allow other systems to hook into this
 					// process and augment the resolution strategy.
 					
-					const candidatePatternPars: ExplicitParallel[] = [];
+					const patternParallelsInScope = new Set<ExplicitParallel>();
 					
 					for (const { patternParallel } of this.ascend(srcParallel))
 					{
 						this.rakePatternBases(patternParallel);
-						candidatePatternPars.push(patternParallel);
+						patternParallelsInScope.add(patternParallel);
 					}
 					
-					if (candidatePatternPars.length > 0)
+					if (patternParallelsInScope.size > 0)
 					{
 						const alias = fork.term.textContent;
 						
-						if (srcParallel.tryAddAliasedBase(candidatePatternPars, fork, alias))
+						if (srcParallel.tryAddAliasedBase(patternParallelsInScope, fork, alias))
 						{
 							this.handledForks.add(fork);
 							continue;
@@ -535,20 +535,31 @@ namespace Truth
 			// even though this function needs to yield other parallels that
 			// are adjacent to srcParallel, because we reach back into the
 			// adjacents from the container.
-			for (let current = srcParallel.container;
-				current instanceof ExplicitParallel;)
+			for (let cur = srcParallel.container; cur instanceof ExplicitParallel;)
 			{
-				yield *recurse(current);
-				current = current.container;
+				yield *recurse(cur);
+				cur = cur.container;
 			}
 			
-			for (const phrase of Phrase.rootsOf(srcParallel.phrase.containingDocument))
-				if (phrase.terminal instanceof Pattern)
-					if (!discoveredPatternPhrases.has(phrase))
-						yield {
-							pattern: phrase.terminal,
-							patternParallel: yieldable(phrase)
-						};
+			function *yieldSurfacePatternsOfDocument(doc: Document)
+			{
+				for (const phrase of Phrase.rootsOf(doc))
+					if (phrase.terminal instanceof Pattern)
+						if (!discoveredPatternPhrases.has(phrase))
+							yield {
+								pattern: phrase.terminal,
+								patternParallel: yieldable(phrase)
+							};
+			}
+			
+			// Be sure to yield the surface patterns of the document that
+			// corresponds to srcParallel before moving upward to it's
+			// dependency documents.
+			const originDoc = srcParallel.phrase.containingDocument;
+			yield *yieldSurfacePatternsOfDocument(originDoc);
+			
+			for (const doc of originDoc.traverseDependencies())
+				yield *yieldSurfacePatternsOfDocument(doc);
 		}
 		
 		/**

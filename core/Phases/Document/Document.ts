@@ -332,7 +332,7 @@ namespace Truth
 			}
 			
 			// If a parent statement wasn't found, then the
-			// input statement is top-level, and a reference
+			// input statement is surface-level, and a reference
 			// to this Document object is returned.
 			return this;
 		}
@@ -340,7 +340,7 @@ namespace Truth
 		/**
 		 * @returns The Statement that would act as the parent if a statement where to be
 		 * inserted at the specified virtual position in the document. If an inserted statement
-		 * would be top-level, a reference to this document object is returned.
+		 * would be surface-level, a reference to this document object is returned.
 		 */
 		getParentFromPosition(lineNumber: number, lineOffset: number): Statement | this
 		{
@@ -387,7 +387,7 @@ namespace Truth
 		/**
 		 * @returns The child Statement objects of the specified
 		 * Statement. If the argument is null or omitted, the
-		 * document's top-level statements are returned. 
+		 * document's surface-level statements are returned. 
 		 * 
 		 * @throws An error in the case when the specified
 		 * statement is not found in the document. 

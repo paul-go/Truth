@@ -97,9 +97,9 @@ namespace Truth
 		 * a subset (not a proper subset) of the items of the second
 		 * set.
 		 */
-		static isSubset(
-			sourceSet: ReadonlySet<unknown>,
-			possibleSubset: ReadonlySet<unknown>)
+		static isSubset<TSuper, TSub extends TSuper>(
+			sourceSet: ReadonlySet<TSuper>,
+			possibleSubset: ReadonlySet<TSub>)
 		{
 			for (const item of possibleSubset)
 				if (!sourceSet.has(item))

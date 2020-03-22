@@ -9,10 +9,10 @@
 //
 
 Number
-/\d+/ : Number
+/\d+ : Number
 
 Range
 	Low : Range
 	High : Range
 
-#416; /<Low> - <High>/ : Range
+#416; /<Low> - <High> : Range

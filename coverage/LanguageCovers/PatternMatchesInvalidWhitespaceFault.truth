@@ -5,7 +5,7 @@
 //
 
 Pattern
-#422; /\s*pattern/ : Pattern
-#424; /\s+pattern/ : Pattern
-#426; /pattern\s*/ : Pattern
-#428; /pattern\s+/ : Pattern
+#422; /\s*pattern : Pattern
+#424; /\s+pattern : Pattern
+#426; /pattern\s* : Pattern
+#428; /pattern\s+ : Pattern

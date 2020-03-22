@@ -7,11 +7,11 @@
 
 Type
 Number : Type
-/\d+/ : Number
+/\d+ : Number
 Set
 	Key
 	
-/Set of <<Key : Type>>/ : Set
+/Set of <<Key : Type>> : Set
 
 MySet : Set of Number
 	~ Key : Number

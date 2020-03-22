@@ -7,5 +7,5 @@
 String
 Email : String
 
-/".*"/ : String
-#440; /\w+/ : Email
+/".*" : String
+#440; /\w+ : Email

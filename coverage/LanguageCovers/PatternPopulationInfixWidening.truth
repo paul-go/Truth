@@ -6,7 +6,7 @@
 //
 
 Number
-/\d+/ : Number
+/\d+ : Number
 
 FootNote
 
@@ -14,7 +14,7 @@ Range
 	Low : Number
 	High : Number
 
-/<Low : Number, FootNote>\* to <High : Number, FootNote>*/ : Range
+/<Low : Number, FootNote>\* to <High : Number, FootNote>* : Range
 
 MyRange : 6* to 8*
 	~ Low : Number, FootNote

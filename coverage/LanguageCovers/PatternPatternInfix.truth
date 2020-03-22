@@ -6,10 +6,10 @@
 //
 
 Digit
-/\d/ : Digit
+/\d : Digit
 
 Integer
-/\d+/ : Integer
+/\d+ : Integer
 
 mm : Integer
-/</Digit/>mm/ : mm ~ Integer, !Digit
+/</Digit/>mm : mm ~ Integer, !Digit

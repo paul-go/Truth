@@ -5,12 +5,12 @@
 // 
 
 Number
-/\d+/ : Number
+/\d+ : Number
 
 Range
 	Low : Number
 	High : Number
 
-/<Low> - <High>/ : Range
+/<Low> - <High> : Range
 	Hidden #423;
 		DoesntExist

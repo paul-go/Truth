@@ -25,25 +25,6 @@ namespace Truth
 		}
 		
 		/** */
-		get isContractSatisfied()
-		{
-			return this.contract.unsatisfiedConditions.size === 0;
-		}
-		
-		/** */
-		private get contract(): Contract
-		{
-			// It's important that this contract is computed lazily, because
-			// if you try to compute it in the constructor, the Parallel graph
-			// won't be constructed, and you'll end up with an empty contract.
-			if (this._contract === null)
-				this._contract = new Contract(this);
-			
-			return this._contract;
-		}
-		private _contract: Contract | null = null;
-		
-		/** */
 		private readonly cruft: CruftCache;
 		
 		/**
@@ -133,6 +114,11 @@ namespace Truth
 		 * this instance. If the addition of the new base would not generate
 		 * any critical faults, it is added. Otherwise, it's marked as cruft.
 		 * 
+		 * The method also attempts to satisfy one or more conditions of 
+		 * the contract, by computing whether the input ExplicitParallel 
+		 * is a more derived type of any of the ExplicitParallels referenced
+		 * in this ExplicitParallel's contract.
+		 * 
 		 * @returns A boolean value that indicates whether the base
 		 * was added successfully.
 		 */
@@ -147,8 +133,31 @@ namespace Truth
 			if (this.pattern)
 				throw Exception.unknownState();
 			
-			const numSatisfied = this.contract.trySatisfyCondition(base);
-			if (numSatisfied === 0 && this.contract.hasConditions)
+			let numSatisfied = 0;
+			const unsatisfiedConditions = this.contractConditionsUnsatisfied;
+			const collectBaseGraphRecursive = (currentParallel: ExplicitParallel) =>
+			{
+				if (unsatisfiedConditions.size === 0)
+					return;
+				
+				const madeProgress = unsatisfiedConditions.delete(currentParallel);
+				if (madeProgress)
+					// It is important to only continue to dig further into the base graph 
+					// if the parallel that was used to attempt to satisfy a condition didn't
+					// satisfy anything. 
+					return void numSatisfied++;
+				
+				if (unsatisfiedConditions.size > 0)
+					return;
+				
+				for (const { base } of currentParallel.eachBase())
+					collectBaseGraphRecursive(base);
+			}
+			
+			collectBaseGraphRecursive(base);
+			
+			// Was anything in the contract actually satisfied?
+			if (numSatisfied === 0 && this.contractConditions.size > 0)
 				return false;
 			
 			const sanitizer = new Sanitizer(this, base, via, this.cruft);
@@ -173,82 +182,132 @@ namespace Truth
 		 * Attempts to indirectly apply a base to this ExplicitParallel via an alias
 		 * and a fork.
 		 * 
-		 * @param patternParallelCandidates The pattern-containing
-		 * ExplicitParallel instance whose bases should be applied to this
-		 * ExplicitParallel, if the provided alias is a match.
+		 * @param patternParallelsInScope A set that contains all the pattern
+		 * containing ExplicitParallels that are visible to this ExplicitParallel. The
+		 * array is expected to be sorted in the order of priority, meaning that
+		 * items that correspond to patterns defined in the same scope as this
+		 * ExplicitParallel will be sorted higher than item that correspond to
+		 * patterns defined in higher-level scopes.
 		 * 
 		 * @param viaFork The Fork in which the alias was found.
 		 * 
 		 * @param viaAlias The string to test against the parallel embedded
-		 * within patternParallelCandidates.
+		 * within patternParallelsInScope.
 		 * 
 		 * @returns A boolean value that indicates whether a base was added
 		 * successfully.
 		 */
 		tryAddAliasedBase(
-			patternParallelCandidates: ExplicitParallel[],
+			patternParallelsInScope: ReadonlySet<ExplicitParallel>,
 			viaFork: Fork,
 			viaAlias: string)
 		{
 			if (this._bases.has(viaFork))
 				throw Exception.unknownState();
 			
-			const chosenParallels = patternParallelCandidates.slice();
-			const conditions = this.contract.unsatisfiedConditions;
-			const beganWithConditions = conditions.size > 0;
+			// Just as a reminder -- pattern-containing parallels don't come
+			// into this method–only the ones with aliases that might match them.
+			if (this.pattern)
+				throw Exception.unknownState();
 			
-			if (beganWithConditions)
+			if (this.contractConditionsUnsatisfied.size > 0)
 			{
-				let maxMatchCount = 1;
+				const applicablePatternParallels = new Set<ExplicitParallel>();
 				
-				nextCandidate: for (const candidate of patternParallelCandidates)
+				// Stores the set of all bases (deep) that exist within the contract
+				const contractBases = new Set<ExplicitParallel>();
+				for (const contractPar of this.contractConditionsUnsatisfied)
 				{
-					const candidateBases: ExplicitParallel[]  = [];
-					for (const entry of candidate._bases.values())
-						candidateBases.push(...entry.parallels);
-					
-					if (candidateBases.length < maxMatchCount)
-						continue;
-					
-					for (const candidateBase of candidateBases)
-						if (!conditions.has(candidateBase))
-							continue nextCandidate;
-					
-					chosenParallels.push(candidate);
-					maxMatchCount = candidateBases.length;
+					contractBases.add(contractPar);
+					for (const contractParDeep of contractPar.eachBaseDeep())
+						contractBases.add(contractParDeep);
 				}
 				
-				if (chosenParallels.length === 0)
+				// This loop attempts to discover the pattern-containing parallels
+				// from the patternParallelsInScope array that match one or more
+				// bases defined in the contract of this ExplicitParallel, but without 
+				// having a base that is not imposed by this ExplicitParallel's contract. 
+				// For example, if this ExplicitParallel's contract required bases A, B,
+				// and C, and one pattern where to match A and B, and another pattern
+				// were to match A, B, C, and D, this loop would discover the first pattern,
+				// as the second one would be disqualified.
+				for (const patternParallel of patternParallelsInScope)
+				{
+					const patternBases = new Set<ExplicitParallel>();
+					for (const { base } of patternParallel.eachBase())
+						patternBases.add(base);
+					
+					if (Misc.isSubset(contractBases, patternBases))
+						applicablePatternParallels.add(patternParallel);
+				}
+				
+				// Can't add an aliased base, because no applicable patterns 
+				// are in scope.
+				if (applicablePatternParallels.size === 0)
 					return false;
-			}
-			
-			let wasAdded = false;
-			
-			for (const chosenParallel of chosenParallels)
-			{
-				// Just as a reminder -- pattern-containing parallels don't come
-				// into this method–only the ones with aliases that might match them.
-				if (this.pattern || !chosenParallel.pattern)
-					throw Exception.unknownState();
 				
-				// If the targetPattern has no infixes, we can get away with a simple
-				// check to see if the alias matches the regular expression.
-				if (!chosenParallel.pattern.hasInfixes())
+				// In order to add an aliased base, the alias has to match
+				// all matching patterns in scope.
+				
+				const infixedPatternParallels: ExplicitParallel[] = [];
+				const nonInfixedPatternParallels: ExplicitParallel[] = [];
+				
+				// If any of the patterns discovered have portability infixes, these need
+				// to be validated first, and so the applicablePatternParallels set needs
+				// to be divided up into two arrays.
+				// The basic idea is to feed the alias into these patterns, extract out the
+				// infixed areas out of the value, and then this extracted value would
+				// form a new alias that could be fed into other patterns. This at least
+				// would work for portability infixes. Population infixes may require
+				// some other handling. (Right now this clearly isn't implemented)
+				for (const patternParallel of applicablePatternParallels)
 				{
-					if (!chosenParallel.pattern.test(viaAlias))
-						continue;
-					
-					if (beganWithConditions)
-						if (this.contract.trySatisfyCondition(chosenParallel) === 0)
-							continue;
-					
-					this.addBaseEntry(chosenParallel, viaFork, true);
-					wasAdded = true;
+					const pattern = Not.null(patternParallel.pattern);
+					pattern.hasInfixes() ?
+						infixedPatternParallels.push(patternParallel) :
+						nonInfixedPatternParallels.push(patternParallel);
 				}
+				
+				if (infixedPatternParallels.length > 0)
+					throw Exception.notImplemented();
+				
+				for (const patternParallel of nonInfixedPatternParallels)
+				{
+					const pattern = Not.null(patternParallel.pattern);
+					if (!pattern.test(viaAlias))
+						return false;
+				}
+				
+				// If we have gotten to this point, the contract is considered to be satisfied
+				// entirely. This may seem like a cheat–but it's not. We're actually able to
+				// just add all the parallels being imposed as bases, and then declare the 
+				// contract as settled. (There may be some other work to do here because
+				// this doesn't include the pattern parallel in the set of bases. Maybe this
+				// is what we want though? Use of patterns isn't supposed to influence
+				// other contracts.)
+				for (const parallel of this.contractConditionsUnsatisfied)
+					this.addBaseEntry(parallel, viaFork, true);
+				
+				this.contractConditionsUnsatisfied.clear();
+				return true;
 			}
-			
-			// Not implemented, but we shouldn't throw an exception here yet.
-			return wasAdded;
+			// In the case when the contract had conditions, but they have
+			// all been met, further aliases are considered to be faults.
+			// This method should probably return this information specifically
+			// instead of just sending back an ambiguous false value.
+			else if (this.contractConditions.size > 0)
+			{
+				debugger;
+				return false;
+			}
+			else
+			{
+				// This is the case when an alias is assigned to a type, but
+				// no contract is being imposed on the type. This would be
+				// most common for surface-level declarations that are
+				// establishing things like global constants.
+				debugger;
+			}
 		}
 		
 		/**
@@ -309,27 +368,23 @@ namespace Truth
 					.filter((s): s is Pattern => s instanceof Pattern);
 				*/
 				
-				/**
-				 * At this point, we need to test every single one of the 
-				 * patterns in basesDeepSprawlPatterns against this
-				 * this.phrase.terminal to make sure the two patterns
-				 * are compliant.
-				 * 
-				 * If they're not compliant, we need to start marking
-				 * bases as cruft until they are.
-				 * 
-				 * There is also a recursive infix embed process that
-				 * needs to happen here, but maybe we should just
-				 * put this off until the basic pattern functionality
-				 * is working?
-				 */
+				// At this point, we need to test every single one of the 
+				// patterns in basesDeepSprawlPatterns against this
+				// this.phrase.terminal to make sure the two patterns
+				// are compliant.
+				// 
+				// If they're not compliant, we need to start marking
+				// bases as cruft until they are.
+				// 
+				// There is also a recursive infix embed process that
+				// needs to happen here, but maybe we should just
+				// put this off until the basic pattern functionality
+				// is working?
 			}
 			
-			/**
-			 * This also needs to take into account any other patterns
-			 * that are applied to any of the bases defined directly
-			 * inline.
-			 */
+			// This also needs to take into account any other patterns
+			// that are applied to any of the bases defined directly
+			// inline.
 			
 			// Here we're just adding all the bases regardless of whether
 			// or not any of the associated forks were marked as cruft.
@@ -433,6 +488,72 @@ namespace Truth
 		 * and should be passable to a JavaScript RegExp, or to the Fsm system.
 		 */
 		private compiledExpression: string | null = null;
+		
+		//# Contract-related members
+		
+		/** */
+		get isContractSatisfied()
+		{
+			return this.contractConditionsUnsatisfied.size === 0;
+		}
+		
+		/**
+		 * Stores the set of parallels that any comparative parallel must 
+		 * have in it's base graph in order to be deemed compliant.
+		 */
+		private get contractConditions()
+		{
+			if (!this._contractConditions)
+				this.computeContract();
+			
+			return this._contractConditions!;
+		}
+		private _contractConditions: ReadonlySet<ExplicitParallel> | null = null;
+		
+		/**
+		 * Stores the same set of parallels as the .contractConditions property,
+		 * but as a mutable set that reduces in size, until reaching a size of 0,
+		 * indicating that the contract has been fulfilled.
+		 */
+		private get contractConditionsUnsatisfied()
+		{
+			if (!this._contractConditionsUnsatisfied)
+				this.computeContract();
+			
+			return this._contractConditionsUnsatisfied!;
+		}
+		private _contractConditionsUnsatisfied: Set<ExplicitParallel> | null = null;
+		
+		/**
+		 * It's important that the contract conditions are computed lazily, 
+		 * because if you try to compute it in the constructor, the Parallel
+		 * graph won't be constructed, and you'll end up with an empty 
+		 * contract.
+		 */
+		private computeContract()
+		{
+			const conditions = new Set<ExplicitParallel>();
+			
+			const recurse = (srcParallel: Parallel) =>
+			{
+				if (srcParallel instanceof ImplicitParallel)
+				{
+					for (const nestedParallel of srcParallel.getParallels())
+						recurse(nestedParallel);
+				}
+				else if (srcParallel instanceof ExplicitParallel)
+				{
+					for (const { base } of srcParallel.eachBase())
+						conditions.add(base);
+				}
+			};
+			
+			for (const higherParallel of this.getParallels())
+				recurse(higherParallel);
+			
+			this._contractConditions = conditions;
+			this._contractConditionsUnsatisfied = new Set(conditions);
+		}
 	}
 	
 	/**
@@ -446,18 +567,22 @@ namespace Truth
 		 * Note that a base entry can have multiple parallels in the case when the base
 		 * is actually a pattern with two equally viable matches in scope, and no contract
 		 * being imposed, for example:
-		 * 
+		 * ```
 		 * /pattern : A
 		 * /pattern : B
+		 * C : pattern
+		 * ```
+		 * In the above case, C would have the bases A and B.
 		 * 
-		 * Value : pattern ~ A, B
+		 * NOTE: This should actually be a fault. A clarifier type should be defined on
+		 * C in order to disambiguate between A and B.
 		 */
 		parallels: ExplicitParallel[];
 		
 		/** Stores whether the term is an alias (matched by a pattern). */
 		aliased: boolean;
 	}
-		
+	
 	/** @internal */
 	export type TBaseTable = ReadonlyMap<ExplicitParallel, Fork>;
 }

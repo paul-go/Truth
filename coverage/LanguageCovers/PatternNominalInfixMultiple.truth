@@ -4,16 +4,16 @@
 //
 
 Number
-/\d+/ : Number
+/\d+ : Number
 
 Text
-/\w+/ : Text
+/\w+ : Text
 
 Map
 	Key
 	Val
 
-/Map\<<<Key>>; <<Val>>\>/ : Map
+/Map\<<<Key>>; <<Val>>\> : Map
 
 Class
 	Table : Map<Number; Text>

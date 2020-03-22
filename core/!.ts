@@ -57,7 +57,6 @@
 /// <reference path="./Phases/Parallel/ImplicitParallel.ts" />
 /// <reference path="./Phases/Parallel/CruftCache.ts" />
 /// <reference path="./Phases/Parallel/ParallelCache.ts" />
-/// <reference path="./Phases/Parallel/Contract.ts" />
 /// <reference path="./Phases/Parallel/Sanitizer.ts" />
 
 // Phases / Type Representation

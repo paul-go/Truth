@@ -10,13 +10,13 @@ Upper
 /[A-Z] : Upper
 
 EqualNumber : Number
-/=< : Number>/ : EqualNumber
+/=< : Number> : EqualNumber
 
 EqualLower : Lower
-/=< : Lower>/ : EqualLower
+/=< : Lower> : EqualLower
 
 EqualUpper : Upper
-/=< : Upper>/ : EqualUpper
+/=< : Upper> : EqualUpper
 
 Class
 	Property : EqualNumber, EqualUpper

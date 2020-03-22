@@ -6,4 +6,4 @@
 //
 
 WhitespaceOnly
-#420; /\s+\w?/ : WhitespaceOnly
+#420; /\s+\w? : WhitespaceOnly

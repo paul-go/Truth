@@ -16,5 +16,5 @@
 String
 Email : String
 
-/".*"/ : String
-/"\w+@\w+\.\w+"/ : Email
+/".*" : String
+/"\w+@\w+\.\w+" : Email

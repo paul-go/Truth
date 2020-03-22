@@ -7,7 +7,7 @@
 //
 
 Number
-/\d+/ : Number
+/\d+ : Number
 
 Value : 2 ~ Number
 	Container

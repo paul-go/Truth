@@ -5,7 +5,7 @@
 //
 
 Number
-/\d+/ : Number
+/\d+ : Number
 Text
 
 Range
@@ -13,5 +13,5 @@ Range
 	High : Number
 	SomeNum : Number
 
-/<Low> - <High>/ : Range
+/<Low> - <High> : Range
 	SomeNum : Text #205;

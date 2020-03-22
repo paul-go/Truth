@@ -14,16 +14,16 @@ Type1
 /\d+ : Type1
 
 Type2A : Type1
-/=< : Type1>=/ : Type2A
+/=< : Type1>= : Type2A
 
 Type2B : Type1
-/=< : Type1>=/ : Type2B
+/=< : Type1>= : Type2B
 
 TypeX
 /\a+ : TypeX
 
 Type2C : TypeX
-/=< : TypeX>=/ : Type2C
+/=< : TypeX>= : Type2C
 
 Value : =2= ~ Type2A, Type2B
 

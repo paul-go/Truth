@@ -7,10 +7,10 @@
 //
 
 Number
-/\d+/ : Number
+/\d+ : Number
 
 Speed : Number
 OrMore
 
-/< : Number>mph/ : Speed
-#414; /< : Number, OrMore>mph+/ : Speed
+/< : Number>mph : Speed
+#414; /< : Number, OrMore>mph+ : Speed

@@ -7,10 +7,10 @@
 //
 
 Numeric
-/\d+/ : Numeric
+/\d+ : Numeric
 
 Number : Numeric
-/\d+/ : Number
+/\d+ : Number
 
 Decimal : Number
-#418; /< : Number>\.< : Numeric>/ : Decimal
+#418; /< : Number>\.< : Numeric> : Decimal

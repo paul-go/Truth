@@ -11,7 +11,7 @@
 //
 
 Number
-/\d+/ : Number
+/\d+ : Number
 
 Range
 	High : Number
@@ -21,9 +21,9 @@ Span
 	High : Number
 	Low : Number
 
-// NOT equivalent to /<High> - <Low>/ : Range, Span
-/<High> - <Low>/ : Range
-/<High> - <Low>/ : Span
+// NOT equivalent to /<High> - <Low> : Range, Span
+/<High> - <Low> : Range
+/<High> - <Low> : Span
 
 Class
 	Tolerance : Range
@@ -51,16 +51,16 @@ Product
 //
 
 Left
-/L\d/ : Left
+/L\d : Left
 
 Right
-/R\d/ : Right
+/R\d : Right
 
 Spectrum
-/<Left> - <Right>/ : Spectrum
+/<Left> - <Right> : Spectrum
 
 Random
-/<Left> - <Right>/ : Spectrum, Random
+/<Left> - <Right> : Spectrum, Random
 
 Object
 	MySpectrum : Spectrum

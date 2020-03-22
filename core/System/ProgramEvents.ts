@@ -8,13 +8,13 @@ namespace Truth
 	export interface ProgramEventMap
 	{
 		/**
-		 * An event that triggers when a new top-level declaration is added
+		 * An event that triggers when a new surface-level declaration is added
 		 * to a document.
 		 */
 		"declare": (name: string, document: Document) => void;
 		
 		/**
-		 * An event that triggers when a top-level declaration is removed
+		 * An event that triggers when a surface-level declaration is removed
 		 * from a document.
 		 */
 		"undeclare": (name: string, document: Document) => void;

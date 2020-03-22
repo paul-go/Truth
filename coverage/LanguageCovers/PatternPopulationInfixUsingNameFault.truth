@@ -6,21 +6,21 @@
 //
 
 Number
-/\d+/ : Number
+/\d+ : Number
 
 CurrencyCode
 
 NorthAmericanCurrencyCode : CurrencyCode
-/(CAD|USD)/ : NorthAmericanCurrencyCode
+/(CAD|USD) : NorthAmericanCurrencyCode
 
 AsianCurrencyCode : CurrencyCode
-/(JPY|CNY)/ : AsianCurrencyCode
+/(JPY|CNY) : AsianCurrencyCode
 
 Price
 	Value : Number
 	CurrencyCode
 	
-/$<Number> <CurrencyCode>/ : Price
+/$<Number> <CurrencyCode> : Price
 
 Product
 	Price

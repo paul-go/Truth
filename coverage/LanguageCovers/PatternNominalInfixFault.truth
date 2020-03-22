@@ -6,7 +6,7 @@
 
 Number
 Integer : Number
-/\d+/ : Integer
+/\d+ : Integer
 
 Text
 Email : Text
@@ -15,7 +15,7 @@ Map
 	Key : Number
 	Val : Text
 
-/Map\<<<Key>>; <<Val>>\>/ : Map
+/Map\<<<Key>>; <<Val>>\> : Map
 
 Class
 	Good : Map<Integer, Email>

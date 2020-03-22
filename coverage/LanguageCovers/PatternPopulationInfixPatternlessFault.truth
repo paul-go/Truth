@@ -12,18 +12,18 @@ Container
 
 Portability
 	// Inline portability type (although faulty)
-	#414; /< : NoPatterns>/ : Container
+	#414; /< : NoPatterns> : Container
 
 Pattern
 	// Inline pattern type (although faulty)
-	#414; /</NoPatterns/>/ : Container
+	#414; /</NoPatterns/> : Container
 
 Population
 	// Inline population type (although faulty)
 	// Note that this would work if NoPatterns had subtypes,
 	// even if they were patternless, because the compiler
 	// would revert to matching based on type names.
-	#414; /<NoPatterns>/ : Container
+	#414; /<NoPatterns> : Container
 
 //
 // This example also demontrates the same case, 
@@ -33,4 +33,4 @@ Population
 
 Patternless
 PatternlessChild : Patternless
-#414; /< : Patternless>/ : PatternlessChild
+#414; /< : Patternless> : PatternlessChild

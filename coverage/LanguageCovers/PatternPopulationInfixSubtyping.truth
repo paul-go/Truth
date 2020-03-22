@@ -6,13 +6,13 @@
 
 Type
 Number : Type
-/\d+/ : Number
+/\d+ : Number
 
 Range
 	Low : Type
 	High : Type
 
-/<Low : Number> - <High : Number>/ : Range
+/<Low : Number> - <High : Number> : Range
 MyRange : 2 - 3
 	~ Low : Number
 	~ High : Number

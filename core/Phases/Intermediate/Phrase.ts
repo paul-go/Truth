@@ -265,7 +265,7 @@ namespace Truth
 		}
 		
 		/**
-		 * Create a top-level, zero-length Phrase that sits at the root of a document.
+		 * Create a zero-length Phrase, intended to be owned directly by a document.
 		 */
 		private constructor(containingDocument: Document)
 		/**
@@ -349,7 +349,7 @@ namespace Truth
 		readonly parent: Phrase;
 		
 		/**
-		 * Gets whether this phrase is a zero-length, top-level phrase.
+		 * Gets whether this phrase is a zero-length, document-owned phrase.
 		 */
 		get isRoot()
 		{
@@ -445,9 +445,7 @@ namespace Truth
 			this.inflatingSpans.add(inflatingSpan);
 			
 			if (!isReinflating)
-			{
-				setTimeout(() => doc.program.emit("declare", this.terminal.toString(), doc));
-			}
+				doc.program.emit("declare", this.terminal.toString(), doc);
 		}
 		
 		/**
@@ -737,7 +735,7 @@ namespace Truth
 			// The global ancestry should include the root phrase, because
 			// it's direct children should be included in the peeking process.
 			// The root may be found in different locations depending on
-			// whether this phrase is top-level.
+			// whether this phrase is document-owned.
 			peekAncestry.length === 0 ?
 				peekAncestry.unshift(this.parent) :
 				peekAncestry.unshift(peekAncestry[0].parent);
@@ -917,7 +915,7 @@ namespace Truth
 	 * Stores a set of disposal keys, which are used to indicate the disposal status
 	 * of a phrase. The purpose of the disposal queue is to limit the times when the
 	 * "declare" and "undeclare" events are emitted. These events should only be
-	 * emitted when a top-level phrase has actually been disposed or created, 
+	 * emitted when a surface-level phrase has actually been disposed or created, 
 	 * in the sense that it's removal or creation wasn't a temporary operation that
 	 * will be reversed by the end of the turn of the event loop.
 	 */
