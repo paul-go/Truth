@@ -147,7 +147,7 @@ namespace Truth
 					// satisfy anything. 
 					return void numSatisfied++;
 				
-				if (unsatisfiedConditions.size > 0)
+				if (unsatisfiedConditions.size === 0)
 					return;
 				
 				for (const { base } of currentParallel.eachBase())
