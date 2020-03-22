@@ -2,7 +2,8 @@
 namespace Truth
 {
 	/**
-	 * The top-level object that manages Truth documents.
+	 * The main object that stores a collection Truth documents,
+	 * and provides APIs for verifying and inspecting them.
 	 */
 	export class Program
 	{
@@ -208,7 +209,7 @@ namespace Truth
 		 * 
 		 * @param document The document to query.
 		 * 
-		 * @returns An array containing the top-level types that are
+		 * @returns An array containing the surface-level types that are
 		 * defined within the specified document.
 		 */
 		queryAll(document: Document): Type[]

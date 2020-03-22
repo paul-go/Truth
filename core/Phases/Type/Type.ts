@@ -249,7 +249,7 @@ namespace Truth
 		
 		/**
 		 * Gets the Type that contains this Type, or null in
-		 * the case when this Type is top-level.
+		 * the case when this Type is surface-level.
 		 */
 		get container(): Type | null
 		{
