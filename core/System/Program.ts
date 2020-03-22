@@ -90,7 +90,13 @@ namespace Truth
 		async addDocument(sourceText: string)
 		{
 			const memoryUri = KnownUri.createMemoryUri(++this.memoryUriCount);
-			return await Document.new(this, memoryUri, sourceText, d => this.saveDocument(d));
+			const doc = await Document.new(
+				this,
+				memoryUri,
+				sourceText,
+				d => this.saveDocument(d));
+			
+			return this.finalizeDocumentAdd(doc);
 		}
 		private memoryUriCount = 0;
 		
@@ -173,9 +179,21 @@ namespace Truth
 						resolveFn(docOrError);
 				}
 				
-				if (docOrError instanceof Document)
-					this.emit("documentCreate", docOrError);
+				this.finalizeDocumentAdd(docOrError);
 			});
+		}
+		
+		/** */
+		private finalizeDocumentAdd(docOrError: Document | Error)
+		{
+			if (docOrError instanceof Document)
+			{
+				this.emit("documentCreate", docOrError);
+				this.markedDocuments.maybeAdd(docOrError);
+				this._verificationStage = VerificationStage.required;
+			}
+			
+			return docOrError;
 		}
 		
 		/** Stores a queue of documents to resolve. */
@@ -634,7 +652,7 @@ namespace Truth
 		{
 			return this._verificationStage;
 		}
-		private _verificationStage = VerificationStage.none;
+		private _verificationStage = VerificationStage.finished;
 		
 		/**
 		 * Returns a promise that resolves when this program's verification stage
@@ -647,7 +665,7 @@ namespace Truth
 		 * When the returned promise resolves, this Program's .faults field will be
 		 * populated with any faults generated as a result of the verification.
 		 */
-		async await(resolveStage = VerificationStage.included): Promise<void>
+		async await(resolveStage = VerificationStage.finished): Promise<void>
 		{
 			// If the verification stage is already past the point of the stage
 			// specified in the argument, we can resolve the promise immediately.
@@ -657,7 +675,7 @@ namespace Truth
 			// If there is already a verification cycle underway, then return
 			// a new promise that resolves when the verification cycle has
 			// reached the stage specified
-			if (this.verificationStage > VerificationStage.none)
+			if (this.verificationStage > VerificationStage.required)
 			{
 				switch (resolveStage)
 				{
@@ -670,8 +688,8 @@ namespace Truth
 					case VerificationStage.affected:
 						return new Promise(r => this.affectedResolveFns.push(r));
 					
-					case VerificationStage.included:
-						return new Promise(r => this.includedResolveFns.push(r));
+					case VerificationStage.finished:
+						return new Promise(r => this.finishedResolveFns.push(r));
 				}
 			}
 			
@@ -781,18 +799,15 @@ namespace Truth
 			this.faults.refresh();
 			massResolve(this.affectedResolveFns);
 			
-			// Run "included" verifications
+			// Run "finished" verifications
 			await new Promise(resolve =>
 			{
 				verifyDocuments(includedDocuments, resolve);
 			});
 			
-			this._verificationStage = VerificationStage.included;
+			this._verificationStage = VerificationStage.finished;
 			this.faults.refresh();
-			massResolve(this.includedResolveFns);
-			
-			// Reset the verification stage back to its initial value.
-			this._verificationStage = VerificationStage.none;
+			massResolve(this.finishedResolveFns);
 			
 			this.emit("verificationComplete", this);
 		}
@@ -800,7 +815,7 @@ namespace Truth
 		/** */
 		private cancelVerification()
 		{
-			this._verificationStage = VerificationStage.none;
+			this._verificationStage = VerificationStage.required;
 			
 			if (this.nextVerificationTimeout !== null)
 			{
@@ -812,7 +827,7 @@ namespace Truth
 		private readonly startedResolveFns: (() => void)[] = [];
 		private readonly markedResolveFns: (() => void)[] = [];
 		private readonly affectedResolveFns: (() => void)[] = [];
-		private readonly includedResolveFns: (() => void)[] = [];
+		private readonly finishedResolveFns: (() => void)[] = [];
 		private nextVerificationTimeout: NodeJS.Timeout | null = null;
 		
 		/**
@@ -993,7 +1008,7 @@ namespace Truth
 			const functions = this.handlers.get(eventName);
 			if (functions)
 				for (const fn of functions)
-					fn(...params);
+					setTimeout(fn, 0, ...params);
 		}
 		
 		/**

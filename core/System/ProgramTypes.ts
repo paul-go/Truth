@@ -18,10 +18,10 @@ namespace Truth
 	export const enum VerificationStage
 	{
 		/**
-		 * Refers to the stage before verification has not begin, but where the
-		 * containing program has unverified information.
+		 * Refers to the stage before verification has begun, but where
+		 * the containing program has unverified information.
 		 */
-		none = 0,
+		required = 0,
 		/**
 		 * Refers to the stage where no verification has completed, 
 		 * but a verification process has launched.
@@ -41,7 +41,7 @@ namespace Truth
 		 * Refers to the final stage where the areas of the program that
 		 * could not have been affected by an edit have been verified.
 		 */
-		included = 4
+		finished = 4
 	}
 	
 	/**

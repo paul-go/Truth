@@ -445,9 +445,7 @@ namespace Truth
 			this.inflatingSpans.add(inflatingSpan);
 			
 			if (!isReinflating)
-			{
-				setTimeout(() => doc.program.emit("declare", this.terminal.toString(), doc));
-			}
+				doc.program.emit("declare", this.terminal.toString(), doc);
 		}
 		
 		/**
