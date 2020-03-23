@@ -878,11 +878,11 @@ namespace Truth
 					}
 				}
 			
-				// This handles the third optimization, which is the case
-				// where there are only noop statements being inserted
-				// into the document.
 				if (hasInsert)
 				{
+					// This handles the third optimization, which is the case
+					// where there are only noop statements being inserted
+					// into the document.
 					const insertEdits = edits as InsertEdit[];
 					if (insertEdits.every(ed => ed.smt.isNoop))
 					{
@@ -1009,8 +1009,8 @@ namespace Truth
 				deletePhrases()
 				{
 					Phrase.deflateRecursive(mustInvalidateDoc ?
-						Array.from(invalidatedParents.values()) :
-						self.getChildren());
+						self.getChildren() :
+						Array.from(invalidatedParents.values()));
 				},
 				updateDocument()
 				{
@@ -1037,7 +1037,7 @@ namespace Truth
 				},
 				createPhrases()
 				{
-					Phrase.inflateRecursive(Array.from(invalidatedParents.values()));
+					Phrase.inflateRecursive(self.getChildren());
 				},
 				finalize
 			};

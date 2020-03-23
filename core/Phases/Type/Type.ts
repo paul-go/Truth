@@ -104,16 +104,16 @@ namespace Truth
 					if (sub instanceof Pattern)
 						type.flags |= Flags.isPattern;
 					
-					if (sub instanceof KnownUri)
+					else if (sub instanceof KnownUri)
 						type.flags |= Flags.isUri;
 					
-					if (sub instanceof Anon)
+					else if (sub instanceof Anon)
 						type.flags |= Flags.isAnonymous;
 					
 					if (seed.getParallels().length === 0)
 						type.flags |= Flags.isFresh;
 					
-					type.flags |= Flags.isExplicit
+					type.flags |= Flags.isExplicit;
 				}
 				
 				for (const base of type._bases)
@@ -227,13 +227,13 @@ namespace Truth
 		 */
 		get statements()
 		{
-			guard(this, this.seed);
+			const seed = this.guard();
 			
 			if (this._statements !== null)
 				return this._statements;
 			
 			return this._statements = this.seed instanceof ImplicitParallel ?
-				this.seed.phrase.statements.slice() :
+				seed.phrase.statements.slice() :
 				Object.freeze([]);
 		}
 		private _statements: readonly Statement[] | null = null;
@@ -253,7 +253,7 @@ namespace Truth
 		 */
 		get container(): Type | null
 		{
-			guard(this, this.seed);
+			this.guard();
 			return this._container;
 		}
 		private _container: Type | null = null;
@@ -268,7 +268,7 @@ namespace Truth
 			if (this._containees !== null)
 				return this._containees;
 			
-			guard(this, this.seed);
+			this.guard();
 			const innerSubjects = new Set<Subject>();
 			
 			// Dig through the parallel graph recursively, and at each parallel,
@@ -316,7 +316,7 @@ namespace Truth
 			if (!this.isListIntrinsic && !this.isListExtrinsic)
 				return this._containeesIntrinsic = Object.freeze([]);
 			
-			guard(this, this.seed);
+			this.guard();
 			throw Exception.notImplemented();
 		}
 		private _containeesIntrinsic: readonly Type[] | null = null;
@@ -328,7 +328,7 @@ namespace Truth
 		 */
 		get bases(): readonly Type[]
 		{
-			guard(this, this.seed);
+			this.guard();
 			return this._bases;
 		}
 		private _bases: readonly Type[] = [];
@@ -339,7 +339,7 @@ namespace Truth
 		 */
 		get parallels()
 		{
-			guard(this, this.seed);
+			this.guard();
 			return this._parallels;
 		}
 		private _parallels: readonly Type[] = [];
@@ -354,7 +354,7 @@ namespace Truth
 			if (this._parallelRoots !== null)
 				return this._parallelRoots;
 			
-			guard(this, this.seed);
+			this.guard();
 			
 			const roots: Type[] = [];
 			for (const { type } of this.iterate(t => t.parallels))
@@ -375,7 +375,7 @@ namespace Truth
 			if (this._adjacents !== null)
 				return this._adjacents;
 			
-			guard(this, this.seed);
+			this.guard();
 			
 			if (this.container)
 				return this._adjacents = this.container.containees.filter(t => t !== this);
@@ -475,6 +475,7 @@ namespace Truth
 				return this._aliases;
 			
 			const aliases: string[] = [];
+			const seed = this.guard();
 			
 			const extractAlias = (ep: ExplicitParallel) =>
 			{
@@ -483,13 +484,13 @@ namespace Truth
 						aliases.push(fork.term.toString());
 			};
 			
-			if (this.seed instanceof ExplicitParallel)
+			if (seed instanceof ExplicitParallel)
 			{
-				extractAlias(this.seed);
+				extractAlias(seed);
 			}
-			else if (this.seed instanceof ImplicitParallel)
+			else if (seed instanceof ImplicitParallel)
 			{
-				const queue: ImplicitParallel[] = [this.seed];
+				const queue: ImplicitParallel[] = [seed];
 				
 				for (let i = -1; ++i < queue.length;)
 				{
@@ -524,6 +525,7 @@ namespace Truth
 				return this._keywords;
 			
 			const keywords: { word: string, base: Type; }[] = [];
+			const seed = this.guard();
 			
 			const extractType = (ep: ExplicitParallel) =>
 			{
@@ -538,13 +540,13 @@ namespace Truth
 				}
 			};
 			
-			if (this.seed instanceof ExplicitParallel)
+			if (seed instanceof ExplicitParallel)
 			{
-				extractType(this.seed);
+				extractType(seed);
 			}
-			else if (this.seed instanceof ImplicitParallel)
+			else if (seed instanceof ImplicitParallel)
 			{
-				const queue: ImplicitParallel[] = [this.seed];
+				const queue: ImplicitParallel[] = [seed];
 				
 				for (let i = -1; ++i < queue.length;)
 				{
@@ -586,7 +588,7 @@ namespace Truth
 		 */
 		async *eachInboundBase()
 		{
-			guard(this, this.seed);
+			this.guard();
 			const context = Type.getContext(this.phrase);
 			await context.program.await();
 			const types = context.inboundBases.get(this);
@@ -602,7 +604,7 @@ namespace Truth
 		 */
 		async *eachInboundParallel()
 		{
-			guard(this, this.seed);
+			this.guard();
 			const context = Type.getContext(this.phrase);
 			await context.program.await();
 			const types = context.inboundParallels.get(this);
@@ -838,18 +840,25 @@ namespace Truth
 			
 			return this.phrase.toString();
 		}
-	}
-	
-	/**
-	 * Ensures whether properties in the type object may be accessed.
-	 */
-	function guard(type: Type, seed: Parallel | null): asserts seed is Parallel
-	{
-		if (seed === null)
-			throw Exception.unseededType();
 		
-		if (type.isDirty)
-			throw Exception.typeDirty(type);
+		/**
+		 * Ensures that the Type has been constructed.
+		 * Returns the Parallel assigned to this type's .seed property,
+		 * but in a non-null format.
+		 */
+		private guard()
+		{
+			if (!this.seed)
+				Type.construct(this.phrase);
+			
+			if (!this.seed)
+				throw Exception.unknownState();
+			
+			if (this.isDirty)
+				throw Exception.typeDirty(this);
+			
+			return this.seed;
+		}
 	}
 	
 	/**

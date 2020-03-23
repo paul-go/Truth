@@ -39,7 +39,7 @@ namespace Truth
 		 */
 		private innerCreate(phrase: Phrase, cruft?: CruftCache)
 		{
-			if (this.has(phrase) || phrase.isRoot)
+			if (this.has(phrase) || phrase.isDocumentOwned)
 				throw Exception.unknownState();
 			
 			const save = (par: ExplicitParallel | ImplicitParallel) =>

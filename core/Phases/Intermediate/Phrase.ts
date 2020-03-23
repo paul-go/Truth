@@ -161,7 +161,7 @@ namespace Truth
 		 */
 		static deflateRecursive(statements: readonly Statement[])
 		{
-			for (const span of this.enumerateStatements(statements))
+			for (const span of this.enumerateSpans(statements))
 				for (const phrase of Phrase.fromSpan(span))
 					phrase.deflate(span);
 		}
@@ -173,7 +173,7 @@ namespace Truth
 		 */
 		static inflateRecursive(statements: readonly Statement[])
 		{
-			for (const span of this.enumerateStatements(statements))
+			for (const span of this.enumerateSpans(statements))
 				for (const phrase of Phrase.fromSpan(span))
 					phrase.inflate(span);
 		}
@@ -182,7 +182,7 @@ namespace Truth
 		 * Performs a deep enumeration of the statements provided in
 		 * the array, as well as their descendent statements.
 		 */
-		private static *enumerateStatements(statements: readonly Statement[])
+		private static *enumerateSpans(statements: readonly Statement[])
 		{
 			if (statements.length === 0)
 				return;
@@ -321,7 +321,7 @@ namespace Truth
 			
 			this.outboundsVersion = this.containingDocument.program.version;
 			
-			if (!this.isHypothetical)
+			if (!this.isHypothetical && !this.isDocumentOwned)
 				this.containingDocument.program.markPhrase(this);
 		}
 		
@@ -351,7 +351,7 @@ namespace Truth
 		/**
 		 * Gets whether this phrase is a zero-length, document-owned phrase.
 		 */
-		get isRoot()
+		get isDocumentOwned()
 		{
 			return this.parent === this;
 		}
@@ -620,7 +620,7 @@ namespace Truth
 		 */
 		get parentInfix()
 		{
-			if (this.isRoot)
+			if (this.isDocumentOwned)
 				return null;
 			
 			const flag = InfixFlags.population;
@@ -682,7 +682,7 @@ namespace Truth
 		 */
 		private get adjacents(): readonly Phrase[]
 		{
-			if (this.isRoot)
+			if (this.isDocumentOwned)
 				return [];
 			
 			// Note: It's important that this property does not return a cached
@@ -722,7 +722,7 @@ namespace Truth
 			if (this.isHypothetical)
 				throw Exception.invalidOperationOnHypotheticalPhrase();
 			
-			if (this.isRoot)
+			if (this.isDocumentOwned)
 				return this._outbounds = [];
 			
 			const forks: Fork[] = [];

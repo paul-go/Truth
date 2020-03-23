@@ -14,14 +14,6 @@ namespace Truth
 		}
 		
 		/** */
-		static unseededType()
-		{
-			return error(`
-				Cannot access this member on this type,
-				because it hasn't yes been compiled.`);
-		}
-		
-		/** */
 		static invalidArgument()
 		{
 			return error("Invalid argument.");
