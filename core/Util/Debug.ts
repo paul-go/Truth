@@ -11,6 +11,7 @@ namespace Truth
 		printDocument(document: Document)
 		{
 			console.log(document.toString(true, true));
+			return "";
 		}
 		
 		/**
@@ -37,6 +38,7 @@ namespace Truth
 			}
 			
 			console.table(rows);
+			return "";
 		}
 		
 		/**
@@ -53,6 +55,24 @@ namespace Truth
 				console.log("(No parallels found)");
 			
 			console.log("");
+			return "";
+		}
+		
+		/**
+		 * Logs the relevant information about a fork to the console.
+		 */
+		printFork(fork: Fork)
+		{
+			console.log("---------------------");
+			console.log("Term: " + fork.term.toString());
+			console.log("Predecessor: " + fork.predecessor.toString());
+			console.log("Successors: " + (fork.successors.length === 0 ? "(none)" : ""));
+			
+			if (fork.successors.length > 0)
+				for (const successor of fork.successors)
+					console.log("  " + successor.toString());
+			
+			return "";
 		}
 	}
 }
