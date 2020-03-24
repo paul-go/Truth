@@ -245,6 +245,35 @@ namespace Truth
 		}
 		
 		/**
+		 * Queries the program for types that exist in any loaded document,
+		 * at the specified path.
+		 * 
+		 * @param typePath The type path within the document to search.
+		 * @returns An array containing the types discovered. In the case when
+		 * discovered types are part of a homograph, all types participating in
+		 * this homograph are included in the returned array.
+		 */
+		query(...typePath: string[]): Type[]
+		{
+			if (typePath.length === 0)
+				throw Exception.passedArrayCannotBeEmpty("typePath");
+			
+			const results: Type[] = [];
+			
+			for (const document of this._documents)
+			{
+				for (const phrase of Phrase.fromPathComponents(document, typePath))
+				{
+					const type = Type.construct(phrase);
+					if (type)
+						results.push(type);
+				}
+			}
+			
+			return results;
+		}
+		
+		/**
 		 * Queries the program for the type that exists within
 		 * the specified document, at the specified type path.
 		 * 
@@ -262,7 +291,7 @@ namespace Truth
 		 * In the case when no type could be constructed from the specified
 		 * type path, 0 is returned.
 		 */
-		query(document: Document, ...typePath: string[]): Type | number
+		queryDocument(document: Document, ...typePath: string[]): Type | number
 		{
 			if (typePath.length === 0)
 				throw Exception.passedArrayCannotBeEmpty("typePath");

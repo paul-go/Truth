@@ -146,7 +146,7 @@ namespace Truth
 		 */
 		query(...typePath: string[])
 		{
-			return this.program.query(this, ...typePath);
+			return this.program.queryDocument(this, ...typePath);
 		}
 		
 		/**

@@ -116,6 +116,9 @@ namespace Truth
 					type.flags |= Flags.isExplicit;
 				}
 				
+				if (type.keywords.some(key => key.word === type.name))
+					type.flags |= Flags.isRefinement;
+				
 				for (const base of type._bases)
 					context.inboundBases.add(base, type);
 				
@@ -517,7 +520,9 @@ namespace Truth
 		 * within the document. A keyword is either the string
 		 * representation of a type, or an alias string. The base that
 		 * is associated with each word value can be used to
-		 * disambiguate between literal and aliased types.
+		 * disambiguate between literal and aliased types. In the
+		 * case when the base value is non-null, the associated word
+		 * is an alias.
 		 */
 		get keywords()
 		{
@@ -621,6 +626,13 @@ namespace Truth
 		get isIntroduction() { return this.parallels.length === 0; }
 		
 		/**
+		 * Gets whether this type is a _refinement_, which means that
+		 * it's name is also the name of one of the base types defined 
+		 * directly on it.
+		 */
+		get isRefinement() { return (this.flags & Flags.isRefinement) === Flags.isRefinement; }
+		
+		/**
 		 * Gets whether this type represents the intrinsic
 		 * side of a list.
 		 */
@@ -648,7 +660,7 @@ namespace Truth
 		 */
 		get isAnonymous() { return (this.flags & Flags.isAnonymous) === Flags.isAnonymous; }
 		
-		/** */
+		/** Gets whether this type represents a pattern. */
 		get isPattern() { return (this.flags & Flags.isPattern) === Flags.isPattern; }
 		
 		/** */
@@ -700,12 +712,15 @@ namespace Truth
 		 * the Type being visited, and a `via` property that is the Type
 		 * that was returned in the previous call to `nextFn`.
 		 */
-		*iterate(nextFn: (type: Type) => Iterable<Type | null> | Type | null, reverse?: boolean)
+		*iterate(
+			nextFn: (type: Type) => Iterable<Type | null> | Type | null,
+			reverse?: boolean)
 		{
 			const yielded: Type[] = [];
+			const via: Type[] = [];
 			
-			type RecurseType = IterableIterator<{ type: Type; via: Type | null }>;
-			function *recurse(type: Type, via: Type | null): RecurseType
+			type RecurseType = IterableIterator<{ type: Type; via: Type[]; }>;
+			function *recurse(type: Type): RecurseType
 			{
 				if (yielded.includes(type))
 					return;
@@ -716,16 +731,20 @@ namespace Truth
 					yield { type, via };
 				}
 				
+				via.push(type);
+				
 				const reduced = nextFn(type);
 				if (reduced !== null && reduced !== undefined)
 				{
 					if (reduced instanceof Type)
-						return yield *recurse(reduced, type);
+						return yield *recurse(reduced);
 					
 					for (const nextType of reduced)
 						if (nextType instanceof Type)
-							yield *recurse(nextType, type);
+							yield *recurse(nextType);
 				}
+				
+				via.pop();
 				
 				if (reverse)
 				{
@@ -734,7 +753,7 @@ namespace Truth
 				}
 			}
 			
-			yield *recurse(this, null);
+			yield *recurse(this);
 		}
 		
 		/**
@@ -802,9 +821,9 @@ namespace Truth
 		 * Returns a string representation of this type, suitable for
 		 * debugging purposes.
 		 */
-		toString()
+		toString(kind: "path" | "full" = "path")
 		{
-			if ("DEBUG")
+			if ("DEBUG" && kind === "full")
 			{
 				const lines: string[] = [];
 				const write = (
@@ -928,6 +947,7 @@ namespace Truth
 		isExplicit = 3,
 		isAnonymous = 4,
 		isPattern = 5,
-		isUri = 6
+		isUri = 6,
+		isRefinement= 7
 	}
 }

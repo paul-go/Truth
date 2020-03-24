@@ -9,7 +9,7 @@ namespace Truth
 				Field
 		`);
 		
-		const targetType = program.query(doc, "Class", "Field");
+		const targetType = program.queryDocument(doc, "Class", "Field");
 		const targetStatements = targetType instanceof Type ?
 			targetType.statements :
 			[];
@@ -30,7 +30,7 @@ namespace Truth
 			SubClass : Class
 		`);
 		
-		const targetType = program.query(doc, "SubClass", "Field");
+		const targetType = program.queryDocument(doc, "SubClass", "Field");
 		const targetStatements = targetType instanceof Type ?
 			targetType.statements :
 			[];
