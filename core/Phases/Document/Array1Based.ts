@@ -75,10 +75,33 @@ namespace Truth
 		
 		/**
 		 * Performs a standard Array.splice() call on the array.
+		 * Negative numbers passed to the pos argument start the splice
+		 * operation from the end of the array, in the same manner as the
+		 * standard JavaScript operation.
 		 */
 		splice(pos: number, deleteCount: number, ...items: T[]): readonly T[]
 		{
-			if (pos > this.items.length)
+			// This method needs to perform some strange handling due to the
+			// fact that the JavaScript Array.splice() method has bizarre handling
+			// when dealing with negative positions (there's no way to start at the
+			// very end of the array), and the fact that this method also needs to 
+			// translate the position into a 1-based index. Ironically, the fact that
+			// this class needs to translate indexes actually makes this .splice()
+			// method work as one might expect the JavaScript Array.splice()
+			// method to work. Below is a table of how the method translates
+			// the "pos" argument:
+			// 
+			// (Input => Translated):
+			// -2 => -1
+			// -1 => Array.splice not used
+			// 0 => Error
+			// 1 => 0
+			// 2 => 1
+			
+			if (pos < -1)
+				pos++;
+			
+			else if (pos === -1)
 			{
 				if (deleteCount > 0)
 				{
@@ -92,7 +115,13 @@ namespace Truth
 				return [];
 			}
 			
-			return this.items.splice(pos - 1, deleteCount, ...items);
+			if (pos === 0)
+				throw Exception.invalidArgument();
+			
+			if (pos > 0)
+				pos--;
+			
+			return this.items.splice(pos, deleteCount, ...items);
 		}
 		
 		/**

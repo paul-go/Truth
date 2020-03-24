@@ -761,7 +761,7 @@ namespace Truth
 							throw Exception.unknownState();
 					
 					//Debug.printDocument(this);
-					//Debug.printPhrases(this, true, true);
+					Debug.printPhrases(this, true, true);
 				}
 				
 				this._types = null;
@@ -1008,9 +1008,12 @@ namespace Truth
 			return {
 				deletePhrases()
 				{
-					Phrase.deflateRecursive(mustInvalidateDoc ?
+					const phrases = mustInvalidateDoc ?
 						self.getChildren() :
-						Array.from(invalidatedParents.values()));
+						Array.from(invalidatedParents.values());
+					
+					if (phrases.length > 0)
+						Phrase.deflateRecursive(phrases);
 				},
 				updateDocument()
 				{
@@ -1037,7 +1040,9 @@ namespace Truth
 				},
 				createPhrases()
 				{
-					Phrase.inflateRecursive(self.getChildren());
+					const phrases = self.getChildren();
+					if (phrases.length)
+						Phrase.inflateRecursive(phrases);
 				},
 				finalize
 			};

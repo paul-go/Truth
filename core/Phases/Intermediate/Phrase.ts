@@ -173,8 +173,10 @@ namespace Truth
 		 */
 		static inflateRecursive(statements: readonly Statement[])
 		{
-			for (const span of this.enumerateSpans(statements))
-				for (const phrase of Phrase.fromSpan(span))
+			const enumerated = Array.from(this.enumerateSpans(statements));
+			
+			for (const span of enumerated)
+				for (const phrase of Phrase.fromSpan(span, true))
 					phrase.inflate(span);
 		}
 		
@@ -208,16 +210,19 @@ namespace Truth
 		/**
 		 * @internal
 		 * Returns all Phrase objects that are terminated by the specified Span.
-		 * The phrases are created and added to the internal forwarding table
-		 * in the case when they're missing. Phrases created thought this method
-		 * are considered non-hypothetical.
+		 * Phrases created thought this method are considered non-hypothetical.
+		 * 
+		 * @param span The span from which to begin creating phrases.
+		 * @param createIfMissing If true, new phrases are created and added to
+		 * the internal forwarding table in the case when they're missing, before
+		 * being returned. Defaults to false.
 		 */
-		static fromSpan(span: Span)
+		static fromSpan(span: Span, createIfMissing = false)
 		{
 			const phrases: Phrase[] = [];
 			const root = span.statement.document.phrase;
 			
-			for (const spine of span.spines)
+			outer: for (const spine of span.spines)
 			{
 				let current = root;
 				
@@ -233,9 +238,13 @@ namespace Truth
 					const subject = spineSpan.boundary.subject;
 					const forwardPhrases = current.getForwarding(subject, clarifierKey);
 					
-					current = forwardPhrases.length === 0 ?
-						new Phrase(current, spineSpan, clarifiers, clarifierKey) :
-						forwardPhrases[0];
+					if (forwardPhrases.length > 0)
+						current = forwardPhrases[0];
+					
+					else if (createIfMissing)
+						current = new Phrase(current, spineSpan, clarifiers, clarifierKey);
+					
+					else continue outer;
 				}
 				
 				if (current !== root)
@@ -898,7 +907,7 @@ namespace Truth
 				parts.push(part);
 			}
 			
-			return prefix + parts.join("/");
+			return prefix + parts.join("/") + ` (@${this.id})`;
 		}
 	}
 	
