@@ -210,104 +210,121 @@ namespace Truth
 			if (this.pattern)
 				throw Exception.unknownState();
 			
+			// Only one alias per ExplicitParallel. 
+			// This should be controlled by the ConstructionWorker.
+			if (this.hasResolvedAlias)
+				throw Exception.unknownState();
+			
+			this.maybeSwitchToInlineContract();
+			
+			// Stores the set of all bases (deep) that exist within the contract.
+			const contractBases = new Set<ExplicitParallel>();
+			
 			if (this.contractConditionsUnsatisfied.size > 0)
 			{
-				const applicablePatternParallels = new Set<ExplicitParallel>();
-				
-				// Stores the set of all bases (deep) that exist within the contract
-				const contractBases = new Set<ExplicitParallel>();
 				for (const contractPar of this.contractConditionsUnsatisfied)
 				{
 					contractBases.add(contractPar);
 					for (const contractParDeep of contractPar.eachBaseDeep())
 						contractBases.add(contractParDeep);
 				}
+			}
+			
+			const applicablePatternParallels = new Set<ExplicitParallel>();
+			
+			// This loop attempts to discover the pattern-containing parallels
+			// from the patternParallelsInScope array that match one or more
+			// bases defined in the contract of this ExplicitParallel, but without 
+			// having a base that is not imposed by this ExplicitParallel's contract. 
+			// For example, if this ExplicitParallel's contract required bases A, B,
+			// and C, and one pattern where to match A and B, and another pattern
+			// were to match A, B, C, and D, this loop would discover the first pattern,
+			// as the second one would be disqualified.
+			// 
+			// In the case when there are no contractBases (and therefore, no
+			// contract is being imposed), the system avoids this subset check.
+			for (const patternParallel of patternParallelsInScope)
+			{
+				const patternBases = new Set<ExplicitParallel>();
+				for (const { base } of patternParallel.eachBase())
+					patternBases.add(base);
 				
-				// This loop attempts to discover the pattern-containing parallels
-				// from the patternParallelsInScope array that match one or more
-				// bases defined in the contract of this ExplicitParallel, but without 
-				// having a base that is not imposed by this ExplicitParallel's contract. 
-				// For example, if this ExplicitParallel's contract required bases A, B,
-				// and C, and one pattern where to match A and B, and another pattern
-				// were to match A, B, C, and D, this loop would discover the first pattern,
-				// as the second one would be disqualified.
-				for (const patternParallel of patternParallelsInScope)
-				{
-					const patternBases = new Set<ExplicitParallel>();
-					for (const { base } of patternParallel.eachBase())
-						patternBases.add(base);
-					
-					if (Misc.isSubset(contractBases, patternBases))
-						applicablePatternParallels.add(patternParallel);
-				}
+				if (contractBases.size > 0)
+					if (!Misc.isSubset(contractBases, patternBases))
+						continue;
 				
-				// Can't add an aliased base, because no applicable patterns 
-				// are in scope.
-				if (applicablePatternParallels.size === 0)
-					return false;
-				
-				// In order to add an aliased base, the alias has to match
-				// all matching patterns in scope.
-				
-				const infixedPatternParallels: ExplicitParallel[] = [];
-				const nonInfixedPatternParallels: ExplicitParallel[] = [];
-				
-				// If any of the patterns discovered have portability infixes, these need
-				// to be validated first, and so the applicablePatternParallels set needs
-				// to be divided up into two arrays.
-				// The basic idea is to feed the alias into these patterns, extract out the
-				// infixed areas out of the value, and then this extracted value would
-				// form a new alias that could be fed into other patterns. This at least
-				// would work for portability infixes. Population infixes may require
-				// some other handling. (Right now this clearly isn't implemented)
-				for (const patternParallel of applicablePatternParallels)
-				{
-					const pattern = Not.null(patternParallel.pattern);
-					pattern.hasInfixes() ?
-						infixedPatternParallels.push(patternParallel) :
-						nonInfixedPatternParallels.push(patternParallel);
-				}
-				
-				if (infixedPatternParallels.length > 0)
-					throw Exception.notImplemented();
-				
+				applicablePatternParallels.add(patternParallel);
+			}
+			
+			// Can't add an aliased base, because no applicable patterns 
+			// are in scope.
+			if (applicablePatternParallels.size === 0)
+				return false;
+			
+			// In order to add an aliased base, the alias has to match
+			// all matching patterns in scope.
+			
+			const infixedPatternParallels: ExplicitParallel[] = [];
+			const nonInfixedPatternParallels: ExplicitParallel[] = [];
+			
+			// If any of the patterns discovered have portability infixes, these need
+			// to be validated first, and so the applicablePatternParallels set needs
+			// to be divided up into two arrays.
+			// The basic idea is to feed the alias into these patterns, extract out the
+			// infixed areas out of the value, and then this extracted value would
+			// form a new alias that could be fed into other patterns. This at least
+			// would work for portability infixes. Population infixes may require
+			// some other handling. (Right now this clearly isn't implemented)
+			for (const patternParallel of applicablePatternParallels)
+			{
+				const pattern = Not.null(patternParallel.pattern);
+				pattern.hasInfixes() ?
+					infixedPatternParallels.push(patternParallel) :
+					nonInfixedPatternParallels.push(patternParallel);
+			}
+			
+			if (infixedPatternParallels.length > 0)
+				throw Exception.notImplemented();
+			
+			if (this.contractConditionsUnsatisfied.size > 0)
+			{
 				for (const patternParallel of nonInfixedPatternParallels)
 				{
 					const pattern = Not.null(patternParallel.pattern);
 					if (!pattern.test(viaAlias))
 						return false;
 				}
-				
-				// If we have gotten to this point, the contract is considered to be satisfied
-				// entirely. This may seem like a cheat–but it's not. We're actually able to
-				// just add all the parallels being imposed as bases, and then declare the 
-				// contract as settled. (There may be some other work to do here because
-				// this doesn't include the pattern parallel in the set of bases. Maybe this
-				// is what we want though? Use of patterns isn't supposed to influence
-				// other contracts.)
+			
+				// If we have gotten to this point, the contract is considered to be
+				// satisfied entirely. This may seem like a cheat–but it's not. We're
+				// actually able to just add all the parallels being imposed as bases,
+				// and then declare the  contract as settled. (There may be some
+				// other work to do here because this doesn't include the pattern
+				// parallel in the set of bases. Maybe this is what we want though?
+				// Use of patterns isn't supposed to influence other contracts.)
 				for (const parallel of this.contractConditionsUnsatisfied)
 					this.addBaseEntry(parallel, viaFork, true);
 				
 				this.contractConditionsUnsatisfied.clear();
-				return true;
+				return this.hasResolvedAlias = true;
 			}
-			// In the case when the contract had conditions, but they have
-			// all been met, further aliases are considered to be faults.
-			// This method should probably return this information specifically
-			// instead of just sending back an ambiguous false value.
-			else if (this.contractConditions.size > 0)
+			
+			// In the case when there is no contract being imposed, the process
+			// of adding bases is much simpler. The system can simply just add
+			// bases where there is a regular expression match between the
+			// alias provided the pattern against which we are testing.
+			let hasResolvedOne = false;
+			for (const patternParallel of applicablePatternParallels)
 			{
-				debugger;
-				return false;
+				const pattern = Not.null(patternParallel.pattern);
+				if (pattern.test(viaAlias))
+				{
+					this.addBaseEntry(patternParallel, viaFork, true);
+					hasResolvedOne = true;
+				}
 			}
-			else
-			{
-				// This is the case when an alias is assigned to a type, but
-				// no contract is being imposed on the type. This would be
-				// most common for surface-level declarations that are
-				// establishing things like global constants.
-				debugger;
-			}
+			
+			return this.hasResolvedAlias = hasResolvedOne;
 		}
 		
 		/**
@@ -489,6 +506,12 @@ namespace Truth
 		 */
 		private compiledExpression: string | null = null;
 		
+		/**
+		 * Each ExplicitParallel can only resolve a single alias. This property
+		 * stores whether or not this has occured. It's used for sanity checks.
+		 */
+		private hasResolvedAlias = false;
+		
 		//# Contract-related members
 		
 		/** */
@@ -550,6 +573,36 @@ namespace Truth
 			
 			for (const higherParallel of this.getParallels())
 				recurse(higherParallel);
+			
+			this._contractConditions = conditions;
+			this._contractConditionsUnsatisfied = new Set(conditions);
+		}
+		
+		/**
+		 * In the case when there is no contract being enforced on the parallel
+		 * from abstraction, the effective "contract" is derived from the other
+		 * literal types defined inline. Switching to an inline contract therefore
+		 * occurs when the system attempts to resolve it's first alias for a
+		 * given ExplicitParallel.
+		 */
+		private maybeSwitchToInlineContract()
+		{
+			// Do not switch to an inline contract in the case when there is already
+			// a non-empty contract being imposed on this type from above.
+			if (this._contractConditions && this._contractConditions.size > 0)
+				return;
+			
+			if (this._contractConditions === null || this._contractConditionsUnsatisfied === null)
+			{
+				this._contractConditions = new Set();
+				this._contractConditionsUnsatisfied = new Set();
+			}
+			
+			const conditions = new Set<ExplicitParallel>();
+			
+			for (const { parallels } of this._bases.values())
+				for (const par of parallels)
+					conditions.add(par);
 			
 			this._contractConditions = conditions;
 			this._contractConditionsUnsatisfied = new Set(conditions);

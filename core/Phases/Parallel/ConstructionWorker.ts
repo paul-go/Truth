@@ -247,7 +247,7 @@ namespace Truth
 		 * that does not have one already created.
 		 * Although the algorithm is careful to avoid circular bases, it's
 		 * too early in the processing pipeline to report these circular
-		 * bases as faults. This is because polymorphic name resolution
+		 * bases as faults. This is because polymorphic type resolution
 		 * needs to take place before the system can be sure that a 
 		 * seemingly-circular base structure is in fact what it seems.
 		 * True circular base detection is therefore handled at a future
@@ -263,6 +263,11 @@ namespace Truth
 			
 			this.rakedParallels.add(srcParallel);
 			
+			// The type resolution algorithm operates by resolving all literal
+			// types first, and then in the case when there are unresolved 
+			// forks left over, attempting to resolve one of these as an alias.
+			const unresolvedForks: Fork[] = [];
+			
 			for (const fork of srcParallel.phrase.outbounds)
 			{
 				if (this.cruft.has(fork))
@@ -272,84 +277,86 @@ namespace Truth
 					.filter(successor => !this.cruft.has(successor))
 					.sort((a, b) => a.length - b.length);
 				
-				if (possibilities.length > 0)
+				if (possibilities.length === 0)
+					unresolvedForks.push(fork);
+				
+				// This is where the polymorphic type resolution algorithm
+				// takes place. The algorithm operates by working it's way
+				// up the list of nodes (aka the scope chain), looking for
+				// a possible resolution target where the act of applying the
+				// associated Parallel as a base, causes at least one of the 
+				// conditions on the contract to be satisfied. Or, in the case
+				// when there are no conditions on the contract, the node
+				// that is the closest ancestor is used.
+				for (const possibleSuccessor of possibilities)
 				{
-					// This is where the polymorphic name resolution algorithm
-					// takes place. The algorithm operates by working it's way
-					// up the list of nodes (aka the scope chain), looking for
-					// a possible resolution target where the act of applying the
-					// associated Parallel as a base, causes at least one of the 
-					// conditions on the contract to be satisfied. Or, in the case
-					// when there are no conditions on the contract, the node
-					// that is the closest ancestor is used.
-					for (const possibleSuccessor of possibilities)
-					{
-						const baseParallel = this.drillNonHypotheticalPhrase(possibleSuccessor);
-						
-						// baseParallel will be null in the case when a circular
-						// relationship has been detected (and quitting is
-						// required here in order to avoid a stack overflow).
-						if (baseParallel === null)
-							continue;
-						
-						this.rakeExplicitParallel(baseParallel);
-						
-						// There are cases when an entire parallel needs to be
-						// "excavated", meaning that the Parallel's entire subtree
-						// of contents needs to be analyzed and converted into
-						// parallels. This is necessary because a fully defined set
-						// of parallels is required in order to detect discrepant
-						// unions (and therefore, report the attempt at a type
-						// union as faulty).
-						if (srcParallel.baseCount > 0)
-						{
-							if (srcParallel.baseCount === 1)
-								this.excavate(srcParallel.firstBase);
-							
-							this.excavate(baseParallel);
-						}
-						
-						if (!srcParallel.tryAddLiteralBase(baseParallel, fork))
-							continue;
-						
-						if (this.handledForks.has(fork))
-							throw Exception.unknownState();
-						
-						this.handledForks.add(fork);
+					const baseParallel = this.drillNonHypotheticalPhrase(possibleSuccessor);
+					
+					// baseParallel will be null in the case when a circular
+					// relationship has been detected (and quitting is
+					// required here in order to avoid a stack overflow).
+					if (baseParallel === null)
 						continue;
-					}
-				}
-				else
-				{
-					// At this point, we've discovered an annotation that we're
-					// going to try to resolve as an alias. If this doesn't work,
-					// the fork will be marked as cruft. Possibly a future version
-					// of this compiler will allow other systems to hook into this
-					// process and augment the resolution strategy.
 					
-					const patternParallelsInScope = new Set<ExplicitParallel>();
+					this.rakeExplicitParallel(baseParallel);
 					
-					for (const { patternParallel } of this.ascend(srcParallel))
+					// There are cases when an entire parallel needs to be
+					// "excavated", meaning that the Parallel's entire subtree
+					// of contents needs to be analyzed and converted into
+					// parallels. This is necessary because a fully defined set
+					// of parallels is required in order to detect discrepant
+					// unions (and therefore, report the attempt at a type
+					// union as faulty).
+					if (srcParallel.baseCount > 0)
 					{
-						this.rakePatternBases(patternParallel);
-						patternParallelsInScope.add(patternParallel);
-					}
-					
-					if (patternParallelsInScope.size > 0)
-					{
-						const alias = fork.term.textContent;
+						if (srcParallel.baseCount === 1)
+							this.excavate(srcParallel.firstBase);
 						
-						if (srcParallel.tryAddAliasedBase(patternParallelsInScope, fork, alias))
-						{
-							this.handledForks.add(fork);
-							continue;
-						}
+						this.excavate(baseParallel);
 					}
 					
-					if (!this.handledForks.has(fork))
-						this.cruft.add(fork, Faults.UnresolvedAnnotation);
+					if (!srcParallel.tryAddLiteralBase(baseParallel, fork))
+						continue;
+					
+					if (this.handledForks.has(fork))
+						throw Exception.unknownState();
+					
+					this.handledForks.add(fork);
+					continue;
 				}
 			}
+			
+			// At this point, we've discovered forks that weren't able
+			// to be resolved as literals, and so we're going to attempt
+			// to perform resolution by alias. If this doesn't work,
+			// the fork will be marked as cruft.
+			for (const fork of unresolvedForks)
+			{
+				const patternParallelsInScope = new Set<ExplicitParallel>();
+				
+				for (const { patternParallel } of this.ascend(srcParallel))
+				{
+					this.rakePatternBases(patternParallel);
+					patternParallelsInScope.add(patternParallel);
+				}
+				
+				if (patternParallelsInScope.size > 0)
+				{
+					const alias = fork.term.textContent;
+					
+					if (srcParallel.tryAddAliasedBase(patternParallelsInScope, fork, alias))
+					{
+						this.handledForks.add(fork);
+						break;
+					}
+				}
+			}
+			
+			// Only one fork is ever interpreted as the alias. Other remaining
+			// forks are considered unresolved annotations.
+			for (const fork of unresolvedForks)
+				if (!this.handledForks.has(fork))
+					this.cruft.add(fork, Faults.UnresolvedAnnotation);
 			
 			if (!srcParallel.isContractSatisfied)
 				for (const smt of srcParallel.phrase.statements)
