@@ -1,7 +1,7 @@
 
 namespace Truth
 {
-	/** */
+	/** @interal */
 	export const Debug = "DEBUG" && new class Debug
 	{
 		/**
@@ -37,6 +37,22 @@ namespace Truth
 			}
 			
 			console.table(rows);
+		}
+		
+		/**
+		 * Logs a set of parallels to the console.
+		 */
+		printParallels(parallels: Iterable<Parallel>)
+		{
+			let count = 0;
+			
+			for (const par of parallels)
+				console.log((count++) + "| " + par.toString());
+			
+			if (count === 0)
+				console.log("(No parallels found)");
+			
+			console.log("");
 		}
 	}
 }
