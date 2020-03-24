@@ -761,7 +761,7 @@ namespace Truth
 							throw Exception.unknownState();
 					
 					//Debug.printDocument(this);
-					Debug.printPhrases(this, true, true);
+					//Debug.printPhrases(this, true, true);
 				}
 				
 				this._types = null;
