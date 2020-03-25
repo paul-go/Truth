@@ -169,7 +169,7 @@ namespace Truth
 			}
 			else if (program.version.newerThan(context.version))
 			{
-				context.reset(program);
+				context.reset();
 			}
 			
 			return context;
@@ -271,7 +271,8 @@ namespace Truth
 			if (this._containees !== null)
 				return this._containees;
 			
-			this.guard();
+			const seed = this.guard();
+			const phrases = Type.getContext(this.phrase).phrases;
 			const innerSubjects = new Set<Subject>();
 			
 			// Dig through the parallel graph recursively, and at each parallel,
@@ -292,13 +293,13 @@ namespace Truth
 						continue;
 					
 					if (baseType.seed instanceof ExplicitParallel)
-						for (const subject of baseType.seed.phrase.peekSubjects())
+						for (const subject of phrases.peekSubjects(baseType.seed))
 							innerSubjects.add(subject);
 				}
 			}
-				
+			
 			const innerTypes = Array.from(innerSubjects)
-				.flatMap(subject => this.phrase.forward(subject))
+				.flatMap(subject => phrases.forward(seed, subject))
 				.map(phrase => Type.construct(phrase))
 				.filter((t): t is Type => t !== null);
 			
@@ -890,7 +891,8 @@ namespace Truth
 		/** */
 		constructor(readonly program: Program)
 		{
-			this.worker = new ConstructionWorker(program);
+			this.phrases = new PhraseProvider();
+			this.worker = new ConstructionWorker(program, this.phrases);
 			this._version = program.version;
 		}
 		
@@ -899,14 +901,14 @@ namespace Truth
 		 * This method should be called when the program is modified,
 		 * and the cached information is therefore no longer valid.
 		 */
-		reset(program: Program)
+		reset()
 		{
 			this.typesForPhrases.clear();
 			this.typesForTerms.clear();
 			this.inboundBases.clear();
 			this.inboundParallels.clear();
 			this.worker.reset();
-			this._version = program.version;
+			this._version = this.program.version;
 		}
 		
 		/** */
@@ -918,6 +920,9 @@ namespace Truth
 		
 		/** */
 		readonly worker: ConstructionWorker;
+		
+		/** */
+		readonly phrases: PhraseProvider;
 		
 		/** */
 		readonly typesForPhrases = new Map<Phrase, Type>();

@@ -120,10 +120,9 @@ namespace Truth
 				{
 					const phrases = currentPhrase.peek(pathTerm);
 					
-					if (!phrases || phrases.length === 0)
+					if (phrases.length === 0)
 					{
-						// Now moving into the hypothetical phrase territory...
-						currentPhrase = new Phrase(currentPhrase, pathTerm);
+						currentPhrase = this.createHypothetical(currentPhrase, pathTerm);
 					}
 					else if (phrases.length === 1)
 					{
@@ -140,6 +139,15 @@ namespace Truth
 			}
 			
 			return outPhrases;
+		}
+		
+		/**
+		 * Creates a hypothetical phrase that forwards from the phrase
+		 * specified, to the subject specified.
+		 */
+		static createHypothetical(phrase: Phrase, subject: Subject)
+		{
+			return new Phrase(phrase, subject);
 		}
 		
 		/**
@@ -173,9 +181,7 @@ namespace Truth
 		 */
 		static inflateRecursive(statements: readonly Statement[])
 		{
-			const enumerated = Array.from(this.enumerateSpans(statements));
-			
-			for (const span of enumerated)
+			for (const span of this.enumerateSpans(statements))
 				for (const phrase of Phrase.fromSpan(span, true))
 					phrase.inflate(span);
 		}
@@ -314,6 +320,10 @@ namespace Truth
 					this.terminal = b.boundary.subject;
 					this.clarifiers = c || [];
 					this.clarifierKey = d || "";
+					
+					// Hypothetical phrases are not added to the forwarding table, 
+					// because these are managed by PhraseProvider.
+					this.parent.setForwarding(this.terminal, this.clarifierKey, this);
 				}
 				// Third overload
 				else if (b)
@@ -321,11 +331,6 @@ namespace Truth
 					this.isHypothetical = true;
 					this.terminal = b;
 				}
-				
-				// Hypothetical phrases are still added to the forwarding table, 
-				// because otherwise they will keep being instantiated over and
-				// over again, causing unnecessary strain on the garbage collector.
-				this.parent.setForwarding(this.terminal, this.clarifierKey, this);
 			}
 			
 			this.outboundsVersion = this.containingDocument.program.version;
@@ -442,6 +447,9 @@ namespace Truth
 		 */
 		private inflate(inflatingSpan: Span)
 		{
+			if (this.isHypothetical)
+				throw Exception.unknownState();
+			
 			// We need to check to see if this inflation is simply reinflating
 			// an already-existing phrase. See the comments in the .dispose()
 			// method for further information.
@@ -483,24 +491,6 @@ namespace Truth
 		}
 		
 		/**
-		 * Returns a reference to the phrases that are extended by the subject specified.
-		 * In the case when such a phrase has not been added to the internal forwarding
-		 * table, a new hypothetical phrase is created and returned in a single-item array.
-		 * 
-		 * An array must be returned from this method rather than a singular Phrase
-		 * object, because the phrase structure may have a nested homograph. Although
-		 * these are invalid, the phrase structure must still be capable of representing
-		 * these.
-		 */
-		forward(subject: Subject)
-		{
-			const result = this.getForwarding(subject);
-			return result && result.length > 0 ?
-				result :
-				[new Phrase(this, subject)];
-		}
-		
-		/**
 		 * Returns a reference to the phrases that are extended by the subject specified,
 		 * in the case when such a phrase has been added to the internal forwarding
 		 * table.
@@ -519,8 +509,8 @@ namespace Truth
 		}
 		
 		/**
-		 * Enumerates through the non-hypothetical phrases that extend from this
-		 * one, yielding phrase arrays that correspond to the series of homographic
+		 * Yields the non-hypothetical phrases that extend from this one,
+		 * yielding phrase arrays that correspond to the series of homographic
 		 * phrases that extend from a subject.
 		 */
 		*peekMany()
@@ -530,8 +520,8 @@ namespace Truth
 		}
 		
 		/**
-		 * Returns an array containing the subjects that link to the non-hypothetical
-		 * phrases that extend from this phrase.
+		 * Yields subjects that correspond to the non-hypothetical phrases that
+		 * extend from this phrase.
 		 */
 		*peekSubjects()
 		{
@@ -563,19 +553,6 @@ namespace Truth
 			
 			yield *recurse(this);
 		}
-		
-		/**
-		 * Gets an array containing the subjects that compose this phrase.
-		 * Note that if only the number of subjects is required, the .length
-		 * field should be used instead.
-		 */
-		get subjects()
-		{
-			return this._subjects ?
-				this._subjects :
-				this._subjects = this.ancestry.map(ph => ph.terminal);
-		}
-		private _subjects: readonly Subject[] | null = null;
 		
 		/**
 		 * Gets an array of Phrase objects that form a path leading to this Phrase.
@@ -794,7 +771,6 @@ namespace Truth
 			this.parent.deleteForwarding(this.terminal, this.clarifierKey);
 			this._outbounds = null;
 			this._ancestry = null;
-			this._subjects = null;
 			this._statements = null;
 			this._isDisposed = true;
 			this.containingDocument.program.unmarkPhrase(this);

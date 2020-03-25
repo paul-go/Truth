@@ -14,7 +14,9 @@ namespace Truth
 	export class ConstructionWorker
 	{
 		/** */
-		constructor(private readonly program: Program)
+		constructor(
+			private readonly program: Program,
+			private readonly phraseProvider: PhraseProvider)
 		{
 			this.cruft = new CruftCache(this.program);
 		}
@@ -279,7 +281,7 @@ namespace Truth
 				
 				if (possibilities.length === 0)
 					unresolvedForks.push(fork);
-				
+				 
 				// This is where the polymorphic type resolution algorithm
 				// takes place. The algorithm operates by working it's way
 				// up the list of nodes (aka the scope chain), looking for
@@ -590,9 +592,6 @@ namespace Truth
 				return upperParallels;
 			};
 			
-			const hasExplicitContents = followParallelsFn(zenith)
-				.some(p => p instanceof ExplicitParallel);
-			
 			// The following algorithm performs a recursive reduction on
 			// the zenith, and produces a set of Parallels to prune from the
 			// descension process. The Parallels that end up getting pruned
@@ -610,8 +609,7 @@ namespace Truth
 			// And so this algorithm stakes out cut off points so that we don't
 			// blindly just descend all Parallels in the level.
 			const prunedParallels = new Set<Parallel>();
-			
-			Misc.reduceRecursive(
+			const hasExplicitContainees = Misc.reduceRecursive(
 				zenith,
 				followParallelsFn,
 				(current, results: readonly boolean[]) =>
@@ -631,7 +629,7 @@ namespace Truth
 			// the type name specified (i.e. the whole level would be 
 			// implicit parallels), null is returned because a descend
 			// wouldn't make sense.
-			if (!hasExplicitContents)
+			if (!hasExplicitContainees)
 				return null;
 			
 			const descendParallelsFollowFn = (par: Parallel): readonly Parallel[] =>
@@ -672,7 +670,7 @@ namespace Truth
 		 */
 		private descendOne(zenith: Parallel, targetSubject: Subject)
 		{
-			const nextPhrases = zenith.phrase.forward(targetSubject);
+			const nextPhrases = this.phraseProvider.forward(zenith, targetSubject);
 			
 			if (nextPhrases.length === 0)
 				throw Exception.unknownState();
