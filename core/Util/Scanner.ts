@@ -164,6 +164,18 @@ namespace Truth
 		}
 		
 		/**
+		 * Gets a value that is one less than the current character
+		 * position, bounded at 0. This is for creating boundary
+		 * objects, as the parser typically will have advanced 
+		 * ahead before boundary objects have been created
+		 * (causing an off-by-1 error).
+		 */
+		get offset()
+		{
+			return Math.max(this._position - 1, 0);
+		}
+		
+		/**
 		 * Gets or sets the position of the cursor from where
 		 * reading takes place in the cursor.
 		 */

@@ -341,6 +341,9 @@ namespace Truth
 		 * @returns The Statement that would act as the parent if a statement where to be
 		 * inserted at the specified virtual position in the document. If an inserted statement
 		 * would be surface-level, a reference to this document object is returned.
+		 * 
+		 * @param lineNumber The 1-based line number at which to begin.
+		 * @param lineOffset The 1-based character offset at which to begin.
 		 */
 		getParentFromPosition(lineNumber: number, lineOffset: number): Statement | this
 		{
@@ -945,7 +948,7 @@ namespace Truth
 					
 					const parent = this.getParentFromPosition(
 						ed.pos,
-						ed.smt.indent);
+						ed.smt.indent + 1);
 					
 					if (parent instanceof Statement)
 					{

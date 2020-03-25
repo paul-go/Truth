@@ -49,15 +49,20 @@ namespace Truth
 				// The TabsAndSpaces fault is the only fault that needs a
 				// special case where it has a different reporting location.
 				this.range = type.code === Faults.TabsAndSpaces.code ?
-					[1, src.indent + 1] :
-					[src.indent + 1, src.sourceText.length + 1];
+					{ start: 1, end: src.indent + 1 } :
+					{ start: src.indent + 1, end: src.sourceText.length + 1 };
 			}
 			else if (src instanceof Span || src instanceof InfixSpan)
 			{
-				this.range = [
-					src.boundary.offsetStart + 1,
-					src.boundary.offsetEnd + 1
-				];
+				this.range = {
+					// This is +1 to account for the difference between the
+					// 0-based internal format and the 1-based external format
+					start: src.boundary.offsetStart + 1,
+					// This is +2 to account for the 0-based and 1-based difference,
+					// and also the fact that this is an "end column" rather than
+					// an ending character position.
+					end: src.boundary.offsetEnd + 2
+				};
 			}
 			else throw Exception.unknownState();
 		}
@@ -79,7 +84,7 @@ namespace Truth
 			const uriText = avoidProtocols.includes(doc.uri.protocol) ?
 				"" : doc.uri.toString() + " ";
 			
-			const colNums = this.range.join("-");
+			const colNums = this.range.start + "-" + this.range.end;
 			const colText = colNums ? ", Col " + colNums : "";
 			
 			return `${this.type.message} (${uriText}Line ${this.line}${colText})`;
@@ -120,7 +125,7 @@ namespace Truth
 		 * offsets are 1-based (not 0-based) to comply with the behaviour of 
 		 * most text editors.
 		 */
-		readonly range: [number, number];
+		readonly range: { start: number, end: number; };
 	}
 	
 	/**

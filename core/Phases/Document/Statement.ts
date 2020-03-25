@@ -206,7 +206,7 @@ namespace Truth
 					flags |= StatementFlags.hasUri;
 					declarationEntries.push(new Boundary(
 						markBeforeUri,
-						scanner.position,
+						scanner.offset,
 						uri));
 					
 					return true;
@@ -231,7 +231,7 @@ namespace Truth
 					
 					declarationEntries.push(new Boundary(
 						markBeforePattern,
-						scanner.position,
+						scanner.offset,
 						pattern));
 					
 					return true;
@@ -731,16 +731,27 @@ namespace Truth
 		}
 		
 		/**
-		 * @returns The kind of StatementZone that exists
-		 * at the given character offset within the Statement.
+		 * @returns The kind of StatementZone that exists at the given 
+		 * 0-based character offset within the Statement.
 		 */
 		getZone(offset: number)
 		{
-			if (this.isComment || offset < this.indent || this.isCruft)
+			if (this.isComment || 
+				offset < this.indent || 
+				offset >= this.sourceText.length ||
+				this.isCruft)
 				return StatementZone.void;
 			
 			if (this.isWhitespace)
 				return StatementZone.whitespace;
+			
+			if (offset === this.jointPosition)
+				return StatementZone.joint;
+			
+			if (this.sourceText[offset] === Syntax.combinator)
+				return offset < this.jointPosition ?
+					StatementZone.declarationCombinator :
+					StatementZone.annotationCombinator;
 			
 			if (this.hasPattern)
 			{
@@ -758,7 +769,7 @@ namespace Truth
 						return StatementZone.declaration;
 				}
 				
-				return StatementZone.declarationVoid;
+				return StatementZone.declarationWhitespace;
 			}
 			
 			for (const span of this.allAnnotations)
@@ -768,7 +779,7 @@ namespace Truth
 					return StatementZone.annotation;
 			}
 			
-			return StatementZone.annotationVoid;
+			return StatementZone.annotationWhitespace;
 		}
 		
 		/**
@@ -780,32 +791,64 @@ namespace Truth
 		}
 		
 		/**
-		 * @returns A span to the declaration subject at the 
-		 * specified offset, or null if there is none was found.
+		 * Returns the declaration span nearest to the specified 0-based 
+		 * character offset, or null in the case when no declaration could
+		 * be found in the vicinity.
 		 */
 		getDeclaration(offset: number)
 		{
-			for (const span of this.declarations)
-			{
-				const bnd = span.boundary;
-				if (offset >= bnd.offsetStart && offset <= bnd.offsetEnd)
-					return span;
-			}
+			if (this.jointPosition > -1 && offset > this.jointPosition)
+				return null;
 			
-			return null;
+			return this.getSpan(offset, this.declarations);
 		}
 		
 		/**
-		 * @returns A span to the annotation subject at the 
-		 * specified offset, or null if there is none was found.
+		 * Returns the annotation span nearest to the specified 0-based 
+		 * character offset, or null in the case when no annotation could
+		 * be found in the vicinity.
 		 */
 		getAnnotation(offset: number)
 		{
-			for (const span of this.annotations)
+			if (this.jointPosition > -1 && offset < this.jointPosition + 1)
+				return null;
+			
+			return this.getSpan(offset, this.annotations);
+		}
+		
+		/**
+		 * Returns the span nearest to the specified 0-based character offset, 
+		 * within the array of spans provided, or null in the case when no span
+		 * could be found in the vicinity.
+		 */
+		private getSpan(offset: number, spans: readonly Span[])
+		{
+			if (offset < 0 || offset > this.sourceText.length - 1)
+				return null;
+			
+			const len = this.spans.length;
+			for (let i = -1; ++i < len;)
 			{
-				const bnd = span.boundary;
-				if (offset >= bnd.offsetStart && offset <= bnd.offsetEnd)
-					return span;
+				const spanA = spans[i];
+				const bndA = spanA.boundary;
+				if (offset >= bndA.offsetStart && offset <= bndA.offsetEnd)
+					return spanA;
+				
+				// offset is past the end of the last declaration span
+				const spanB = i < len - 1 ? spans[i + 1] : null;
+				if (!spanB)
+					return spanA;
+				
+				// offset is between two declaration spans
+				if (offset < spanB.boundary.offsetStart)
+				{
+					const midText = this.sourceText.slice(
+						bndA.offsetEnd + 1,
+						spanB.boundary.offsetStart);
+					
+					const combPos = bndA.offsetStart + midText.indexOf(Syntax.combinator);
+					return offset >= combPos ? spanB : spanA;
+				}
 			}
 			
 			return null;
@@ -868,31 +911,64 @@ namespace Truth
 	{
 		/**
 		 * Refers to the area within a comment statement,
-		 * or the whitespace preceeding a non-no-op.
+		 * or the whitespace preceeding a non-no-op,
+		 * or non-existent area of the statement that is beyond
+		 * the end of the line.
 		 */
 		void,
 		
 		/**
-		 * Refers to the area in the indentation area.
+		 * Refers to the indentation area of a statement.
 		 */
 		whitespace,
 		
 		/**
-		 * Refers to the 
+		 * Refers to the area of a statement where a pattern
+		 * is located.
 		 */
 		pattern,
 		
-		/** */
+		/**
+		 * Refers to the area (being a single character) of a statement 
+		 * where the joint is located.
+		 */
+		joint,
+		
+		/**
+		 * Refers to an area in a statement where a declaration is located.
+		 */
 		declaration,
 		
-		/** */
+		/**
+		 * Refers to an area on the declaration side of a statement where 
+		 * a combinator is located.
+		 */
+		declarationCombinator,
+		
+		/**
+		 * Refers to an area in a statement containing whitespace that
+		 * exists between two declarations, or between a declaration
+		 * and the joint.
+		 */
+		declarationWhitespace,
+		
+		/**
+		 * Refers to an area in a statement where an annotation is located.
+		 */
 		annotation,
 		
-		/** */
-		declarationVoid,
+		/**
+		 * Refers to an area on the annotation side of a statement where 
+		 * a combinator is located.
+		 */
+		annotationCombinator,
 		
-		/** */
-		annotationVoid
+		/**
+		 * Refers to an area in a statement containing whitespace that
+		 * exists between two annotations, or between a joint and an
+		 * annotation.
+		 */
+		annotationWhitespace
 	}
 	
 	/**

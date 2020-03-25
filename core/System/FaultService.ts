@@ -74,7 +74,7 @@ namespace Truth
 			// the starting offset of the reported fault's range. This should cause
 			// Statement faults to always be ordered before Span and InfixSpan
 			// faults.
-			const offsetDelta = a.range[0] - b.range[0];
+			const offsetDelta = a.range.start - b.range.start;
 			if (offsetDelta !== 0)
 				return offsetDelta;
 			

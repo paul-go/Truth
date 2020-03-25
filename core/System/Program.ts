@@ -338,14 +338,19 @@ namespace Truth
 		/**
 		 * Returns an object that provides contextual information about a specific
 		 * location in the specified document.
+		 * 
+		 * @param document The document to inspect.
+		 * @param line A 1-based line number at which to begin inspecting.
+		 * @param offset A 1-based character offset at which to begin inspecting.
 		 */
 		inspect(
 			document: Document,
 			line: number,
 			offset: number): ProgramInspectionResult
 		{
+			const offset0Based = offset - 1;
 			const statement = document.read(line);
-			const zone = statement.getZone(offset);
+			const zone = statement.getZone(offset0Based);
 			const position = { line, offset };
 			
 			switch (zone)
@@ -356,7 +361,7 @@ namespace Truth
 				// Return all the types in the declaration side of the parent.
 				case StatementZone.whitespace:
 				{
-					const parent = document.getParentFromPosition(line, offset);
+					const parent = document.getParentFromPosition(line, offset0Based);
 					if (parent instanceof Document)
 						return new ProgramInspectionResult(position, zone, parent, statement);
 					
@@ -378,8 +383,10 @@ namespace Truth
 				}
 				// Return all the types related to the specified declaration.
 				case StatementZone.declaration:
+				case StatementZone.declarationWhitespace:
+				case StatementZone.declarationCombinator:
 				{
-					const decl = statement.getDeclaration(offset);
+					const decl = statement.getDeclaration(offset0Based);
 					if (!decl)
 						throw Exception.unknownState();
 					
@@ -392,7 +399,7 @@ namespace Truth
 				// 
 				case StatementZone.annotation:
 				{
-					const anno = statement.getAnnotation(offset);
+					const anno = statement.getAnnotation(offset0Based);
 					if (!anno)
 						throw Exception.unknownState();
 					
@@ -420,9 +427,9 @@ namespace Truth
 					return new ProgramInspectionResult(position, zone, base, statement, anno);
 				}
 				//
-				case StatementZone.annotationVoid:
+				case StatementZone.annotationWhitespace:
 				{
-					const anno = statement.getAnnotation(offset);
+					const anno = statement.getAnnotation(offset0Based);
 					const phrases = Phrase.fromSpan(statement.declarations[0]);
 					const types = phrases
 						.map(ph => Type.construct(ph))

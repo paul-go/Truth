@@ -49,7 +49,10 @@ namespace Truth
 	 */
 	export interface Position 
 	{
+		/** Represents a 1-based line number. */
 		line: number;
+		
+		/** Represents a 1-based charcter offset. */
 		offset: number;
 	}
 }

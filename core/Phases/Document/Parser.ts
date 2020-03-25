@@ -49,7 +49,7 @@ namespace Truth
 				if (parseResult !== null)
 					entries.push(new Boundary<Term>(
 						parseResult.at, 
-						scanner.position,
+						scanner.offset,
 						parseResult.term));
 				
 				// The following combinator must be eaten before
@@ -138,7 +138,7 @@ namespace Truth
 				{
 					annotations.push(new Boundary(
 						readResult.at, 
-						scanner.position,
+						scanner.offset,
 						readResult.term));
 					
 					raw += readResult.raw;
@@ -741,7 +741,7 @@ namespace Truth
 				for (const boundsEntry of readAnnotations(scanner, [quitToken]).annotations)
 					rhsEntries.push(new Boundary(
 						boundsEntry.offsetStart,
-						scanner.position,
+						scanner.offset,
 						boundsEntry.subject));
 			}
 			else
@@ -759,7 +759,7 @@ namespace Truth
 					for (const boundsEntry of readAnnotations(scanner, [quitToken]).annotations)
 						rhsEntries.push(new Boundary(
 							boundsEntry.offsetStart,
-							scanner.position,
+							scanner.offset,
 							boundsEntry.subject));
 				}
 			}
@@ -782,7 +782,7 @@ namespace Truth
 			
 			return new Infix(
 				infixStart,
-				scanner.position,
+				scanner.offset,
 				new BoundaryGroup(lhsEntries),
 				new BoundaryGroup(rhsEntries),
 				infixFlags);
