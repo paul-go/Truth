@@ -63,6 +63,11 @@ namespace Truth
 		/** */
 		addParallel(parallel: Parallel)
 		{
+			// Sanity check, this could cause a stack overflow.
+			if ("DEBUG")
+				if (parallel === this)
+					throw Exception.unknownState();
+			
 			if (!this._parallels.includes(parallel))
 				this._parallels.push(parallel);
 		}

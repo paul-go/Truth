@@ -87,7 +87,7 @@ namespace Truth
 		private createHash(target: Parallel, subject: Subject)
 		{
 			return typeof BigInt === "function" ?
-				BigInt(target.phrase.id) << BigInt(32) & BigInt(subject.id) :
+				BigInt(target.phrase.id) << BigInt(32) | BigInt(subject.id) :
 				target.phrase.id + " " + subject.id;
 		}
 		
