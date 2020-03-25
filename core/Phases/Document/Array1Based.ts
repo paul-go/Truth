@@ -11,6 +11,9 @@ namespace Truth
 		/**
 		 * Yields items starting at the specified position, and continues forward
 		 * until the end of the array is reached.
+		 * 
+		 * @param from The 1-based index at which to begin enumerating.
+		 * The value provided is bounded by the available indexes in the array.
 		 */
 		*enumerateForward(from = 1)
 		{
@@ -22,6 +25,9 @@ namespace Truth
 		/**
 		 * Yields items starting at the specified position, and continues backward
 		 * until the start of the array is reached.
+		 * 
+		 * @param from The 1-based index at which to begin enumerating.
+		 * The value provided is bounded by the available indexes in the array.
 		 */
 		*enumerateBackward(from = -1)
 		{
@@ -138,7 +144,7 @@ namespace Truth
 			if (pos < 0)
 				return Math.max(0, len - pos);
 			
-			if (pos > len)
+			if (pos >= len)
 				return len - 1;
 			
 			return pos;
