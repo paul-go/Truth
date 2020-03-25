@@ -731,19 +731,19 @@ namespace Truth
 		}
 		
 		/**
-		 * @returns The kind of StatementZone that exists at the given 
-		 * 0-based character offset within the Statement.
+		 * Returns the kind of StatementZone that exists at the given 
+		 * 0-based character offset within the Statement. The provided
+		 * offset is capped at the character length of the statement.
 		 */
 		getZone(offset: number)
 		{
-			if (this.isComment || 
-				offset < this.indent || 
-				offset >= this.sourceText.length ||
-				this.isCruft)
-				return StatementZone.void;
-			
 			if (this.isWhitespace)
 				return StatementZone.whitespace;
+			
+			if (this.isComment || this.isCruft)
+				return StatementZone.void;
+			
+			offset = this.applyBounds(offset);
 			
 			if (offset === this.jointPosition)
 				return StatementZone.joint;
@@ -823,8 +823,7 @@ namespace Truth
 		 */
 		private getSpan(offset: number, spans: readonly Span[])
 		{
-			if (offset < 0 || offset > this.sourceText.length - 1)
-				return null;
+			offset = this.applyBounds(offset);
 			
 			const len = this.spans.length;
 			for (let i = -1; ++i < len;)
@@ -852,6 +851,15 @@ namespace Truth
 			}
 			
 			return null;
+		}
+		
+		/**
+		 * Caps and floors the specified offset value so that it may refer
+		 * to a valid character position within the sourceText.
+		 */
+		private applyBounds(offset: number)
+		{
+			return Math.max(0, Math.min(this.sourceText.length - 1, offset));
 		}
 		
 		/**
