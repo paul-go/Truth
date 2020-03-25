@@ -19,7 +19,7 @@ namespace Truth
 		{
 			const len = this.items.length;
 			for (let idx = this.toZeroBased(from); idx < len; idx++)
-				yield this.items[idx];
+				yield Not.undefined(this.items[idx]);
 		}
 		
 		/**
@@ -32,7 +32,7 @@ namespace Truth
 		*enumerateBackward(from = -1)
 		{
 			for (let idx = this.toZeroBased(from); idx >= 0; idx--)
-				yield this.items[idx];
+				yield Not.undefined(this.items[idx]);
 		}
 		
 		/**
@@ -139,6 +139,10 @@ namespace Truth
 				throw Exception.invalidArgument();
 			
 			const len = this.items.length;
+			
+			if (len === 0)
+				return 0;
+			
 			pos--;
 			
 			if (pos < 0)
