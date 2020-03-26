@@ -73,26 +73,6 @@ namespace Truth
 			const ancestry = directive.ancestry;
 			const surfacePhrase = directive.ancestry[0];
 			
-			/*
-			TODO
-			Is this where we should be managing homographs?
-			Or do you need to pass in a clarified directive phrase before
-			this is even started?
-			Or should we deal with the situation where an unclarified phrase
-			is provided?
-			
-			// The surface phrases are the 1-length phrases that 
-			const surfacePhrases = directive.containingDocument.phrase
-				.peek(surfacePhrase.terminal, surfacePhrase.clarifierKey);
-			
-			if (surfacePhrases.length === 0)
-				return null;
-			
-			// Homographs not yet implemented.
-			if (surfacePhrases.length > 1)
-				throw Exception.notImplemented();
-			*/
-			
 			let typeIdx = 0;
 			let lastSeed = 
 				this.parallels.get(directive.parent) ||
