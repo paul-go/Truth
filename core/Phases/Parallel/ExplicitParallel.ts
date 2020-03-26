@@ -122,7 +122,7 @@ namespace Truth
 		 * @returns A boolean value that indicates whether the base
 		 * was added successfully.
 		 */
-		tryAddLiteralBase(base: ExplicitParallel, via: Fork)
+		tryAddLiteralBase(base: ExplicitParallel, via: Fork): BaseResolveResult
 		{
 			if (this._bases.has(via))
 				throw Exception.unknownState();
@@ -134,7 +134,8 @@ namespace Truth
 				throw Exception.unknownState();
 			
 			let numSatisfied = 0;
-			const unsatisfiedConditions = this.contractConditionsUnsatisfied;
+			const contract = this.maybeComputeContract();
+			const unsatisfiedConditions = contract.conditionsUnsatisfied;
 			const collectBaseGraphRecursive = (currentParallel: ExplicitParallel) =>
 			{
 				if (unsatisfiedConditions.size === 0)
@@ -157,25 +158,25 @@ namespace Truth
 			collectBaseGraphRecursive(base);
 			
 			// Was anything in the contract actually satisfied?
-			if (numSatisfied === 0 && this.contractConditions.size > 0)
-				return false;
+			if (numSatisfied === 0 && contract.conditionsUnsatisfied.size > 0)
+				return BaseResolveResult.rejected;
 			
 			const sanitizer = new Sanitizer(this, base, via, this.cruft);
 			
 			// In this case, we only need to do a 
 			// shallow check for circular inheritance.
 			if (sanitizer.detectCircularReferences())
-				return false;
+				return BaseResolveResult.faulty;
 			
 			if (sanitizer.detectListFragmentConflicts())
-				return false;
+				return BaseResolveResult.faulty;
 			
 			if (this.baseCount > 0)
 				if (sanitizer.detectListDimensionalityConflict())
-					return false;
+					return BaseResolveResult.faulty;
 			
 			this.addBaseEntry(base, via, false);
-			return true;
+			return BaseResolveResult.added;
 		}
 		
 		/**
@@ -215,14 +216,35 @@ namespace Truth
 			if (this.hasResolvedAlias)
 				throw Exception.unknownState();
 			
-			this.maybeSwitchToInlineContract();
+			// Contracts for aliased bases are computed in a different way 
+			// when compared to literal bases. In an aliased base, there is
+			// a notion of an "inline contract". The inline contract is a combination
+			// of the other bases that are applied to a parallel, to inform the
+			// resolution of the base. The inline contract is appended to
+			// any pre-existing contract being imposed from this parallel's
+			// parallel graph. For example:
+			//
+			// Class
+			// 	Field : Number
+			// SubClass : Class
+			//	Field : 4, EvenNumber
+			//
+			// On the last line, there would be two bases contributing to the
+			// contract, the first being Number (coming from the parallel graph),
+			// and the second being EvenNumber.
+			const contract = this.maybeComputeContract();
+			const conditions = new Set(contract.conditions);
+			
+			for (const { parallels } of this._bases.values())
+				for (const par of parallels)
+					conditions.add(par);
 			
 			// Stores the set of all bases (deep) that exist within the contract.
 			const contractBases = new Set<ExplicitParallel>();
 			
-			if (this.contractConditionsUnsatisfied.size > 0)
+			if (conditions.size > 0)
 			{
-				for (const contractPar of this.contractConditionsUnsatisfied)
+				for (const contractPar of conditions)
 				{
 					contractBases.add(contractPar);
 					for (const contractParDeep of contractPar.eachBaseDeep())
@@ -259,7 +281,7 @@ namespace Truth
 			// Can't add an aliased base, because no applicable patterns 
 			// are in scope.
 			if (applicablePatternParallels.size === 0)
-				return false;
+				return BaseResolveResult.rejected;
 			
 			// In order to add an aliased base, the alias has to match
 			// all matching patterns in scope.
@@ -286,13 +308,13 @@ namespace Truth
 			if (infixedPatternParallels.length > 0)
 				throw Exception.notImplemented();
 			
-			if (this.contractConditionsUnsatisfied.size > 0)
+			if (conditions.size > 0)
 			{
 				for (const patternParallel of nonInfixedPatternParallels)
 				{
 					const pattern = Not.null(patternParallel.pattern);
 					if (!pattern.test(viaAlias))
-						return false;
+						return BaseResolveResult.rejected;
 				}
 			
 				// If we have gotten to this point, the contract is considered to be
@@ -302,29 +324,31 @@ namespace Truth
 				// other work to do here because this doesn't include the pattern
 				// parallel in the set of bases. Maybe this is what we want though?
 				// Use of patterns isn't supposed to influence other contracts.)
-				for (const parallel of this.contractConditionsUnsatisfied)
+				for (const parallel of conditions)
 					this.addBaseEntry(parallel, viaFork, true);
 				
-				this.contractConditionsUnsatisfied.clear();
-				return this.hasResolvedAlias = true;
+				contract.conditionsUnsatisfied.clear();
+				this.hasResolvedAlias = true;
+				return BaseResolveResult.added;
 			}
 			
 			// In the case when there is no contract being imposed, the process
 			// of adding bases is much simpler. The system can simply just add
 			// bases where there is a regular expression match between the
 			// alias provided the pattern against which we are testing.
-			let hasResolvedOne = false;
 			for (const patternParallel of applicablePatternParallels)
 			{
 				const pattern = Not.null(patternParallel.pattern);
 				if (pattern.test(viaAlias))
 				{
 					this.addBaseEntry(patternParallel, viaFork, true);
-					hasResolvedOne = true;
+					this.hasResolvedAlias = true;
 				}
 			}
 			
-			return this.hasResolvedAlias = hasResolvedOne;
+			return this.hasResolvedAlias ?
+				BaseResolveResult.added :
+				BaseResolveResult.rejected;
 		}
 		
 		/**
@@ -517,35 +541,8 @@ namespace Truth
 		/** */
 		get isContractSatisfied()
 		{
-			return this.contractConditionsUnsatisfied.size === 0;
+			return this.maybeComputeContract().conditionsUnsatisfied.size === 0;
 		}
-		
-		/**
-		 * Stores the set of parallels that any comparative parallel must 
-		 * have in it's base graph in order to be deemed compliant.
-		 */
-		private get contractConditions()
-		{
-			if (!this._contractConditions)
-				this.computeContract();
-			
-			return this._contractConditions!;
-		}
-		private _contractConditions: ReadonlySet<ExplicitParallel> | null = null;
-		
-		/**
-		 * Stores the same set of parallels as the .contractConditions property,
-		 * but as a mutable set that reduces in size, until reaching a size of 0,
-		 * indicating that the contract has been fulfilled.
-		 */
-		private get contractConditionsUnsatisfied()
-		{
-			if (!this._contractConditionsUnsatisfied)
-				this.computeContract();
-			
-			return this._contractConditionsUnsatisfied!;
-		}
-		private _contractConditionsUnsatisfied: Set<ExplicitParallel> | null = null;
 		
 		/**
 		 * It's important that the contract conditions are computed lazily, 
@@ -553,60 +550,51 @@ namespace Truth
 		 * graph won't be constructed, and you'll end up with an empty 
 		 * contract.
 		 */
-		private computeContract()
+		private maybeComputeContract()
 		{
-			const conditions = new Set<ExplicitParallel>();
-			
-			const recurse = (srcParallel: Parallel) =>
+			if (this.contractConditions === null)
 			{
-				if (srcParallel instanceof ImplicitParallel)
+				const conditions = new Set<ExplicitParallel>();
+				
+				const recurse = (srcParallel: Parallel) =>
 				{
-					for (const nestedParallel of srcParallel.getParallels())
-						recurse(nestedParallel);
-				}
-				else if (srcParallel instanceof ExplicitParallel)
-				{
-					for (const { base } of srcParallel.eachBase())
-						conditions.add(base);
-				}
+					if (srcParallel instanceof ImplicitParallel)
+					{
+						for (const nestedParallel of srcParallel.getParallels())
+							recurse(nestedParallel);
+					}
+					else if (srcParallel instanceof ExplicitParallel)
+					{
+						for (const { base } of srcParallel.eachBase())
+							conditions.add(base);
+					}
+				};
+				
+				for (const higherParallel of this.getParallels())
+					recurse(higherParallel);
+				
+				this.contractConditions = conditions;
+				this.contractConditionsUnsatisfied = new Set(conditions);
+			}
+			
+			return {
+				conditions: this.contractConditions!,
+				conditionsUnsatisfied: this.contractConditionsUnsatisfied!
 			};
-			
-			for (const higherParallel of this.getParallels())
-				recurse(higherParallel);
-			
-			this._contractConditions = conditions;
-			this._contractConditionsUnsatisfied = new Set(conditions);
 		}
 		
 		/**
-		 * In the case when there is no contract being enforced on the parallel
-		 * from abstraction, the effective "contract" is derived from the other
-		 * literal types defined inline. Switching to an inline contract therefore
-		 * occurs when the system attempts to resolve it's first alias for a
-		 * given ExplicitParallel.
+		 * Stores the set of parallels that any comparative parallel must 
+		 * have in it's base graph in order to be deemed compliant.
 		 */
-		private maybeSwitchToInlineContract()
-		{
-			// Do not switch to an inline contract in the case when there is already
-			// a non-empty contract being imposed on this type from above.
-			if (this._contractConditions && this._contractConditions.size > 0)
-				return;
-			
-			if (this._contractConditions === null || this._contractConditionsUnsatisfied === null)
-			{
-				this._contractConditions = new Set();
-				this._contractConditionsUnsatisfied = new Set();
-			}
-			
-			const conditions = new Set<ExplicitParallel>();
-			
-			for (const { parallels } of this._bases.values())
-				for (const par of parallels)
-					conditions.add(par);
-			
-			this._contractConditions = conditions;
-			this._contractConditionsUnsatisfied = new Set(conditions);
-		}
+		private contractConditions: ReadonlySet<ExplicitParallel> | null = null;
+		
+		/**
+		 * Stores the same set of parallels as the .contractConditions property,
+		 * but as a mutable set that reduces in size, until reaching a size of 0,
+		 * indicating that the contract has been fulfilled.
+		 */
+		private contractConditionsUnsatisfied: Set<ExplicitParallel> | null = null;
 	}
 	
 	/**
@@ -638,4 +626,12 @@ namespace Truth
 	
 	/** @internal */
 	export type TBaseTable = ReadonlyMap<ExplicitParallel, Fork>;
+	
+	/** */
+	export const enum BaseResolveResult
+	{
+		rejected,
+		faulty,
+		added
+	}
 }

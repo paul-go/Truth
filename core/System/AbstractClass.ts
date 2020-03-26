@@ -50,6 +50,7 @@ namespace Truth
 		term,
 		knownUri,
 		pattern,
-		fork
+		fork,
+		parallel
 	}
 }

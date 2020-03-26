@@ -22,33 +22,23 @@ namespace Truth
 		}
 		
 		/**
-		 * Resets all memory within this ConstructionWorker instance.
-		 */
-		reset()
-		{
-			this.cruft.clear();
-			this.parallels.clear();
-			this.rakedParallels = new WeakSet();
-		}
-		
-		/**
 		 * Constructs the corresponding Parallel instances for
 		 * all explicit types that exist within the provided Document,
 		 * or below the provided ExplicitParallel.
 		 */
 		excavate(from: Document | ExplicitParallel)
 		{
-			if (this.excavated.has(from))
+			if (this.excavated.has(from.id))
 				return;
 			
-			this.excavated.add(from);
+			this.excavated.add(from.id);
 			const queue: ExplicitParallel[] = [];
 			
 			if (from instanceof Document)
 			{
 				for (const phrase of Phrase.rootsOf(from))
 				{
-					const drilledParallel = this.drillNonHypotheticalPhrase(phrase);
+					const drilledParallel = this.drillSafely(phrase);
 					if (drilledParallel !== null)
 						queue.push(drilledParallel);
 				}
@@ -61,32 +51,18 @@ namespace Truth
 						throw Exception.unexpectedHomograph();
 					
 					const phrase = phrases[0];
-					const drilledParallel = this.drillNonHypotheticalPhrase(phrase);
+					const drilledParallel = this.drillSafely(phrase);
 					if (drilledParallel !== null)
 						queue.push(drilledParallel);
 				}
 			}
 		}
 		
-		/** */
-		private readonly excavated = new WeakSet<ExplicitParallel | Document>();
-		
 		/**
-		 * Constructs the fewest possible Parallel instances
-		 * to arrive at the type specified by the directive.
+		 * Carries out a drilling operation, beginning at the top-most ancestor
+		 * of the directive phrase provided, and descending downward.
 		 */
 		drill(directive: Phrase)
-		{
-			const result = this.drillFromSurface(directive);
-			this.drillQueue.length = 0;
-			return result;
-		}
-		
-		/**
-		 * Proceeds with the drilling operation, beginning at the top-most ancestor
-		 * of the phrase provided, and descending downward.
-		 */
-		private drillFromSurface(directive: Phrase)
 		{
 			if (this.parallels.has(directive))
 				return Not.undefined(this.parallels.get(directive));
@@ -152,47 +128,53 @@ namespace Truth
 		}
 		
 		/**
-		 * An entrypoint into the drill function that operates
-		 * on a Node instead of a Phrase. Essentially, this method
-		 * calls "drillFromPhrase()" safely (meaning that it detects
-		 * circular invokations, and returns null in these cases).
+		 * This method invokes the .drill() method, but does so in
+		 * a way that detects the calls being made, in order to prevent
+		 * circular invokations. Circular invokations can otherwise
+		 * happen in the case when the provided document actually
+		 * has a circular base reference. If the system were to simply
+		 * follow this blindly, it would drill in circularity indefinitely.
+		 * 
+		 * The method returns null instead of a parallel in the case
+		 * when a circular base is detected.
 		 */
-		private drillNonHypotheticalPhrase(phrase: Phrase)
+		private drillSafely(phrase: Phrase)
 		{
 			if (phrase.isHypothetical)
 				throw Exception.unknownState();
 			
-			// Circular drilling is only a problem if we're
-			// drilling on the same level.
-			const dq = this.drillQueue;
+			// In the case when we've begun to drill a phrase that
+			// exists at a higher level than the where the drilling
+			// process has previously been operating, the drill
+			// queue is cleared out because it's no longer relevant.
+			if (this.drillQueueParent !== phrase.parent.id)
+			{
+				this.drillQueue.clear();
+				this.drillQueue.add(phrase.id);
+				this.drillQueueParent = phrase.parent.id;
+			}
+			// Circular drilling is only a problem if we're drilling
+			// phrases that reference each other that are on the
+			// same level.
+			else if (this.drillQueue.has(phrase.id))
+			{
+				return null;
+			}
 			
-			if (dq.length === 0)
-			{
-				dq.push(phrase);
-			}
-			else if (dq[0].parent === phrase.parent)
-			{
-				if (dq.includes(phrase))
-					return null;
-			}
-			else
-			{
-				dq.length = 0;
-				dq.push(phrase);
-			}
-			
-			const drillResult = this.drillFromSurface(phrase);
+			const drillResult = this.drill(phrase);
 			if (drillResult === null)
 				throw Exception.unknownState();
 			
 			if (!(drillResult instanceof ExplicitParallel))
 				throw Exception.unknownState();
 			
+			this.drillQueue.delete(phrase.id);
 			return drillResult;
 		}
 		
 		/** A call queue used to prevent circular drilling. */
-		private readonly drillQueue: Phrase[] = [];
+		private readonly drillQueue = new Set<number>();
+		private drillQueueParent = -1;
 		
 		/**
 		 * "Raking" a Parallel is the process of deeply traversing it's
@@ -260,17 +242,17 @@ namespace Truth
 			if (srcParallel.pattern)
 				throw Exception.unknownState();
 			
-			if (this.rakedParallels.has(srcParallel))
+			if (this.rakedParallels.has(srcParallel.id))
 				return;
 			
-			this.rakedParallels.add(srcParallel);
+			this.rakedParallels.add(srcParallel.id);
 			
 			// The type resolution algorithm operates by resolving all literal
 			// types first, and then in the case when there are unresolved 
 			// forks left over, attempting to resolve one of these as an alias.
 			const unresolvedForks: Fork[] = [];
 			
-			for (const fork of srcParallel.phrase.outbounds)
+			nextFork: for (const fork of srcParallel.phrase.outbounds)
 			{
 				if (this.cruft.has(fork))
 					continue;
@@ -279,9 +261,6 @@ namespace Truth
 					.filter(successor => !this.cruft.has(successor))
 					.sort((a, b) => a.length - b.length);
 				
-				if (possibilities.length === 0)
-					unresolvedForks.push(fork);
-				 
 				// This is where the polymorphic type resolution algorithm
 				// takes place. The algorithm operates by working it's way
 				// up the list of nodes (aka the scope chain), looking for
@@ -292,7 +271,7 @@ namespace Truth
 				// that is the closest ancestor is used.
 				for (const possibleSuccessor of possibilities)
 				{
-					const baseParallel = this.drillNonHypotheticalPhrase(possibleSuccessor);
+					const baseParallel = this.drillSafely(possibleSuccessor);
 					
 					// baseParallel will be null in the case when a circular
 					// relationship has been detected (and quitting is
@@ -317,22 +296,25 @@ namespace Truth
 						this.excavate(baseParallel);
 					}
 					
-					if (!srcParallel.tryAddLiteralBase(baseParallel, fork))
+					const result = srcParallel.tryAddLiteralBase(baseParallel, fork);
+					if (result === BaseResolveResult.rejected)
 						continue;
 					
-					if (this.handledForks.has(fork))
+					if (this.handledForks.has(fork.id))
 						throw Exception.unknownState();
 					
-					this.handledForks.add(fork);
-					continue;
+					this.handledForks.add(fork.id);
+					continue nextFork;
 				}
+				
+				unresolvedForks.push(fork);
 			}
 			
 			// At this point, we've discovered forks that weren't able
 			// to be resolved as literals, and so we're going to attempt
 			// to perform resolution by alias. If this doesn't work,
 			// the fork will be marked as cruft.
-			for (const fork of unresolvedForks)
+			for (const [idx, fork] of unresolvedForks.entries())
 			{
 				const patternParallelsInScope = new Set<ExplicitParallel>();
 				
@@ -345,10 +327,16 @@ namespace Truth
 				if (patternParallelsInScope.size > 0)
 				{
 					const alias = fork.term.textContent;
-					
-					if (srcParallel.tryAddAliasedBase(patternParallelsInScope, fork, alias))
+					const result = srcParallel.tryAddAliasedBase(patternParallelsInScope, fork, alias);
+					if (result !== BaseResolveResult.rejected)
 					{
-						this.handledForks.add(fork);
+						unresolvedForks.splice(idx, 1);
+						
+						// Even if a fork is considered "handled", this still doesn't mean it's free of faults.
+						// It could still have another fault on it, just one that was added by some other
+						// means. "Handled" is only used to determine if we need to report an unresolved
+						// annotation fault.
+						this.handledForks.add(fork.id);
 						break;
 					}
 				}
@@ -357,7 +345,7 @@ namespace Truth
 			// Only one fork is ever interpreted as the alias. Other remaining
 			// forks are considered unresolved annotations.
 			for (const fork of unresolvedForks)
-				if (!this.handledForks.has(fork))
+				if (!this.handledForks.has(fork.id))
 					this.cruft.add(fork, Faults.UnresolvedAnnotation);
 			
 			if (!srcParallel.isContractSatisfied)
@@ -379,10 +367,10 @@ namespace Truth
 			if (!patternParallel.pattern)
 				throw Exception.unknownState();
 			
-			if (this.rakedParallels.has(patternParallel))
+			if (this.rakedParallels.has(patternParallel.id))
 				return;
 			
-			this.rakedParallels.add(patternParallel);
+			this.rakedParallels.add(patternParallel.id);
 			
 			const bases = new Map<ExplicitParallel, Fork>();
 			const obs = patternParallel.phrase.outbounds;
@@ -418,7 +406,7 @@ namespace Truth
 					throw Exception.unknownState();
 				
 				const basePhrase = fork.successors[0];
-				const baseParallel = this.drillNonHypotheticalPhrase(basePhrase);
+				const baseParallel = this.drillSafely(basePhrase);
 				if (baseParallel !== null)
 					bases.set(baseParallel, fork);
 			}
@@ -570,11 +558,6 @@ namespace Truth
 			for (const doc of originDoc.traverseDependencies())
 				yield *yieldSurfacePatternsOfDocument(doc);
 		}
-		
-		/**
-		 * Used for safety purposes to catch unexpected behavior.
-		 */
-		private readonly handledForks = new WeakSet<Fork>();
 		
 		/**
 		 * Constructs and returns a new seed Parallel from the specified
@@ -729,18 +712,45 @@ namespace Truth
 						descendParallel.phrase.statements[0]));
 		}
 		
+		/**
+		 * Resets all memory within this ConstructionWorker instance.
+		 */
+		reset()
+		{
+			this.excavated.clear();
+			this.cruft.clear();
+			this.parallels.clear();
+			this.handledForks.clear();
+			this.rakedParallels.clear();
+			
+			// Safety
+			this.drillQueue.clear();
+		}
+		
+		/**
+		 * Stores the IDs of the ExplicitParallels and Documents that have been
+		 * fully excavated.
+		 */
+		private readonly excavated = new Set<number>();
+		
 		/** */
 		private readonly parallels = new ParallelCache();
 		
 		/**
-		 * Stores the set of Parallel instances that have been "raked",
-		 * which means that that have gone through the process of
-		 * having their requested bases applied.
+		 * Stores the IDs that correspond to the Parallel instances that 
+		 * have been "raked", which means that that have gone through
+		 * the process of having their requested bases applied.
 		 * 
-		 * This set may include both pattern and non-patterns Parallels,
+		 * This set may include the IDs of both pattern and non-pattern Parallels,
 		 * (even though their raking processes are completely different).
 		 */
-		private rakedParallels = new WeakSet<Parallel>();
+		private readonly rakedParallels = new Set<number>();
+		
+		/**
+		 * Stores the IDs that correspond to forks that have been handled,
+		 * either by resolving them to another type, or marking them as faulty.
+		 */
+		private readonly handledForks = new Set<number>();
 		
 		/** */
 		private readonly cruft: CruftCache;

@@ -883,7 +883,7 @@ namespace Truth
 				parts.push(part);
 			}
 			
-			return prefix + parts.join("/") + ` (@${this.id})`;
+			return `#${this.id} ` + prefix + parts.join("/");
 		}
 	}
 	
