@@ -279,12 +279,6 @@ namespace Truth
 		unparsable?: boolean;
 		
 		/**
-		 * Indicates whether or not the declarations in the statement should
-		 * be marked as a "refresh types" (types that are forcibly fresh).
-		 */
-		refresh?: boolean;
-		
-		/**
 		 * Indicates whether or not the statement should be a comment.
 		 */
 		comment?: boolean;

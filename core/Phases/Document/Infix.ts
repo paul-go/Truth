@@ -112,8 +112,8 @@ namespace Truth
 		/**
 		 * Indicates that the joint was specified within
 		 * the infix. Can be used to determine if the infix
-		 * contains some (erroneous) syntax resembing
-		 * a refresh type, eg - /<Type : >/
+		 * contains some (erroneous) syntax such as:
+		 * /<Type : >
 		 */
 		hasJoint = 1,
 		/**
