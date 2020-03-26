@@ -726,8 +726,13 @@ namespace Truth
 			for (const doc of this.containingDocument.traverseDependencies())
 				peekAncestry.unshift(doc.phrase);
 			
+			// In the case when there are no clarifiers defined, and the phrase
+			// isn't surface level, the terminal essentially acts as the annotation.
+			// This is to support type inference.
 			const scanTerms = 
-				this.clarifiers.length === 0 && this.terminal instanceof Term ?
+				this.length > 1 &&
+				this.clarifiers.length === 0 && 
+				this.terminal instanceof Term ?
 					[this.terminal] :
 					this.clarifiers;
 			

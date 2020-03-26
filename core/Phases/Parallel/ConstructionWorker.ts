@@ -252,7 +252,7 @@ namespace Truth
 			// forks left over, attempting to resolve one of these as an alias.
 			const unresolvedForks: Fork[] = [];
 			
-			nextFork: for (const fork of srcParallel.phrase.outbounds)
+			for (const fork of srcParallel.phrase.outbounds)
 			{
 				if (this.cruft.has(fork))
 					continue;
@@ -260,6 +260,15 @@ namespace Truth
 				const possibilities = fork.successors
 					.filter(successor => !this.cruft.has(successor))
 					.sort((a, b) => a.length - b.length);
+				
+				// Found a fork to nowhere. It may be an alias, which will
+				// be investigated momentarily, but for now, it's marked
+				// as unresolved.
+				if (possibilities.length === 0)
+				{
+					unresolvedForks.push(fork);
+					continue;
+				}
 				
 				// This is where the polymorphic type resolution algorithm
 				// takes place. The algorithm operates by working it's way
@@ -304,10 +313,8 @@ namespace Truth
 						throw Exception.unknownState();
 					
 					this.handledForks.add(fork.id);
-					continue nextFork;
+					break;
 				}
-				
-				unresolvedForks.push(fork);
 			}
 			
 			// At this point, we've discovered forks that weren't able
@@ -352,11 +359,16 @@ namespace Truth
 				if (!this.handledForks.has(fork.id))
 					this.cruft.add(fork, Faults.UnresolvedAnnotation);
 			
-			if (!srcParallel.isContractSatisfied)
-				for (const smt of srcParallel.phrase.statements)
-					this.program.faults.report(new Fault(
-						Faults.ContractViolation,
-						smt));
+			// Only report contract violation faults in the case when there are
+			// no other faults reported on any of the annotation spans. If any of
+			// annotations are faulty, technically it isn't knowable whether the
+			// contract has been violated (and the report just looks like noise).
+			if (srcParallel.phrase.annotations.every(span => !this.cruft.has(span)))
+				if (!srcParallel.isContractSatisfied)
+					for (const smt of srcParallel.phrase.statements)
+						this.program.faults.report(new Fault(
+							Faults.ContractViolation,
+							smt));
 			
 			return srcParallel;
 		}
