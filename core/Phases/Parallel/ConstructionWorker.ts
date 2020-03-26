@@ -327,15 +327,19 @@ namespace Truth
 				if (patternParallelsInScope.size > 0)
 				{
 					const alias = fork.term.textContent;
-					const result = srcParallel.tryAddAliasedBase(patternParallelsInScope, fork, alias);
+					const result = srcParallel.tryAddAliasedBase(
+							patternParallelsInScope,
+							fork,
+							alias);
+						
 					if (result !== BaseResolveResult.rejected)
 					{
 						unresolvedForks.splice(idx, 1);
 						
-						// Even if a fork is considered "handled", this still doesn't mean it's free of faults.
-						// It could still have another fault on it, just one that was added by some other
-						// means. "Handled" is only used to determine if we need to report an unresolved
-						// annotation fault.
+						// Even if a fork is considered "handled", this still doesn't mean it's free
+						// of faults. It could still have another fault on it, just one that was added
+						// by some other means. "Handled" is only used to determine if we need
+						// to report an unresolved annotation fault.
 						this.handledForks.add(fork.id);
 						break;
 					}
@@ -597,14 +601,17 @@ namespace Truth
 				followParallelsFn,
 				(current, results: readonly boolean[]) =>
 				{
-					const prune = 
-						results.every(result => !result) &&
-						!this.canDescendToExplicit(current, targetSubject);
+					if (results.every(result => !result))
+					{
+						if (current instanceof ImplicitParallel || 
+							current.phrase.peek(targetSubject).length === 0)
+						{
+							prunedParallels.add(current);
+							return false;
+						}
+					}
 					
-					if (prune)
-						prunedParallels.add(current);
-					
-					return !prune;
+					return true;
 				});
 			
 			// In the case when the method is attempting to descend
@@ -658,10 +665,14 @@ namespace Truth
 			if (nextPhrases.length === 0)
 				throw Exception.unknownState();
 			
-			// TODO: We probably need to instead report a fault here
-			// to indicate that homographs are only valid at the surface.
+			// Bogus homographs should have already been pruned by
+			// the time we get to this point.
 			if (nextPhrases.length > 1)
-				throw Exception.unexpectedHomograph();
+				for (const nextPhrase of nextPhrases)
+					for (const smt of nextPhrase.statements)
+						this.program.faults.report(new Fault(
+							Faults.UnexpectedHomograph,
+							smt));
 			
 			const nextPhrase = nextPhrases[0];
 			
@@ -671,45 +682,23 @@ namespace Truth
 			// on this decend operation which could generate faults.
 			if (zenith instanceof ExplicitParallel && !nextPhrase.isHypothetical)
 			{
-				const out = 
+				const descendTarget = 
 					this.parallels.getExplicit(nextPhrase) ||
 					this.parallels.createExplicit(nextPhrase, this.cruft);
-					
-				this.verifyDescend(zenith, out);
-				return out;
+				
+				if (descendTarget.phrase.terminal instanceof Anon)
+					if (zenith.phrase.isListIntrinsic)
+						for (const smt of descendTarget.phrase.statements)
+							this.program.faults.report(new Fault(
+								Faults.AnonymousInListIntrinsic,
+								smt));
+				
+				return descendTarget;
 			}
 			
 			return (
 				this.parallels.get(nextPhrase) ||
 				this.parallels.createImplicit(nextPhrase));
-		}
-		
-		/**
-		 * @returns A boolean value that indicates whether the act
-		 * of descending from the specified Parallel to the typeName
-		 * passed to the containing method would result in a
-		 * ExplicitParallel instance.
-		 */
-		private canDescendToExplicit(parallel: Parallel, targetSubject: Subject)
-		{
-			return (
-				parallel instanceof ExplicitParallel &&
-				parallel.phrase.peek(targetSubject).length > 0);
-		}
-		
-		/**
-		 * Performs verification on the descend operation.
-		 * Reports any faults that can occur during this process.
-		 */
-		private verifyDescend(
-			zenithParallel: ExplicitParallel,
-			descendParallel: ExplicitParallel)
-		{
-			if (descendParallel.phrase.terminal instanceof Anon)
-				if (zenithParallel.phrase.isListIntrinsic)
-					this.program.faults.report(new Fault(
-						Faults.AnonymousInListIntrinsic,
-						descendParallel.phrase.statements[0]));
 		}
 		
 		/**
@@ -747,8 +736,7 @@ namespace Truth
 		private readonly rakedParallels = new Set<number>();
 		
 		/**
-		 * Stores the IDs that correspond to forks that have been handled,
-		 * either by resolving them to another type, or marking them as faulty.
+		 * 
 		 */
 		private readonly handledForks = new Set<number>();
 		

@@ -276,6 +276,11 @@ namespace Truth
 			"Overridden types must explicitly expand the type as defined in the base."),
 		
 		/** */
+		UnexpectedHomograph: createFault<Statement>(
+			206,
+			`Homographs may only be defined at the surface level of a document.`),
+		
+		/** */
 		IgnoredAnnotation: createFault<Span>(
 			207,
 			`This annotation is ignored because another annotation
