@@ -120,16 +120,13 @@ namespace Truth
 				{
 					const phrases = currentPhrase.peek(pathTerm);
 					
-					if (phrases.length === 0)
-					{
-						currentPhrase = this.createHypothetical(currentPhrase, pathTerm);
-					}
-					else if (phrases.length === 1)
-					{
-						currentPhrase = phrases[0];
-					}
 					// Invalid homograph detected
-					else return clarifier.length === 0 ? null : [];
+					if (phrases.length > 1)
+						return clarifier.length === 0 ? null : [];
+					
+					currentPhrase = phrases.length === 0 ?
+						this.createHypothetical(currentPhrase, pathTerm) :
+						phrases[0];
 				}
 				
 				if (clarifierKey)
