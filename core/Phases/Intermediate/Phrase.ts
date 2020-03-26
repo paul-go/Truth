@@ -729,7 +729,12 @@ namespace Truth
 			for (const doc of this.containingDocument.traverseDependencies())
 				peekAncestry.unshift(doc.phrase);
 			
-			for (const term of this.clarifiers)
+			const scanTerms = 
+				this.clarifiers.length === 0 && this.terminal instanceof Term ?
+					[this.terminal] :
+					this.clarifiers;
+			
+			for (const term of scanTerms)
 			{
 				const successors: Phrase[] = [];
 				
