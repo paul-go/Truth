@@ -268,10 +268,6 @@ namespace Truth
 						if (aLen === 0)
 							flags |= StatementFlags.isVacuous;
 					}
-					else if (aLen === 0)
-					{
-						flags |= StatementFlags.isRefresh;
-					}
 				}
 			}
 			
@@ -478,17 +474,6 @@ namespace Truth
 			}
 			
 			this._infixSpans = Object.freeze(infixSpans);
-		}
-		
-		/**
-		 * Gets whether the joint operator exists at the
-		 * end of the statement, forcing the statement's
-		 * declarations to be "refresh types".
-		 */
-		get isRefresh()
-		{
-			const f = StatementFlags.isRefresh;
-			return (this.flags & f) === f;
 		}
 		
 		/**
@@ -903,7 +888,7 @@ namespace Truth
 			const decls = serializeSpans(this.allDeclarations, TermEscapeKind.declaration);
 			const annos = serializeSpans(this.allAnnotations, TermEscapeKind.annotation);
 			
-			const joint = annos.length > 0 || this.isRefresh ? Syntax.joint : "";
+			const joint = annos.length > 0 || this.jointPosition > -1 ? Syntax.joint : "";
 			const jointL = decls.length > 0 && joint !== "" ? Syntax.space : "";
 			const jointR = annos.length > 0 ? Syntax.space : "";
 			
@@ -986,16 +971,15 @@ namespace Truth
 	export enum StatementFlags
 	{
 		none = 0,
-		isRefresh = 1,
-		isVacuous = 2,
-		isComment = 4,
-		isWhitespace = 8,
-		isDisposed = 16,
-		isCruft = 32,
-		hasUri = 64,
-		hasTotalPattern = 128,
-		hasPartialPattern = 256,
-		hasPattern = 512
+		isVacuous = 1,
+		isComment = 2,
+		isWhitespace = 4,
+		isDisposed = 8,
+		isCruft = 16,
+		hasUri = 32,
+		hasTotalPattern = 64,
+		hasPartialPattern = 128,
+		hasPattern = 256
 	}
 	
 	/**

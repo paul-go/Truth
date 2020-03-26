@@ -38,12 +38,6 @@ namespace Truth
 		
 		const verifiers: (() => any)[] = [];
 		
-		if (expected.refresh && statement.isRefresh)
-		{
-			debugger;
-			return fail("Line should have the refresh flag: " + statementText);
-		}
-		
 		if (expected.comment && statement.isComment)
 		{
 			debugger;

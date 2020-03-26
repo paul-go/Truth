@@ -276,14 +276,6 @@ namespace Truth
 			"Overridden types must explicitly expand the type as defined in the base."),
 		
 		/** */
-		TypeCannotBeRefreshed: createFault<Statement>(
-			206,
-			`This type cannot be refreshed, because one or more base
-			types are imposing a specific type contract on it. Consider
-			omitting the ${Syntax.joint} operator here.`,
-			FaultSeverity.warning),
-		
-		/** */
 		IgnoredAnnotation: createFault<Span>(
 			207,
 			`This annotation is ignored because another annotation
