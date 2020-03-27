@@ -48,9 +48,7 @@ namespace Truth
 		detectCircularReferences()
 		{
 			const circularForkPaths: Fork[][] = [];
-			const recurse = (
-				srcBase: ExplicitParallel,
-				path: Fork[]) =>
+			const recurse = (srcBase: ExplicitParallel, path: Fork[]) =>
 			{
 				for (const { base, fork } of this.basesOf(srcBase))
 				{
