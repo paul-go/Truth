@@ -447,18 +447,15 @@ namespace Truth
 			if (this.isHypothetical)
 				throw Exception.unknownState();
 			
+			const doc = this.containingDocument;
+			const key = getDisposalKey(doc, this.terminal);
+			const isCreating = this.inflatingSpans.size === 0;
+			this.inflatingSpans.add(inflatingSpan);
+			
 			// We need to check to see if this inflation is simply reinflating
 			// an already-existing phrase. See the comments in the .dispose()
 			// method for further information.
-			const doc = this.containingDocument;
-			const key = getDisposalKey(doc, this.terminal);
-			const isReinflating = 
-				this.inflatingSpans.size === 0 &&
-				disposalQueue.has(key);
-			
-			this.inflatingSpans.add(inflatingSpan);
-			
-			if (!isReinflating)
+			if (isCreating && !disposalQueue.has(key))
 				doc.program.emit("declare", this.terminal.toString(), doc);
 		}
 		
