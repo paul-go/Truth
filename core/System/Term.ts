@@ -74,7 +74,7 @@ namespace Truth
 			}
 		}
 		
-		/** */
+		/** @internal */
 		readonly class = Class.term;
 		
 		/** */

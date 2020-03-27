@@ -336,7 +336,7 @@ namespace Truth
 				this.containingDocument.program.markPhrase(this);
 		}
 		
-		/** */
+		/** @internal */
 		readonly class = Class.phrase;
 		
 		/**
@@ -374,6 +374,7 @@ namespace Truth
 		readonly containingDocument: Document;
 		
 		/**
+		 * @internal
 		 * Stores whether this Phrase represents a path to an hypothetical area of the
 		 * document (meaning, an area that is suggested to be valid through
 		 * inheritance).
@@ -455,7 +456,7 @@ namespace Truth
 			// We need to check to see if this inflation is simply reinflating
 			// an already-existing phrase. See the comments in the .dispose()
 			// method for further information.
-			if (isCreating && !disposalQueue.has(key))
+			if (isCreating && !disposalQueue.has(key) && this.length === 1)
 				doc.program.emit("declare", this.terminal.toString(), doc);
 		}
 		
@@ -779,7 +780,10 @@ namespace Truth
 			this._isDisposed = true;
 			this.containingDocument.program.unmarkPhrase(this);
 			
-			if (this.length === 1)
+			// Only non hypothetical phrases generate the declare events,
+			// and it's unlikely that these may ever trigger a dispose, but
+			// we have a sanity check here anyways.
+			if (this.length === 1 && !this.isHypothetical)
 			{
 				// The "undeclare" event is only emitted in the case when the phrase
 				// is disposed for good, and is not simply going to be recreated again
@@ -890,7 +894,9 @@ namespace Truth
 				parts.push(part);
 			}
 			
-			return `#${this.id} ` + prefix + parts.join("/");
+			return "DEBUG" ?
+				`#${this.id} ` + prefix + parts.join("/") :
+				prefix + parts.join("/");
 		}
 	}
 	

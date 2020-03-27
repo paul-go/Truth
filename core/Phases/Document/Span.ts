@@ -35,7 +35,7 @@ namespace Truth
 					` (${boundary.offsetStart}, ${boundary.offsetEnd})`;
 		}
 		
-		/** */
+		/** @internal */
 		readonly class = Class.span;
 		
 		/**

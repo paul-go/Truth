@@ -27,7 +27,7 @@ namespace Truth
 			super();
 		}
 		
-		/**  */
+		/** @internal */
 		readonly class = Class.fork;
 	}
 }

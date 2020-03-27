@@ -248,7 +248,7 @@ namespace Truth
 		 * Queries the program for types that exist in any loaded document,
 		 * at the specified path.
 		 * 
-		 * @param typePath The type path within the document to search.
+		 * @param typePath The type path within all documents to search.
 		 * @returns An array containing the types discovered. In the case when
 		 * discovered types are part of a homograph, all types participating in
 		 * this homograph are included in the returned array.
