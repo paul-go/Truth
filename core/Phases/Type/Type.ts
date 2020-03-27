@@ -38,11 +38,7 @@ namespace Truth
 			// if an attempt is made to dril into some non-existent location
 			// area of a document.
 			if (parallel === null)
-			{
-				// Previously, this code was marking the phrase as invalid.
-				// Should we continue to do this?
 				return null;
-			}
 			
 			const parallelContainment = [parallel];
 			
@@ -107,7 +103,7 @@ namespace Truth
 					else if (sub instanceof KnownUri)
 						type.flags |= Flags.isUri;
 					
-					else if (sub instanceof Anon)
+					else if (sub === Term.anonymous)
 						type.flags |= Flags.isAnonymous;
 					
 					if (seed.getParallels().length === 0)
@@ -483,8 +479,8 @@ namespace Truth
 			
 			const extractAlias = (ep: ExplicitParallel) =>
 			{
-				for (const { fork, aliased } of ep.eachBase())
-					if (aliased)
+				for (const { base, fork } of ep.eachBase())
+					if (base.phrase.terminal !== fork.term)
 						aliases.push(fork.term.toString());
 			};
 			
@@ -518,31 +514,24 @@ namespace Truth
 		/**
 		 * Gets a table of information aobut the keywords that are 
 		 * associated with this type, in the order in which they occur
-		 * within the document. A keyword is either the string
-		 * representation of a type, or an alias string. The base that
-		 * is associated with each word value can be used to
-		 * disambiguate between literal and aliased types. In the
-		 * case when the base value is non-null, the associated word
-		 * is an alias.
+		 * within the document.
 		 */
 		get keywords()
 		{
 			if (this._keywords !== null)
 				return this._keywords;
 			
-			const keywords: { word: string, base: Type; }[] = [];
+			const keywords: Keyword[] = [];
 			const seed = this.guard();
 			
 			const extractType = (ep: ExplicitParallel) =>
 			{
-				for (const { fork } of ep.eachBase())
+				for (const { base, fork } of ep.eachBase())
 				{
-					const base = Type.construct(fork.predecessor);
-					if (base)
-					{
-						const word = fork.term.toString();
-						keywords.push({ word, base });
-					}
+					const word = fork.term.toString();
+					const baseType = Type.construct(base.phrase);
+					if (baseType)
+						keywords.push(new Keyword(word, baseType));
 				}
 			};
 			
@@ -571,7 +560,7 @@ namespace Truth
 			
 			return this._keywords = keywords;
 		}
-		private _keywords: readonly { word: string; base: Type; }[] | null = null;
+		private _keywords: readonly Keyword[] | null = null;
 		
 		/**
 		 * Gets a string representation of the entire annotation side of this type.
@@ -878,6 +867,26 @@ namespace Truth
 				throw Exception.typeDirty(this);
 			
 			return this.seed;
+		}
+	}
+	
+	/**
+	 * An object that represents either an explicit or implicit 
+	 * annotation on a type. The annotation may either be a
+	 * literal type name, or it may be an alias.
+	 */
+	export class Keyword
+	{
+		constructor(
+			readonly word: string,
+			readonly type: Type) { }
+		
+		/**
+		 * Gets whether the .word property stores an alias.
+		 */
+		get isAlias()
+		{
+			return this.type.name === this.word;
 		}
 	}
 	

@@ -294,7 +294,7 @@ namespace Truth
 		{
 			super();
 			
-			this.terminal = Term.void;
+			this.terminal = Term.anonymous;
 			this.clarifiers = [];
 			this.clarifierKey = "";
 			
@@ -883,7 +883,10 @@ namespace Truth
 			
 			for (const phrase of this.ancestry)
 			{
-				let part = phrase.terminal.toString();
+				let part = phrase.terminal === Term.anonymous ?
+					"•" :
+					phrase.terminal.toString();
+				
 				if (includeClarifiers)
 					part += ":" + phrase.clarifierKey;
 				

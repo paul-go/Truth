@@ -351,97 +351,34 @@ namespace Truth
 			const offset0Based = offset - 1;
 			const statement = document.read(line);
 			const zone = statement.getZone(offset0Based);
-			const position = { line, offset };
+			const declSpan = statement.getDeclaration(offset0Based);
+			const annoSpan = statement.getAnnotation(offset0Based);
+			const span = declSpan || annoSpan;
 			
-			switch (zone)
-			{
-				case StatementZone.void:
-					return new ProgramInspectionResult(position, zone, null, statement);
-				
-				// Return all the types in the declaration side of the parent.
-				case StatementZone.whitespace:
-				{
-					const parent = document.getParentFromPosition(line, offset0Based);
-					if (parent instanceof Document)
-						return new ProgramInspectionResult(position, zone, parent, statement);
-					
-					const types = parent.declarations
-						.flatMap(decl => Phrase.fromSpan(decl))
-						.map(phrase => Type.construct(phrase))
-						.filter((type): type is Type => !!type);
-					
-					return new ProgramInspectionResult(position, zone, types, statement, null);
-				}
-				//
-				case StatementZone.pattern:
-				{
-					// TODO: This should not be returning a PatternLiteral,
-					// but rather a fully constructed IPattern object. This
-					// code is only here as a shim.
-					const patternTypes: Type[] = [];
-					return new ProgramInspectionResult(position, zone, patternTypes, statement);
-				}
-				// Return all the types related to the specified declaration.
-				case StatementZone.declaration:
-				case StatementZone.declarationWhitespace:
-				case StatementZone.declarationCombinator:
-				{
-					const decl = statement.getDeclaration(offset0Based);
-					if (!decl)
-						throw Exception.unknownState();
-					
-					const types = Phrase.fromSpan(decl)
-						.map(phrase => Type.construct(phrase))
-						.filter((type): type is Type => !!type);
-					
-					return new ProgramInspectionResult(position, zone, types, statement, decl);
-				}
-				// 
-				case StatementZone.annotation:
-				{
-					const anno = statement.getAnnotation(offset0Based);
-					if (!anno)
-						throw Exception.unknownState();
-					
-					let base: Type[] | null = null;
-					
-					// We can safely construct phrases from the first declaration,
-					// because all phrases returned in this case are going to allow
-					// us to arrive at the relevant annotation.
-					const phrases = Phrase.fromSpan(statement.declarations[0]);
-					if (phrases.length > 0)
-					{
-						// We can safely construct a type from the first phrase, because
-						// we don't actually care about any of the phrases in this case,
-						// but rather, a particular annotation which will be associated
-						// with any of the returned phrases.
-						const type = Type.construct(phrases[0]);
-						if (type)
-						{
-							const annoText = anno.boundary.subject.toString();
-							base = type.bases.filter(t => t.name === annoText);
-							base.push(type);
-						}
-					}
-					
-					return new ProgramInspectionResult(position, zone, base, statement, anno);
-				}
-				//
-				case StatementZone.annotationWhitespace:
-				{
-					const anno = statement.getAnnotation(offset0Based);
-					const phrases = Phrase.fromSpan(statement.declarations[0]);
-					const types = phrases
-						.map(ph => Type.construct(ph))
-						.filter((type): type is Type => !!type);
-					
-					const foundObject = types.length ? types : null;
-					
-					return new ProgramInspectionResult(position, zone, foundObject, statement, anno);
-				}
-			}
+			const area: InspectedArea =
+				declSpan ? InspectedArea.declaration :
+				annoSpan ? InspectedArea.annotation :
+				InspectedArea.void;
 			
-			return new ProgramInspectionResult(position, zone, null, statement, null);
+			const syntax: InspectedSyntax =
+				zone === StatementZone.joint ?
+					InspectedSyntax.joint :
+				zone === StatementZone.annotationCombinator ||
+				zone === StatementZone.declarationCombinator ? 
+					InspectedSyntax.combinator :
+				zone === StatementZone.whitespace ||
+				zone === StatementZone.annotationWhitespace ||
+				zone === StatementZone.declarationWhitespace ?
+					InspectedSyntax.void :
+					InspectedSyntax.term;
+			
+			return new ProgramInspectionResult(
+				line,
+				offset,
+				statement,
+				span,
+				area,
+				syntax);
 		}
 		
 		//# Mutation related members

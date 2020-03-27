@@ -35,7 +35,6 @@
 /// <reference path="./Phases/Document/DocumentTypes.ts" />
 /// <reference path="./Phases/Document/CycleDetector.ts" />
 /// <reference path="./Phases/Document/Parser.ts" />
-/// <reference path="./Phases/Document/Anon.ts" />
 /// <reference path="./Phases/Document/Boundary.ts" />
 /// <reference path="./Phases/Document/Statement.ts" />
 /// <reference path="./Phases/Document/Pattern.ts" />

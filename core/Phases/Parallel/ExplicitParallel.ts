@@ -28,13 +28,28 @@ namespace Truth
 		private readonly cruft: CruftCache;
 		
 		/**
+		 * Stores the set of ExplicitParallels that caused the base to be constructed.
+		 * Note that a base can have multiple parallels in the case when the base
+		 * is actually a pattern with two equally viable matches in scope, and no 
+		 * contract being imposed, for example:
+		 * ```
+		 * /pattern : A
+		 * /pattern : B
+		 * C : pattern
+		 * ```
+		 * In the above case, C would have the bases A and B.
+		 */
+		private readonly bases = new SetMap<Fork, ExplicitParallel>();
+		
+		/**
 		 * Gets the first base contained by this instance.
 		 * @throws In the case when this instance contains no bases.
 		 */
 		get firstBase()
 		{
-			for (const baseEntry of this._bases.values())
-				return baseEntry.parallels[0];
+			for (const baseEntry of this.bases.values())
+				for (const par of baseEntry)
+					return par;
 			
 			throw Exception.unknownState();
 		}
@@ -45,26 +60,10 @@ namespace Truth
 		 */
 		*eachBase()
 		{
-			for (const [fork, baseEntry] of this._bases)
+			for (const [fork, baseEntry] of this.bases)
 				if (!this.cruft.has(fork))
-					for (const base of baseEntry.parallels)
-						yield { base, fork, aliased: baseEntry.aliased };
-		}
-		private readonly _bases = new Map<Fork, IBaseEntry>();
-		
-		/**
-		 * 
-		 */
-		private addBaseEntry(
-			base: ExplicitParallel,
-			fork: Fork,
-			aliased: boolean)
-		{
-			const existing = this._bases.get(fork);
-			if (existing)
-				existing.parallels.push(base);
-			else
-				this._bases.set(fork, { parallels: [base], aliased });
+					for (const base of baseEntry)
+						yield { base, fork};
 		}
 		
 		/**
@@ -124,7 +123,7 @@ namespace Truth
 		 */
 		tryAddLiteralBase(base: ExplicitParallel, via: Fork): BaseResolveResult
 		{
-			if (this._bases.has(via))
+			if (this.bases.has(via))
 				throw Exception.unknownState();
 			
 			// Just as a reminder -- pattern-containing parallels 
@@ -175,7 +174,7 @@ namespace Truth
 				if (sanitizer.detectListDimensionalityConflict())
 					return BaseResolveResult.faulty;
 			
-			this.addBaseEntry(base, via, false);
+			this.bases.add(via, base);
 			return BaseResolveResult.added;
 		}
 		
@@ -203,7 +202,7 @@ namespace Truth
 			viaFork: Fork,
 			viaAlias: string)
 		{
-			if (this._bases.has(viaFork))
+			if (this.bases.has(viaFork))
 				throw Exception.unknownState();
 			
 			// Just as a reminder -- pattern-containing parallels don't come
@@ -235,9 +234,9 @@ namespace Truth
 			const contract = this.maybeComputeContract();
 			const conditions = new Set(contract.conditions);
 			
-			for (const { parallels } of this._bases.values())
-				for (const par of parallels)
-					conditions.add(par);
+			for (const baseParallels of this.bases.values())
+				for (const baseParallel of baseParallels)
+					conditions.add(baseParallel);
 			
 			// Stores the set of all bases (deep) that exist within the contract.
 			const contractBases = new Set<ExplicitParallel>();
@@ -320,12 +319,10 @@ namespace Truth
 				// If we have gotten to this point, the contract is considered to be
 				// satisfied entirely. This may seem like a cheat–but it's not. We're
 				// actually able to just add all the parallels being imposed as bases,
-				// and then declare the  contract as settled. (There may be some
-				// other work to do here because this doesn't include the pattern
-				// parallel in the set of bases. Maybe this is what we want though?
-				// Use of patterns isn't supposed to influence other contracts.)
-				for (const parallel of conditions)
-					this.addBaseEntry(parallel, viaFork, true);
+				// and then declare the  contract as settled.
+				
+				for (const patternParallel of nonInfixedPatternParallels)
+					this.bases.add(viaFork, patternParallel);
 				
 				contract.conditionsUnsatisfied.clear();
 				this.hasResolvedAlias = true;
@@ -341,7 +338,7 @@ namespace Truth
 				const pattern = Not.null(patternParallel.pattern);
 				if (pattern.test(viaAlias))
 				{
-					this.addBaseEntry(patternParallel, viaFork, true);
+					this.bases.add(viaFork, patternParallel);
 					this.hasResolvedAlias = true;
 				}
 			}
@@ -433,7 +430,7 @@ namespace Truth
 			// isn't a problem, and it keeps it consistent with the way the
 			// rest of the system works.
 			for (const [base, via] of baseTable)
-				this.addBaseEntry(base, via, false);
+				this.bases.add(via, base);
 		}
 		
 		/**
@@ -442,7 +439,7 @@ namespace Truth
 		 */
 		get baseCount()
 		{
-			return this._bases.size;
+			return this.bases.size;
 		}
 		
 		/** */
@@ -595,33 +592,6 @@ namespace Truth
 		 * indicating that the contract has been fulfilled.
 		 */
 		private contractConditionsUnsatisfied: Set<ExplicitParallel> | null = null;
-	}
-	
-	/**
-	 * A type that describes an entry in the bases map
-	 * of a ExplicitParallel.
-	 */
-	interface IBaseEntry
-	{
-		/**
-		 * Stores the set of ExplicitParallels that caused the base to be constructed.
-		 * Note that a base entry can have multiple parallels in the case when the base
-		 * is actually a pattern with two equally viable matches in scope, and no contract
-		 * being imposed, for example:
-		 * ```
-		 * /pattern : A
-		 * /pattern : B
-		 * C : pattern
-		 * ```
-		 * In the above case, C would have the bases A and B.
-		 * 
-		 * NOTE: This should actually be a fault. A clarifier type should be defined on
-		 * C in order to disambiguate between A and B.
-		 */
-		parallels: ExplicitParallel[];
-		
-		/** Stores whether the term is an alias (matched by a pattern). */
-		aliased: boolean;
 	}
 	
 	/** @internal */

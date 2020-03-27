@@ -42,14 +42,14 @@ namespace Truth
 		 * Stores a significant empty-string term, which is used as a marker term
 		 * to represent what is eventually presented as an anonymous type.
 		 */
-		static readonly void = Term.from("");
+		static readonly anonymous = new Term("", true);
 		
 		/**
 		 * Stores a significant empty string term, which is used as a marker term
 		 * to represent a full statement that has been marked as as cruft (meaning
 		 * that the statement is unparsable).
 		 */
-		static readonly cruft = Term.from("");
+		static readonly cruft = new Term("", true);
 		
 		/** */
 		private constructor(

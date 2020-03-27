@@ -678,7 +678,7 @@ namespace Truth
 					this.parallels.getExplicit(nextPhrase) ||
 					this.parallels.createExplicit(nextPhrase, this.cruft);
 				
-				if (descendTarget.phrase.terminal instanceof Anon)
+				if (descendTarget.phrase.terminal === Term.anonymous)
 					if (zenith.phrase.isListIntrinsic)
 						for (const smt of descendTarget.phrase.statements)
 							this.program.faults.report(new Fault(

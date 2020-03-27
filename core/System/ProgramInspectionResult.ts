@@ -2,57 +2,151 @@
 namespace Truth
 {
 	/**
-	 * Stores the details about a precise location in a Document.
+	 * Stores information about a character location in a document.
 	 */
 	export class ProgramInspectionResult
 	{
-		/** @internal */
 		constructor(
 			/**
-			 * Stores the location of the inspection point within a Document.
+			 * Stores the 1-based line number at which the inspection began.
 			 */
-			readonly position: Position,
+			readonly line: number,
 			
 			/**
-			 * Stores the zone of the statement found at the specified location.
+			 * Stores the 1-based column number at which the inspection began.
 			 */
-			readonly zone: StatementZone,
+			readonly column: number,
 			
 			/**
-			 * Stores the compilation object that most closely represents
-			 * what was found at the specified location. Stores null in the
-			 * case when the specified location contains an object that
-			 * has been marked as cruft (the statement and span fields
-			 * are still populated in this case).
-			 */
-			readonly foundObject: Document | Type[] | null,
-			
-			/**
-			 * Stores the Statement found at the specified location.
+			 * Stores the statement object that was found at the inspected location.
 			 */
 			readonly statement: Statement,
 			
 			/**
-			 * Stores the Span found at the specified location, or
-			 * null in the case when no Span was found, such as if
-			 * the specified location is whitespace or a comment.
+			 * Stores the span object that was found at the inspected location, if any.
 			 */
-			readonly span: Span | null = null)
+			readonly span: Span | null,
+			
+			/**
+			 * Stores a value that indicates the general area of the statement
+			 * in which the inspected location resides.
+			 */
+			readonly area: InspectedArea,
+			
+			/**
+			 * Stores a value that indicates the kind of syntax that was
+			 * discovered at the inspected location.
+			 */
+			readonly syntax: InspectedSyntax)
+		{ }
+		
+		/**
+		 * Gets an array of Type objects that would be the containers
+		 * of any additional types that were to be entered at the inspected
+		 * location. The array is empty in all cases other than when the
+		 * inspected location is indented, and within a whitespace line.
+		 * The following example demonstrates a case where this property
+		 * would contain an array containing two types:
+		 * ```
+		 * Container1, Container2
+		 * 	| <-- Inspected position is here
+		 * ```
+		 */
+		get containers(): readonly Type[]
 		{
-			if (Array.isArray(foundObject) && foundObject.length === 0)
-				this.foundObject = null;
+			if (this._containers)
+				return this._containers;
+			
+			if (this.statement.isWhitespace)
+			{
+				const doc = this.statement.document;
+				const offset0Based = this.column - 1;
+				const parent = doc.getParentFromPosition(this.line, offset0Based);
+				
+				if (parent instanceof Statement)
+					return this._containers = parent.declarations
+						.flatMap(decl => Phrase.fromSpan(decl))
+						.map(phrase => Type.construct(phrase))
+						.filter((type): type is Type => !!type);
+			}
+			
+			return this._containers = [];
 		}
+		private _containers: readonly Type[] | null = null;
+		
+		/**
+		 * Gets an array of types in the case when the inspected location
+		 * is on the declaration side of a statement, or a keyword in the case
+		 * when the inspected location is on the annotation side of the
+		 * statement.
+		 */
+		get hit()
+		{
+			if (this._hit)
+				return this._hit;
+			
+			if (this.area === InspectedArea.declaration)
+			{
+				const span = Not.null(this.span);
+				return this._hit = Phrase.fromSpan(span)
+					.map(ph => Type.construct(ph))
+					.filter((type): type is Type => !!type);
+			}
+			else if (this.area === InspectedArea.annotation)
+			{
+				const offset0Based = this.column - 1;
+				const anno = this.statement.getAnnotation(offset0Based);
+				if (!anno)
+					throw Exception.unknownState();
+				
+				// We can safely construct phrases from the first declaration,
+				// because all phrases returned in this case are going to allow
+				// us to arrive at the relevant annotation.
+				const phrases = Phrase.fromSpan(this.statement.declarations[0]);
+				if (phrases.length > 0)
+				{
+					// We can safely construct a type from the first phrase, because
+					// we don't actually care about any of the phrases in this case,
+					// but rather, a particular annotation which will be associated
+					// with any of the returned phrases.
+					const type = Not.null(Type.construct(phrases[0]));
+					const annoText = anno.boundary.subject.toString();
+					
+					const keyword = type.keywords
+						.find(key => key.word === annoText);
+					
+					// We won't be able to find a keyword in the case when
+					// the thing that was hit has a fault on it.
+					if (keyword)
+						return this._hit = keyword;
+				}
+			}
+			
+			return this._hit = [];
+		}
+		private _hit: Keyword | readonly Type[] | null = null;
 	}
 	
 	/**
-	 * Marks a specific line and offset within a Truth document.
+	 * An enumeration that represents the areas of a statement
+	 * that are significantly differentiated for inspection purposes.
 	 */
-	export interface Position 
+	export const enum InspectedArea
 	{
-		/** Represents a 1-based line number. */
-		line: number;
-		
-		/** Represents a 1-based charcter offset. */
-		offset: number;
+		void,
+		declaration,
+		annotation
+	}
+	
+	/**
+	 * An enumeration that indicates a kind of syntax that may be
+	 * discovered at an inspected location.
+	 */
+	export const enum InspectedSyntax
+	{
+		void,
+		term,
+		combinator,
+		joint
 	}
 }

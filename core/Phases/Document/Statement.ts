@@ -263,7 +263,7 @@ namespace Truth
 						declarationEntries.unshift(new Boundary(
 							jointPosition,
 							jointPosition,
-							Term.void));
+							Term.anonymous));
 						
 						if (aLen === 0)
 							flags |= StatementFlags.isVacuous;
@@ -785,7 +785,7 @@ namespace Truth
 			if (this.jointPosition > -1 && offset > this.jointPosition)
 				return null;
 			
-			return this.getSpan(offset, this.declarations);
+			return this.getDeclarationOrAnnotation(offset, this.declarations);
 		}
 		
 		/**
@@ -798,7 +798,7 @@ namespace Truth
 			if (this.jointPosition > -1 && offset < this.jointPosition + 1)
 				return null;
 			
-			return this.getSpan(offset, this.annotations);
+			return this.getDeclarationOrAnnotation(offset, this.annotations);
 		}
 		
 		/**
@@ -806,20 +806,22 @@ namespace Truth
 		 * within the array of spans provided, or null in the case when no span
 		 * could be found in the vicinity.
 		 */
-		private getSpan(offset: number, spans: readonly Span[])
+		private getDeclarationOrAnnotation(
+			offset: number,
+			targetSpansArray: readonly Span[])
 		{
 			offset = this.applyBounds(offset);
 			
-			const len = this.spans.length;
+			const len = targetSpansArray.length;
 			for (let i = -1; ++i < len;)
 			{
-				const spanA = spans[i];
+				const spanA = targetSpansArray[i];
 				const bndA = spanA.boundary;
 				if (offset >= bndA.offsetStart && offset <= bndA.offsetEnd)
 					return spanA;
 				
 				// offset is past the end of the last declaration span
-				const spanB = i < len - 1 ? spans[i + 1] : null;
+				const spanB = i < len - 1 ? targetSpansArray[i + 1] : null;
 				if (!spanB)
 					return spanA;
 				
@@ -831,7 +833,7 @@ namespace Truth
 						spanB.boundary.offsetStart);
 					
 					const combPos = bndA.offsetStart + midText.indexOf(Syntax.combinator);
-					return offset >= combPos ? spanB : spanA;
+					return offset > combPos + 1 ? spanB : spanA;
 				}
 			}
 			
@@ -869,7 +871,6 @@ namespace Truth
 				escStyle: TermEscapeKind) =>
 			{
 				return spans
-					.filter(sp => !(sp.boundary.subject instanceof Anon))
 					.map(sp => Subject.serializeExternal(sp, escStyle))
 					.join(Syntax.combinator + Syntax.space);
 			};
@@ -900,7 +901,7 @@ namespace Truth
 	 * Defines the areas of a statement that are significantly
 	 * different when performing inspection.
 	 */
-	export enum StatementZone
+	export const enum StatementZone
 	{
 		/**
 		 * Refers to the area within a comment statement,
