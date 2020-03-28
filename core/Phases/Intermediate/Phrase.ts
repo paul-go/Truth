@@ -457,7 +457,7 @@ namespace Truth
 			// an already-existing phrase. See the comments in the .dispose()
 			// method for further information.
 			if (isCreating && !disposalQueue.has(key) && this.length === 1)
-				doc.program.emit("declare", this.terminal.toString(), doc);
+				doc.program.emit("declare", this.terminal, doc);
 		}
 		
 		/**
@@ -726,7 +726,7 @@ namespace Truth
 			
 			// In the case when there are no clarifiers defined, and the phrase
 			// isn't surface level, the terminal essentially acts as the annotation.
-			// This is to support type inference.
+			// This is to support type inference via containment.
 			const scanTerms = 
 				this.length > 1 &&
 				this.clarifiers.length === 0 && 
@@ -804,7 +804,7 @@ namespace Truth
 					
 					const existing = doc.phrase.peek(terminal, clarifier);
 					if (existing.length === 0)
-						doc.program.emit("undeclare", terminal.toString(), doc);
+						doc.program.emit("undeclare", terminal, doc);
 				});
 			}
 		}
