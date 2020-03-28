@@ -42,6 +42,23 @@ namespace Truth
 		private readonly bases = new SetMap<Fork, ExplicitParallel>();
 		
 		/**
+		 * Stores a map whose keys are the bases that were inferred through
+		 * abstraction, and whose values are the alias that was used to make
+		 * the connection. In the case when the inferred base did not involve
+		 * an alias, the value is an empty string.
+		 */
+		private readonly basesInferred = new Map<ExplicitParallel, string>();
+		
+		/**
+		 * Gets the number of bases that have 
+		 * been explicitly applied to this Parallel.
+		 */
+		get baseCount()
+		{
+			return this.bases.size + this.basesInferred.size;
+		}
+		
+		/**
 		 * Gets the first base contained by this instance.
 		 * @throws In the case when this instance contains no bases.
 		 */
@@ -56,14 +73,27 @@ namespace Truth
 		
 		/**
 		 * Performs a shallow traversal on the non-cruft bases
-		 * defined directly on this ExplicitParallel.
+		 * defined directly on this ExplicitParallel, either through
+		 * direct definition, or through inference.
 		 */
 		*eachBase()
 		{
 			for (const [fork, baseEntry] of this.bases)
 				if (!this.cruft.has(fork))
 					for (const base of baseEntry)
-						yield { base, fork};
+						yield {
+							base,
+							fork,
+							get alias()
+							{
+								return base.phrase.terminal !== fork.term ?
+									fork.term.textContent :
+									"";
+							 }
+						};
+			
+			for (const [base, alias] of this.basesInferred)
+				yield { base, fork: null, alias };
 		}
 		
 		/**
@@ -199,8 +229,7 @@ namespace Truth
 		 */
 		tryAddAliasedBase(
 			patternParallelsInScope: ReadonlySet<ExplicitParallel>,
-			viaFork: Fork,
-			viaAlias: string)
+			viaFork: Fork)
 		{
 			if (this.bases.has(viaFork))
 				throw Exception.unknownState();
@@ -214,6 +243,8 @@ namespace Truth
 			// This should be controlled by the ConstructionWorker.
 			if (this.hasResolvedAlias)
 				throw Exception.unknownState();
+			
+			const alias = viaFork.term.textContent;
 			
 			// Contracts for aliased bases are computed in a different way 
 			// when compared to literal bases. In an aliased base, there is
@@ -312,7 +343,7 @@ namespace Truth
 				for (const patternParallel of nonInfixedPatternParallels)
 				{
 					const pattern = Not.null(patternParallel.pattern);
-					if (!pattern.test(viaAlias))
+					if (!pattern.test(alias))
 						return BaseResolveResult.rejected;
 				}
 			
@@ -336,7 +367,7 @@ namespace Truth
 			for (const patternParallel of applicablePatternParallels)
 			{
 				const pattern = Not.null(patternParallel.pattern);
-				if (pattern.test(viaAlias))
+				if (pattern.test(alias))
 				{
 					this.bases.add(viaFork, patternParallel);
 					this.hasResolvedAlias = true;
@@ -434,12 +465,20 @@ namespace Truth
 		}
 		
 		/**
-		 * Gets the number of bases that have 
-		 * been explicitly applied to this Parallel.
+		 * 
 		 */
-		get baseCount()
+		tryInferBasesViaAbstraction()
 		{
-			return this.bases.size;
+			const contract = this.maybeComputeContract();
+			
+			if (contract.conditions.size === 0)
+				return false;
+			
+			for (const inferrable of contract.conditions)
+				for (const { base, alias } of inferrable.eachBase())
+					this.basesInferred.set(base, alias);
+			
+			return true;
 		}
 		
 		/** */
@@ -478,6 +517,10 @@ namespace Truth
 			// will be the same here.
 			for (const { base, fork } of this.eachBase())
 			{
+				// Skip over the inferred bases
+				if (!fork)
+					continue;
+				
 				const initialDim = base.getListDimensionality();
 				return fork.term.isList ? initialDim + 1 : initialDim;
 			}
@@ -562,8 +605,13 @@ namespace Truth
 					}
 					else if (srcParallel instanceof ExplicitParallel)
 					{
-						for (const { base } of srcParallel.eachBase())
+						for (const { base, alias } of srcParallel.eachBase())
+						{
 							conditions.add(base);
+							
+							if (alias && !this.contractAlias)
+								this.contractAlias = alias;
+						}
 					}
 				};
 				
@@ -576,7 +624,8 @@ namespace Truth
 			
 			return {
 				conditions: this.contractConditions!,
-				conditionsUnsatisfied: this.contractConditionsUnsatisfied!
+				conditionsUnsatisfied: this.contractConditionsUnsatisfied!,
+				alias: this.contractAlias
 			};
 		}
 		
@@ -592,6 +641,13 @@ namespace Truth
 		 * indicating that the contract has been fulfilled.
 		 */
 		private contractConditionsUnsatisfied: Set<ExplicitParallel> | null = null;
+		
+		/**
+		 * Stores the first alias that was discovered during the contract construction
+		 * process. This is used to support type inference through abstraction, so
+		 * that when this occurs, an alias may be inferred along with the types.
+		 */
+		private contractAlias = "";
 	}
 	
 	/** @internal */

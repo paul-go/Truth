@@ -24,14 +24,13 @@ namespace Truth
 			if (!phrase || phrase.length === 0)
 				return null;
 			
-			const context = this.getContext(phrase);
-			
 			// If the cached type exists, but hasn't been compiled yet,
 			// we can't return it, we need to compile it first.
 			const existingType = this.fromPhrase(phrase);
 			if (existingType.seed)
 				return existingType;
 			
+			const context = this.getContext(phrase);
 			const parallel = context.worker.drill(phrase);
 			
 			// The drilling procedure can return a null value for the parallel
@@ -479,9 +478,9 @@ namespace Truth
 			
 			const extractAlias = (ep: ExplicitParallel) =>
 			{
-				for (const { base, fork } of ep.eachBase())
-					if (base.phrase.terminal !== fork.term)
-						aliases.push(fork.term.toString());
+				for (const { alias } of ep.eachBase())
+					if (alias)
+						aliases.push(alias);
 			};
 			
 			if (seed instanceof ExplicitParallel)
@@ -526,9 +525,9 @@ namespace Truth
 			
 			const extractType = (ep: ExplicitParallel) =>
 			{
-				for (const { base, fork } of ep.eachBase())
+				for (const { base, fork, alias } of ep.eachBase())
 				{
-					const word = fork.term.toString();
+					const word = fork?.term.toString() || alias;
 					const baseType = Type.construct(base.phrase);
 					if (baseType)
 						keywords.push(new Keyword(word, baseType));

@@ -227,6 +227,28 @@ namespace Truth
 			
 			this.rakedParallels.add(srcParallel.id);
 			
+			// In the case when there are no annotations on the phrase,
+			// this means that we need to resort to using type inference
+			// in order to rake the parallel.
+			if (srcParallel.phrase.annotations.length === 0)
+			{
+				// Unannotated surface-level parallels don't need any
+				// special raking, so we can quit immediately when we find one.
+				if (srcParallel.phrase.length === 0)
+					return;
+				
+				// Unannotated nested parallels have their bases appended
+				// via inference.
+				if (srcParallel.tryInferBasesViaAbstraction())
+					return;
+				
+				// At this point, inference through abstraction failed, but it may
+				// still  occur through containment. This is carried out simply
+				// by proceeding as usual, because the phrase's .outbounds
+				// property establishes necessary forks to other phrases in the
+				// containment hierarchy to support inference via containment.
+			}
+			
 			// The type resolution algorithm operates by resolving all literal
 			// types first, and then in the case when there are unresolved 
 			// forks left over, attempting to resolve one of these as an alias.
@@ -313,12 +335,10 @@ namespace Truth
 				
 				if (patternParallelsInScope.size > 0)
 				{
-					const alias = fork.term.textContent;
 					const result = srcParallel.tryAddAliasedBase(
-							patternParallelsInScope,
-							fork,
-							alias);
-						
+						patternParallelsInScope,
+						fork);
+					
 					if (result !== BaseResolveResult.rejected)
 					{
 						unresolvedForks.splice(idx, 1);

@@ -95,7 +95,8 @@ namespace Truth
 		private *basesOf(par: ExplicitParallel)
 		{
 			for (const { base, fork } of par.eachBase())
-				yield { base, fork };
+				if (fork)
+					yield { base, fork };
 			
 			if (this.sourceParallel === par)
 				yield { base: this.proposedBaseParallel, fork: this.viaFork };
