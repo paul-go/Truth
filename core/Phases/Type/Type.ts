@@ -957,10 +957,10 @@ namespace Truth
 		isListIntrinsic = 0,
 		isListExtrinsic = 1,
 		isFresh = 2,
-		isExplicit = 3,
-		isAnonymous = 4,
-		isPattern = 5,
-		isUri = 6,
-		isRefinement= 7
+		isExplicit = 4,
+		isAnonymous = 8,
+		isPattern = 16,
+		isUri = 32,
+		isRefinement= 64
 	}
 }
