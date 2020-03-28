@@ -279,7 +279,7 @@ namespace Truth
 			this.sum = sum;
 			this.indent = indent;
 			this.flags = flags;
-			this.jointPosition = jointPosition;
+			this.jointOffset = jointPosition;
 			
 			const allDeclarations: Span[] = this.allDeclarations = [];
 			for (const boundary of declarationEntries)
@@ -667,11 +667,11 @@ namespace Truth
 		}
 		
 		/**
-		 * Stores the position at which the joint operator exists
-		 * in the statement. A negative number indicates that
-		 * the joint operator does not exist in the statement.
+		 * Stores the 0-based character offset at which the joint operator 
+		 * exists in the statement. A negative number indicates that the
+		 * joint operator does not exist in the statement.
 		 */
-		readonly jointPosition: number;
+		readonly jointOffset: number;
 		
 		/**
 		 * Stores the unprocessed text content of the statement, 
@@ -728,15 +728,14 @@ namespace Truth
 			if (this.isComment || this.isCruft)
 				return StatementZone.void;
 			
-			offset = this.applyBounds(offset);
-			
-			if (offset === this.jointPosition)
+			if (offset === this.jointOffset)
 				return StatementZone.joint;
 			
-			if (this.sourceText[offset] === Syntax.combinator)
-				return offset < this.jointPosition ?
-					StatementZone.declarationCombinator :
-					StatementZone.annotationCombinator;
+			if (offset >= 0 && offset <this.sourceText.length)
+				if (this.sourceText[offset] === Syntax.combinator)
+					return offset < this.jointOffset ?
+						StatementZone.declarationCombinator :
+						StatementZone.annotationCombinator;
 			
 			if (this.hasPattern)
 			{
@@ -745,7 +744,7 @@ namespace Truth
 					return StatementZone.pattern;
 			}
 			
-			if (offset <= this.jointPosition || this.jointPosition < 0)
+			if (offset <= this.jointOffset || this.jointOffset < 0)
 			{
 				for (const span of this.allDeclarations)
 				{
@@ -782,7 +781,7 @@ namespace Truth
 		 */
 		getDeclaration(offset: number)
 		{
-			if (this.jointPosition > -1 && offset > this.jointPosition)
+			if (this.jointOffset > -1 && offset > this.jointOffset)
 				return null;
 			
 			return this.getDeclarationOrAnnotation(offset, this.declarations);
@@ -795,7 +794,7 @@ namespace Truth
 		 */
 		getAnnotation(offset: number)
 		{
-			if (this.jointPosition > -1 && offset < this.jointPosition + 1)
+			if (this.jointOffset > -1 && offset < this.jointOffset + 1)
 				return null;
 			
 			return this.getDeclarationOrAnnotation(offset, this.annotations);
@@ -808,20 +807,28 @@ namespace Truth
 		 */
 		private getDeclarationOrAnnotation(
 			offset: number,
-			targetSpansArray: readonly Span[])
+			targetSpans: readonly Span[])
 		{
-			offset = this.applyBounds(offset);
+			if (targetSpans.length === 0)
+				return null;
 			
-			const len = targetSpansArray.length;
+			if (offset <= targetSpans[0].boundary.offsetStart)
+				return targetSpans[0];
+			
+			const lastSpan = targetSpans[targetSpans.length - 1];
+			if (offset >= lastSpan.boundary.offsetEnd)
+				return lastSpan;
+			
+			const len = targetSpans.length;
 			for (let i = -1; ++i < len;)
 			{
-				const spanA = targetSpansArray[i];
+				const spanA = targetSpans[i];
 				const bndA = spanA.boundary;
 				if (offset >= bndA.offsetStart && offset <= bndA.offsetEnd)
 					return spanA;
 				
 				// offset is past the end of the last declaration span
-				const spanB = i < len - 1 ? targetSpansArray[i + 1] : null;
+				const spanB = i < len - 1 ? targetSpans[i + 1] : null;
 				if (!spanB)
 					return spanA;
 				
@@ -841,12 +848,17 @@ namespace Truth
 		}
 		
 		/**
-		 * Caps and floors the specified offset value so that it may refer
-		 * to a valid character position within the sourceText.
+		 * Returns the character at the specified column (1-based index).
 		 */
-		private applyBounds(offset: number)
+		charAt(column: number)
 		{
-			return Math.max(0, Math.min(this.sourceText.length - 1, offset));
+			if (column < 1 || this.sourceText.length === 0)
+				return "";
+			
+			if (column - 2 > this.sourceText.length)
+				return "";
+			
+			return this.sourceText[column - 1];
 		}
 		
 		/**
@@ -889,7 +901,7 @@ namespace Truth
 			const decls = serializeSpans(this.allDeclarations, TermEscapeKind.declaration);
 			const annos = serializeSpans(this.allAnnotations, TermEscapeKind.annotation);
 			
-			const joint = annos.length > 0 || this.jointPosition > -1 ? Syntax.joint : "";
+			const joint = annos.length > 0 || this.jointOffset > -1 ? Syntax.joint : "";
 			const jointL = decls.length > 0 && joint !== "" ? Syntax.space : "";
 			const jointR = annos.length > 0 ? Syntax.space : "";
 			

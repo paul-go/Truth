@@ -60,8 +60,8 @@ namespace Truth
 			if (this.statement.isWhitespace)
 			{
 				const doc = this.statement.document;
-				const offset0Based = this.column - 1;
-				const parent = doc.getParentFromPosition(this.line, offset0Based);
+				const offset = this.column - 1;
+				const parent = doc.getParentFromPosition(this.line, offset);
 				
 				if (parent instanceof Statement)
 					return this._containers = parent.declarations
@@ -75,14 +75,30 @@ namespace Truth
 		private _containers: readonly Type[] | null = null;
 		
 		/**
+		 * Gets an array of types that are defined as declarations in the
+		 * statement that contains the inspected location.
+		 */
+		get declarations()
+		{
+			if (this._declarations)
+				return this._declarations;
+			
+			return this._declarations = this.statement.declarations
+				.flatMap(decl => Phrase.fromSpan(decl))
+				.map(phrase => Type.construct(phrase))
+				.filter((type): type is Type => !!type);
+		}
+		private _declarations: readonly Type[] | null = null;
+		
+		/**
 		 * Gets an array of types in the case when the inspected location
 		 * is on the declaration side of a statement, or a keyword in the case
 		 * when the inspected location is on the annotation side of the
 		 * statement.
 		 */
-		get hit()
+		get hit(): Keyword | readonly Type[] | string
 		{
-			if (this._hit)
+			if (this._hit !== null)
 				return this._hit;
 			
 			if (this.area === InspectedArea.declaration)
@@ -94,10 +110,14 @@ namespace Truth
 			}
 			else if (this.area === InspectedArea.annotation)
 			{
-				const offset0Based = this.column - 1;
-				const anno = this.statement.getAnnotation(offset0Based);
+				const offset = this.column - 1;
+				const anno = this.statement.getAnnotation(offset);
+				
+				// Return an empty string in the case when the inspected area
+				// is in the annotation side, but there is no actual annotation present.
+				// This can happen when the statement looks like "Type : "
 				if (!anno)
-					throw Exception.unknownState();
+					return this._hit = "";
 				
 				// We can safely construct phrases from the first declaration,
 				// because all phrases returned in this case are going to allow
@@ -116,7 +136,11 @@ namespace Truth
 						.find(key => key.word === annoText);
 					
 					// We won't be able to find a keyword in the case when
-					// the thing that was hit has a fault on it.
+					// the thing that was hit has a fault on it. In this case, we
+					// just return a string containing the hit content.
+					if (!keyword)
+						return this._hit = annoText;
+					
 					if (keyword)
 						return this._hit = keyword;
 				}
@@ -124,7 +148,7 @@ namespace Truth
 			
 			return this._hit = [];
 		}
-		private _hit: Keyword | readonly Type[] | null = null;
+		private _hit: Keyword | readonly Type[] | string | null = null;
 	}
 	
 	/**
@@ -133,8 +157,22 @@ namespace Truth
 	 */
 	export const enum InspectedArea
 	{
+		/**
+		 * Indicates that the inspected area is within a no-op statement,
+		 * within the indent area of a non-no-op statement.
+		 */
 		void,
+		
+		/**
+		 * Indicates that the inspected area is on the declaration (left)
+		 * side of a joint (or is in a non-no-op statement without a joint).
+		 */
 		declaration,
+		
+		/**
+		 * Indicates that the inspected area is on the annotation (right)
+		 * side of a joint. 
+		 */
 		annotation
 	}
 	

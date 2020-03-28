@@ -341,24 +341,26 @@ namespace Truth
 		 * 
 		 * @param document The document to inspect.
 		 * @param line A 1-based line number at which to begin inspecting.
-		 * @param offset A 1-based character offset at which to begin inspecting.
+		 * @param column A 1-based column number at which to begin inspecting.
 		 */
 		inspect(
 			document: Document,
 			line: number,
-			offset: number): ProgramInspectionResult
+			column: number): ProgramInspectionResult
 		{
-			const offset0Based = offset - 1;
+			const offset = column - 1;
 			const statement = document.read(line);
-			const zone = statement.getZone(offset0Based);
-			const declSpan = statement.getDeclaration(offset0Based);
-			const annoSpan = statement.getAnnotation(offset0Based);
+			const zone = statement.getZone(offset);
+			const declSpan = statement.getDeclaration(offset);
+			const annoSpan = statement.getAnnotation(offset);
 			const span = declSpan || annoSpan;
 			
 			const area: InspectedArea =
-				declSpan ? InspectedArea.declaration :
-				annoSpan ? InspectedArea.annotation :
-				InspectedArea.void;
+				declSpan || zone === StatementZone.declarationWhitespace ? 
+					InspectedArea.declaration :
+				annoSpan || zone === StatementZone.annotationWhitespace ? 
+					InspectedArea.annotation :
+					InspectedArea.void;
 			
 			const syntax: InspectedSyntax =
 				zone === StatementZone.joint ?
@@ -374,7 +376,7 @@ namespace Truth
 			
 			return new ProgramInspectionResult(
 				line,
-				offset,
+				column,
 				statement,
 				span,
 				area,

@@ -343,18 +343,18 @@ namespace Truth
 		 * would be surface-level, a reference to this document object is returned.
 		 * 
 		 * @param lineNumber The 1-based line number at which to begin.
-		 * @param lineOffset The 1-based character offset at which to begin.
+		 * @param columnNumber The 1-based column number at which to begin.
 		 */
-		getParentFromPosition(lineNumber: number, lineOffset: number): Statement | this
+		getParentFromPosition(lineNumber: number, columnNumber: number): Statement | this
 		{
 			if (lineNumber === 1 || 
 				lineNumber === 0 ||
-				lineOffset < 1 || 
+				columnNumber < 1 || 
 				this.statements.length === 0)
 				return this;
 			
 			for (const smt of this.statements.enumerateBackward(lineNumber))
-				if (!smt.isNoop && smt.indent < lineOffset)
+				if (!smt.isNoop && smt.indent < columnNumber)
 					return smt;
 			
 			return this;

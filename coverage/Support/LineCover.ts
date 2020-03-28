@@ -78,7 +78,7 @@ namespace Truth
 		
 		if (expected.joint !== undefined)
 		{
-			if (statement.jointPosition !== expected.joint)
+			if (statement.jointOffset !== expected.joint)
 			{
 				debugger;
 				return fail("Joint expected at position: " + expected.joint);
