@@ -64,11 +64,11 @@ namespace Truth
 				
 				type.seed = seed;
 				type._container = lastType;
-				type._parallels = seed.getParallels().map(p => Type.fromPhrase(p.phrase));
+				type._supervisors = seed.getParallels().map(p => Type.fromPhrase(p.phrase));
 				
 				if (seed instanceof ExplicitParallel)
 				{
-					type._bases = this.basesOf(seed);
+					type._supers = this.basesOf(seed);
 				}
 				else if (seed instanceof ImplicitParallel)
 				{
@@ -85,7 +85,7 @@ namespace Truth
 							explicitParallels.push(current);
 					}
 					
-					type._bases = explicitParallels
+					type._supers = explicitParallels
 						.map(par => this.basesOf(par))
 						.reduce((a, b) => a.concat(b), [])
 						.filter((v, i, a) => a.indexOf(v) === i);
@@ -114,10 +114,10 @@ namespace Truth
 				if (type.keywords.some(key => key.word === type.name))
 					type.flags |= Flags.isRefinement;
 				
-				for (const base of type._bases)
+				for (const base of type._supers)
 					context.inboundBases.add(base, type);
 				
-				for (const parallel of type._parallels)
+				for (const parallel of type._supervisors)
 					context.inboundParallels.add(parallel, type);
 				
 				lastType = type;
@@ -273,9 +273,9 @@ namespace Truth
 			// Dig through the parallel graph recursively, and at each parallel,
 			// dig through the base graph recursively, and collect all the names
 			// that are found.
-			for (const { type: parallelType } of this.iterate(t => t.parallels, true))
+			for (const { type: parallelType } of this.iterate(t => t.supervisors, true))
 			{
-				for (const { type: baseType } of parallelType.iterate(t => t.bases, true))
+				for (const { type: baseType } of parallelType.iterate(t => t.supers, true))
 				{
 					// baseType should always be seeded, however these checks
 					// are in place to guard against any possibility of this not being
@@ -325,44 +325,81 @@ namespace Truth
 		 * If this Type extends from a pattern, it is included in this
 		 * array.
 		 */
-		get bases(): readonly Type[]
+		get supers(): readonly Type[]
 		{
 			this.guard();
-			return this._bases;
+			return this._supers;
 		}
-		private _bases: readonly Type[] = [];
+		private _supers: readonly Type[] = [];
 		
 		/**
-		 * Gets a reference to the type, as it's defined in it's
-		 * next most applicable type.
+		 * Gets the array of types that extend from this one, either
+		 * through an explicit annotation, or an alias.
+		 * 
+		 * @throws An exception when the containing program
+		 * has unverified information.
 		 */
-		get parallels()
+		get subs(): readonly Type[]
 		{
 			this.guard();
-			return this._parallels;
+			if (this._subs)
+				return this._subs;
+			
+			const ctx = Type.getContext(this.phrase);
+			const subs = ctx.inboundBases.get(this);
+			return this._subs = subs ? Array.from(subs) : [];
 		}
-		private _parallels: readonly Type[] = [];
+		private _subs: readonly Type[] = [];
 		
 		/**
 		 * Gets a reference to the parallel roots of this type.
 		 * The parallel roots are the endpoints found when
 		 * traversing upward through the parallel graph.
 		 */
-		get parallelRoots()
+		get chiefs()
 		{
-			if (this._parallelRoots !== null)
-				return this._parallelRoots;
+			if (this._chiefs !== null)
+				return this._chiefs;
 			
 			this.guard();
 			
-			const roots: Type[] = [];
-			for (const { type } of this.iterate(t => t.parallels))
-				if (type !== this && type.parallels.length === 0)
-					roots.push(type);
+			const chiefs: Type[] = [];
+			for (const { type } of this.iterate(t => t.supervisors))
+				if (type !== this && type.supervisors.length === 0)
+					chiefs.push(type);
 			
-			return this._parallelRoots = Object.freeze(roots);
+			return this._chiefs = Object.freeze(chiefs);
 		}
-		private _parallelRoots: readonly Type[] | null = null;
+		private _chiefs: readonly Type[] | null = null;
+		
+		/**
+		 * Gets a reference to the type, as it's defined in it's
+		 * next most applicable type.
+		 */
+		get supervisors()
+		{
+			this.guard();
+			return this._supervisors;
+		}
+		private _supervisors: readonly Type[] = [];
+		
+		/**
+		 * Gets the array of types that have this type as a supervisor.
+		 * 
+		 * @throws An exception when the containing program
+		 * has unverified information.
+		 */
+		get subvisors()
+		{
+			this.guard();
+			if (this._subvisors)
+				return this._subvisors;
+			
+			const ctx = Type.getContext(this.phrase);
+			const subvisors = ctx.inboundParallels.get(this);
+			return this._subvisors = subvisors ? Array.from(subvisors) : [];
+		}
+		private _subvisors: readonly Type[] = [];
 		
 		/**
 		 * Gets an array that contains the Types that share the same 
@@ -441,10 +478,10 @@ namespace Truth
 			{
 				const applicablePatternTypes = type.adjacents
 					.filter(t => t.isPattern)
-					.filter(t => t.bases.includes(type));
+					.filter(t => t.supers.includes(type));
 				
 				const applicablePatternsBasesLabels =
-					applicablePatternTypes.map(p => p.bases
+					applicablePatternTypes.map(p => p.supers
 						.map(b => b.phrase.toString())
 						.join(Syntax.terminal));
 				
@@ -575,44 +612,11 @@ namespace Truth
 		}
 		private _value: string | null = null;
 		
-		/**
-		 * Iterates through each type that has this type as a base.
-		 * Types that derive from this one as a result of the use
-		 * of an alias are excluded from this array.
-		 */
-		async *eachInboundBase()
-		{
-			this.guard();
-			const context = Type.getContext(this.phrase);
-			await context.program.await();
-			const types = context.inboundBases.get(this);
-			
-			if (types)
-				for (const type of types)
-					yield type;
-		}
-		
-		/**
-		 * Iterates through each type in the program that have 
-		 * this type as a parallel.
-		 */
-		async *eachInboundParallel()
-		{
-			this.guard();
-			const context = Type.getContext(this.phrase);
-			await context.program.await();
-			const types = context.inboundParallels.get(this);
-			
-			if (types)
-				for (const type of types)
-					yield type;
-		}
+		/** */
+		get isOverride() { return this.supervisors.length > 0; }
 		
 		/** */
-		get isOverride() { return this.parallels.length > 0; }
-		
-		/** */
-		get isIntroduction() { return this.parallels.length === 0; }
+		get isIntroduction() { return this.supervisors.length === 0; }
 		
 		/**
 		 * Gets whether this type is a _refinement_, which means that
@@ -771,7 +775,7 @@ namespace Truth
 		 */
 		is(baseType: Type)
 		{
-			for (const { type } of this.iterate(t => t.bases))
+			for (const { type } of this.iterate(t => t.supers))
 				if (type === baseType)
 					return true;
 			
@@ -790,7 +794,7 @@ namespace Truth
 			
 			for (const innerType of this.containees)
 				if (type.name === innerType.name)
-					for (const parallel of innerType.iterate(t => t.parallels))
+					for (const parallel of innerType.iterate(t => t.supervisors))
 						if (parallel.type === type)
 							return true;
 			
@@ -836,8 +840,8 @@ namespace Truth
 				write(".phrase", [this.phrase]);
 				write(".container", this.container ? [this.container.phrase] : []);
 				write(".containees", this.containees);
-				write(".bases", this.bases);
-				write(".parallels", this.parallels);
+				write(".supers", this.supers);
+				write(".supervisors", this.supervisors);
 				write(".adjacents", this.adjacents);
 				write(".patterns", this.patterns);
 				write(".aliases", this.aliases);
