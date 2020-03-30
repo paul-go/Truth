@@ -63,38 +63,6 @@ namespace Truth
 
 namespace Truth
 {
-	function coverLineParse6()
-	{
-		return createLineCover("Refresh:", {
-			refresh: true,
-			emit: "Refresh :"
-		});
-	}
-}
-
-namespace Truth
-{
-	function coverLineParse7()
-	{
-		return createLineCover("Refresh : ", {
-			refresh: true,
-			emit: "Refresh :"
-		});
-	}
-}
-
-namespace Truth
-{
-	function coverLineParse8()
-	{
-		return createLineCover("R, E, F, R, E, S, H :", {
-			refresh: true
-		});
-	}
-}
-
-namespace Truth
-{
 	function coverLineParse9()
 	{
 		return createLineCover("TabSpcTabSpc\t \t : \t TabSpc", {
@@ -452,8 +420,7 @@ namespace Truth
 	{
 		return createLineCover(":::", {
 			emit: ":: :",
-			joint: 2,
-			refresh: true
+			joint: 2
 		});
 	}
 }
@@ -464,8 +431,7 @@ namespace Truth
 	{
 		return createLineCover("::\\: :", {
 			emit: "::: :",
-			joint: 5,
-			refresh: true
+			joint: 5
 		});
 	}
 }
