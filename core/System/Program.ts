@@ -212,10 +212,17 @@ namespace Truth
 		/**
 		 * @returns The loaded document with the specified URI.
 		 */
-		getDocumentByUri(uri: KnownUri)
+		getDocumentByUri(uri: KnownUri | string)
 		{
+			const knownUri = uri instanceof KnownUri ?
+				uri :
+				KnownUri.fromString(uri);
+			
+			if (!knownUri)
+				throw Exception.invalidArgument();
+			
 			for (const doc of this._documents)
-				if (doc.uri === uri)
+				if (doc.uri === knownUri)
 					return doc;
 			
 			return null;

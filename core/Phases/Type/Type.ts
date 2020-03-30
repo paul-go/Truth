@@ -64,7 +64,7 @@ namespace Truth
 				
 				type.seed = seed;
 				type._container = lastType;
-				type._supervisors = seed.getParallels().map(p => Type.fromPhrase(p.phrase));
+				type._supervisors = findSupervisors(seed);
 				
 				if (seed instanceof ExplicitParallel)
 				{
@@ -115,10 +115,10 @@ namespace Truth
 					type.flags |= Flags.isRefinement;
 				
 				for (const base of type._supers)
-					context.inboundBases.add(base, type);
+					context.subs.add(base, type);
 				
 				for (const parallel of type._supervisors)
-					context.inboundParallels.add(parallel, type);
+					context.subvisors.add(parallel, type);
 				
 				lastType = type;
 			}
@@ -227,14 +227,26 @@ namespace Truth
 		{
 			const seed = this.guard();
 			
-			if (this._statements !== null)
+			if (this._statements)
 				return this._statements;
 			
-			return this._statements = this.seed instanceof ImplicitParallel ?
-				seed.phrase.statements.slice() :
-				Object.freeze([]);
+			return this._statements = seed.phrase.statements.slice();
 		}
 		private _statements: readonly Statement[] | null = null;
+		
+		/**
+		 * 
+		 */
+		get spans()
+		{
+			const seed = this.guard();
+			
+			if (this._spans)
+				return this._spans;
+			
+			return this._spans = seed.phrase.declarations.slice();
+		}
+		private _spans: readonly Span[] | null = null;
 		
 		/**
 		 * Gets the level of containment of this type. 
@@ -346,10 +358,10 @@ namespace Truth
 				return this._subs;
 			
 			const ctx = Type.getContext(this.phrase);
-			const subs = ctx.inboundBases.get(this);
+			const subs = ctx.subs.get(this);
 			return this._subs = subs ? Array.from(subs) : [];
 		}
-		private _subs: readonly Type[] = [];
+		private _subs: readonly Type[] | null = null;
 		
 		/**
 		 * Gets a reference to the parallel roots of this type.
@@ -396,7 +408,7 @@ namespace Truth
 				return this._subvisors;
 			
 			const ctx = Type.getContext(this.phrase);
-			const subvisors = ctx.inboundParallels.get(this);
+			const subvisors = ctx.subvisors.get(this);
 			return this._subvisors = subvisors ? Array.from(subvisors) : [];
 		}
 		private _subvisors: readonly Type[] = [];
@@ -437,8 +449,6 @@ namespace Truth
 				return this._superordinates;
 			
 			throw Exception.notImplemented();
-			
-			// eslint-disable-next-line no-unreachable
 			return this._superordinates = Object.freeze([]);
 		}
 		private _superordinates: readonly Type[] | null = null;
@@ -453,8 +463,6 @@ namespace Truth
 				return this._subordinates;
 			
 			throw Exception.notImplemented();
-			
-			// eslint-disable-next-line no-unreachable
 			return this._subordinates = Object.freeze([]);
 		}
 		private _subordinates: readonly Type[] | null = null;
@@ -917,8 +925,8 @@ namespace Truth
 		{
 			this.typesForPhrases.clear();
 			this.typesForTerms.clear();
-			this.inboundBases.clear();
-			this.inboundParallels.clear();
+			this.subs.clear();
+			this.subvisors.clear();
 			this.worker.reset();
 			this._version = this.program.version;
 		}
@@ -943,16 +951,53 @@ namespace Truth
 		readonly typesForTerms = new MultiMap<string, Type>();
 		
 		/**
-		 * Stores a cache of the inbound bases of each constructed type.
+		 * Stores a cache of the sub types of each constructed type.
 		 * This MultiMap is constructed progressively as more types are constructed.
 		 */
-		readonly inboundBases = new SetMap<Type, Type>();
+		readonly subs = new SetMap<Type, Type>();
 		
 		/**
-		 * Stores a cache of the inbound parallels of each constructed type.
+		 * Stores a cache of the subvisors of each constructed type.
 		 * This MultiMap is constructed progressively as more types are constructed.
 		 */
-		readonly inboundParallels = new SetMap<Type, Type>();
+		readonly subvisors = new SetMap<Type, Type>();
+	}
+	
+	/**
+	 * Recursively searches the parallel graph of the specified explicit or 
+	 * implicit parallel object, and returns the Type objects that form the
+	 * array of supervising types that corresponds to the seed parallel
+	 * specified.
+	 */
+	function findSupervisors(seed: Parallel)
+	{
+		const ids = new Set<number>();
+		const supervisors: Type[] = [];
+		
+		const recurse = (currentParallel: Parallel) =>
+		{
+			if (currentParallel instanceof ImplicitParallel)
+			{
+				for (const nestedParallel of currentParallel.getParallels())
+					recurse(nestedParallel);
+			}
+			else if (currentParallel instanceof ExplicitParallel)
+			{
+				if (ids.has(currentParallel.id))
+					return;
+				
+				ids.add(currentParallel.id);
+				
+				const type = Type.construct(currentParallel.phrase);
+				if (type)
+					supervisors.push(type);
+			}
+		};
+		
+		for (const parallel of seed.getParallels())
+			recurse(parallel);
+		
+		return supervisors;
 	}
 	
 	/** */
