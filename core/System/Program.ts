@@ -871,11 +871,11 @@ namespace Truth
 			maxLevelFilter = -1,
 			documentFilter?: Document | readonly Document[])
 		{
-			if (maxLevelFilter < minLevelFilter)
-				return;
-			
 			if (maxLevelFilter < 0)
 				maxLevelFilter = Number.MAX_SAFE_INTEGER;
+			
+			if (maxLevelFilter < minLevelFilter)
+				return;
 			
 			const documents: readonly Document[] = 
 				documentFilter instanceof Document ? [documentFilter] :
