@@ -869,7 +869,7 @@ namespace Truth
 		*scan(
 			minLevelFilter = 1,
 			maxLevelFilter = -1,
-			documentFilter?: Document | Document[])
+			documentFilter?: Document | readonly Document[])
 		{
 			if (maxLevelFilter < minLevelFilter)
 				return;
@@ -877,10 +877,10 @@ namespace Truth
 			if (maxLevelFilter < 0)
 				maxLevelFilter = Number.MAX_SAFE_INTEGER;
 			
-			const documents = 
+			const documents: readonly Document[] = 
 				documentFilter instanceof Document ? [documentFilter] :
 				Array.isArray(documentFilter) ? documentFilter :
-				this.eachDocument();
+				Array.from(this.eachDocument());
 			
 			// Optimization
 			if (minLevelFilter === 1 && maxLevelFilter === 1)
