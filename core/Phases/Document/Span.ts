@@ -110,9 +110,8 @@ namespace Truth
 		 */
 		get ancestry()
 		{
-			if (this._ancestry)
-				if (this._ancestry.every(smt => !smt.isDisposed))
-					return this._ancestry;
+			if (this._ancestry && !this.isDirty())
+				return this._ancestry;
 			
 			// If the ancestry has no yet been computed, or it has, but at least of
 			// it's statements have been disposed, then it must be recomputed.
@@ -151,7 +150,10 @@ namespace Truth
 		 */
 		get spines(): readonly Spine[]
 		{
-			return this._spines || (this._spines = this.factor());
+			if (this._spines === null || this.isDirty())
+				return this._spines = this.factor();
+			
+			return this._spines;
 		}
 		private _spines: readonly Spine[] | null = null;
 		
@@ -256,6 +258,15 @@ namespace Truth
 			}
 			
 			return factoredSpanPaths;
+		}
+		
+		/**
+		 * Gets whether the containing program's version has changed since
+		 * this span was created
+		 */
+		private isDirty()
+		{
+			return this.statement.document.program.version.newerThan(this.stamp);
 		}
 		
 		/**
