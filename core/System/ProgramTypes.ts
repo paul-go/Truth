@@ -7,7 +7,8 @@ namespace Truth
 	export interface IProgramOptions
 	{
 		/**
-		 * A boolean value that indicates whether or
+		 * A boolean value that indicates whether or not verifications
+		 * occur automatically after modifications to the program.
 		 */
 		autoVerify?: boolean;
 	}

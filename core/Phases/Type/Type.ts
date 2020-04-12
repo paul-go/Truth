@@ -287,20 +287,20 @@ namespace Truth
 			// that are found.
 			for (const { type: parallelType } of this.iterate(t => t.supervisors, true))
 			{
-				for (const { type: baseType } of parallelType.iterate(t => t.supers, true))
+				for (const { type: superType } of parallelType.iterate(t => t.supers, true))
 				{
-					// baseType should always be seeded, however these checks
+					// superType should always be seeded, however these checks
 					// are in place to guard against any possibility of this not being
 					// the case.
-					let base: Type | null = baseType;
-					if (!base.seed)
-						base = Type.construct(baseType.phrase);
+					let sup: Type | null = superType;
+					if (!sup.seed)
+						sup = Type.construct(superType.phrase);
 					
-					if (!base)
+					if (!sup)
 						continue;
 					
-					if (baseType.seed instanceof ExplicitParallel)
-						for (const subject of phrases.peekSubjects(baseType.seed))
+					if (superType.seed instanceof ExplicitParallel)
+						for (const subject of phrases.peekSubjects(superType.seed))
 							innerSubjects.add(subject);
 				}
 			}
@@ -899,68 +899,6 @@ namespace Truth
 		{
 			return this.type.name === this.word;
 		}
-	}
-	
-	/**
-	 * Stores supporting information for Type objects.
-	 * The information stored in this class must have the same lifetime as
-	 * the program object that contains the type, rather than the type itself.
-	 */
-	class Context
-	{
-		/** */
-		constructor(readonly program: Program)
-		{
-			this.phrases = new PhraseProvider();
-			this.worker = new ConstructionWorker(program, this.phrases);
-			this._version = program.version;
-		}
-		
-		/**
-		 * Clears out all information in this context.
-		 * This method should be called when the program is modified,
-		 * and the cached information is therefore no longer valid.
-		 */
-		reset()
-		{
-			this.typesForPhrases.clear();
-			this.typesForTerms.clear();
-			this.subs.clear();
-			this.subvisors.clear();
-			this.worker.reset();
-			this._version = this.program.version;
-		}
-		
-		/** */
-		get version()
-		{
-			return this._version;
-		}
-		private _version: VersionStamp;
-		
-		/** */
-		readonly worker: ConstructionWorker;
-		
-		/** */
-		readonly phrases: PhraseProvider;
-		
-		/** */
-		readonly typesForPhrases = new Map<Phrase, Type>();
-		
-		/** */
-		readonly typesForTerms = new MultiMap<string, Type>();
-		
-		/**
-		 * Stores a cache of the sub types of each constructed type.
-		 * This MultiMap is constructed progressively as more types are constructed.
-		 */
-		readonly subs = new SetMap<Type, Type>();
-		
-		/**
-		 * Stores a cache of the subvisors of each constructed type.
-		 * This MultiMap is constructed progressively as more types are constructed.
-		 */
-		readonly subvisors = new SetMap<Type, Type>();
 	}
 	
 	/**

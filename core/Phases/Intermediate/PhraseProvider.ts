@@ -17,9 +17,9 @@ namespace Truth
 	 * This class therefore stores, and provides abstraction so that accessing
 	 * the forwardings of a phrase can return phrases of all kinds, whether
 	 * they are hypothetical or non-hypothetical. The lifetime of these
-	 * hypothetical phrases are equal to an edit transaction. When the owning
-	 * program version changes (meaning one of it's documents were modified),
-	 * the hypothetical phrases stored here are disposed.
+	 * hypothetical phrases are equal to an edit transaction. When the version
+	 * of the containing program changes (meaning one of it's documents were
+	 * modified), the hypothetical phrases stored here are disposed.
 	 */
 	export class PhraseProvider
 	{

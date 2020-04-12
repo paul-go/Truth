@@ -149,8 +149,7 @@ namespace Truth
 		static reduceRecursive<TRet, T>(
 			initialObject: T,
 			followFn: (from: T) => Iterable<T>,
-			reduceFn: (current: T, nestedResults: readonly TRet[]) => TRet
-		): TRet
+			reduceFn: (current: T, nestedResults: readonly TRet[]) => TRet): TRet
 		{
 			const visited = new Set<T>();
 			
