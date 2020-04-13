@@ -80,6 +80,17 @@ namespace Truth
 		}
 		
 		/**
+		 * Returns a new array that is composed of the range of
+		 * items specified, using 1-based indexes.
+		 */
+		slice(start: number, end: number)
+		{
+			return this.items.slice(
+				this.toZeroBased(start), 
+				this.toZeroBased(end));
+		}
+		
+		/**
 		 * Performs a standard Array.splice() call on the array.
 		 * Negative numbers passed to the pos argument start the splice
 		 * operation from the end of the array, in the same manner as the

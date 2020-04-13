@@ -707,15 +707,24 @@ namespace Truth
 			if (this.isScripted)
 				throw Exception.scriptsAreImmutable();
 			
+			const self = this;
 			const deletedUriSmts: UriStatement[] = [];
 			const addedUriSmts: UriStatement[] = [];
-			const hasInsert = edits.some(ed => ed instanceof InsertEdit);
-			const hasDelete = edits.some(ed => ed instanceof DeleteEdit);
-			const hasUpdate = edits.some(ed => ed instanceof UpdateEdit);
-			const hasMixed =
-				hasInsert && hasUpdate ||
-				hasInsert && hasDelete ||
-				hasUpdate && hasDelete;
+			const insertEdits = edits.filter((e): e is InsertEdit => e instanceof InsertEdit);
+			const updateEdits = edits.filter((e): e is UpdateEdit => e instanceof UpdateEdit);
+			const deleteEdits = edits.filter((e): e is DeleteEdit => e instanceof DeleteEdit);
+			const hasInsert = insertEdits.length > 0;
+			const hasDelete = deleteEdits.length > 0;
+			const hasUpdate = updateEdits.length > 0;
+			
+			if (hasUpdate && (hasDelete || hasInsert))
+				throw Exception.invalidEditSequence();
+			
+			if (hasDelete && hasInsert && edits.some((v, i, a) => 
+				i > 0 &&
+				a[i - 1] instanceof InsertEdit && 
+				a[i] instanceof DeleteEdit))
+				throw Exception.invalidEditSequence();
 			
 			const doDelete = (edit: DeleteEdit) =>
 			{
@@ -727,8 +736,6 @@ namespace Truth
 					if (smt.uri)
 						deletedUriSmts.push(smt as UriStatement);
 				}
-				
-				return smts;
 			};
 			
 			const doInsert = (edit: InsertEdit) =>
@@ -752,6 +759,58 @@ namespace Truth
 				existing.dispose();
 			};
 			
+			const statementsOf = (deleteEdit: DeleteEdit) =>
+				this.statements.slice(deleteEdit.pos, deleteEdit.pos + deleteEdit.count);
+			
+			optimizeSilent: for (;;)
+			{
+				// First optimization is to process the changes, and then quit without
+				// notifying the rest of the system in the case when the only thing
+				// that changed about the document was no-op statements.
+				for (const edit of edits)
+				{
+					if (edit instanceof DeleteEdit)
+					{
+						if (!statementsOf(edit).every(smt => smt.isNoop))
+							break optimizeSilent;
+					}
+					else if (edit instanceof InsertEdit)
+					{
+						if (!edit.smt.isNoop)
+							break optimizeSilent;
+					}
+					else
+					{
+						const original = this.read(edit.pos);
+						
+						if (!original.isNoop || !edit.smt.isNoop)
+							break optimizeSilent;
+					}
+				}
+				
+				// If we've gotten to this point, it means that the changes can
+				// be processed without notifying the rest of the system.
+				return {
+					deletePhrases() {},
+					updateDocument()
+					{
+						for (const edit of edits)
+						{
+							if (edit instanceof DeleteEdit)
+								doDelete(edit);
+							
+							else if (edit instanceof UpdateEdit)
+								doUpdate(edit);
+							
+							else if (edit instanceof InsertEdit)
+								doInsert(edit);
+						}
+					},
+					createPhrases() {},
+					finalize: async () => {}
+				};
+			}
+			
 			const finalize = async () =>
 			{
 				// Perform a debug-time check to be sure that there are
@@ -763,8 +822,9 @@ namespace Truth
 						if (smt.isDisposed)
 							throw Exception.unknownState();
 					
+					console.clear();
 					//Debug.printDocument(this);
-					//Debug.printPhrases(this, true, true);
+					Debug.printPhrases(this, true, true);
 				}
 				
 				this._types = null;
@@ -774,281 +834,256 @@ namespace Truth
 					await this.updateReferences(deletedUriSmts, addedUriSmts);
 			};
 			
-			if (!hasMixed)
+			// This is an optimization that catches the case when there are only
+			// UpdateEdits, and all statements being updated have the same indent,
+			// the no-op status isn't changing. This will catch the majority of "the user
+			// is typing" cases. It will even catch cases where the user has multiple
+			// cursors and is updating many statements at once.
+			for (;;)
 			{
-				// This handles the first optimization, which is the case where
-				// the only kinds of mutations where updates, and no structural
-				// changes occured. This handles typical "user is typing" cases.
-				// Most edits will be caught here.
-				if (hasUpdate)
-				{
-					// Sort the update edits by their index, and prune updates
-					// that would be overridden in a following edit.
-					const updateEditsTyped = edits as UpdateEdit[];
-					const updateEdits = updateEditsTyped
-						.sort((a, b) => a.pos - b.pos)
-						.filter((ed, i) => i >= edits.length - 1 || ed.pos !== edits[i + 1].pos);
-					
-					const oldStatements = updateEdits.map(ed => this.read(ed.pos));
-					const newStatements = updateEdits.map(ed => ed.smt);
-					
-					// Stores whether the indents of all updated statements are the
-					// same, and that there wasn't been any statements change from
-					// being a no-op to not.
-					const noStructuralChanges = oldStatements.every((oldSmt, idx) =>
+				if (insertEdits.length > 0 || deleteEdits.length > 0)
+					break;
+				
+				const originals = updateEdits.map(ed => this.read(ed.pos));
+				const updates = updateEdits.map(ed => ed.smt);
+				const indentO = originals[0].indent;
+				const indentU = updates[0].indent;
+				if (indentO !== indentU)
+					break;
+				
+				if (!originals.every(smt => smt.indent === indentO))
+					break;
+				
+				if (!updates.every(smt => smt.indent === indentU))
+					break;
+				
+				if (!originals.every((v, i) => updates[i].isNoop === v.isNoop))
+					break;
+				
+				return {
+					deletePhrases()
 					{
-						const newSmt = newStatements[idx];
-						return oldSmt.indent === newSmt.indent ||
-							oldSmt.isNoop && newSmt.isNoop;
-					});
-					
-					if (noStructuralChanges)
+						const deflate = originals.filter(smt => !smt.isNoop);
+						Phrase.deflateRecursive(deflate);
+					},
+					updateDocument()
 					{
-						const hasOpStatements =
-							oldStatements.some(smt => !smt.isNoop) ||
-							newStatements.some(smt => !smt.isNoop);
+						for (const edit of updateEdits)
+							doUpdate(edit);
+					},
+					createPhrases()
+					{
+						const inflate = updateEdits
+							.map(ed => ed.smt)
+							.filter(smt => !smt.isNoop);
 						
-						return {
-							deletePhrases()
-							{
-								if (hasOpStatements)
-									Phrase.deflateRecursive(oldStatements);
-							},
-							updateDocument()
-							{
-								for (const updateEdit of updateEdits)
-									doUpdate(updateEdit);
-							},
-							createPhrases()
-							{
-								if (hasOpStatements)
-									Phrase.inflateRecursive(newStatements);
-							},
-							finalize
-						};
+						Phrase.inflateRecursive(inflate);
+					},
+					finalize
+				};
+			}
+			
+			// Optimization to deal with populating an empty document
+			if (this.statements.length === 0)
+			{
+				return {
+					deletePhrases() { },
+					updateDocument()
+					{
+						for (const edit of insertEdits)
+							doInsert(edit);
+					},
+					createPhrases()
+					{
+						for (const statement of self.getChildren())
+							Phrase.inflateRecursive([statement]);
+					},
+					finalize
+				}
+			}
+			
+			// At this point, it is guaranteed that the set of edits are either
+			// all of the same type (inserts, updates, deletes) or a sequence 
+			// of deletes followed by a sequence of inserts.
+			
+			const max = 2 ** 32;
+			const len = this.statements.length;
+			const deleteCount = deleteEdits.reduce((total, e) => e.count + total, 0);
+			const insertCount = insertEdits.length;
+			const statementCountDelta = insertCount - deleteCount;
+			
+			let minIndent = max;
+			let minPos = max;
+			let maxPos = 0;
+			
+			if (updateEdits.length > 0)
+			{
+				minPos = updateEdits
+					.reduce((pos, ed) => Math.min(pos, ed.pos), max);
+				
+				maxPos = updateEdits
+					.reduce((pos, ed) => Math.max(pos, ed.pos), -1);
+					
+				minIndent = updateEdits
+					.reduce((indent, ed) => Math.min(ed.smt.indent, indent), max); 
+			}
+			else
+			{
+				for (const edit of edits)
+				{
+					if (edit.pos < minPos)
+						minPos = edit.pos;
+					
+					if (edit instanceof DeleteEdit)
+					{
+						if (edit.pos > maxPos)
+							maxPos = edit.pos + (edit.count - 1);
+						
+						else if (edit.pos > minPos)
+							maxPos += edit.count;
+						
+						for (const smt of statementsOf(edit))
+							if (smt.indent < minIndent)
+								minIndent = smt.indent;
+					}
+					else if (edit instanceof InsertEdit)
+					{
+						if (edit.pos > maxPos)
+							maxPos = edit.pos;
+						
+						if (edit.smt.indent < minIndent)
+							minIndent = edit.smt.indent;
+					}
+				}
+			}
+			
+			const findOp = (pos: number, step: number) =>
+			{
+				for (;;)
+				{
+					pos += step;
+					if (pos < 1 || pos > len)
+						break;
+					
+					const smt = this.read(pos);
+					if (!smt.isNoop)
+						return smt;
+				}
+				
+				return null;
+			};
+			
+			if (minIndent > 0)
+			{
+				for (let pos = minPos; pos <= maxPos; pos++)
+				{
+					const nextIndent = this.read(pos).indent;
+					if (nextIndent < minIndent)
+						minIndent = nextIndent;
+				}
+			}
+			
+			const prevOp = findOp(minPos, -1);
+			
+			// If maxPos is less than 0, it means that there are inserts at the
+			// end of the document, in which case, there cannot be a "next op"
+			const nextOp = maxPos < 0 ? null : findOp(maxPos, 1);
+			
+			let minDeflateInflate = minPos;
+			let maxDeflate = maxPos;
+			
+			// In the case when there is an op statement directly above
+			// the upper-most affected statement, or directly below the
+			// bottom-most affected statement whose indent is greater
+			// than the min indent of the affected area, the invalidation
+			// range needs to be expanded. This is necessary in order to
+			// catch situations where deflation of the affected area or
+			// inflation of new area could cause a split or merge in the
+			// statement hierarchy.
+			if ((prevOp && prevOp.indent > minIndent) || 
+				(nextOp && nextOp.indent > minIndent))
+			{
+				for (let pos = minPos; --pos > 0;)
+				{
+					if (this.read(pos).indent <= minIndent)
+					{
+						minDeflateInflate = pos;
+						break;
 					}
 				}
 				
-				// This handles the second optimization, which is the case where
-				// only deletes occured, and none of the deleted statements have any
-				// descendants. This will handle the majority of "delete a line" cases.
-				if (hasDelete)
+				for (let pos = maxPos; ++pos <= len;)
 				{
-					const deleteEdits = edits as DeleteEdit[];
-					const deadStatements: Statement[] = [];
-					const deadIndexes: number[] = [];
-					let hasOpStatements = false;
-					
-					forEdits:
-					for (const deleteEdit of deleteEdits)
+					if (this.read(pos).indent <= minIndent || pos === len)
 					{
-						for (let i = -1; ++i < deleteEdit.count;)
-						{
-							const deadSmt = this.read(deleteEdit.pos + i);
-							if (this.hasDescendants(deadSmt))
-							{
-								deadStatements.length = 0;
-								break forEdits;
-							}
-							
-							deadStatements.push(deadSmt);
-							deadIndexes.push(i);
-							
-							if (!deadSmt.isNoop)
-								hasOpStatements = true;
-						}
-					}
-					
-					if (deadStatements.length > 0)
-					{
-						return {
-							deletePhrases()
-							{
-								// Tell subscribers to blow away all the old statements.
-								// An edit transaction can be avoided completely in the case
-								// when the only statements that were deleted were noops.
-								if (hasOpStatements)
-									Phrase.deflateRecursive(deadStatements);
-							},
-							updateDocument()
-							{
-								// Run the actual mutations
-								deleteEdits.forEach(doDelete);
-							},
-							createPhrases() {},
-							finalize
-						}
-					}
-				}
-			
-				if (hasInsert)
-				{
-					// This handles the third optimization, which is the case
-					// where there are only noop statements being inserted
-					// into the document.
-					const insertEdits = edits as InsertEdit[];
-					if (insertEdits.every(ed => ed.smt.isNoop))
-					{
-						insertEdits.forEach(doInsert);
-						return null;
-					}
-				}
-			}
-			
-			// At this point, the checks to see if we can get away with
-			// performing simplistic updates have failed. So we need
-			// to resort to invalidating and revalidating larger swaths 
-			// of statements.
-			
-			// Stores an array of statements whose descendant statements
-			// should be invalidated. 
-			const invalidatedParents = new Map<number, Statement>();
-			
-			// Stores a value indicating whether the entire document
-			// needs to be invalidated.
-			let mustInvalidateDoc = false;
-			
-			// The first step is to go through all the statements, and compute the 
-			// set of parent statements from where invalidation should originate.
-			// In the majority of cases, this will only be one single statement object.
-			for (const ed of edits)
-			{
-				if (ed instanceof DeleteEdit)
-				{
-					const deletedStatement = this.read(ed.pos);
-					if (deletedStatement.isNoop)
-						continue;
-					
-					const parent = this.getParent(ed.pos);
-					
-					if (parent instanceof Statement)
-					{
-						invalidatedParents.set(ed.pos, parent);
-					}
-					else if (parent instanceof Document)
-					{
-						mustInvalidateDoc = true;
-						break;
-					}
-					else throw Exception.unknownState();
-				}
-				else
-				{
-					if (ed instanceof InsertEdit)
-					{
-						if (ed.smt.isNoop)
-							continue;
-					}
-					else if (ed instanceof UpdateEdit)
-					{
-						const oldStatement = this.read(ed.pos);
-						if (oldStatement.isNoop && ed.smt.isNoop)
-							continue;
-					}
-					
-					const parent = this.getParentFromPosition(
-						ed.pos,
-						ed.smt.indent + 1);
-					
-					if (parent instanceof Statement)
-					{
-						invalidatedParents.set(ed.pos, parent);
-					}
-					else if (parent === this)
-					{
-						mustInvalidateDoc = true;
+						maxDeflate = pos;
 						break;
 					}
 				}
 			}
 			
-			// Although unclear how this could happen, if there
-			// are no invalidated parents, we can safely return.
-			if (!mustInvalidateDoc && invalidatedParents.size === 0)
-				return null;
+			const maxInflate = maxDeflate + statementCountDelta;
 			
-			// Prune any redundant parents. A parent is redundant
-			// when it's a descendant of another parent in the 
-			// invalidation array. The algorithm below compares the
-			// statement ancestries of each possible pairs of invalidated
-			// parents, and splices invalidated parents out of the 
-			// array in the case when the parent is parented by some
-			// other invalidated parent in the invalidatedParents array.
-			const invalidatedAncestries: (readonly Statement[])[] = [];
-			
-			for (const line of invalidatedParents.keys())
+			const numDescendants = (from: number) =>
 			{
-				const ancestry = this.getAncestry(line);
-				if (ancestry)
-					invalidatedAncestries.push(ancestry);
+				let count = 0;
+				const smt = this.read(from);
+				
+				for (const smtChild of self.statements.enumerateForward(from + 1))
+					if (smtChild.indent > smt.indent || smtChild.isNoop)
+						count++;
+					else
+						break;
+				
+				return count;
 			}
 			
-			if (invalidatedAncestries.length > 1)
-			{
-				for (let i = invalidatedAncestries.length; i--;)
-				{
-					const ancestryA = invalidatedAncestries[i];
-					
-					for (let n = i; n--;)
-					{
-						const ancestryB = invalidatedAncestries[n];
-						
-						if (ancestryA.length === ancestryB.length)
-							continue;
-						
-						const aLessB = ancestryA.length < ancestryB.length;
-						const ancestryShort = aLessB ? ancestryA : ancestryB;
-						const ancestryLong = aLessB ? ancestryB : ancestryA;
-						
-						if (ancestryShort.every((smt, idx) => smt === ancestryLong[idx]))
-							invalidatedAncestries.splice(aLessB ? n : i, 1);
-					}
-				}
-			}
-			
-			const self = this;
+			(window as any).docu = this;
 			
 			return {
 				deletePhrases()
 				{
-					const phrases = mustInvalidateDoc ?
-						self.getChildren() :
-						Array.from(invalidatedParents.values());
+					const deflations: Statement[] = [];
 					
-					if (phrases.length > 0)
-						Phrase.deflateRecursive(phrases);
+					for (let pos = minDeflateInflate; pos <= maxDeflate; pos++)
+					{
+						const smt = self.read(pos);
+						if (smt.indent === minIndent && !smt.isNoop)
+							deflations.push(smt);
+						
+						pos += numDescendants(pos);
+					}
+					
+					Phrase.deflateRecursive(deflations);
 				},
 				updateDocument()
 				{
-					const deletedStatements: Statement[] = [];
-					
-					// Perform the document mutations.
-					for (const ed of edits)
-					{
-						if (ed instanceof DeleteEdit)
-							deletedStatements.push(...doDelete(ed));
+					for (const edit of deleteEdits)
+						doDelete(edit);
 						
-						else if (ed instanceof InsertEdit)
-							doInsert(ed);
-						
-						else if (ed instanceof UpdateEdit)
-							doUpdate(ed);
-					}
+					for (const edit of insertEdits)
+						doInsert(edit);
 					
-					// Remove any deleted statements from the invalidatedParents map
-					for (const deletedStatement of deletedStatements)
-						for (const [at, parentStatement] of invalidatedParents)
-							if (deletedStatement === parentStatement)
-								invalidatedParents.delete(at);
+					for (const edit of updateEdits)
+						doUpdate(edit);
 				},
 				createPhrases()
 				{
-					const phrases = self.getChildren();
-					if (phrases.length)
-						Phrase.inflateRecursive(phrases);
+					const inflations: Statement[] = [];
+					
+					for (let pos = minDeflateInflate; pos <= maxInflate; pos++)
+					{
+						const smt = self.read(pos);
+						if (smt.indent === minIndent && !smt.isNoop)
+							inflations.push(smt);
+						
+						pos += numDescendants(pos);
+					}
+					
+					Phrase.inflateRecursive(inflations);
 				},
 				finalize
-			};
+			}
 		}
 		
 		/**

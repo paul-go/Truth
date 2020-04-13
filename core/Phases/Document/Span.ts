@@ -113,8 +113,6 @@ namespace Truth
 			if (this._ancestry && !this.isDirty())
 				return this._ancestry;
 			
-			// If the ancestry has no yet been computed, or it has, but at least of
-			// it's statements have been disposed, then it must be recomputed.
 			this._ancestry = this.statement.document.getAncestry(this.statement);
 			if (!this._ancestry)
 				throw Exception.unknownState();

@@ -45,6 +45,14 @@ namespace Truth
 		}
 		
 		/** */
+		static invalidEditSequence()
+		{
+			return error(`
+				Invalid edit sequence. Updates must exist in isolation, 
+				and deletes may not follow inserts.`);
+		}
+		
+		/** */
 		static scriptMissing(rawUri: string)
 		{
 			return error(`Could not load a script from ${rawUri}`);
