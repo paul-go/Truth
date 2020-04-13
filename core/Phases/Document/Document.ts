@@ -822,9 +822,9 @@ namespace Truth
 						if (smt.isDisposed)
 							throw Exception.unknownState();
 					
-					console.clear();
+					//console.clear();
 					//Debug.printDocument(this);
-					Debug.printPhrases(this, true, true);
+					//Debug.printPhrases(this, true, true);
 				}
 				
 				this._types = null;
