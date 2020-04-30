@@ -26,7 +26,7 @@ namespace Truth
 		}
 		
 		/** */
-		static unknownState(customMessage?: string)
+		static unknownState(customMessage: string = "")
 		{
 			return error("An unknown state has been reached in the program." + 
 				customMessage ? " Custom error message was:\n" + customMessage : "");
@@ -67,7 +67,7 @@ namespace Truth
 		}
 		
 		/** */
-		static scriptInvalid(rawUri?: string)
+		static scriptInvalid(rawUri: string = "")
 		{
 			return error(`
 				The ${rawUri ? "code file at " + rawUri : "script"} does not conform
@@ -99,13 +99,30 @@ namespace Truth
 		}
 		
 		/** */
+		static programHasNoDocuments()
+		{
+			return error(`
+				Cannot call this method because the containing Program has
+				no loaded documents. You must add at least one document in order
+				to use this method.`);
+		}
+		
+		/** */
+		static programNotVerified()
+		{
+			return error(`
+				Cannot call this method because the program is not currently
+				in a fully verified state.`);
+		}
+		
+		/** */
 		static doubleTransaction()
 		{
 			return error("Cannot start a new transaction while another is executing.");
 		}
 		
 		/** */
-		static invalidUri(rawUri?: string)
+		static invalidUri(rawUri: string = "")
 		{
 			return error("Invalid URI" + (typeof rawUri === "string" ? ": " + rawUri : ""));
 		}

@@ -8,8 +8,13 @@ namespace Truth
 	 */
 	export abstract class AbstractClass
 	{
+		constructor()
+		{
+			this.id = getNextClassId();
+		}
+		
 		/** @internal */
-		readonly id = getNextClassId();
+		readonly id: number;
 		
 		/** @internal */
 		abstract readonly class: Class;
@@ -27,6 +32,7 @@ namespace Truth
 	 * A union type between all domain objects in the system.
 	 */
 	export type AnyClass = 
+		Program | 
 		Document | 
 		Statement | 
 		Reference |
@@ -42,6 +48,7 @@ namespace Truth
 	 */
 	export const enum Class
 	{
+		program,
 		document,
 		statement,
 		reference,

@@ -85,9 +85,9 @@ namespace Truth
 		 */
 		slice(start: number, end: number)
 		{
-			return this.items.slice(
-				this.toZeroBased(start), 
-				this.toZeroBased(end));
+			start = this.toZeroBased(start, false);
+			end = this.toZeroBased(end, false);
+			return this.items.slice(start, end);
 		}
 		
 		/**
@@ -144,7 +144,7 @@ namespace Truth
 		/**
 		 * Converts a 1-based position into a bounded 0-based index.
 		 */
-		private toZeroBased(pos: number)
+		private toZeroBased(pos: number, cap = true)
 		{
 			if (pos === 0)
 				throw Exception.invalidArgument();
@@ -154,12 +154,12 @@ namespace Truth
 			if (len === 0)
 				return 0;
 			
+			if (pos < 0)
+				return Math.max(0, len + pos);
+			
 			pos--;
 			
-			if (pos < 0)
-				return Math.max(0, len - pos);
-			
-			if (pos >= len)
+			if (pos >= len && cap)
 				return len - 1;
 			
 			return pos;

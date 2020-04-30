@@ -64,7 +64,10 @@ namespace Truth
 				
 				type.seed = seed;
 				type._container = lastType;
-				type._supervisors = findSupervisors(seed);
+				
+				// Optimization: surface-level types do not have supervisors
+				if (lastType)
+					type._supervisors = findSupervisors(seed);
 				
 				if (seed instanceof ExplicitParallel)
 				{
@@ -114,11 +117,17 @@ namespace Truth
 				if (type.keywords.some(key => key.word === type.name))
 					type.flags |= Flags.isRefinement;
 				
-				for (const base of type._supers)
-					context.subs.add(base, type);
+				if (phrase.containingDocument.isVolatile)
+					type.flags |= Flags.isVolatile;
 				
-				for (const parallel of type._supervisors)
-					context.subvisors.add(parallel, type);
+				if (!type.isVolatile)
+				{
+					for (const base of type._supers)
+						context.subs.add(base, type);
+					
+					for (const parallel of type._supervisors)
+						context.subvisors.add(parallel, type);
+				}
 				
 				lastType = type;
 			}
@@ -667,6 +676,11 @@ namespace Truth
 		/** */
 		get isUri() { return (this.flags & Flags.isUri) === Flags.isUri; }
 		
+		/**
+		 * Gets whether the compiler will maintain a long-lived reference to this type.
+		 */
+		get isVolatile() { return (this.flags & Flags.isVolatile) === Flags.isVolatile; }
+		
 		private flags = 0;
 		
 		/**
@@ -941,13 +955,14 @@ namespace Truth
 	/** */
 	const enum Flags
 	{
-		isListIntrinsic = 0,
-		isListExtrinsic = 1,
-		isFresh = 2,
-		isExplicit = 4,
-		isAnonymous = 8,
-		isPattern = 16,
-		isUri = 32,
-		isRefinement= 64
+		isListIntrinsic = 1,
+		isListExtrinsic = 2,
+		isFresh = 4,
+		isExplicit = 8,
+		isAnonymous = 16,
+		isPattern = 32,
+		isUri = 64,
+		isRefinement = 128,
+		isVolatile = 256
 	}
 }

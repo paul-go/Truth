@@ -11,13 +11,6 @@ namespace Truth
 		
 		/**
 		 * @internal
-		 * Logical clock value used to make chronological 
-		 * creation-time comparisons between Statements.
-		 */
-		readonly stamp = VersionStamp.next();
-		
-		/**
-		 * @internal
 		 * Generator function that yields all statements
 		 * (unparsed lines) of the given source text. 
 		 */
@@ -580,10 +573,23 @@ namespace Truth
 			if (this.isDisposed)
 				return -1;
 			
-			return this.document instanceof Document ?
-				this.document.lineNumberOf(this) :
-				-1;
+			if (!(this.document instanceof Document))
+			{
+				this.docVersionLastLineLookup = null;
+				return -1;
+			}
+			
+			if (!this.docVersionLastLineLookup ||
+				this.document.version.newerThan(this.docVersionLastLineLookup))
+			{
+				this.docVersionLastLineLookup = this.docVersionLastLineLookup;
+				return this._line = this.document.lineNumberOf(this);
+			}
+			
+			return this._line;
 		}
+		private _line = -1;
+		private docVersionLastLineLookup: VersionStamp | null = null;
 		
 		/**
 		 * Gets an array of spans in that represent the declarations

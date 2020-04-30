@@ -8,6 +8,13 @@ namespace Truth
 	export interface ProgramEventMap
 	{
 		/**
+		 * An event that triggers when a statement is inserted into a document.
+		 */
+		"statementChange": (
+			document: Document,
+			changes: readonly IStatementChangeInfo[]) => void;
+		
+		/**
 		 * An event that triggers when a new surface-level declaration is added
 		 * to a document.
 		 */
@@ -20,14 +27,14 @@ namespace Truth
 		"undeclare": (subject: Subject, document: Document) => void;
 		
 		/**
-		 * An event that triggers when a document is created.
+		 * An event that triggers when a document is added to a program.
 		 */
-		"documentCreate": (document: Document) => void;
+		"documentAdd": (document: Document) => void;
 		
 		/**
-		 * An event that triggers when a document is deleted.
+		 * An event that triggers when a document is removed from a program.
 		 */
-		"documentDelete": (document: Document) => void;
+		"documentRemove": (document: Document) => void;
 		
 		/**
 		 * An event that triggers when the URI associated with document
@@ -46,5 +53,13 @@ namespace Truth
 		 * a full verification cycle of a program.
 		 */
 		"verificationComplete": (program: Program) => void;
+	}
+	
+	/** */
+	export interface IStatementChangeInfo
+	{
+		readonly kind: "insert" | "update" | "delete";
+		readonly statement: Statement;
+		readonly replacement?: Statement;
 	}
 }

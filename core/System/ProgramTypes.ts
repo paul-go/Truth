@@ -99,17 +99,27 @@ namespace Truth
 	export interface IDocumentMutator
 	{
 		/**
-		 * Inserts a statement at the given position, and returns the inserted Statement
-		 * object. Negative numbers insert statements starting from the end of the
-		 * document. The statementText argument is expected to be one single line of text.
+		 * Inserts a statement at the given position, and returns the inserted
+		 * Statement object.
+		 * 
+		 * If the provided position is 0, this inserts a new statement after the last
+		 * statement in the document.
+		 * 
+		 * Negative numbers insert statements starting from the end of the
+		 * document. The statementText argument is expected to be one single
+		 * line of text.
 		 */
 		insert(statementText: string, at: number): void;
 		
 		/**
 		 * Replaces a statement at the given position, and returns the replaced
-		 * Statement object. Negative numbers insert statements starting from
+		 * Statement object. 
+		 * 
+		 * Negative numbers insert statements starting from
 		 * the end of the document. The statementText argument is expected to
 		 * be one single line of text.
+		 * 
+		 * An exception is thrown if the provided position is 0.
 		 */
 		update(statementText: string, at: number): void;
 		
@@ -117,6 +127,8 @@ namespace Truth
 		 * Deletes a statement at the given position, and returns the deleted
 		 * Statement object. Negative numbers delete Statement objects
 		 * starting from the end of the document.
+		 * 
+		 * An exception is thrown if the provided position is 0.
 		 */
 		delete(at: number, count?: number): void;
 	}
@@ -203,6 +215,9 @@ namespace Truth
 			readonly pos: number)
 		{
 			this.document = smt.document;
+			this.pos = pos === 0 ?
+				smt.document.length + 1 :
+				maybeInvertPos(smt.document, pos);
 		}
 		
 		readonly document: Document;
@@ -219,7 +234,11 @@ namespace Truth
 			readonly smt: Statement,
 			readonly pos: number)
 		{
+			if (pos === 0)
+				throw Exception.invalidArgument();
+			
 			this.document = smt.document;
+			this.pos = maybeInvertPos(smt.document, pos);
 		}
 		
 		readonly document: Document;
@@ -236,7 +255,18 @@ namespace Truth
 			readonly document: Document,
 			readonly pos: number,
 			readonly count: number)
-		{ }
+		{
+			if (pos === 0)
+				throw Exception.invalidArgument();
+			
+			this.pos = maybeInvertPos(document, pos);
+		}
+	}
+	
+	/** */
+	function maybeInvertPos(document: Document, pos: number)
+	{
+		return pos < 0 ? (document.length + 1) + pos : pos;
 	}
 	
 	/** @internal */

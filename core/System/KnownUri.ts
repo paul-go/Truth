@@ -10,20 +10,36 @@ namespace Truth
 	export class KnownUri extends AbstractClass
 	{
 		/**
-		 * @internal
-		 * Returns a KnownUri suitable for internal documents that aren't actually
-		 * stored anywhere other than in memory. The number provided ends up
-		 * as the fictitious name of the truth file specified in the URI.
+		 * Stores the well-known URI used by all volatile documents.
 		 */
-		static createMemoryUri(number: number)
+		static get volatile()
 		{
-			const uriText = 
+			return this._volatile || (this._volatile = KnownUri.fromName(volatileName));
+		}
+		private static _volatile: KnownUri | null = null;
+		
+		/**
+		 * Returns a KnownUri suitable for internal documents that are stored
+		 * in memory, and not on disk. The URI that is returned follows the form:
+		 * memory://memory/documentBaseNameHere.truth
+		 * 
+		 * @param documentBaseName The name of the truth document without
+		 * and extension. If empty or omitted, a sequential numeric base name is
+		 * generated.
+		 */
+		static fromName(documentBaseName?: string)
+		{
+			let uriText = 
 				UriProtocol.memory + 
-				"//memory/" + number + 
-				Extension.truth;
+				"//memory/" + (documentBaseName || (++this.memUriCount).toString());
+			
+			if (!uriText.endsWith(Extension.truth))
+				uriText += Extension.truth;
 			
 			return Misc.get(this.cache, uriText, () => new KnownUri(new URL(uriText)));
 		}
+		
+		private static memUriCount = 0;
 		
 		/**
 		 * Returns the KnownUri object associated with the text representation
@@ -43,7 +59,9 @@ namespace Truth
 				
 				mergedUrl = new URL(uriText, baseUrl);
 			}
-			catch (e) { }
+			catch (e) {
+				debugger;
+			}
 			
 			if (mergedUrl === null)
 				return null;
@@ -114,4 +132,7 @@ namespace Truth
 				this.innerUrl.href;
 		}
 	}
+	
+	/** Document name used in volatile documents. */
+	const volatileName = "V2hlcmUgd2UgZ28gb25lLCB3ZSBnbyBhbGwu";
 }
