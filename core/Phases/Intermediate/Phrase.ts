@@ -318,13 +318,13 @@ namespace Truth
 					this.clarifiers = c || [];
 					this.clarifierKey = d || "";
 					
-					// Hypothetical phrases are not added to the forwarding table, 
-					// because these are managed by PhraseProvider.
 					this.parent.setForwarding(this.terminal, this.clarifierKey, this);
 				}
 				// Third overload
 				else if (b)
 				{
+					// Hypothetical phrases are not added to the forwarding table, 
+					// because these are managed by PhraseProvider.
 					this.isHypothetical = true;
 					this.terminal = b;
 				}
@@ -716,7 +716,7 @@ namespace Truth
 			// The global ancestry should include the root phrase, because
 			// it's direct children should be included in the peeking process.
 			// The root may be found in different locations depending on
-			// whether this phrase is document-owned.
+			// whether this phrase is a document-owned (zero-length) phrase.
 			peekAncestry.length === 0 ?
 				peekAncestry.unshift(this.parent) :
 				peekAncestry.unshift(peekAncestry[0].parent);

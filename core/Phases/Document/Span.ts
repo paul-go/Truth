@@ -260,7 +260,7 @@ namespace Truth
 		
 		/**
 		 * Gets whether the containing program's version has changed since
-		 * this span was created
+		 * this span was created.
 		 */
 		private isDirty()
 		{
