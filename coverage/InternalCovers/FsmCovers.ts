@@ -1,16 +1,16 @@
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverFsm()
 	{
-		const transitions = new TransitionMap({
+		const transitions = new Truth.TransitionMap({
 			0: { a: 1 },
 			1: { b: 2 },
 			2: { c: 3 }
 		});
 		
-		const abc = new Fsm(
-			new AlphabetBuilder("a", "b", "c").toAlphabet(),
+		const abc = new Truth.Fsm(
+			new Truth.AlphabetBuilder("a", "b", "c").toAlphabet(),
 			new Set([0, 1, 2, 3]),
 			0,
 			new Set([3]),

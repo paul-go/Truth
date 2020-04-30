@@ -8,7 +8,7 @@
  * to the parser.
  */
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse1()
 	{
@@ -19,7 +19,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse2()
 	{
@@ -29,7 +29,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse3()
 	{
@@ -40,7 +40,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse4()
 	{
@@ -50,7 +50,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse5()
 	{
@@ -61,7 +61,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse9()
 	{
@@ -72,7 +72,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse10()
 	{
@@ -83,7 +83,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse11()
 	{
@@ -94,7 +94,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse12()
 	{
@@ -104,7 +104,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse13()
 	{
@@ -116,7 +116,7 @@ namespace Truth
 
 //# URIs
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse14()
 	{
@@ -126,7 +126,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse15()
 	{
@@ -136,7 +136,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse16()
 	{
@@ -146,7 +146,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse17()
 	{
@@ -156,7 +156,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse18()
 	{
@@ -166,7 +166,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse19()
 	{
@@ -176,7 +176,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse20()
 	{
@@ -186,7 +186,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse21()
 	{
@@ -196,7 +196,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse22()
 	{
@@ -208,7 +208,7 @@ namespace Truth
 
 //# Comments
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse23()
 	{
@@ -218,7 +218,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse24()
 	{
@@ -228,7 +228,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse25()
 	{
@@ -238,7 +238,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse26()
 	{
@@ -248,7 +248,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse27()
 	{
@@ -260,7 +260,7 @@ namespace Truth
 
 //# Escaping
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse28()
 	{
@@ -271,7 +271,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse29()
 	{
@@ -281,7 +281,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse30()
 	{
@@ -292,7 +292,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse31()
 	{
@@ -304,7 +304,7 @@ namespace Truth
 
 //# Strange slash usage
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse32()
 	{
@@ -314,7 +314,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse33()
 	{
@@ -324,7 +324,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse34()
 	{
@@ -336,7 +336,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse35()
 	{
@@ -348,7 +348,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse36()
 	{
@@ -361,7 +361,7 @@ namespace Truth
 
 //# Unicode
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse37()
 	{
@@ -371,7 +371,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse38()
 	{
@@ -381,7 +381,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse39()
 	{
@@ -391,7 +391,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse40()
 	{
@@ -403,7 +403,7 @@ namespace Truth
 
 //# Strange colon usage
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse41()
 	{
@@ -414,7 +414,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse42()
 	{
@@ -425,7 +425,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse43()
 	{
@@ -436,7 +436,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse44()
 	{
@@ -449,7 +449,7 @@ namespace Truth
 
 //# Strange comma usage
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse45()
 	{
@@ -460,7 +460,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse46()
 	{
@@ -470,7 +470,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse47()
 	{
@@ -482,7 +482,7 @@ namespace Truth
 
 //# Pattern Partiality & Totality flags
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse48()
 	{
@@ -494,7 +494,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse49()
 	{
@@ -506,7 +506,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse50()
 	{
@@ -518,7 +518,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse51()
 	{
@@ -530,7 +530,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse52()
 	{
@@ -543,7 +543,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse53()
 	{
@@ -555,7 +555,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse54()
 	{
@@ -569,7 +569,7 @@ namespace Truth
 
 //# Pattern Sets
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse55()
 	{
@@ -582,7 +582,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse56()
 	{
@@ -595,7 +595,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse57()
 	{
@@ -608,7 +608,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse58()
 	{
@@ -621,7 +621,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse59()
 	{
@@ -635,7 +635,7 @@ namespace Truth
 
 //# Patterns with unicode
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse60()
 	{
@@ -647,7 +647,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse61()
 	{
@@ -659,7 +659,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse62()
 	{
@@ -671,7 +671,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse63()
 	{
@@ -685,7 +685,7 @@ namespace Truth
 
 //# Pattern Quantifiers
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse64()
 	{
@@ -697,7 +697,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse65()
 	{
@@ -709,7 +709,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse66()
 	{
@@ -722,7 +722,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse67()
 	{
@@ -735,7 +735,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse68()
 	{
@@ -750,7 +750,7 @@ namespace Truth
 
 //# Non Pattern Quantifiers
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse69()
 	{
@@ -763,7 +763,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse70()
 	{
@@ -775,7 +775,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse71()
 	{
@@ -787,7 +787,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse72()
 	{
@@ -801,7 +801,7 @@ namespace Truth
 
 //# Pattern Groups
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse73()
 	{
@@ -814,7 +814,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse74()
 	{
@@ -827,7 +827,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse75()
 	{
@@ -839,7 +839,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse76()
 	{
@@ -851,7 +851,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse77()
 	{
@@ -866,7 +866,7 @@ namespace Truth
 
 //# Pattern with escapables
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse78()
 	{
@@ -879,7 +879,7 @@ namespace Truth
 
 //# Pattern Infixes
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse79()
 	{
@@ -891,7 +891,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse80()
 	{
@@ -903,7 +903,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse81()
 	{
@@ -915,7 +915,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse82()
 	{
@@ -927,7 +927,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse83()
 	{
@@ -944,7 +944,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse84()
 	{
@@ -956,7 +956,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse85()
 	{
@@ -968,7 +968,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse86()
 	{
@@ -979,7 +979,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse87()
 	{
@@ -989,7 +989,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse88()
 	{
@@ -999,7 +999,7 @@ namespace Truth
 	}
 }
 
-namespace Truth
+namespace CoverTruth
 {
 	function coverLineParse89()
 	{

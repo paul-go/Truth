@@ -19,6 +19,7 @@
 		"compiler"
 	],
 	"devDependencies": {
-		"@types/node": "^10.12.18"
+		"@types/node": "^10.12.18",
+		"moduless": "^2.0.4"
 	}
 }

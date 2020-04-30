@@ -1,5 +1,5 @@
 
-namespace Truth
+namespace CoverTruth
 {
 	async function coverProgramQuery()
 	{
@@ -15,6 +15,6 @@ namespace Truth
 		});
 		
 		const c = doc.query("c");
-		return () => c instanceof Type;
+		return () => c instanceof Truth.Type;
 	}
 }

@@ -1,5 +1,5 @@
 
-namespace Truth
+namespace CoverTruth
 {
 	/**
 	 * A fixture for a cover function that captures the behavior of parsing
@@ -9,17 +9,17 @@ namespace Truth
 		statementText: string,
 		expected: ILineCoverExpectation)
 	{
-		const options: IParserOptions = {
-			assumedUri: Not.null(KnownUri.fromString(UriProtocol.memory + "//0.truth")),
+		const options: Truth.IParserOptions = {
+			assumedUri: Truth.Not.null(Truth.KnownUri.fromString(Truth.UriProtocol.memory + "//0.truth")),
 			readPatterns: true,
 			readUris: true
 		};
 		
-		let statement: Statement | null = null;
+		let statement: Truth.Statement | null = null;
 		
 		try
 		{
-			statement = Statement.newTemporary(statementText, options);
+			statement = Truth.Statement.newTemporary(statementText, options);
 		}
 		catch (e)
 		{
@@ -52,7 +52,7 @@ namespace Truth
 		
 		const first = statement.declarations[0].boundary.subject;
 		
-		if (expected.uri === undefined && !!first && first instanceof KnownUri)
+		if (expected.uri === undefined && !!first && first instanceof Truth.KnownUri)
 		{
 			debugger;
 			return fail("Line should not have parsed as a URI.");
@@ -65,9 +65,9 @@ namespace Truth
 				debugger;
 				return fail("Statement should have been parsed as a URI: " + statementText);
 			}
-			else if (first !== null && first instanceof KnownUri)
+			else if (first !== null && first instanceof Truth.KnownUri)
 			{
-				verifiers.push(() => first instanceof KnownUri);
+				verifiers.push(() => first instanceof Truth.KnownUri);
 			}
 			else
 			{
@@ -87,7 +87,7 @@ namespace Truth
 		
 		if (expected.emit !== undefined)
 		{
-			const fakeDocument = <Document>{};
+			const fakeDocument = <Truth.Document>{};
 			const statementStr = statement.toString(true);
 			
 			if (expected.emit !== statementStr)
@@ -111,7 +111,7 @@ namespace Truth
 			
 			try
 			{
-				if (firstDecl instanceof Pattern)
+				if (firstDecl instanceof Truth.Pattern)
 				{
 					if (matches)
 						for (const match of matches)
@@ -142,9 +142,9 @@ namespace Truth
 		if (expected.infixes !== undefined)
 		{
 			const firstDecl = statement.declarations[0]?.boundary.subject;
-			if (firstDecl instanceof Pattern)
+			if (firstDecl instanceof Truth.Pattern)
 			{
-				const infixes = firstDecl.units.filter((u): u is Infix => u instanceof Infix);
+				const infixes = firstDecl.units.filter((u): u is Truth.Infix => u instanceof Truth.Infix);
 				
 				if (expected.infixes.length !== infixes.length)
 				{
@@ -243,7 +243,7 @@ namespace Truth
 		{
 			const actualAnnos = Array.from(statement.annotations)
 				.map(span => span.boundary.subject)
-				.filter((anno): anno is Term => !!anno)
+				.filter((anno): anno is Truth.Term => !!anno)
 				.map(anno => anno.toString());
 			
 			const ea = expected.annotations;

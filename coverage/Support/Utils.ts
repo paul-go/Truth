@@ -1,31 +1,44 @@
 
-namespace Truth
+namespace CoverTruth
 {
 	/**
 	 * 
 	 */
+	export async function createDocument(...lines: string[])
+	{
+		const sourceText = lines.join(Truth.Syntax.terminal);
+		const parseResult = await Truth.parse(sourceText);
+		if (parseResult instanceof Error)
+			throw Truth.Exception.unknownState();
+		
+		return parseResult;
+	}
+	
+	/**
+	 * 
+	 */
 	export async function createLanguageCover(): 
-		Promise<[Program]>;
+		Promise<[Truth.Program]>;
 	/**
 	 * 
 	 */
 	export async function createLanguageCover(sourceA: string): 
-		Promise<[Document, Program]>;
+		Promise<[Truth.Document, Truth.Program]>;
 	/**
 	 * 
 	 */
 	export async function createLanguageCover(sourceA: string, sourceB: string): 
-		Promise<[Document, Document, Program]>;
+		Promise<[Truth.Document, Truth.Document, Truth.Program]>;
 	/**
 	 * 
 	 */
 	export async function createLanguageCover(sourceA: string, sourceB: string, sourceC: string): 
-		Promise<[Document, Document, Document, Program]>;
+		Promise<[Truth.Document, Truth.Document, Truth.Document, Truth.Program]>;
 	
 	export async function createLanguageCover(sourceA?: string, sourceB?: string, sourceC?: string)
 	{
-		const program = new Program();
-		const documents: Document[] = [];
+		const program = new Truth.Program();
+		const documents: Truth.Document[] = [];
 		
 		if (typeof sourceA === "string")
 		{
@@ -71,16 +84,18 @@ namespace Truth
 	 * An error is thrown in the case when any of the paths specified do not correspond
 	 * to a type.
 	 */
-	export function typesOf(document: Document, ...typePaths: (string | string[])[]): Type[]
+	export function typesOf(
+		document: Truth.Document,
+		...typePaths: (string | string[])[]): Truth.Type[]
 	{
-		const out: (Type | null)[] = [];
+		const out: (Truth.Type | null)[] = [];
 		const paths = typePaths.map(v => typeof v === "string" ? [v] : v);
 		let hasError = false;
 		
 		for (const path of paths)
 		{
 			const type = document.query(...path);
-			if (type instanceof Type)
+			if (type instanceof Truth.Type)
 			{
 				out.push(type);
 			}
@@ -102,7 +117,7 @@ namespace Truth
 			throw new Error(errorLines.join("\n"));
 		}
 		
-		return out as Type[];
+		return out as Truth.Type[];
 	}
 	
 	/**
@@ -111,34 +126,29 @@ namespace Truth
 	 * into lines, and the common indentation in the lines of the specified
 	 * string is removed.
 	 */
-	export function hasContent(statements: readonly Statement[] | null, expected: string)
+	export function hasContent(
+		statements: Truth.Document | readonly Truth.Statement[] | null,
+		...expected: string[])
 	{
-		if (!Array.isArray(statements))
-			return "Expected an array of statement objects, but recieved a non-array.";
+		const statementStrs: string[] = [];
 		
-		if (statements.some(s => !(s instanceof Statement)))
-			return "Expected an array of objects who are instanceof Statement.";
+		if (Array.isArray(statements))
+		{
+			statementStrs.push(...statements.map(smt => smt.toString()));
+		}
+		else if (statements instanceof Truth.Document)
+		{
+			for (const smt of statements.eachStatement())
+				statementStrs.push(smt.sourceText);
+		}
+		else return "Invalid input.";
 		
-		const statementStrs = statements.map(smt => smt.toString());
-		const expectedStrs = expected.split("\n");
+		if (statementStrs.length !== expected.length)
+			return false;
 		
-		// Remove all leading whitespace-only lines.
-		while (expectedStrs.length && expectedStrs[0].trim() === "")
-			expectedStrs.shift();
-		
-		// Cut off whitespace-only trailing lines.
-		while (expectedStrs.length && expectedStrs[expectedStrs.length - 1].trim() === "")
-			expectedStrs.pop();
-		
-		// Left-trim whitespace on all lines.
-		for (let i = -1; ++i < expectedStrs.length;)
-			expectedStrs[i] = expectedStrs[i].replace(/^\s*/, "");
-		
-		const exp = statementStrs.join("\n");
-		const rcv = expectedStrs.join("\n");
-		
-		if (!statementStrs.every((ss, i) => ss === expectedStrs[i]))
-			return `Expected:\n${exp}\nRecieved:${rcv}`;
+		for (const [idx, str] of statementStrs.entries())
+			if (str !== expected[idx])
+				return false;
 		
 		return true;
 	}

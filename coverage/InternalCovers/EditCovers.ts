@@ -1,5 +1,5 @@
 
-namespace Truth
+namespace CoverTruth
 {
 	/** */
 	async function coverEditWithSingleUpdate()

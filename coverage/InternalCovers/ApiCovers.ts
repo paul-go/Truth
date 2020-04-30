@@ -1,5 +1,5 @@
 
-namespace Truth
+namespace CoverTruth
 {
 	export async function coverTypeApiExplicitStatements()
 	{
@@ -10,12 +10,12 @@ namespace Truth
 		`);
 		
 		const targetType = program.queryDocument(doc, "Class", "Field");
-		const targetStatements = targetType instanceof Type ?
+		const targetStatements = targetType instanceof Truth.Type ?
 			targetType.statements :
 			[];
 		
 		return [
-			() => targetType instanceof Type,
+			() => targetType instanceof Truth.Type,
 			() => targetStatements.length === 2,
 			() => targetStatements[0] === doc.read(1),
 			() => targetStatements[0] === doc.read(2)
@@ -31,12 +31,12 @@ namespace Truth
 		`);
 		
 		const targetType = program.queryDocument(doc, "SubClass", "Field");
-		const targetStatements = targetType instanceof Type ?
+		const targetStatements = targetType instanceof Truth.Type ?
 			targetType.statements :
 			[];
 		
 		return [
-			() => targetType instanceof Type,
+			() => targetType instanceof Truth.Type,
 			() => targetStatements.length === 0
 		];
 	}

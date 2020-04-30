@@ -1,0 +1,72 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/.git": true,
+			"**/.DS_Store": true,
+			"**/bundle": true,
+			"**/node_modules": true,
+			"**/package-lock.json": true
+		},
+		"search.exclude": {
+			"**/.git": true,
+			"**/.DS_Store": true,
+			"**/build": true,
+			"**/bundle": true,
+			"**/node_modules": true,
+			"**/package-lock.json": true
+		}
+	},
+	"launch": {
+		"configurations": [
+			{
+				"name": "Debug in NodeJS",
+				"type": "node",
+				"request": "launch",
+				"program": "${workspaceRoot}/node_modules/moduless/build/moduless.js",
+				"args": [
+					"run-set"
+				],
+				"smartStep": true,
+				"sourceMaps": true
+			}
+		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Compile Truth",
+				"type": "shell",
+				"command": "tsc",
+				"args": [
+					"--build",
+					"--watch"
+				],
+				"options": {
+					"cwd": "${workspaceFolder}"
+				},
+				"problemMatcher": [
+					"$tsc"
+				],
+				"runOptions": {
+					"runOn": "folderOpen"
+				}
+			},
+			{
+				"label": "Set Active Cover Function",
+				"type": "shell",
+				"command": "moduless",
+				"args": [
+					"set",
+					"${file}:${lineNumber}"
+				],
+				"problemMatcher": []
+			}
+		]
+	}
+}

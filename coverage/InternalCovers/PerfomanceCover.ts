@@ -1,5 +1,5 @@
 
-namespace Truth
+namespace CoverTruth
 {
 	async function coverPerformance()
 	{
@@ -3802,7 +3802,7 @@ namespace Truth
 				Grade : 1018
 		`;
 		
-		const program = new Program();
+		const program = new Truth.Program();
 		const profileName = "Truth Document Load";
 		console.time(profileName);
 		await program.addDocument(code);

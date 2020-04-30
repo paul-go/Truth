@@ -1,5 +1,5 @@
 
-namespace Truth
+namespace CoverTruth
 {
 	async function coverGetAncestryWithStatement()
 	{
@@ -11,32 +11,18 @@ namespace Truth
 							E
 		`);
 		
-		const ancestryAtA = Not.null(doc.getAncestry(doc.read(1)));
-		const ancestryAtB = Not.null(doc.getAncestry(doc.read(2)));
-		const ancestryAtC = Not.null(doc.getAncestry(doc.read(3)));
-		const ancestryAtD = Not.null(doc.getAncestry(doc.read(4)));
-		const ancestryAtE = Not.null(doc.getAncestry(doc.read(5)));
+		const ancestryAtA = Truth.Not.null(doc.getAncestry(doc.read(1)));
+		const ancestryAtB = Truth.Not.null(doc.getAncestry(doc.read(2)));
+		const ancestryAtC = Truth.Not.null(doc.getAncestry(doc.read(3)));
+		const ancestryAtD = Truth.Not.null(doc.getAncestry(doc.read(4)));
+		const ancestryAtE = Truth.Not.null(doc.getAncestry(doc.read(5)));
 		
 		return [
 			() => hasContent(ancestryAtA, ""),
-			() => hasContent(ancestryAtB, `
-				A
-			`),
-			() => hasContent(ancestryAtC, `
-				A
-				B
-			`),
-			() => hasContent(ancestryAtD, `
-				A
-				B
-				C
-			`),
-			() => hasContent(ancestryAtE, `
-				A
-				B
-				C
-				D
-			`)
+			() => hasContent(ancestryAtB, "A"),
+			() => hasContent(ancestryAtC, "A", "B"),
+			() => hasContent(ancestryAtD, "A", "B", "C"),
+			() => hasContent(ancestryAtE, "A", "B", "C", "D")
 		];
 	}
 	
@@ -53,11 +39,7 @@ namespace Truth
 		const ancestry = doc.getAncestry(4);
 		
 		return [
-			() => hasContent(ancestry, `
-				A
-				B
-				C
-			`)
+			() => hasContent(ancestry, "A", "B", "C")
 		];
 	}
 
@@ -210,11 +192,7 @@ namespace Truth
 		const c = doc.read(3);
 		const siblings = doc.getSiblings(c);
 		
-		return () => hasContent(siblings, outdent`
-			A
-			B
-			C
-		`);
+		return () => hasContent(siblings, "A", "B", "C");
 	}
 	
 	async function coverGetSiblingsOnNestedStatement()
@@ -236,11 +214,7 @@ namespace Truth
 		const c = doc.read(5);
 		const siblings = doc.getSiblings(c);
 		
-		return () => hasContent(siblings, outdent`
-			B
-			C
-			F
-		`);
+		return () => hasContent(siblings, "B", "C", "F");
 	}
 	
 	async function coverGetSiblingsOnTopLevelNoopStatement()

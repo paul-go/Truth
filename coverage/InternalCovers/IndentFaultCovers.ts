@@ -1,8 +1,8 @@
 
-namespace Truth
+namespace CoverTruth
 {
-	const t = Syntax.tab;
-	const s = Syntax.space;
+	const t = Truth.Syntax.tab;
+	const s = Truth.Syntax.space;
 	
 	async function coverSingleIndentationFault()
 	{
@@ -13,7 +13,7 @@ namespace Truth
 			t + s + "TabSpace"
 		].join("\n"));
 		
-		return () => doc.hasFaults([Faults.TabsAndSpaces, 3]);
+		return () => doc.hasFaults([Truth.Faults.TabsAndSpaces, 3]);
 	}
 	
 	async function coverMultipleIndentationFault()
@@ -27,8 +27,8 @@ namespace Truth
 		].join("\n"));
 		
 		return () => doc.hasFaults(
-			[Faults.TabsAndSpaces, 2],
-			[Faults.TabsAndSpaces, 4]);
+			[Truth.Faults.TabsAndSpaces, 2],
+			[Truth.Faults.TabsAndSpaces, 4]);
 	}
 	
 	async function coverIndentationFaultRectification()

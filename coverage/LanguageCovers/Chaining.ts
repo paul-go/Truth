@@ -1,5 +1,5 @@
 
-namespace Truth
+namespace CoverTruth
 {
 	/**
 	 * This example demonstrates declaration-side chaining

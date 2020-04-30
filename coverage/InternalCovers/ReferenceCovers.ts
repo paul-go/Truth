@@ -1,5 +1,5 @@
 
-namespace Truth
+namespace CoverTruth
 {
 	async function coverTwoWayLink()
 	{
@@ -7,7 +7,7 @@ namespace Truth
 			"1",
 			"2");
 		
-		await doc2.edit((mutator: IDocumentMutator) =>
+		await doc2.edit((mutator: Truth.IDocumentMutator) =>
 		{
 			mutator.insert("./1.truth", 1);
 		});
@@ -28,12 +28,12 @@ namespace Truth
 			"doc3"
 		);
 		
-		await doc2.edit((mutator: IDocumentMutator) =>
+		await doc2.edit((mutator: Truth.IDocumentMutator) =>
 		{
 			mutator.insert("./1.truth", 1);
 		});
 		
-		await doc3.edit((mutator: IDocumentMutator) =>
+		await doc3.edit((mutator: Truth.IDocumentMutator) =>
 		{
 			mutator.insert("./1.truth", 1);
 		});
@@ -80,12 +80,12 @@ namespace Truth
 			"doc2"
 		);
 		
-		await doc2.edit((mutator: IDocumentMutator) =>
+		await doc2.edit((mutator: Truth.IDocumentMutator) =>
 		{
 			mutator.insert("./1.truth", 1);
 		});
 		
-		await doc2.edit((mutator: IDocumentMutator) =>
+		await doc2.edit((mutator: Truth.IDocumentMutator) =>
 		{
 			mutator.delete(0);
 		});
@@ -102,13 +102,13 @@ namespace Truth
 	{
 		const [doc1] = await createLanguageCover("doc1");
 		
-		await doc1.edit((mutator: IDocumentMutator) =>
+		await doc1.edit((mutator: Truth.IDocumentMutator) =>
 		{
 			mutator.insert("./1.truth", 1);
 		});
 		
 		return [
-			() => doc1.hasFaults([Faults.CircularResourceReference, 1]),
+			() => doc1.hasFaults([Truth.Faults.CircularResourceReference, 1]),
 			() => doc1.dependencies.length === 1,
 			() => doc1.dependencies[0] === doc1,
 			() => doc1.dependents.length === 1,
@@ -123,19 +123,19 @@ namespace Truth
 			"doc2"
 		);
 		
-		await doc2.edit((mutator: IDocumentMutator) =>
+		await doc2.edit((mutator: Truth.IDocumentMutator) =>
 		{
 			mutator.insert("./1.truth", 1);
 		});
 		
-		await doc1.edit((mutator: IDocumentMutator) =>
+		await doc1.edit((mutator: Truth.IDocumentMutator) =>
 		{
 			mutator.insert("./2.truth", 1);
 		});
 		
 		return [
-			() => doc1.hasFaults([Faults.CircularResourceReference, 1]),
-			() => doc2.hasFaults([Faults.CircularResourceReference, 1]),
+			() => doc1.hasFaults([Truth.Faults.CircularResourceReference, 1]),
+			() => doc2.hasFaults([Truth.Faults.CircularResourceReference, 1]),
 			
 			() => doc1.dependencies.length === 1,
 			() => doc1.dependencies[0] === doc2,
@@ -157,25 +157,25 @@ namespace Truth
 			"doc3"
 		);
 		
-		await doc1.edit((mutator: IDocumentMutator) =>
+		await doc1.edit((mutator: Truth.IDocumentMutator) =>
 		{
 			mutator.insert("./2.truth", 1);
 		});
 		
-		await doc2.edit((mutator: IDocumentMutator) =>
+		await doc2.edit((mutator: Truth.IDocumentMutator) =>
 		{
 			mutator.insert("./3.truth", 1);
 		});
 		
-		await doc3.edit((mutator: IDocumentMutator) =>
+		await doc3.edit((mutator: Truth.IDocumentMutator) =>
 		{
 			mutator.insert("./1.truth", 1);
 		});
 		
 		return [
-			() => doc1.hasFaults([Faults.CircularResourceReference, 1]),
-			() => doc2.hasFaults([Faults.CircularResourceReference, 1]),
-			() => doc3.hasFaults([Faults.CircularResourceReference, 1]),
+			() => doc1.hasFaults([Truth.Faults.CircularResourceReference, 1]),
+			() => doc2.hasFaults([Truth.Faults.CircularResourceReference, 1]),
+			() => doc3.hasFaults([Truth.Faults.CircularResourceReference, 1]),
 			
 			() => doc1.dependencies.length === 1,
 			() => doc1.dependents.length === 1,
