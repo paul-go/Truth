@@ -62,4 +62,4 @@
 
 // Node compatibility
 if (typeof module !== "undefined" && module.exports)
-	module.exports = Truth;
+	module.exports = { Truth };
