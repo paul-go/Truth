@@ -41,7 +41,9 @@ namespace Truth
 		Term | 
 		KnownUri | 
 		Pattern |
-		Fork;
+		Parallel |
+		Fork |
+		Type;
 	
 	/**
 	 * A const enum to uniquely identify each domain object in the system.
@@ -57,7 +59,8 @@ namespace Truth
 		term,
 		knownUri,
 		pattern,
+		parallel,
 		fork,
-		parallel
+		type
 	}
 }

@@ -43,6 +43,11 @@ namespace Truth
 		"documentUriChange": (document: Document) => void;
 		
 		/**
+		 * An event that triggers when a document goes into an unchecked state.
+		 */
+		"documentUnchecked": (document: Document) => void;
+		
+		/**
 		 * An event that triggers when the set of faults that are
 		 * detected within the program have changed.
 		 */

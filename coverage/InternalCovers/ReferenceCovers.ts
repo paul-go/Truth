@@ -1,7 +1,8 @@
 
 namespace CoverTruth
 {
-	async function coverTwoWayLink()
+	/** */
+	export async function coverTwoWayLink()
 	{
 		const [doc1, doc2] = await createLanguageCover(
 			"1",
@@ -20,7 +21,8 @@ namespace CoverTruth
 		];
 	}
 	
-	async function coverThreeWayLink()
+	/** */
+	export async function coverThreeWayLink()
 	{
 		const [doc1, doc2, doc3] = await createLanguageCover(
 			"doc1",
@@ -52,7 +54,8 @@ namespace CoverTruth
 		];
 	}
 	
-	async function coverTypeReferencesBetwenFiles()
+	/** */
+	export async function coverTypeReferencesBetwenFiles()
 	{
 		const [doc1, doc2] = await createLanguageCover(`
 			A
@@ -73,7 +76,8 @@ namespace CoverTruth
 		];
 	}
 	
-	async function coverBasicUnlinking()
+	/** */
+	export async function coverBasicUnlinking()
 	{
 		const [doc1, doc2] = await createLanguageCover(
 			"doc1",
@@ -98,7 +102,8 @@ namespace CoverTruth
 		];
 	}
 	
-	async function coverCircular1WayLinkingFault()
+	/** */
+	export async function coverCircular1WayLinkingFault()
 	{
 		const [doc1] = await createLanguageCover("doc1");
 		
@@ -116,7 +121,8 @@ namespace CoverTruth
 		];
 	}
 	
-	async function coverCircular2WayLinkingFault()
+	/** */
+	export async function coverCircular2WayLinkingFault()
 	{
 		const [doc1, doc2] = await createLanguageCover(
 			"doc1",
@@ -149,7 +155,8 @@ namespace CoverTruth
 		];
 	}
 	
-	async function coverCircular3WayLinkingFault()
+	/** */
+	export async function coverCircular3WayLinkingFault()
 	{
 		const [doc1, doc2, doc3] = await createLanguageCover(
 			"doc1",
@@ -194,42 +201,50 @@ namespace CoverTruth
 		];
 	}
 	
-	async function coverTraverseDependencies()
+	/** */
+	export async function coverTraverseDependencies()
 	{
 		
 	}
 	
-	async function coverTraverseDependenciesWithCircularFault()
+	/** */
+	export async function coverTraverseDependenciesWithCircularFault()
 	{
 		
 	}
 	
-	async function coverDuplicateResourceReferencesFault()
+	/** */
+	export async function coverDuplicateResourceReferencesFault()
 	{
 		
 	}
 	
-	async function coverDuplicateResourceReferencesRecovery()
+	/** */
+	export async function coverDuplicateResourceReferencesRecovery()
 	{
 		
 	}
 	
-	async function coverInsecureResourceReferencesFault()
+	/** */
+	export async function coverInsecureResourceReferencesFault()
 	{
 		
 	}
 	
-	async function coverInsecureResourceReferencesRecovery()
+	/** */
+	export async function coverInsecureResourceReferencesRecovery()
 	{
 		
 	}
 	
-	async function coverUnknownResourceReferencesFault()
+	/** */
+	export async function coverUnknownResourceReferencesFault()
 	{
 		
 	}
 	
-	async function coverUnknownResourceReferencesRecovery()
+	/** */
+	export async function coverUnknownResourceReferencesRecovery()
 	{
 		
 	}

@@ -44,6 +44,14 @@ namespace Truth
 		readonly version = VersionStamp.next();
 		
 		/**
+		 * Gets the document in which this Parallel is defined.
+		 */
+		get document()
+		{
+			return this.phrase.containingDocument;
+		}
+		
+		/**
 		 * 
 		 */
 		get contents(): ReadonlyMap<Subject, Parallel>

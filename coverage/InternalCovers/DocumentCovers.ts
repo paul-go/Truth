@@ -1,7 +1,8 @@
 
 namespace CoverTruth
 {
-	async function coverGetAncestryWithStatement()
+	/** */
+	export async function coverGetAncestryWithStatement()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -26,7 +27,8 @@ namespace CoverTruth
 		];
 	}
 	
-	async function coverGetAncestryWithNumber()
+	/** */
+	export async function coverGetAncestryWithNumber()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -43,7 +45,8 @@ namespace CoverTruth
 		];
 	}
 
-	async function coverGetParentWithStatement()
+	/** */
+	export async function coverGetParentWithStatement()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -63,7 +66,8 @@ namespace CoverTruth
 		];
 	}
 
-	async function coverGetParentWithNumber()
+	/** */
+	export async function coverGetParentWithNumber()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -79,7 +83,8 @@ namespace CoverTruth
 		];
 	}
 
-	async function coverGetParentWithTopLevelStatement()
+	/** */
+	export async function coverGetParentWithTopLevelStatement()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -100,7 +105,8 @@ namespace CoverTruth
 		];
 	}
 
-	async function coverGetParentFromPositionWithEmptyDocument()
+	/** */
+	export async function coverGetParentFromPositionWithEmptyDocument()
 	{
 		const [doc] = await createLanguageCover("");
 		const parent = doc.getParentFromPosition(1, 0);
@@ -110,7 +116,8 @@ namespace CoverTruth
 		];
 	}
 
-	async function coverGetParentFromPositionOnEmptyLine()
+	/** */
+	export async function coverGetParentFromPositionOnEmptyLine()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -140,7 +147,8 @@ namespace CoverTruth
 		];
 	}
 	
-	async function coverGetParentFromPositionOnNonEmptyLine()
+	/** */
+	export async function coverGetParentFromPositionOnNonEmptyLine()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -164,7 +172,8 @@ namespace CoverTruth
 		];
 	}
 	
-	async function coverGetParentFromPositionReturningContainingDocument()
+	/** */
+	export async function coverGetParentFromPositionReturningContainingDocument()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -179,7 +188,8 @@ namespace CoverTruth
 		];
 	}
 	
-	async function coverGetSiblingsOnTopLevelStatement()
+	/** */
+	export async function coverGetSiblingsOnTopLevelStatement()
 	{
 		const [doc] = await createLanguageCover(`
 					A
@@ -195,7 +205,8 @@ namespace CoverTruth
 		return () => hasContent(siblings, "A", "B", "C");
 	}
 	
-	async function coverGetSiblingsOnNestedStatement()
+	/** */
+	export async function coverGetSiblingsOnNestedStatement()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -217,7 +228,8 @@ namespace CoverTruth
 		return () => hasContent(siblings, "B", "C", "F");
 	}
 	
-	async function coverGetSiblingsOnTopLevelNoopStatement()
+	/** */
+	export async function coverGetSiblingsOnTopLevelNoopStatement()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -231,7 +243,8 @@ namespace CoverTruth
 		return () => siblings === null;
 	}
 	
-	async function coverGetSiblingsOnNestedNoopStatement()
+	/** */
+	export async function coverGetSiblingsOnNestedNoopStatement()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -247,14 +260,16 @@ namespace CoverTruth
 		return () => siblings === null;
 	}
 	
-	async function coverGetChildrenOnEmptyDocument()
+	/** */
+	export async function coverGetChildrenOnEmptyDocument()
 	{
 		const [doc] = await createLanguageCover("\t".repeat(5));
 		const children = doc.getChildren();
 		return () => hasContent(children, "");
 	}
 	
-	async function coverGetChildrenOnNonEmptyDocument()
+	/** */
+	export async function coverGetChildrenOnNonEmptyDocument()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -286,77 +301,88 @@ namespace CoverTruth
 		]
 	}
 	
-	async function coverGetChildrenOnTopLevelStatement()
+	/** */
+	export async function coverGetChildrenOnTopLevelStatement()
 	{
 		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
-	async function coverGetChildrenOnNestedStatement()
+	/** */
+	export async function coverGetChildrenOnNestedStatement()
 	{
 		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
-	async function coverGetChildrenOnNestedNoopStatement()
+	/** */
+	export async function coverGetChildrenOnNestedNoopStatement()
 	{
 		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
-	async function coverHasDescendents()
+	/** */
+	export async function coverHasDescendents()
 	{
 		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
-	async function coverHasDescendentsOnNonEmptyDocument()
+	/** */
+	export async function coverHasDescendentsOnNonEmptyDocument()
 	{
 		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
-	async function coverHasDescendentsOnTopLevelStatement()
+	/** */
+	export async function coverHasDescendentsOnTopLevelStatement()
 	{
 		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
-	async function coverHasDescendentsOnNestedStatement()
+	/** */
+	export async function coverHasDescendentsOnNestedStatement()
 	{
 		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
-	async function coverHasDescendentsOnNestedNoopStatement()
+	/** */
+	export async function coverHasDescendentsOnNestedNoopStatement()
 	{
 		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
-	async function coverHasDescendentsOnStatementAtNumericPosition()
+	/** */
+	export async function coverHasDescendentsOnStatementAtNumericPosition()
 	{
 		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
-	async function coverGetStatementIndex()
+	/** */
+	export async function coverGetStatementIndex()
 	{
 		const [doc] = await createLanguageCover(`
 			
 		`);
 	}
 	
-	async function coverGetNotes()
+	/** */
+	export async function coverGetNotes()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -369,7 +395,8 @@ namespace CoverTruth
 		return () => notes.join() === ["**", "**"].join();
 	}
 	
-	async function coverGetNotesWhenNoneAvailable()
+	/** */
+	export async function coverGetNotesWhenNoneAvailable()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -383,7 +410,8 @@ namespace CoverTruth
 		];
 	}
 	
-	async function coverGetNotesOnCommentLine()
+	/** */
+	export async function coverGetNotesOnCommentLine()
 	{
 		const [doc] = await createLanguageCover(`
 			// ***
@@ -397,7 +425,8 @@ namespace CoverTruth
 		];
 	}
 	
-	async function coverReadOnLineFromPossiblePositions()
+	/** */
+	export async function coverReadOnLineFromPossiblePositions()
 	{
 		const [doc] = await createLanguageCover(`
 			A
@@ -407,15 +436,14 @@ namespace CoverTruth
 		
 		const aFromZero = doc.read(0);
 		const aFromNegative = doc.read(-3);
-		() => aFromZero === aFromNegative
-		
 		const cFromPos = doc.read(2);
 		const cFromNeg = doc.read(-1);
 		const cFromBeyond = doc.read(3);
 		
 		return [
 			() => cFromPos === cFromNeg,
-			() => cFromPos === cFromBeyond
+			() => cFromPos === cFromBeyond,
+			() => aFromZero === aFromNegative
 		];
 	}
 }

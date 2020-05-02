@@ -1,13 +1,23 @@
 
 namespace Truth
 {
+	type ParallelKind = ExplicitParallel | ImplicitParallel;
+	type ParallelsMap = ContingentMap<number, ParallelKind>;
+	
 	/**
 	 * @internal
 	 */
 	export class ParallelCache
 	{
+		/** */
+		constructor(program: Program)
+		{
+			this.parallels = new ContingentMap(program);
+		}
+		
 		/**
-		 * 
+		 * Creates and returns an ExplicitParallel, and adds it to the
+		 * internal cache.
 		 */
 		createExplicit(phrase: Phrase, cruft: CruftCache)
 		{
@@ -18,7 +28,8 @@ namespace Truth
 		}
 		
 		/**
-		 * 
+		 * Creates and returns an ImplicitParallel, and adds it to the
+		 * internal cache.
 		 */
 		createImplicit(phrase: Phrase)
 		{
@@ -44,7 +55,7 @@ namespace Truth
 			
 			const save = (par: ExplicitParallel | ImplicitParallel) =>
 			{
-				this.parallels.set(phrase, par);
+				this.parallels.set(phrase.id, par, par.document);
 				return par;
 			};
 			
@@ -78,7 +89,7 @@ namespace Truth
 		/** Gets the Parallel associated with the specified Phrase. */
 		get(phrase: Phrase)
 		{
-			return this.parallels.get(phrase);
+			return this.parallels.get(phrase.id);
 		}
 		
 		/** Gets the ExplicitParallel associated with the specified Phrase.  */
@@ -87,7 +98,7 @@ namespace Truth
 			if (phrase.isHypothetical)
 				throw Exception.invalidArgument();
 			
-			const parallel = this.parallels.get(phrase);
+			const parallel = this.parallels.get(phrase.id);
 			if (parallel instanceof ImplicitParallel)
 				throw Exception.unknownState();
 				
@@ -97,30 +108,13 @@ namespace Truth
 		/** */
 		has(key: Phrase)
 		{
-			return this.parallels.has(key);
-		}
-		
-		/** */
-		clear()
-		{
-			this.parallels.clear();
+			return !!this.parallels.get(key.id);
 		}
 		
 		/**
 		 * Stores a map of all Parallel objects that have been constructed,
-		 * keyed by the Phrase to which they correspond.
+		 * keyed by the ID of the Phrase to which they correspond.
 		 */
-		private readonly parallels = new Map<Phrase, ExplicitParallel | ImplicitParallel>();
-		
-		/** */
-		get debug()
-		{
-			const text: string[] = [];
-			
-			for (const parallel of this.parallels.values())
-				text.push(parallel.name || "(undefined)");
-			
-			return text.join("\n");
-		}
+		private readonly parallels: ParallelsMap;
 	}
 }

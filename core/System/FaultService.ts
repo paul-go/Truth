@@ -14,6 +14,9 @@ namespace Truth
 		 */
 		async executeTransaction(transactionFn: () => Promise<void>)
 		{
+			if (this.inEditTransaction)
+				throw Exception.invalidWhileInEditTransaction();
+			
 			this.inEditTransaction = true;
 			await transactionFn();
 			this.inEditTransaction = false;
@@ -39,8 +42,11 @@ namespace Truth
 		 * sorted in the order that they exist in the program, optionally filtered
 		 * by the document specified.
 		 */
-		each(document?: Document)
+		each(document: Document | null = null)
 		{
+			if (document && document.isVolatile)
+				return Array.from(this.volatileFaults.get(document) || []);
+			
 			let faults = [
 				...this.foregroundAutoFrame.faults.values(),
 				...this.foregroundManualFrame.faults.values()
@@ -101,7 +107,8 @@ namespace Truth
 		 */
 		report(fault: Fault)
 		{
-			this.backgroundAutoFrame.addFault(fault);
+			if (!this.maybeReportVolatile(fault))
+				this.backgroundAutoFrame.addFault(fault);
 		}
 		
 		/**
@@ -111,8 +118,11 @@ namespace Truth
 		 */
 		reportManual(fault: Fault)
 		{
-			this.backgroundManualFrame.addFault(fault);
-			this.maybeQueueManualRefresh();
+			if (!this.maybeReportVolatile(fault))
+			{
+				this.backgroundManualFrame.addFault(fault);
+				this.maybeQueueManualRefresh();
+			}
 		}
 		
 		/**
@@ -124,6 +134,28 @@ namespace Truth
 			this.backgroundManualFrame.removeFault(fault);
 			this.maybeQueueManualRefresh();
 		}
+		
+		/**
+		 * Attempts to report a fault generated within a volatile
+		 * document.
+		 */
+		private maybeReportVolatile(fault: Fault)
+		{
+			if (!fault.document.isVolatile)
+				return false;
+			
+			if (!this.volatileFaults.get(fault.document)?.add(fault))
+				this.volatileFaults.set(fault.document, new Set([fault]));
+			
+			return true;
+		}
+		
+		/**
+		 * Stores a WeakMap of faults that have been reported in volatile documents.
+		 * These faults do not participate in the background / foreground frame swapping
+		 * system, because volatile documents are immutable.
+		 */
+		private readonly volatileFaults = new WeakMap<Document, Set<Fault>>();
 		
 		/**
 		 * Queues the copying of the background fault buffer to the 
@@ -139,7 +171,6 @@ namespace Truth
 			setTimeout(() =>
 			{
 				this.manualRefreshQueued = false;
-				
 				if (!this.inEditTransaction)
 					this.refresh();
 			},

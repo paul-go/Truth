@@ -4,14 +4,29 @@ namespace CoverTruth
 	/**
 	 * 
 	 */
-	export async function createDocument(...lines: string[])
+	export async function createDocument(...lines: string[]): Promise<Truth.Document>;
+	export async function createDocument(program: Truth.Program, ...lines: string[]): Promise<Truth.Document>;
+	export async function createDocument(arg: Truth.Program | string, ...lines: string[])
 	{
+		let program: Truth.Program;
+		
+		if (typeof arg === "string")
+		{
+			lines.unshift(arg);
+			program = new Truth.Program();
+		}
+		else
+		{
+			program = arg;
+		}
+		
 		const sourceText = lines.join(Truth.Syntax.terminal);
-		const parseResult = await Truth.parse(sourceText);
-		if (parseResult instanceof Error)
+		const doc = await program.addDocument(sourceText);
+		if (doc instanceof Error)
 			throw Truth.Exception.unknownState();
 		
-		return parseResult;
+		await program.wait();
+		return doc;
 	}
 	
 	/**

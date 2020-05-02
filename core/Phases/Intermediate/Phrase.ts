@@ -331,9 +331,6 @@ namespace Truth
 			}
 			
 			this.outboundsVersion = this.containingDocument.program.version;
-			
-			if (!this.isHypothetical && !this.isDocumentOwned)
-				this.containingDocument.program.markPhrase(this);
 		}
 		
 		/** @internal */
@@ -778,7 +775,6 @@ namespace Truth
 			this._ancestry = null;
 			this._statements = null;
 			this._isDisposed = true;
-			this.containingDocument.program.unmarkPhrase(this);
 			
 			// Only non hypothetical phrases generate the declare events,
 			// and it's unlikely that these may ever trigger a dispose, but

@@ -1,7 +1,8 @@
 
 namespace CoverTruth
 {
-	async function coverAaa()
+	/** */
+	export async function coverAaa()
 	{
 		// Temporary cover function
 		
@@ -22,7 +23,8 @@ namespace CoverTruth
 		return () => true;
 	}
 	
-	async function coverSimpleTypeCheck()
+	/** */
+	export async function coverSimpleTypeCheck()
 	{
 		const [doc, program] = await createLanguageCover(`
 			number
@@ -38,15 +40,15 @@ namespace CoverTruth
 			["s1", "n"]
 		);
 		
-		const isInerrant = await program.await();
-		
+		const isInerrant = program.check();
 		return [
 			() => isInerrant,
 			() => s1n.value === "123"
 		];
 	}
 	
-	async function coverThirdLevelValue()
+	/** */
+	export async function coverThirdLevelValue()
 	{
 		const [doc, program] = await createLanguageCover(`
 			number
@@ -64,15 +66,15 @@ namespace CoverTruth
 			["s1", "n", "min"]
 		);
 		
-		const isInerrant = await program.await();
-		
+		const isInerrant = program.check();
 		return [
 			() => isInerrant,
 			() => s1n.value === "3"
 		];		
 	}
 	
-	async function coverInsertsAtEndOfDocument()
+	/** */
+	export async function coverInsertsAtEndOfDocument()
 	{
 		const [doc] = await createLanguageCover(`
 			any
@@ -115,7 +117,8 @@ namespace CoverTruth
 		return () => true;
 	}
 	
-	async function coverEditAtomic()
+	/** */
+	export async function coverEditAtomic()
 	{
 		const [doc] = await createLanguageCover(`abc`);
 		

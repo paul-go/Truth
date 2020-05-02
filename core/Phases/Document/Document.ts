@@ -13,45 +13,88 @@ namespace Truth
 	{
 		/**
 		 * @internal
+		 * Internal constructor for volatile Document objects.
+		 * Volatile document objects are those that are not stored
+		 * in this library's internal memory, but rather are returned
+		 * back to the library consumer and forgotten.
+		 */
+		static newVolatile(
+			program: Program,
+			sourceText: string,
+			dependencies: readonly Document[])
+		{
+			const doc = new Document(program, KnownUri.volatile);
+			const generator = Statement.readFromSource(doc, sourceText);
+			const surfaceStatements: Statement[] = [];
+			let maxIndent = Number.MAX_SAFE_INTEGER;
+			
+			for (const statement of generator)
+			{
+				doc.statements.push(statement);
+				
+				if (statement.indent <= maxIndent && statement.isNoop)
+				{
+					surfaceStatements.push(statement);
+					maxIndent = statement.indent;
+				}
+			}
+			
+			doc._dependencies.push(...dependencies);
+			Phrase.inflateRecursive(surfaceStatements);
+			return doc;
+		}
+		
+		/**
+		 * @internal
 		 * Internal constructor for Document objects.
 		 * Document objects are created via a Program object.
 		 */
-		static async new(
+		static async  new(
 			program: Program,
 			fromUri: KnownUri,
-			source: string | SourceObject,
+			source: string | Iterable<string> | SourceObject,
 			saveFn: (doc: Document) => void): Promise<Document | Error>
 		{
 			const doc = new Document(program, fromUri);
 			const uriStatements: UriStatement[] = [];
-			const topLevelStatements: Statement[] = [];
+			const surfaceStatements: Statement[] = [];
 			let maxIndent = Number.MAX_SAFE_INTEGER;
 			
-			const iterator = (() =>
+			const generator = (() =>
 			{
 				if (fromUri.extension === Extension.truth)
+				{
 					if (typeof source === "string")
 						return Statement.readFromSource(doc, source);
-				
-				if (fromUri.extension === Extension.script)
-					if (typeof source === "object")
-						return Statement.readFromScript(doc, source);
+					
+					if (Symbol.iterator in source)
+						return source as Iterable<string>;
+				}
+				else if (fromUri.extension === Extension.script)
+				{
+					if (typeof source === "object" && !(Symbol.iterator in source))
+						return Statement.readFromScript(doc, source as SourceObject);
+				}
 				
 				throw Exception.unknownState();
 			})();
 			
-			for (const statement of iterator)
+			for (const statement of generator)
 			{
-				doc.statements.push(statement);
+				const smt = typeof statement === "string" ?
+					Statement.new(doc, statement) :
+					statement;
 				
-				if (statement.uri)
+				doc.statements.push(smt);
+				
+				if (smt.uri)
 				{
-					uriStatements.push(statement as UriStatement);
+					uriStatements.push(smt as UriStatement);
 				}
-				else if (statement.indent <= maxIndent && !statement.isNoop)
+				else if (smt.indent <= maxIndent && !smt.isNoop)
 				{
-					topLevelStatements.push(statement);
-					maxIndent = statement.indent;
+					surfaceStatements.push(smt);
+					maxIndent = smt.indent;
 				}
 			}
 			
@@ -64,7 +107,7 @@ namespace Truth
 			if (uriStatements.length > 0)
 				await doc.updateReferences([], uriStatements);
 
-			Phrase.inflateRecursive(topLevelStatements);
+			Phrase.inflateRecursive(surfaceStatements);
 			
 			// if ("DEBUG")
 			//	Debug.printPhrases(doc, true, true);
@@ -109,6 +152,23 @@ namespace Truth
 		}
 		
 		/**
+		 * Gets whether this document is a volatile document.
+		 */
+		get isVolatile()
+		{
+			return this._uri === KnownUri.volatile;
+		}
+		
+		/**
+		 * Gets whether this document has unchecked information
+		 * and is in need of a correctness check.
+		 */
+		get isUnchecked()
+		{
+			return this.program.isUnchecked(this);
+		}
+		
+		/**
 		 * @internal
 		 * A rolling version stamp that increments after each edit transaction.
 		 */
@@ -150,16 +210,16 @@ namespace Truth
 		}
 		
 		/**
-		 * Gets the root-level types that are defined within this document.
+		 * Returns an iterator that iterates through all surface types
+		 * defined within this document.
 		 */
-		get types()
+		eachType(): IterableIterator<Type>
 		{
-			if (this._types)
-				return this._types;
+			if (this.isUnchecked)
+				this.program.check(this);
 			
-			return this._types = Object.freeze(this.program.queryAll(this));
+			return this.program.getSurfaceTypes(this);
 		}
-		private _types: readonly Type[] | null = null;
 		
 		/**
 		 * @returns A boolean value that indicates whether this document has a
@@ -666,8 +726,8 @@ namespace Truth
 		 */
 		async edit(editFn: (mutator: IDocumentMutator) => void)
 		{
-			if (this.isScripted)
-				throw Exception.scriptsAreImmutable();
+			if (this.isVolatile || this.isScripted)
+				throw Exception.documentImmutable();
 			
 			return this.program.edit(programMutator =>
 			{
@@ -685,8 +745,8 @@ namespace Truth
 		 */
 		async editAtomic(edits: IDocumentEdit[])
 		{
-			if (this.isScripted)
-				throw Exception.scriptsAreImmutable();
+			if (this.isVolatile || this.isScripted)
+				throw Exception.documentImmutable();
 			
 			const programEdits = edits.map(ed => ({
 				document: this,
@@ -704,8 +764,8 @@ namespace Truth
 		 */
 		createMutationTask(edits: TEdit[]): IDocumentMutationTask | null
 		{
-			if (this.isScripted)
-				throw Exception.scriptsAreImmutable();
+			if (this.isVolatile || this.isScripted)
+				throw Exception.documentImmutable();
 			
 			const self = this;
 			const deletedUriSmts: UriStatement[] = [];
@@ -726,15 +786,24 @@ namespace Truth
 				a[i] instanceof DeleteEdit))
 				throw Exception.invalidEditSequence();
 			
+			const hasChangeHandlers = this.program.hasHandlers("statementChange");
+			const changeInfos: IStatementChangeInfo[] = [];
+			
 			const doDelete = (edit: DeleteEdit) =>
 			{
 				const smts = this.statements.splice(edit.pos, edit.count);
-				for (const smt of smts)
+				if (smts.length)
 				{
-					smt.dispose();
-					
-					if (smt.uri)
-						deletedUriSmts.push(smt as UriStatement);
+					for (const smt of smts)
+					{
+						smt.dispose();
+						
+						if (smt.uri)
+							deletedUriSmts.push(smt as UriStatement);
+						
+						if (hasChangeHandlers)
+							changeInfos.push({ kind: "delete", statement: smt });
+					}
 				}
 			};
 			
@@ -744,6 +813,9 @@ namespace Truth
 				
 				if (edit.smt.uri)
 					addedUriSmts.push(edit.smt as UriStatement);
+				
+				if (hasChangeHandlers)
+					changeInfos.push({ kind: "insert", statement: edit.smt });
 			};
 			
 			const doUpdate = (edit: UpdateEdit) =>
@@ -757,6 +829,19 @@ namespace Truth
 					addedUriSmts.push(edit.smt as UriStatement);
 				
 				existing.dispose();
+				
+				if (hasChangeHandlers)
+					changeInfos.push({
+						kind: "update",
+						statement: existing,
+						replacement: edit.smt
+					});
+			};
+			
+			const doTriggerHandlers = () =>
+			{
+				if (hasChangeHandlers)
+					this.program.emit("statementChange", this, changeInfos);
 			};
 			
 			const statementsOf = (deleteEdit: DeleteEdit) =>
@@ -771,7 +856,7 @@ namespace Truth
 				{
 					if (edit instanceof DeleteEdit)
 					{
-						if (!statementsOf(edit).every(smt => smt.isNoop))
+						if (statementsOf(edit).some(smt => !smt.isNoop))
 							break optimizeSilent;
 					}
 					else if (edit instanceof InsertEdit)
@@ -807,7 +892,7 @@ namespace Truth
 						}
 					},
 					createPhrases() {},
-					finalize: async () => {}
+					finalize: async () => doTriggerHandlers()
 				};
 			}
 			
@@ -827,11 +912,13 @@ namespace Truth
 					//Debug.printPhrases(this, true, true);
 				}
 				
-				this._types = null;
 				this._version = VersionStamp.next();
 				
 				if (addedUriSmts.length + deletedUriSmts.length > 0)
 					await this.updateReferences(deletedUriSmts, addedUriSmts);
+				
+				this.program.uncheckDocument(this);
+				doTriggerHandlers();
 			};
 			
 			// This is an optimization that catches the case when there are only
@@ -1038,8 +1125,6 @@ namespace Truth
 				return count;
 			}
 			
-			(window as any).docu = this;
-			
 			return {
 				deletePhrases()
 				{
@@ -1152,8 +1237,10 @@ namespace Truth
 					refDoc = null;
 					faults.push(Faults.UnresolvedResource.create(smt));
 				}
-				
-				rawRefsToAdd.push(new Reference(smt, refDoc));
+				else
+				{
+					rawRefsToAdd.push(new Reference(smt, refDoc));
+				}
 			}
 			
 			if ("DEBUG")
@@ -1351,10 +1438,27 @@ namespace Truth
 		}
 		
 		/**
-		 * Performs a depth-first traversal on this Document's dependency structure.
-		 * The traversal pattern avoids following infinite loops due to circular dependencies.
+		 * Performs a depth-first traversal on the graph of Documents on which this
+		 * document depends. The traversal pattern avoids following infinite loops
+		 * due to circular dependencies.
 		 */
-		*traverseDependencies(): IterableIterator<Document>
+		traverseDependencies(): IterableIterator<Document>
+		{
+			return this.traversePrivate(true);
+		}
+		
+		/**
+		 * Performs a depth-first traversal on the graph of Documents that depend
+		 * on this document. The traversal pattern avoids following infinite loops
+		 * due to circular dependencies.
+		 */
+		traverseDependents(): IterableIterator<Document>
+		{
+			return this.traversePrivate(false);
+		}
+		
+		/** */
+		private *traversePrivate(dependencies: boolean): IterableIterator<Document>
 		{
 			const self = this;
 			const yielded: Document[] = [];
@@ -1370,11 +1474,13 @@ namespace Truth
 					yield doc;
 				}
 				
-				for (const dependency of doc._dependencies)
+				const docs = dependencies ? doc._dependencies : doc._dependents;
+				for (const dependency of docs)
 					yield *recurse(dependency);
 			};
 			
-			for (const dependency of this._dependencies)
+			const docs = dependencies ? this._dependencies : this._dependents;
+			for (const dependency of docs)
 				yield *recurse(dependency);
 		}
 		

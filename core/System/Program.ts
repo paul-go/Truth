@@ -5,28 +5,28 @@ namespace Truth
 	 * The main object that stores a collection Truth documents,
 	 * and provides APIs for verifying and inspecting them.
 	 */
-	export class Program
+	export class Program extends AbstractClass
 	{
 		/**
 		 * Creates a new Program, into which Documents may
 		 * be added, and verified.
 		 */
-		constructor(options?: IProgramOptions)
+		constructor()
 		{
-			this.options = options || { autoVerify: true };
+			super();
+			
 			this._version = VersionStamp.next();
+			this.versionOfLastDocSort = this._version;
 			this.reader = Truth.createDefaultUriReader();
 			
-			this.on("documentCreate", doc =>
+			this.on("documentAdd", doc =>
 			{
-				this.markPhrase(doc.phrase);
+				this.uncheckedDocuments.add(doc.id);
 			});
 			
-			this.on("documentDelete", doc =>
+			this.on("documentRemove", doc =>
 			{
-				for (const phrases of doc.phrase.peekRecursive())
-					for (const phrase of phrases)
-						this.unmarkPhrase(phrase);
+				this.uncheckedDocuments.delete(doc.id);
 			});
 			
 			this.on("documentUriChange", () =>
@@ -36,26 +36,30 @@ namespace Truth
 			
 			this.cycleDetector = new CycleDetector(this);
 			this.faults = new FaultService(this);
+			this.phrases = new PhraseProvider(this);
+			this.worker = new ConstructionWorker(this);
+			
+			this.namedTypes = new ContingentSetMap(this);
+			this.foreignSupers = new ContingentSetMap(this);
+			this.foreignSupervisors = new ContingentSetMap(this);
+			this.surfaceTypes = new ContingentMap(this);
+			this.nestedTypes = new ContingentMap(this);
 		}
 		
 		/** @internal */
-		private readonly options: IProgramOptions;
+		readonly class = Class.program;
 		
 		/** @internal */
 		readonly cycleDetector: CycleDetector;
 		
+		/** @internal */
+		readonly phrases: PhraseProvider;
+		
+		/** @internal */
+		readonly worker: ConstructionWorker;
+		
 		/**  */
 		readonly faults: FaultService;
-		
-		/**
-		 * Gets a readonly array of truth documents
-		 * that have been loaded into this Program.
-		 */
-		get documents(): readonly Document[]
-		{
-			return this._documents;
-		}
-		private readonly _documents: Document[] = [];
 		
 		/**
 		 * Gets an incrementing stamp.
@@ -65,6 +69,33 @@ namespace Truth
 			return this._version;
 		}
 		private _version: VersionStamp;
+		
+		/**
+		 * Gets a readonly array of truth documents that have been loaded into
+		 * this Program. The array is sorted topologically (dependencies before
+		 * dependents).
+		 */
+		get documents(): readonly Document[]
+		{
+			if (this.version.newerThan(this.versionOfLastDocSort))
+			{
+				const docs = new Set<Document>();
+				const recurse = (doc: Document) =>
+				{
+					for (const dep of doc.dependencies)
+						recurse(dep);
+					
+					docs.add(doc);
+				};
+				
+				this.versionOfLastDocSort = this.version;
+				this._documents = Array.from(docs);
+			}
+			
+			return this._documents;
+		}
+		private _documents: Document[] = [];
+		private versionOfLastDocSort: VersionStamp;
 		
 		/**
 		 * Override the default IUriReader used by the program.
@@ -80,25 +111,25 @@ namespace Truth
 		
 		/**
 		 * Adds a document to this program with the specified sourceText.
-		 * The URI for the document is an auto-generated, auto-incrementing
-		 * number.
+		 * If the associatedUri param is unspecified, the URI for the document 
+		 * becomes an auto-generated, auto-incrementing number.
 		 * 
 		 * For example, the first document added in this way is considered
 		 * to have the URI "memory://memory/1.truth", the second being 
 		 * "memory://memory/2.truth", and so on.
 		 */
-		async addDocument(sourceText: string)
+		async addDocument(
+			sourceText: string | Iterable<string> = "",
+			associatedUri: KnownUri = KnownUri.fromName())
 		{
-			const memoryUri = KnownUri.createMemoryUri(++this.memoryUriCount);
 			const doc = await Document.new(
 				this,
-				memoryUri,
+				associatedUri,
 				sourceText,
 				d => this.saveDocument(d));
 			
 			return this.finalizeDocumentAdd(doc);
 		}
-		private memoryUriCount = 0;
 		
 		/**
 		 * Adds a document to this program, by loading it from the specified
@@ -130,6 +161,11 @@ namespace Truth
 			const existingDoc = this.getDocumentByUri(uri);
 			if (existingDoc)
 				return existingDoc;
+			
+			// If the uri is a memory URI, the document has to  already be 
+			// loaded into memory, or it's an error.
+			else if (uri.protocol === UriProtocol.memory)
+				return Promise.resolve(Exception.invalidUri(uri.toString()));
 			
 			const promises = this.queue.get(uri);
 			if (promises)
@@ -187,17 +223,10 @@ namespace Truth
 		private finalizeDocumentAdd(docOrError: Document | Error)
 		{
 			if (docOrError instanceof Document)
-			{
-				this.emit("documentCreate", docOrError);
-				this.markedDocuments.maybeAdd(docOrError);
-				this._verificationStage = VerificationStage.required;
-			}
+				this.emit("documentAdd", docOrError);
 			
 			return docOrError;
 		}
-		
-		/** Stores a queue of documents to resolve. */
-		private readonly queue = new Map<KnownUri, ((resolved: Document | Error) => void)[]>();
 		
 		/**
 		 * Adds the specified document to the internal list of documents.
@@ -205,6 +234,255 @@ namespace Truth
 		private saveDocument(doc: Document)
 		{
 			this._documents.push(doc);
+		}
+		
+		/** Stores a queue of documents to resolve. */
+		private readonly queue = 
+			new Map<KnownUri, ((resolved: Document | Error) => void)[]>();
+		
+		//# Type Caching
+		
+		/**
+		 * @internal
+		 * Used by the Type constructor to notify the Program
+		 * that a Type object was created.
+		 */
+		addType(type: Type, phraseId: number)
+		{
+			if (type.document.isVolatile)
+			{
+				const doc = type.document;
+				const map = type.level === 1 ?
+					this.surfaceTypesVolatile :
+					this.nestedTypesVolatile;
+				
+				map.get(doc)?.set(phraseId, type) || map.set(doc, new Map([[phraseId, type]]));
+				return;
+			}
+			
+			const typeMap = type.level === 1 ?
+				this.surfaceTypes :
+				this.nestedTypes;
+			
+			typeMap.set(phraseId, type, type.document);
+			const termLower = type.name.toLocaleLowerCase();
+			this.namedTypes.add(termLower, type, type.document);
+		}
+		
+		/**
+		 * @internal
+		 * Returns the type with the specified phrase ID, in the specified document.
+		 */
+		getType(doc: Document, phraseId: number)
+		{
+			if (doc.isVolatile)
+				return (
+					this.surfaceTypesVolatile.get(doc)?.get(phraseId) ||
+					this.nestedTypesVolatile.get(doc)?.get(phraseId) ||
+					null);
+			
+			return (
+				this.surfaceTypes.get(phraseId) || 
+				this.nestedTypes.get(phraseId) || 
+				null);
+		}
+		
+		/** @internal */
+		getSurfaceTypes(document: Document)
+		{
+			return document.isVolatile ?
+				this.surfaceTypesVolatile.get(document)?.values() || new Set<Type>().values() :
+				this.surfaceTypes.each(document);
+		}
+		
+		/** @internal */
+		getNestedTypes(document: Document)
+		{
+			return document.isVolatile ?
+				this.nestedTypesVolatile.get(document)?.values() || new Set<Type>().values() :
+				this.nestedTypes.each(document);
+		}
+		
+		/** @internal */
+		getForeignTypesReferencingTypeAsSuper(type: Type): ReadonlySet<Type>
+		{
+			return this.foreignSupers.get(type.id) || new Set();
+		}
+		
+		/** @internal */
+		setForeignSuper(superType: Type, subType: Type)
+		{
+			this.foreignSupers.add(superType.id, subType, subType.document);
+		}
+		
+		/** @internal */
+		getForeignTypesReferencingTypeAsSupervisor(type: Type): ReadonlySet<Type>
+		{
+			return this.foreignSupervisors.get(type.id) || new Set();
+		}
+		
+		/** @internal */
+		setForeignSupervisor(supervisorType: Type, subvisorType: Type)
+		{
+			this.foreignSupervisors.add(
+				supervisorType.id,
+				subvisorType,
+				subvisorType.document);
+		}
+		
+		/**
+		 * Stores a map of all types that have the given name.
+		 */
+		private readonly namedTypes: ContingentSetMap<string, Type>;
+		
+		/**
+		 * Stores a map of all surface types defined within the document
+		 * that owns this DocumentTypeCache object, keyed by the ID
+		 * of the Type's supporting Phrase object.
+		 */
+		private readonly surfaceTypes: ContingentMap<number, Type>;
+		
+		/**
+		 * Stores a map of the surface types that are defined within volatile
+		 * documents.
+		 */
+		private readonly surfaceTypesVolatile = 
+			new WeakMap<Document, Map<number, Type>>();
+		
+		/**
+		 * Stores a map of all nested types defined within the document
+		 * that owns this DocumentTypeCache object, keyed by the ID
+		 * of the Type's supporting Phrase object.
+		 */
+		private readonly nestedTypes: ContingentMap<number, Type>;
+		
+		/**
+		 * Stores a map of the surface types that are defined within volatile
+		 * documents.
+		 */
+		private readonly nestedTypesVolatile =
+			new WeakMap<Document, Map<number, Type>>();
+		
+		/**
+		 * Stores a map that provides a fast answer to the question:
+		 * "do any types in this document have foreign type X as a super?"
+		 * 
+		 * The keys of the map are IDs of the foreign type being targeted,
+		 * and the values are the types defined within the associated
+		 * document that have the foreign type as a super.
+		 */
+		private readonly foreignSupers: ContingentSetMap<number, Type>;
+		
+		/**
+		 * Stores a map that provides a fast answer to the question:
+		 * "do any types in this document have foreign type X as a supervisor?"
+		 * 
+		 * The keys of the map are IDs of the foreign type being targeted,
+		 * and the values are the types defined within the associated
+		 * document that have the foreign type as a supervisor.
+		 */
+		private readonly foreignSupervisors: ContingentSetMap<number, Type>;
+		
+		//# Lookup related members
+		
+		/**
+		 * 
+		 */
+		lookup(keyword: string)
+		{
+			const kw = keyword.toLocaleLowerCase();
+			return this.namedTypes.get(kw) || new Set();
+		}
+		
+		/**
+		 * Iterates through all types defined within this program.
+		 * 
+		 * @param minLevelFilter An optional minimum level of depth
+		 * (inclusive) at which to yield types.
+		 * @param maxLevelFilter An optional The maximum level of
+		 * depth (inclusive) at which to yield types. Negative numbers
+		 * indicate no maximum.
+		 * @param documentFilter An optional document, or set of
+		 * documents whose types should be yielded.
+		 */
+		*scan(
+			minLevelFilter = 1,
+			maxLevelFilter = -1,
+			documentFilter?: Document | readonly Document[])
+		{
+			if (maxLevelFilter < 0)
+				maxLevelFilter = Number.MAX_SAFE_INTEGER;
+			
+			if (maxLevelFilter < minLevelFilter)
+				return;
+			
+			const documents: readonly Document[] = 
+				documentFilter instanceof Document ? [documentFilter] :
+				Array.isArray(documentFilter) ? documentFilter :
+				this.documents;
+			
+			// Optimization
+			if (minLevelFilter === 1 && maxLevelFilter === 1)
+			{
+				for (const document of documents)
+					for (const type of document.eachType())
+						yield { type, document };
+				
+				return;
+			}
+			
+			for (const document of documents)
+			{
+				const queue = Array.from(document.eachType());
+				
+				for (const type of queue)
+				{
+					if (type.level <= maxLevelFilter)
+						queue.push(...type.containees);
+					
+					if (minLevelFilter <= type.level)
+						yield { type, document };
+				}
+			}
+		}
+		
+		//# Interpreter
+		
+		/**
+		 * Interprets the specified truth information, in the context of this Program.
+		 * 
+		 * @param sourceText The truth information to interpret.
+		 * @param dependencies An array of Document objects that are currently
+		 * attached to this program, that should be inferred as dependencies of 
+		 * the truth information provided. In the case when the argument is omitted,
+		 * or is an empty array, this method uses all "leaf" documents (documents with
+		 * no dependents) defined within this program.
+		 * 
+		 * @throws An exception if this program has no documents, or if the program
+		 * is in an unverified state.
+		 * 
+		 * @returns A tuple whose first element is an array containing any faults
+		 * that were generated during the interpretation of the sourceText, and
+		 * whose following elements are the surface types inferred from the
+		 * provided truth information.
+		 */
+		interpret(
+			sourceText: string,
+			dependencies: readonly Document[] = []): [Fault[], Document]
+		{
+			// Use all leaf documents in the case when no dependencies are specified.
+			const deps = dependencies.length === 0 ?
+				this.documents.filter(d => d.dependents.length === 0).reverse() :
+				dependencies;
+			
+			if (deps.length === 0)
+				throw Exception.programHasNoDocuments();
+			
+			const volatileDoc = Document.newVolatile(this, sourceText, deps);
+			if (this.check(volatileDoc))
+				return [[], volatileDoc];
+			
+			return [this.faults.each(volatileDoc), volatileDoc];
 		}
 		
 		//# Inspection related members
@@ -267,7 +545,7 @@ namespace Truth
 			
 			const results: Type[] = [];
 			
-			for (const document of this._documents)
+			for (const document of this.documents)
 			{
 				for (const phrase of Phrase.fromPathComponents(document, typePath))
 				{
@@ -442,8 +720,7 @@ namespace Truth
 			
 			if (edits.length > 0)
 			{
-				this.cancelVerification();
-				
+				this.cancelCheckAsync();
 				const tasks: IDocumentMutationTask[] = [];
 				
 				for (const doc of documentsEdited)
@@ -471,9 +748,6 @@ namespace Truth
 				});
 				
 				this._version = VersionStamp.next();
-				
-				if (this.options.autoVerify && this.markedPhrases.size > 0)
-					this.await();
 			}
 			
 			this.inEdit = false;
@@ -625,313 +899,167 @@ namespace Truth
 		 */
 		private inEdit = false;
 		
-		//# Verification related members
+		//# Correctness check related members
 		
 		/**
-		 * Gets the program's verification stage.
+		 * Performs a synchronous, as-fast-as-possible correctness check of all
+		 * information contained in this program.
+		 * 
+		 * Caution should be used when invoking this method––in large programs,
+		 * use of this overload could potentially block the main thread.
+		 * 
+		 * @returns A boolean value indicating whether the program was determined
+		 * to be free of faults.
 		 */
-		get verificationStage()
-		{
-			return this._verificationStage;
-		}
-		private _verificationStage = VerificationStage.finished;
-		
+		check(): boolean;
 		/**
-		 * Returns a promise that resolves when this program's verification stage
-		 * has reached the stage specified.
+		 * Performs a synchronous correctness check of the document provided,
+		 * and all documents in it's dependency graph.
 		 * 
-		 * This method will launch a verification cycle in the case when the program
-		 * contains unverified information, and no other verification cycle has been
-		 * launched.
-		 * 
-		 * When the returned promise resolves, this Program's .faults field will be
-		 * populated with any faults generated as a result of the verification.
+		 * @returns A boolean value indicating whether the program was determined
+		 * to be free of faults.
 		 */
-		async await(resolveStage = VerificationStage.finished): Promise<void>
+		check(document: Document): boolean;
+		check(document: Document | null = null)
 		{
-			// If the verification stage is already past the point of the stage
-			// specified in the argument, we can resolve the promise immediately.
-			if (resolveStage <= this._verificationStage)
-				return Promise.resolve();
-			
-			// If there is already a verification cycle underway, then return
-			// a new promise that resolves when the verification cycle has
-			// reached the stage specified
-			if (this.verificationStage > VerificationStage.required)
+			if (document)
 			{
-				switch (resolveStage)
+				if (document.isVolatile)
 				{
-					case VerificationStage.started:
-						return new Promise(r => this.startedResolveFns.push(r));
-					
-					case VerificationStage.marked:
-						return new Promise(r => this.markedResolveFns.push(r));
-					
-					case VerificationStage.affected:
-						return new Promise(r => this.affectedResolveFns.push(r));
-					
-					case VerificationStage.finished:
-						return new Promise(r => this.finishedResolveFns.push(r));
+					// In the case when a volatile document is being checked,
+					// the volatile type maps need to be cleared manually, 
+					// because there is no such thing as a "ContingentWeakMap".
+					// This prevents the situation where a volatile document is 
+					// checked twice, and the same type is saved multiple times.
+					this.surfaceTypesVolatile.delete(document);
+					this.nestedTypesVolatile.delete(document);
 				}
+				// Only start & restart the async checking process for non-volatile
+				// documents. In order to process a volatile document, the entire
+				// program should be in a fully checked state.
+				else this.cancelCheckAsync();
+				
+				// Check all documents that are unchecked,
+				// that are in the dependency graph of the 
+				// provided document.
+				for (const dep of document.traverseDependencies())
+					if (this.uncheckedDocuments.has(dep.id))
+						this.checkDocument(dep);
+				
+				this.checkDocument(document);
+				
+				if (document.isVolatile)
+					return this.faults.each(document).length === 0;
+			}
+			else
+			{
+				this.cancelCheckAsync();
+				
+				// Check all documents that are unchecked
+				for (const doc of this.documents)
+					if (this.uncheckedDocuments.has(doc.id))
+						this.checkDocument(doc);
 			}
 			
-			// At this point, it has been determined that no verification
-			// cycle is underway, and so one needs to be launched.
+			this.faults.refresh();
+			this.checkAsync();
+			return this.faults.count === 0;
+		}
+		
+		/**
+		 * Synchronously checks all phrases in the specified document.
+		 */
+		private checkDocument(document: Document)
+		{
+			for (const phrases of document.phrase.peekRecursive())
+				for (const phrase of phrases)
+					Type.construct(phrase);
 			
-			const massResolve = (resolveFns: (() => void)[]) =>
+			this.uncheckedDocuments.delete(document.id);
+		}
+		
+		/**
+		 * Launches an asynchronous "background" process (in the form
+		 * of a recurring timeout) that runs the correctness check on the
+		 * unchecked parts of the program.
+		 */
+		private checkAsync()
+		{
+			const invoke = (fn: () => void) =>
 			{
-				const fns = resolveFns.slice();
-				resolveFns.length = 0;
-				
-				for (const fn of fns)
-					fn();
+				this.checkAsyncTimeoutId = hasRaf ?
+					window.requestAnimationFrame(fn) :
+					setTimeout(fn);
 			};
 			
-			this._verificationStage = VerificationStage.started;
-			massResolve(this.startedResolveFns);
+			const self = this;
 			
-			// In this early implementation, it's necessary to ensure that the system
-			// only constructs a limited number of types in each turn of the event loop,
-			// so that the thread is not blocked during the entire verification process.
-			// At some point, the compiler should be running itself inside a Worker
-			// so that it doesn't need to worry about blocking.
-			const maxConstructionsPerTurn = 1000;
-			
-			// Run "marked" verifications
-			await new Promise(resolve =>
+			function *createGenerator()
 			{
-				const next = () =>
+				for (const document of self.documents)
+					for (const phrases of document.phrase.peekRecursive())
+						for (const phrase of phrases)
+							yield phrase;
+			};
+			
+			const generator = createGenerator();
+			const maxIterationsPerTurn = 50;
+			let iterationCount = 0;
+			
+			const callback = () =>
+			{
+				for (;;)
 				{
-					let i = maxConstructionsPerTurn;
-					for (const nextPhrase of this.markedPhrases)
-					{
-						this.markedPhrases.delete(nextPhrase);
-						Type.construct(nextPhrase);
-						
-						if (--i === 0)
-							break;
-					}
+					const iteratorResult = generator.next();
 					
-					if (this.markedPhrases.size === 0)
-						resolve();
-					else
-						this.nextVerificationTimeout = setTimeout(next, 0);
-				};
-				
-				next();
-			});
-			
-			// Indicate that the system has now begun to work on
-			// the affected set of phrases.
-			this._verificationStage = VerificationStage.marked;
-			this.faults.refresh();
-			massResolve(this.markedResolveFns);
-			
-			const affectedDocuments = (() =>
-			{
-				const docs = new Set<Document>();
-				
-				for (const markedDoc of this.markedDocuments)
-					Misc.reduceRecursive(
-						markedDoc,
-						doc => doc.dependents,
-						doc => docs.add(doc));
-				
-				return Array.from(docs);
-			})();
-			
-			const includedDocuments = this._documents.slice()
-				.filter(doc => !affectedDocuments.includes(doc));
-			
-			const verifyDocuments = (docs: Document[], resolve: () => void) =>
-			{
-				const allPhrases: Phrase[] = [];
-				
-				for (const doc of docs)
-					for (const phrases of doc.phrase.peekRecursive())
-						allPhrases.push(...phrases);
-				
-				if (allPhrases.length === 0)
-					return resolve();
-				
-				const next = () =>
-				{
-					const phrases = allPhrases.slice(-maxConstructionsPerTurn);
-					allPhrases.length = Math.max(0, allPhrases.length - maxConstructionsPerTurn);
+					if (iteratorResult.done)
+						return void this.emit("verificationComplete", this);
 					
-					for (const phrase of phrases)
-						Type.construct(phrase);
-					
-					if (allPhrases.length === 0)
-						return resolve();
-					
-					this.nextVerificationTimeout = setTimeout(next, 0);
-				};
-				
-				next();
-			}
+					if (++iterationCount > maxIterationsPerTurn)
+						return invoke(callback);
+				}
+			};
 			
-			// Run "affected" verifications
-			await new Promise(resolve =>
-			{
-				verifyDocuments(affectedDocuments, resolve);
-			});
-			
-			this._verificationStage = VerificationStage.affected;
-			this.faults.refresh();
-			massResolve(this.affectedResolveFns);
-			
-			// Run "finished" verifications
-			await new Promise(resolve =>
-			{
-				verifyDocuments(includedDocuments, resolve);
-			});
-			
-			this._verificationStage = VerificationStage.finished;
-			this.faults.refresh();
-			massResolve(this.finishedResolveFns);
-			
-			this.emit("verificationComplete", this);
+			invoke(callback);
 		}
 		
 		/** */
-		private cancelVerification()
+		private cancelCheckAsync()
 		{
-			this._verificationStage = VerificationStage.required;
-			
-			if (this.nextVerificationTimeout !== null)
-			{
-				clearTimeout(this.nextVerificationTimeout);
-				this.nextVerificationTimeout = null;
-			}
+			hasRaf ?
+				window.cancelAnimationFrame(this.checkAsyncTimeoutId) :
+				clearTimeout(this.checkAsyncTimeoutId);
 		}
-		
-		private readonly startedResolveFns: (() => void)[] = [];
-		private readonly markedResolveFns: (() => void)[] = [];
-		private readonly affectedResolveFns: (() => void)[] = [];
-		private readonly finishedResolveFns: (() => void)[] = [];
-		private nextVerificationTimeout: NodeJS.Timeout | null = null;
+		private checkAsyncTimeoutId = -1;
 		
 		/**
 		 * @internal
 		 */
-		markPhrase(target: Phrase)
+		uncheckDocument(document: Document)
 		{
-			this.markedPhrases.add(target);
-			this.markedDocuments.maybeAdd(target.containingDocument);
-		}
-		
-		/**
-		 * @internal
-		 * Removes the specified Phrase from the verification queue.
-		 * 
-		 * @returns A boolean value indicating whether the phrase
-		 * was in the verification queue before being removed.
-		 */
-		unmarkPhrase(target: Phrase)
-		{
-			this.markedPhrases.delete(target);
-			this.markedDocuments.maybeDelete(target.containingDocument);
-		}
-		
-		/**
-		 * Stores an unsorted set of Phrases associated with any document
-		 * in the program that have been queued for verification.
-		 */
-		private readonly markedPhrases = new Set<Phrase>();
-		
-		/**
-		 * 
-		 */
-		private readonly markedDocuments = new ReferenceCountedSet<Document>();
-		
-		//# Lookup  related members
-		
-		/**
-		 * 
-		 */
-		lookup(keyword: string)
-		{
-			return Type.lookup(keyword, this);
-		}
-		
-		/**
-		 * Iterates through all types defined within this program.
-		 * 
-		 * @param minLevelFilter An optional minimum level of depth
-		 * (inclusive) at which to yield types.
-		 * @param maxLevelFilter An optional The maximum level of
-		 * depth (inclusive) at which to yield types. Negative numbers
-		 * indicate no maximum.
-		 * @param documentFilter An optional document, or set of
-		 * documents whose types should be yielded.
-		 */
-		*scan(
-			minLevelFilter = 1,
-			maxLevelFilter = -1,
-			documentFilter?: Document | readonly Document[])
-		{
-			if (maxLevelFilter < 0)
-				maxLevelFilter = Number.MAX_SAFE_INTEGER;
+			this.uncheckedDocuments.add(document.id);
+			this.emit("documentUnchecked", document);
 			
-			if (maxLevelFilter < minLevelFilter)
-				return;
-			
-			const documents: readonly Document[] = 
-				documentFilter instanceof Document ? [documentFilter] :
-				Array.isArray(documentFilter) ? documentFilter :
-				Array.from(this.eachDocument());
-			
-			// Optimization
-			if (minLevelFilter === 1 && maxLevelFilter === 1)
+			for (const dep of document.traverseDependents())
 			{
-				for (const document of documents)
-					for (const type of document.types)
-						yield { type, document };
-				
-				return;
-			}
-			
-			for (const document of documents)
-			{
-				const queue = document.types.slice();
-				
-				for (const type of queue)
-				{
-					if (type.level <= maxLevelFilter)
-						queue.push(...type.containees);
-					
-					if (minLevelFilter <= type.level)
-						yield { type, document };
-				}
+				this.uncheckedDocuments.add(dep.id);
+				this.emit("documentUnchecked", dep);
 			}
 		}
 		
 		/**
-		 * Recurses through all documents loaded into this program,
-		 * in topological order.
+		 * Gets whether the specified document has unchecked information
+		 * and is in need of a correctness check.
 		 */
-		private *eachDocument()
+		isUnchecked(document: Document)
 		{
-			const visited = new Set<Document>();
-			
-			function *recurse(doc: Document): IterableIterator<Document>
-			{
-				for (const dep of doc.dependencies)
-				{
-					if (!(visited.has(dep)))
-					{
-						visited.add(dep);
-						yield *recurse(dep)
-					}
-				}
-				
-				yield doc;
-			}
-			
-			for (const doc of this._documents)
-				yield *recurse(doc);
+			return this.uncheckedDocuments.has(document.id);
 		}
+		
+		/**
+		 * Stores the IDs of documents that are currently in an unchecked state.
+		 */
+		private readonly uncheckedDocuments = new Set<number>();
 		
 		//# Event related members
 		
@@ -943,6 +1071,19 @@ namespace Truth
 			eventName: K,
 			handler: ProgramEventMap[K]): ProgramEventMap[K]
 		{
+			this.handlers.add(eventName, handler);
+			return handler;
+		}
+		
+		/**
+		 * Attaches a callback function that will be only be called once,
+		 * in response to the next occurence of the specified program event.
+		 */
+		once<K extends keyof ProgramEventMap>(
+			eventName: K,
+			handler: ProgramEventMap[K]): ProgramEventMap[K]
+		{
+			this.handlersOnce.add(handler);
 			this.handlers.add(eventName, handler);
 			return handler;
 		}
@@ -980,17 +1121,68 @@ namespace Truth
 		
 		/**
 		 * @internal
-		 * Emits an event with the specified parameters to all callback functions
-		 * attached to this Program instance via the on() method.
+		 * Emits an event with the specified parameters to all callback
+		 * functions attached to this Program instance via the on() method.
+		 * 
+		 * @returns A promise that resolves when all event handlers have
+		 * completed.
 		 */
 		emit<K extends keyof ProgramEventMap>(
 			eventName: K,
-			...params: Parameters<ProgramEventMap[K]>)
+			...params: Parameters<ProgramEventMap[K]>): Promise<void>
 		{
 			const functions = this.handlers.get(eventName);
-			if (functions)
-				for (const fn of functions)
-					setTimeout(fn, 0, ...params);
+			if (!functions || functions.length === 0)
+				return Promise.resolve();
+			
+			const stored = functions.slice();
+			this.outstandingEmits++;
+			
+			return new Promise(resolve =>
+			{
+				setTimeout(() =>
+				{
+					for (const fn of stored)
+					{
+						fn(...params);
+						this.handlersOnce.delete(fn);
+					}
+					
+					if (this.outstandingEmits < 2)
+					{
+						this.outstandingEmits = 0;
+						const queue = this.waitQueue.slice();
+						this.waitQueue.length = 0;
+						
+						for (const fn of queue)
+							fn();
+					}
+					else this.outstandingEmits--;
+					
+					resolve();
+				});
+			});
+		}
+		
+		private outstandingEmits = 0;
+		private readonly waitQueue: (() => void)[] = [];
+		
+		/**
+		 * Returns a promise that resolves when all program event handlers
+		 * have returned.
+		 */
+		async wait(): Promise<void>
+		{
+			return this.outstandingEmits > 0 ?
+				new Promise(r => this.waitQueue.push(r)) :
+				Promise.resolve();
+		}
+		
+		/** @internal */
+		hasHandlers(eventName: keyof ProgramEventMap)
+		{
+			const handlers = this.handlers.get(eventName);
+			return !!handlers && handlers.length > 0;
 		}
 		
 		/**
@@ -998,5 +1190,18 @@ namespace Truth
 		 * keyed by the name of the event to which the handler is attached.
 		 */
 		private readonly handlers = new MultiMap<string, (...args: any[]) => void>();
+		
+		/**
+		 * Stores the handlers that have been attached via the .once() method.
+		 */
+		private readonly handlersOnce = new WeakSet<(...args: any[]) => void>();
 	}
+	
+	/** 
+	 * Whether or not the window.requestAnimationFrame() method is available
+	 * in the host JavaScript environment.
+	 */
+	const hasRaf = 
+		typeof window === "object" &&
+		typeof window.requestAnimationFrame === "function";
 }

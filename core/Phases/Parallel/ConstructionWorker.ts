@@ -14,9 +14,7 @@ namespace Truth
 	export class ConstructionWorker
 	{
 		/** */
-		constructor(
-			private readonly program: Program,
-			private readonly phraseProvider: PhraseProvider)
+		constructor(private readonly program: Program)
 		{
 			this.cruft = new CruftCache(this.program);
 		}
@@ -31,11 +29,12 @@ namespace Truth
 			if (this.excavated.has(from.id))
 				return;
 			
-			this.excavated.add(from.id);
 			const queue: ExplicitParallel[] = [];
 			
 			if (from instanceof Document)
 			{
+				this.excavated.add(from.id, from);
+				
 				for (const phrase of Phrase.rootsOf(from))
 				{
 					const drilledParallel = this.drillSafely(phrase);
@@ -43,17 +42,22 @@ namespace Truth
 						queue.push(drilledParallel);
 				}
 			}
-			else for (const currentParallel of queue)
+			else
 			{
-				for (const phrases of currentParallel.phrase.peekMany())
+				this.excavated.add(from.id, from.document);
+				
+				for (const currentParallel of queue)
 				{
-					if (phrases.length > 1)
-						throw Exception.unexpectedHomograph();
-					
-					const phrase = phrases[0];
-					const drilledParallel = this.drillSafely(phrase);
-					if (drilledParallel !== null)
-						queue.push(drilledParallel);
+					for (const phrases of currentParallel.phrase.peekMany())
+					{
+						if (phrases.length > 1)
+							throw Exception.unexpectedHomograph();
+						
+						const phrase = phrases[0];
+						const drilledParallel = this.drillSafely(phrase);
+						if (drilledParallel !== null)
+							queue.push(drilledParallel);
+					}
 				}
 			}
 		}
@@ -87,7 +91,7 @@ namespace Truth
 				if (!this.parallels.has(phrase))
 					break;
 				
-				lastSeed = Not.undefined(this.parallels.get(phrase));
+				lastSeed = Not.null(this.parallels.get(phrase));
 				
 				if (++typeIdx >= directive.length)
 					return lastSeed;
@@ -225,7 +229,7 @@ namespace Truth
 			if (this.rakedParallels.has(srcParallel.id))
 				return;
 			
-			this.rakedParallels.add(srcParallel.id);
+			this.rakedParallels.add(srcParallel.id, srcParallel.document);
 			
 			// In the case when there are no annotations on the phrase,
 			// this means that we need to resort to using type inference
@@ -314,7 +318,7 @@ namespace Truth
 					if (this.handledForks.has(fork.id))
 						throw Exception.unknownState();
 					
-					this.handledForks.add(fork.id);
+					this.handledForks.add(fork.id, fork.predecessor.containingDocument);
 					break;
 				}
 			}
@@ -347,7 +351,7 @@ namespace Truth
 						// of faults. It could still have another fault on it, just one that was added
 						// by some other means. "Handled" is only used to determine if we need
 						// to report an unresolved annotation fault.
-						this.handledForks.add(fork.id);
+						this.handledForks.add(fork.id, fork.predecessor.containingDocument);
 						break;
 					}
 				}
@@ -386,7 +390,7 @@ namespace Truth
 			if (this.rakedParallels.has(patternParallel.id))
 				return;
 			
-			this.rakedParallels.add(patternParallel.id);
+			this.rakedParallels.add(patternParallel.id, patternParallel.document);
 			
 			const bases = new Map<ExplicitParallel, Fork>();
 			const obs = patternParallel.phrase.outbounds;
@@ -672,7 +676,7 @@ namespace Truth
 		 */
 		private descendOne(zenith: Parallel, targetSubject: Subject)
 		{
-			const nextPhrases = this.phraseProvider.forward(zenith, targetSubject);
+			const nextPhrases = this.program.phrases.forward(zenith, targetSubject);
 			
 			if (nextPhrases.length === 0)
 				throw Exception.unknownState();
@@ -714,28 +718,13 @@ namespace Truth
 		}
 		
 		/**
-		 * Resets all memory within this ConstructionWorker instance.
-		 */
-		reset()
-		{
-			this.excavated.clear();
-			this.cruft.clear();
-			this.parallels.clear();
-			this.handledForks.clear();
-			this.rakedParallels.clear();
-			
-			// Safety
-			this.drillQueue.clear();
-		}
-		
-		/**
 		 * Stores the IDs of the ExplicitParallels and Documents that have been
 		 * fully excavated.
 		 */
-		private readonly excavated = new Set<number>();
+		private readonly excavated = new ContingentSet(this.program);
 		
 		/** */
-		private readonly parallels = new ParallelCache();
+		private readonly parallels = new ParallelCache(this.program);
 		
 		/**
 		 * Stores the IDs that correspond to the Parallel instances that 
@@ -745,12 +734,12 @@ namespace Truth
 		 * This set may include the IDs of both pattern and non-pattern Parallels,
 		 * (even though their raking processes are completely different).
 		 */
-		private readonly rakedParallels = new Set<number>();
+		private readonly rakedParallels = new ContingentSet(this.program);
 		
 		/**
 		 * 
 		 */
-		private readonly handledForks = new Set<number>();
+		private readonly handledForks = new ContingentSet(this.program);
 		
 		/** */
 		private readonly cruft: CruftCache;

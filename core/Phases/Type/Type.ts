@@ -4,17 +4,8 @@ namespace Truth
 	/**
 	 * A class that represents a fully constructed type within the program.
 	 */
-	export class Type
+	export class Type extends AbstractClass
 	{
-		/**
-		 * @internal
-		 */
-		static lookup(name: string, program: Program)
-		{
-			const context = this.contexts.get(program);
-			return context?.typesForTerms.get(name.toLocaleLowerCase()) || [];
-		}
-		
 		/** 
 		 * @internal
 		 * Constructs one or more Type objects from the specified location.
@@ -30,8 +21,8 @@ namespace Truth
 			if (existingType.seed)
 				return existingType;
 			
-			const context = this.getContext(phrase);
-			const parallel = context.worker.drill(phrase);
+			const program = phrase.containingDocument.program;
+			const parallel = program.worker.drill(phrase);
 			
 			// The drilling procedure can return a null value for the parallel
 			// if an attempt is made to dril into some non-existent location
@@ -117,18 +108,27 @@ namespace Truth
 				if (type.keywords.some(key => key.word === type.name))
 					type.flags |= Flags.isRefinement;
 				
-				if (phrase.containingDocument.isVolatile)
-					type.flags |= Flags.isVolatile;
+				const volatile = type.document.isVolatile;
 				
-				if (!type.isVolatile)
+				for (const sup of type._supers)
 				{
-					for (const base of type._supers)
-						context.subs.add(base, type);
+					if (sup.document === type.document)
+						sup.subsLocal.push(type);
 					
-					for (const parallel of type._supervisors)
-						context.subvisors.add(parallel, type);
+					else if (!volatile)
+						program.setForeignSuper(sup, type);
 				}
 				
+				for (const supervisor of type._supervisors)
+				{
+					if (supervisor.document === type.document)
+						supervisor.subvisorsLocal.push(type);
+					
+					else if (!volatile)
+						program.setForeignSupervisor(supervisor, type);
+				}
+				
+				program.addType(type, phrase.id);
 				lastType = type;
 			}
 			
@@ -149,52 +149,26 @@ namespace Truth
 		 */
 		private static fromPhrase(phrase: Phrase)
 		{
-			const context = this.getContext(phrase);
-			return context.typesForPhrases.get(phrase) || (() =>
-			{
-				const type = new Type(phrase);
-				context.typesForPhrases.set(phrase, type);
-				return type;
-			})();
-		}
-		
-		/** 
-		 * 
-		 */
-		private static getContext(fromPhrase: Phrase)
-		{
-			const program = fromPhrase.containingDocument.program;
-			let context = this.contexts.get(program);
+			const doc = phrase.containingDocument;
+			const existing = doc.program.getType(doc, phrase.id);
+			if (existing)
+				return existing;
 			
-			if (context === undefined)
-			{
-				context = new Context(program);
-				this.contexts.set(program, context);
-			}
-			else if (program.version.newerThan(context.version))
-			{
-				context.reset();
-			}
-			
-			return context;
+			const type = new Type(phrase);
+			doc.program.addType(type, phrase.id);
+			return type;
 		}
-		
-		/** */
-		private static contexts = new WeakMap<Program, Context>();
 		
 		/** */
 		private constructor(phrase: Phrase)
 		{
-			this.phrase = phrase;
+			super();
 			this.name = phrase.terminal.toString();
-			
-			this.context = Type.getContext(phrase);
-			const term = this.name.toLocaleLowerCase();
-			this.context.typesForTerms.add(term, this);
+			this.phrase = phrase;
 		}
 		
 		/** @internal */
-		private readonly context: Context;
+		readonly class = Class.type;
 		
 		/**
 		 * Stores a text representation of the name of the type,
@@ -215,6 +189,14 @@ namespace Truth
 		 * it can be assumed that the type has not been compiled.
 		 */
 		private seed: Parallel | null = null;
+		
+		/**
+		 * Gets the document in which this type is defined.
+		 */
+		get document()
+		{
+			return this.phrase.containingDocument;
+		}
 		
 		/**
 		 * Gets an array of Statement objects that are responsible
@@ -288,7 +270,7 @@ namespace Truth
 				return this._containees;
 			
 			const seed = this.guard();
-			const phrases = Type.getContext(this.phrase).phrases;
+			const phrases = this.phrase.containingDocument.program.phrases;
 			const innerSubjects = new Set<Subject>();
 			
 			// Dig through the parallel graph recursively, and at each parallel,
@@ -360,17 +342,18 @@ namespace Truth
 		 * @throws An exception when the containing program
 		 * has unverified information.
 		 */
-		get subs(): readonly Type[]
+		*eachSub()
 		{
 			this.guard();
-			if (this._subs)
-				return this._subs;
 			
-			const ctx = Type.getContext(this.phrase);
-			const subs = ctx.subs.get(this);
-			return this._subs = subs ? Array.from(subs) : [];
+			for (const sub of this.subsLocal)
+				yield sub;
+			
+			const p = this.document.program;
+			for (const sub of p.getForeignTypesReferencingTypeAsSuper(this))
+				yield sub;
 		}
-		private _subs: readonly Type[] | null = null;
+		private readonly subsLocal: Type[] = [];
 		
 		/**
 		 * Gets a reference to the parallel roots of this type.
@@ -410,17 +393,18 @@ namespace Truth
 		 * @throws An exception when the containing program
 		 * has unverified information.
 		 */
-		get subvisors()
+		*eachSubvisor()
 		{
 			this.guard();
-			if (this._subvisors)
-				return this._subvisors;
 			
-			const ctx = Type.getContext(this.phrase);
-			const subvisors = ctx.subvisors.get(this);
-			return this._subvisors = subvisors ? Array.from(subvisors) : [];
+			for (const subvisor of this.subvisorsLocal)
+				yield subvisor;
+			
+			const p = this.document.program;
+			for (const sub of p.getForeignTypesReferencingTypeAsSupervisor(this))
+				yield sub;
 		}
-		private _subvisors: readonly Type[] = [];
+		private readonly subvisorsLocal: Type[] = [];
 		
 		/**
 		 * Gets an array that contains the Types that share the same 
@@ -676,22 +660,7 @@ namespace Truth
 		/** */
 		get isUri() { return (this.flags & Flags.isUri) === Flags.isUri; }
 		
-		/**
-		 * Gets whether the compiler will maintain a long-lived reference to this type.
-		 */
-		get isVolatile() { return (this.flags & Flags.isVolatile) === Flags.isVolatile; }
-		
 		private flags = 0;
-		
-		/**
-		 * Gets a boolean value that indicates whether this Type
-		 * instance was created from a previous edit frame, and
-		 * should no longer be used.
-		 */
-		get isDirty()
-		{
-			return this.context.program.version.newerThan(this.context.version);
-		}
 		
 		/**
 		 * Performs an arbitrary recursive, breadth-first traversal
@@ -888,9 +857,6 @@ namespace Truth
 			if (!this.seed)
 				throw Exception.unknownState();
 			
-			if (this.isDirty)
-				throw Exception.typeDirty(this);
-			
 			return this.seed;
 		}
 	}
@@ -962,7 +928,6 @@ namespace Truth
 		isAnonymous = 16,
 		isPattern = 32,
 		isUri = 64,
-		isRefinement = 128,
-		isVolatile = 256
+		isRefinement = 128
 	}
 }

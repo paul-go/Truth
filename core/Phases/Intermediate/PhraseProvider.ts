@@ -23,6 +23,13 @@ namespace Truth
 	 */
 	export class PhraseProvider
 	{
+		/** */
+		constructor(program: Program)
+		{
+			this.hypotheticalPhrases = new ContingentMap(program);
+			this.hypotheticalSubjects = new ContingentMap(program);
+		}
+		
 		/**
 		 * Returns a reference to the phrases that are extended by the subject specified.
 		 * In the case when such a phrase has not been added to the internal forwarding
@@ -45,8 +52,20 @@ namespace Truth
 				return [existingHypothetical];
 			
 			const created = Phrase.createHypothetical(target.phrase, subject);
-			this.hypotheticalPhrases.set(hash, created);
-			this.hypotheticalSubjects.add(target.phrase.id, subject);
+			const doc = target.document;
+			this.hypotheticalPhrases.set(hash, created, doc);
+			
+			const id = target.phrase.id;
+			const contents = this.hypotheticalSubjects.get(id);
+			
+			if (Array.isArray(contents))
+				contents.push(subject);
+			
+			else if (contents === null)
+				this.hypotheticalSubjects.set(id, subject, doc);
+			
+			else
+				this.hypotheticalSubjects.set(id, [contents, subject], doc);
 			
 			return [created];
 		}
@@ -67,22 +86,20 @@ namespace Truth
 			
 			const hypotheticals = this.hypotheticalSubjects.get(target.phrase.id);
 			if (hypotheticals)
-				for (const subject of hypotheticals)
-					if (!yielded.has(subject))
-						yield subject;
+			{
+				if (Array.isArray(hypotheticals))
+				{
+					for (const subject of hypotheticals)
+						if (!yielded.has(subject))
+							yield subject;
+				}
+				else yield hypotheticals;
+			}
 		}
 		
 		/**
-		 * Erases the contents of this PhraseProvider.
-		 */
-		reset()
-		{
-			this.hypotheticalPhrases.clear();
-			this.hypotheticalSubjects.clear();
-		}
-		
-		/**
-		 * Creates a JavaScript-compatible hash value.
+		 * Creates a JavaScript-compatible hash value composed from
+		 * a Parallel and a Subject.
 		 */
 		private createHash(target: Parallel, subject: Subject)
 		{
@@ -99,12 +116,20 @@ namespace Truth
 		 * This is a way of compressing what would otherwise have to be a 3-dimensional
 		 * data structure into a more efficient 2-dimensional map.
 		 */
-		private readonly hypotheticalPhrases = new Map<string | bigint, Phrase>();
+		private readonly hypotheticalPhrases: PhrasesMapType;
 		
 		/**
 		 * Stores a SetMap whose keys are a phrase's .id value, and whose values
-		 * are a set of the subjects that forward from the phrase.
+		 * are a set of the subjects that forward from the phrase, or a singlular subject
+		 * that forwards from the phrase in the case when there's only one. This is a
+		 * memory optimization, because in the vast majority of cases, there will only
+		 * be a single subject forwarding from a phrase (multiple subjects would indicate
+		 * a homograph). By avoiding boxing the Subject in an array, we can avoid 
+		 * unnecessary memory consumption (and therefore GC strain).
 		 */
-		private readonly hypotheticalSubjects = new SetMap<number, Subject>();
+		private readonly hypotheticalSubjects: SubjectsMapType;
 	}
+	
+	type PhrasesMapType = ContingentMap<string | bigint, Phrase>;
+	type SubjectsMapType = ContingentMap<number, Subject[] | Subject>;
 }

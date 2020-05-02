@@ -76,9 +76,9 @@ namespace Truth
 		}
 		
 		/** */
-		static scriptsAreImmutable()
+		static documentImmutable()
 		{
-			return error(`Cannot call this method on a document generated from a script.`);
+			return error(`Cannot call this method on this document because it is immutable.`);
 		}
 		
 		/** */

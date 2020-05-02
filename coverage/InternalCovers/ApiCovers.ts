@@ -1,6 +1,7 @@
 
 namespace CoverTruth
 {
+	/** */
 	export async function coverTypeApiExplicitStatements()
 	{
 		const [doc, program] = await createLanguageCover(`
@@ -22,6 +23,7 @@ namespace CoverTruth
 		];
 	}
 	
+	/** */
 	export async function coverTypeApiImplicitStatements()
 	{
 		const [doc, program] = await createLanguageCover(`

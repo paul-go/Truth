@@ -2,18 +2,6 @@
 namespace Truth
 {
 	/**
-	 * Options object passed to the Program constructor.
-	 */
-	export interface IProgramOptions
-	{
-		/**
-		 * A boolean value that indicates whether or not verifications
-		 * occur automatically after modifications to the program.
-		 */
-		autoVerify?: boolean;
-	}
-	
-	/**
 	 * An enumeration that refers to the stages of a Program's verification cycle.
 	 */
 	export const enum VerificationStage
