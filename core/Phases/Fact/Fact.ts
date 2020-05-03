@@ -368,7 +368,7 @@ namespace Truth
 			this.guard();
 			
 			const chiefs: Fact[] = [];
-			for (const { fact } of this.iterate(t => t.supervisors))
+			for (const { fact } of this.iterate(f => f.supervisors))
 				if (fact !== this && fact.supervisors.length === 0)
 					chiefs.push(fact);
 			
@@ -419,14 +419,14 @@ namespace Truth
 			this.guard();
 			
 			if (this.container)
-				return this._adjacents = this.container.containees.filter(t => t !== this);
+				return this._adjacents = this.container.containees.filter(f => f !== this);
 			
 			const document = this.phrase.containingDocument;
 			const roots = Array.from(Phrase.rootsOf(document));
 			
 			const adjacents = roots
 				.map(phrase => Fact.construct(phrase))
-				.filter((t): t is Fact => t !== null && t !== this);
+				.filter((f): f is Fact => f !== null && f !== this);
 			
 			return this._adjacents = Object.freeze(adjacents);
 		}
@@ -475,7 +475,7 @@ namespace Truth
 			// that matches a particular set of Facts in scope.
 			const patternMap = new Map<string, Fact>();
 			
-			for (const { fact } of this.iterate(t => t.container))
+			for (const { fact } of this.iterate(f => f.container))
 			{
 				const applicablePatternFacts = fact.adjacents
 					.filter(f => f.isPattern)
@@ -762,7 +762,7 @@ namespace Truth
 		 */
 		is(baseFact: Fact)
 		{
-			for (const { fact } of this.iterate(t => t.supers))
+			for (const { fact } of this.iterate(f => f.supers))
 				if (fact === baseFact)
 					return true;
 			
@@ -781,7 +781,7 @@ namespace Truth
 			
 			for (const innerFact of this.containees)
 				if (fact.name === innerFact.name)
-					for (const parallel of innerFact.iterate(t => t.supervisors))
+					for (const parallel of innerFact.iterate(f => f.supervisors))
 						if (parallel.fact === fact)
 							return true;
 			

@@ -318,7 +318,7 @@ namespace Truth
 		{
 			const smt = this.toStatement(statement);
 			
-			// If the statement is root-level, it can't have an ancestry.
+			// If the statement is surface-level, it can't have an ancestry.
 			if (smt.indent === 0)
 				return [];
 			
@@ -367,7 +367,7 @@ namespace Truth
 			if (smt.isNoop)
 				return null;
 			
-			// If the statement is root-level, it can't have a parent.
+			// If the statement is surface-level, it can't have a parent.
 			if (smt.indent === 0)
 				return this;
 			
