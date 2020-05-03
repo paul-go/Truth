@@ -1,6 +1,6 @@
 // 
 // This example demonstrates a fault being generated
-// as a result of the same type existing on both sides
+// as a result of the same term existing on both sides
 // of the joint of an infix.
 // 
 

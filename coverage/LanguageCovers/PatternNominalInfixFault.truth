@@ -1,6 +1,6 @@
 //
 // This example demonstrates a fault being generated due to
-// an alias being used in the place where an actual type name
+// an alias being used in the place where an actual fact name
 // is expected, as a result of the use of a nominal infix.
 //
 

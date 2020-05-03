@@ -2,24 +2,24 @@
 namespace Truth
 {
 	/**
-	 * A class that represents a fully constructed type within the program.
+	 * A class that represents a fully constructed Fact within the program.
 	 */
-	export class Type extends AbstractClass
+	export class Fact extends AbstractClass
 	{
 		/** 
 		 * @internal
-		 * Constructs one or more Type objects from the specified location.
+		 * Constructs one or more Fact objects from the specified location.
 		 */
-		static construct(phrase: Phrase): Type | null
+		static construct(phrase: Phrase): Fact | null
 		{
 			if (!phrase || phrase.length === 0)
 				return null;
 			
-			// If the cached type exists, but hasn't been compiled yet,
+			// If the cached fact exists, but hasn't been compiled yet,
 			// we can't return it, we need to compile it first.
-			const existingType = this.fromPhrase(phrase);
-			if (existingType.seed)
-				return existingType;
+			const existingFact = this.fromPhrase(phrase);
+			if (existingFact.seed)
+				return existingFact;
 			
 			const program = phrase.containingDocument.program;
 			const parallel = program.worker.drill(phrase);
@@ -38,14 +38,14 @@ namespace Truth
 				currentParallel = currentParallel.container;
 			}
 			
-			let lastType: Type | null = null;
+			let lastFact: Fact | null = null;
 			
 			for (const seed of parallelContainment)
 			{
-				const type = this.fromPhrase(seed.phrase);
-				if (type.seed)
+				const fact = this.fromPhrase(seed.phrase);
+				if (fact.seed)
 				{
-					lastType = type;
+					lastFact = fact;
 					continue;
 				}
 				
@@ -53,16 +53,16 @@ namespace Truth
 				// This area of the function can cause recursion,
 				// feeding back into this method.
 				
-				type.seed = seed;
-				type._container = lastType;
+				fact.seed = seed;
+				fact._container = lastFact;
 				
-				// Optimization: surface-level types do not have supervisors
-				if (lastType)
-					type._supervisors = findSupervisors(seed);
+				// Optimization: surface-level facts do not have supervisors
+				if (lastFact)
+					fact._supervisors = findSupervisors(seed);
 				
 				if (seed instanceof ExplicitParallel)
 				{
-					type._supers = this.basesOf(seed);
+					fact._supers = this.basesOf(seed);
 				}
 				else if (seed instanceof ImplicitParallel)
 				{
@@ -79,7 +79,7 @@ namespace Truth
 							explicitParallels.push(current);
 					}
 					
-					type._supers = explicitParallels
+					fact._supers = explicitParallels
 						.map(par => this.basesOf(par))
 						.reduce((a, b) => a.concat(b), [])
 						.filter((v, i, a) => a.indexOf(v) === i);
@@ -91,72 +91,72 @@ namespace Truth
 					const sub = seed.phrase.terminal;
 					
 					if (sub instanceof Pattern)
-						type.flags |= Flags.isPattern;
+						fact.flags |= Flags.isPattern;
 					
 					else if (sub instanceof KnownUri)
-						type.flags |= Flags.isUri;
+						fact.flags |= Flags.isUri;
 					
 					else if (sub === Term.anonymous)
-						type.flags |= Flags.isAnonymous;
+						fact.flags |= Flags.isAnonymous;
 					
 					if (seed.getParallels().length === 0)
-						type.flags |= Flags.isFresh;
+						fact.flags |= Flags.isFresh;
 					
-					type.flags |= Flags.isExplicit;
+					fact.flags |= Flags.isExplicit;
 				}
 				
-				if (type.keywords.some(key => key.word === type.name))
-					type.flags |= Flags.isRefinement;
+				if (fact.keywords.some(key => key.word === fact.name))
+					fact.flags |= Flags.isRefinement;
 				
-				const volatile = type.document.isVolatile;
+				const volatile = fact.document.isVolatile;
 				
-				for (const sup of type._supers)
+				for (const sup of fact._supers)
 				{
-					if (sup.document === type.document)
-						sup.subsLocal.push(type);
+					if (sup.document === fact.document)
+						sup.subsLocal.push(fact);
 					
 					else if (!volatile)
-						program.setForeignSuper(sup, type);
+						program.setForeignSuper(sup, fact);
 				}
 				
-				for (const supervisor of type._supervisors)
+				for (const supervisor of fact._supervisors)
 				{
-					if (supervisor.document === type.document)
-						supervisor.subvisorsLocal.push(type);
+					if (supervisor.document === fact.document)
+						supervisor.subvisorsLocal.push(fact);
 					
 					else if (!volatile)
-						program.setForeignSupervisor(supervisor, type);
+						program.setForeignSupervisor(supervisor, fact);
 				}
 				
-				program.addType(type, phrase.id);
-				lastType = type;
+				program.addFact(fact, phrase.id);
+				lastFact = fact;
 			}
 			
-			return lastType;
+			return lastFact;
 		}
 		
 		/** */
 		private static basesOf(ep: ExplicitParallel)
 		{
 			const bases = Array.from(ep.eachBase());
-			return bases.map(entry => Type.fromPhrase(entry.base.phrase));
+			return bases.map(entry => Fact.fromPhrase(entry.base.phrase));
 		}
 		
 		/**
-		 * Returns the Type object that corresponds to the specified phrase,
-		 * or constructs a new type when no corresponding phrase object
+		 * Returns the Fact object that corresponds to the specified phrase,
+		 * or constructs a new fact when no corresponding phrase object
 		 * could be found.
 		 */
 		private static fromPhrase(phrase: Phrase)
 		{
 			const doc = phrase.containingDocument;
-			const existing = doc.program.getType(doc, phrase.id);
+			const existing = doc.program.getFact(doc, phrase.id);
 			if (existing)
 				return existing;
 			
-			const type = new Type(phrase);
-			doc.program.addType(type, phrase.id);
-			return type;
+			const fact = new Fact(phrase);
+			doc.program.addFact(fact, phrase.id);
+			return fact;
 		}
 		
 		/** */
@@ -168,30 +168,30 @@ namespace Truth
 		}
 		
 		/** @internal */
-		readonly class = Class.type;
+		readonly class = Class.fact;
 		
 		/**
-		 * Stores a text representation of the name of the type,
+		 * Stores a text representation of the name of the Fact,
 		 * or a serialized version of the pattern content in the
-		 * case when the type is actually a pattern.
+		 * case when the Fact is actually a pattern.
 		 */
 		readonly name: string;
 		
 		/**
-		 * Stores the phrase that specifies where this Type was
+		 * Stores the phrase that specifies where this Fact was
 		 * found in the document.
 		 */
 		private readonly phrase: Phrase;
 		
 		/**
 		 * Stores the seed Parallel that is the primary source of information
-		 * for the construction of this type. In the case when this field is null,
-		 * it can be assumed that the type has not been compiled.
+		 * for the construction of this Fact. In the case when this field is null,
+		 * it can be assumed that the Fact has not been compiled.
 		 */
 		private seed: Parallel | null = null;
 		
 		/**
-		 * Gets the document in which this type is defined.
+		 * Gets the document in which this Fact is defined.
 		 */
 		get document()
 		{
@@ -200,7 +200,7 @@ namespace Truth
 		
 		/**
 		 * Gets an array of Statement objects that are responsible
-		 * for the initiation of this type. In the case when this Type
+		 * for the initiation of this Fact. In the case when this Fact
 		 * object represents a path that is implicitly defined, the
 		 * array is empty. For example, given the following document:
 		 * 
@@ -210,8 +210,8 @@ namespace Truth
 		 * SubClass : Class
 		 * ```
 		 * 
-		 * The type at path SubClass/Field is an implicit type, and
-		 * therefore, although a valid type object, has no phyisical
+		 * The Fact at path SubClass/Field is an implicit Fact, and
+		 * therefore, although a valid Fact object, has no phyisical
 		 * statements associated.
 		 */
 		get statements()
@@ -240,8 +240,8 @@ namespace Truth
 		private _spans: readonly Span[] | null = null;
 		
 		/**
-		 * Gets the level of containment of this type. 
-		 * Types defined at the top of a document have a level of 1.
+		 * Gets the level of containment of this Fact. 
+		 * Facts defined at the top of a document have a level of 1.
 		 */
 		get level()
 		{
@@ -249,20 +249,20 @@ namespace Truth
 		}
 		
 		/**
-		 * Gets the Type that contains this Type, or null in
-		 * the case when this Type is surface-level.
+		 * Gets the Fact that contains this Fact, or null in
+		 * the case when this Fact is surface-level.
 		 */
-		get container(): Type | null
+		get container(): Fact | null
 		{
 			this.guard();
 			return this._container;
 		}
-		private _container: Type | null = null;
+		private _container: Fact | null = null;
 		
 		/**
-		 * Gets the array of types that are contained directly by this
-		 * one. In the case when this type is a list type, this array does
-		 * not include the list's intrinsic types.
+		 * Gets the array of Facts that are contained directly by this
+		 * one. In the case when this Fact is a list, the array does
+		 * not include the list's intrinsic Facts.
 		 */
 		get containees()
 		{
@@ -276,38 +276,38 @@ namespace Truth
 			// Dig through the parallel graph recursively, and at each parallel,
 			// dig through the base graph recursively, and collect all the names
 			// that are found.
-			for (const { type: parallelType } of this.iterate(t => t.supervisors, true))
+			for (const { fact: parallelFact } of this.iterate(f => f.supervisors, true))
 			{
-				for (const { type: superType } of parallelType.iterate(t => t.supers, true))
+				for (const { fact: superFact } of parallelFact.iterate(f => f.supers, true))
 				{
-					// superType should always be seeded, however these checks
+					// superFact should always be seeded, however these checks
 					// are in place to guard against any possibility of this not being
 					// the case.
-					let sup: Type | null = superType;
+					let sup: Fact | null = superFact;
 					if (!sup.seed)
-						sup = Type.construct(superType.phrase);
+						sup = Fact.construct(superFact.phrase);
 					
 					if (!sup)
 						continue;
 					
-					if (superType.seed instanceof ExplicitParallel)
-						for (const subject of phrases.peekSubjects(superType.seed))
+					if (superFact.seed instanceof ExplicitParallel)
+						for (const subject of phrases.peekSubjects(superFact.seed))
 							innerSubjects.add(subject);
 				}
 			}
 			
-			const innerTypes = Array.from(innerSubjects)
+			const innerFacts = Array.from(innerSubjects)
 				.flatMap(subject => phrases.forward(seed, subject))
-				.map(phrase => Type.construct(phrase))
-				.filter((t): t is Type => t !== null);
+				.map(phrase => Fact.construct(phrase))
+				.filter((t): t is Fact => t !== null);
 			
-			return this._containees = Object.freeze(innerTypes);
+			return this._containees = Object.freeze(innerFacts);
 		}
-		private _containees: readonly Type[] | null = null;
+		private _containees: readonly Fact[] | null = null;
 		
 		/**
-		 * Gets the array of types that are contained directly by this
-		 * one. In the case when this type is not a list type, this array
+		 * Gets the array of Facts that are contained directly by this
+		 * one. In the case when this Fact is not a list, the array
 		 * is empty.
 		 */
 		get containeesIntrinsic()
@@ -321,22 +321,22 @@ namespace Truth
 			this.guard();
 			throw Exception.notImplemented();
 		}
-		private _containeesIntrinsic: readonly Type[] | null = null;
+		private _containeesIntrinsic: readonly Fact[] | null = null;
 		
 		/**
-		 * Gets the array of types from which this type extends.
-		 * If this Type extends from a pattern, it is included in this
+		 * Gets the array of Facts from which this Fact extends.
+		 * If this Fact extends from a pattern, it is included in this
 		 * array.
 		 */
-		get supers(): readonly Type[]
+		get supers(): readonly Fact[]
 		{
 			this.guard();
 			return this._supers;
 		}
-		private _supers: readonly Type[] = [];
+		private _supers: readonly Fact[] = [];
 		
 		/**
-		 * Gets the array of types that extend from this one, either
+		 * Gets the array of Facts that extend from this one, either
 		 * through an explicit annotation, or an alias.
 		 * 
 		 * @throws An exception when the containing program
@@ -350,13 +350,13 @@ namespace Truth
 				yield sub;
 			
 			const p = this.document.program;
-			for (const sub of p.getForeignTypesReferencingTypeAsSuper(this))
+			for (const sub of p.getForeignFactsReferencingFactAsSuper(this))
 				yield sub;
 		}
-		private readonly subsLocal: Type[] = [];
+		private readonly subsLocal: Fact[] = [];
 		
 		/**
-		 * Gets a reference to the parallel roots of this type.
+		 * Gets a reference to the parallel roots of this Fact.
 		 * The parallel roots are the endpoints found when
 		 * traversing upward through the parallel graph.
 		 */
@@ -367,28 +367,28 @@ namespace Truth
 			
 			this.guard();
 			
-			const chiefs: Type[] = [];
-			for (const { type } of this.iterate(t => t.supervisors))
-				if (type !== this && type.supervisors.length === 0)
-					chiefs.push(type);
+			const chiefs: Fact[] = [];
+			for (const { fact } of this.iterate(t => t.supervisors))
+				if (fact !== this && fact.supervisors.length === 0)
+					chiefs.push(fact);
 			
 			return this._chiefs = Object.freeze(chiefs);
 		}
-		private _chiefs: readonly Type[] | null = null;
+		private _chiefs: readonly Fact[] | null = null;
 		
 		/**
-		 * Gets a reference to the type, as it's defined in it's
-		 * next most applicable type.
+		 * Gets a reference to the Fact, as it's defined in it's
+		 * next most applicable Fact.
 		 */
 		get supervisors()
 		{
 			this.guard();
 			return this._supervisors;
 		}
-		private _supervisors: readonly Type[] = [];
+		private _supervisors: readonly Fact[] = [];
 		
 		/**
-		 * Gets the array of types that have this type as a supervisor.
+		 * Gets the array of Facts that have this Fact as a supervisor.
 		 * 
 		 * @throws An exception when the containing program
 		 * has unverified information.
@@ -401,14 +401,14 @@ namespace Truth
 				yield subvisor;
 			
 			const p = this.document.program;
-			for (const sub of p.getForeignTypesReferencingTypeAsSupervisor(this))
+			for (const sub of p.getForeignFactsReferencingFactAsSupervisor(this))
 				yield sub;
 		}
-		private readonly subvisorsLocal: Type[] = [];
+		private readonly subvisorsLocal: Fact[] = [];
 		
 		/**
-		 * Gets an array that contains the Types that share the same 
-		 * containing type (as represented in the .container property)
+		 * Gets an array that contains the Facts that share the same 
+		 * containing Fact (as represented in the .container property)
 		 * as this one.
 		 */
 		get adjacents()
@@ -425,12 +425,12 @@ namespace Truth
 			const roots = Array.from(Phrase.rootsOf(document));
 			
 			const adjacents = roots
-				.map(phrase => Type.construct(phrase))
-				.filter((t): t is Type => t !== null && t !== this);
+				.map(phrase => Fact.construct(phrase))
+				.filter((t): t is Fact => t !== null && t !== this);
 			
 			return this._adjacents = Object.freeze(adjacents);
 		}
-		private _adjacents: readonly Type[] | null = null;
+		private _adjacents: readonly Fact[] | null = null;
 		
 		/**
 		 * @internal
@@ -444,7 +444,7 @@ namespace Truth
 			throw Exception.notImplemented();
 			return this._superordinates = Object.freeze([]);
 		}
-		private _superordinates: readonly Type[] | null = null;
+		private _superordinates: readonly Fact[] | null = null;
 		
 		/**
 		 * @internal
@@ -458,10 +458,10 @@ namespace Truth
 			throw Exception.notImplemented();
 			return this._subordinates = Object.freeze([]);
 		}
-		private _subordinates: readonly Type[] | null = null;
+		private _subordinates: readonly Fact[] | null = null;
 		
 		/**
-		 * Gets an array that contains the patterns that resolve to this type.
+		 * Gets an array that contains the patterns that resolve to this Fact.
 		 */
 		get patterns()
 		{
@@ -470,41 +470,41 @@ namespace Truth
 			
 			// Stores a map whose keys are a concatenation of the Uris of all
 			// the bases that are matched by a particular pattern, and whose
-			// values are the type object containing that pattern. This map
+			// values are the Fact object containing that pattern. This map
 			// provides an easy way to determine if there is already a pattern
-			// that matches a particular set of types in the type scope.
-			const patternMap = new Map<string, Type>();
+			// that matches a particular set of Facts in scope.
+			const patternMap = new Map<string, Fact>();
 			
-			for (const { type } of this.iterate(t => t.container))
+			for (const { fact } of this.iterate(t => t.container))
 			{
-				const applicablePatternTypes = type.adjacents
-					.filter(t => t.isPattern)
-					.filter(t => t.supers.includes(type));
+				const applicablePatternFacts = fact.adjacents
+					.filter(f => f.isPattern)
+					.filter(f => f.supers.includes(fact));
 				
 				const applicablePatternsBasesLabels =
-					applicablePatternTypes.map(p => p.supers
+					applicablePatternFacts.map(p => p.supers
 						.map(b => b.phrase.toString())
 						.join(Syntax.terminal));
 				
-				for (let i = -1; ++i < applicablePatternTypes.length;)
+				for (let i = -1; ++i < applicablePatternFacts.length;)
 				{
 					const baseLabel = applicablePatternsBasesLabels[i];
 					if (!patternMap.has(baseLabel))
-						patternMap.set(baseLabel, applicablePatternTypes[i]);
+						patternMap.set(baseLabel, applicablePatternFacts[i]);
 				}
 			}
 			
 			const out = Array.from(patternMap.values());
 			return this._patterns = Object.freeze(out);
 		}
-		private _patterns: readonly Type[] | null = null;
+		private _patterns: readonly Fact[] | null = null;
 		
 		/**
 		 * Gets an array that contains the raw string values representing
-		 * the type aliases with which this type has been annotated.
+		 * the aliases with which this Fact has been annotated.
 		 * 
-		 * If this type is implicit, the parallel graph is searched, and any
-		 * applicable type aliases will be present in the returned array.
+		 * If this Fact is implicit, the parallel graph is searched, and any
+		 * applicable aliases will be present in the returned array.
 		 */
 		get aliases()
 		{
@@ -550,7 +550,7 @@ namespace Truth
 		
 		/**
 		 * Gets a table of information aobut the keywords that are 
-		 * associated with this type, in the order in which they occur
+		 * associated with this Fact, in the order in which they occur
 		 * within the document.
 		 */
 		get keywords()
@@ -561,20 +561,20 @@ namespace Truth
 			const keywords: Keyword[] = [];
 			const seed = this.guard();
 			
-			const extractType = (ep: ExplicitParallel) =>
+			const extractFact = (ep: ExplicitParallel) =>
 			{
 				for (const { base, fork, alias } of ep.eachBase())
 				{
 					const word = fork?.term.toString() || alias;
-					const baseType = Type.construct(base.phrase);
-					if (baseType)
-						keywords.push(new Keyword(word, baseType));
+					const baseFact = Fact.construct(base.phrase);
+					if (baseFact)
+						keywords.push(new Keyword(word, baseFact));
 				}
 			};
 			
 			if (seed instanceof ExplicitParallel)
 			{
-				extractType(seed);
+				extractFact(seed);
 			}
 			else if (seed instanceof ImplicitParallel)
 			{
@@ -587,7 +587,7 @@ namespace Truth
 					for (const parallel of current.getParallels())
 					{
 						if (parallel instanceof ExplicitParallel)
-							extractType(parallel);
+							extractFact(parallel);
 						
 						else if (parallel instanceof ImplicitParallel)
 							queue.push(parallel);
@@ -600,7 +600,7 @@ namespace Truth
 		private _keywords: readonly Keyword[] | null = null;
 		
 		/**
-		 * Gets a string representation of the entire annotation side of this type.
+		 * Gets a string representation of the entire annotation side of this Fact.
 		 */
 		get value()
 		{
@@ -620,41 +620,37 @@ namespace Truth
 		get isIntroduction() { return this.supervisors.length === 0; }
 		
 		/**
-		 * Gets whether this type is a _refinement_, which means that
-		 * it's name is also the name of one of the base types defined 
+		 * Gets whether this Fact is a _refinement_, which means that
+		 * it's name is also the name of one of the base Facts defined 
 		 * directly on it.
 		 */
 		get isRefinement() { return (this.flags & Flags.isRefinement) === Flags.isRefinement; }
 		
 		/**
-		 * Gets whether this type represents the intrinsic
-		 * side of a list.
+		 * Gets whether this Fact represents the intrinsic side of a list.
 		 */
 		get isListIntrinsic() { return (this.flags & Flags.isListIntrinsic) === Flags.isListIntrinsic; }
 		
 		/**
-		 * Gets whether this type represents the extrinsic
-		 * side of a list.
+		 * Gets whether this Fact represents the extrinsic side of a list.
 		 */
 		get isListExtrinsic() { return (this.flags & Flags.isListExtrinsic) === Flags.isListExtrinsic; }
 		
 		/**
-		 * Gets whether this Type instance has no annotations applied to it.
+		 * Gets whether this Fact instance has no annotations applied to it.
 		 */
 		get isFresh() { return (this.flags & Flags.isFresh) === Flags.isFresh; }
 		
 		/**
-		 * Gets whether this Type was directly specified in the document,
+		 * Gets whether this Fact was directly specified in the document,
 		 * or if it's existence was inferred.
 		 */
 		get isExplicit() { return (this.flags & Flags.isExplicit) === Flags.isExplicit; }
 		
-		/**
-		 * Gets whether this type is an anonymous type.
-		 */
+		/** Gets whether this Fact is anonymous (unnamed). */
 		get isAnonymous() { return (this.flags & Flags.isAnonymous) === Flags.isAnonymous; }
 		
-		/** Gets whether this type represents a pattern. */
+		/** Gets whether this Fact represents a pattern. */
 		get isPattern() { return (this.flags & Flags.isPattern) === Flags.isPattern; }
 		
 		/** */
@@ -664,76 +660,76 @@ namespace Truth
 		
 		/**
 		 * Performs an arbitrary recursive, breadth-first traversal
-		 * that begins at this Type instance. Ensures that no types
-		 * types are yielded multiple times.
+		 * that begins at this Fact instance. Ensures that Facts are
+		 * not yielded multiple times.
 		 * 
-		 * @param nextFn A function that returns a type, or an
-		 * iterable of types that are to be visited next.
+		 * @param nextFn A function that returns a Fact, or an
+		 * iterable of Facts that are to be visited next.
 		 * @param reverse An optional boolean value that indicates
-		 * whether types in the returned array should be sorted
+		 * whether Facts in the returned array should be sorted
 		 * with the most deeply visited nodes occuring first.
 		 * 
-		 * @returns An array that stores the list of types that were
+		 * @returns An array that stores the list of Facts that were
 		 * visited.
 		 */
-		visit(nextFn: (type: Type) => Iterable<Type | null> | Type | null, reverse?: boolean)
+		visit(nextFn: (fact: Fact) => Iterable<Fact | null> | Fact | null, reverse?: boolean)
 		{
-			return Array.from(this.iterate(nextFn, reverse)).map(entry => entry.type);
+			return Array.from(this.iterate(nextFn, reverse)).map(entry => entry.fact);
 		}
 		
 		/**
 		 * Performs an arbitrary recursive, breadth-first iteration
-		 * that begins at this Type instance. Ensures that no types
-		 * types are yielded multiple times.
+		 * that begins at this Fact instance. Ensures that no Facts
+		 * Facts are yielded multiple times.
 		 * 
-		 * @param nextFn A function that returns a type, or an iterable
-		 * of types that are to be visited next.
+		 * @param nextFn A function that returns a fact, or an iterable
+		 * of Facts that are to be visited next.
 		 * @param reverse An optional boolean value that indicates
-		 * whether the iterator should yield types starting with the
-		 * most deeply nested types first.
+		 * whether the iterator should yield Facts starting with the
+		 * most deeply nested objects first.
 		 * 
-		 * @yields An object that contains a `type` property that is the
-		 * the Type being visited, and a `via` property that is the Type
+		 * @yields An object that contains a `fact` property that is the
+		 * the Fact being visited, and a `via` property that is the Fact
 		 * that was returned in the previous call to `nextFn`.
 		 */
 		*iterate(
-			nextFn: (type: Type) => Iterable<Type | null> | Type | null,
+			nextFn: (fact: Fact) => Iterable<Fact | null> | Fact | null,
 			reverse?: boolean)
 		{
-			const yielded: Type[] = [];
-			const via: Type[] = [];
+			const yielded: Fact[] = [];
+			const via: Fact[] = [];
 			
-			type RecurseType = IterableIterator<{ type: Type; via: Type[]; }>;
-			function *recurse(type: Type): RecurseType
+			type RecurseType = IterableIterator<{ fact: Fact; via: Fact[]; }>;
+			function *recurse(fact: Fact): RecurseType
 			{
-				if (yielded.includes(type))
+				if (yielded.includes(fact))
 					return;
 				
 				if (!reverse)
 				{
-					yielded.push(type);
-					yield { type, via };
+					yielded.push(fact);
+					yield { fact, via };
 				}
 				
-				via.push(type);
+				via.push(fact);
 				
-				const reduced = nextFn(type);
+				const reduced = nextFn(fact);
 				if (reduced !== null && reduced !== undefined)
 				{
-					if (reduced instanceof Type)
+					if (reduced instanceof Fact)
 						return yield *recurse(reduced);
 					
-					for (const nextType of reduced)
-						if (nextType instanceof Type)
-							yield *recurse(nextType);
+					for (const nextFact of reduced)
+						if (nextFact instanceof Fact)
+							yield *recurse(nextFact);
 				}
 				
 				via.pop();
 				
 				if (reverse)
 				{
-					yielded.push(type);
-					yield { type, via };
+					yielded.push(fact);
+					yield { fact, via };
 				}
 			}
 			
@@ -741,52 +737,52 @@ namespace Truth
 		}
 		
 		/**
-		 * Queries for a Type that is nested underneath this Type,
-		 * at the specified type path.
+		 * Queries for a Fact that is submerged within this Fact,
+		 * at the specified fact path.
 		 */
-		query(...typePath: string[])
+		query(...factPath: string[])
 		{
-			let currentType: Type | null = null;
+			let currentFact: Fact | null = null;
 			
-			for (const typeName of typePath)
+			for (const factName of factPath)
 			{
-				const nextType = this.containees.find(type => type.name === typeName);
-				if (!nextType)
+				const nextFact = this.containees.find(f => f.name === factName);
+				if (!nextFact)
 					break;
 				
-				currentType = nextType;
+				currentFact = nextFact;
 			}
 			
-			return currentType;
+			return currentFact;
 		}
 		
 		/**
-		 * Checks whether this Type has the specified type
+		 * Checks whether this Fact has the specified Fact
 		 * somewhere in it's base graph.
 		 */
-		is(baseType: Type)
+		is(baseFact: Fact)
 		{
-			for (const { type } of this.iterate(t => t.supers))
-				if (type === baseType)
+			for (const { fact } of this.iterate(t => t.supers))
+				if (fact === baseFact)
 					return true;
 			
 			return false;
 		}
 		
 		/**
-		 * Checks whether the specified type is in this Type's
-		 * `.inners` property, either directly, or indirectly via
-		 * the parallel graphs of the `.inners` Types.
+		 * Checks whether the specified Fact is in this Fact's
+		 * `.containees` property, either directly, or indirectly via
+		 * the parallel graphs of the `.containees` Facts.
 		 */
-		has(type: Type)
+		has(fact: Fact)
 		{
-			if (this.containees.includes(type))
+			if (this.containees.includes(fact))
 				return true;
 			
-			for (const innerType of this.containees)
-				if (type.name === innerType.name)
-					for (const parallel of innerType.iterate(t => t.supervisors))
-						if (parallel.type === type)
+			for (const innerFact of this.containees)
+				if (fact.name === innerFact.name)
+					for (const parallel of innerFact.iterate(t => t.supervisors))
+						if (parallel.fact === fact)
 							return true;
 			
 			return false;
@@ -794,7 +790,7 @@ namespace Truth
 		
 		/**
 		 * Recursively invokes any fold() method provided by
-		 * computed types nested within this type.
+		 * computed Facts submerged within this Fact.
 		 */
 		fold()
 		{
@@ -802,7 +798,7 @@ namespace Truth
 		}
 		
 		/**
-		 * Returns a string representation of this type, suitable for
+		 * Returns a string representation of this Fact, suitable for
 		 * debugging purposes.
 		 */
 		toString(kind: "path" | "full" = "path")
@@ -812,7 +808,7 @@ namespace Truth
 				const lines: string[] = [];
 				const write = (
 					group: string,
-					values: readonly Type[] | readonly Phrase[] | readonly string[]) =>
+					values: readonly Fact[] | readonly Phrase[] | readonly string[]) =>
 				{
 					lines.push("");
 					lines.push(group);
@@ -820,7 +816,7 @@ namespace Truth
 					for (const value of values)
 					{
 						const textValue = 
-							value instanceof Type ? value.phrase.toString() :
+							value instanceof Fact ? value.phrase.toString() :
 							value instanceof Phrase ? value.toString() :
 							value;
 						
@@ -845,14 +841,14 @@ namespace Truth
 		}
 		
 		/**
-		 * Ensures that the Type has been constructed.
-		 * Returns the Parallel assigned to this type's .seed property,
+		 * Ensures that the Fact has been constructed.
+		 * Returns the Parallel assigned to this Fact's .seed property,
 		 * but in a non-null format.
 		 */
 		private guard()
 		{
 			if (!this.seed)
-				Type.construct(this.phrase);
+				Fact.construct(this.phrase);
 			
 			if (!this.seed)
 				throw Exception.unknownState();
@@ -863,34 +859,34 @@ namespace Truth
 	
 	/**
 	 * An object that represents either an explicit or implicit 
-	 * annotation on a type. The annotation may either be a
-	 * literal type name, or it may be an alias.
+	 * annotation on a Fact. The annotation may either be a
+	 * literal Fact name, or it may be an alias.
 	 */
 	export class Keyword
 	{
 		constructor(
 			readonly word: string,
-			readonly type: Type) { }
+			readonly fact: Fact) { }
 		
 		/**
 		 * Gets whether the .word property stores an alias.
 		 */
 		get isAlias()
 		{
-			return this.type.name === this.word;
+			return this.fact.name === this.word;
 		}
 	}
 	
 	/**
 	 * Recursively searches the parallel graph of the specified explicit or 
-	 * implicit parallel object, and returns the Type objects that form the
-	 * array of supervising types that corresponds to the seed parallel
+	 * implicit parallel object, and returns the Fact objects that form the
+	 * array of supervising Facts that corresponds to the seed parallel
 	 * specified.
 	 */
 	function findSupervisors(seed: Parallel)
 	{
 		const ids = new Set<number>();
-		const supervisors: Type[] = [];
+		const supervisors: Fact[] = [];
 		
 		const recurse = (currentParallel: Parallel) =>
 		{
@@ -906,9 +902,9 @@ namespace Truth
 				
 				ids.add(currentParallel.id);
 				
-				const type = Type.construct(currentParallel.phrase);
-				if (type)
-					supervisors.push(type);
+				const fact = Fact.construct(currentParallel.phrase);
+				if (fact)
+					supervisors.push(fact);
 			}
 		};
 		

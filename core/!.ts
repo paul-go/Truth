@@ -57,7 +57,7 @@
 /// <reference path="./Phases/Parallel/ParallelCache.ts" />
 /// <reference path="./Phases/Parallel/Sanitizer.ts" />
 
-// Phases / Type Representation
+// Phases / Fact Representation
 /// <reference path="./Phases/Type/Type.ts" />
 
 // Node compatibility

@@ -1,5 +1,5 @@
 //
-// This example demonstrates type inference
+// This example demonstrates inference
 // from a complex hierarchy of abstraction,
 // involving a diamond-shaped inheritance pattern.
 //

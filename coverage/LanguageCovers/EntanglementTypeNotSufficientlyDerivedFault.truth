@@ -1,12 +1,12 @@
 //
 // The first example demonstrates a fault being
-// generated as a result of a type being entangled
-// with another, and the entangled partner is subtyped,
+// generated as a result of a fact being entangled
+// with another, and the entangled partner is derived,
 // which is affecting the contract of the other partner.
 // 
 // The second example demonstrates the fault-free
 // behavior in the case when the entangled partner
-// is not being subtyped.
+// is not being derived.
 // 
 
 Animal

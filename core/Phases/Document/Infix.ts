@@ -3,7 +3,7 @@ namespace Truth
 {
 	/**
 	 * A class that represents a portion of the content 
-	 * within an Infix that spans a type reference.
+	 * within an Infix that spans a Fact reference.
 	 */
 	export class Infix
 	{
@@ -113,18 +113,18 @@ namespace Truth
 		 * Indicates that the joint was specified within
 		 * the infix. Can be used to determine if the infix
 		 * contains some (erroneous) syntax such as:
-		 * /<Type : >
+		 * /<Fact : >
 		 */
 		hasJoint = 1,
 		/**
 		 * Indicates that the </Pattern/> syntax was
 		 * used to embed the patterns associated
-		 * with a specified type.
+		 * with a specified Fact.
 		 */
 		pattern = 2,
 		/**
 		 * Indicates that the infix is of the "portabiity"
-		 * variety, using the syntax < : Type>
+		 * variety, using the syntax < : Fact>
 		 */
 		portability = 4,
 		/**
@@ -135,7 +135,7 @@ namespace Truth
 		population = 8,
 		/**
 		 * Indicates that the <<Double>> angle bracket
-		 * syntax was used to only match named types,
+		 * syntax was used to only match named Facts,
 		 * rather than aliases.
 		 */
 		nominal = 16

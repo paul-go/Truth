@@ -1,7 +1,7 @@
 //
-// This example demonstrates implicit types not being usable bases.
+// This example demonstrates implicit Facts not being usable bases.
 // Note that this language feature may change in the future, so that implicit
-// types *can* be used as bases, but only after type resolution and regular
+// Facts *can* be used as bases, but only after term resolution and regular
 // expression matching has failed.
 //
 

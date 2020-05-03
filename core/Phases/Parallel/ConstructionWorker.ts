@@ -5,10 +5,10 @@ namespace Truth
 	 * @internal
 	 * A worker class that handles the construction of networks
 	 * of Parallel instances, which are eventually transformed
-	 * into type objects.
+	 * into Fact objects.
 	 * 
 	 * Instances of ConstructionWorker are held by the static side
-	 * of the Type class, and they're lifetime is equal to a single 
+	 * of the Fact class, and they're lifetime is equal to a single 
 	 * version of the containing Program.
 	 */
 	export class ConstructionWorker
@@ -21,7 +21,7 @@ namespace Truth
 		
 		/**
 		 * Constructs the corresponding Parallel instances for
-		 * all explicit types that exist within the provided Document,
+		 * all explicit Facts that exist within the provided Document,
 		 * or below the provided ExplicitParallel.
 		 */
 		excavate(from: Document | ExplicitParallel)
@@ -77,7 +77,7 @@ namespace Truth
 			const ancestry = directive.ancestry;
 			const surfacePhrase = directive.ancestry[0];
 			
-			let typeIdx = 0;
+			let factIdx = 0;
 			let lastSeed = 
 				this.parallels.get(directive.parent) ||
 				this.rake(this.parallels.createExplicit(surfacePhrase, this.cruft));
@@ -93,20 +93,20 @@ namespace Truth
 				
 				lastSeed = Not.null(this.parallels.get(phrase));
 				
-				if (++typeIdx >= directive.length)
+				if (++factIdx >= directive.length)
 					return lastSeed;
 			}
 			
 			do
 			{
-				const targetSubject = ancestry[typeIdx].terminal;
+				const targetSubject = ancestry[factIdx].terminal;
 				const descended = this.descend(lastSeed, targetSubject);
 				if (descended === null)
 					return null;
 				
 				lastSeed = this.rake(descended);
 			}
-			while (++typeIdx < directive.length);
+			while (++factIdx < directive.length);
 			
 			return lastSeed;
 		}
@@ -163,15 +163,15 @@ namespace Truth
 		/**
 		 * "Raking" a Parallel is the process of deeply traversing it's
 		 * Parallel Graph (depth first), and for each visited Parallel,
-		 * deeply traversing it's Base Graph as well (also depth first).
+		 * deeply traversing it's base graph as well (also depth first).
 		 * Through this double-traversal process, the Parallel's edges
 		 * are constructed into a traversable graph.
 		 */
 		private rake(seed: Parallel)
 		{
 			// If the seed's container is null, this means that the seed
-			// is root-level, and so it cannot have any Parallel types.
-			// It may however have Base types, and these need to be
+			// is surface-level, and so it cannot have any Parallels.
+			// It may however have bases, and these need to be
 			// handled.
 			if (seed.container === null)
 			{
@@ -215,7 +215,7 @@ namespace Truth
 		 * that does not have one already created.
 		 * Although the algorithm is careful to avoid circular bases, it's
 		 * too early in the processing pipeline to report these circular
-		 * bases as faults. This is because polymorphic type resolution
+		 * bases as faults. This is because polymorphic term resolution
 		 * needs to take place before the system can be sure that a 
 		 * seemingly-circular base structure is in fact what it seems.
 		 * True circular base detection is therefore handled at a future
@@ -232,8 +232,8 @@ namespace Truth
 			this.rakedParallels.add(srcParallel.id, srcParallel.document);
 			
 			// In the case when there are no annotations on the phrase,
-			// this means that we need to resort to using type inference
-			// in order to rake the parallel.
+			// this means that we need to resort to using inference in
+			// order to rake the parallel.
 			if (srcParallel.phrase.annotations.length === 0)
 			{
 				// Unannotated surface-level parallels don't need any
@@ -241,7 +241,7 @@ namespace Truth
 				if (srcParallel.phrase.length === 0)
 					return;
 				
-				// Unannotated nested parallels have their bases appended
+				// Unannotated submerged parallels have their bases appended
 				// via inference.
 				if (srcParallel.tryInferBasesViaAbstraction())
 					return;
@@ -253,9 +253,9 @@ namespace Truth
 				// containment hierarchy to support inference via containment.
 			}
 			
-			// The type resolution algorithm operates by resolving all literal
-			// types first, and then in the case when there are unresolved 
-			// forks left over, attempting to resolve one of these as an alias.
+			// The term resolution algorithm operates by resolving all literals
+			// first, and then in the case when there are unresolved forks left 
+			// over, attempting to resolve one of these as an alias.
 			const unresolvedForks: Fork[] = [];
 			
 			for (const fork of srcParallel.phrase.outbounds)
@@ -276,7 +276,7 @@ namespace Truth
 					continue;
 				}
 				
-				// This is where the polymorphic type resolution algorithm
+				// This is where the polymorphic term resolution algorithm
 				// takes place. The algorithm operates by working it's way
 				// up the list of nodes (aka the scope chain), looking for
 				// a possible resolution target where the act of applying the
@@ -301,8 +301,8 @@ namespace Truth
 					// of contents needs to be analyzed and converted into
 					// parallels. This is necessary because a fully defined set
 					// of parallels is required in order to detect discrepant
-					// unions (and therefore, report the attempt at a type
-					// union as faulty).
+					// unions (and therefore, report the attempt at a union 
+					// as faulty).
 					if (srcParallel.baseCount > 0)
 					{
 						if (srcParallel.baseCount === 1)
@@ -478,12 +478,12 @@ namespace Truth
 					else validPortabilityInfixes.push(portInfix);
 				}
 				
-				// This code checks for overlapping types. The algorithm used here is
+				// This code checks for overlapping facts. The algorithm used here is
 				// similar to the redundant bases check used above. However, in the case
 				// of infixes, these aren't just redundant, they would be problematic if
-				// left in. To explain why, try to figure out how a String type would draw
+				// left in. To explain why, try to figure out how a String fact would draw
 				// it's data out of an alias matching the following pattern:
-				// 	/< : Email>< : String> : Type
+				// 	/< : Email>< : String> : Fact
 				// (hint: it doesn't work)
 				
 				//! Not implemented
@@ -608,7 +608,7 @@ namespace Truth
 			// 	Child
 			// 
 			// "Class" should not have an ImplicitParallel called "Child",
-			// because that was introduced in the derived "SubClass" type.
+			// because that was introduced in the derived "SubClass" fact.
 			// And so this algorithm stakes out cut off points so that we don't
 			// blindly just descend all Parallels in the level.
 			const prunedParallels = new Set<Parallel>();
@@ -632,7 +632,7 @@ namespace Truth
 			
 			// In the case when the method is attempting to descend
 			// to a level where there are no nodes whose name match
-			// the type name specified (i.e. the whole level would be 
+			// the fact name specified (i.e. the whole level would be 
 			// implicit parallels), null is returned because a descend
 			// wouldn't make sense.
 			if (!hasExplicitContainees)
@@ -657,11 +657,11 @@ namespace Truth
 			const seed = Misc.reduceRecursive(
 				zenith,
 				descendParallelsFollowFn,
-				(current, nested: readonly Parallel[]) =>
+				(current, submerged: readonly Parallel[]) =>
 				{
 					const nextPar = this.descendOne(current, targetSubject);
 					
-					for (const edge of nested)
+					for (const edge of submerged)
 						nextPar.addParallel(edge);
 					
 					return nextPar;

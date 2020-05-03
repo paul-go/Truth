@@ -2,12 +2,12 @@
 namespace Truth
 {
 	/**
-	 * Aliases a type that is or contains a Subject.
+	 * Defines a type that is or contains a Subject.
 	 */
 	export type SubjectContainer = Span | InfixSpan | Boundary<Subject> | Subject;
 	
 	/**
-	 * A type alias that refers to the kinds of objects that exist 
+	 * Defines a type that refers to the kinds of objects that exist 
 	 * at the bottom of a Statement's abstract syntax tree.
 	 */
 	export type Subject = Term | Pattern | KnownUri;

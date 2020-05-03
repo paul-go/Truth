@@ -43,7 +43,7 @@ namespace Truth
 		Pattern |
 		Parallel |
 		Fork |
-		Type;
+		Fact;
 	
 	/**
 	 * A const enum to uniquely identify each domain object in the system.
@@ -61,6 +61,6 @@ namespace Truth
 		pattern,
 		parallel,
 		fork,
-		type
+		fact
 	}
 }

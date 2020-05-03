@@ -14,13 +14,13 @@ namespace Truth
 		
 		/**
 		 * A boolean value that indicates whether patterns should be
-		 * parsed as patterns (true), or as regular types (false).
+		 * parsed as patterns (true), or as regular Facts (false).
 		 */
 		readonly readPatterns: boolean;
 		
 		/**
 		 * A boolean value that indicates whether URIs should be
-		 * parsed as URIs (true), or as regular types (false).
+		 * parsed as URIs (true), or as regular Facts (false).
 		 */
 		readonly readUris: boolean;
 	}

@@ -6,11 +6,11 @@
 //
 
 SamePattern
-	Type
-	/\d+ : Type
-	#440; /\d+ : Type
+	Fact
+	/\d+ : Fact
+	#440; /\d+ : Fact
 
 DifferentPattern
-	Type
-	/\d+ : Type
-	#440; /[a-z]+ : Type
+	Fact
+	/\d+ : Fact
+	#440; /[a-z]+ : Fact

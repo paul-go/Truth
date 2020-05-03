@@ -2,7 +2,7 @@
 // This example demonstrates a fault being generated due to a
 // population infix being assigned as one that should match an
 // alias (due to the existence of patterns defined in the subtree), 
-// but is instead attempting to match a type name.
+// but is instead attempting to match a fact name.
 //
 
 Number

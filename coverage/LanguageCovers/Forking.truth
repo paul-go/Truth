@@ -1,9 +1,9 @@
 //
 // This example demonstrates "Forking", where
-// multiple types with the same common base
-// are assigned as annotations to a type. No faults
-// are generated because the overridding type
-// is overriding a fresh type, and therefore, imposes
+// multiple facts with the same common base
+// are assigned as annotations to a fact. No faults
+// are generated because the overridding fact
+// is overriding a fresh fact, and therefore, imposes
 // no contract on it's inheritors.
 //
 

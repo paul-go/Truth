@@ -188,37 +188,37 @@ namespace Truth
 		readonly program: Program;
 		
 		/**
-		 * Queries this document for the type that exists within it,
-		 * at the specified type path.
+		 * Queries this document for the fact that exists within it,
+		 * at the specified fact path.
 		 * 
-		 * @param typePath The type path to search.
+		 * @param factPath The fact path to search.
 		 * 
-		 * @returns In the case when a single Type was detected that
-		 * corresponds to the specified type path, this Type object is
+		 * @returns In the case when a single Fact was detected that
+		 * corresponds to the specified fact path, this Fact object is
 		 * returned.
 		 * 
-		 * In the case when a homograph was detected in the type path, a
+		 * In the case when a homograph was detected in the fact path, a
 		 * number representing the number of members in the homograph
 		 * is returned.
 		 * 
-		 * In the case when no type could be constructed from the specified
-		 * type path, 0 is returned.
+		 * In the case when no fact could be constructed from the specified
+		 * fact path, 0 is returned.
 		 */
-		query(...typePath: string[])
+		query(...factPath: string[])
 		{
-			return this.program.queryDocument(this, ...typePath);
+			return this.program.queryDocument(this, ...factPath);
 		}
 		
 		/**
-		 * Returns an iterator that iterates through all surface types
+		 * Returns an iterator that iterates through all surface facts
 		 * defined within this document.
 		 */
-		eachType(): IterableIterator<Type>
+		eachFact(): IterableIterator<Fact>
 		{
 			if (this.isUnchecked)
 				this.program.check(this);
 			
-			return this.program.getSurfaceTypes(this);
+			return this.program.getSurfaceFacts(this);
 		}
 		
 		/**

@@ -123,7 +123,7 @@ namespace Truth
 		
 		/**
 		 * Gets a boolean value that indicates whether this Span is considered
-		 * object-level cruft, and should therefore be ignored during type analysis.
+		 * object-level cruft, and should therefore be ignored during fact checking.
 		 */
 		get isCruft()
 		{

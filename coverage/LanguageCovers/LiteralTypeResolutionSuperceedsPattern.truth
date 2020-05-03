@@ -1,6 +1,6 @@
 // 
-// This example demonstrates how literal-type resolution
-// superceeds pattern-type resolution.
+// This example demonstrates how literal term resolution
+// superceeds pattern-term resolution.
 // 
 
 Digit

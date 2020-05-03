@@ -1,8 +1,8 @@
 //
-// This example demonstrates a list intrinsic type not being
+// This example demonstrates a list intrinsic fact not being
 // carried downward through the inheritance chain. List intrinstics
-// are weak types that dissolve in the case when they would
-// otherwise be unioned with another non-list type.
+// are weak facts that dissolve in the case when they would
+// otherwise be unioned with another non-list fact.
 //
 
 Foo

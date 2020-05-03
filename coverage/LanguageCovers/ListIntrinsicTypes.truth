@@ -1,10 +1,10 @@
 //
-// This example demonstrates "List-intrinsic types", or types that
+// This example demonstrates "List-intrinsic facts", or facts that
 // are applied directly to lists themselves, rather than acting as
-// nested types. Technically, these are still "has-a" relationships,
-// but the types reside in a separate domain.
+// typical submerged facts. Technically, these are still "has" 
+// relationships, but the facts reside in a separate domain.
 //
-// List-intrinsic types offer a way to loosen a list type contract
+// List-intrinsic facts offer a way to loosen a list fact contract
 // so that meta data can be applied to the list itself, rather than
 // forcing everything to be contained within the list.
 //

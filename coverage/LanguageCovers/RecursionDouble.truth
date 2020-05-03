@@ -1,7 +1,7 @@
 //
 // This example demonstrates inheriting from a recursive structure
 // with two recursive declarations. Although a theoretically infinitely 
-// recursive structure is created, the virtual type checks only go a
+// recursive structure is created, the virtual fact checks only go a
 // few levels deep.
 //
 A

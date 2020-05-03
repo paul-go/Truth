@@ -1,6 +1,6 @@
 //
-// This example demonstrates what appears to be fresh types,
-// but have a type annotation due to a list's type inference rules.
+// This example demonstrates what appears to be fresh Facts,
+// but have an annotation due to a list's inference rules.
 //
 
 Item

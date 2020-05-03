@@ -20,7 +20,7 @@ namespace Truth
 			readonly successors: readonly Phrase[],
 			/**
 			 * Stores the term that is responsible for influencing the creation
-			 * of this Fork. The term may refer to an alias, or a literal type reference.
+			 * of this Fork. The term may refer to an alias, or a literal Fact reference.
 			 */
 			readonly term: Term)
 		{

@@ -1,7 +1,7 @@
 // 
 // This example demonstrates how a value can be
 // "captured" from an infix, and that captured value
-// becomes an alias for a contained type.
+// becomes an alias for a containeee.
 // 
 
 Number

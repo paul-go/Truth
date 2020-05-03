@@ -145,7 +145,7 @@ namespace Truth
 		 * 
 		 * The method also attempts to satisfy one or more conditions of 
 		 * the contract, by computing whether the input ExplicitParallel 
-		 * is a more derived type of any of the ExplicitParallels referenced
+		 * is a more derived fact of any of the ExplicitParallels referenced
 		 * in this ExplicitParallel's contract.
 		 * 
 		 * @returns A boolean value that indicates whether the base
@@ -644,8 +644,8 @@ namespace Truth
 		
 		/**
 		 * Stores the first alias that was discovered during the contract construction
-		 * process. This is used to support type inference through abstraction, so
-		 * that when this occurs, an alias may be inferred along with the types.
+		 * process. This is used to support inference through abstraction, so that
+		 * when this occurs, an alias may be inferred along with the Facts.
 		 */
 		private contractAlias = "";
 	}

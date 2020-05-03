@@ -173,13 +173,13 @@ namespace Truth
 		
 		/**
 		 * Indicates the severity of a fault is "warning", which means that
-		 * the associated object will still be processed during type analysis.
+		 * the associated object will still be processed during fact checking.
 		 */
 		warning = 4,
 		
 		/**
 		 * Indicates the severity of a fault is "error", which means that
-		 * the associated object will be ignored during type analysis.
+		 * the associated object will be ignored during fact checking.
 		 */
 		error = 8
 	}
@@ -225,15 +225,15 @@ namespace Truth
 		{
 			const entries = Object.entries(Faults) as [string, FaultType<object>][];
 			
-			for (const [name, type] of entries)
-				if (type instanceof FaultType)
-					if (type.code === faultCode)
+			for (const [name, faultType] of entries)
+				if (faultType instanceof FaultType)
+					if (faultType.code === faultCode)
 						return name;
 			
 			return "";
 		},
 		
-		//# Resource-related faults
+		//# Resource-Related Faults
 		
 		/** */
 		UnresolvedResource: createFault<Statement>(
@@ -257,7 +257,7 @@ namespace Truth
 			"Document has already been referenced.",
 			FaultSeverity.error),
 		
-		//# Type verification faults
+		//# Fact Checking Faults
 		
 		/** */
 		UnresolvedAnnotation: createFault<Span>(
@@ -265,15 +265,15 @@ namespace Truth
 			"Unresolved annotation."),
 		
 		/** */
-		CircularTypeReference: createFault<Span>(
+		CircularFactReference: createFault<Span>(
 			203,
-			"Circular type reference detected."),
+			"Circular fact reference detected."),
 		
 		/** */
 		ContractViolation: createFault<Statement>(
 			//! CHANGE THIS TO 204
 			205,
-			"Overridden types must explicitly expand the type as defined in the base."),
+			"Overridden facts must explicitly expand the fact as defined in the base."),
 		
 		/** */
 		UnexpectedHomograph: createFault<Statement>(
@@ -284,38 +284,38 @@ namespace Truth
 		IgnoredAnnotation: createFault<Span>(
 			207,
 			`This annotation is ignored because another annotation
-			in this statement resolves to the same type.`),
+			in this statement resolves to the same fact.`),
 		
 		/** */
 		IgnoredAlias: createFault<Span>(
 			209,
 			`Aliases (meaning annotations that are matched by patterns)
-			can't be added onto types that have a contract put in place
-			by a base type.`),
+			can't be added onto facts that have a contract put in place
+			by a base fact.`),
 		
 		/** */
-		TypeSelfReferential: createFault<Span>(
+		FactSelfReferential: createFault<Span>(
 			211,
-			"Types cannot be self-referential"),
+			"Facts cannot be self-referential"),
 		
 		//# List-related faults
 		
 		/** */
 		AnonymousInListIntrinsic: createFault<Statement>(
 			300,
-			"Types contained directly by List-intrinsic types cannot be anonymous.",
+			"Facts contained directly by List-intrinsic facts cannot be anonymous.",
 			FaultSeverity.warning),
 		
 		/** */
 		ListContractViolation: createFault<Span>(
 			301,
-			"The containing list cannot contain children of this type.",
+			"The containing list cannot contain children of this fact.",
 			FaultSeverity.warning),
 		
 		/** */
 		ListIntrinsicExtendingList: createFault<Span>(
 			303,
-			"List intrinsic types cannot extend from other lists."),
+			"List intrinsic facts cannot extend from other lists."),
 		
 		/** (This is the same thing as a list dimensionality conflict) */
 		ListExtrinsicExtendingNonList: createFault<Span>(
@@ -325,7 +325,7 @@ namespace Truth
 		/** */
 		ListDimensionalDiscrepancyFault: createFault<Span>(
 			307,
-			`A union cannot be created between these two types
+			`A union cannot be created between these two facts
 			because they are lists of different dimensions.`),
 		
 		/** */
@@ -353,15 +353,15 @@ namespace Truth
 			"Patterns must not be able to match an empty input."),
 		
 		/** */
-		PatternMatchingTypesAlreadyExists: createFault<Statement>(
+		PatternMatchingFactsAlreadyExists: createFault<Statement>(
 			406,
-			`A pattern matching these types has 
+			`A pattern matching these facts has 
 			already been defined in this scope.`),
 		
 		/** */
 		PatternMatchingList: createFault<Span>(
 			407,
-			"A pattern cannot match a list type."),
+			"A pattern cannot match a list fact."),
 		
 		/** */
 		PatternCanMatchWhitespaceOnly: createFault<Statement>(
@@ -396,7 +396,7 @@ namespace Truth
 		/** */
 		PatternNonCovariant: createFault<Statement>(
 			440,
-			"Pattern does not match it's base types."),
+			"Pattern does not match it's base facts."),
 		
 		/** */
 		PatternPartialWithCombinator: createFault<Statement>(
@@ -406,7 +406,7 @@ namespace Truth
 		/** */
 		PatternsFormDiscrepantUnion: createFault<Span>(
 			499,
-			"A union cannot be created between these types because their " + 
+			"A union cannot be created between these facts because their " + 
 			"associated patterns conflict with each other."),
 		
 		//# Infix related
@@ -424,7 +424,7 @@ namespace Truth
 			"Infixes cannot have duplicate terms."),
 		
 		/** */
-		InfixHasSelfReferentialType: createFault<InfixSpan>(
+		InfixHasSelfReferentialFact: createFault<InfixSpan>(
 			///410,
 			503,
 			"Infixes cannot be self-referential."),
@@ -436,30 +436,30 @@ namespace Truth
 			"Infixes must be compatible with their bases."),
 		
 		/** */
-		InfixCannotDefineNewTypes: createFault<InfixSpan>(
+		InfixCannotDefineNewFacts: createFault<InfixSpan>(
 			///422,
 			507,
-			`A type referenced in an infix must be contained
+			`A fact referenced in an infix must be contained
 			by the pattern statement directly, or be contained
 			by one of it's matched bases.`),
 		
 		/** */
-		InfixReferencedTypeMustHavePattern: createFault<InfixSpan>(
+		InfixReferencedFactMustHavePattern: createFault<InfixSpan>(
 			///414,
 			509,
-			"Types applied to an infix must have at least one associated pattern."),
+			"Facts applied to an infix must have at least one associated pattern."),
 		
 		/** */
-		InfixReferencedTypeCannotBeRecursive: createFault<InfixSpan>(
+		InfixReferencedFactCannotBeRecursive: createFault<InfixSpan>(
 			///416,
 			511,
-			"Types applied to an infix must not create a recursive structure."),
+			"Facts applied to an infix must not create a recursive structure."),
 		
 		/** */
 		InfixContractViolation: createFault<InfixSpan>(
 			///424,
 			513,
-			"Infix type annotations must explicitly expand the type as defined by the base."),
+			"Infix fact annotations must explicitly expand the fact as defined by the base."),
 		
 		/** */
 		InfixPopulationChaining: createFault<InfixSpan>(
@@ -477,20 +477,20 @@ namespace Truth
 		InfixReferencingList: createFault<InfixSpan>(
 			///428,
 			519,
-			"Infixes cannot reference list types."),
+			"Infixes cannot reference list facts."),
 		
 		/** */
 		PortabilityInfixHasMultipleDefinitions: createFault<InfixSpan>(
 			///418,
 			521,
-			`Portability infixes with compatible types cannot
+			`Portability infixes with compatible facts cannot
 			be specified more than once.`),
 		
 		/** */
 		PortabilityInfixHasUnion: createFault<InfixSpan>(
 			///418,
 			523,
-			"Portability infixes with unioned types are not supported at this time."),
+			"Portability infixes with unioned facts are not supported at this time."),
 		
 		/** */
 		PopulationInfixHasMultipleDefinitions: createFault<InfixSpan>(
@@ -500,11 +500,11 @@ namespace Truth
 			defined twice in the same pattern`),
 		
 		/** */
-		NominalInfixMustSubtype: createFault<Span>(
+		NominalInfixMustBeSub: createFault<Span>(
 			///430,
 			527,
 			"Patterns with nominal infixes require an input that is " +
-			"a subtype of the type specified, not the type itself."),
+			"derived from the fact specified, not the fact itself."),
 		
 		/** */
 		NthLevelHomograph: createFault<Span>(

@@ -5,12 +5,12 @@ namespace Truth
 	export class Exception
 	{
 		/** */
-		static typeDirty(type: Type)
+		static factDirty(fact: Fact)
 		{
 			return error(`
 				Cannot call this method or access this property,
 				because the document has changed since it
-				was created. Affected type is: ` + type.name);
+				was created. Affected fact is: ` + fact.name);
 		}
 		
 		/** */

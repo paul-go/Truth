@@ -88,7 +88,7 @@ namespace Truth
 		 * The check is considered expedient, rather than thorough,
 		 * because any infixes that exist in this pattern are replaced
 		 * with "catch all" regular expression sequence, rather than
-		 * embedding the pattern associated with the type specified
+		 * embedding the pattern associated with the Fact specified
 		 * in the infix.
 		 */
 		test(input: string)

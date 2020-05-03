@@ -1,6 +1,6 @@
 //
-// This example demonstrates type inference from the hierarchy
-// of abstraction. It also demonstrates how type inference via
+// This example demonstrates inference from the hierarchy
+// of abstraction. It also demonstrates how inference via
 // abstraction takes precedence over containment.
 //
 

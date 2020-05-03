@@ -1,8 +1,6 @@
 // 
 // This example demonstrates that the "implicit types
 // cannot be used as bases" rule doesn't apply to aliases.
-// Patterns are represented at the type-scope level, not
-// the node-scope level.
 // 
 
 HasFault
@@ -36,7 +34,7 @@ NoFault
 		
 	ClassL2 : ClassL1
 		// Bringing this Value into scope causes the following
-		// pattern statement to refer to a different type, which
+		// pattern statement to refer to a different fact, which
 		// causes the annotation below to take on a different
 		// meaning, which causes the error to not be thrown
 		Value

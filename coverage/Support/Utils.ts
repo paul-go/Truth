@@ -95,24 +95,24 @@ namespace CoverTruth
 	}
 	
 	/**
-	 * Extracts one or more types from the specified document, at the given paths.
-	 * An error is thrown in the case when any of the paths specified do not correspond
-	 * to a type.
+	 * Extracts one or more Facts from the specified document,
+	 * at the given paths. An error is thrown in the case when any
+	 * of the paths specified do not correspond to a Fact.
 	 */
-	export function typesOf(
+	export function factsOf(
 		document: Truth.Document,
-		...typePaths: (string | string[])[]): Truth.Type[]
+		...factPaths: (string | string[])[]): Truth.Fact[]
 	{
-		const out: (Truth.Type | null)[] = [];
-		const paths = typePaths.map(v => typeof v === "string" ? [v] : v);
+		const out: (Truth.Fact | null)[] = [];
+		const paths = factPaths.map(v => typeof v === "string" ? [v] : v);
 		let hasError = false;
 		
 		for (const path of paths)
 		{
-			const type = document.query(...path);
-			if (type instanceof Truth.Type)
+			const fact = document.query(...path);
+			if (fact instanceof Truth.Fact)
 			{
-				out.push(type);
+				out.push(fact);
 			}
 			else
 			{
@@ -123,7 +123,7 @@ namespace CoverTruth
 		
 		if (hasError)
 		{
-			const errorLines = ["No type found at paths:"];
+			const errorLines = ["No fact found at paths:"];
 			
 			for (let i = -1; ++i < out.length;)
 				if (out[i] === null)
@@ -132,7 +132,7 @@ namespace CoverTruth
 			throw new Error(errorLines.join("\n"));
 		}
 		
-		return out as Truth.Type[];
+		return out as Truth.Fact[];
 	}
 	
 	/**

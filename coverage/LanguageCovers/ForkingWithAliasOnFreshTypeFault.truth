@@ -1,9 +1,9 @@
 //
 // This example demonstrates the behavior that forking
 // through multiple aliases generates faults even in the 
-// case when the overridden type is a fresh type. This is
-// because after the aliases are resolved to types, the
-// compiler would be left with multiple redundant types.
+// case when the overridden fact is a fresh fact. This is
+// because after the aliases are resolved to facts, the
+// compiler would be left with multiple redundant facts.
 //
 
 Number

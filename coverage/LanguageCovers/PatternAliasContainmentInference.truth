@@ -1,8 +1,8 @@
 //
-// This example demonstrates the type inference behavior
+// This example demonstrates the inference behavior
 // of statements nested within others, when the containing
-// statement has an aliased type. In this case, the type being
-// aliased is inferred by the contained type, not the actual
+// statement has an alias. In this case, the Fact being
+// aliased is inferred by the container Fact, not the actual
 // aliased value itself.
 //
 

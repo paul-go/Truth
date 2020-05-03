@@ -42,11 +42,9 @@ namespace Truth
 		/**
 		 * Creates an implicit or explicit parallel, and stores it in the cache.
 		 * 
-		 * @throws In the case when all containing ParallelTypes to have
-		 * not been created beforehand.
-		 * 
-		 * @throw In the case when a ParallelType corresponding to the
-		 * input was already created.
+		 * @throws In the case when all containing Parallels have not been
+		 * created before invoking this method, or when a Parallel
+		 * corresponding to the input was already created.
 		 */
 		private innerCreate(phrase: Phrase, cruft?: CruftCache)
 		{

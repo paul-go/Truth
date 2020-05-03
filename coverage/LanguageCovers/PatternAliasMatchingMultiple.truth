@@ -2,12 +2,12 @@
 // This example demonstrates an alias resolving through
 // multiple patterns.
 // 
-// Although pattern-type resolution is invariant (meaning
+// Although pattern-term resolution is invariant (meaning
 // that in order for name resolution to occur between two
-// types, the set of types specified as annotations on the
+// Facts, the set of Facts specified as annotations on the
 // pattern must match identical), in the case when there
-// is no contract being imposed on a type, it can resolve
-// to the types associated with multiple applicable patterns.
+// is no contract being imposed on a Fact, it can resolve
+// to the Facts associated with multiple applicable patterns.
 // 
 
 Type1
@@ -29,7 +29,7 @@ Value : =2= ~ Type2A, Type2B
 
 // 
 // This behavior doesn't necessarily break the invariant
-// nature of pattern-type resolution, because it's the
+// nature of pattern-term resolution, because it's the
 // semantic equivalent of the following:
 // 
 

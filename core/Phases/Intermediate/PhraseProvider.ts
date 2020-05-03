@@ -36,9 +36,9 @@ namespace Truth
 		 * table, a new hypothetical phrase is created and returned in a single-item array.
 		 * 
 		 * An array must be returned from this method rather than a singular Phrase
-		 * object, because the phrase structure may have a nested homograph. Although
-		 * these are invalid, the phrase structure must still be capable of representing
-		 * these.
+		 * object, because the phrase structure may have a submerged homograph.
+		 * Although these are invalid, the phrase structure must still be capable of
+		 * representing these.
 		 */
 		forward(target: Parallel, subject: Subject): readonly Phrase[]
 		{

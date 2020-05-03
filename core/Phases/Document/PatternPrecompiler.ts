@@ -63,7 +63,7 @@ namespace Truth
 	 * Stores the pattern that is fed into a pattern in
 	 * place of where infixes are, in order to be able to
 	 * do early tests on the regular expression without
-	 * doing a full resolution of the types that the infixes
+	 * doing a full resolution of the Facts that the infixes
 	 * reference. The pattern essentially means:
 	 * 
 	 * "Match one non-whitespace character, or a series

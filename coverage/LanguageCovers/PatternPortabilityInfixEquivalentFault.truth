@@ -1,7 +1,7 @@
 //
 // This example demonstrates a fault being generated due
 // to more than one portability infix being defined within 
-// the same pattern, but where those are type compatible,
+// the same pattern, but where those are compatible,
 // and so there is ambiguity around how conforming data 
 // would actually "port" to it's base.
 //

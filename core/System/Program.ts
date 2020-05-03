@@ -39,11 +39,11 @@ namespace Truth
 			this.phrases = new PhraseProvider(this);
 			this.worker = new ConstructionWorker(this);
 			
-			this.namedTypes = new ContingentSetMap(this);
+			this.namedFacts = new ContingentSetMap(this);
 			this.foreignSupers = new ContingentSetMap(this);
 			this.foreignSupervisors = new ContingentSetMap(this);
-			this.surfaceTypes = new ContingentMap(this);
-			this.nestedTypes = new ContingentMap(this);
+			this.surfaceFacts = new ContingentMap(this);
+			this.submergedFacts = new ContingentMap(this);
 		}
 		
 		/** @internal */
@@ -240,148 +240,146 @@ namespace Truth
 		private readonly queue = 
 			new Map<KnownUri, ((resolved: Document | Error) => void)[]>();
 		
-		//# Type Caching
+		//# Fact Caching
 		
 		/**
 		 * @internal
-		 * Used by the Type constructor to notify the Program
-		 * that a Type object was created.
+		 * Used by the Fact constructor to notify the Program
+		 * that a Fact object was created.
 		 */
-		addType(type: Type, phraseId: number)
+		addFact(fact: Fact, phraseId: number)
 		{
-			if (type.document.isVolatile)
+			if (fact.document.isVolatile)
 			{
-				const doc = type.document;
-				const map = type.level === 1 ?
-					this.surfaceTypesVolatile :
-					this.nestedTypesVolatile;
+				const doc = fact.document;
+				const map = fact.level === 1 ?
+					this.surfaceFactsVolatile :
+					this.submergedFactsVolatile;
 				
-				map.get(doc)?.set(phraseId, type) || map.set(doc, new Map([[phraseId, type]]));
+				map.get(doc)?.set(phraseId, fact) || map.set(doc, new Map([[phraseId, fact]]));
 				return;
 			}
 			
-			const typeMap = type.level === 1 ?
-				this.surfaceTypes :
-				this.nestedTypes;
+			const factMap = fact.level === 1 ?
+				this.surfaceFacts :
+				this.submergedFacts;
 			
-			typeMap.set(phraseId, type, type.document);
-			const termLower = type.name.toLocaleLowerCase();
-			this.namedTypes.add(termLower, type, type.document);
+			factMap.set(phraseId, fact, fact.document);
+			const termLower = fact.name.toLocaleLowerCase();
+			this.namedFacts.add(termLower, fact, fact.document);
 		}
 		
 		/**
 		 * @internal
-		 * Returns the type with the specified phrase ID, in the specified document.
+		 * Returns the Fact with the specified phrase ID, in the specified document.
 		 */
-		getType(doc: Document, phraseId: number)
+		getFact(doc: Document, phraseId: number)
 		{
 			if (doc.isVolatile)
 				return (
-					this.surfaceTypesVolatile.get(doc)?.get(phraseId) ||
-					this.nestedTypesVolatile.get(doc)?.get(phraseId) ||
+					this.surfaceFactsVolatile.get(doc)?.get(phraseId) ||
+					this.submergedFactsVolatile.get(doc)?.get(phraseId) ||
 					null);
 			
 			return (
-				this.surfaceTypes.get(phraseId) || 
-				this.nestedTypes.get(phraseId) || 
+				this.surfaceFacts.get(phraseId) || 
+				this.submergedFacts.get(phraseId) || 
 				null);
 		}
 		
 		/** @internal */
-		getSurfaceTypes(document: Document)
+		getSurfaceFacts(document: Document)
 		{
 			return document.isVolatile ?
-				this.surfaceTypesVolatile.get(document)?.values() || new Set<Type>().values() :
-				this.surfaceTypes.each(document);
+				this.surfaceFactsVolatile.get(document)?.values() || new Set<Fact>().values() :
+				this.surfaceFacts.each(document);
 		}
 		
 		/** @internal */
-		getNestedTypes(document: Document)
+		getSubmergedFacts(document: Document)
 		{
 			return document.isVolatile ?
-				this.nestedTypesVolatile.get(document)?.values() || new Set<Type>().values() :
-				this.nestedTypes.each(document);
+				this.submergedFactsVolatile.get(document)?.values() || new Set<Fact>().values() :
+				this.submergedFacts.each(document);
 		}
 		
 		/** @internal */
-		getForeignTypesReferencingTypeAsSuper(type: Type): ReadonlySet<Type>
+		getForeignFactsReferencingFactAsSuper(fact: Fact): ReadonlySet<Fact>
 		{
-			return this.foreignSupers.get(type.id) || new Set();
+			return this.foreignSupers.get(fact.id) || new Set();
 		}
 		
 		/** @internal */
-		setForeignSuper(superType: Type, subType: Type)
+		setForeignSuper(superFact: Fact, subFact: Fact)
 		{
-			this.foreignSupers.add(superType.id, subType, subType.document);
+			this.foreignSupers.add(superFact.id, subFact, subFact.document);
 		}
 		
 		/** @internal */
-		getForeignTypesReferencingTypeAsSupervisor(type: Type): ReadonlySet<Type>
+		getForeignFactsReferencingFactAsSupervisor(fact: Fact): ReadonlySet<Fact>
 		{
-			return this.foreignSupervisors.get(type.id) || new Set();
+			return this.foreignSupervisors.get(fact.id) || new Set();
 		}
 		
 		/** @internal */
-		setForeignSupervisor(supervisorType: Type, subvisorType: Type)
+		setForeignSupervisor(supervisorFact: Fact, subvisorFact: Fact)
 		{
 			this.foreignSupervisors.add(
-				supervisorType.id,
-				subvisorType,
-				subvisorType.document);
+				supervisorFact.id,
+				subvisorFact,
+				subvisorFact.document);
 		}
 		
 		/**
-		 * Stores a map of all types that have the given name.
+		 * Stores a map of all Facts that have the given name.
 		 */
-		private readonly namedTypes: ContingentSetMap<string, Type>;
+		private readonly namedFacts: ContingentSetMap<string, Fact>;
 		
 		/**
-		 * Stores a map of all surface types defined within the document
-		 * that owns this DocumentTypeCache object, keyed by the ID
-		 * of the Type's supporting Phrase object.
+		 * Stores a map of all surface Facts defined within the program.
+		 * The facts are keyed by the ID of the Fact's supporting Phrase object.
 		 */
-		private readonly surfaceTypes: ContingentMap<number, Type>;
+		private readonly surfaceFacts: ContingentMap<number, Fact>;
 		
 		/**
-		 * Stores a map of the surface types that are defined within volatile
+		 * Stores a map of the surface Facts that are defined within volatile
 		 * documents.
 		 */
-		private readonly surfaceTypesVolatile = 
-			new WeakMap<Document, Map<number, Type>>();
+		private readonly surfaceFactsVolatile = 
+			new WeakMap<Document, Map<number, Fact>>();
 		
 		/**
-		 * Stores a map of all nested types defined within the document
-		 * that owns this DocumentTypeCache object, keyed by the ID
-		 * of the Type's supporting Phrase object.
+		 * Stores a map of all submerged Facts defined within the program.
+		 * The facts are keyed by the ID of the Fact's supporting Phrase object.
 		 */
-		private readonly nestedTypes: ContingentMap<number, Type>;
+		private readonly submergedFacts: ContingentMap<number, Fact>;
 		
 		/**
-		 * Stores a map of the surface types that are defined within volatile
+		 * Stores a map of the surface Facts that are defined within volatile
 		 * documents.
 		 */
-		private readonly nestedTypesVolatile =
-			new WeakMap<Document, Map<number, Type>>();
+		private readonly submergedFactsVolatile =
+			new WeakMap<Document, Map<number, Fact>>();
 		
 		/**
 		 * Stores a map that provides a fast answer to the question:
-		 * "do any types in this document have foreign type X as a super?"
+		 * "do any facts in this document have foreign fact X as a super?"
 		 * 
-		 * The keys of the map are IDs of the foreign type being targeted,
-		 * and the values are the types defined within the associated
-		 * document that have the foreign type as a super.
+		 * The keys of the map are IDs of the foreign Fact being targeted,
+		 * and the values are the Facts defined within the associated
+		 * document that have the foreign Fact as a super.
 		 */
-		private readonly foreignSupers: ContingentSetMap<number, Type>;
+		private readonly foreignSupers: ContingentSetMap<number, Fact>;
 		
 		/**
 		 * Stores a map that provides a fast answer to the question:
-		 * "do any types in this document have foreign type X as a supervisor?"
+		 * "do any facts in this document have foreign fact X as a supervisor?"
 		 * 
-		 * The keys of the map are IDs of the foreign type being targeted,
-		 * and the values are the types defined within the associated
-		 * document that have the foreign type as a supervisor.
+		 * The keys of the map are IDs of the foreign Fact being targeted,
+		 * and the values are the Facts defined within the associated
+		 * document that have the foreign Fact as a supervisor.
 		 */
-		private readonly foreignSupervisors: ContingentSetMap<number, Type>;
+		private readonly foreignSupervisors: ContingentSetMap<number, Fact>;
 		
 		//# Lookup related members
 		
@@ -391,19 +389,19 @@ namespace Truth
 		lookup(keyword: string)
 		{
 			const kw = keyword.toLocaleLowerCase();
-			return this.namedTypes.get(kw) || new Set();
+			return this.namedFacts.get(kw) || new Set();
 		}
 		
 		/**
-		 * Iterates through all types defined within this program.
+		 * Iterates through all Facts defined within this program.
 		 * 
 		 * @param minLevelFilter An optional minimum level of depth
-		 * (inclusive) at which to yield types.
+		 * (inclusive) at which to yield Facts.
 		 * @param maxLevelFilter An optional The maximum level of
-		 * depth (inclusive) at which to yield types. Negative numbers
+		 * depth (inclusive) at which to yield Facts. Negative numbers
 		 * indicate no maximum.
 		 * @param documentFilter An optional document, or set of
-		 * documents whose types should be yielded.
+		 * documents whose Facts should be yielded.
 		 */
 		*scan(
 			minLevelFilter = 1,
@@ -425,23 +423,23 @@ namespace Truth
 			if (minLevelFilter === 1 && maxLevelFilter === 1)
 			{
 				for (const document of documents)
-					for (const type of document.eachType())
-						yield { type, document };
+					for (const fact of document.eachFact())
+						yield { fact, document };
 				
 				return;
 			}
 			
 			for (const document of documents)
 			{
-				const queue = Array.from(document.eachType());
+				const queue = Array.from(document.eachFact());
 				
-				for (const type of queue)
+				for (const fact of queue)
 				{
-					if (type.level <= maxLevelFilter)
-						queue.push(...type.containees);
+					if (fact.level <= maxLevelFilter)
+						queue.push(...fact.containees);
 					
-					if (minLevelFilter <= type.level)
-						yield { type, document };
+					if (minLevelFilter <= fact.level)
+						yield { fact, document };
 				}
 			}
 		}
@@ -463,7 +461,7 @@ namespace Truth
 		 * 
 		 * @returns A tuple whose first element is an array containing any faults
 		 * that were generated during the interpretation of the sourceText, and
-		 * whose following elements are the surface types inferred from the
+		 * whose following elements are the surface Facts inferred from the
 		 * provided truth information.
 		 */
 		interpret(
@@ -507,51 +505,51 @@ namespace Truth
 		}
 		
 		/**
-		 * Queries the program for the root-level types that exist within
+		 * Queries the program for the surface Facts that exist within
 		 * the specified document.
 		 * 
 		 * @param document The document to query.
 		 * 
-		 * @returns An array containing the surface-level types that are
+		 * @returns An array containing the surface Facts that are
 		 * defined within the specified document.
 		 */
-		queryAll(document: Document): Type[]
+		queryAll(document: Document): Fact[]
 		{
-			const roots: Type[] = [];
+			const surfaceFacts: Fact[] = [];
 			
 			for (const phrase of Phrase.rootsOf(document))
 			{
-				const type = Type.construct(phrase);
-				if (type !== null)
-					roots.push(type);
+				const fact = Fact.construct(phrase);
+				if (fact !== null)
+					surfaceFacts.push(fact);
 			}
 			
-			return roots;
+			return surfaceFacts;
 		}
 		
 		/**
-		 * Queries the program for types that exist in any loaded document,
+		 * Queries the program for Facts that exist in any loaded document,
 		 * at the specified path.
 		 * 
-		 * @param typePath The type path within all documents to search.
-		 * @returns An array containing the types discovered. In the case when
-		 * discovered types are part of a homograph, all types participating in
+		 * @param factPath The Fact path within all documents to search.
+		 * @returns An array containing the Facts discovered. In the case when
+		 * discovered Facts are part of a homograph, all Facts participating in
 		 * this homograph are included in the returned array.
 		 */
-		query(...typePath: string[]): Type[]
+		query(...factPath: string[]): Fact[]
 		{
-			if (typePath.length === 0)
-				throw Exception.passedArrayCannotBeEmpty("typePath");
+			if (factPath.length === 0)
+				throw Exception.passedArrayCannotBeEmpty("factPath");
 			
-			const results: Type[] = [];
+			const results: Fact[] = [];
 			
 			for (const document of this.documents)
 			{
-				for (const phrase of Phrase.fromPathComponents(document, typePath))
+				for (const phrase of Phrase.fromPathComponents(document, factPath))
 				{
-					const type = Type.construct(phrase);
-					if (type)
-						results.push(type);
+					const fact = Fact.construct(phrase);
+					if (fact)
+						results.push(fact);
 				}
 			}
 			
@@ -559,65 +557,65 @@ namespace Truth
 		}
 		
 		/**
-		 * Queries the program for the type that exists within
-		 * the specified document, at the specified type path.
+		 * Queries the program for the fact that exists within
+		 * the specified document, at the specified fact path.
 		 * 
 		 * @param document The document to query.
-		 * @param typePath The type path within the document to search.
+		 * @param factPath The fact path within the document to search.
 		 * 
-		 * @returns In the case when a single Type was detected that
-		 * corresponds to the specified type path, this Type object is
+		 * @returns In the case when a single Fact was detected that
+		 * corresponds to the specified fact path, this Fact object is
 		 * returned.
 		 * 
-		 * In the case when a homograph was detected in the type path, a
+		 * In the case when a homograph was detected in the fact path, a
 		 * number representing the number of members in the homograph
 		 * is returned.
 		 * 
-		 * In the case when no type could be constructed from the specified
-		 * type path, 0 is returned.
+		 * In the case when no fact could be constructed from the specified
+		 * fact path, 0 is returned.
 		 */
-		queryDocument(document: Document, ...typePath: string[]): Type | number
+		queryDocument(document: Document, ...factPath: string[]): Fact | number
 		{
-			if (typePath.length === 0)
-				throw Exception.passedArrayCannotBeEmpty("typePath");
+			if (factPath.length === 0)
+				throw Exception.passedArrayCannotBeEmpty("factPath");
 			
-			const phrases = Phrase.fromPathComponents(document, typePath);
+			const phrases = Phrase.fromPathComponents(document, factPath);
 			if (phrases.length === 0)
 				return 0;
 			
-			const types = phrases
-				.map(ph => Type.construct(ph))
-				.filter((type): type is Type => !!type);
+			const facts = phrases
+				.map(ph => Fact.construct(ph))
+				.filter((fact): fact is Fact => !!fact);
 			
-			return types.length === 1 ? types[0] : types.length;
+			return facts.length === 1 ? facts[0] : facts.length;
 		}
 		
 		/**
-		 * Queries the program for the type that exists within
-		 * the specified document, at the specified type path, 
+		 * Queries the program for the fact that exists within
+		 * the specified document, at the specified fact path, 
 		 * using a homograph clarifier.
 		 * 
 		 * @param document The document to query.
-		 * @param typePath The type path within the document to search.
+		 * @param factPath The fact path within the document to search.
 		 * 
-		 * @returns The type object that corresponds to the specified type path,
-		 * or null in the case when no type could be constructed from the specified
-		 * type path.
+		 * @returns The fact object that corresponds to the specified fact path,
+		 * or null in the case when no fact could be constructed from the specified
+		 * fact path.
 		 */
 		queryWithClarifier(
 			document: Document,
-			typePath: string | string[],
-			clarifier: string | string[]): Type | null
+			factPath: string | string[],
+			clarifier: string | string[]): Fact | null
 		{
-			if (typePath === "" || typePath.length === 0)
-				throw Exception.passedArrayCannotBeEmpty("typePath");
+			if (factPath === "" || factPath.length === 0)
+				throw Exception.passedArrayCannotBeEmpty("factPath");
 			
 			const phrase = Phrase.fromPathComponents(
 				document,
-				typeof typePath === "string" ? [typePath] : typePath,
+				typeof factPath === "string" ? [factPath] : factPath,
 				typeof clarifier === "string" ? [clarifier] : clarifier);
 			
-			return phrase ? Type.construct(phrase) : null;
+			return phrase ? Fact.construct(phrase) : null;
 		}
 		
 		/**
@@ -927,12 +925,12 @@ namespace Truth
 				if (document.isVolatile)
 				{
 					// In the case when a volatile document is being checked,
-					// the volatile type maps need to be cleared manually, 
+					// the volatile fact maps need to be cleared manually, 
 					// because there is no such thing as a "ContingentWeakMap".
 					// This prevents the situation where a volatile document is 
-					// checked twice, and the same type is saved multiple times.
-					this.surfaceTypesVolatile.delete(document);
-					this.nestedTypesVolatile.delete(document);
+					// checked twice, and the same Fact is saved multiple times.
+					this.surfaceFactsVolatile.delete(document);
+					this.submergedFactsVolatile.delete(document);
 				}
 				// Only start & restart the async checking process for non-volatile
 				// documents. In order to process a volatile document, the entire
@@ -973,7 +971,7 @@ namespace Truth
 		{
 			for (const phrases of document.phrase.peekRecursive())
 				for (const phrase of phrases)
-					Type.construct(phrase);
+					Fact.construct(phrase);
 			
 			this.uncheckedDocuments.delete(document.id);
 		}

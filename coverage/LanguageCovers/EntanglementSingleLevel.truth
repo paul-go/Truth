@@ -1,9 +1,9 @@
 //
 // Demonstration of Entanglement
 // Truth's A : B operator doesn't directly translate to "A is a B". More specifically,
-// it means "A is a subtype of how B is typed in this context". Therefore, it is possible
-// to inherit from a type, and apply more specificity to the inherited types, causing
-// potentially many types across entire inherited structure to have more specific
+// it means "A is a sub of how B is defined in this context". Therefore, it is possible
+// to derive from a fact, and apply more specificity to the inherited facts, causing
+// potentially many facts across entire inherited structure to have more specific
 // typing applied.
 //
 

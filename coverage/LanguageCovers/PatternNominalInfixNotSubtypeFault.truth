@@ -1,8 +1,8 @@
 //
 // This example demonstrates a fault being generated due
-// to the use of the exact name of a type specified as an input
-// to a patterb with a nominal infix, rather than a subtype of 
-// the required type.
+// to the use of the exact name of a fact specified as an input
+// to a patterb with a nominal infix, rather than a sub of 
+// the required fact.
 //
 
 Animal

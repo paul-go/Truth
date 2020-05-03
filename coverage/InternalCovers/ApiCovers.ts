@@ -2,7 +2,7 @@
 namespace CoverTruth
 {
 	/** */
-	export async function coverTypeApiExplicitStatements()
+	export async function coverFactApiExplicitStatements()
 	{
 		const [doc, program] = await createLanguageCover(`
 			Class
@@ -10,13 +10,13 @@ namespace CoverTruth
 				Field
 		`);
 		
-		const targetType = program.queryDocument(doc, "Class", "Field");
-		const targetStatements = targetType instanceof Truth.Type ?
-			targetType.statements :
+		const targetFact = program.queryDocument(doc, "Class", "Field");
+		const targetStatements = targetFact instanceof Truth.Fact ?
+			targetFact.statements :
 			[];
 		
 		return [
-			() => targetType instanceof Truth.Type,
+			() => targetFact instanceof Truth.Fact,
 			() => targetStatements.length === 2,
 			() => targetStatements[0] === doc.read(1),
 			() => targetStatements[0] === doc.read(2)
@@ -24,7 +24,7 @@ namespace CoverTruth
 	}
 	
 	/** */
-	export async function coverTypeApiImplicitStatements()
+	export async function coverFactApiImplicitStatements()
 	{
 		const [doc, program] = await createLanguageCover(`
 			Class
@@ -32,13 +32,13 @@ namespace CoverTruth
 			SubClass : Class
 		`);
 		
-		const targetType = program.queryDocument(doc, "SubClass", "Field");
-		const targetStatements = targetType instanceof Truth.Type ?
-			targetType.statements :
+		const targetFact = program.queryDocument(doc, "SubClass", "Field");
+		const targetStatements = targetFact instanceof Truth.Fact ?
+			targetFact.statements :
 			[];
 		
 		return [
-			() => targetType instanceof Truth.Type,
+			() => targetFact instanceof Truth.Fact,
 			() => targetStatements.length === 0
 		];
 	}

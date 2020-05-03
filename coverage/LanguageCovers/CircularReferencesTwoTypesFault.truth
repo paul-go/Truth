@@ -1,6 +1,6 @@
 //
 // This example demonstrates circular references 
-// between 2 types.
+// between 2 facts.
 //
 
 Left : Right #203;

@@ -1,6 +1,6 @@
 //
 // This example demonstrates what appears to be vacuous statements,
-// but have a type annotation due to a list's type inference rules.
+// but have an annotation due to a list's inference rules.
 //
 
 Item

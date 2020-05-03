@@ -3,13 +3,13 @@ namespace CoverTruth
 {
 	/**
 	 * This example demonstrates declaration-side chaining
-	 * of multiple types, and applying a single annotation to all types.
+	 * of multiple Facts, and applying a single annotation to all Facts.
 	 */
 	async function coverLanguageChaining()
 	{
 		const [doc] = await createLanguageCover(`
-			type
-			a, b, c : type
+			fact
+			a, b, c : fact
 			
 			container
 				a
@@ -17,16 +17,16 @@ namespace CoverTruth
 				c
 		`);
 		
-		const [type, a, b, c] = typesOf(doc, 
-			"type",
+		const [fact, a, b, c] = factsOf(doc, 
+			"fact",
 			["container", "a"],
 			["container", "b"],
 			["container", "c"]);
 		
 		return [
-			() => a.is(type),
-			() => b.is(type),
-			() => c.is(type)
+			() => a.is(fact),
+			() => b.is(fact),
+			() => c.is(fact)
 		];
 	}
 }

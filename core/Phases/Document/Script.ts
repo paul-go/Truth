@@ -161,7 +161,7 @@ namespace Truth
 	}
 	
 	/**
-	 * A special key used to specified an anonymous type in a block of Jsonized truth.
+	 * A special key used to specified an anonymous Fact in a block of Jsonized truth.
 	 */
 	export const anonymous = "__ANONYMOUS__";
 	
@@ -191,25 +191,25 @@ namespace Truth
 		 * A callback function that is invoked when a call to Document.fold or
 		 * Program.fold is made.
 		 * 
-		 * Folding a Truth document works like a recursive reduce. Each type may
+		 * Folding a Truth document works like a recursive reduce. Each Fact may
 		 * provide a folding function, which takes the results of the fold functions
-		 * the correspond to each of it's inner types. It then returns a value which
-		 * is sent upward to the fold function of the outer type. For types that
+		 * the correspond to each of it's containees. It then returns a value which
+		 * is sent upward to the fold function of the container Fact. For Facts that
 		 * define no fold function, the data is passed through them verbatim.
 		 * 
 		 * NOTE: Do we need a fold message here so that the same avatar can
 		 * respond to multiple kinds of folds?
 		 */
-		fold?(this: Type, target: Type, into: () => unknown): any;
+		fold?(this: Fact, target: Fact, into: () => unknown): any;
 		
 		/**
-		 * A callback function that is invoked when the type is to be introspected.
-		 * Provides a means to "delegate" the type, meaning that the types that
-		 * are returned are assumed to take the place of the type being introspected.
+		 * A callback function that is invoked when the Fact is to be introspected.
+		 * Provides a means to "delegate" the Fact, meaning that the Facts that
+		 * are returned are assumed to take the place of the Fact being introspected.
 		 * This method should be implemented by avatars that wish to provide
 		 * a querying mechanism into Truth, in order to create the effect of
-		 * replacing a type with another set of types found elsewhere in the program.
+		 * replacing a Fact with another set of Facts found elsewhere in the program.
 		 */
-		delegate?(this: Type, physicalType: Type): Type[];
+		delegate?(this: Fact, physicalFact: Fact): Fact[];
 	}
 }
