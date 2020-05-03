@@ -5,7 +5,7 @@ namespace Truth
 	 * A chain of subjects that form a path to a particular location within a Document.
 	 * 
 	 * The lifetime of a Phrase is pinned (directly or indirectly) to the lifetime of a Document.
-	 * A Document object as a reference to a root-level Phrase, and Phrase objects are then
+	 * A Document object as a reference to a surface-level Phrase, and Phrase objects are then
 	 * store references to their nested Phrase children.
 	 * 
 	 * Phrases can be either "hypothetical" or "non-hypothetical". A non-hypothetical phrase
@@ -352,7 +352,7 @@ namespace Truth
 		/**
 		 * Stores a reference to the Phrase object that contains exactly one
 		 * less term than this one (from the end). In the case when the Phrase
-		 * is root-level, this field stores a self-reference.
+		 * is surface-level, this field stores a self-reference.
 		 */
 		readonly parent: Phrase;
 		
