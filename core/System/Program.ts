@@ -88,6 +88,9 @@ namespace Truth
 					docs.add(doc);
 				};
 				
+				for (const doc of this._documents)
+					recurse(doc);
+				
 				this.versionOfLastDocSort = this.version;
 				this._documents = Array.from(docs);
 			}
