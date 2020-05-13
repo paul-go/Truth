@@ -27,14 +27,16 @@ namespace Truth
 		 * and extension. If empty or omitted, a sequential numeric base name is
 		 * generated.
 		 */
-		static fromName(documentBaseName?: string)
+		static fromName(
+			documentBaseName: string = "",
+			extension = Extension.truth)
 		{
 			let uriText = 
 				UriProtocol.memory + 
 				"//memory/" + (documentBaseName || (++this.memUriCount).toString());
 			
-			if (!uriText.endsWith(Extension.truth))
-				uriText += Extension.truth;
+			if (!uriText.endsWith(extension))
+				uriText += extension;
 			
 			return Misc.get(this.cache, uriText, () => new KnownUri(new URL(uriText)));
 		}

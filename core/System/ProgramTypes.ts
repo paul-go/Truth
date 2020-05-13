@@ -2,36 +2,9 @@
 namespace Truth
 {
 	/**
-	 * An enumeration that refers to the stages of a Program's verification cycle.
+	 * Defines a type that may be used as source truth information.
 	 */
-	export const enum VerificationStage
-	{
-		/**
-		 * Refers to the stage before verification has begun, but where
-		 * the containing program has unverified information.
-		 */
-		required = 0,
-		/**
-		 * Refers to the stage where no verification has completed, 
-		 * but a verification process has launched.
-		 */
-		started = 1,
-		/**
-		 * Refers to the stage where the areas of the program that were
-		 * explicitly modified via a call to Program.edit() have been verified.
-		 */
-		marked = 2,
-		/**
-		 * Refers to the stage where the areas of the program that were
-		 * possibly affected by an edit have been verified. 
-		 */
-		affected = 3,
-		/**
-		 * Refers to the final stage where the areas of the program that
-		 * could not have been affected by an edit have been verified.
-		 */
-		finished = 4
-	}
+	export type InputSource = string | Iterable<string> | SourceObject;
 	
 	/**
 	 * Represents an interface for creating a batch of mutation operations,

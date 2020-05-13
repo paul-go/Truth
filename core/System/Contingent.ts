@@ -25,7 +25,7 @@ namespace Truth
 	/**
 	 * A class that presents the interface of a JavaScript-standard Set,
 	 * but whose values are removed when the document with which
-	 * the value is associated  goes into an unchecked state.
+	 * the value is associated goes into an unchecked state.
 	 */
 	export class ContingentSet<K extends ContingentKey = number>
 		extends Contingent
@@ -53,7 +53,7 @@ namespace Truth
 	/**
 	 * A class that presents the interface of a JavaScript-standard Map,
 	 * but whose keys and values are removed when the document with
-	 * which the value is associated  goes into an unchecked state.
+	 * which the value is associated goes into an unchecked state.
 	 */
 	export class ContingentMap<K extends ContingentKey, V> extends Contingent
 	{
@@ -93,7 +93,7 @@ namespace Truth
 	/**
 	 * A class that presents the interface of Truth's SetMap object,
 	 * but whose values are removed when the document with which
-	 * the value is associated  goes into an unchecked state.
+	 * the value is associated goes into an unchecked state.
 	 */
 	export class ContingentSetMap<K extends ContingentKey, V> 
 		extends Contingent

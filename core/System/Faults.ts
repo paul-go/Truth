@@ -71,7 +71,7 @@ namespace Truth
 		 * Converts this fault into a string representation,
 		 * suitable for output as an error message.
 		 */
-		toString()
+		toString(includeSource = false)
 		{
 			const doc = this.document;
 			
@@ -86,8 +86,9 @@ namespace Truth
 			
 			const colNums = this.range.start + "-" + this.range.end;
 			const colText = colNums ? ", Col " + colNums : "";
+			const src = includeSource ? `, Source '${this.statement.sourceText}'` : "";
 			
-			return `${this.type.message} (${uriText}Line ${this.line}${colText})`;
+			return `${this.type.message} (${uriText}Line ${this.line}${colText}${src})`;
 		}
 		
 		/**
@@ -505,11 +506,6 @@ namespace Truth
 			527,
 			"Patterns with nominal infixes require an input that is " +
 			"derived from the fact specified, not the fact itself."),
-		
-		/** */
-		NthLevelHomograph: createFault<Span>(
-			601,
-			"Homographs may not be defined beyond the first level."),
 		
 		//# Parse errors
 		

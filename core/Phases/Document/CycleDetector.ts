@@ -17,7 +17,7 @@ namespace Truth
 		/**
 		 * Informs the CycleDetector that a referentially-significant 
 		 * statement (meaning that it was having an effect on the graph
-		 * of  connected documents) was deleted from a document.
+		 * of connected documents) was deleted from a document.
 		 * 
 		 * @returns A boolean value indicating whether faults were
 		 * reported to the FaultService.
@@ -46,7 +46,7 @@ namespace Truth
 		/**
 		 * Informs the CycleDetector that a referentially-significant 
 		 * statement (meaning that it was having an effect on the graph
-		 * of  connected documents) was added to a document.
+		 * of connected documents) was added to a document.
 		 * 
 		 * @returns A boolean value indicating whether faults were
 		 * reported to the FaultService.

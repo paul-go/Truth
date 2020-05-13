@@ -247,7 +247,7 @@ namespace Truth
 					return;
 				
 				// At this point, inference through abstraction failed, but it may
-				// still  occur through containment. This is carried out simply
+				// still occur through containment. This is carried out simply
 				// by proceeding as usual, because the phrase's .outbounds
 				// property establishes necessary forks to other phrases in the
 				// containment hierarchy to support inference via containment.

@@ -7,7 +7,7 @@
 // contract imposed on inheriting children would
 // be read as: 
 // 
-//          "One and only one T, or an alias of T".
+//	"One and only one T, or an alias of T".
 // 
 
 Animal

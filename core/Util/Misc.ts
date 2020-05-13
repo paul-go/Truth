@@ -217,6 +217,14 @@ namespace Truth
 		}
 		
 		/**
+		 * Gets whether the value provided in the argument is an Iterable.
+		 */
+		static isIterable(val: any): val is Iterable<any>
+		{
+			return typeof val === "object" && Symbol.iterator in val;
+		}
+		
+		/**
 		 * Makes a guess about the JavaScript environment in which this
 		 * code is running, based on checking for the existence of common
 		 * identifiers.

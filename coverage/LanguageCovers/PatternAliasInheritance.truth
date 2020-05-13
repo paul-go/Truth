@@ -19,4 +19,4 @@ SubFact : Fact
 	
 SubSubFact : SubFact
 	~ Thing
-		~  Value : 3
+		~ Value : 3

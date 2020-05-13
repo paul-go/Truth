@@ -219,7 +219,7 @@ namespace Truth
 		/** */
 		static unexpectedHomograph()
 		{
-			return error("Homographs are not handled.");
+			return error("An unexpected homographs was encountered.");
 		}
 		
 		/** */

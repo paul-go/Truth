@@ -66,7 +66,7 @@ namespace Truth
 			if (key1 === undefined)
 				return this.map.keys();
 			
-			const subMap  = this.map.get(key1);
+			const subMap = this.map.get(key1);
 			if (subMap)
 				return subMap.keys();
 			

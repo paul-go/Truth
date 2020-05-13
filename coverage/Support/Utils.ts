@@ -25,7 +25,7 @@ namespace CoverTruth
 		if (doc instanceof Error)
 			throw Truth.Exception.unknownState();
 		
-		await program.wait();
+		program.check();
 		return doc;
 	}
 	
@@ -91,6 +91,7 @@ namespace CoverTruth
 			documents.push(docC);
 		}
 		
+		program.check();
 		return [...documents, program];
 	}
 	
@@ -166,6 +167,19 @@ namespace CoverTruth
 				return false;
 		
 		return true;
+	}
+	
+	/**
+	 * Writes all faults detected in the specified program
+	 * to the console.
+	 */
+	export function printFaults(program: Truth.Program)
+	{
+		if (program.faults.count === 0)
+			console.log("This program has no faults.");
+		
+		else for (const fault of program.faults.each())
+			console.log(fault.toString(true));
 	}
 	
 	/**

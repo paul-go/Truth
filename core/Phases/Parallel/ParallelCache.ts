@@ -90,7 +90,7 @@ namespace Truth
 			return this.parallels.get(phrase.id);
 		}
 		
-		/** Gets the ExplicitParallel associated with the specified Phrase.  */
+		/** Gets the ExplicitParallel associated with the specified Phrase. */
 		getExplicit(phrase: Phrase)
 		{
 			if (phrase.isHypothetical)

@@ -350,7 +350,7 @@ namespace Truth
 				// If we have gotten to this point, the contract is considered to be
 				// satisfied entirely. This may seem like a cheat–but it's not. We're
 				// actually able to just add all the parallels being imposed as bases,
-				// and then declare the  contract as settled.
+				// and then declare the contract as settled.
 				
 				for (const patternParallel of nonInfixedPatternParallels)
 					this.bases.add(viaFork, patternParallel);
