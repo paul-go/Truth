@@ -49,10 +49,10 @@ namespace Truth
 		 * Internal constructor for Document objects.
 		 * Document objects are created via a Program object.
 		 */
-		static async  new(
+		static async new(
 			program: Program,
 			fromUri: KnownUri,
-			source: string | Iterable<string> | SourceObject,
+			source: InputSource,
 			saveFn: (doc: Document) => void): Promise<Document | Error>
 		{
 			const doc = new Document(program, fromUri);
@@ -67,12 +67,12 @@ namespace Truth
 					if (typeof source === "string")
 						return Statement.readFromSource(doc, source);
 					
-					if (Symbol.iterator in source)
+					if (Misc.isIterable(source))
 						return source as Iterable<string>;
 				}
 				else if (fromUri.extension === Extension.script)
 				{
-					if (typeof source === "object" && !(Symbol.iterator in source))
+					if (typeof source !== "string" && !Misc.isIterable(source))
 						return Statement.readFromScript(doc, source as SourceObject);
 				}
 				
@@ -421,7 +421,7 @@ namespace Truth
 		}
 		
 		/**
-		 * @returns The sibling Statement objects of the  specified Statement. 
+		 * @returns The sibling Statement objects of the specified Statement. 
 		 * If the specified statement is a no-op, the returned value is null.
 		 * @throws An error in the case when the statement is not found in 
 		 * the document.

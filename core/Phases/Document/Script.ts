@@ -80,7 +80,9 @@ namespace Truth
 		}
 	}
 	
-	/** */
+	/**
+	 * 
+	 */
 	function extractSourceObjects(key: string): SourceObject
 	{
 		const result = declaredSourceObjects.get(key);
@@ -185,7 +187,7 @@ namespace Truth
 	 * An object type that specifies the methods that may be defined
 	 * on a source object defined within a script.
 	 */
-	export type SourceObjectMethods  =
+	export type SourceObjectMethods =
 	{
 		/**
 		 * A callback function that is invoked when a call to Document.fold or
@@ -196,17 +198,14 @@ namespace Truth
 		 * the correspond to each of it's containees. It then returns a value which
 		 * is sent upward to the fold function of the container Fact. For Facts that
 		 * define no fold function, the data is passed through them verbatim.
-		 * 
-		 * NOTE: Do we need a fold message here so that the same avatar can
-		 * respond to multiple kinds of folds?
 		 */
-		fold?(this: Fact, target: Fact, into: () => unknown): any;
+		fold?(this: Fact, carry: readonly any[], operation: Fact): any;
 		
 		/**
 		 * A callback function that is invoked when the Fact is to be introspected.
 		 * Provides a means to "delegate" the Fact, meaning that the Facts that
 		 * are returned are assumed to take the place of the Fact being introspected.
-		 * This method should be implemented by avatars that wish to provide
+		 * This method should be implemented by scripts that wish to provide
 		 * a querying mechanism into Truth, in order to create the effect of
 		 * replacing a Fact with another set of Facts found elsewhere in the program.
 		 */

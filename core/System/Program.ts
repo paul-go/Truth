@@ -58,7 +58,7 @@ namespace Truth
 		/** @internal */
 		readonly worker: ConstructionWorker;
 		
-		/**  */
+		/** */
 		readonly faults: FaultService;
 		
 		/**
@@ -122,13 +122,16 @@ namespace Truth
 		 * "memory://memory/2.truth", and so on.
 		 */
 		async addDocument(
-			sourceText: string | Iterable<string> = "",
-			associatedUri: KnownUri = KnownUri.fromName())
+			source: InputSource = "",
+			associatedUri: KnownUri = 
+				KnownUri.fromName("", typeof source === "string" || Misc.isIterable(source) ? 
+					Extension.truth :
+					Extension.script))
 		{
 			const doc = await Document.new(
 				this,
 				associatedUri,
-				sourceText,
+				source,
 				d => this.saveDocument(d));
 			
 			return this.finalizeDocumentAdd(doc);
@@ -142,17 +145,16 @@ namespace Truth
 		 * @param documentUri The URI that will represent the source 
 		 * location of the loaded document.
 		 * 
-		 * @param source The source text or source object to load into
+		 * @param fallbackSource The source text or source object to load into
 		 * the document by default. If omitted, the source will be loaded
-		 * from the the URI specified in the `documentUri`  argument.
-		 * 
+		 * from the the URI specified in the `documentUri` argument.
 		 * Use this argument when the source text of the document being
 		 * added has already been loaded into a string by another means,
 		 * or when more control of the actual loaded content is required.
 		 */
 		async addDocumentFromUri(
 			documentUri: string | KnownUri,
-			source?: string | SourceObject)
+			fallbackSource?: string | SourceObject)
 		{
 			const uri = typeof documentUri === "string" ?
 				KnownUri.fromString(documentUri) :
@@ -165,7 +167,7 @@ namespace Truth
 			if (existingDoc)
 				return existingDoc;
 			
-			// If the uri is a memory URI, the document has to  already be 
+			// If the uri is a memory URI, the document has to already be 
 			// loaded into memory, or it's an error.
 			else if (uri.protocol === UriProtocol.memory)
 				return Promise.resolve(Exception.invalidUri(uri.toString()));
@@ -183,7 +185,7 @@ namespace Truth
 			{
 				this.queue.set(uri, [resolve]);
 				
-				if (source === undefined)
+				if (fallbackSource === undefined)
 				{
 					if (uri.extension === Extension.truth)
 					{
@@ -191,7 +193,7 @@ namespace Truth
 						if (loadedSourceText instanceof Error)
 							return loadedSourceText;
 						
-						source = loadedSourceText;
+						fallbackSource = loadedSourceText;
 					}
 					else if (uri.extension === Extension.script)
 					{
@@ -199,7 +201,7 @@ namespace Truth
 						if (loadedSourceObject instanceof Error)
 							return loadedSourceObject;
 						
-						source = loadedSourceObject;
+						fallbackSource = loadedSourceObject;
 					}
 					else throw Exception.invalidArgument();
 				}
@@ -207,7 +209,7 @@ namespace Truth
 				const docOrError = await Document.new(
 					this,
 					uri,
-					source,
+					fallbackSource,
 					d => this.saveDocument(d));
 				
 				const resolveFns = this.queue.get(uri);
@@ -226,7 +228,10 @@ namespace Truth
 		private finalizeDocumentAdd(docOrError: Document | Error)
 		{
 			if (docOrError instanceof Document)
+			{
+				this.uncheckedDocuments.add(docOrError.id);
 				this.emit("documentAdd", docOrError);
+			}
 			
 			return docOrError;
 		}

@@ -5,7 +5,7 @@ namespace CoverTruth
 	export async function coverCheckSingleDocumentNoFaults()
 	{
 		const doc = await createDocument("a", "b : a");
-		const  inerrant = doc.program.check();
+		const inerrant = doc.program.check();
 		return () => inerrant;
 	}
 	

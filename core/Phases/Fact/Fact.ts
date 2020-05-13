@@ -128,7 +128,7 @@ namespace Truth
 						program.setForeignSupervisor(supervisor, fact);
 				}
 				
-				program.addFact(fact, phrase.id);
+				program.addFact(fact, seed.phrase.id);
 				lastFact = fact;
 			}
 			
@@ -500,56 +500,7 @@ namespace Truth
 		private _patterns: readonly Fact[] | null = null;
 		
 		/**
-		 * Gets an array that contains the raw string values representing
-		 * the aliases with which this Fact has been annotated.
-		 * 
-		 * If this Fact is implicit, the parallel graph is searched, and any
-		 * applicable aliases will be present in the returned array.
-		 */
-		get aliases()
-		{
-			if (this._aliases !== null)
-				return this._aliases;
-			
-			const aliases: string[] = [];
-			const seed = this.guard();
-			
-			const extractAlias = (ep: ExplicitParallel) =>
-			{
-				for (const { alias } of ep.eachBase())
-					if (alias)
-						aliases.push(alias);
-			};
-			
-			if (seed instanceof ExplicitParallel)
-			{
-				extractAlias(seed);
-			}
-			else if (seed instanceof ImplicitParallel)
-			{
-				const queue: ImplicitParallel[] = [seed];
-				
-				for (let i = -1; ++i < queue.length;)
-				{
-					const current = queue[i];
-					
-					for (const parallel of current.getParallels())
-					{
-						if (parallel instanceof ExplicitParallel)
-							extractAlias(parallel);
-						
-						else if (parallel instanceof ImplicitParallel)
-							queue.push(parallel);
-					}
-				}
-			}
-			
-			return this._aliases = aliases;
-		}
-		private _aliases: readonly string[] | null = null;
-		
-		/**
-		 * Gets a table of information aobut the keywords that are 
+		 * Gets a table of information about the keywords that are 
 		 * associated with this Fact, in the order in which they occur
 		 * within the document.
 		 */
@@ -598,6 +549,22 @@ namespace Truth
 			return this._keywords = keywords;
 		}
 		private _keywords: readonly Keyword[] | null = null;
+		
+		/**
+		 * Gets a string representing any alias associated with the Fact,
+		 * or an empty string in the case when there is no associated alias.
+		 */
+		get alias(): string
+		{
+			if (this.keywords.length === 0)
+				return "";
+			
+			for (const kw of this.keywords)
+				if (kw.isAlias)
+					return kw.word;
+			
+			return "";
+		}
 		
 		/**
 		 * Gets a string representation of the entire annotation side of this Fact.
@@ -789,15 +756,6 @@ namespace Truth
 		}
 		
 		/**
-		 * Recursively invokes any fold() method provided by
-		 * computed Facts submerged within this Fact.
-		 */
-		fold()
-		{
-			throw Exception.notImplemented();
-		}
-		
-		/**
 		 * Returns a string representation of this Fact, suitable for
 		 * debugging purposes.
 		 */
@@ -831,7 +789,7 @@ namespace Truth
 				write(".supervisors", this.supervisors);
 				write(".adjacents", this.adjacents);
 				write(".patterns", this.patterns);
-				write(".aliases", this.aliases);
+				write(".alias", [this.alias]);
 				
 				lines.shift();
 				return lines.join("\n");
@@ -865,7 +823,20 @@ namespace Truth
 	export class Keyword
 	{
 		constructor(
+			/**
+			 * Stores the raw text string of the Keyword, regardless of
+			 * whether it represents an alias or a literal Fact.
+			 */
 			readonly word: string,
+			/**
+			 * Stores the Fact associated with the Keyword.
+			 * 
+			 * In the case when this Keyword refers to a literal Fact, this
+			 * property contains a reference to that Fact.
+			 * 
+			 * In the case when this Keyword is an alias, this property will
+			 * refer to the Pattern fact that supports the Keyword.
+			 */
 			readonly fact: Fact) { }
 		
 		/**
@@ -873,7 +844,7 @@ namespace Truth
 		 */
 		get isAlias()
 		{
-			return this.fact.name === this.word;
+			return this.fact.isPattern;
 		}
 	}
 	

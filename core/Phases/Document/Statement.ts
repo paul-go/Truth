@@ -58,39 +58,60 @@ namespace Truth
 			function *recurse(sourceObject: SourceObject, depth: number):
 				IterableIterator<Statement>
 			{
-				// Methods can only be defined at the second level of depth and
-				// higher in the object structure provided.
-				const hasMethods = 
-					depth > 0 &&
-					Object.values(sourceObject).some(v => typeof v === "function");
-				
 				for (const [declaration, rightSide] of Object.entries(sourceObject))
 				{
-					const values: any[] = (Array.isArray(rightSide) ? rightSide : [rightSide]);
-					const annotations = values
-						.filter(v =>
-							v !== "" &&
-							v !== null &&
-							v !== void 0 &&
-							v === v &&
-							typeof v !== "object")
-						.map(v => String(v));
+					const methods: SourceObjectMethods[] = [];
+					const annotations: string[] = [];
+					const containees: [string, unknown][] = [];
 					
-					const inners = values.filter(v => !!v && typeof v === "object");
+					for (const value of (Array.isArray(rightSide) ? rightSide : [rightSide]))
+					{
+						if (typeof value === "string" && value !== "")
+							annotations.push(value);
+						
+						else if (typeof value === "number" && value === value)
+							annotations.push(value.toString());
+						
+						else if (typeof value === "object" && !!value)
+						{
+							const methodEntries: [string, unknown][] = [];
+							
+							for (const [key, valueNested] of Object.entries(value))
+							{
+								if (typeof valueNested === "function")
+									methodEntries.push([key, valueNested]);
+								else
+									containees.push([key, valueNested]);
+							}
+							
+							if (methodEntries.length > 0)
+								methods.push(Object.fromEntries(methodEntries));
+						}
+					}
 					
-					const statementText = 
-						Syntax.tab.repeat(depth) + declaration + 
-						Syntax.space + Syntax.joint + Syntax.space +
-						annotations.join(Syntax.combinator);
+					const statementText = [
+						Syntax.tab.repeat(depth),
+						declaration
+					];
+					
+					if (annotations.length > 0)
+						statementText.push(
+							Syntax.space,
+							Syntax.joint,
+							Syntax.space,
+							annotations.join(Syntax.combinator));
 					
 					yield Statement.new(
 						targetDocument,
-						statementText,
+						statementText.join(""),
 						options,
-						inners);
+						methods);
 					
-					for (const innerObject of inners)
-						yield *recurse(innerObject, depth + 1);
+					if (containees.length > 0)
+					{
+						const srcObj = Object.fromEntries(containees) as SourceObject;
+						yield *recurse(srcObj, depth + 1);
+					}
 				}
 			};
 			
@@ -706,7 +727,7 @@ namespace Truth
 		/**
 		 * @internal
 		 * Stores an array of SourceObjectMethods objects that were defined
-		 * as being in correspondence with this statement.  In the case when
+		 * as being in correspondence with this statement. In the case when
 		 * this Statement was not generated from a scripted document, the
 		 * stored value is an empty aray.
 		 */
