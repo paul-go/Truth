@@ -1,6 +1,6 @@
 //
 // This example demonstrates an attempt to refer to something
-// that might be a list-intrinsic fact, but no such containee
+// that might be a list-intrinsic type, but no such containee
 // exists on the intrinsic side, and so a fault is reported.
 //
 

@@ -2,33 +2,33 @@
 //
 //
 
-Fact1
-Fact2
-Fact3
+Type1
+Type2
+Type3
 
 Container
-	: Fact1 ~ Fact1
-	: Fact2 ~ Fact2
-	: Fact3 ~ Fact3
+	: Type1 ~ Type1
+	: Type2 ~ Type2
+	: Type3 ~ Type3
 
 // (graph)
-AnonymousFactsNested.truth//Fact1
+AnonymousTypesNested.truth//Type1
 	spans=1, out=0, in=1
 
-AnonymousFactsNested.truth//Fact2
+AnonymousTypesNested.truth//Type2
 	spans=1, out=0, in=1
 
-AnonymousFactsNested.truth//Fact3
+AnonymousTypesNested.truth//Type3
 	spans=1, out=0, in=1
 
-AnonymousFactsNested.truth//Container
+AnonymousTypesNested.truth//Container
 	spans=1, out=0, in=0
 
-AnonymousFactsNested.truth//Container/__ANON#__
+AnonymousTypesNested.truth//Container/__ANON#__
 	spans=1, out=1, in=0
 
-AnonymousFactsNested.truth//Container/__ANON#__
+AnonymousTypesNested.truth//Container/__ANON#__
 	spans=1, out=1, in=0
 
-AnonymousFactsNested.truth//Container/__ANON#__
+AnonymousTypesNested.truth//Container/__ANON#__
 	spans=1, out=1, in=0

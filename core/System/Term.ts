@@ -5,7 +5,7 @@ namespace Truth
 	
 	/**
 	 * A reference type that encapsulates a unique term within a document.
-	 * A term may be the name of a Fact, such as "Product", or it may also
+	 * A term may be the name of a Type, such as "Product", or it may also
 	 * be some alias to be matched by a pattern, such as "10cm".
 	 */
 	export class Term extends AbstractClass
@@ -40,7 +40,7 @@ namespace Truth
 		
 		/**
 		 * Stores a significant empty-string term, which is used as a marker term
-		 * to represent what is eventually presented as an anonymous Fact.
+		 * to represent what is eventually presented as an anonymous Type.
 		 */
 		static readonly anonymous = new Term("", true);
 		
@@ -105,8 +105,8 @@ namespace Truth
 		/**
 		 * Stores a reference to the singular version of this Term.
 		 * For example, in the case when the term's textContent is
-		 * "SomeFact...", this field refers to the Term object whose
-		 * textContent is "SomeFact".
+		 * "SomeType...", this field refers to the Term object whose
+		 * textContent is "SomeType".
 		 * 
 		 * In the case when this Term does not conform to the list syntax,
 		 * the field stores a self-reference back to this Term object.

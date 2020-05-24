@@ -24,7 +24,7 @@ namespace CoverTruth
 	}
 	
 	/** */
-	export async function coverSimpleFactCheck()
+	export async function coverSimpleTypeCheck()
 	{
 		const [doc, program] = await createLanguageCover(`
 			number
@@ -36,7 +36,7 @@ namespace CoverTruth
 				n : 1
 		`);
 		
-		const [s1n] = factsOf(doc,
+		const [s1n] = typesOf(doc,
 			["s1", "n"]
 		);
 		
@@ -62,7 +62,7 @@ namespace CoverTruth
 					min : 3
 		`);
 		
-		const [s1n] = factsOf(doc,
+		const [s1n] = typesOf(doc,
 			["s1", "n", "min"]
 		);
 		

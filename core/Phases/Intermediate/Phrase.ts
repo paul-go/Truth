@@ -12,8 +12,8 @@ namespace Truth
 	 * is one that is supported by a Span object that represents a region of text that was typed
 	 * directly into the document. A hypothetical phrase is one that refers to some path in
 	 * the document that wasn't entered by the user, and therefore only exists hypothetically.
-	 * Determining whether an actual Fact is present at the hypothetical location requires
-	 * invoking the fact checker.
+	 * Determining whether an actual Type is present at the hypothetical location requires
+	 * invoking the type checker.
 	 * 
 	 * Because non-hypothetical phrases are supported by one or more physical spans, Phrases
 	 * therefore have a concept of being "inflated" and "deflated" by backing spans. This is
@@ -50,8 +50,8 @@ namespace Truth
 			/*
 			TODO
 			This method is going to require the use of a custom phrase path string parser.
-			This is so that Facts may be referred to through a kind of custom URI structure.
-			This could be a simple path/to/the/fact, but the first term of the path will
+			This is so that Types may be referred to through a kind of custom URI structure.
+			This could be a simple path/to/the/type, but the first term of the path will
 			require the ability to parse a clarifier, to allow for disambiguating between a
 			possible homograph.
 			*/
@@ -381,7 +381,7 @@ namespace Truth
 		/**
 		 * Gets a read-only array of Statement objects from which this Phrase
 		 * is composed. This array will have a length > 1 in the case when the
-		 * Phrase is composed from a fragmented Fact. In other cases, the
+		 * Phrase is composed from a fragmented Type. In other cases, the
 		 * length of the array will be 1.
 		 */
 		get statements()
@@ -620,7 +620,7 @@ namespace Truth
 		/**
 		 * Gets whether this Phrase has been explicitly defined as a list extrinsic.
 		 * It is worth noting that this property in and of itself is not sufficient to
-		 * determine whether any corresponding Fact is actually a list (full fact
+		 * determine whether any corresponding Type is actually a list (full type
 		 * checking is required to draw this conclusion).
 		 */
 		get isListExtrinsic()
@@ -631,11 +631,11 @@ namespace Truth
 		/**
 		 * Gets a reference to the "opposite side of the list".
 		 * 
-		 * If this Phrase represents a list intrinsic Fact, this property gets
+		 * If this Phrase represents a list intrinsic Type, this property gets
 		 * a reference to the Phrase that represents the corresponding
 		 * extrinsic side.
 		 * 
-		 * If this Phrase represents anything that *isn't* a list intrinsic Fact,
+		 * If this Phrase represents anything that *isn't* a list intrinsic Type,
 		 * the property gets a reference to the Phrase that represents the
 		 * corresponding intrinsic side (whether the node is a list or not).
 		 * 

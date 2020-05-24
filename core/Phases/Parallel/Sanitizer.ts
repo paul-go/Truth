@@ -18,7 +18,7 @@ namespace Truth
 		
 		/**
 		 * Detects list operartor conflicts between the fragments of an
-		 * annotation. For example, conflicts of the following facts are
+		 * annotation. For example, conflicts of the following types are
 		 * caught here:
 		 * 
 		 * List : Item
@@ -32,7 +32,7 @@ namespace Truth
 			
 			const spans = sources.filter((src): src is Span => src instanceof Span);
 			const terms = spans
-				.map(f => f.boundary.subject)
+				.map(span => span.boundary.subject)
 				.filter((sub): sub is Term => sub instanceof Term);
 			
 			const termsList = terms.filter(id => id.isList);
@@ -65,7 +65,7 @@ namespace Truth
 			
 			for (const item of circularForkPaths)
 				for (const circularEdge of item)
-					this.addFault(circularEdge, Faults.CircularFactReference);
+					this.addFault(circularEdge, Faults.CircularTypeReference);
 			
 			return this.foundCruft;
 		}

@@ -1,7 +1,7 @@
 // 
 // This example demonstrates a simple case of
 // polymorphic name resolution. The resolved
-// name of the final "Property" fact skips a level,
+// name of the final "Property" type skips a level,
 // due to the contract being imposed on it from
 // it's base.
 // 

@@ -1,6 +1,6 @@
 //
 // This example demonstrates portability infixes, but 
-// where additional facts are specified on the annotation
+// where additional types are specified on the annotation
 // side, but a fault is being generated due to an additional
 // term being specified in a portability infix that isn't
 // within the abstraction hierarchy of "Speed".

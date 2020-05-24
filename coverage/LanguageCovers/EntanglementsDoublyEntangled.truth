@@ -1,7 +1,7 @@
 // 
 // This example demonstrates an set of entanglements
 // where an entangled down-cast is happening, but the
-// fact causing it itself is another entangled fact.
+// type causing it itself is another entangled type.
 // 
 
 String

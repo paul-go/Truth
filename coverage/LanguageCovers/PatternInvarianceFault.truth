@@ -1,7 +1,7 @@
 //
 // This example demonstrates a fault being generated
 // as a result of an attempt to match an alias to a pattern
-// fact, through a covariant means. However, this isn't
+// type, through a covariant means. However, this isn't
 // allowed. Types that are matched to bases via patterns
 // must conform to the pattern's annotations exactly
 // as specified.

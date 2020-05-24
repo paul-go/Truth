@@ -6,4 +6,4 @@
 
 EscapeZilla
 /\<\/\:\/\> : EscapeZilla
-Fact : </:/> ~ EscapeZilla
+Type : </:/> ~ EscapeZilla

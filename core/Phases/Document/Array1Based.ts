@@ -99,11 +99,11 @@ namespace Truth
 		splice(pos: number, deleteCount: number, ...items: T[]): readonly T[]
 		{
 			// This method needs to perform some strange handling due to the
-			// fact that the JavaScript Array.splice() method has bizarre handling
+			// problem that the JavaScript Array.splice() method has bizarre handling
 			// when dealing with negative positions (there's no way to start at the
-			// very end of the array), and the fact that this method also needs to 
-			// translate the position into a 1-based index. Ironically, the fact that
-			// this class needs to translate indexes actually makes this .splice()
+			// very end of the array), and the requirement that this method also needs
+			// to  translate the position into a 1-based index. Ironically, the requirement
+			// that this class needs to translate indexes actually makes this .splice()
 			// method work as one might expect the JavaScript Array.splice()
 			// method to work. Below is a table of how the method translates
 			// the "pos" argument:

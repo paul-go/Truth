@@ -11,9 +11,9 @@ namespace CoverTruth
 		if (doc instanceof Error)
 			return doc;
 		
-		doc.edit(facts =>
+		doc.edit(types =>
 		{
-			facts.update("Y", 0);
+			types.update("Y", 0);
 		});
 		
 		const documentText = doc.toString();
@@ -32,17 +32,17 @@ namespace CoverTruth
 		if (doc instanceof Error)
 			return doc;
 		
-		doc.edit(facts =>
+		doc.edit(types =>
 		{
 			// Should do nothing
-			facts.update("X", 0);
+			types.update("X", 0);
 			
 			// Should update
-			facts.update("YY", 1);
+			types.update("YY", 1);
 			
 			// Should do a double update
-			facts.update("ZZ", 2);
-			facts.update("ZZZ", 2);
+			types.update("ZZ", 2);
+			types.update("ZZZ", 2);
 		});
 		
 		const documentText = doc.toString();
@@ -63,9 +63,9 @@ namespace CoverTruth
 		if (doc instanceof Error)
 			return doc;
 		
-		doc.edit(facts =>
+		doc.edit(types =>
 		{
-			facts.insert("B", 1);
+			types.insert("B", 1);
 		});
 		
 		const documentText = doc.toString();
@@ -91,9 +91,9 @@ namespace CoverTruth
 		if (doc instanceof Error)
 			return doc;
 		
-		doc.edit(facts =>
+		doc.edit(types =>
 		{
-			facts.delete(0, 1);
+			types.delete(0, 1);
 		});
 		
 		const documentText = doc.toString();
@@ -114,9 +114,9 @@ namespace CoverTruth
 		if (doc instanceof Error)
 			return doc;
 		
-		doc.edit(facts =>
+		doc.edit(types =>
 		{
-			facts.delete(1, 1);
+			types.delete(1, 1);
 		});
 		
 		const documentText = doc.toString();
@@ -142,9 +142,9 @@ namespace CoverTruth
 		if (doc instanceof Error)
 			return doc;
 		
-		doc.edit(facts =>
+		doc.edit(types =>
 		{
-			facts.delete(1, 2);
+			types.delete(1, 2);
 		});
 		
 		const documentText = doc.toString();
@@ -173,13 +173,13 @@ namespace CoverTruth
 		if (doc instanceof Error)
 			return doc;
 		
-		doc.edit(facts =>
+		doc.edit(types =>
 		{
 			// Delete "B"
-			facts.delete(1, 1);
+			types.delete(1, 1);
 			
 			// Delete "F", which is now one index back
-			facts.delete(3, 1);
+			types.delete(3, 1);
 		});
 		
 		const documentText = doc.toString();
@@ -208,13 +208,13 @@ namespace CoverTruth
 		if (doc instanceof Error)
 			return doc;
 		
-		doc.edit(facts =>
+		doc.edit(types =>
 		{
-			facts.update("	DidUpdate", 1);
-			facts.delete(2, 2);
-			facts.update("	DidUpdate", 2);
-			facts.insert("	DidInsert", 1);
-			facts.insert("	DidInsert", 10);
+			types.update("	DidUpdate", 1);
+			types.delete(2, 2);
+			types.update("	DidUpdate", 2);
+			types.insert("	DidInsert", 1);
+			types.insert("	DidInsert", 10);
 		});
 		
 		const documentText = doc.toString();

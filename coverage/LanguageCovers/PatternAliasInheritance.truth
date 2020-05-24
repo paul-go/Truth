@@ -1,22 +1,22 @@
 //
 // This example demonstrates the inference behavior
 // of statements nested within others, when the containing
-// statement has an aliased Fact. In this case, the Fact being
-// aliased is inferred by the container Fact, not the actual
+// statement has an aliased Type. In this case, the Type being
+// aliased is inferred by the container Type, not the actual
 // aliased value itself.
 //
 
 Number
 /\d+ : Number
 
-Fact
+Type
 	Thing
 		Value : Number
 	
-SubFact : Fact
+SubType : Type
 	Thing
 		Value : 3
 	
-SubSubFact : SubFact
+SubSubType : SubType
 	~ Thing
 		~ Value : 3

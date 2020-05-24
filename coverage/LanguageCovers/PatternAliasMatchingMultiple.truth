@@ -4,10 +4,10 @@
 // 
 // Although pattern-term resolution is invariant (meaning
 // that in order for name resolution to occur between two
-// Facts, the set of Facts specified as annotations on the
+// Types, the set of Types specified as annotations on the
 // pattern must match identical), in the case when there
-// is no contract being imposed on a Fact, it can resolve
-// to the Facts associated with multiple applicable patterns.
+// is no contract being imposed on a Type, it can resolve
+// to the Types associated with multiple applicable patterns.
 // 
 
 Type1

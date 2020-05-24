@@ -15,6 +15,6 @@ namespace CoverTruth
 		});
 		
 		const c = doc.query("c");
-		return () => c instanceof Truth.Fact;
+		return () => c instanceof Truth.Type;
 	}
 }

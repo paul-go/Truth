@@ -21,10 +21,10 @@ namespace CoverTruth
 				field : 2
 		`);
 		
-		const facts = Array.from(vdoc.eachFact());
+		const types = Array.from(vdoc.eachType());
 		return [
 			() => faults.length === 0,
-			() => facts.length === 2
+			() => types.length === 2
 		];
 	}
 }

@@ -2,24 +2,24 @@
 namespace CoverTruth
 {
 	/** */
-	export async function coverFactCorrectionLiteral()
+	export async function coverTypeCorrectionLiteral()
 	{
 		/*
-		const facts = await createFacts();
-		facts.capscrewDrive.correct(facts.slot);
+		const types = await createTypes();
+		types.capscrewDrive.correct(types.slot);
 		
 		return [
-			() => facts.capscrewDrive.is(facts.slot)
+			() => types.capscrewDrive.is(types.slot)
 		];
 		*/
 	}
 	
 	/** */
-	export async function coverFactCorrectionAlias()
+	export async function coverTypeCorrectionAlias()
 	{
 		/*
-		const facts = await createFacts();
-		const capscrew1 = facts.capscrew.introduce("capscrew1");
+		const types = await createTypes();
+		const capscrew1 = types.capscrew.introduce("capscrew1");
 		const size = capscrew1.query("size");
 		capscrew1.correct("1");
 		
@@ -31,30 +31,30 @@ namespace CoverTruth
 	}
 	
 	/** */
-	export async function coverFactSurfaceIntroduction()
+	export async function coverTypeSurfaceIntroduction()
 	{
 		/*
-		const facts = await createFacts();
-		const capscrew1 = facts.capscrew.introduce("capscrew1");
+		const types = await createTypes();
+		const capscrew1 = types.capscrew.introduce("capscrew1");
 		const capscrew1Size = capscrew1.query("size");
 		
 		return [
-			() => capscrew1.is(facts.screw),
+			() => capscrew1.is(types.screw),
 			() => capscrew1Size?.value === "0"
 		];
 		*/
 	}
 	
 	/** */
-	export async function coverFactListIntroduction()
+	export async function coverTypeListIntroduction()
 	{
 		/*
-		const facts = await createFacts();
-		const box1 = facts.box.introduce("box1");
+		const types = await createTypes();
+		const box1 = types.box.introduce("box1");
 		const box1Screws = box1.query("screws");
-		const capscrew1 = facts.capscrew.introduce("capscrew1");
-		const capscrew2 = facts.capscrew.introduce("capscrew2");
-		const capscrew3 = facts.capscrew.introduce("capscrew3");
+		const capscrew1 = types.capscrew.introduce("capscrew1");
+		const capscrew2 = types.capscrew.introduce("capscrew2");
+		const capscrew3 = types.capscrew.introduce("capscrew3");
 		box1Screws?.introduce(capscrew1);
 		box1Screws?.introduce(capscrew2);
 		box1Screws?.introduce(capscrew3);
@@ -69,7 +69,7 @@ namespace CoverTruth
 	}
 	
 	/** */
-	async function createFacts()
+	async function createTypes()
 	{
 		const doc = await createDocument(
 			"number",
@@ -89,18 +89,18 @@ namespace CoverTruth
 		doc.program.check();
 		
 		return {
-			number: doc.query("number") as Truth.Fact,
-			drive: doc.query("drive") as Truth.Fact,
-			torx: doc.query("torx") as Truth.Fact,
-			slot: doc.query("slot") as Truth.Fact,
-			screw: doc.query("screw") as Truth.Fact,
-			screwSize: doc.query("screw", "size") as Truth.Fact,
-			screwDrive: doc.query("screw", "drive") as Truth.Fact,
-			capscrew: doc.query("capscrew") as Truth.Fact,
-			capscrewSize: doc.query("capscrew", "size") as Truth.Fact,
-			capscrewDrive: doc.query("capscrew", "drive") as Truth.Fact,
-			box: doc.query("box") as Truth.Fact,
-			boxScrews: doc.query("box", "screws") as Truth.Fact
+			number: doc.query("number") as Truth.Type,
+			drive: doc.query("drive") as Truth.Type,
+			torx: doc.query("torx") as Truth.Type,
+			slot: doc.query("slot") as Truth.Type,
+			screw: doc.query("screw") as Truth.Type,
+			screwSize: doc.query("screw", "size") as Truth.Type,
+			screwDrive: doc.query("screw", "drive") as Truth.Type,
+			capscrew: doc.query("capscrew") as Truth.Type,
+			capscrewSize: doc.query("capscrew", "size") as Truth.Type,
+			capscrewDrive: doc.query("capscrew", "drive") as Truth.Type,
+			box: doc.query("box") as Truth.Type,
+			boxScrews: doc.query("box", "screws") as Truth.Type
 		};
 	}
 }

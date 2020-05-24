@@ -96,24 +96,24 @@ namespace CoverTruth
 	}
 	
 	/**
-	 * Extracts one or more Facts from the specified document,
+	 * Extracts one or more Types from the specified document,
 	 * at the given paths. An error is thrown in the case when any
-	 * of the paths specified do not correspond to a Fact.
+	 * of the paths specified do not correspond to a Type.
 	 */
-	export function factsOf(
+	export function typesOf(
 		document: Truth.Document,
-		...factPaths: (string | string[])[]): Truth.Fact[]
+		...typePaths: (string | string[])[]): Truth.Type[]
 	{
-		const out: (Truth.Fact | null)[] = [];
-		const paths = factPaths.map(v => typeof v === "string" ? [v] : v);
+		const out: (Truth.Type | null)[] = [];
+		const paths = typePaths.map(v => typeof v === "string" ? [v] : v);
 		let hasError = false;
 		
 		for (const path of paths)
 		{
-			const fact = document.query(...path);
-			if (fact instanceof Truth.Fact)
+			const type = document.query(...path);
+			if (type instanceof Truth.Type)
 			{
-				out.push(fact);
+				out.push(type);
 			}
 			else
 			{
@@ -124,7 +124,7 @@ namespace CoverTruth
 		
 		if (hasError)
 		{
-			const errorLines = ["No fact found at paths:"];
+			const errorLines = ["No type found at paths:"];
 			
 			for (let i = -1; ++i < out.length;)
 				if (out[i] === null)
@@ -133,7 +133,7 @@ namespace CoverTruth
 			throw new Error(errorLines.join("\n"));
 		}
 		
-		return out as Truth.Fact[];
+		return out as Truth.Type[];
 	}
 	
 	/**
@@ -141,12 +141,12 @@ namespace CoverTruth
 	 */
 	export function homographOf(
 		document: Truth.Document,
-		factName: string)
+		typeName: string)
 	{
-		const result = document.query(factName);
+		const result = document.query(typeName);
 		
-		if (result === null || result instanceof Truth.Fact || result.length < 2)
-			return new Error("Homograph not found for: " + factName);
+		if (result === null || result instanceof Truth.Type || result.length < 2)
+			return new Error("Homograph not found for: " + typeName);
 		
 		return result;
 	}

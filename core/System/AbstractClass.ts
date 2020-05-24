@@ -44,7 +44,7 @@ namespace Truth
 		Pattern |
 		Parallel |
 		Fork |
-		Fact;
+		Type;
 	
 	/**
 	 * @internal
@@ -63,6 +63,6 @@ namespace Truth
 		pattern,
 		parallel,
 		fork,
-		fact
+		type
 	}
 }

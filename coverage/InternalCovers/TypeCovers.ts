@@ -6,13 +6,13 @@ namespace CoverTruth
 	{
 		const doc = await createDocument("a", "b : a");
 		doc.program.check();
-		const [aFact] = doc.program.query("a");
-		const [bFact] = doc.program.query("b");
-		const aSubs = Array.from(aFact.eachSub());
+		const [aType] = doc.program.query("a");
+		const [bType] = doc.program.query("b");
+		const aSubs = Array.from(aType.eachSub());
 		
 		return [
 			() => aSubs.length === 1,
-			() => aSubs[0] === bFact
+			() => aSubs[0] === bType
 		];
 	}
 	
@@ -27,13 +27,13 @@ namespace CoverTruth
 		
 		docA.program.check();
 		
-		const [aFact] = docA.program.query("a");
-		const [bFact] = docB.program.query("b");
-		const aSubs = Array.from(aFact.eachSub());
+		const [aType] = docA.program.query("a");
+		const [bType] = docB.program.query("b");
+		const aSubs = Array.from(aType.eachSub());
 		
 		return [
 			() => aSubs.length === 1,
-			() => aSubs[0] === bFact
+			() => aSubs[0] === bType
 		];
 	}
 }

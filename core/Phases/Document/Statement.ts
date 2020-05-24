@@ -373,7 +373,7 @@ namespace Truth
 			if (this.allAnnotations.length > 0)
 			{
 				// This performs an expedient check for "ListIntrinsicExtendingList",
-				// however, full fact checking is required to cover all cases where
+				// however, full type checking is required to cover all cases where
 				// this fault may be reported.
 				const getListSpans = (spans: readonly Span[]) => spans.filter(span =>
 				{
@@ -457,7 +457,7 @@ namespace Truth
 				
 				for (const infixSpan of rhs)
 					if (lhsSubjects.includes(infixSpan.boundary.subject.toString()))
-						yield new Fault(Faults.InfixHasSelfReferentialFact, infixSpan);
+						yield new Fault(Faults.InfixHasSelfReferentialType, infixSpan);
 				
 				if (infix.isPopulation)
 					for (let idx = 1; idx < lhs.length; idx++)
@@ -542,7 +542,7 @@ namespace Truth
 		
 		/**
 		 * Gets whether the Statement has been marked as cruft,
-		 * due to a parsing error (and specifically not a fact error).
+		 * due to a parsing error (and specifically not a type error).
 		 */
 		get isCruft()
 		{
@@ -1076,8 +1076,8 @@ namespace Truth
 	
 	/**
 	 * Performs a quick and dirty check to see if the infix is referencing
-	 * a list, by looking to see if it has the list operator. A full fact check needs
-	 * to be done in order to determine if any of the Facts that correspond
+	 * a list, by looking to see if it has the list operator. A full type check needs
+	 * to be done in order to determine if any of the Types that correspond
 	 * to the terms specified are actually lists.
 	 */
 	function *expedientListCheck(side: InfixSpan[])

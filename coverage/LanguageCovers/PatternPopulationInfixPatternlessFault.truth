@@ -11,18 +11,18 @@ Container
 	NoPatterns
 
 Portability
-	// Inline portability fact (although faulty)
+	// Inline portability type (although faulty)
 	#414; /< : NoPatterns> : Container
 
 Pattern
-	// Inline pattern fact (although faulty)
+	// Inline pattern type (although faulty)
 	#414; /</NoPatterns/> : Container
 
 Population
-	// Inline population fact (although faulty)
-	// Note that this would work if NoPatterns had subfacts,
+	// Inline population type (although faulty)
+	// Note that this would work if NoPatterns had subtypes,
 	// even if they were patternless, because the compiler
-	// would revert to matching based on fact names.
+	// would revert to matching based on type names.
 	#414; /<NoPatterns> : Container
 
 //

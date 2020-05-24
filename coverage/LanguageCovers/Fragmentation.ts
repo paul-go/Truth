@@ -2,7 +2,7 @@
 namespace CoverTruth
 {
 	/**
-	 * This example demonstrates fragmented Facts.
+	 * This example demonstrates fragmented Types.
 	 */
 	export async function coverLanguageFragmentation()
 	{
@@ -18,7 +18,7 @@ namespace CoverTruth
 				Property
 		`);
 		
-		const [tA, tB, tC, tClassProperty] = factsOf(doc, "A", "B", "C", ["Class", "Property"]);
+		const [tA, tB, tC, tClassProperty] = typesOf(doc, "A", "B", "C", ["Class", "Property"]);
 		return [
 			() => tClassProperty.is(tA),
 			() => tClassProperty.is(tB),

@@ -1,6 +1,6 @@
 //
 // The first example demonstrates a fault being
-// generated as a result of a fact being entangled
+// generated as a result of a type being entangled
 // with another, and the entangled partner is derived,
 // which is affecting the contract of the other partner.
 // 

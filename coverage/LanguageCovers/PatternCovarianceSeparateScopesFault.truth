@@ -8,7 +8,7 @@
 // it would be possible to rewrite a pattern in a mid-level
 // scope, rewrite a pattern, and then essentially enable
 // more deeply nested scopes to provide broken
-// data to a fact. For example:
+// data to a type. For example:
 // 
 // Number
 // /\d : Number
@@ -18,7 +18,7 @@
 // 	Class
 // 		Value : Number
 // 			(^ this would refer to the Number 
-// 			fact from the containing scope)
+// 			type from the containing scope)
 // 	
 // 	SubClass : Class
 // 		Value : z

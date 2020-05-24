@@ -1,6 +1,6 @@
 //
-// This example demonstrates a pattern with a submerged fact,
-// where that submerged fact conform's to the contract as specified
+// This example demonstrates a pattern with a submerged type,
+// where that submerged type conform's to the contract as specified
 // by the pattern's base.
 //
 

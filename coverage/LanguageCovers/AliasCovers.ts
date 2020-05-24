@@ -12,7 +12,7 @@ namespace CoverTruth
 			aliased : 1
 		`);
 		
-		const [foo, aliased] = factsOf(doc, "foo", "aliased");
+		const [foo, aliased] = typesOf(doc, "foo", "aliased");
 		return [
 			() => aliased.is(foo),
 			() => aliased.alias === "1"
@@ -33,7 +33,7 @@ namespace CoverTruth
 				d : 1
 		`);
 		
-		const [digit, classD, subclassD] = factsOf(doc,
+		const [digit, classD, subclassD] = typesOf(doc,
 			"digit",
 			["class", "d"],
 			["subclass", "d"]);
@@ -57,7 +57,7 @@ namespace CoverTruth
 			value2 : digit, 2
 		`);
 		
-		const [digit, number, value1, value2] = factsOf(doc,
+		const [digit, number, value1, value2] = typesOf(doc,
 			"digit",
 			"number",
 			"value1",
@@ -85,7 +85,7 @@ namespace CoverTruth
 		`);
 		
 		printFaults(doc.program);
-		const [value] = factsOf(doc, "value");
+		const [value] = typesOf(doc, "value");
 		
 		return [
 			() => value.alias === `"a, text, b"`
@@ -101,7 +101,7 @@ namespace CoverTruth
 			value : text, "without, quotes"
 		`);
 		
-		const [value] = factsOf(doc, "value");
+		const [value] = typesOf(doc, "value");
 		const cap = value.capture(1);
 		
 		return [

@@ -65,7 +65,7 @@ namespace Truth
 		 * @internal
 		 * Gets whether this pattern can possibly match the
 		 * combinator token. Patterns that have this ability
-		 * have slightly different handling in the fact checker.
+		 * have slightly different handling in the type checker.
 		 * 
 		 * Note that the method only scans the regular expression
 		 * tokens that are defined within this Pattern. If the Pattern
@@ -124,7 +124,7 @@ namespace Truth
 		 * The check is considered expedient, rather than thorough,
 		 * because any infixes that exist in this pattern are replaced
 		 * with "catch all" regular expression sequence, rather than
-		 * embedding the pattern associated with the Fact specified
+		 * embedding the pattern associated with the Type specified
 		 * in the infix.
 		 */
 		test(input: string)

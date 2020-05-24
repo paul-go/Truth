@@ -36,7 +36,7 @@ namespace Truth
 	/**
 	 * An enumeration that stores the escape sequences
 	 * that only match a single kind of character. "Sign" in
-	 * this case refers to the fact that these are escape
+	 * this case refers to the type that these are escape
 	 * sequences that refer to another character.
 	 */
 	export enum RegexSyntaxSign

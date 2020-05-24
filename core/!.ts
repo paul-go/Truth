@@ -57,8 +57,8 @@
 /// <reference path="./Phases/Parallel/ParallelCache.ts" />
 /// <reference path="./Phases/Parallel/Sanitizer.ts" />
 
-// Phases / Fact Representation
-/// <reference path="./Phases/Fact/Fact.ts" />
+// Phases / Type Representation
+/// <reference path="./Phases/Type/Type.ts" />
 
 // Node compatibility
 if (typeof module !== "undefined" && module.exports)

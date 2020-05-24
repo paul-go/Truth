@@ -5,10 +5,10 @@ namespace Truth
 	 * @internal
 	 * A worker class that handles the construction of networks
 	 * of Parallel instances, which are eventually transformed
-	 * into Fact objects.
+	 * into Type objects.
 	 * 
 	 * Instances of ConstructionWorker are held by the static side
-	 * of the Fact class, and they're lifetime is equal to a single 
+	 * of the Type class, and they're lifetime is equal to a single 
 	 * version of the containing Program.
 	 */
 	export class ConstructionWorker
@@ -21,7 +21,7 @@ namespace Truth
 		
 		/**
 		 * Constructs the corresponding Parallel instances for
-		 * all explicit Facts that exist within the provided Document,
+		 * all explicit Types that exist within the provided Document,
 		 * or below the provided ExplicitParallel.
 		 */
 		excavate(from: Document | ExplicitParallel)
@@ -77,7 +77,7 @@ namespace Truth
 			const ancestry = directive.ancestry;
 			const surfacePhrase = directive.ancestry[0];
 			
-			let factIdx = 0;
+			let typeIdx = 0;
 			let lastSeed = 
 				this.parallels.get(directive.parent) ||
 				this.rake(this.parallels.createExplicit(surfacePhrase, this.cruft));
@@ -93,20 +93,20 @@ namespace Truth
 				
 				lastSeed = Not.null(this.parallels.get(phrase));
 				
-				if (++factIdx >= directive.length)
+				if (++typeIdx >= directive.length)
 					return lastSeed;
 			}
 			
 			do
 			{
-				const targetSubject = ancestry[factIdx].terminal;
+				const targetSubject = ancestry[typeIdx].terminal;
 				const descended = this.descend(lastSeed, targetSubject);
 				if (descended === null)
 					return null;
 				
 				lastSeed = this.rake(descended);
 			}
-			while (++factIdx < directive.length);
+			while (++typeIdx < directive.length);
 			
 			return lastSeed;
 		}
@@ -217,7 +217,7 @@ namespace Truth
 		 * too early in the processing pipeline to report these circular
 		 * bases as faults. This is because polymorphic term resolution
 		 * needs to take place before the system can be sure that a 
-		 * seemingly-circular base structure is in fact what it seems.
+		 * seemingly-circular base structure is actually what it seems.
 		 * True circular base detection is therefore handled at a future
 		 * point in the pipeline.
 		 */
@@ -501,12 +501,12 @@ namespace Truth
 					else validPortabilityInfixes.push(portInfix);
 				}
 				
-				// This code checks for overlapping facts. The algorithm used here is
+				// This code checks for overlapping types. The algorithm used here is
 				// similar to the redundant bases check used above. However, in the case
 				// of infixes, these aren't just redundant, they would be problematic if
-				// left in. To explain why, try to figure out how a String fact would draw
+				// left in. To explain why, try to figure out how a String type would draw
 				// it's data out of an alias matching the following pattern:
-				// 	/< : Email>< : String> : Fact
+				// 	/< : Email>< : String> : Type
 				// (hint: it doesn't work)
 				
 				//! Not implemented
@@ -631,7 +631,7 @@ namespace Truth
 			// 	Child
 			// 
 			// "Class" should not have an ImplicitParallel called "Child",
-			// because that was introduced in the derived "SubClass" fact.
+			// because that was introduced in the derived "SubClass" type.
 			// And so this algorithm stakes out cut off points so that we don't
 			// blindly just descend all Parallels in the level.
 			const prunedParallels = new Set<Parallel>();
@@ -655,7 +655,7 @@ namespace Truth
 			
 			// In the case when the method is attempting to descend
 			// to a level where there are no nodes whose name match
-			// the fact name specified (i.e. the whole level would be 
+			// the type name specified (i.e. the whole level would be 
 			// implicit parallels), null is returned because a descend
 			// wouldn't make sense.
 			if (!hasExplicitContainees)

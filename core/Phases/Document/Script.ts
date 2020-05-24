@@ -163,7 +163,7 @@ namespace Truth
 	}
 	
 	/**
-	 * A special key used to specified an anonymous Fact in a block of Jsonized truth.
+	 * A special key used to specified an anonymous Type in a block of Jsonized truth.
 	 */
 	export const anonymous = "__ANONYMOUS__";
 	
@@ -193,22 +193,22 @@ namespace Truth
 		 * A callback function that is invoked when a call to Document.fold or
 		 * Program.fold is made.
 		 * 
-		 * Folding a Truth document works like a recursive reduce. Each Fact may
+		 * Folding a Truth document works like a recursive reduce. Each Type may
 		 * provide a folding function, which takes the results of the fold functions
 		 * the correspond to each of it's containees. It then returns a value which
-		 * is sent upward to the fold function of the container Fact. For Facts that
+		 * is sent upward to the fold function of the container Type. For Types that
 		 * define no fold function, the data is passed through them verbatim.
 		 */
-		fold?(this: Fact, carry: readonly any[], operation: Fact): any;
+		fold?(this: Type, carry: readonly any[], operation: Type): any;
 		
 		/**
-		 * A callback function that is invoked when the Fact is to be introspected.
-		 * Provides a means to "delegate" the Fact, meaning that the Facts that
-		 * are returned are assumed to take the place of the Fact being introspected.
+		 * A callback function that is invoked when the Type is to be introspected.
+		 * Provides a means to "delegate" the Type, meaning that the Types that
+		 * are returned are assumed to take the place of the Type being introspected.
 		 * This method should be implemented by scripts that wish to provide
 		 * a querying mechanism into Truth, in order to create the effect of
-		 * replacing a Fact with another set of Facts found elsewhere in the program.
+		 * replacing a Type with another set of Types found elsewhere in the program.
 		 */
-		delegate?(this: Fact, physicalFact: Fact): Fact[];
+		delegate?(this: Type, physicalType: Type): Type[];
 	}
 }

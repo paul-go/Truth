@@ -1,11 +1,11 @@
 //
 // This example demonstrates the use of self-referencing
 // portability infixes in order to achieve a cleanly covariant
-// expansion of a pattern matching a specific fact, through
+// expansion of a pattern matching a specific type, through
 // it's inheritance hierarchy.
 //
-// Note that a reference to a fact in a portability infix actually
-// means: "the pattern that matches this fact in this scope".
+// Note that a reference to a type in a portability infix actually
+// means: "the pattern that matches this type in this scope".
 //
 
 ClassL1
@@ -13,14 +13,14 @@ ClassL1
 	/\d+ : Number
 	
 ClassL2 : ClassL1
-	// Although this Number declaration is still a fresh fact, 
-	// technically it derives from the Number fact defined in
+	// Although this Number declaration is still a fresh type, 
+	// technically it derives from the Number type defined in
 	// ClassL1. 
 	//
 	// The "implicit types can't be used as bases" rule 
 	// still applies to annotations within infixes (see below), 
 	// so if we want to extend the set of of names that can
-	// match the Number fact within this scope, we need
+	// match the Number type within this scope, we need
 	// to bring "Number" into the scope so that it's found
 	// by visible to both the infix and the annotation.
 	Number

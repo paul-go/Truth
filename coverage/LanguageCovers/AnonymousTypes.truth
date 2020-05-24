@@ -1,27 +1,27 @@
 
-Fact1
-Fact2
-Fact3
+Type1
+Type2
+Type3
 
-: Fact1 ~ Fact1
-: Fact2 ~ Fact2
-: Fact3 ~ Fact3
+: Type1 ~ Type1
+: Type2 ~ Type2
+: Type3 ~ Type3
 
 // (graph)
-AnonymousFacts.truth//Fact1
+AnonymousTypes.truth//Type1
 	spans=1, out=0, in=1
 
-AnonymousFacts.truth//Fact2
+AnonymousTypes.truth//Type2
 	spans=1, out=0, in=1
 
-AnonymousFacts.truth//Fact3
+AnonymousTypes.truth//Type3
 	spans=1, out=0, in=1
 
-AnonymousFacts.truth//__ANON#__
+AnonymousTypes.truth//__ANON#__
 	spans=1, out=1, in=0
 
-AnonymousFacts.truth//__ANON#__
+AnonymousTypes.truth//__ANON#__
 	spans=1, out=1, in=0
 
-AnonymousFacts.truth//__ANON#__
+AnonymousTypes.truth//__ANON#__
 	spans=1, out=1, in=0

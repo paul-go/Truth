@@ -1,6 +1,6 @@
 // 
-// This example demonstrates facts nested within a
-// pattern that couldn't be resolved to any fact defined
+// This example demonstrates types nested within a
+// pattern that couldn't be resolved to any type defined
 // within the pattern's matchable bases.
 // 
 

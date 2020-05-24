@@ -55,7 +55,7 @@ namespace CoverTruth
 	}
 	
 	/** */
-	export async function coverFactReferencesBetwenFiles()
+	export async function coverTypeReferencesBetwenFiles()
 	{
 		const [doc1, doc2] = await createLanguageCover(`
 			A
@@ -66,8 +66,8 @@ namespace CoverTruth
 			D
 		`);
 		
-		const [tA] = factsOf(doc1, "A");
-		const [tC] = factsOf(doc2, "C");
+		const [tA] = typesOf(doc1, "A");
+		const [tC] = typesOf(doc2, "C");
 		
 		return [
 			() => !doc1.hasFaults(),

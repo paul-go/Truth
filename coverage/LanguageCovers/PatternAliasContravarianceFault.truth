@@ -1,8 +1,8 @@
 // 
 // This example demonstrates a fault being generated
-// as a result of deriving from a fact, but failing to
-// choose an alias that resolves to facts that are
-// covariant to the contract being applied on the fact.
+// as a result of deriving from a type, but failing to
+// choose an alias that resolves to types that are
+// covariant to the contract being applied on the type.
 // 
 
 Digit

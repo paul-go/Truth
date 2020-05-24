@@ -34,7 +34,7 @@ NoFault
 		
 	ClassL2 : ClassL1
 		// Bringing this Value into scope causes the following
-		// pattern statement to refer to a different fact, which
+		// pattern statement to refer to a different type, which
 		// causes the annotation below to take on a different
 		// meaning, which causes the error to not be thrown
 		Value

@@ -71,10 +71,10 @@ namespace Truth
 			
 			const total = radixes.reduce((a, b) => a * b, 1);
 			const digits = radixes.map(() => 0);
-			const divideFactors = [1];
+			const divideTypeors = [1];
 			
 			for (let baseIdx = radixes.length - 1; --baseIdx >= 0;)
-				divideFactors.unshift(radixes.slice(baseIdx + 1).reduce((a, b) => a * b, 1));
+				divideTypeors.unshift(radixes.slice(baseIdx + 1).reduce((a, b) => a * b, 1));
 			
 			for (let count = -1; ++count < total;)
 			{
@@ -83,7 +83,7 @@ namespace Truth
 				
 				for (let digitIdx = -1; ++digitIdx < digits.length;)
 				{
-					const div = divideFactors[digitIdx];
+					const div = divideTypeors[digitIdx];
 					sequence.push(remainder / div | 0);
 					remainder %= div;
 				}
@@ -128,7 +128,7 @@ namespace Truth
 		 * @returns The number of items that are missing
 		 * from the second set that exist in the first set.
 		 */
-		static computeSubsetFactor(
+		static computeSubsetTypeor(
 			a: readonly unknown[],
 			b: readonly unknown[])
 		{

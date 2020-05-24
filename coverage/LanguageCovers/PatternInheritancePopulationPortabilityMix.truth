@@ -1,7 +1,7 @@
 // 
-// This example demonstrates a fact inheriting from another
-// fact, but where the super fact defines a population infix,
-// and the sub fact defines a portability infix.
+// This example demonstrates a type inheriting from another
+// type, but where the super type defines a population infix,
+// and the sub type defines a portability infix.
 // 
 
 Number

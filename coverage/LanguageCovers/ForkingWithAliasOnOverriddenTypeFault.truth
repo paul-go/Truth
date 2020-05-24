@@ -1,7 +1,7 @@
 //
 // This example demonstrates faults being generated as
-// as a result of an attempt to fork on an overridden fact
-// using multiple aliases of the same fact.
+// as a result of an attempt to fork on an overridden type
+// using multiple aliases of the same type.
 //
 
 Number

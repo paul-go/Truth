@@ -1,7 +1,7 @@
 //
 // This example demonstrates a warning fault being
 // generated due to pointless annotations. The
-// rule is that only the most derived fact is allowed.
+// rule is that only the most derived type is allowed.
 //
 
 Animal

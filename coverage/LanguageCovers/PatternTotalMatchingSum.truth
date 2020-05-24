@@ -1,9 +1,9 @@
 // 
 // This example demonstrates a total pattern matching the
-// "sum" of another fact. A fact's "sum" refers to the textual
+// "sum" of another type. A type's "sum" refers to the textual
 // content present on the left side of the last fragment of a
-// fact. A fact cannot have multiple sums, but the same sum
-// may be shared between different facts.
+// type. A type cannot have multiple sums, but the same sum
+// may be shared between different types.
 // 
 
 Summation

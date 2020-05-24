@@ -41,18 +41,18 @@ namespace Truth
 		{ }
 		
 		/**
-		 * Gets an array of Fact objects that would be the containers
-		 * of any additional facts that were to be entered at the inspected
+		 * Gets an array of Type objects that would be the containers
+		 * of any additional types that were to be entered at the inspected
 		 * location. The array is empty in all cases other than when the
 		 * inspected location is indented, and within a whitespace line.
 		 * The following example demonstrates a case where this property
-		 * would contain an array containing two Facts:
+		 * would contain an array containing two Types:
 		 * ```
 		 * Container1, Container2
 		 * 	| <-- Inspected position is here
 		 * ```
 		 */
-		get containers(): readonly Fact[]
+		get containers(): readonly Type[]
 		{
 			if (this._containers)
 				return this._containers;
@@ -66,16 +66,16 @@ namespace Truth
 				if (parent instanceof Statement)
 					return this._containers = parent.declarations
 						.flatMap(decl => Phrase.fromSpan(decl))
-						.map(phrase => Fact.construct(phrase))
-						.filter((fact): fact is Fact => !!fact);
+						.map(phrase => Type.construct(phrase))
+						.filter((type): type is Type => !!type);
 			}
 			
 			return this._containers = [];
 		}
-		private _containers: readonly Fact[] | null = null;
+		private _containers: readonly Type[] | null = null;
 		
 		/**
-		 * Gets an array of Facts that are defined as declarations in the
+		 * Gets an array of Types that are defined as declarations in the
 		 * statement that contains the inspected location.
 		 */
 		get declarations()
@@ -85,18 +85,18 @@ namespace Truth
 			
 			return this._declarations = this.statement.declarations
 				.flatMap(decl => Phrase.fromSpan(decl))
-				.map(phrase => Fact.construct(phrase))
-				.filter((fact): fact is Fact => !!fact);
+				.map(phrase => Type.construct(phrase))
+				.filter((type): type is Type => !!type);
 		}
-		private _declarations: readonly Fact[] | null = null;
+		private _declarations: readonly Type[] | null = null;
 		
 		/**
-		 * Gets an array of Facts in the case when the inspected location
+		 * Gets an array of Types in the case when the inspected location
 		 * is on the declaration side of a statement, or a keyword in the case
 		 * when the inspected location is on the annotation side of the
 		 * statement.
 		 */
-		get hit(): Keyword | readonly Fact[] | string
+		get hit(): Keyword | readonly Type[] | string
 		{
 			if (this._hit !== null)
 				return this._hit;
@@ -105,8 +105,8 @@ namespace Truth
 			{
 				const span = Not.null(this.span);
 				return this._hit = Phrase.fromSpan(span)
-					.map(ph => Fact.construct(ph))
-					.filter((fact): fact is Fact => !!fact);
+					.map(ph => Type.construct(ph))
+					.filter((type): type is Type => !!type);
 			}
 			else if (this.area === InspectedArea.annotation)
 			{
@@ -115,7 +115,7 @@ namespace Truth
 				
 				// Return an empty string in the case when the inspected area
 				// is in the annotation side, but there is no actual annotation present.
-				// This can happen when the statement looks like "Fact : "
+				// This can happen when the statement looks like "Type : "
 				if (!anno)
 					return this._hit = "";
 				
@@ -125,14 +125,14 @@ namespace Truth
 				const phrases = Phrase.fromSpan(this.statement.declarations[0]);
 				if (phrases.length > 0)
 				{
-					// We can safely construct a Fact from the first phrase, because
+					// We can safely construct a Type from the first phrase, because
 					// we don't actually care about any of the phrases in this case,
 					// but rather, a particular annotation which will be associated
 					// with any of the returned phrases.
-					const fact = Not.null(Fact.construct(phrases[0]));
+					const type = Not.null(Type.construct(phrases[0]));
 					const annoText = anno.boundary.subject.toString();
 					
-					const keyword = fact.keywords
+					const keyword = type.keywords
 						.find(key => key.word === annoText);
 					
 					// We won't be able to find a keyword in the case when
@@ -148,7 +148,7 @@ namespace Truth
 			
 			return this._hit = [];
 		}
-		private _hit: Keyword | readonly Fact[] | string | null = null;
+		private _hit: Keyword | readonly Type[] | string | null = null;
 	}
 	
 	/**

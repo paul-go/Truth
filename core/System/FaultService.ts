@@ -220,9 +220,9 @@ namespace Truth
 		
 		/**
 		 * @internal
-		 * Used internally to inform the FaultService that fact-level fault
+		 * Used internally to inform the FaultService that type-level fault
 		 * analysis is being done on the provided phrase. This is necessary
-		 * because fact-level faults do not live beyond a single edit frame,
+		 * because type-level faults do not live beyond a single edit frame,
 		 * so the FaultService needs to know which phrases were analyzed
 		 * so that newly rectified faults can be cleared out.
 		 * 

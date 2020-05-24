@@ -2,7 +2,7 @@
 // This example demonstrates a "Nominal Infix".
 // Nominal infixes are a way of ensuring aliases
 // are not accepted as valid inputs to a pattern. 
-// Instead, the name of a fact must be specified.
+// Instead, the name of a type must be specified.
 //
 
 Type
