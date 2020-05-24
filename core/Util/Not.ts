@@ -2,7 +2,6 @@
 namespace Truth
 {
 	/**
-	 * @internal
 	 * Utility class for performing basic guarding.
 	 */
 	export class Not

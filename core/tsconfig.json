@@ -2,7 +2,6 @@
 	"name": "Truth",
 	"extends": "../tsconfig.standard.json",
 	"compilerOptions": {
-		"outFile": "../build/truth.js",
-		"stripInternal": false
+		"outFile": "../build/truth.js"
 	}
 }

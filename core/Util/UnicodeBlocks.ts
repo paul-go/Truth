@@ -16,11 +16,13 @@ namespace Truth
 	}
 	
 	/**
+	 * @internal
 	 * Stores the maximum character code in the unicode set.
 	 */
 	export const UnicodeMax = 65536;
 	
 	/**
+	 * @internal
 	 * Stores a map of the names of all unicode blocks,
 	 * and their character ranges.
 	 */

@@ -7,16 +7,16 @@ namespace Truth
 	 */
 	export type TFaultSource = Statement | Span | InfixSpan;
 	
-	/** @internal */
+	/** */
 	export type StatementFault = Readonly<Fault<Statement>>;
 	
-	/** @internal */
+	/** */
 	export type StatementFaultType = Readonly<FaultType<Statement>>;
 	
-	/** @internal */
+	/** */
 	export type SpanFault = Readonly<Fault<Span>>;
 	
-	/** @internal */
+	/** */
 	export type SpanFaultType = Readonly<FaultType<Span | InfixSpan>>;
 	
 	/**

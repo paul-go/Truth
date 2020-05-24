@@ -2,7 +2,7 @@
 namespace CoverTruth
 {
 	/** */
-	async function coverEditWithSingleUpdate()
+	export async function coverEditWithSingleUpdate()
 	{
 		const doc = await Truth.parse(outdent`
 			X
@@ -21,7 +21,7 @@ namespace CoverTruth
 	}
 	
 	/** */
-	async function coverEditWithMultipleUpdates()
+	export async function coverEditWithMultipleUpdates()
 	{
 		const doc = await Truth.parse(outdent`
 			X
@@ -54,7 +54,7 @@ namespace CoverTruth
 	}
 	
 	/** */
-	async function coverEditWithSingleInsert()
+	export async function coverEditWithSingleInsert()
 	{
 		const doc = await Truth.parse(outdent`
 			A
@@ -76,13 +76,13 @@ namespace CoverTruth
 	}
 	
 	/** */
-	async function coverEditWithMultipleInserts()
+	export async function coverEditWithMultipleInserts()
 	{
 		return () => true;
 	}
 
 	/** */
-	async function coverEditSimpleDelete()
+	export async function coverEditSimpleDelete()
 	{
 		const doc = await Truth.parse(outdent`
 			A
@@ -101,7 +101,7 @@ namespace CoverTruth
 	}
 
 	/** */
-	async function coverEditParentDeletion()
+	export async function coverEditParentDeletion()
 	{
 		const doc = await Truth.parse(outdent`
 			A
@@ -129,7 +129,7 @@ namespace CoverTruth
 	}
 	
 	/** */
-	async function coverEditNestedParentDeletion()
+	export async function coverEditNestedParentDeletion()
 	{
 		const doc = await Truth.parse(outdent`
 			A
@@ -156,7 +156,7 @@ namespace CoverTruth
 	}
 	
 	/** */
-	async function coverEditMultipleNestedParentDeletion()
+	export async function coverEditMultipleNestedParentDeletion()
 	{
 		const doc = await Truth.parse(outdent`
 			A
@@ -195,7 +195,7 @@ namespace CoverTruth
 	}
 	
 	/** */
-	async function coverEditUpdateInsertDelete()
+	export async function coverEditUpdateInsertDelete()
 	{
 		const doc = await Truth.parse(outdent`
 			Container

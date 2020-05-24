@@ -15,7 +15,6 @@ namespace Truth
 		http = "http:",
 		
 		/**
-		 * @internal
 		 * Internal URIs (which are URIs that refer to an in-memory document)
 		 * are sourced from the gopher protocol. Yes, the gopher protocol. This
 		 * is because it's the only protocol that will parse through the standard

@@ -4,7 +4,8 @@ namespace CoverTruth
 	const t = Truth.Syntax.tab;
 	const s = Truth.Syntax.space;
 	
-	async function coverSingleIndentationFault()
+	/** */
+	export async function coverSingleIndentationFault()
 	{
 		const [doc] = await createLanguageCover([
 			"None",
@@ -16,7 +17,8 @@ namespace CoverTruth
 		return () => doc.hasFaults([Truth.Faults.TabsAndSpaces, 3]);
 	}
 	
-	async function coverMultipleIndentationFault()
+	/** */
+	export async function coverMultipleIndentationFault()
 	{
 		const [doc] = await createLanguageCover([
 			"None",
@@ -31,7 +33,8 @@ namespace CoverTruth
 			[Truth.Faults.TabsAndSpaces, 4]);
 	}
 	
-	async function coverIndentationFaultRectification()
+	/** */
+	export async function coverIndentationFaultRectification()
 	{
 		const [doc] = await createLanguageCover(t + s + "TabSpace");
 		
@@ -40,8 +43,6 @@ namespace CoverTruth
 			mutator.delete(0, 1);
 		});
 		
-		return [
-			() => !doc.hasFaults()
-		];
+		return () => !doc.hasFaults();
 	}
 }

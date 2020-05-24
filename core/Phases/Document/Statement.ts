@@ -119,9 +119,9 @@ namespace Truth
 		}
 		
 		/**
-		 * @internal
 		 * Creates a temporary statement that will not be attached to any document,
-		 * and will not report any faults.
+		 * and will not report any faults. Intended for testing, do not call from user
+		 * code.
 		 */
 		static newTemporary(statementText: string, options: IParserOptions)
 		{

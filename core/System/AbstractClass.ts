@@ -29,6 +29,7 @@ namespace Truth
 	}
 	
 	/**
+	 * @internal
 	 * A union type between all domain objects in the system.
 	 */
 	export type AnyClass = 
@@ -46,6 +47,7 @@ namespace Truth
 		Fact;
 	
 	/**
+	 * @internal
 	 * A const enum to uniquely identify each domain object in the system.
 	 */
 	export const enum Class

@@ -2,6 +2,7 @@
 namespace Truth
 {
 	/**
+	 * @internal
 	 * A simple class for handling objects marked as cruft.
 	 */
 	export class CruftCache
@@ -59,6 +60,6 @@ namespace Truth
 		private readonly cruft = new Set<TCruft>();
 	}
 	
-	/** */
+	/** @internal */
 	export type TCruft = TFaultSource | Phrase | Fork;
 }

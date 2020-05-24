@@ -43,7 +43,7 @@ namespace CoverTruth
 		const isInerrant = program.check();
 		return [
 			() => isInerrant,
-			() => s1n.value === "123"
+			() => s1n.sum === "123"
 		];
 	}
 	
@@ -69,7 +69,7 @@ namespace CoverTruth
 		const isInerrant = program.check();
 		return [
 			() => isInerrant,
-			() => s1n.value === "3"
+			() => s1n.sum === "3"
 		];		
 	}
 	

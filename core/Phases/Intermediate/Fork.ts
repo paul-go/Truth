@@ -2,7 +2,7 @@
 namespace Truth
 {
 	/**
-	 * @internal
+	 * 
 	 */
 	export class Fork extends AbstractClass
 	{

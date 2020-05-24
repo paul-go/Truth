@@ -1,7 +1,8 @@
 
 namespace CoverTruth
 {
-	function coverFsm()
+	/** * /
+	export async function coverFsm()
 	{
 		const transitions = new Truth.TransitionMap({
 			0: { a: 1 },
@@ -27,4 +28,5 @@ namespace CoverTruth
 			() => abc.difference(abc).states.size === 1
 		];
 	}
+	*/
 }

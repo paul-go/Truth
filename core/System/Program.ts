@@ -575,27 +575,26 @@ namespace Truth
 		 * corresponds to the specified fact path, this Fact object is
 		 * returned.
 		 * 
-		 * In the case when a homograph was detected in the fact path, a
-		 * number representing the number of members in the homograph
-		 * is returned.
+		 * In the case when a homograph was detected in the fact path, an
+		 * array is returned that contains all members of the homograph.
 		 * 
 		 * In the case when no fact could be constructed from the specified
-		 * fact path, 0 is returned.
+		 * fact path, null is returned.
 		 */
-		queryDocument(document: Document, ...factPath: string[]): Fact | number
+		queryDocument(document: Document, ...factPath: string[]): Fact | readonly Fact[] | null
 		{
 			if (factPath.length === 0)
 				throw Exception.passedArrayCannotBeEmpty("factPath");
 			
 			const phrases = Phrase.fromPathComponents(document, factPath);
 			if (phrases.length === 0)
-				return 0;
+				return null;
 			
 			const facts = phrases
 				.map(ph => Fact.construct(ph))
 				.filter((fact): fact is Fact => !!fact);
 			
-			return facts.length === 1 ? facts[0] : facts.length;
+			return facts.length === 1 ? facts[0] : facts;
 		}
 		
 		/**

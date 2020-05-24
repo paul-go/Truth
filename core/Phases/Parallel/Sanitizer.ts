@@ -2,6 +2,7 @@
 namespace Truth
 {
 	/**
+	 * @internal
 	 * A class that encapsulates the actual fault detection behavior,
 	 * with facilities to perform analysis on Parallel instances, before
 	 * the actual base has been applied to it.

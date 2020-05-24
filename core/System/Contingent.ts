@@ -5,6 +5,7 @@ namespace Truth
 	export type ContingentKey = number | bigint | string;
 	
 	/**
+	 * @internal
 	 * A base class for data structures whose contents are cleared
 	 * when documents go in an unchecked state, or are removed
 	 * from the containing program.
@@ -23,6 +24,7 @@ namespace Truth
 	}
 	
 	/**
+	 * @internal
 	 * A class that presents the interface of a JavaScript-standard Set,
 	 * but whose values are removed when the document with which
 	 * the value is associated goes into an unchecked state.
@@ -51,6 +53,7 @@ namespace Truth
 	}
 	
 	/**
+	 * @internal
 	 * A class that presents the interface of a JavaScript-standard Map,
 	 * but whose keys and values are removed when the document with
 	 * which the value is associated goes into an unchecked state.
@@ -91,6 +94,7 @@ namespace Truth
 	}
 	
 	/**
+	 * @internal
 	 * A class that presents the interface of Truth's SetMap object,
 	 * but whose values are removed when the document with which
 	 * the value is associated goes into an unchecked state.

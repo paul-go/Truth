@@ -263,8 +263,7 @@ namespace Truth
 		/** */
 		private readonly ranges: AlphabetRange[] = [];
 	}
-
-
+	
 	/** */
 	function toCharCode(symbol: string | number)
 	{
