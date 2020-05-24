@@ -762,6 +762,39 @@ namespace Truth
 		private outboundsVersion: VersionStamp;
 		
 		/**
+		 * Returns a substring of the annotations set on this phrase, starting with
+		 * the annotation the corresponds to the fork specified, and then counting
+		 * forward until the specified number of forks has been consumed.
+		 * 
+		 * The string returned will be exactly as it's found in the underlying document.
+		 * Returns an empty string in the case when this Phrase is supported by
+		 * multiple statements.
+		 */
+		slice(fork: Fork, count: number)
+		{
+			if (this.statements.length !== 1 || count < 1)
+				return "";
+			
+			// Because phrase slicing only works in the case when there is one statement
+			// supporting the phrase, this means that the number of annotations in the
+			// statement is equal to the number of annotations in the .annotations field,
+			// which is also then equal to the number of clarifiers in the .clarifiers field,
+			// which is then also equal to the number of forks in the .outbounds field.
+			
+			const startForkIdx = this.outbounds.indexOf(fork);
+			if (startForkIdx < 0)
+				return "";
+			
+			const endForkIdx = Math.max(
+				startForkIdx + (count - 1),
+				this.annotations.length - 1);
+			
+			const startOffset = this.annotations[startForkIdx].boundary.offsetStart;
+			const endOffset = this.annotations[endForkIdx].boundary.offsetEnd;
+			return this.statements[0].sourceText.slice(startOffset, endOffset + 1);
+		}
+		
+		/**
 		 * @internal
 		 * Performs a non-recursive disposal of the stored information in this phrase.
 		 */

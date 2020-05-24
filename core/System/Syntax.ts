@@ -101,12 +101,45 @@ namespace Truth
 	export namespace RegexSyntaxKnownSet
 	{
 		const vals = Object.values(RegexSyntaxKnownSet) as string[];
+		const knownSetsAsExprs = new Map<RegexSyntaxKnownSet, RegExp>();
 		
-		/** */
-		export function resolve(value: string): RegexSyntaxKnownSet | null
+		/**
+		 * Returns the RegexKnownSet type that corresponds to the
+		 * specified regular expression token (such as "\s" for whitespace)
+		 */
+		export function resolve(token: string): RegexSyntaxKnownSet | null
 		{
-			const idx = vals.indexOf(value);
+			const idx = vals.indexOf(token);
 			return idx < 0 ? null : vals[idx] as RegexSyntaxKnownSet;
+		}
+		
+		/**
+		 * Returns a RegexSyntaxKnownSet entry that contains the
+		 * character that corresponds to the specified character code.
+		 * 
+		 * Excludes testing against RegexSyntaxKnownSet.wild, 
+		 * because all characters are matched by this set.
+		 */
+		export function of(char: string)
+		{
+			if (knownSetsAsExprs.size === 0)
+			{
+				for (const val of vals)
+				{
+					if (val !== RegexSyntaxKnownSet.wild)
+					{
+						knownSetsAsExprs.set(
+							val as RegexSyntaxKnownSet, 
+							new RegExp("^" + val + "$"));
+					}
+				}
+			}
+			
+			for (const [knownSet, expr] of knownSetsAsExprs)
+				if (expr.test(char))
+					return knownSet;
+			
+			return null;
 		}
 	}
 	

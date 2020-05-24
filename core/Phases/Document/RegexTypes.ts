@@ -29,6 +29,43 @@ namespace Truth
 			super(quantifier);
 		}
 		
+		/**
+		 * Returns whether the specified character code is included
+		 * in this RegexSet.
+		 * 
+		 * Note that if the character specified is a unicode character,
+		 * the method will currently always return false.
+		 */
+		includes(char: string)
+		{
+			if (this.isNegated)
+				return false;
+			
+			if (this.knowns.includes(RegexSyntaxKnownSet.wild))
+				return true;
+			
+			if (this.singles.includes(char))
+				return true;
+			
+			const charCode = char.codePointAt(0);
+			if (charCode === undefined || charCode > 255)
+				return false;
+			
+			for (const range of this.ranges)
+				if (charCode >= range.from  && charCode <= range.to)
+					return true;
+			
+			if (this.knowns.length > 0)
+			{
+				const applicableSet = RegexSyntaxKnownSet.of(char);
+				if (applicableSet !== null)
+					if (this.knowns.includes(applicableSet))
+						return true;
+			}
+			
+			return false;
+		}
+		
 		/** */
 		toString()
 		{

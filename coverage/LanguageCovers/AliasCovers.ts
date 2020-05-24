@@ -45,9 +45,7 @@ namespace CoverTruth
 		];
 	}
 	
-	/**
-	 * 
-	 */
+	/** */
 	export async function coverMultiPatternAlias()
 	{
 		const [doc] = await createLanguageCover(`
@@ -74,6 +72,63 @@ namespace CoverTruth
 			() => value2.is(digit),
 			() => !value2.is(number),
 			() => value2.alias === "2"
+		];
+	}
+	
+	/** */
+	export async function coverAliasWithComma()
+	{
+		const [doc] = await createLanguageCover(`
+			text
+			/".+" : text
+			value : text, "a, text, b"
+		`);
+		
+		printFaults(doc.program);
+		const [value] = factsOf(doc, "value");
+		
+		return [
+			() => value.alias === `"a, text, b"`
+		];
+	}
+	
+	/** */
+	export async function coverAliasWithCaptures()
+	{
+		const [doc] = await createLanguageCover(`
+			text
+			/"(.+)" : text
+			value : text, "without, quotes"
+		`);
+		
+		const [value] = factsOf(doc, "value");
+		const cap = value.capture(1);
+		
+		return [
+			() => cap  === `without quotes`
+		];
+	}
+	
+	/**
+	 * This example demonstrates a fault being generated, because 
+	 * both of these are going to resolve the same way, and you can't
+	 * have two aliases doing this.
+	 */
+	export async function coverAliasAcrossFragmentationFault()
+	{
+		//! Not implemented
+		
+		const [doc] = await createLanguageCover(`
+			text
+			/".+" : text
+			value : text, "a"
+			value : text, "b"
+		`);
+		
+		printFaults(doc.program);
+		
+		return [
+			() => false
 		];
 	}
 }

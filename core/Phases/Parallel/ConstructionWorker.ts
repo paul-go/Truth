@@ -256,25 +256,36 @@ namespace Truth
 			// The term resolution algorithm operates by resolving all literals
 			// first, and then in the case when there are unresolved forks left 
 			// over, attempting to resolve one of these as an alias.
-			const unresolvedForks: Fork[] = [];
 			
-			for (const fork of srcParallel.phrase.outbounds)
+			const unresolvedForks: Fork[] = [];
+			const outbounds = srcParallel.phrase.outbounds;
+			
+			// The patternParallelsInScope only needs to be constructed once.
+			// There is likely an opportunity for an optimization here to keep the 
+			// patterns defined at the surface in scope for subsequent invokations
+			// of this method.
+			const patternParallelsInScope = new Set<ExplicitParallel>();
+			let populatePatternParallelsSet: (() => void) | null = () =>
 			{
+				populatePatternParallelsSet = null;
+				
+				for (const { patternParallel } of this.ascend(srcParallel))
+				{
+					this.rakePatternBases(patternParallel);
+					patternParallelsInScope.add(patternParallel);
+				}
+			};
+			
+			nextFork: for (let forkIdx = -1; ++forkIdx < outbounds.length;)
+			{
+				const fork = outbounds[forkIdx];
+				
 				if (this.cruft.has(fork))
 					continue;
 				
 				const possibilities = fork.successors
 					.filter(successor => !this.cruft.has(successor))
 					.sort((a, b) => a.length - b.length);
-				
-				// Found a fork to nowhere. It may be an alias, which will
-				// be investigated momentarily, but for now, it's marked
-				// as unresolved.
-				if (possibilities.length === 0)
-				{
-					unresolvedForks.push(fork);
-					continue;
-				}
 				
 				// This is where the polymorphic term resolution algorithm
 				// takes place. The algorithm operates by working it's way
@@ -311,51 +322,63 @@ namespace Truth
 						this.excavate(baseParallel);
 					}
 					
-					const result = srcParallel.tryAddLiteralBase(baseParallel, fork);
-					if (result === BaseResolveResult.rejected)
+					const numResolved = srcParallel.tryAddLiteralBase(baseParallel, fork);
+					if (numResolved < 1)
 						continue;
 					
 					if (this.handledForks.has(fork.id))
 						throw Exception.unknownState();
 					
 					this.handledForks.add(fork.id, fork.predecessor.containingDocument);
-					break;
+					continue nextFork;
 				}
+				
+				// At this point, we were unable to resolve the fork literally, so
+				// now we advance to resolving the fork (or many forks at once)
+				// via an alias.
+				
+				if (populatePatternParallelsSet)
+					populatePatternParallelsSet();
+				
+				if (patternParallelsInScope.size > 0)
+				{
+					// The alias resolution algorithm works similar to the "greedy" matching
+					// behavior of regular expressions. It starts by trying to resolve all
+					// remaining forks as one giant compound alias. If this fails, it 
+					const viaForks = outbounds.slice(forkIdx);
+					const numResolved = srcParallel.tryAddAliasedBase(
+						patternParallelsInScope,
+						viaForks);
+					
+					if (numResolved > 0)
+					{
+						// Even if a fork is considered "handled", this still doesn't mean it's free
+						// of faults. It could still have another fault on it, just one that was added
+						// by some other means. "Handled" is only used to determine if we need
+						// to report an unresolved annotation fault.
+						for (let resolvedForkIdx = -1; ++resolvedForkIdx < numResolved;)
+						{
+							const resolvedFork = viaForks[resolvedForkIdx];
+							this.handledForks.add(
+								resolvedFork.id,
+								resolvedFork.predecessor.containingDocument);
+						}
+						
+						// We now advance the fork index by 1 minus the number of forks
+						// that were resolved through the call to tryAddAliasedBase, so that
+						// these are not analyzed in the following iteration of this loop.
+						forkIdx += numResolved - 1;
+						continue nextFork;
+					}
+				}
+				
+				unresolvedForks.push(fork);
 			}
 			
 			// At this point, we've discovered forks that weren't able
 			// to be resolved as literals, and so we're going to attempt
 			// to perform resolution by alias. If this doesn't work,
 			// the fork will be marked as cruft.
-			for (const [idx, fork] of unresolvedForks.entries())
-			{
-				const patternParallelsInScope = new Set<ExplicitParallel>();
-				
-				for (const { patternParallel } of this.ascend(srcParallel))
-				{
-					this.rakePatternBases(patternParallel);
-					patternParallelsInScope.add(patternParallel);
-				}
-				
-				if (patternParallelsInScope.size > 0)
-				{
-					const result = srcParallel.tryAddAliasedBase(
-						patternParallelsInScope,
-						fork);
-					
-					if (result !== BaseResolveResult.rejected)
-					{
-						unresolvedForks.splice(idx, 1);
-						
-						// Even if a fork is considered "handled", this still doesn't mean it's free
-						// of faults. It could still have another fault on it, just one that was added
-						// by some other means. "Handled" is only used to determine if we need
-						// to report an unresolved annotation fault.
-						this.handledForks.add(fork.id, fork.predecessor.containingDocument);
-						break;
-					}
-				}
-			}
 			
 			// Only one fork is ever interpreted as the alias. Other remaining
 			// forks are considered unresolved annotations.

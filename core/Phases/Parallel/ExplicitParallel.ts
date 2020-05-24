@@ -2,12 +2,11 @@
 namespace Truth
 {
 	/**
-	 * 
+	 * @internal
 	 */
 	export class ExplicitParallel extends Parallel
 	{
 		/**
-		 * @internal
 		 * Invoked by ParallelCache. Do not call.
 		 */
 		constructor(
@@ -79,18 +78,19 @@ namespace Truth
 		*eachBase()
 		{
 			for (const [fork, baseEntry] of this.bases)
-				if (!this.cruft.has(fork))
-					for (const base of baseEntry)
-						yield {
-							base,
-							fork,
-							get alias()
-							{
-								return base.phrase.terminal !== fork.term ?
-									fork.term.textContent :
-									"";
-							 }
-						};
+			{
+				if (this.cruft.has(fork))
+					continue;
+				
+				for (const base of baseEntry)
+				{
+					yield {
+						base,
+						fork,
+						alias: this.aliasText
+					};
+				}
+			}
 			
 			for (const [base, alias] of this.basesInferred)
 				yield { base, fork: null, alias };
@@ -148,10 +148,11 @@ namespace Truth
 		 * is a more derived fact of any of the ExplicitParallels referenced
 		 * in this ExplicitParallel's contract.
 		 * 
-		 * @returns A boolean value that indicates whether the base
-		 * was added successfully.
+		 * @returns A number that indicates whether the fork was
+		 * successfully added as a base. In the case when a fault was
+		 * generated, -1 is returned.
 		 */
-		tryAddLiteralBase(base: ExplicitParallel, via: Fork): BaseResolveResult
+		tryAddLiteralBase(base: ExplicitParallel, via: Fork): number
 		{
 			if (this.bases.has(via))
 				throw Exception.unknownState();
@@ -188,24 +189,24 @@ namespace Truth
 			
 			// Was anything in the contract actually satisfied?
 			if (numSatisfied === 0 && contract.conditionsUnsatisfied.size > 0)
-				return BaseResolveResult.rejected;
+				return 0;
 			
 			const sanitizer = new Sanitizer(this, base, via, this.cruft);
 			
 			// In this case, we only need to do a 
 			// shallow check for circular inheritance.
 			if (sanitizer.detectCircularReferences())
-				return BaseResolveResult.faulty;
+				return -1;
 			
 			if (sanitizer.detectListFragmentConflicts())
-				return BaseResolveResult.faulty;
+				return -1;
 			
 			if (this.baseCount > 0)
 				if (sanitizer.detectListDimensionalityConflict())
-					return BaseResolveResult.faulty;
+					return -1;
 			
 			this.bases.add(via, base);
-			return BaseResolveResult.added;
+			return 1;
 		}
 		
 		/**
@@ -224,13 +225,16 @@ namespace Truth
 		 * @param viaAlias The string to test against the parallel embedded
 		 * within patternParallelsInScope.
 		 * 
-		 * @returns A boolean value that indicates whether a base was added
-		 * successfully.
+		 * @returns A number that indicates whether the number of forks
+		 * that were successfully added as bases. In the case when a fault was
+		 * generated, -1 is returned.
 		 */
 		tryAddAliasedBase(
 			patternParallelsInScope: ReadonlySet<ExplicitParallel>,
-			viaFork: Fork)
+			viaForks: readonly Fork[]): number
 		{
+			const viaFork = viaForks[0];
+			
 			if (this.bases.has(viaFork))
 				throw Exception.unknownState();
 			
@@ -241,10 +245,8 @@ namespace Truth
 			
 			// Only one alias per ExplicitParallel. 
 			// This should be controlled by the ConstructionWorker.
-			if (this.hasResolvedAlias)
+			if (this.aliasResolvedForks !== null)
 				throw Exception.unknownState();
-			
-			const alias = viaFork.term.textContent;
 			
 			// Contracts for aliased bases are computed in a different way 
 			// when compared to literal bases. In an aliased base, there is
@@ -257,7 +259,7 @@ namespace Truth
 			// Class
 			// 	Field : Number
 			// SubClass : Class
-			//	Field : 4, EvenNumber
+			//	Field : EvenNumber, 4
 			//
 			// On the last line, there would be two bases contributing to the
 			// contract, the first being Number (coming from the parallel graph),
@@ -311,7 +313,7 @@ namespace Truth
 			// Can't add an aliased base, because no applicable patterns 
 			// are in scope.
 			if (applicablePatternParallels.size === 0)
-				return BaseResolveResult.rejected;
+				return 0;
 			
 			// In order to add an aliased base, the alias has to match
 			// all matching patterns in scope.
@@ -338,27 +340,8 @@ namespace Truth
 			if (infixedPatternParallels.length > 0)
 				throw Exception.notImplemented();
 			
-			if (conditions.size > 0)
-			{
-				for (const patternParallel of nonInfixedPatternParallels)
-				{
-					const pattern = Not.null(patternParallel.pattern);
-					if (!pattern.test(alias))
-						return BaseResolveResult.rejected;
-				}
-			
-				// If we have gotten to this point, the contract is considered to be
-				// satisfied entirely. This may seem like a cheat–but it's not. We're
-				// actually able to just add all the parallels being imposed as bases,
-				// and then declare the contract as settled.
-				
-				for (const patternParallel of nonInfixedPatternParallels)
-					this.bases.add(viaFork, patternParallel);
-				
-				contract.conditionsUnsatisfied.clear();
-				this.hasResolvedAlias = true;
-				return BaseResolveResult.added;
-			}
+			const phrase = viaFork.predecessor;
+			const aliasFirstFork = viaFork.term.textContent;
 			
 			// In the case when there is no contract being imposed, the process
 			// of adding bases is much simpler. The system can simply just add
@@ -366,17 +349,45 @@ namespace Truth
 			// alias provided the pattern against which we are testing.
 			for (const patternParallel of applicablePatternParallels)
 			{
-				const pattern = Not.null(patternParallel.pattern);
-				if (pattern.test(alias))
+				let forkSliceLength = 
+					patternParallel.pattern!.canMatchCombinator() ?
+						viaForks.length :
+						1;
+				
+				const alias = forkSliceLength > 1 ?
+					phrase.slice(viaFork, forkSliceLength) :
+					aliasFirstFork;
+				
+				do
 				{
-					this.bases.add(viaFork, patternParallel);
-					this.hasResolvedAlias = true;
+					const pattern = Not.null(patternParallel.pattern);
+					if (pattern.test(alias))
+					{
+						if (conditions.size > 0)
+						{
+							// If we have gotten to this point, the contract is considered to be
+							// satisfied entirely. This may seem like a cheat–but it's not. We're
+							// actually able to just add all the parallels being imposed as bases,
+							// and then declare the contract as settled.
+							for (const patternParallel of nonInfixedPatternParallels)
+								this.bases.add(viaFork, patternParallel);
+							
+							contract.conditionsUnsatisfied.clear();
+						}
+						else
+						{
+							this.bases.add(viaFork, patternParallel);
+						}
+						
+						this.aliasResolvedForks = viaForks;
+						this._aliasText = alias;
+						return forkSliceLength;
+					}
 				}
+				while (--forkSliceLength > 0);
 			}
 			
-			return this.hasResolvedAlias ?
-				BaseResolveResult.added :
-				BaseResolveResult.rejected;
+			return this.aliasResolvedForks ? 1 : 0;
 		}
 		
 		/**
@@ -541,11 +552,7 @@ namespace Truth
 		 */
 		private maybeCompilePattern()
 		{
-			///if (!this.pattern)
-			///	return;
 			
-			///if (!pattern.hasInfixes())
-			///	this.compiledExpression = pattern.
 		}
 		
 		/**
@@ -569,12 +576,6 @@ namespace Truth
 		 * and should be passable to a JavaScript RegExp, or to the Fsm system.
 		 */
 		private compiledExpression: string | null = null;
-		
-		/**
-		 * Each ExplicitParallel can only resolve a single alias. This property
-		 * stores whether or not this has occured. It's used for sanity checks.
-		 */
-		private hasResolvedAlias = false;
 		
 		//# Contract-related members
 		
@@ -645,19 +646,25 @@ namespace Truth
 		/**
 		 * Stores the first alias that was discovered during the contract construction
 		 * process. This is used to support inference through abstraction, so that
-		 * when this occurs, an alias may be inferred along with the Facts.
+		 * when this occurs, an alias may be inferred along with the Facts. This is
+		 * different from an alias defined locally on this ExplicitParallel.
 		 */
 		private contractAlias = "";
+		
+		/**
+		 * Stores the alias that was discovered on this ExplicitParallel, or an empty
+		 * string in the case when no alias was discovered.
+		 */
+		get aliasText() { return this._aliasText; }
+		private _aliasText = "";
+		
+		/**
+		 * Stores the Forks that compose the alias discovered on this ExplicitParallel,
+		 * or null in the case when no alias was discovered.
+		 */
+		private aliasResolvedForks: readonly Fork[] | null = null;
 	}
 	
 	/** @internal */
 	export type TBaseTable = ReadonlyMap<ExplicitParallel, Fork>;
-	
-	/** */
-	export const enum BaseResolveResult
-	{
-		rejected,
-		faulty,
-		added
-	}
 }

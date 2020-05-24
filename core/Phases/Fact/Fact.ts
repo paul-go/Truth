@@ -178,6 +178,7 @@ namespace Truth
 		readonly name: string;
 		
 		/**
+		 * @internal
 		 * Stores the phrase that specifies where this Fact was
 		 * found in the document.
 		 */
@@ -270,7 +271,7 @@ namespace Truth
 				return this._containees;
 			
 			const seed = this.guard();
-			const phrases = this.phrase.containingDocument.program.phrases;
+			const phrases = this.document.program.phrases;
 			const innerSubjects = new Set<Subject>();
 			
 			// Dig through the parallel graph recursively, and at each parallel,
@@ -421,9 +422,7 @@ namespace Truth
 			if (this.container)
 				return this._adjacents = this.container.containees.filter(f => f !== this);
 			
-			const document = this.phrase.containingDocument;
-			const roots = Array.from(Phrase.rootsOf(document));
-			
+			const roots = Array.from(Phrase.rootsOf(this.document));
 			const adjacents = roots
 				.map(phrase => Fact.construct(phrase))
 				.filter((f): f is Fact => f !== null && f !== this);
@@ -512,11 +511,15 @@ namespace Truth
 			const keywords: Keyword[] = [];
 			const seed = this.guard();
 			
-			const extractFact = (ep: ExplicitParallel) =>
+			const storeKeywordsOf = (ep: ExplicitParallel) =>
 			{
 				for (const { base, fork, alias } of ep.eachBase())
 				{
-					const word = fork?.term.toString() || alias;
+					// In the case when there is no alias, there must only
+					// be 0 or 1 fork. The forks array can only have multiple
+					// forks in the case when there was a concatenation that
+					// occured across multiple aliases (ex: value : "a, b, c")
+					const word = alias || fork?.term.toString() || "";
 					const baseFact = Fact.construct(base.phrase);
 					if (baseFact)
 						keywords.push(new Keyword(word, baseFact));
@@ -525,7 +528,7 @@ namespace Truth
 			
 			if (seed instanceof ExplicitParallel)
 			{
-				extractFact(seed);
+				storeKeywordsOf(seed);
 			}
 			else if (seed instanceof ImplicitParallel)
 			{
@@ -538,7 +541,7 @@ namespace Truth
 					for (const parallel of current.getParallels())
 					{
 						if (parallel instanceof ExplicitParallel)
-							extractFact(parallel);
+							storeKeywordsOf(parallel);
 						
 						else if (parallel instanceof ImplicitParallel)
 							queue.push(parallel);
@@ -567,18 +570,52 @@ namespace Truth
 		}
 		
 		/**
+		 * Attempts to extract a "capture" value from the alias defined
+		 * on this Fact. 
+		 * 
+		 * Returns an empty string in the cases when
+		 * - This Fact has no associated alias.
+		 * - There were no capture groups defined in the supporting Pattern.
+		 * - The specified position is greater than the number of captures
+		 * defined in the supporting Pattern.
+		 */
+		capture(position: number): string
+		{
+			if (position < 1)
+				throw Exception.invalidArgument();
+			
+			const alias = this.alias;
+			if (alias === "")
+				return "";
+			
+			for (const kw of this.keywords)
+			{
+				if (!kw.isAlias || 
+					!(kw.fact.seed instanceof ExplicitParallel) ||
+					kw.fact.seed.pattern === null)
+					continue;
+				
+				const pattern = kw.fact.seed.pattern;
+				const captures = pattern.capture(kw.word);
+				return position < captures.length ? captures[position] : "";
+			}
+			
+			return "";
+		}
+		
+		/**
 		 * Gets a string representation of the entire annotation side of this Fact.
 		 */
-		get value()
+		get sum()
 		{
-			if (this._value !== null)
-				return this._value;
+			if (this._sum !== null)
+				return this._sum;
 			
-			return this._value = this.keywords
+			return this._sum = this.keywords
 				.map(({ word }) => word)
 				.join(Syntax.combinator + " ");
 		}
-		private _value: string | null = null;
+		private _sum: string | null = null;
 		
 		/** */
 		get isOverride() { return this.supervisors.length > 0; }

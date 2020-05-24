@@ -27,8 +27,8 @@ namespace Truth
 			readonly hash: string)
 		{
 			super();
-			this.compiledRegExp = PatternPrecompiler.exec(this);
-			this.isValid = this.compiledRegExp instanceof RegExp;
+			this.nativeRegExp = PatternPrecompiler.exec(this);
+			this.isValid = this.nativeRegExp instanceof RegExp;
 		}
 		
 		/** @internal */
@@ -45,7 +45,8 @@ namespace Truth
 		 */
 		*eachUnit()
 		{
-			function *recurse(units: readonly (RegexUnit | Infix)[])
+			function *recurse(units: readonly (RegexUnit | Infix)[]):
+				IterableIterator<RegexUnit | Infix>
 			{
 				for (const unit of units)
 				{
@@ -53,12 +54,47 @@ namespace Truth
 					
 					if (unit instanceof RegexGroup)
 						for (const unitCase of unit.cases)
-							recurse(unitCase);
+							yield *recurse(unitCase);
 				}
 			}
 			
 			yield *recurse(this.units);
 		}
+		
+		/**
+		 * @internal
+		 * Gets whether this pattern can possibly match the
+		 * combinator token. Patterns that have this ability
+		 * have slightly different handling in the fact checker.
+		 * 
+		 * Note that the method only scans the regular expression
+		 * tokens that are defined within this Pattern. If the Pattern
+		 * contains Infixes, these are not analyzed.
+		 */
+		canMatchCombinator()
+		{
+			if (this._canMatchCombinator !== null)
+				return this._canMatchCombinator;
+			
+			const units = Array.from(this.eachUnit());
+			
+			for (const unit of units)
+			{
+				if (unit instanceof RegexGrapheme)
+				{
+					if (unit.grapheme === Syntax.combinator)
+						return this._canMatchCombinator = true;
+				}
+				else if (unit instanceof RegexSet)
+				{
+					if (unit.includes(Syntax.combinator))
+						return this._canMatchCombinator = true;
+				}
+			}
+			
+			return this._canMatchCombinator = false;
+		}
+		private _canMatchCombinator: boolean | null = null;
 		
 		/**
 		 * @returns A boolean value that indicates whether
@@ -93,7 +129,7 @@ namespace Truth
 		 */
 		test(input: string)
 		{
-			const regExp = this.compiledRegExp;
+			const regExp = this.nativeRegExp;
 			if (regExp === null)
 				return false;
 			
@@ -115,7 +151,7 @@ namespace Truth
 		 */
 		exec(patternParameter: string): ReadonlyMap<Infix, string>
 		{
-			const regExp = this.compiledRegExp;
+			const regExp = this.nativeRegExp;
 			if (regExp === null)
 				return new Map();
 			
@@ -173,8 +209,30 @@ namespace Truth
 			return result;
 		}
 		
-		/** */
-		private compiledRegExp: RegExp | null = null;
+		/**
+		 * @internal
+		 * Feeds the specified input into the internal regular expression,
+		 * and returns an array of captured strings, if any where generated.
+		 * This method does not work as expected in the case when the 
+		 * pattern has infixes.
+		 */
+		capture(input: string): readonly string[]
+		{
+			if (this.hasInfixes())
+				throw Exception.notImplemented();
+			
+			return this.nativeRegExp ?
+				input.match(this.nativeRegExp) || [] : 
+				[];
+		}
+		
+		/**
+		 * Stores the JavaScript-native Regular Expression object for
+		 * this pattern, or null in the case when this Pattern object was
+		 * created with regular expression text with syntactical errors,
+		 * and could therefore not be compiled.
+		 */
+		private readonly nativeRegExp: RegExp | null;
 		
 		/**
 		 * Converts this Pattern to a string representation.

@@ -23,7 +23,7 @@ namespace CoverTruth
 		const sourceText = lines.join(Truth.Syntax.terminal);
 		const doc = await program.addDocument(sourceText);
 		if (doc instanceof Error)
-			throw Truth.Exception.unknownState();
+			throw "?";
 		
 		program.check();
 		return doc;
@@ -134,6 +134,21 @@ namespace CoverTruth
 		}
 		
 		return out as Truth.Fact[];
+	}
+	
+	/**
+	 * 
+	 */
+	export function homographOf(
+		document: Truth.Document,
+		factName: string)
+	{
+		const result = document.query(factName);
+		
+		if (result === null || result instanceof Truth.Fact || result.length < 2)
+			return new Error("Homograph not found for: " + factName);
+		
+		return result;
 	}
 	
 	/**
