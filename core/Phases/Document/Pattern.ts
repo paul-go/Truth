@@ -4,7 +4,7 @@ namespace Truth
 	/**
 	 * 
 	 */
-	export class Pattern extends AbstractClass
+	export class Pattern
 	{
 		/** @internal */
 		constructor(
@@ -26,13 +26,12 @@ namespace Truth
 			 */
 			readonly hash: string)
 		{
-			super();
 			this.nativeRegExp = PatternPrecompiler.exec(this);
 			this.isValid = this.nativeRegExp instanceof RegExp;
 		}
 		
 		/** @internal */
-		readonly class = Class.pattern;
+		readonly id = id();
 		
 		/**
 		 * Stores whether the internal regular expression

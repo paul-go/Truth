@@ -2,9 +2,9 @@
 namespace Truth
 {
 	/**
-	 * A class that represents a fully constructed Type within the program.
+	 * Represents a fully constructed Type within the program.
 	 */
-	export class Type extends AbstractClass
+	export class Type
 	{
 		/** 
 		 * @internal
@@ -162,13 +162,12 @@ namespace Truth
 		/** */
 		private constructor(phrase: Phrase)
 		{
-			super();
 			this.name = phrase.terminal.toString();
 			this.phrase = phrase;
 		}
 		
 		/** @internal */
-		readonly class = Class.type;
+		readonly id = id();
 		
 		/**
 		 * Stores a text representation of the name of the Type,
@@ -790,6 +789,43 @@ namespace Truth
 							return true;
 			
 			return false;
+		}
+		
+		/**
+		 * Returns a reference to the trait function that corresponds
+		 * to the specified trait definition, or null in the case when this
+		 * Type does not have a trait function that corresponds to the
+		 * definition specified.
+		 * 
+		 * Currently, the calling behavior is non-polymorphic. When
+		 * calling the trait function returned, a single call is made to
+		 * the first instance of the definition of the trait in the Type's
+		 * super graph.
+		 */
+		call<T extends TraitDefinition>(def: T): null | TraitEntryPoint<T>
+		{
+			let implFunction: Function | null = null;
+			
+			for (const type of this.visit(t => t.supers))
+			{
+				const traits = type.statements[0].traits;
+				if (!traits)
+					continue;
+				
+				for (const trait of traits)
+				{
+					if (trait.definition === def)
+					{
+						implFunction = trait.implementation;
+						break;
+					}
+				}
+			}
+			
+			if (implFunction === null)
+				return null;
+			
+			return implFunction as any;
 		}
 		
 		/**

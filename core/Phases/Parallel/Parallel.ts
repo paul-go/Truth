@@ -4,7 +4,7 @@ namespace Truth
 	/**
 	 * 
 	 */
-	export abstract class Parallel extends AbstractClass
+	export abstract class Parallel
 	{
 		/**
 		 * @internal
@@ -14,14 +14,12 @@ namespace Truth
 			readonly phrase: Phrase,
 			readonly container: Parallel | null)
 		{
-			super();
-			
 			if (container !== null)
 				container._contents.set(phrase.terminal, this);
 		}
 		
 		/** @internal */
-		readonly class = Class.parallel;
+		readonly id = id();
 		
 		/**
 		 * @internal

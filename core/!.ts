@@ -10,7 +10,7 @@
 /// <reference path="./Util/Misc.ts" />
 
 // System
-/// <reference path="./System/AbstractClass.ts" />
+/// <reference path="./System/ID.ts" />
 /// <reference path="./System/Program.ts" />
 /// <reference path="./System/ProgramInspectionResult.ts" />
 /// <reference path="./System/Exception.ts" />

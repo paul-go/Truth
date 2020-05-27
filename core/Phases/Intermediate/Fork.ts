@@ -4,7 +4,7 @@ namespace Truth
 	/**
 	 * 
 	 */
-	export class Fork extends AbstractClass
+	export class Fork
 	{
 		constructor(
 			/**
@@ -23,11 +23,9 @@ namespace Truth
 			 * of this Fork. The term may refer to an alias, or a literal Type reference.
 			 */
 			readonly term: Term)
-		{
-			super();
-		}
+		{ }
 		
 		/** @internal */
-		readonly class = Class.fork;
+		readonly id = id();
 	}
 }

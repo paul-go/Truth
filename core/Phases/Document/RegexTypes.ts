@@ -2,7 +2,7 @@
 namespace Truth
 {
 	/**
-	 * Ambient unifier for all PatternUnit instances
+	 * Base class for all PatternUnit instances.
 	 */
 	export abstract class RegexUnit
 	{
@@ -13,7 +13,8 @@ namespace Truth
 	}
 	
 	/**
-	 * 
+	 * A class that describes Regular Expression character
+	 * sets.
 	 */
 	export class RegexSet extends RegexUnit
 	{

@@ -53,6 +53,22 @@ namespace Truth
 		}
 		
 		/** */
+		static cannotDeclareTraitsOnNonEmptyProgram()
+		{
+			return error(
+				`Cannot declare traits on non-empty programs. ` +
+				`Be sure to call this function before all documents ` +
+				`have been added to the program`);
+		}
+		
+		/** */
+		static classAlreadyExists(name: string)
+		{
+			return error(`A class with the name "${name}" ` +
+				`has already been declared in this program.`);
+		}
+		
+		/** */
 		static scriptMissing(rawUri: string)
 		{
 			return error(`Could not load a script from ${rawUri}`);

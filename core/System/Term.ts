@@ -8,7 +8,7 @@ namespace Truth
 	 * A term may be the name of a Type, such as "Product", or it may also
 	 * be some alias to be matched by a pattern, such as "10cm".
 	 */
-	export class Term extends AbstractClass
+	export class Term
 	{
 		/**
 		 * Finds or creates a Term object whose inner textContent is equal
@@ -59,7 +59,6 @@ namespace Truth
 			readonly textContent: string,
 			forceSingular: boolean)
 		{
-			super();
 			this.singular = this;
 			this.hash = this.tryExtractHash(textContent);
 			
@@ -75,7 +74,7 @@ namespace Truth
 		}
 		
 		/** @internal */
-		readonly class = Class.term;
+		readonly id = id();
 		
 		/** */
 		private tryExtractHash(text: string)

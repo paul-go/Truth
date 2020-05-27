@@ -9,41 +9,8 @@ namespace Truth
 	 * from a string of Truth content directly (see the associated methods
 	 * in Truth.Program).
 	 */
-	export class Document extends AbstractClass
+	export class Document
 	{
-		/**
-		 * @internal
-		 * Internal constructor for volatile Document objects.
-		 * Volatile document objects are those that are not stored
-		 * in this library's internal memory, but rather are returned
-		 * back to the library consumer and forgotten.
-		 */
-		static newVolatile(
-			program: Program,
-			sourceText: string,
-			dependencies: readonly Document[])
-		{
-			const doc = new Document(program, KnownUri.volatile);
-			const generator = Statement.readFromSource(doc, sourceText);
-			const surfaceStatements: Statement[] = [];
-			let maxIndent = Number.MAX_SAFE_INTEGER;
-			
-			for (const statement of generator)
-			{
-				doc.statements.push(statement);
-				
-				if (statement.indent <= maxIndent && statement.isNoop)
-				{
-					surfaceStatements.push(statement);
-					maxIndent = statement.indent;
-				}
-			}
-			
-			doc._dependencies.push(...dependencies);
-			Phrase.inflateRecursive(surfaceStatements);
-			return doc;
-		}
-		
 		/**
 		 * @internal
 		 * Internal constructor for Document objects.
@@ -115,17 +82,78 @@ namespace Truth
 			return doc;
 		}
 		
+		/**
+		 * @internal
+		 * Internal constructor for volatile Document objects.
+		 * Volatile document objects are those that are not stored
+		 * in this library's internal memory, but rather are returned
+		 * back to the library consumer and forgotten.
+		 */
+		static newVolatile(
+			program: Program,
+			sourceText: string,
+			dependencies: readonly Document[])
+		{
+			const doc = new Document(program, KnownUri.volatile);
+			const generator = Statement.readFromSource(doc, sourceText);
+			const surfaceStatements: Statement[] = [];
+			let maxIndent = Number.MAX_SAFE_INTEGER;
+			
+			for (const statement of generator)
+			{
+				doc.statements.push(statement);
+				
+				if (statement.indent <= maxIndent && !statement.isNoop)
+				{
+					surfaceStatements.push(statement);
+					maxIndent = statement.indent;
+				}
+			}
+			
+			doc._dependencies.push(...dependencies);
+			Phrase.inflateRecursive(surfaceStatements);
+			return doc;
+		}
+		
+		/**
+		 * @internal
+		 * Internal constructor to create the trait class document.
+		 * All trait classes defined within a program are all defined
+		 * within a single Document, which is created by this method.
+		 */
+		static newTraitClassDocument(
+			program: Program,
+			classes: readonly Class[])
+		{
+			const doc = new Document(program, KnownUri.class);
+			const surfaceStatements: Statement[] = [];
+			let maxIndent = Number.MAX_SAFE_INTEGER;
+			
+			for (const smt of Statement.readFromClasses(doc, classes))
+			{
+				doc.statements.push(smt);
+				
+				if (smt.indent <= maxIndent)
+				{
+					surfaceStatements.push(smt);
+					maxIndent = smt.indent;
+				}
+			}
+			
+			Phrase.inflateRecursive(surfaceStatements);
+			return doc;
+		}
+		
 		/** */
 		private constructor(program: Program, sourceUri: KnownUri)
 		{
-			super();
 			this.program = program;
 			this._uri = sourceUri;
 			this.phrase = Phrase.new(this);
 		}
 		
 		/** @internal */
-		readonly class = Class.document;
+		readonly id = id();
 		
 		/**
 		 * @internal
@@ -1482,6 +1510,13 @@ namespace Truth
 			const docs = dependencies ? this._dependencies : this._dependents;
 			for (const dependency of docs)
 				yield *recurse(dependency);
+			
+			// Yield the class container document in the case when it exists
+			// at the very end. This will ensure that any terms it defines are 
+			// resolved last.
+			if (dependencies)
+				if (this.program.traitClassDocument)
+					yield this.program.traitClassDocument;
 		}
 		
 		/**

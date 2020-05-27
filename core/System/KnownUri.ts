@@ -7,8 +7,17 @@ namespace Truth
 	 * to unique URLs, so that equality of two Uris can be tested
 	 * by doing a simple referential comparison.
 	 */
-	export class KnownUri extends AbstractClass
+	export class KnownUri
 	{
+		/**
+		 * Stores the well-known URI used by all class container documents.
+		 */
+		static get class()
+		{
+			return this._class || (this._class = KnownUri.fromName(className));
+		}
+		private static _class: KnownUri | null = null;
+		
 		/**
 		 * Stores the well-known URI used by all volatile documents.
 		 */
@@ -81,13 +90,12 @@ namespace Truth
 		/** */
 		private constructor(private readonly innerUrl: URL)
 		{
-			super();
 			// Generates an error if the URL isn't from a known protocol.
 			this.protocol;
 		}
 		
 		/** @internal */
-		readonly class = Class.knownUri;
+		readonly id = id();
 		
 		/**
 		 * Gets the protocol of the underlying URL.
@@ -134,6 +142,9 @@ namespace Truth
 				this.innerUrl.href;
 		}
 	}
+	
+	/** Document name used in class container documents. */
+	const className = "Tm9PbmVDYW5TdG9wV2hhdElzQ29taW5n";
 	
 	/** Document name used in volatile documents. */
 	const volatileName = "V2hlcmUgd2UgZ28gb25lLCB3ZSBnbyBhbGwu";

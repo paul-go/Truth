@@ -21,7 +21,7 @@ namespace Truth
 	 * first supporting span makes an appearance, and are disposed at the time when the last
 	 * one is removed.
 	 */
-	export class Phrase extends AbstractClass
+	export class Phrase
 	{
 		/**
 		 * @internal
@@ -292,8 +292,6 @@ namespace Truth
 		private constructor(parent: Phrase, terminal: Subject)
 		private constructor(a: Document | Phrase, b?: Span | Subject, c?: Term[], d?: string)
 		{
-			super();
-			
 			this.terminal = Term.anonymous;
 			this.clarifiers = [];
 			this.clarifierKey = "";
@@ -334,7 +332,7 @@ namespace Truth
 		}
 		
 		/** @internal */
-		readonly class = Class.phrase;
+		readonly id = id();
 		
 		/**
 		 * Stores the list of terms that exist on the right-side of the
@@ -745,7 +743,8 @@ namespace Truth
 						// in a higher-level scope.
 						.filter(ph => ph !== this);
 					
-					successors.unshift(...phrases);
+					if (phrases.length)
+						successors.unshift(...phrases);
 				}
 				
 				forks.push(new Fork(this, successors, term));

@@ -4,11 +4,8 @@ namespace Truth
 	/**
 	 * A class that represents a single line within a Truth document.
 	 */
-	export class Statement extends AbstractClass
+	export class Statement
 	{
-		/** @internal */
-		readonly class = Class.statement;
-		
 		/**
 		 * @internal
 		 * Generator function that yields all statements
@@ -105,7 +102,7 @@ namespace Truth
 						targetDocument,
 						statementText.join(""),
 						options,
-						methods);
+						methods as any);
 					
 					if (containees.length > 0)
 					{
@@ -116,6 +113,70 @@ namespace Truth
 			};
 			
 			yield *recurse(sourceObject, 0);
+		}
+		
+		/**
+		 * @internal
+		 */
+		static *readFromClasses(
+			targetDocument: Document,
+			classes: readonly Class[])
+		{
+			const options = createDefaultParseOptions(targetDocument);
+			
+			const classMap = new Map<string, Class>();
+			for (const amb of classes)
+				classMap.set(amb.name, amb);
+			
+			const namesOf = (classes: Class[] | Class | undefined) =>
+			{
+				if (classes === undefined)
+					return "";
+				
+				if (Array.isArray(classes))
+					return classes.map(amb => amb.name).join(Syntax.combinator);
+				
+				return classes.name;
+			}
+			
+			function *recurse(cls: Class, depth: number):
+				IterableIterator<Statement>
+			{
+				const tci = new cls() as TraitClassInternal;
+				const isNames = namesOf(tci.is);
+				
+				let statementText = [
+					Syntax.tab.repeat(depth),
+					cls.name
+				];
+				
+				if (isNames.length > 0)
+					statementText.push(
+						Syntax.space,
+						Syntax.joint,
+						Syntax.space,
+						isNames);
+				
+				const smt = Statement.new(
+					targetDocument,
+					statementText.join(""),
+					options,
+					tci.traits.length ? tci.traits : null);
+				
+				yield smt;
+				
+				if (tci.has)
+				{
+					if (Array.isArray(tci.has))
+						for (const cls of tci.has)
+							yield *recurse(cls, depth + 1);
+					
+					else yield *recurse(tci.has, depth + 1);
+				}
+			}
+			
+			for (const cls of classes)
+				yield *recurse(cls, 0);
 		}
 		
 		/**
@@ -136,9 +197,9 @@ namespace Truth
 			document: Document,
 			statementText: string,
 			options: IParserOptions = createDefaultParseOptions(document),
-			methods: SourceObjectMethods[] = [])
+			traits: readonly Trait[] | null = null)
 		{
-			return new Statement(document, statementText, options, methods);
+			return new Statement(document, statementText, options, traits);
 		}
 		
 		/** */
@@ -146,10 +207,9 @@ namespace Truth
 			document: Document | null,
 			statementText: string,
 			options: IParserOptions,
-			methods: SourceObjectMethods[] = [])
+			traits: readonly Trait[] | null = null)
 		{
-			super();
-			this.methods = methods;
+			this.traits = traits;
 			
 			// This is where the parsing of a statement begins.
 			// The algorithm used is some kind of quasi-recusive descent with
@@ -329,6 +389,9 @@ namespace Truth
 			this.cruftObjects = cruftObjects;
 			this.faults = Object.freeze(faults);
 		}
+		
+		/** @internal */
+		readonly id = id();
 		
 		/**
 		 * 
@@ -731,7 +794,9 @@ namespace Truth
 		 * this Statement was not generated from a scripted document, the
 		 * stored value is an empty aray.
 		 */
-		readonly methods: readonly SourceObjectMethods[];
+		//readonly methods: readonly SourceObjectMethods[];
+		//! DOCUMENT
+		readonly traits: readonly Trait[] | null = null;
 		
 		/**
 		 * @internal

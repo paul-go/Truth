@@ -23,17 +23,15 @@ namespace Truth
 	 * A class that stores information about a reference established by
 	 * one document (via a Statement) to another document.
 	 */
-	export class Reference extends AbstractClass
+	export class Reference
 	{
 		constructor(
 			readonly statement: UriStatement,
 			readonly target: Document | null)
-		{
-			super();
-		}
+		{ }
 		
 		/** @internal */
-		readonly class = Class.reference;
+		readonly id = id();
 	}
 	
 	/**

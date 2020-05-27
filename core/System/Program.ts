@@ -5,7 +5,7 @@ namespace Truth
 	 * The main object that stores a collection Truth documents,
 	 * and provides APIs for verifying and inspecting them.
 	 */
-	export class Program extends AbstractClass
+	export class Program
 	{
 		/**
 		 * Creates a new Program, into which Documents may
@@ -13,8 +13,6 @@ namespace Truth
 		 */
 		constructor()
 		{
-			super();
-			
 			this._version = VersionStamp.next();
 			this.versionOfLastDocSort = this._version;
 			this.reader = Truth.createDefaultUriReader();
@@ -47,7 +45,7 @@ namespace Truth
 		}
 		
 		/** @internal */
-		readonly class = Class.program;
+		readonly id = id();
 		
 		/** @internal */
 		readonly cycleDetector: CycleDetector;
@@ -69,6 +67,8 @@ namespace Truth
 			return this._version;
 		}
 		private _version: VersionStamp;
+		
+		//# Documents
 		
 		/**
 		 * Gets a readonly array of truth documents that have been loaded into
@@ -128,6 +128,8 @@ namespace Truth
 					Extension.truth :
 					Extension.script))
 		{
+			this.maybeAddTraitClasses();
+			
 			const doc = await Document.new(
 				this,
 				associatedUri,
@@ -171,6 +173,8 @@ namespace Truth
 			// loaded into memory, or it's an error.
 			else if (uri.protocol === UriProtocol.memory)
 				return Promise.resolve(Exception.invalidUri(uri.toString()));
+			
+			this.maybeAddTraitClasses();
 			
 			const promises = this.queue.get(uri);
 			if (promises)
@@ -247,6 +251,58 @@ namespace Truth
 		/** Stores a queue of documents to resolve. */
 		private readonly queue = 
 			new Map<KnownUri, ((resolved: Document | Error) => void)[]>();
+		
+		//# Trait Classes
+		
+		/**
+		 * Adds a surface-level Trait Class definition to this Program.
+		 * Trait Classes that 
+		 */
+		declare(...traitClasses: Class[])
+		{
+			if (this._documents.length > 0)
+				throw Exception.cannotDeclareTraitsOnNonEmptyProgram();
+			
+			for (const tc of traitClasses)
+				if (this.traitClasses.some(am => am.name === tc.name))
+					throw Exception.classAlreadyExists(tc.name);
+			
+			this.traitClasses.push(...traitClasses);
+		}
+		
+		/**
+		 * Creates the trait class document, and adds all declared trait classes
+		 * to said document, if it has not already been done before for this Program.
+		 */
+		private maybeAddTraitClasses()
+		{
+			if (this.traitClasses.length === 0)
+				return;
+			
+			this._traitClassDocument = Document.newTraitClassDocument(
+				this,
+				this.traitClasses);
+			
+			// Clear the trait classes out of memory, as these references are no
+			// longer needed, which also has the effect of short-circuiting this
+			// method.
+			this.traitClasses.length = 0;
+		}
+		
+		private readonly traitClasses: Class[] = [];
+		
+		/**
+		 * @internal
+		 * Stores a reference to this Program's trait class document.
+		 * The trait class document will be null in the case when this
+		 * Program has declared no traits, or when no document have
+		 * been added to this Program.
+		 */
+		get traitClassDocument()
+		{
+			return this._traitClassDocument;
+		}
+		private _traitClassDocument: Document | null = null;
 		
 		//# Type Caching
 		
@@ -623,6 +679,38 @@ namespace Truth
 				typeof clarifier === "string" ? [clarifier] : clarifier);
 			
 			return phrase ? Type.construct(phrase) : null;
+		}
+		
+		/**
+		 * Returns the Truth.Type object that corresponds to the Truth.Class
+		 * specified. Alternatively, a Truth.Type object may be specified, in
+		 * which case, it is returned verbatim. This way, an identifier that is
+		 * a union of Type | Class can be easily resolved to just Type.
+		 */
+		declassify(construct: Construct): Type;
+		/**
+		 * Returns the Truth.Type object that corresponds to a path of
+		 * Truth.Class references. Returns null in the case when the path
+		 * refers to a non-existent area.
+		 */
+		declassify(classPath1: Class, ...classPathNext: Class[]): Type | null;
+		declassify(...classPath: any[]): any
+		{
+			if (classPath[0] instanceof Type)
+				return classPath[0];
+			
+			if (this.traitClassDocument === null)
+				return null;
+			
+			const names = classPath.map(cls => cls.name);
+			const result = this.queryDocument(this.traitClassDocument, ...names);
+			if (result === null)
+				return null;
+			
+			if (result instanceof Truth.Type)
+				return result;
+			
+			throw Exception.unknownState();
 		}
 		
 		/**
