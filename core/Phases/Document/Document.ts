@@ -1522,12 +1522,13 @@ namespace Truth
 			for (const dependency of docs)
 				yield *recurse(dependency);
 			
-			// Yield the class container document in the case when it exists
-			// at the very end. This will ensure that any terms it defines are 
-			// resolved last.
+			// Yield the trait class document in the case when it exists (and also
+			// when this Document isn't the trait class document itself) at the end.
+			// This will ensure that any terms it defines are resolved last.
 			if (dependencies)
 				if (this.program.traitClassDocument)
-					yield this.program.traitClassDocument;
+					if (this !== this.program.traitClassDocument)
+						yield this.program.traitClassDocument;
 		}
 		
 		/**
