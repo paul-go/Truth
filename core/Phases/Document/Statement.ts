@@ -157,13 +157,31 @@ namespace Truth
 						Syntax.space,
 						isNames);
 				
-				const smt = Statement.new(
+				yield Statement.new(
 					targetDocument,
 					statementText.join(""),
 					options,
 					tci.traits.length ? tci.traits : null);
 				
-				yield smt;
+				// Generate a separate statement if the Trait Class
+				// defines a pattern.
+				if (tci.pattern)
+				{
+					const patternStatementText= [
+						RegexSyntaxDelimiter.main,
+						tci.pattern.source,
+						Syntax.space,
+						Syntax.joint,
+						Syntax.space,
+						cls.name
+					];
+					
+					yield Statement.new(
+						targetDocument,
+						patternStatementText.join(""),
+						options,
+						null);
+				}
 				
 				if (tci.has)
 				{
