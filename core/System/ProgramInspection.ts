@@ -4,7 +4,7 @@ namespace Truth
 	/**
 	 * Stores information about a character location in a document.
 	 */
-	export class ProgramInspectionResult
+	export class ProgramInspection
 	{
 		constructor(
 			/**

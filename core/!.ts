@@ -12,7 +12,7 @@
 // System
 /// <reference path="./System/ID.ts" />
 /// <reference path="./System/Program.ts" />
-/// <reference path="./System/ProgramInspectionResult.ts" />
+/// <reference path="./System/ProgramInspection.ts" />
 /// <reference path="./System/Exception.ts" />
 /// <reference path="./System/UriProtocol.ts" />
 /// <reference path="./System/UriReader.ts" />

@@ -746,7 +746,7 @@ namespace Truth
 		inspect(
 			document: Document,
 			line: number,
-			column: number): ProgramInspectionResult
+			column: number): ProgramInspection
 		{
 			const offset = column - 1;
 			const statement = document.read(line);
@@ -774,7 +774,7 @@ namespace Truth
 					InspectedSyntax.void :
 					InspectedSyntax.term;
 			
-			return new ProgramInspectionResult(
+			return new ProgramInspection(
 				line,
 				column,
 				statement,
