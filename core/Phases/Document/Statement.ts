@@ -659,21 +659,38 @@ namespace Truth
 			
 			if (!(this.document instanceof Document))
 			{
-				this.docVersionLastLineLookup = null;
+				this.lineVersion = null;
 				return -1;
 			}
 			
-			if (!this.docVersionLastLineLookup ||
-				this.document.version.newerThan(this.docVersionLastLineLookup))
+			if (!this.lineVersion)
+				this.lineVersion = Version.min();
+			
+			if (this.document.version.after(this.lineVersion))
 			{
-				this.docVersionLastLineLookup = this.docVersionLastLineLookup;
+				this.lineVersion.equalize(this.document.version);
 				return this._line = this.document.lineNumberOf(this);
 			}
 			
 			return this._line;
 		}
 		private _line = -1;
-		private docVersionLastLineLookup: VersionStamp | null = null;
+		private lineVersion: Version | null = null;
+		
+		/**
+		 * @internal
+		 * Adjusts the line number of this statement by the specified offset.
+		 * This is to support an optimization so that faults don't need to be
+		 * recalculated for addition and removal of no-op statements.
+		 */
+		moveBy(offset: number)
+		{
+			// In the case when the line number is less than 0, this means that
+			// this Statement's line number hasn't been calculated yet, and 
+			// so there is no need to make any adjustments to it.
+			if (this._line > 0)
+				this._line += offset;
+		}
 		
 		/**
 		 * Gets an array of spans in that represent the declarations

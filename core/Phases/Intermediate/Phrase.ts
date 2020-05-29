@@ -328,7 +328,7 @@ namespace Truth
 				}
 			}
 			
-			this.outboundsVersion = this.containingDocument.program.version;
+			this.outboundsVersion = Version.of(this.containingDocument.program.version);
 		}
 		
 		/** @internal */
@@ -685,10 +685,10 @@ namespace Truth
 			if (this.outboundsVersion)
 			{
 				const currentVersion = this.containingDocument.program.version;
-				if (currentVersion.newerThan(this.outboundsVersion))
+				if (currentVersion.after(this.outboundsVersion))
 				{
 					this._outbounds = null;
-					this.outboundsVersion = currentVersion;
+					this.outboundsVersion.equalize(currentVersion);
 				}
 			}
 			
@@ -758,7 +758,7 @@ namespace Truth
 		 * Stores the version of the containing program when the outbounds
 		 * array was computed, used as a cache clearing indicator.
 		 */
-		private outboundsVersion: VersionStamp;
+		private outboundsVersion: Version | null = null;
 		
 		/**
 		 * Returns a substring of the annotations set on this phrase, starting with

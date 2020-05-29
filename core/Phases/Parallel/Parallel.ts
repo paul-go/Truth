@@ -39,7 +39,7 @@ namespace Truth
 		 * Stores a version number for this instance,
 		 * useful for debugging purposes.
 		 */
-		readonly version = VersionStamp.next();
+		readonly stamp = Version.next();
 		
 		/**
 		 * Gets the document in which this Parallel is defined.

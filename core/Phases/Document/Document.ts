@@ -200,11 +200,11 @@ namespace Truth
 		 * @internal
 		 * A rolling version stamp that increments after each edit transaction.
 		 */
-		get version()
+		get version(): ReadonlyVersion
 		{
 			return this._version;
 		}
-		private _version = VersionStamp.next();
+		private _version = Version.next();
 		
 		/**
 		 * Stores the complete list of the Document's statements,
@@ -752,7 +752,7 @@ namespace Truth
 		 * If no such references were added, a promise is returned that
 		 * resolves immediately.
 		 */
-		async edit(editFn: (mutator: IDocumentMutator) => void)
+		edit(editFn: (mutator: IDocumentMutator) => void)
 		{
 			if (this.isVolatile || this.isScripted)
 				throw Exception.documentImmutable();
@@ -771,7 +771,7 @@ namespace Truth
 		 * Executes a complete edit transaction, that may affect any
 		 * document loaded into this program.
 		 */
-		async editAtomic(edits: IDocumentEdit[])
+		editAtomic(edits: IDocumentEdit[])
 		{
 			if (this.isVolatile || this.isScripted)
 				throw Exception.documentImmutable();
@@ -901,6 +901,8 @@ namespace Truth
 					}
 				}
 				
+				const that = this;
+				
 				// If we've gotten to this point, it means that the changes can
 				// be processed without notifying the rest of the system.
 				return {
@@ -909,14 +911,23 @@ namespace Truth
 					{
 						for (const edit of edits)
 						{
-							if (edit instanceof DeleteEdit)
-								doDelete(edit);
-							
-							else if (edit instanceof UpdateEdit)
+							if (edit instanceof UpdateEdit)
 								doUpdate(edit);
 							
 							else if (edit instanceof InsertEdit)
+							{
+								for (let line = that.statements.length; line >= edit.pos; line--)
+									that.read(line).moveBy(1);
+								
 								doInsert(edit);
+							}
+							else if (edit instanceof DeleteEdit)
+							{
+								for (let line = that.statements.length; line >= edit.pos + edit.count; line--)
+									that.read(line).moveBy(-edit.count);
+								
+								doDelete(edit);
+							}
 						}
 					},
 					createPhrases() {},
@@ -940,7 +951,7 @@ namespace Truth
 					//Debug.printPhrases(this, true, true);
 				}
 				
-				this._version = VersionStamp.next();
+				this._version.bump();
 				
 				if (addedUriSmts.length + deletedUriSmts.length > 0)
 					await this.updateReferences(deletedUriSmts, addedUriSmts);

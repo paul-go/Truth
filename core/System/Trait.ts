@@ -90,5 +90,3 @@ namespace Truth
 		T extends (impl: (...args: any[]) => infer R) => any ? R : never;
 	*/
 }
-
-

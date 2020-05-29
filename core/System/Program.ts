@@ -13,8 +13,6 @@ namespace Truth
 		 */
 		constructor()
 		{
-			this._version = VersionStamp.next();
-			this.versionOfLastDocSort = this._version;
 			this.reader = Truth.createDefaultUriReader();
 			
 			this.on("documentAdd", doc =>
@@ -29,7 +27,7 @@ namespace Truth
 			
 			this.on("documentUriChange", () =>
 			{
-				this._version = VersionStamp.next();
+				this._version = Version.next();
 			});
 			
 			this.cycleDetector = new CycleDetector(this);
@@ -62,11 +60,11 @@ namespace Truth
 		/**
 		 * Gets an incrementing stamp.
 		 */
-		get version()
+		get version(): ReadonlyVersion
 		{
 			return this._version;
 		}
-		private _version: VersionStamp;
+		private _version = Version.next();
 		
 		//# Documents
 		
@@ -77,9 +75,10 @@ namespace Truth
 		 */
 		get documents(): readonly Document[]
 		{
-			if (this.version.newerThan(this.versionOfLastDocSort))
+			if (this.version.after(this.documentsVersion))
 			{
 				const docs = new Set<Document>();
+				
 				const recurse = (doc: Document) =>
 				{
 					for (const dep of doc.dependencies)
@@ -91,14 +90,27 @@ namespace Truth
 				for (const doc of this._documents)
 					recurse(doc);
 				
-				this.versionOfLastDocSort = this.version;
+				this.documentsVersion.equalize(this.version);
 				this._documents = Array.from(docs);
 			}
 			
 			return this._documents;
 		}
 		private _documents: Document[] = [];
-		private versionOfLastDocSort: VersionStamp;
+		private readonly documentsVersion = Version.min();
+		
+		/**
+		 * Returns an array of all documents in the Program, including the
+		 * Trait Class Document, which is not included in the .documents
+		 * property.
+		 */
+		private getAllDocuments()
+		{
+			if (!this.traitClassDocument)
+				return this.documents;
+			
+			return [this.traitClassDocument, ...this.documents];
+		}
 		
 		/**
 		 * Override the default IUriReader used by the program.
@@ -128,7 +140,7 @@ namespace Truth
 					Extension.truth :
 					Extension.script))
 		{
-			this.maybeAddTraitClasses();
+			this.maybeAddTraitClassDocument();
 			
 			const doc = await Document.new(
 				this,
@@ -174,7 +186,7 @@ namespace Truth
 			else if (uri.protocol === UriProtocol.memory)
 				return Promise.resolve(Exception.invalidUri(uri.toString()));
 			
-			this.maybeAddTraitClasses();
+			this.maybeAddTraitClassDocument();
 			
 			const promises = this.queue.get(uri);
 			if (promises)
@@ -231,6 +243,8 @@ namespace Truth
 		/** */
 		private finalizeDocumentAdd(docOrError: Document | Error)
 		{
+			this._version.bump();
+			
 			if (docOrError instanceof Document)
 			{
 				this.uncheckedDocuments.add(docOrError.id);
@@ -274,19 +288,20 @@ namespace Truth
 		 * Creates the trait class document, and adds all declared trait classes
 		 * to said document, if it has not already been done before for this Program.
 		 */
-		private maybeAddTraitClasses()
+		private maybeAddTraitClassDocument()
 		{
-			if (this.traitClasses.length === 0)
+			if (this.traitClasses.length === 0 || this._traitClassDocument)
 				return;
 			
 			this._traitClassDocument = Document.newTraitClassDocument(
 				this,
 				this.traitClasses);
 			
-			// Clear the trait classes out of memory, as these references are no
-			// longer needed, which also has the effect of short-circuiting this
-			// method.
+			// Clear the trait classes out of memory, 
+			// as these references are no longer needed
 			this.traitClasses.length = 0;
+			
+			this.finalizeDocumentAdd(this._traitClassDocument);
 		}
 		
 		private readonly traitClasses: Class[] = [];
@@ -478,10 +493,16 @@ namespace Truth
 			if (maxLevelFilter < minLevelFilter)
 				return;
 			
-			const documents: readonly Document[] = 
-				documentFilter instanceof Document ? [documentFilter] :
-				Array.isArray(documentFilter) ? documentFilter :
-				this.documents;
+			let documents: readonly Document[];
+			
+			if (documentFilter instanceof Document)
+				documents = [documentFilter];
+			
+			else if (Array.isArray(documentFilter))
+				documents = documentFilter;
+			
+			else
+				documents = this.getAllDocuments();
 			
 			// Optimization
 			if (minLevelFilter === 1 && maxLevelFilter === 1)
@@ -534,7 +555,7 @@ namespace Truth
 		{
 			// Use all leaf documents in the case when no dependencies are specified.
 			const deps = dependencies.length === 0 ?
-				this.documents.filter(d => d.dependents.length === 0).reverse() :
+				this.getAllDocuments().filter(d => d.dependents.length === 0).reverse() :
 				dependencies;
 			
 			if (deps.length === 0)
@@ -561,7 +582,7 @@ namespace Truth
 			if (!knownUri)
 				throw Exception.invalidArgument();
 			
-			for (const doc of this._documents)
+			for (const doc of this.getAllDocuments())
 				if (doc.uri === knownUri)
 					return doc;
 			
@@ -597,8 +618,9 @@ namespace Truth
 		 * 
 		 * @param typePath The Type path within all documents to search.
 		 * @returns An array containing the Types discovered. In the case when
-		 * discovered Types are part of a homograph, all Types participating in
-		 * this homograph are included in the returned array.
+		 * discovered Types are part of a homograph, or there are Types present
+		 * at the path specified in multiple documents, all matching Types are
+		 * are included in the returned array.
 		 */
 		query(...typePath: string[]): Type[]
 		{
@@ -607,7 +629,7 @@ namespace Truth
 			
 			const results: Type[] = [];
 			
-			for (const document of this.documents)
+			for (const document of this.getAllDocuments())
 			{
 				for (const phrase of Phrase.fromPathComponents(document, typePath))
 				{
@@ -823,7 +845,7 @@ namespace Truth
 						tasks.push(task);
 				}
 				
-				this.faults.executeTransaction(async () =>
+				await this.faults.executeTransaction(async () =>
 				{
 					for (const task of tasks)
 						task.deletePhrases();
@@ -840,7 +862,7 @@ namespace Truth
 						await task.finalize();
 				});
 				
-				this._version = VersionStamp.next();
+				this._version.bump();
 			}
 			
 			this.inEdit = false;
@@ -1049,7 +1071,7 @@ namespace Truth
 				this.cancelCheckAsync();
 				
 				// Check all documents that are unchecked
-				for (const doc of this.documents)
+				for (const doc of this.getAllDocuments())
 					if (this.uncheckedDocuments.has(doc.id))
 						this.checkDocument(doc);
 			}
@@ -1089,7 +1111,7 @@ namespace Truth
 			
 			function *createGenerator()
 			{
-				for (const document of self.documents)
+				for (const document of self.getAllDocuments())
 					for (const phrases of document.phrase.peekRecursive())
 						for (const phrase of phrases)
 							yield phrase;

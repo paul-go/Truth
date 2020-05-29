@@ -11,7 +11,7 @@ namespace Truth
 		 * Logical clock value used to make chronological 
 		 * creation-time comparisons between Spans.
 		 */
-		readonly stamp = VersionStamp.next();
+		readonly stamp = Version.next();
 		
 		/**
 		 * @internal
@@ -262,7 +262,7 @@ namespace Truth
 		 */
 		private isDirty()
 		{
-			return this.statement.document.program.version.newerThan(this.stamp);
+			return this.statement.document.program.version.after(this.stamp);
 		}
 		
 		/**

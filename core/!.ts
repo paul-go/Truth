@@ -20,7 +20,7 @@
 /// <reference path="./System/FaultService.ts" />
 /// <reference path="./System/Faults.ts" />
 /// <reference path="./System/Term.ts" />
-/// <reference path="./System/VersionStamp.ts" />
+/// <reference path="./System/Version.ts" />
 
 // Finite State Machine
 /// <reference path="./Fsm/Alphabet.ts" />
