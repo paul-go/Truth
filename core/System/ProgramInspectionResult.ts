@@ -52,10 +52,10 @@ namespace Truth
 		 * 	| <-- Inspected position is here
 		 * ```
 		 */
-		get containers(): readonly Type[]
+		get theoreticalContainers(): readonly Type[]
 		{
-			if (this._containers)
-				return this._containers;
+			if (this._theoreticalContainers)
+				return this._theoreticalContainers;
 			
 			if (this.statement.isWhitespace)
 			{
@@ -64,60 +64,86 @@ namespace Truth
 				const parent = doc.getParentFromPosition(this.line, offset);
 				
 				if (parent instanceof Statement)
-					return this._containers = parent.declarations
+					return this._theoreticalContainers = parent.declarations
 						.flatMap(decl => Phrase.fromSpan(decl))
 						.map(phrase => Type.construct(phrase))
 						.filter((type): type is Type => !!type);
 			}
 			
-			return this._containers = [];
+			return this._theoreticalContainers = [];
 		}
-		private _containers: readonly Type[] | null = null;
+		private _theoreticalContainers: readonly Type[] | null = null;
 		
 		/**
-		 * Gets an array of Types that are defined as declarations in the
-		 * statement that contains the inspected location.
+		 * Gets an array of Types that are defined on the left side of
+		 * the inspected statement.
+		 * 
+		 * In the case when the inspected area is the declaration side
+		 * of the statement, the returned array will contain the Types
+		 * that correspond to one specific declaration term. Note that
+		 * this can generate multiple types in the case when the term
+		 * being inspected is inside a multi-declaration container.
+		 * 
+		 * In the case when the inspected area is the annotation side
+		 * of the statement, the returned array contains all Types that
+		 * correspond to all declarations on the declaration side of the
+		 * statement. In the vast majority of cases, this will still be a
+		 * single-item array.
+		 * 
+		 * This property is guaranteed to never return an empty array.
+		 * A null value is returned in such cases.
+		 * 
+		 * Gets a null value in the case when the inspected area is a
+		 * whitespace or comment line.
 		 */
-		get declarations()
+		get types(): readonly Type[] | null
 		{
-			if (this._declarations)
-				return this._declarations;
-			
-			return this._declarations = this.statement.declarations
-				.flatMap(decl => Phrase.fromSpan(decl))
-				.map(phrase => Type.construct(phrase))
-				.filter((type): type is Type => !!type);
-		}
-		private _declarations: readonly Type[] | null = null;
-		
-		/**
-		 * Gets an array of Types in the case when the inspected location
-		 * is on the declaration side of a statement, or a keyword in the case
-		 * when the inspected location is on the annotation side of the
-		 * statement.
-		 */
-		get hit(): Keyword | readonly Type[] | string
-		{
-			if (this._hit !== null)
-				return this._hit;
+			if (this._types !== undefined)
+				return this._types;
 			
 			if (this.area === InspectedArea.declaration)
 			{
-				const span = Not.null(this.span);
-				return this._hit = Phrase.fromSpan(span)
-					.map(ph => Type.construct(ph))
+				const types = Phrase.fromSpan(Not.null(this.span))
+					.map(phrase => Type.construct(phrase))
 					.filter((type): type is Type => !!type);
+				
+				// Don't bother returning an empty array, this will
+				// just create one more thing that the API consumer
+				// will need to check for.
+				return this._types = types.length > 0 ? types : null;
 			}
 			else if (this.area === InspectedArea.annotation)
+			{
+				const types = this.statement.declarations
+					.flatMap(decl => Phrase.fromSpan(decl))
+					.map(phrase => Type.construct(phrase))
+					.filter((type): type is Type => !!type);
+				
+				return this._types = types.length > 0 ? types : null;
+			}
+			
+			return this._types = null;
+		}
+		private _types: readonly Type[] | null | undefined;
+		
+		/**
+		 * 
+		 */
+		get keyword(): Keyword | null
+		{
+			if (this._keyword !== undefined)
+				return this._keyword;
+			
+			while (this.area === InspectedArea.annotation)
 			{
 				const offset = this.column - 1;
 				const anno = this.statement.getAnnotation(offset);
 				
-				// Return an empty string in the case when the inspected area
-				// is in the annotation side, but there is no actual annotation present.
+				// Return null in the case when the inspected area is in the 
+				// annotation side, but there is no actual annotation present.
 				// This can happen when the statement looks like "Type : "
 				if (!anno)
-					return this._hit = "";
+					break;
 				
 				// We can safely construct phrases from the first declaration,
 				// because all phrases returned in this case are going to allow
@@ -139,16 +165,18 @@ namespace Truth
 					// the thing that was hit has a fault on it. In this case, we
 					// just return a string containing the hit content.
 					if (!keyword)
-						return this._hit = annoText;
+						break;
 					
 					if (keyword)
-						return this._hit = keyword;
+						return this._keyword = keyword;
 				}
+				
+				break;
 			}
 			
-			return this._hit = [];
+			return this._keyword = null;
 		}
-		private _hit: Keyword | readonly Type[] | string | null = null;
+		private _keyword: Keyword | null | undefined;
 	}
 	
 	/**
