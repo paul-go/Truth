@@ -501,7 +501,7 @@ namespace Truth
 				yield new Fault(Faults.PatternCanMatchEmpty, this);
 			
 			if (!pattern.isTotal)
-				for (const unit of pattern.eachUnit())
+				for (const unit of pattern.walk())
 					if (unit instanceof RegexGrapheme)
 						if (unit.grapheme === Syntax.combinator)
 						{

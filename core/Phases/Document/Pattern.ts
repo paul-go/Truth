@@ -42,7 +42,7 @@ namespace Truth
 		/**
 		 * Recursively enumerates through this Pattern's unit structure.
 		 */
-		*eachUnit()
+		*walk()
 		{
 			function *recurse(units: readonly (RegexUnit | Infix)[]):
 				IterableIterator<RegexUnit | Infix>
@@ -75,7 +75,7 @@ namespace Truth
 			if (this._canMatchCombinator !== null)
 				return this._canMatchCombinator;
 			
-			const units = Array.from(this.eachUnit());
+			const units = Array.from(this.walk());
 			
 			for (const unit of units)
 			{
@@ -165,7 +165,7 @@ namespace Truth
 				const idxArray: number[] = [];
 				let idx = 0;
 				
-				for (const unit of this.eachUnit())
+				for (const unit of this.walk())
 				{
 					if (unit instanceof Infix)
 						idxArray.push(++idx);

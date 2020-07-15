@@ -1,5 +1,5 @@
 
-namespace CoverTruth
+namespace Cover
 {
 	/**
 	 * 
@@ -137,6 +137,18 @@ namespace CoverTruth
 	}
 	
 	/**
+	 * Ensures that the specified value is a Truth.Type instance,
+	 * and generates an exception in other cases.
+	 */
+	export function asType(type: any): Truth.Type
+	{
+		if (!(type instanceof Truth.Type))
+			throw new Error("Parameter is not a Truth.Type");
+		
+		return type;
+	}
+	
+	/**
 	 * 
 	 */
 	export function homographOf(
@@ -243,3 +255,6 @@ namespace CoverTruth
 		return lines.join("\n");
 	}
 }
+
+if (typeof module === "object")
+	module.exports = { Cover };

@@ -1,5 +1,5 @@
 
-namespace CoverTruth
+namespace Cover
 {
 	/** */
 	export async function coverTypeApiExplicitStatements()
@@ -10,13 +10,12 @@ namespace CoverTruth
 				Field
 		`);
 		
-		const targetType = program.queryDocument(doc, "Class", "Field");
+		const targetType = asType(program.queryDocument(doc, "Class", "Field"));
 		const targetStatements = targetType instanceof Truth.Type ?
 			targetType.statements :
 			[];
 		
 		return [
-			() => targetType instanceof Truth.Type,
 			() => targetStatements.length === 2,
 			() => targetStatements[0] === doc.read(1),
 			() => targetStatements[0] === doc.read(2)
@@ -40,6 +39,26 @@ namespace CoverTruth
 		return [
 			() => targetType instanceof Truth.Type,
 			() => targetStatements.length === 0
+		];
+	}
+	
+	/** */
+	export async function coverTypeApiListExtrinsic()
+	{
+		const [doc, program] = await createLanguageCover(`
+			A
+			B : A...
+			C : B
+		`);
+		
+		const typeA = asType(program.queryDocument(doc, "A"));
+		const typeB = asType(program.queryDocument(doc, "B"));
+		const typeC = asType(program.queryDocument(doc, "C"));
+		
+		return [
+			() => !typeA.isListExtrinsic,
+			() => typeB.isListExtrinsic,
+			() => typeC.isListExtrinsic
 		];
 	}
 }

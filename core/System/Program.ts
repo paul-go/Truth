@@ -477,8 +477,9 @@ namespace Truth
 		 * @param minLevelFilter An optional minimum level of depth
 		 * (inclusive) at which to yield Types.
 		 * @param maxLevelFilter An optional The maximum level of
-		 * depth (inclusive) at which to yield Types. Negative numbers
-		 * indicate no maximum.
+		 * depth (inclusive) at which to yield Types. If a negative number
+		 * is provided, or the argument is omitted, this will avoid yielding
+		 * implicit types defined the document, but will yield all others.
 		 * @param documentFilter An optional document, or set of
 		 * documents whose Types should be yielded.
 		 */
@@ -498,7 +499,7 @@ namespace Truth
 			if (documentFilter instanceof Document)
 				documents = [documentFilter];
 			
-			else if (Array.isArray(documentFilter))
+			else if (Array.isArray(documentFilter) && documentFilter.length > 0)
 				documents = documentFilter;
 			
 			else
@@ -520,7 +521,10 @@ namespace Truth
 				
 				for (const type of queue)
 				{
-					if (type.level <= maxLevelFilter)
+					if (type.level > 1 && maxLevelFilter === Number.MAX_SAFE_INTEGER)
+						queue.push(...type.containees.filter(t => t.isExplicit));
+					
+					else if (type.level <= maxLevelFilter)
 						queue.push(...type.containees);
 					
 					if (minLevelFilter <= type.level)
@@ -701,6 +705,22 @@ namespace Truth
 				typeof clarifier === "string" ? [clarifier] : clarifier);
 			
 			return phrase ? Type.construct(phrase) : null;
+		}
+		
+		/**
+		 * 
+		 */
+		where(
+			predicate: (type: Type) => boolean,
+			documents: Document[] = []): readonly Type[]
+		{
+			const types: Type[] = [];
+			
+			for (const { type } of this.scan(1, 1, documents))
+				if (predicate(type))
+					types.push(type);
+			
+			return types;
 		}
 		
 		/**

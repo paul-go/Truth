@@ -518,10 +518,14 @@ namespace Truth
 			parallel._intrinsicExtrinsicBridge = this;
 		}
 		
-		/** */
+		/**
+		 * Returns the number of dimensions in the list,
+		 * computed by traversing up the base graph.
+		 */
 		getListDimensionality(): number
 		{
-			// NOTE: This actually needs to be "each base inferred"
+			if (this.dimensionality >= 0)
+				return this.dimensionality;
 			
 			// This is purposely only returning the dimensionality of
 			// the first base. There is a guarantee that all dimensionalities
@@ -532,12 +536,16 @@ namespace Truth
 				if (!fork)
 					continue;
 				
-				const initialDim = base.getListDimensionality();
-				return fork.term.isList ? initialDim + 1 : initialDim;
+				const baseDim = base.getListDimensionality();
+				const dim = fork.term.isList ? baseDim + 1 : baseDim;
+				return this.dimensionality = dim;
 			}
 			
-			return 0;
+			return this.dimensionality = 0;
 		}
+		
+		/** Cached result for getListDimensionality() */
+		private dimensionality = -1;
 		
 		/**
 		 * 

@@ -866,8 +866,10 @@ namespace Truth
 					});
 			};
 			
-			const doTriggerHandlers = () =>
+			const finalize = () =>
 			{
+				this.program.uncheckDocument(this);
+				
 				if (hasChangeHandlers)
 					this.program.emit("statementChange", this, changeInfos);
 			};
@@ -931,11 +933,11 @@ namespace Truth
 						}
 					},
 					createPhrases() {},
-					finalize: async () => doTriggerHandlers()
+					finalize: async () => finalize()
 				};
 			}
 			
-			const finalize = async () =>
+			const finalizeAfterComplex = async () =>
 			{
 				// Perform a debug-time check to be sure that there are
 				// no disposed statements left hanging around in the document
@@ -956,8 +958,7 @@ namespace Truth
 				if (addedUriSmts.length + deletedUriSmts.length > 0)
 					await this.updateReferences(deletedUriSmts, addedUriSmts);
 				
-				this.program.uncheckDocument(this);
-				doTriggerHandlers();
+				finalize();
 			};
 			
 			// This is an optimization that catches the case when there are only
@@ -1005,7 +1006,7 @@ namespace Truth
 						
 						Phrase.inflateRecursive(inflate);
 					},
-					finalize
+					finalize: finalizeAfterComplex
 				};
 			}
 			
@@ -1024,7 +1025,7 @@ namespace Truth
 						for (const statement of self.getChildren())
 							Phrase.inflateRecursive([statement]);
 					},
-					finalize
+					finalize: finalizeAfterComplex
 				}
 			}
 			
@@ -1206,7 +1207,7 @@ namespace Truth
 					
 					Phrase.inflateRecursive(inflations);
 				},
-				finalize
+				finalize: finalizeAfterComplex
 			}
 		}
 		

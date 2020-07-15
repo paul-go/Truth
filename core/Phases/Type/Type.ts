@@ -91,8 +91,10 @@ namespace Truth
 					const sub = seed.phrase.terminal;
 					
 					if (sub instanceof Pattern)
+					{
 						type.flags |= Flags.isPattern;
-					
+						type._pattern = sub;
+					}
 					else if (sub instanceof KnownUri)
 						type.flags |= Flags.isUri;
 					
@@ -103,6 +105,15 @@ namespace Truth
 						type.flags |= Flags.isFresh;
 					
 					type.flags |= Flags.isExplicit;
+					
+					// As Truth's lists are currently in an under-developed state,
+					// the API is currently just storing a binary flag about whether
+					// the type is a list extrinstic (list intrinsics are not currently
+					// being reported). A future, more advanced API may report
+					// the actual dimensionality of the list as a number.
+					const dim = seed.getListDimensionality();
+					if (dim > 0)
+						type.flags |= Flags.isListExtrinsic;
 				}
 				
 				if (type.keywords.some(key => key.word === type.name))
@@ -459,12 +470,22 @@ namespace Truth
 		private _subordinates: readonly Type[] | null = null;
 		
 		/**
+		 * Gets any Pattern object that is embedded within this
+		 * Type, or null in the case when the type is not a pattern.
+		 */
+		get pattern()
+		{
+			return this._pattern;
+		}
+		private _pattern: Pattern | null = null;
+		
+		/**
 		 * Gets an array that contains the patterns that resolve to this Type.
 		 */
-		get patterns()
+		eachReferencingPattern()
 		{
-			if (this._patterns !== null)
-				return this._patterns;
+			if (this._referencingPatterns !== null)
+				return this._referencingPatterns;
 			
 			// Stores a map whose keys are a concatenation of the Uris of all
 			// the bases that are matched by a particular pattern, and whose
@@ -492,10 +513,10 @@ namespace Truth
 				}
 			}
 			
-			const out = Array.from(patternMap.values());
-			return this._patterns = Object.freeze(out);
+			const types = Array.from(patternMap.values());
+			return this._referencingPatterns = Object.freeze(types);
 		}
-		private _patterns: readonly Type[] | null = null;
+		private _referencingPatterns: readonly Type[] | null = null;
 		
 		/**
 		 * Gets a table of information about the keywords that are 
@@ -861,7 +882,7 @@ namespace Truth
 				write(".supers", this.supers);
 				write(".supervisors", this.supervisors);
 				write(".adjacents", this.adjacents);
-				write(".patterns", this.patterns);
+				write(".pattern", [this.pattern?.toString() || ""]);
 				write(".alias", [this.alias]);
 				
 				lines.shift();

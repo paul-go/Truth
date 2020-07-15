@@ -59,18 +59,19 @@ namespace Truth
 			readonly textContent: string,
 			forceSingular: boolean)
 		{
-			this.singular = this;
 			this.hash = this.tryExtractHash(textContent);
 			
-			const listTok = Syntax.list;
-			const tokLen = listTok.length;
-			const isList = textContent.length > tokLen + 1 && textContent.slice(-tokLen) === listTok;
+			const tokLen = Syntax.list.length;
+			const isList =
+				textContent.length > tokLen && 
+				textContent.slice(-tokLen) === Syntax.list;
 			
 			if (isList && !forceSingular)
 			{
 				this.textContent = textContent.slice(0, -tokLen);
 				this.singular = Term.internalFrom(this.textContent, true);
 			}
+			else this.singular = this;
 		}
 		
 		/** @internal */
