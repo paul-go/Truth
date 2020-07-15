@@ -24,7 +24,7 @@
 	"launch": {
 		"configurations": [
 			{
-				"name": "Debug in NodeJS",
+				"name": "Debug Truth in NodeJS",
 				"type": "node",
 				"request": "launch",
 				"program": "${workspaceRoot}/node_modules/moduless/build/moduless.js",
