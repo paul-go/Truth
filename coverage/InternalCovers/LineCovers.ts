@@ -8,9 +8,9 @@
  * to the parser.
  */
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse1()
+	export function coverLineParse1()
 	{
 		return createLineCover("", {
 			whitespace: true,
@@ -19,9 +19,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse2()
+	export function coverLineParse2()
 	{
 		return createLineCover("Backslash\\", {
 			emit: "Backslash\\"
@@ -29,9 +29,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse3()
+	export function coverLineParse3()
 	{
 		return createLineCover("A,B: C,D", {
 			emit: "A, B : C, D",
@@ -40,9 +40,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse4()
+	export function coverLineParse4()
 	{
 		return createLineCover("\\A", {
 			emit: "A"
@@ -50,9 +50,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse5()
+	export function coverLineParse5()
 	{
 		return createLineCover("A:B: C", {
 			emit: "A:B : C",
@@ -61,9 +61,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse9()
+	export function coverLineParse9()
 	{
 		return createLineCover("TabSpcTabSpc\t \t : \t TabSpc", {
 			annotations: "TabSpc",
@@ -72,9 +72,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse10()
+	export function coverLineParse10()
 	{
 		return createLineCover(": Anon1, Anon2", {
 			annotations: ["Anon1", "Anon2"],
@@ -83,9 +83,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse11()
+	export function coverLineParse11()
 	{
 		return createLineCover("\t:\tAnon", {
 			annotations: ["Anon"],
@@ -94,9 +94,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse12()
+	export function coverLineParse12()
 	{
 		return createLineCover("\t\t", {
 			emit: "\t\t"
@@ -104,9 +104,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse13()
+	export function coverLineParse13()
 	{
 		return createLineCover(" \t ", {
 			emit: "\t\t\t"
@@ -116,9 +116,9 @@ namespace CoverTruth
 
 //# URIs
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse14()
+	export function coverLineParse14()
 	{
 		return createLineCover("/x.truth", {
 			uri: true
@@ -126,9 +126,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse15()
+	export function coverLineParse15()
 	{
 		return createLineCover("./file-with-unknown-extension.txt", {
 			uri: undefined
@@ -136,9 +136,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse16()
+	export function coverLineParse16()
 	{
 		return createLineCover("./path/file.truth", {
 			uri: true
@@ -146,9 +146,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse17()
+	export function coverLineParse17()
 	{
 		return createLineCover("../../path/file.truth", {
 			uri: true
@@ -156,9 +156,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse18()
+	export function coverLineParse18()
 	{
 		return createLineCover("http://path/to/file.truth", {
 			uri: true
@@ -166,9 +166,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse19()
+	export function coverLineParse19()
 	{
 		return createLineCover("http://127.0.0.1:8000/file.truth", {
 			uri: true
@@ -176,9 +176,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse20()
+	export function coverLineParse20()
 	{
 		return createLineCover("http://127.0.0.1:800099/file.truth", {
 			uri: undefined
@@ -186,9 +186,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse21()
+	export function coverLineParse21()
 	{
 		return createLineCover("http://127.0.0.1:8000XYZ/file.truth", {
 			uri: undefined
@@ -196,9 +196,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse22()
+	export function coverLineParse22()
 	{
 		return createLineCover("/absolute/file.truth", {
 			uri: true
@@ -208,9 +208,9 @@ namespace CoverTruth
 
 //# Comments
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse23()
+	export function coverLineParse23()
 	{
 		return createLineCover("//", {
 			comment: true
@@ -218,9 +218,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse24()
+	export function coverLineParse24()
 	{
 		return createLineCover("\t//", {
 			comment: true
@@ -228,9 +228,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse25()
+	export function coverLineParse25()
 	{
 		return createLineCover(" //", {
 			comment: true
@@ -238,9 +238,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse26()
+	export function coverLineParse26()
 	{
 		return createLineCover("// ", {
 			comment: true
@@ -248,9 +248,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse27()
+	export function coverLineParse27()
 	{
 		return createLineCover("// :", {
 			comment: true
@@ -260,9 +260,9 @@ namespace CoverTruth
 
 //# Escaping
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse28()
+	export function coverLineParse28()
 	{
 		return createLineCover("D\\: E: F", {
 			emit: "D\\: E : F",
@@ -271,9 +271,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse29()
+	export function coverLineParse29()
 	{
 		return createLineCover("\\ SpaceThenEscape", {
 			emit: "\tSpaceThenEscape"
@@ -281,9 +281,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse30()
+	export function coverLineParse30()
 	{
 		return createLineCover("\\ \\ I'm : Drunk", {
 			emit: "\t\tI'm : Drunk",
@@ -292,9 +292,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse31()
+	export function coverLineParse31()
 	{
 		return createLineCover("\\\t \\ \\\tEsc-Tab-Spc-Esc-Spc-Esc-Tab", {
 			emit: "\t\t\t\tEsc-Tab-Spc-Esc-Spc-Esc-Tab"
@@ -304,9 +304,9 @@ namespace CoverTruth
 
 //# Strange slash usage
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse32()
+	export function coverLineParse32()
 	{
 		return createLineCover("/", {
 			unparsable: true
@@ -314,9 +314,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse33()
+	export function coverLineParse33()
 	{
 		return createLineCover("/ :", {
 			unparsable: true
@@ -324,9 +324,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse34()
+	export function coverLineParse34()
 	{
 		return createLineCover("\\/", {
 			emit: "\\/",
@@ -336,9 +336,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse35()
+	export function coverLineParse35()
 	{
 		return createLineCover("A, /, B : C, /, D", {
 			emit: "A, \\/, B : C, /, D",
@@ -348,9 +348,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse36()
+	export function coverLineParse36()
 	{
 		return createLineCover("/, A, B", {
 			// Why is this unparsable?
@@ -361,9 +361,9 @@ namespace CoverTruth
 
 //# Unicode
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse37()
+	export function coverLineParse37()
 	{
 		return createLineCover("🐇 : Bunny", {
 			emit: "🐇 : Bunny"
@@ -371,9 +371,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse38()
+	export function coverLineParse38()
 	{
 		return createLineCover("🐇, 🐇 : 🐇, 🐇", {
 			emit: "🐇, 🐇 : 🐇, 🐇"
@@ -381,9 +381,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse39()
+	export function coverLineParse39()
 	{
 		return createLineCover("Σ, 🐇, ★ : Sigma, Bunny, Star", {
 			emit: "Σ, 🐇, ★ : Sigma, Bunny, Star"
@@ -391,9 +391,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse40()
+	export function coverLineParse40()
 	{
 		return createLineCover("\u{1F407} : NotBunny", {
 			emit: "\u{1F407} : NotBunny"
@@ -403,9 +403,9 @@ namespace CoverTruth
 
 //# Strange colon usage
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse41()
+	export function coverLineParse41()
 	{
 		return createLineCover("A : B\\", {
 			emit: "A : B\\",
@@ -414,9 +414,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse42()
+	export function coverLineParse42()
 	{
 		return createLineCover(":::", {
 			emit: ":: :",
@@ -425,9 +425,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse43()
+	export function coverLineParse43()
 	{
 		return createLineCover("::\\: :", {
 			emit: "::: :",
@@ -436,9 +436,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse44()
+	export function coverLineParse44()
 	{
 		return createLineCover(":: :\\:", {
 			emit: ": : ::",
@@ -449,9 +449,9 @@ namespace CoverTruth
 
 //# Strange comma usage
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse45()
+	export function coverLineParse45()
 	{
 		return createLineCover("X,,,", {
 			emit: "X",
@@ -460,9 +460,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse46()
+	export function coverLineParse46()
 	{
 		return createLineCover(",", {
 			unparsable: true
@@ -470,9 +470,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse47()
+	export function coverLineParse47()
 	{
 		return createLineCover(", A, B : C, D", {
 			unparsable: true
@@ -482,9 +482,9 @@ namespace CoverTruth
 
 //# Pattern Partiality & Totality flags
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse48()
+	export function coverLineParse48()
 	{
 		return createLineCover("/total/ : X", {
 			annotations: "X",
@@ -494,9 +494,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse49()
+	export function coverLineParse49()
 	{
 		return createLineCover("/partial : X", {
 			annotations: "X",
@@ -506,9 +506,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse50()
+	export function coverLineParse50()
 	{
 		return createLineCover("/partial-with-escaped-delimiter\\/ : X", {
 			annotations: "X",
@@ -518,9 +518,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse51()
+	export function coverLineParse51()
 	{
 		return createLineCover("/partial/with/slashes : X", {
 			annotations: "X",
@@ -530,9 +530,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse52()
+	export function coverLineParse52()
 	{
 		return createLineCover("\\/non-pattern/ : X", {
 			annotations: "X",
@@ -543,9 +543,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse53()
+	export function coverLineParse53()
 	{
 		return createLineCover("/foo/, : X", {
 			partial: true,
@@ -555,9 +555,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse54()
+	export function coverLineParse54()
 	{
 		return createLineCover("/foo/, bar : X", {
 			partial: true,
@@ -569,9 +569,9 @@ namespace CoverTruth
 
 //# Pattern Sets
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse55()
+	export function coverLineParse55()
 	{
 		return createLineCover("/[A-Z]/ : X", {
 			annotations: "X",
@@ -582,9 +582,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse56()
+	export function coverLineParse56()
 	{
 		return createLineCover("/[A-Z\\d]/ : X", {
 			annotations: "X",
@@ -595,9 +595,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse57()
+	export function coverLineParse57()
 	{
 		return createLineCover("/[A\\tB] : X", {
 			annotations: "X",
@@ -608,9 +608,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse58()
+	export function coverLineParse58()
 	{
 		return createLineCover("/[\\t-\\\\]/ : X", {
 			annotations: "X",
@@ -621,9 +621,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse59()
+	export function coverLineParse59()
 	{
 		return createLineCover("/-[\\t-\\\\]-/ : X", {
 			annotations: "X",
@@ -635,9 +635,9 @@ namespace CoverTruth
 
 //# Patterns with unicode
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse60()
+	export function coverLineParse60()
 	{
 		return createLineCover("/\\u{1F407}/", {
 			total: true,
@@ -647,9 +647,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse61()
+	export function coverLineParse61()
 	{
 		return createLineCover("/\\uFFFF🐇 : X", {
 			partial: true,
@@ -659,9 +659,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse62()
+	export function coverLineParse62()
 	{
 		return createLineCover("/\\u{FFFF🐇 : X", {
 			partial: true,
@@ -671,9 +671,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse63()
+	export function coverLineParse63()
 	{
 		return createLineCover("/\\u{Thai}", {
 			partial: true,
@@ -685,9 +685,9 @@ namespace CoverTruth
 
 //# Pattern Quantifiers
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse64()
+	export function coverLineParse64()
 	{
 		return createLineCover("/\\d+ : X", {
 			annotations: "X",
@@ -697,9 +697,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse65()
+	export function coverLineParse65()
 	{
 		return createLineCover("/x\\d* : X", {
 			annotations: "X",
@@ -709,9 +709,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse66()
+	export function coverLineParse66()
 	{
 		return createLineCover("/x\\d{0} : X", {
 			annotations: "X",
@@ -722,9 +722,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse67()
+	export function coverLineParse67()
 	{
 		return createLineCover("/\\d{3,} : X", {
 			annotations: "X",
@@ -735,9 +735,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse68()
+	export function coverLineParse68()
 	{
 		return createLineCover("/\\d{3,6} : X", {
 			annotations: "X",
@@ -750,9 +750,9 @@ namespace CoverTruth
 
 //# Non Pattern Quantifiers
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse69()
+	export function coverLineParse69()
 	{
 		return createLineCover("/\\d{,3} : X", {
 			annotations: "X",
@@ -763,9 +763,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse70()
+	export function coverLineParse70()
 	{
 		return createLineCover("/\\d{x,} : X", {
 			annotations: "X",
@@ -775,9 +775,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse71()
+	export function coverLineParse71()
 	{
 		return createLineCover("/\\d{} : X", {
 			annotations: "X",
@@ -787,9 +787,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse72()
+	export function coverLineParse72()
 	{
 		return createLineCover("/\\d{ } : X", {
 			annotations: "X",
@@ -801,9 +801,9 @@ namespace CoverTruth
 
 //# Pattern Groups
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse73()
+	export function coverLineParse73()
 	{
 		return createLineCover("/(A|B) : X", {
 			annotations: "X",
@@ -814,9 +814,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse74()
+	export function coverLineParse74()
 	{
 		return createLineCover("/(A||B) : X", {
 			annotations: "X",
@@ -827,9 +827,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse75()
+	export function coverLineParse75()
 	{
 		return createLineCover("/(A|B|C|D) : X", {
 			annotations: "X",
@@ -839,9 +839,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse76()
+	export function coverLineParse76()
 	{
 		return createLineCover("/([0-5]|[a-c]|[e-f]) : X", {
 			annotations: "X",
@@ -851,9 +851,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse77()
+	export function coverLineParse77()
 	{
 		return createLineCover("/([0-5]*|[a-c]+|[e-f]{2}) : X", {
 			annotations: "X",
@@ -866,9 +866,9 @@ namespace CoverTruth
 
 //# Pattern with escapables
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse78()
+	export function coverLineParse78()
 	{
 		return createLineCover("/(\\+)", {
 			partial: true,
@@ -879,9 +879,9 @@ namespace CoverTruth
 
 //# Pattern Infixes
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse79()
+	export function coverLineParse79()
 	{
 		return createLineCover("/</Pat/> : X", {
 			partial: true,
@@ -891,9 +891,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse80()
+	export function coverLineParse80()
 	{
 		return createLineCover("/< : Port> : X", {
 			partial: true,
@@ -903,9 +903,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse81()
+	export function coverLineParse81()
 	{
 		return createLineCover("/<Pop> : X", {
 			partial: true,
@@ -915,9 +915,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse82()
+	export function coverLineParse82()
 	{
 		return createLineCover("/<Pop1, Pop2> : X", {
 			partial: true,
@@ -927,9 +927,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse83()
+	export function coverLineParse83()
 	{
 		return createLineCover("/==<A, B : C, D>==<E, F : G, H>==/ : X, Y, Z", {
 			total: true,
@@ -944,9 +944,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse84()
+	export function coverLineParse84()
 	{
 		return createLineCover("/<Pop1, Pop2 : A, B> : X", {
 			partial: true,
@@ -956,9 +956,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse85()
+	export function coverLineParse85()
 	{
 		return createLineCover("/<<Nom>> : X", {
 			partial: true,
@@ -968,9 +968,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse86()
+	export function coverLineParse86()
 	{
 		return createLineCover("/==(<These>|<Arent>|<Infixes>)== : X", {
 			infixes: [],
@@ -979,9 +979,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse87()
+	export function coverLineParse87()
 	{
 		return createLineCover("/==<InfixWithStar>*== : X", {
 			unparsable: true
@@ -989,9 +989,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse88()
+	export function coverLineParse88()
 	{
 		return createLineCover("/==<InfixWithPlus>+== : X", {
 			unparsable: true
@@ -999,9 +999,9 @@ namespace CoverTruth
 	}
 }
 
-namespace CoverTruth
+namespace Cover
 {
-	function coverLineParse89()
+	export function coverLineParse89()
 	{
 		return createLineCover("/==<InfixWithRange>{1,2}== : X", {
 			unparsable: true

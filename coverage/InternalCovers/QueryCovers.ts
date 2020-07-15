@@ -1,7 +1,8 @@
 
-namespace CoverTruth
+namespace Cover
 {
-	async function coverProgramQuery()
+	/** */
+	export async function coverProgramQuery()
 	{
 		const [doc] = await createLanguageCover(`
 			a

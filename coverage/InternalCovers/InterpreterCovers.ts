@@ -1,5 +1,5 @@
 
-namespace CoverTruth
+namespace Cover
 {
 	/** */
 	export async function coverBasicInterpreter()
@@ -30,4 +30,4 @@ namespace CoverTruth
 }
 
 if (typeof module === "object")
-	module.exports = { CoverTruth };
+	module.exports = { Cover };

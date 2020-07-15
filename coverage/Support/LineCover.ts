@@ -1,5 +1,5 @@
 
-namespace CoverTruth
+namespace Cover
 {
 	/**
 	 * A fixture for a cover function that captures the behavior of parsing

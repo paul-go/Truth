@@ -1,5 +1,5 @@
 
-namespace CoverTruth
+namespace Cover
 {
 	async function coverSimpleUriChange()
 	{

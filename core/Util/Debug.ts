@@ -1,7 +1,7 @@
 
 namespace Truth
 {
-	/** @interal */
+	/** @internal */
 	export const Debug = "DEBUG" && new class Debug
 	{
 		/**

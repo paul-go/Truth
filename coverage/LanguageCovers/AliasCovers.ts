@@ -1,5 +1,5 @@
 
-namespace CoverTruth
+namespace Cover
 {
 	/** 
 	 * This example demonstrates 

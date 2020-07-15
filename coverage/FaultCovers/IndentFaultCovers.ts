@@ -1,5 +1,5 @@
 
-namespace CoverTruth
+namespace Cover
 {
 	const t = Truth.Syntax.tab;
 	const s = Truth.Syntax.space;
