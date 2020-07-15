@@ -38,7 +38,6 @@ namespace Truth
 			
 			result.unshift("^");
 			result.push("$");
-			
 			const regText = result.join("");
 			
 			try

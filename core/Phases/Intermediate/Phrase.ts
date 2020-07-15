@@ -35,6 +35,8 @@ namespace Truth
 		}
 		
 		/**
+		 * @internal
+		 * @deprecated
 		 * Finds a possible Phrase object, which is identified by an phrase path
 		 * string.
 		 * 
