@@ -177,7 +177,16 @@ namespace Truth
 			this.phrase = phrase;
 		}
 		
-		/** @internal */
+		/** 
+		 * Stores a unique runtime ID for this Type. The ID is a small
+		 * positive integer, which is guaranteed to be unique across 
+		 * all other Types loaded into the containing Program, and
+		 * all other Types loaded into other Programs in the host 
+		 * environment. However, the uniqueness of the ID does 
+		 * not hold between lifetimes of the host environment,
+		 * and therefore should not be used as a kind of GUID
+		 * or primary key that refers to the Type indefinitely.
+		 */
 		readonly id = id();
 		
 		/**
@@ -853,7 +862,7 @@ namespace Truth
 		 * Returns a string representation of this Type, suitable for
 		 * debugging purposes.
 		 */
-		toString(kind: "path" | "full" = "path")
+		toString(kind: "terms" | "path" | "full" = "terms")
 		{
 			if ("DEBUG" && kind === "full")
 			{
@@ -888,6 +897,11 @@ namespace Truth
 				lines.shift();
 				return lines.join("\n");
 			}
+			
+			if (kind === "terms")
+				return this.phrase.ancestry
+					.map(ph => ph.terminal.toString())
+					.join("/");
 			
 			return this.phrase.toString();
 		}
