@@ -48,6 +48,12 @@ namespace Truth
 		/** */
 		private constructor(private stamp: number | bigint) { }
 		
+		/** */
+		copy()
+		{
+			return new Version(this.stamp);
+		}
+		
 		/**
 		 * Increases the internal version number to the next available value.
 		 */
@@ -68,9 +74,9 @@ namespace Truth
 		/**
 		 * Returns whether this version is newer than the one specified.
 		 */
-		after(other: Version)
+		after(other: ReadonlyVersion)
 		{
-			return this.stamp > other.stamp;
+			return this.stamp > (other as Version).stamp;
 		}
 		
 		/**

@@ -62,7 +62,7 @@ namespace Truth
 		 */
 		get version(): ReadonlyVersion
 		{
-			return this._version;
+			return this._version.copy();
 		}
 		private _version = Version.next();
 		
