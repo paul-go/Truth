@@ -48,7 +48,7 @@ namespace Truth
 				throw new ReferenceError();
 			}
 			
-			return param as NotNull<T> | NotUndefined<T>;
+			return param as NotNull<T> & NotUndefined<T>;
 		}
 	}
 
